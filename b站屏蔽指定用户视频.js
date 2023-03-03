@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         b站屏蔽指定用户频道排行榜视频
-// @version      0.1
-// @description  屏蔽场景，频道的排行榜读音用户视频
+// @version      0.2
+// @description  屏蔽频道页面下的指定用户黑名单视频，可根据用户名和用户uid进行屏蔽
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -13,12 +13,18 @@
  * 用户名黑名单模式
  * @type {string[]}
  */
-const arr = ["疯狂暗示00", "silly沐"];
+const userNameArr = ["疯狂暗示00", "silly沐"];
 /**
  * 用户uid黑名单模式
  * @type {number[]}
  */
-const arrid = [3493087556930157];
+const userUIDArr = [3493087556930157];
+
+/**
+ * 视频标题关键词
+ * @type {string[]}
+ */
+const  videoNameArr=["感觉不如"];
 
 /**
  * 隐藏对应元素的视频
@@ -43,10 +49,18 @@ function startExtracted(vdoc, arr, arrid) {
     const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
     const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
     const id = parseInt(upSpatialAddress.substring(lastIndexOf));
-    if (arrid.includes(id)) {
+    if (arrid===id) {
       element.style.display = "none";
-      console.log("已通过id=【" + id +"】屏蔽指定黑名单用户【"+ uPameText+"】视频="+ uPameText);
+      console.log("已通过id=【" + id +"】屏蔽指定黑名单用户【"+ uPameText+"】视频="+ videoName);
+      continue;
     }
+    for (let str of videoNameArr) {
+      if (videoName.includes(str)) {
+        element.style.display = "none";
+        console.log("已通过视频标题关键词=【" + str +"】屏蔽指定黑名单用户【"+ uPameText+"】视频="+ videoName);
+      }
+    }
+
   }
 }
 
@@ -70,7 +84,7 @@ function extracted(arr, arrid) {
 
 (function () {
   'use strict';
-  extracted(arr, arrid);
+  extracted(userNameArr, userUIDArr);
   ah.proxy({
     // //请求发起前进入
     onRequest: (config, handler) => {
@@ -86,7 +100,7 @@ function extracted(arr, arrid) {
       handler.next(response);
       if (responseURL.includes("https://api.bilibili.com/x/web-interface/web/channel/multipl")) {
         console.log("检测到符合要求的请求=" + responseURL);
-        extracted(arr, arrid);
+        extracted(userNameArr, userUIDArr);
       }
     }
   });
