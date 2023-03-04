@@ -97,8 +97,11 @@ function startExtracted(vdoc) {
     return temp;
 }
 
+/**
+ * 删除搜索页面的视频元素
+ * @param videoList
+ */
 function searchRules(videoList) {
-    console.log(videoList.length)
     for (let v of videoList) {
         let info = v.getElementsByClassName("bili-video-card__info--right")[0];
         let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
@@ -111,11 +114,11 @@ function searchRules(videoList) {
         if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
             console.log("检测到不是正常视频内容，故隐藏该元素")
             //如果获取的类型不符合规则则结束本轮
-            v.remove();
+            v.parentNode.remove();
             continue;
         }
         let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        shieldUserNameOrUIDOrTitle(v, name, id, title);
+        shieldUserNameOrUIDOrTitle(v.parentNode, name, id, title);
     }
 }
 
@@ -179,32 +182,33 @@ function frequencyChannelRules() {
  * @param href{String} url链接
  */
 function ruleList(href) {
-    if (href.includes("https://search.bilibili.com/all")) {//搜索页面-综合
-        while (true) {
-            const list = document.getElementsByClassName("col_3 col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
-            const tempListLength = list.length;
-            if (tempListLength === 0) {
-                break;
-            }
-            searchRules(list);
-            if (tempListLength === list.length) {
-                console.log("页面元素没有变化，故退出循环")
-                break;
-            }
-        }
-    }
-    if (href.includes("search.bilibili.com/video")) {//搜索界面-视频
-        console.log("搜索界面-视频")
-        const interval = setInterval(function () {
-            var list = document.getElementsByClassName("video-list-item col_3 col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
-            if (list !== 0) {
-                console.log("获取成功！" + list.length)
+    //https://search.bilibili.com/all?keyword=%E5%8E%9F%E7%A5%9E&page=2&o=36
+    if (href.includes("https://search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
+        const interval = setInterval(() => {
+            while (true) {
+                const list = document.getElementsByClassName("bili-video-card");
+                const tempListLength = list.length;
+                if (tempListLength === 0) {
+                    break;
+                }
+                try {//删除搜索到的精确结果元素
+                    document.getElementsByClassName("activity-game-list i_wrapper search-all-list")[0].remove();
+                    console.log("删除搜索到的精确结果元素")
+                } catch (e) {
+                }
+                try {//删除搜索到的精确用户结果元素
+                    document.getElementsByClassName("user-list search-all-list")[0].remove();
+                    console.log("删除搜索到的精确用户结果元素")
+                } catch (e) {
+                }
                 searchRules(list);
-                clearInterval(interval)
-                return;
+                if (tempListLength === list.length) {
+                    clearInterval(interval);
+                    console.log("页面元素没有变化，故退出循环")
+                    break;
+                }
             }
-            console.log("搜索界面-视频-获取失败！")
-        }, 1000);
+        }, 500);
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
         const video_page_card_small = document.getElementsByClassName("video-page-card-small");
