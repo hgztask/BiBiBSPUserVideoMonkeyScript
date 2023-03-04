@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         b站屏蔽指定用户或者关键词视频
 // @version      0.5
-// @description  根据用户名、uid和视频关键词进行屏蔽视频，作用场所，频道，首页推荐
+// @description  根据用户名、uid和视频关键词进行屏蔽视频，作用场所，频道，首页推荐，搜索页面
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match       *search.bilibili.com/all?keyword=*&page=*&o=*
