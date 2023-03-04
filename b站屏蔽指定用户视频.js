@@ -17,7 +17,7 @@
  * 用户名黑名单模式
  * @type {string[]}
  */
-const userNameArr = [];
+const userNameArr = ["战双帕弥什"];
 /**
  * 用户uid黑名单模式
  * @type {number[]}
@@ -33,6 +33,16 @@ const userUIDArr = [3493087556930157, 128154158, 27534330, 401742377];
  */
 const videoNameArr = ["感觉不如", "对标原神", "原神"];
 
+
+/**
+ * 获取当前网页的url
+ * @returns {string}
+ */
+function getWindowUrl() {
+    return window.location.href;
+}
+
+
 /**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
@@ -44,18 +54,18 @@ const videoNameArr = ["感觉不如", "对标原神", "原神"];
  */
 function shieldUserNameOrUIDOrTitle(element, name, uid, title) {
     if (userUIDArr.includes(uid)) {
-        element.style.display = "none";
+        element.remove();
         console.log("已通过id=【" + uid + "】屏蔽指定黑名单用户【" + name + "】视频=" + title);
         return true;
     }
     if (userNameArr.includes(name)) {
-        element.style.display = "none";
+        element.remove();
         console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】视频=" + title);
         return true;
     }
     for (let str of videoNameArr) {
         if (title.includes(str)) {
-            element.style.display = "none";
+            element.remove();
             console.log("已通过视频标题关键词=【" + str + "】屏蔽指定黑名单用户【" + name + "】视频=" + title);
             return true;
         }
@@ -65,12 +75,13 @@ function shieldUserNameOrUIDOrTitle(element, name, uid, title) {
 
 
 /**
+ * 频道
  * 隐藏对应元素的视频
- * @param vdoc 视频列表元素
- * @param arr 用户名数组
- * @param arrid 用户id数组
+ * @param vdoc 视频列表
+ * @returns {boolean}
  */
-function startExtracted(vdoc, arr, arrid) {
+function startExtracted(vdoc) {
+    let temp = false;
     for (const element of vdoc) {
         //用户名
         const upName = element.getElementsByClassName("up-name__text")[0].textContent;
@@ -80,8 +91,9 @@ function startExtracted(vdoc, arr, arrid) {
         const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
         const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
         const id = parseInt(upSpatialAddress.substring(lastIndexOf));
-        shieldUserNameOrUIDOrTitle(element, upName, id, videoName);
+        temp = shieldUserNameOrUIDOrTitle(element, upName, id, videoName);
     }
+    return temp;
 }
 
 function searchRules(videoList) {
@@ -97,48 +109,12 @@ function searchRules(videoList) {
         let upSpatialAddress = userInfo.getAttribute("href");
         if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
             console.log("检测到不是正常视频内容，故隐藏该元素")
-            console.log(v)
             //如果获取的类型不符合规则则结束本轮
-            v.style.display = "none";
+            v.remove();
             continue;
         }
         let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
         shieldUserNameOrUIDOrTitle(v, name, id, title);
-    }
-}
-
-
-/**
- * 针对综合排行榜和频道中的其他精选视频以及综合排行榜下面的视频
- */
-function freChFuc() {
-    //针对综合排行榜
-    const comprehensiveRanking = document.getElementsByClassName("rank-video-card");
-    startExtracted(comprehensiveRanking, userNameArr, userUIDArr);
-    //针对频道中的其他精选视频和在综合排行榜下面的视频
-    const cardList = document.getElementsByClassName("card-list");
-    for (let v of cardList) {
-        const temp = v.getElementsByClassName("video-card");
-        startExtracted(temp, userNameArr, userUIDArr);
-    }
-}
-
-/**
- * 获取搜索页面的视频列表
- * @returns {HTMLCollectionOf<Element>}
- */
-function searchForVideoList() {
-    let videoList = document.getElementsByClassName("col_3 col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
-    if (videoList !== 0) {
-        return videoList;
-    }
-    videoList = document.getElementsByClassName("video-list-item col_3 col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
-    if (videoList !== 0) {
-        return videoList;
-    }
-    videoList = document.getElementsByClassName("video-page-card-small");
-    if (videoList !== 0) {
-        return videoList;
     }
 }
 
@@ -149,19 +125,51 @@ function perf_observer(list, observer) {
         if (entry.initiatorType !== "xmlhttprequest") {//只要json类的
             continue;
         }
-        //针对于频道界面的视频
-        if (url.includes("https://api.bilibili.com/x/web-interface/web/channel/multipl")) {
-            console.log("检测到符合要求的请求=" + url);
-            freChFuc();
+        if (url.includes("https://api.bilibili.com/x/web-interface/web/channel/multipl") || url.includes("https://api.bilibili.com/x/web-interface/web/channel/featured")) {
+            //针对于频道界面的综合视频和频道界面的精选视频
+            frequencyChannelRules();
+            continue;
         }
         if (url.includes("https://api.bilibili.com/x/web-interface/wbi/search")) {//搜索页面的请求
-            console.log("检测到动态加载的数据url" + url)
-            searchRules(searchForVideoList());
+            //console.log("检测到动态加载的数据url=" + url)
+            //searchRules();
         }
     }
 }
 
+/**
+ * 频道规则
+ * 已针对个别情况没有删除对应元素，做了个循环处理
+ */
+function frequencyChannelRules() {
+    let list = document.getElementsByClassName("rank-video-card");
+    if (list.length !== 0) {//频道的综合排行榜
+        if (startExtracted(list)) {
+            console.log("已检测到频道综合的排行榜")
+        }
+    }
+//针对频道中的精选视频和在综合排行榜下面的视频
+    let index = 0;
+    while (true) {
+        const list = document.getElementsByClassName("video-card");
+        index++;
+        const tempLength = list.length;
+        if (tempLength === 0) {
+            break;
+        }
+        console.log("执行第" + index + "轮检测")
+        startExtracted(list)
+        if (list.length === tempLength) {
+            console.log("页面元素没有变化了，故退出循环")
+            break;
+        }
+    }
+}
 
+/**
+ * 根据网页url指定不同的逻辑
+ * @param href{String} url链接
+ */
 function ruleList(href) {
     if (href.includes("https://search.bilibili.com/all")) {//搜索页面-综合
         const interval = setInterval(function () {
@@ -188,9 +196,6 @@ function ruleList(href) {
             console.log("搜索界面-视频-获取失败！")
         }, 1000);
     }
-    if (href.includes("www.bilibili.com/v/channel")) { //频道
-        freChFuc();
-    }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
         const video_page_card_small = document.getElementsByClassName("video-page-card-small");
         for (let e of video_page_card_small) {
@@ -207,13 +212,18 @@ function ruleList(href) {
         }
     }
 
+    if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
+        frequencyChannelRules();
+    }
+
+
 }
 
 
 (function () {
     'use strict';
-    let href = window.location.href;
-    console.log(href);
+    let href = getWindowUrl();
+    console.log("当前网页url= " + href);
     //监听网络变化
     var observer = new PerformanceObserver(perf_observer);
     observer.observe({entryTypes: ['resource']});
@@ -221,7 +231,7 @@ function ruleList(href) {
     ruleList(href)//正常加载网页时执行
 
     setInterval(function () {//每秒监听网页中的url
-        const tempUrl = window.location.href;
+        const tempUrl = getWindowUrl();
         if (href === tempUrl) {//没有变化就结束本轮
             return;
         }//有变化就执行对应事件
