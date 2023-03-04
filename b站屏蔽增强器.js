@@ -8,6 +8,7 @@
 // @match       *search.bilibili.com/all?keyword=*
 // @match       *search.bilibili.com/all*
 // @match       *search.bilibili.com/video?keyword=*
+// @match        https://t.bilibili.com*
 // @match       *www.bilibili.com/video*
 // @match        https://www.bilibili.com/
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -23,11 +24,8 @@ const userNameArr = ["战双帕弥什"];
 /**
  * 用户uid黑名单模式
  * @type {number[]}
- * 空灵LML
- * 崩坏山官方
- * 原神官方
  */
-const userUIDArr = [3493087556930157, 128154158, 27534330, 401742377];
+const userUIDArr = [3493087556930157, 128154158, 27534330, 401742377, 29668335];
 
 /**
  * 视频标题关键词
@@ -40,7 +38,7 @@ const videoTitleArr = ["感觉不如", "对标原神", "原神"];
  * 关键词小写，会有方法对内容中的字母转成小写的
  * @type {string[]}
  */
-const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op","百万"];
+const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万"];
 
 
 /**
@@ -50,6 +48,53 @@ const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不�
 function getWindowUrl() {
     return window.location.href;
 }
+
+function ajaxEventTrigger(event) {
+    const ajaxEvent = new CustomEvent(event, {detail: this});
+    window.dispatchEvent(ajaxEvent);
+}
+
+const oldXHR = window.XMLHttpRequest;
+
+function newXHR() {
+    const realXHR = new oldXHR();
+
+    realXHR.addEventListener('abort', function () {
+        ajaxEventTrigger.call(this, 'ajaxAbort');
+    }, false);
+
+    realXHR.addEventListener('error', function () {
+        ajaxEventTrigger.call(this, 'ajaxError');
+    }, false);
+
+    realXHR.addEventListener('load', function () {
+        ajaxEventTrigger.call(this, 'ajaxLoad');
+    }, false);
+
+    realXHR.addEventListener('loadstart', function () {
+        ajaxEventTrigger.call(this, 'ajaxLoadStart');
+    }, false);
+
+    realXHR.addEventListener('progress', function () {
+        ajaxEventTrigger.call(this, 'ajaxProgress');
+    }, false);
+
+    realXHR.addEventListener('timeout', function () {
+        ajaxEventTrigger.call(this, 'ajaxTimeout');
+    }, false);
+
+    realXHR.addEventListener('loadend', function () {
+        ajaxEventTrigger.call(this, 'ajaxLoadEnd');
+    }, false);
+
+    realXHR.addEventListener('readystatechange', function () {
+        ajaxEventTrigger.call(this, 'ajaxReadyStateChange');
+    }, false);
+
+    return realXHR;
+}
+
+window.XMLHttpRequest = newXHR;
 
 
 /**
@@ -234,11 +279,17 @@ function searchRules(videoList) {
 
 function perf_observer(list, observer) {
     const entries = performance.getEntriesByType('resource');
+    const windowUrl = getWindowUrl();
     for (let entry of entries) {
         const url = entry.name;
-        if (entry.initiatorType !== "xmlhttprequest") {//只要json类的
+        const initiatorType = entry.initiatorType;
+        if (initiatorType === "img" || initiatorType === "css" || initiatorType === "script" || initiatorType === "link" || initiatorType === "beacon") {
             continue;
         }
+        if (initiatorType !== "xmlhttprequest") {
+            continue;
+        }
+        //只要json类的
 
         if (url.includes("api.bilibili.com/x/web-interface/web/channel")) {
             //针对于频道界面的综合视频和频道界面的精选视频
@@ -248,7 +299,7 @@ function perf_observer(list, observer) {
         }
         if (url.includes("https://api.bilibili.com/x/v2/reply/main?csrf=") ||
             url.includes("api.bilibili.com/x/v2/reply/reply?csrf=") &&
-            getWindowUrl().includes("https://www.bilibili.com/video")) {
+            windowUrl.includes("https://www.bilibili.com/video")) {
             //如果是视频播放页的话，且接收到评论的相应请求
             for (let v of document.getElementsByClassName("reply-item")) {//针对于评论区
                 const userInfo = v.getElementsByClassName("user-info")[0];
@@ -268,6 +319,7 @@ function perf_observer(list, observer) {
             }
             continue;
         }
+
         if (url.includes("https://api.bilibili.com/x/web-interface/wbi/search/type?__refresh__")) {//搜索页面的请求
             //console.log("检测到动态加载的数据url=" + url)
             //searchRules();
@@ -386,7 +438,6 @@ function ruleList(href) {
 
 
     if (href === "https://www.bilibili.com/") { //首页
-        // console.log("当前是首页");
         let biliVideoCardHomeList = document.getElementsByClassName("feed-card");
         if (biliVideoCardHomeList.length !== 0) {
             //内测默认视图，后面再写
@@ -412,5 +463,30 @@ function ruleList(href) {
         }
         console.log(biliVideoCardHomeList.length);
     }
+
+
     // Your code here...
 })();
+
+/*****
+ * 原本想写多一个处理从首页进去的的动态页面的评论区的，不知道为什么捕获不到那个api链接，如果捕获到了或许可以比较好处理写，用定时器一直监听也是比较麻烦，以后如果有机会或者，找到方法了在尝试解决把
+ * 对其部分上述代码先放在注释这边先，以后有缘再处理
+ * 其中关键api放这：
+ * api.bilibili.com/x/v2/reply/main?callback=
+ * api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?host_mid=
+ function dynamicCommentsf(v) {//动态评论区
+    const userInfo = v.getElementsByClassName("user")[0].getElementsByTagName("a")[0];//用户信息
+    const userUID = userInfo.getAttribute("data-usercard-mid");//用户UID
+    const userName = userInfo.text;//用户名
+}
+ for (let v of document.getElementsByClassName("comment-list has-limit")[0].getElementsByClassName("con")) {
+    dynamicCommentsf(v);
+    const userContent = v.getElementsByClassName("text")[0].textContent;//楼主的言论
+    console.log(userContent)
+    for (let j of v.getElementsByClassName("reply-item reply-wrap")) {//楼主下面的评论
+        dynamicCommentsf(j)
+        const subContent = j.getElementsByClassName("text-con")[0].textContent;
+        //console.log(subContent);
+    }
+}
+ */
