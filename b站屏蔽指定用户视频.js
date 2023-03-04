@@ -6,8 +6,9 @@
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match       *search.bilibili.com/all?keyword=*&page=*&o=*
 // @match       *search.bilibili.com/all?keyword=*
+// @match       *search.bilibili.com/all.*
 // @match       *search.bilibili.com/video?keyword=*
-// @match        *://*.bilibili.com/*
+// @match        https://www.bilibili.com/
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @require  https://unpkg.com/ajax-hook@2.1.3/dist/ajaxhook.min.js
 // @grant        none
@@ -125,39 +126,46 @@ function perf_observer(list, observer) {
         if (entry.initiatorType !== "xmlhttprequest") {//只要json类的
             continue;
         }
-        if (url.includes("https://api.bilibili.com/x/web-interface/web/channel/multipl") || url.includes("https://api.bilibili.com/x/web-interface/web/channel/featured")) {
+
+        if (url.includes("api.bilibili.com/x/web-interface/web/channel")) {
             //针对于频道界面的综合视频和频道界面的精选视频
             frequencyChannelRules();
+            channelListRules();
             continue;
         }
-        if (url.includes("https://api.bilibili.com/x/web-interface/wbi/search")) {//搜索页面的请求
+        if (url.includes("https://api.bilibili.com/x/web-interface/wbi/search/type?__refresh__")) {//搜索页面的请求
             //console.log("检测到动态加载的数据url=" + url)
             //searchRules();
         }
     }
 }
 
+
 /**
- * 频道规则
+ * 频道排行榜规则
+ */
+function channelListRules() {
+    let list = document.getElementsByClassName("rank-video-card");
+    if (list.length !== 0 && startExtracted(list)) {
+        console.log("已检测到频道综合的排行榜")
+    }
+}
+
+/**
+ * 频道精选视频等其他视频规则
  * 已针对个别情况没有删除对应元素，做了个循环处理
  */
 function frequencyChannelRules() {
-    let list = document.getElementsByClassName("rank-video-card");
-    if (list.length !== 0) {//频道的综合排行榜
-        if (startExtracted(list)) {
-            console.log("已检测到频道综合的排行榜")
-        }
-    }
 //针对频道中的精选视频和在综合排行榜下面的视频
-    let index = 0;
+    //let index = 0;
     while (true) {
         const list = document.getElementsByClassName("video-card");
-        index++;
+        //index++;
         const tempLength = list.length;
         if (tempLength === 0) {
             break;
         }
-        console.log("执行第" + index + "轮检测")
+        //console.log("执行第" + index + "轮检测")
         startExtracted(list)
         if (list.length === tempLength) {
             console.log("页面元素没有变化了，故退出循环")
@@ -172,16 +180,18 @@ function frequencyChannelRules() {
  */
 function ruleList(href) {
     if (href.includes("https://search.bilibili.com/all")) {//搜索页面-综合
-        const interval = setInterval(function () {
+        while (true) {
             const list = document.getElementsByClassName("col_3 col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
-            if (list.length !== 0) {//持续获取，当没有获取到时，延迟一段时间重新获取，直到获取成功
-                console.log("综合-获取成功！" + list.length)
-                searchRules(list);
-                clearInterval(interval);
-                return;
+            const tempListLength = list.length;
+            if (tempListLength === 0) {
+                break;
             }
-            console.log("搜索页面-综合-获取失败！")
-        }, 1000);
+            searchRules(list);
+            if (tempListLength === list.length) {
+                console.log("页面元素没有变化，故退出循环")
+                break;
+            }
+        }
     }
     if (href.includes("search.bilibili.com/video")) {//搜索界面-视频
         console.log("搜索界面-视频")
