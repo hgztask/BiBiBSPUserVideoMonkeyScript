@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         b站屏蔽指定用户或者关键词视频
 // @version      0.5
-// @description  根据用户名、uid和视频关键词进行屏蔽视频，作用场所，频道，首页推荐，搜索页面
+// @description  根据用户名、uid和视频关键词进行屏蔽视频，作用场所，频道，首页推荐，搜索页面,播放页右侧推送
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match       *search.bilibili.com/all?keyword=*&page=*&o=*
 // @match       *search.bilibili.com/all?keyword=*
-// @match       *search.bilibili.com/all.*
+// @match       *search.bilibili.com/all*
 // @match       *search.bilibili.com/video?keyword=*
+// @match       *www.bilibili.com/video*
 // @match        https://www.bilibili.com/
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @require  https://unpkg.com/ajax-hook@2.1.3/dist/ajaxhook.min.js
@@ -33,6 +34,11 @@ const userUIDArr = [3493087556930157, 128154158, 27534330, 401742377];
  * @type {string[]}
  */
 const videoNameArr = ["感觉不如", "对标原神", "原神"];
+/**
+ * 评论关键词
+ * @type {string[]}
+ */
+const commentOnKeyArr = ["感觉不如"];
 
 
 /**
@@ -45,6 +51,34 @@ function getWindowUrl() {
 
 
 /**
+ * 根据用户uid屏蔽元素
+ * @param element 网页元素
+ * @param uid 用户uid
+ * @returns {boolean}
+ */
+function shieldUID(element, uid) {
+    if (userUIDArr.includes(uid)) {
+        element.remove();
+        return true;
+    }
+    return false;
+}
+
+/**
+ *根据用户名屏蔽元素
+ * @param element 网页元素
+ * @param name 用户名
+ * @returns {boolean}
+ */
+function shieldName(element, name) {
+    if (userNameArr.includes(name)) {
+        element.remove();
+        return true;
+    }
+    return false;
+}
+
+/**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
  * @param element 对应的视频元素
@@ -54,13 +88,11 @@ function getWindowUrl() {
  * @returns {boolean} 是否执行完
  */
 function shieldUserNameOrUIDOrTitle(element, name, uid, title) {
-    if (userUIDArr.includes(uid)) {
-        element.remove();
+    if (shieldUID(element, uid)) {
         console.log("已通过id=【" + uid + "】屏蔽指定黑名单用户【" + name + "】视频=" + title);
         return true;
     }
-    if (userNameArr.includes(name)) {
-        element.remove();
+    if (shieldName(element, name)) {
         console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】视频=" + title);
         return true;
     }
@@ -68,6 +100,22 @@ function shieldUserNameOrUIDOrTitle(element, name, uid, title) {
         if (title.includes(str)) {
             element.remove();
             console.log("已通过视频标题关键词=【" + str + "】屏蔽指定黑名单用户【" + name + "】视频=" + title);
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * 根据言论内容屏蔽元素
+ * @param element 网页元素
+ * @param content 言论内容
+ * @returns {boolean}
+ */
+function shieldCommentContent(element, content) {
+    for (let str of commentOnKeyArr) {
+        if (content.includes(str)) {
+            element.remove();
             return true;
         }
     }
@@ -211,8 +259,7 @@ function ruleList(href) {
         }, 500);
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
-        const video_page_card_small = document.getElementsByClassName("video-page-card-small");
-        for (let e of video_page_card_small) {
+        for (let e of document.getElementsByClassName("video-page-card-small")) {//获取左侧的页面的视频列表
             const videoInfo = e.getElementsByClassName("info")[0];
             //用户名
             const name = videoInfo.getElementsByClassName("name")[0].textContent;
@@ -221,9 +268,25 @@ function ruleList(href) {
             //用户空间地址
             const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
             const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
-            console.log("用户名= " + name + "  uid= " + id + " 标题=" + videoTitle);
             shieldUserNameOrUIDOrTitle(e, name, id, videoTitle);
         }
+
+    }
+    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
+        for (let v of document.getElementsByClassName("reply-item")) {//针对于评论区
+            const userInfo = v.getElementsByClassName("user-info")[0];
+            const userName = userInfo.getElementsByClassName("user-name")[0].textContent;
+            const userID = userInfo.getElementsByClassName("user-name")[0].getAttribute("data-user-id")
+            const root = v.getElementsByClassName("reply-content")[0].parentNode.textContent;//楼主评论
+            const subReplyList = v.getElementsByClassName("sub-reply-list")[0];//楼主下面的评论区
+            for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
+                const subUserName = j.getElementsByClassName("sub-user-name")[0].textContent;
+                const subUserID = j.getElementsByClassName("sub-user-name")[0].getAttribute("data-user-id")
+                const subContent = j.getElementsByClassName("reply-content-container sub-reply-content")[0].textContent;
+                console.log(subContent)
+            }
+        }
+        //针对于评论区
     }
 
     if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
