@@ -68,7 +68,6 @@ const paletteButtionBool = true;
 let boolShieldMainlive = false;
 
 
-
 /**
  * 现在是否正在执行startShieldMainVideo函数
  * @type {boolean}
@@ -292,15 +291,21 @@ function startShieldMainVideoTop() {
  */
 function startShieldMainAFloorSingle() {
     const interval = setInterval(() => {
-        const list = document.getElementsByClassName("floor-single-card");
+        let list = document.getElementsByClassName("floor-single-card");
         if (list.length === 0) {
             return;
         }
-        for (let v of list) {
-            v.remove();
+        while (true) {
+            for (let v of list) {
+                v.remove();
+            }
+            list = document.getElementsByClassName("floor-single-card");//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
+            if (list.length === 0) {
+                console.log("清理首页零散无用的推送")
+                clearInterval(interval);
+                return;
+            }
         }
-        console.log("清理首页零散无用的推送")
-        clearInterval(interval);
     }, 1000);
 }
 
@@ -423,6 +428,10 @@ function perf_observer(list, observer) {
             startShieldMainlive();
             continue;
 
+        }
+        if (url.includes("api.bilibili.com/x/web-show/wbi/res/locs?pf=")) {//首页赛事相关
+            startShieldMainAFloorSingle();
+            continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
             console.log("不确定api链接！")
@@ -549,9 +558,10 @@ function ruleList(href) {
                 document.getElementsByClassName("palette-button-wrap")[0].style.display = "none";
             }, 2000);
         }
+        document.getElementsByClassName("bili-header__banner")[0].style.display = "none";//隐藏首页顶部的图片
+        startShieldMainAFloorSingle();
         startShieldMainLeftPic();
         startShieldMainVideoTop();
-        startShieldMainAFloorSingle();
 
     }
 
