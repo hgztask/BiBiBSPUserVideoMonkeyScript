@@ -1,16 +1,13 @@
 // ==UserScript==
 // @name         b站屏蔽增强器
-// @version      0.5
-// @description  根据用户名、uid、视频关键词、言论关键词进行屏蔽，作用场所，频道的视频，首页推荐，搜索页面,播放页右侧推送，视频评论区，消息中心的【回复我的】【@我的】
+// @version      0.6
+// @description  根据用户名、uid、视频关键词、言论关键词进行屏蔽和精简处理(详情看js最底下描述)，作用场所：频道的视频，首页推荐，搜索页面,播放页右侧推送，视频评论区、专栏的评论区，消息中心的【回复我的】【@我的】
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
-// @match       *search.bilibili.com/all?keyword=*&page=*&o=*
-// @match       *search.bilibili.com/all?keyword=*
-// @match       *search.bilibili.com/all*
-// @match       *search.bilibili.com/video?keyword=*
-// @match       *://search.bilibili.com/article?keyword=*
+// @match       *://search.bilibili.com/*
 // @match        *www.bilibili.com/v/channel/*
 // @match        *://message.bilibili.com/*
+// @match        *://www.bilibili.com/read/*
 // @match        https://t.bilibili.com*
 // @match       *www.bilibili.com/video*
 // @match        https://www.bilibili.com/
@@ -52,20 +49,20 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
  * 关键词小写，会有方法对内容中的字母转成小写的
  * @type {string[]}
  */
-const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐"];
+const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三"];
 /**
  * 评论关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
  * @type {string[]}
  */
-const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐"];
+const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三"];
 
 /**
  * 专栏关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
  * @type {string[]}
  */
-const contentColumnKeyArr = [];
+const contentColumnKeyArr = ["抄袭"];
 //是否屏蔽首页=左侧大图的轮播图
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的
@@ -512,6 +509,31 @@ function delVideoButtonAD() {
     console.log("已删除视频播放页播放器下面的广告")
 }
 
+/**
+ * 根据规则删除专栏的评论
+ * 针对于专栏下面的评论区
+ */
+function delColumnReplay() {
+    const list = document.getElementsByClassName("list-item reply-wrap");
+    for (let v of list) {
+        const userInfo = v.getElementsByClassName("user")[0];//楼主信息
+        const userName = userInfo.getElementsByClassName("name")[0].textContent;//楼主用户名
+        const uid = parseInt(userInfo.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));//楼主UID
+        const userContent = v.getElementsByClassName("text")[0].textContent;//内容
+        const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
+        if (startPrintShieldNameOrUIDOrContent(v, userName, uid, userContent)) {
+            continue;
+        }
+        for (let j of replyItem) {
+            const replyInfo = j.getElementsByClassName("user")[0];//楼层成员info信息
+            const replayName = replyInfo.getElementsByClassName("name")[0].textContent;
+            const replayUid = parseInt(replyInfo.getElementsByClassName("name")[0].getAttribute("data-usercard-mid"));
+            const replayContent = replyInfo.getElementsByTagName("span")[0].textContent;
+           startPrintShieldNameOrUIDOrContent(j,replayName,replayUid,replayContent);
+        }
+    }
+}
+
 
 /**
  * 删除搜索页面的视频元素
@@ -545,7 +567,7 @@ function perf_observer(list, observer) {
     for (let entry of entries) {
         const url = entry.name;
         const initiatorType = entry.initiatorType;
-        if (initiatorType === "img" || initiatorType === "css" || initiatorType === "script" || initiatorType === "link" || initiatorType === "beacon") {
+        if (initiatorType === "img" || initiatorType === "css" || initiatorType === "link" || initiatorType === "beacon") {
             continue;
         }
         //只要json类的
@@ -594,7 +616,7 @@ function perf_observer(list, observer) {
             startShieldMainAFloorSingle();
             continue;
         }
-        if (url.includes("api.bilibili.com/x/msgfeed/reply?platform=")||url.includes("api.bilibili.com/x/msgfeed/reply?id=")) {//第一次加载对应json信息和后续添加的json信息
+        if (url.includes("api.bilibili.com/x/msgfeed/reply?platform=") || url.includes("api.bilibili.com/x/msgfeed/reply?id=")) {//第一次加载对应json信息和后续添加的json信息
             delMessageReply();
             continue;
         }
@@ -604,6 +626,12 @@ function perf_observer(list, observer) {
         }
         if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
             delMessageAT();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/v2/reply/main?callback=jQuery")
+            || url.includes("api.bilibili.com/x/v2/reply/reply?callback=jQuery")
+            && getWindowUrl().includes("www.bilibili.com/read")) {//后面一个条件限制为仅仅是专栏页面的该api，消息中心的api疑似也是这个，后续在测试看下
+            delColumnReplay();
             continue;
         }
 
@@ -715,11 +743,11 @@ function ruleList(href) {
         click_playerCtrlWhid();
         delVideoButtonAD()
     }
-    if (href.includes("message.bilibili.com/#/at")||href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
+    if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         delMessageAT();
         return;
     }
-    if (href.includes("message.bilibili.com/#/reply")||href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
+    if (href.includes("message.bilibili.com/#/reply") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
         delMessageReply();
         return;
     }
@@ -755,7 +783,13 @@ function ruleList(href) {
     }, 1000);
 
 
-    if (href.includes("https://search.bilibili.com") && searchColumnBool === false) {
+    if (href.includes("search.bilibili.com") && searchColumnBool === false) {
+        try {
+            document.getElementById("biliMainFooter").remove();
+            document.getElementsByClassName("side-buttons flex_col_end p_absolute")[0].remove();
+            console.log("已删除搜索底部信息和右侧悬浮按钮")
+        } catch (e) {
+        }
         searchColumnBool = true;
         const interval = setInterval(() => {
             try {
@@ -786,6 +820,15 @@ function ruleList(href) {
 
     // Your code here...
 })();
+
+
+/**
+ 精简处理的地方有：
+ 搜索页面右侧悬浮按钮（貌似是新版的，没留意）
+ 搜索页面底部信息
+ 视频播放界面右侧个别悬浮按钮
+ */
+
 
 /*****
  * 原本想写多一个处理从首页进去的的动态页面的评论区的，不知道为什么捕获不到那个api链接，如果捕获到了或许可以比较好处理写，用定时器一直监听也是比较麻烦，以后如果有机会或者，找到方法了在尝试解决把
