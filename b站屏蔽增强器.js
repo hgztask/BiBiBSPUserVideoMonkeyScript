@@ -8,6 +8,7 @@
 // @match       *search.bilibili.com/all?keyword=*
 // @match       *search.bilibili.com/all*
 // @match       *search.bilibili.com/video?keyword=*
+// @match       *://search.bilibili.com/article?keyword=*
 // @match        *www.bilibili.com/v/channel/*
 // @match        *://message.bilibili.com/?spm_id_from=*
 // @match        https://t.bilibili.com*
@@ -46,17 +47,24 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
     3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911];
 
 /**
- * 视频标题关键词
+ * 视频标题or专栏标题关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
  * @type {string[]}
  */
-const videoTitleArr = ["感觉不如", "对标原神", "原神"];
+const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐"];
 /**
  * 评论关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
  * @type {string[]}
  */
-const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易"];
+const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐"];
+
+/**
+ * 专栏关键词
+ * 关键词小写，会有方法对内容中的字母转成小写的
+ * @type {string[]}
+ */
+const contentColumnKeyArr = [];
 //是否屏蔽首页=左侧大图的轮播图
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的
@@ -68,6 +76,13 @@ const paletteButtionBool = true;
  */
 let boolShieldMainlive = false;
 
+/**
+ * 保准页面加载了本脚本之后只会触发一次该判断
+ * 用于搜索页面的专栏按钮监听。且只会加载一次
+ * @type {boolean}
+ */
+let searchColumnBool = false;
+
 
 /**
  * 获取当前网页的url
@@ -75,6 +90,21 @@ let boolShieldMainlive = false;
  */
 function getWindowUrl() {
     return window.location.href;
+}
+
+/**
+ * 根据用户提供的网页元素和对应的数组及key，判断数组里是否包含key元素本身，进行屏蔽元素
+ * @param element
+ * @param arr 数组
+ * @param key 唯一key
+ * @returns {boolean}
+ */
+function shieldArrKey(element, arr, key) {
+    if (arr.includes(key)) {
+        element.remove();
+        return true;
+    }
+    return false;
 }
 
 
@@ -85,11 +115,7 @@ function getWindowUrl() {
  * @returns {boolean}
  */
 function shieldUID(element, uid) {
-    if (userUIDArr.includes(uid)) {
-        element.remove();
-        return true;
-    }
-    return false;
+    return shieldArrKey(element, userUIDArr, uid);
 }
 
 /**
@@ -99,21 +125,18 @@ function shieldUID(element, uid) {
  * @returns {boolean}
  */
 function shieldName(element, name) {
-    if (userNameArr.includes(name)) {
-        element.remove();
-        return true;
-    }
-    return false;
+    return shieldArrKey(element, userNameArr, name);
 }
 
 /**
- * 根据用户言论屏蔽元素
+ * 根据用户提供的字符串集合，与指定内容进行比较屏蔽
  * @param element 网页元素
- * @param content 用户的言论
- * @returns {string|null}
+ * @param arr 字符串数组
+ * @param content 内容
+ * @returns {null|String}
  */
-function shieldContent(element, content) {
-    for (let str of commentOnKeyArr) {
+function shieldArrContent(element, arr, content) {
+    for (let str of arr) {
         if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
             element.remove();
             return str;
@@ -123,13 +146,34 @@ function shieldContent(element, content) {
 }
 
 /**
- * 根据视频标题屏蔽视频元素
+ * 根据用户言论屏蔽元素
+ * @param element 网页元素
+ * @param content 用户的言论
+ * @returns {string|null}
+ */
+function shieldContent(element, content) {
+    return shieldArrContent(element, commentOnKeyArr, content);
+}
+
+/**
+ * 根据用户专栏内容关键词屏蔽元素
+ * @param element 网页元素
+ * @param content 专栏内容关键词
+ * @returns {string|null}
+ */
+function shieldColumnContent(element, content) {
+    return shieldArrContent(element, contentColumnKeyArr, content);
+}
+
+
+/**
+ * 根据标题屏蔽元素
  * @param element 网页元素
  * @param title 标题
  * @returns {string|null}
  */
-function shieldVideoTitle(element, title) {
-    for (let str of videoTitleArr) {
+function shieldTitle(element, title) {
+    for (let str of titleArr) {
         if (title.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
             element.remove();
             return str;
@@ -156,6 +200,25 @@ function shieldNameOrUID(element, name, uid) {
     return null;
 }
 
+/**
+ * 执行并打印相关屏蔽信息
+ * @param element 网页元素
+ * @param name 用户名
+ * @param uid uid
+ * @returns {boolean}
+ */
+function startPrintShieldNameOrUID(element, name, uid) {
+    const userShield = shieldNameOrUID(element, name, uid);
+    if (userShield !== null) {
+        if (userShield === "uid") {
+            console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】");
+            return true;
+        }
+        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】");
+        return true;
+    }
+    return false;
+}
 
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
@@ -165,14 +228,8 @@ function shieldNameOrUID(element, name, uid) {
  * @param content 言论内容
  * @returns {boolean}
  */
-function shieldNameOrUIDOrContent(element, name, uid, content) {
-    const userShield = shieldNameOrUID(element, name, uid);
-    if (userShield !== null) {
-        if (userShield === "uid") {
-            console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】");
-            return true;
-        }
-        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】");
+function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
+    if (startPrintShieldNameOrUID(element, name, uid)) {
         return true;
     }
     const key = shieldContent(element, content);
@@ -183,6 +240,37 @@ function shieldNameOrUIDOrContent(element, name, uid, content) {
     return false;
 }
 
+function startPrintShieldTitle(element, arr, title,name) {
+    const key = shieldArrContent(element, titleArr, title);
+    if (key != null) {
+        console.log("已通过标题关键词【" + key + "】屏蔽用户【" + name + "】");
+        return true;
+    }
+    return false;
+}
+
+
+/**
+ * 执行并打印屏蔽专栏信息
+ * @param element 网页元素
+ * @param name 用户名
+ * @param uid uid
+ * @param content 专栏内容
+ * @returns {boolean}
+ */
+function startPrintshieldcolumn(element, name, uid, content, title) {
+    if (startPrintShieldNameOrUID(element, name, uid)) {
+        return true;
+    }
+    const key = shieldColumnContent(element, content);
+    if (key !== null) {
+        console.log("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 原专栏内容=" + content);
+        return true;
+    }
+    return !!(startPrintShieldTitle(element, titleArr, title, name));
+}
+
+
 /**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
@@ -192,7 +280,7 @@ function shieldNameOrUIDOrContent(element, name, uid, content) {
  * @param title 视频标题
  * @returns {boolean} 是否执行完
  */
-function shieldVideoUserNameOrUIDOrTitle(element, name, uid, title) {
+function shieldVideo_userName_uid_title(element, name, uid, title) {
     let nameOrUID = shieldNameOrUID(element, name, uid);
     if (nameOrUID != null) {
         if (nameOrUID === "uid") {
@@ -203,7 +291,7 @@ function shieldVideoUserNameOrUIDOrTitle(element, name, uid, title) {
         return true;
     }
 
-    const videoTitle = shieldVideoTitle(element, title);
+    const videoTitle = shieldTitle(element, title);
     if (videoTitle != null) {
         console.log("已通过视频标题关键词=【" + videoTitle + "】 屏蔽指定黑名单用户 【" + name + "】视频=" + title);
     }
@@ -228,7 +316,7 @@ function startExtracted(vdoc) {
         const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
         const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
         const id = parseInt(upSpatialAddress.substring(lastIndexOf));
-        temp = shieldVideoUserNameOrUIDOrTitle(element, upName, id, videoName);
+        temp = shieldVideo_userName_uid_title(element, upName, id, videoName);
     }
     return temp;
 }
@@ -268,7 +356,7 @@ function startShieldMainVideo(str) {
                     console.log("检测到不是正常视频样式，故删除该元素");
                     continue;
                 }
-                shieldVideoUserNameOrUIDOrTitle(v, upName, id, title);
+                shieldVideo_userName_uid_title(v, upName, id, title);
             }
             list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
             if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
@@ -374,7 +462,7 @@ function searchRules(videoList) {
             continue;
         }
         let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        shieldVideoUserNameOrUIDOrTitle(v.parentNode, name, id, title);
+        shieldVideo_userName_uid_title(v.parentNode, name, id, title);
     }
 }
 
@@ -405,14 +493,14 @@ function perf_observer(list, observer) {
                 const userID = userInfo.getElementsByClassName("user-name")[0].getAttribute("data-user-id")
                 const root = v.getElementsByClassName("reply-content")[0].parentNode.textContent;//楼主评论
                 const subReplyList = v.getElementsByClassName("sub-reply-list")[0];//楼主下面的评论区
-                if (shieldNameOrUIDOrContent(v, userName, userID, root)) {
+                if (startPrintShieldNameOrUIDOrContent(v, userName, userID, root)) {
                     continue;
                 }
                 for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
                     const subUserName = j.getElementsByClassName("sub-user-name")[0].textContent;
                     const subUserID = j.getElementsByClassName("sub-user-name")[0].getAttribute("data-user-id")
                     const subContent = j.getElementsByClassName("reply-content-container sub-reply-content")[0].textContent;
-                    shieldNameOrUIDOrContent(j, subUserName, subUserID, subContent);
+                    startPrintShieldNameOrUIDOrContent(j, subUserName, subUserID, subContent);
                 }
             }
             continue;
@@ -423,8 +511,6 @@ function perf_observer(list, observer) {
             console.log("首页带有换一换一栏的视频列表")
             continue;
         }
-
-
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=4&fresh_type=4&feed_version=V8&fresh_idx_1h=")) {//首页换一换推送下面的视频
             startShieldMainVideo("bili-video-card is-rcmd");
             startShieldMainAFloorSingle();
@@ -445,14 +531,18 @@ function perf_observer(list, observer) {
                 const indess = info.getElementsByTagName("a")[0].getAttribute("href");
                 const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
                 const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
-                shieldNameOrUIDOrContent(v, name, uid, content);
+                startPrintShieldNameOrUIDOrContent(v, name, uid, content);
             }
             continue;
         }
+        if (url.includes("api.bilibili.com/x/article/metas?ids=")) {
+            searchColumn();
+            continue;
+        }
+
 
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
             console.log("不确定api链接！")
-            continue;
         }
 
 
@@ -491,6 +581,23 @@ function frequencyChannelRules() {
         }
     }
 }
+
+/**
+ * 根据规则屏蔽搜索专栏项目
+ */
+function searchColumn() {
+    const list = document.getElementsByClassName("col_6 mb_x40");
+    for (let v of list) {
+        const userInfo = v.getElementsByClassName("flex_start flex_inline text3")[0];
+        const title = v.getElementsByClassName("text1")[0].textContent;
+        const textContent = v.getElementsByClassName("atc-desc b_text text_ellipsis_2l text3 fs_5")[0].textContent;//搜索专栏中的预览部分
+        const userName = userInfo.textContent;
+        const upSpatialAddress = userInfo.getAttribute("href");
+        let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+        startPrintshieldcolumn(v, userName, id, textContent, title);
+    }
+}
+
 
 /**
  * 根据网页url指定不同的逻辑
@@ -534,7 +641,7 @@ function ruleList(href) {
             //用户空间地址
             const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
             const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
-            shieldVideoUserNameOrUIDOrTitle(e, name, id, videoTitle);
+            shieldVideo_userName_uid_title(e, name, id, videoTitle);
         }
 
     }
@@ -566,6 +673,24 @@ function ruleList(href) {
         ruleList(href);//网页url发生变化时执行
     }, 1000);
 
+
+
+
+    if (href.includes("https://search.bilibili.com") && searchColumnBool === false) {
+        searchColumnBool = true;
+        const interval = setInterval(() => {
+            try {
+                document.getElementsByClassName("vui_tabs--nav-link")[5].addEventListener("click", () => {//监听用户点击了专栏选项卡
+                    setTimeout(() => {
+                        console.log("用户点击了专栏")
+                        searchColumn();
+                    }, 500);
+                });
+                clearInterval(interval);
+            } catch (e) {
+            }
+        }, 1000);
+    }
 
     if (href === "https://www.bilibili.com/") { //首页
         startShieldMainLeftPic();
