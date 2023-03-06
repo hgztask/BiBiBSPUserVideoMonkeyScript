@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         b站屏蔽增强器
 // @version      0.5
-// @description  根据用户名、uid、视频关键词、言论关键词进行屏蔽，作用场所，频道的视频，首页推荐，搜索页面,播放页右侧推送，视频评论区，消息中心的回复我的
+// @description  根据用户名、uid、视频关键词、言论关键词进行屏蔽，作用场所，频道的视频，首页推荐，搜索页面,播放页右侧推送，视频评论区，消息中心的【回复我的】【@我的】
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match       *search.bilibili.com/all?keyword=*&page=*&o=*
@@ -10,7 +10,7 @@
 // @match       *search.bilibili.com/video?keyword=*
 // @match       *://search.bilibili.com/article?keyword=*
 // @match        *www.bilibili.com/v/channel/*
-// @match        *://message.bilibili.com/?spm_id_from=*
+// @match        *://message.bilibili.com/*
 // @match        https://t.bilibili.com*
 // @match       *www.bilibili.com/video*
 // @match        https://www.bilibili.com/
@@ -44,7 +44,8 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
     52675587, 308174482, 286366141, 115496626, 516585427, 7407869, 21971309, 168618448, 163524651, 162007026, 300630871, 89015953, 10155123, 1360533588, 73149130, 8284785, 34774578,
     14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
     68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
-    3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911];
+    3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567];
+
 
 /**
  * 视频标题or专栏标题关键词
@@ -240,7 +241,7 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     return false;
 }
 
-function startPrintShieldTitle(element, arr, title,name) {
+function startPrintShieldTitle(element, arr, title, name) {
     const key = shieldArrContent(element, titleArr, title);
     if (key != null) {
         console.log("已通过标题关键词【" + key + "】屏蔽用户【" + name + "】");
@@ -293,7 +294,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title) {
 
     const videoTitle = shieldTitle(element, title);
     if (videoTitle != null) {
-        console.log("已通过视频标题关键词=【" + videoTitle + "】 屏蔽指定黑名单用户 【" + name + "】视频=" + title);
+        console.log("已通过视频标题关键词=【" + videoTitle + "】 屏蔽用户【" + name + "】 视频=" + title);
     }
     return false;
 }
@@ -376,6 +377,49 @@ function startShieldMainVideoTop() {
     startShieldMainVideo("feed-card");
 }
 
+/**
+ * 点击播放器的宽屏按钮
+ */
+function click_playerCtrlWhid() {
+    const interval = setInterval(() => {
+        try {
+            document.getElementsByClassName("bpx-player-ctrl-btn bpx-player-ctrl-wide")[0].click()
+            console.log("已自动点击播放器的宽屏")
+            clearInterval(interval);
+        } catch (e) {
+        }
+    }, 1000);
+}
+
+/**
+ * 删除消息中心的回复我的规则
+ */
+function delMessageReply() {
+    const list = document.getElementsByClassName("reply-item");
+    for (let v of list) {
+        const info = v.getElementsByClassName("name-field")[0];
+        const name = info.textContent;//用户名
+        const indess = info.getElementsByTagName("a")[0].getAttribute("href");
+        const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
+        const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
+        startPrintShieldNameOrUIDOrContent(v, name, uid, content);
+    }
+}
+
+/**
+ * 删除消息中的艾特我的规则
+ */
+function delMessageAT() {
+    for (let v of document.getElementsByClassName("at-item")) {
+        const userInfo = v.getElementsByClassName("name-field")[0].getElementsByTagName("a")[0];
+        const href = userInfo.getAttribute("href");
+        const userName = userInfo.textContent;
+        const uid = parseInt(href.substring(href.lastIndexOf("/") + 1));
+        const content = v.getElementsByClassName("content-list")[0].textContent;
+        startPrintShieldNameOrUIDOrContent(v, userName, uid, content);
+    }
+}
+
 
 /**
  * 清理首页零散无用的推送,如个别直播推送，综艺，赛事等，零散的掺杂在视频列表中
@@ -438,6 +482,34 @@ function startShieldMainLeftPic() {
             }
         }, 1000);
     }
+}
+
+/**
+ * 删除播放页右侧的悬浮按钮-（新版反馈等）
+ */
+function delVideFixed_nav() {
+    const interval = setInterval(() => {
+        try {
+            document.getElementsByClassName("fixed-nav")[0].remove();
+            const temp = document.getElementsByClassName("float-nav-exp")[0];
+            temp.getElementsByClassName("item mini")[0].remove();//删除右侧的小窗按钮
+            temp.getElementsByTagName("a")[0].remove();//删除右侧的反馈按钮
+            clearInterval(interval);
+        } catch (e) {
+        }
+    }, 1000);
+}
+
+/**
+ * 移除视频播放页播放器下面的广告
+ */
+function delVideoButtonAD() {
+    const elementById = document.getElementById("activity_vote");
+    if (elementById === null) {
+        return;
+    }
+    elementById.remove();
+    console.log("已删除视频播放页播放器下面的广告")
 }
 
 
@@ -522,21 +594,16 @@ function perf_observer(list, observer) {
             startShieldMainAFloorSingle();
             continue;
         }
-        if (url.includes("pi.bilibili.com/x/msgfeed/reply")) {
-            console.log("该接口疑似是up主消息中心-回复我的，对应的消息api")
-            const list = document.getElementsByClassName("reply-item");
-            for (let v of list) {
-                const info = v.getElementsByClassName("name-field")[0];
-                const name = info.textContent;//用户名
-                const indess = info.getElementsByTagName("a")[0].getAttribute("href");
-                const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
-                const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
-                startPrintShieldNameOrUIDOrContent(v, name, uid, content);
-            }
+        if (url.includes("api.bilibili.com/x/msgfeed/reply?platform=")||url.includes("api.bilibili.com/x/msgfeed/reply?id=")) {//第一次加载对应json信息和后续添加的json信息
+            delMessageReply();
             continue;
         }
         if (url.includes("api.bilibili.com/x/article/metas?ids=")) {
             searchColumn();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
+            delMessageAT();
             continue;
         }
 
@@ -644,6 +711,17 @@ function ruleList(href) {
             shieldVideo_userName_uid_title(e, name, id, videoTitle);
         }
 
+        delVideFixed_nav();
+        click_playerCtrlWhid();
+        delVideoButtonAD()
+    }
+    if (href.includes("message.bilibili.com/#/at")||href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
+        delMessageAT();
+        return;
+    }
+    if (href.includes("message.bilibili.com/#/reply")||href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
+        delMessageReply();
+        return;
     }
     if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
         frequencyChannelRules();
@@ -656,6 +734,9 @@ function ruleList(href) {
 (function () {
     'use strict';
     let href = getWindowUrl();
+    if (href.includes("https://message.bilibili.com/pages/nav/header_sync")) {//黑名单过滤url
+        return;
+    }
     console.log("当前网页url= " + href);
     //监听网络变化
     var observer = new PerformanceObserver(perf_observer);
@@ -672,8 +753,6 @@ function ruleList(href) {
         href = tempUrl;//更新url
         ruleList(href);//网页url发生变化时执行
     }, 1000);
-
-
 
 
     if (href.includes("https://search.bilibili.com") && searchColumnBool === false) {
@@ -702,7 +781,6 @@ function ruleList(href) {
         document.getElementsByClassName("bili-header__banner")[0].style.display = "none";//隐藏首页顶部的图片
         startShieldMainAFloorSingle();
         startShieldMainVideoTop();
-
     }
 
 
