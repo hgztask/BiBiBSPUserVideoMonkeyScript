@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.0.1
+// @version      1.0.2
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -617,7 +617,7 @@ function delDemo() {
  * 针对视频播放页右侧的视频进行过滤处理
  */
 function delVideoRightVideo() {
-    let interval = setInterval(() => {
+    setTimeout(() => {
         for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
             const videoInfo = e.getElementsByClassName("info")[0];
             //用户名
@@ -636,7 +636,7 @@ function delVideoRightVideo() {
                 console.log("获取视频时长错误，出现异常错误=" + e)
             }
         }
-    }, 1000);
+    }, 3000);
 }
 
 
