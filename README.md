@@ -32,4 +32,6 @@ b站根据用户名、uid、粉丝牌（目前还在测试）、视频关键词�
 
 视频播放界面右侧个别悬浮按钮，和一些推广广告
 
+首页右侧的个别悬浮按钮、左上角的导航栏，顶部大图的跳转链接
+
 更新地址：[github地址](https://hgztask.github.io/BiBiBSPUserVideoMonkeyScript/b%E7%AB%99%E5%B1%8F%E8%94%BD%E6%8C%87%E5%AE%9A%E7%94%A8%E6%88%B7%E8%A7%86%E9%A2%91.js)
