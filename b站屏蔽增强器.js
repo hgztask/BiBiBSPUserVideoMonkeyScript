@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         b站屏蔽增强器
 // @version      0.6
-// @description  根据用户名、uid、视频关键词、言论关键词进行屏蔽和精简处理(详情看js最底下描述)，作用场所：频道的视频，首页推荐，搜索页面,播放页右侧推送，视频评论区、专栏的评论区，消息中心的【回复我的】【@我的】
+// @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看作者github对应仓库的README.md描述)，
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match        *://search.bilibili.com/*
