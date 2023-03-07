@@ -1008,7 +1008,9 @@ function ruleList(href) {
                 document.getElementsByClassName("palette-button-wrap")[0].style.display = "none";
             }, 2000);
         }
-        document.getElementsByClassName("bili-header__banner")[0].style.display = "none";//隐藏首页顶部的图片
+        //document.getElementById("bili-header-banner-img").remove()//删除首页顶部的图片
+        document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
+        document.getElementsByClassName("banner-link")[0].remove();//删除首页顶部图片的跳转链接
         startShieldMainAFloorSingle();
         startShieldMainVideoTop();
     }
