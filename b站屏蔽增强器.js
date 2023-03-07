@@ -4,18 +4,18 @@
 // @description  根据用户名、uid、视频关键词、言论关键词进行屏蔽和精简处理(详情看js最底下描述)，作用场所：频道的视频，首页推荐，搜索页面,播放页右侧推送，视频评论区、专栏的评论区，消息中心的【回复我的】【@我的】
 // @author       byhgz
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
-// @match       *://search.bilibili.com/*
-// @match        *www.bilibili.com/v/channel/*
+// @match        *://search.bilibili.com/*
+// @match        *://www.bilibili.com/v/channel/*
 // @match        *://message.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
-// @match        https://t.bilibili.com*
-// @match       *www.bilibili.com/video*
+// @match        *://t.bilibili.com/*
+// @match        *://space.bilibili.com/*
+// @match        *://www.bilibili.com/video/*
+// @match        *://live.bilibili.com/*
 // @match        https://www.bilibili.com/
 // @icon         https://static.hdslb.com/images/favicon.ico
-// @require  https://unpkg.com/ajax-hook@2.1.3/dist/ajaxhook.min.js
 // @grant        none
 // ==/UserScript==
-
 
 /**
  * 用户名黑名单模式
@@ -43,7 +43,6 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
     68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
     3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567];
 
-
 /**
  * 视频标题or专栏标题关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
@@ -63,6 +62,27 @@ const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不�
  * @type {string[]}
  */
 const contentColumnKeyArr = ["抄袭"];
+/**
+ * 粉丝牌
+ * 根据粉丝牌屏蔽
+ * @type {string[]}
+ */
+const fanCardKeyArr = [];
+
+/**
+ *设置时长最小值，单位秒
+ * 设置为 0，则不需要根据视频时长过滤
+ * @type {number}
+ */
+const filterSMin = 0;
+
+/**
+ * 设置时长最大值，单位秒
+ * 设置为 0，则不需要根据视频时长过滤
+ * @type {number}
+ */
+const filterSMax = 0;
+
 //是否屏蔽首页=左侧大图的轮播图
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的
@@ -81,12 +101,18 @@ let boolShieldMainlive = false;
  */
 let searchColumnBool = false;
 
+/**
+ * 记录播放页的广告是屏蔽的地方
+ * @type {number}
+ */
+let delVideoRightButtonADIndex = 0;
 
 /**
  * 获取当前网页的url
  * @returns {string}
  */
 function getWindowUrl() {
+
     return window.location.href;
 }
 
@@ -104,7 +130,6 @@ function shieldArrKey(element, arr, key) {
     }
     return false;
 }
-
 
 /**
  * 根据用户uid屏蔽元素
@@ -163,7 +188,6 @@ function shieldColumnContent(element, content) {
     return shieldArrContent(element, contentColumnKeyArr, content);
 }
 
-
 /**
  * 根据标题屏蔽元素
  * @param element 网页元素
@@ -180,6 +204,96 @@ function shieldTitle(element, title) {
     return null;
 }
 
+/**
+ * 根据用户粉丝牌进行屏蔽
+ * @param element 网页元素
+ * @param key
+ * @returns {boolean}
+ */
+function shieldFanCard(element, key) {
+    return shieldArrKey(element, fanCardKeyArr, key);
+}
+
+/**
+ * 限制可展示的视频时长最小值，低于该值的都屏蔽
+ * 根据视频时长，过滤指定时长内的视频
+ * @param element 网页元素
+ * @param {Number}key 秒数
+ * @returns {boolean}
+ */
+function shieldMinFilterS(element, key) {
+    if (filterSMin > key) {
+        element.remove();
+        return true;
+    }
+    return false;
+}
+
+/**
+ * 限制可暂时的视频时长最大值，高于该值的都屏蔽
+ * @param element
+ * @param {Number}key 秒数
+ */
+function shieldMaxFilterS(element, key) {
+    if (filterSMax === 0 || filterSMax < filterSMin) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        return false;
+    }
+    if (filterSMax < key) {
+        element.remove();
+        return true;
+    }
+    return false;
+}
+
+
+/**
+ * 分割时分秒字符串
+ * @param time
+ * @returns {{s: number, h: number, m: number}|{s: number, m: number}}
+ */
+function splitTimeHMS(time) {
+    const split = time.split(":");
+    if (split.length === 2) {//说明时长是在60分钟以内
+        const tempM = parseInt(split[0]);//分
+        const tempS = parseInt(split[1]);//秒
+        return {
+            m: tempM,
+            s: tempS
+        };
+    } else {//说明时长是在一小时以上的
+        const tempH = parseInt(split[0]);//时
+        const tempM = parseInt(split[0]);//分
+        const tempS = parseInt(split[1]);//秒
+        return {
+            h: tempH,
+            m: tempM,
+            s: tempS
+        };
+    }
+}
+
+/**
+ * 根据字符串的时分秒转成秒
+ * @param {String} time 时分秒字符串
+ * @returns {Number} 总秒
+ */
+function getTimeTotalSeconds(time) {
+    const demoTime = splitTimeHMS(time);
+    if (demoTime.h === undefined) {//表示时长没有时
+        if (demoTime.m === 0) {//时长低于60秒
+            return demoTime.s;
+        }
+        return demoTime.m * 60 + demoTime.s;//求出剩下的分和秒的总秒
+    }
+    if (demoTime.h === 0) {//说明时长仅仅只有60分钟以内
+        if (demoTime.m === 0) {//时长低于60秒
+            return demoTime.s;
+        }
+        return demoTime.m * 60 + demoTime.s;//求出剩下的分和秒的总秒
+    }
+    //一小时有60分钟，一分钟有60秒，所以，
+    return demoTime.h * 60 * 60 + demoTime.s;
+}
 
 /**
  *结合版-根据用户名和uid针对性屏蔽元素
@@ -247,13 +361,13 @@ function startPrintShieldTitle(element, arr, title, name) {
     return false;
 }
 
-
 /**
  * 执行并打印屏蔽专栏信息
  * @param element 网页元素
  * @param name 用户名
  * @param uid uid
  * @param content 专栏内容
+ * @param title 专栏标题
  * @returns {boolean}
  */
 function startPrintshieldcolumn(element, name, uid, content, title) {
@@ -268,17 +382,17 @@ function startPrintshieldcolumn(element, name, uid, content, title) {
     return !!(startPrintShieldTitle(element, titleArr, title, name));
 }
 
-
 /**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
  * @param element 对应的视频元素
- * @param name 用户名
- * @param uid 用户uid
- * @param title 视频标题
+ * @param {String}name 用户名
+ * @param {Number}uid 用户uid
+ * @param {String}title 视频标题
+ * @param  {String}videoTime 视频时间
  * @returns {boolean} 是否执行完
  */
-function shieldVideo_userName_uid_title(element, name, uid, title) {
+function shieldVideo_userName_uid_title(element, name, uid, title, videoTime) {
     let nameOrUID = shieldNameOrUID(element, name, uid);
     if (nameOrUID != null) {
         if (nameOrUID === "uid") {
@@ -288,14 +402,21 @@ function shieldVideo_userName_uid_title(element, name, uid, title) {
         console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】 视频=" + title);
         return true;
     }
-
     const videoTitle = shieldTitle(element, title);
     if (videoTitle != null) {
         console.log("已通过视频标题关键词=【" + videoTitle + "】 屏蔽用户【" + name + "】 视频=" + title);
     }
+    const timeTotalSeconds = getTimeTotalSeconds(videoTime);
+    if (shieldMinFilterS(element, timeTotalSeconds)) {
+        console.log("已通过视频时长过滤时长小于=【" + filterSMin + "】秒的视频 视频=【" + title + "】");
+        return true;
+    }
+    if (shieldMaxFilterS(element, timeTotalSeconds)) {
+        console.log("已通过视频时长过滤时长大于=【" + filterSMax + "】秒的视频 视频=【" + title + "】");
+        return true;
+    }
     return false;
 }
-
 
 /**
  * 频道
@@ -312,13 +433,13 @@ function startExtracted(vdoc) {
         let videoName = element.getElementsByClassName("video-name")[0].textContent;
         //空间地址
         const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
+        const videoTime = element.getElementsByClassName("play-duraiton")[0].textContent;
         const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
         const id = parseInt(upSpatialAddress.substring(lastIndexOf));
-        temp = shieldVideo_userName_uid_title(element, upName, id, videoName);
+        temp = shieldVideo_userName_uid_title(element, upName, id, videoName, videoTime);
     }
     return temp;
 }
-
 
 /**
  * 屏蔽首页对应的视频
@@ -333,7 +454,7 @@ function startShieldMainVideo(str) {
         while (true) {
             const tempLength = list.length;
             for (let v of list) {
-                let videoInfo, title, upName, upSpatialAddress;//可以一排定义
+                let videoInfo, title, upName, upSpatialAddress, videoTime;//可以一排定义
                 try {
                     videoInfo = v.getElementsByClassName("bili-video-card__info--right")[0];
                     //视频标题
@@ -342,6 +463,7 @@ function startShieldMainVideo(str) {
                     upName = videoInfo.getElementsByClassName("bili-video-card__info--author")[0].getAttribute("title");
                     //用户空间地址
                     upSpatialAddress = videoInfo.getElementsByClassName("bili-video-card__info--owner")[0].getAttribute("href");
+                    videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
                 } catch (e) {
                     v.remove();
                     console.log("获取元素中，获取失败，下一行是该值的html");
@@ -354,7 +476,7 @@ function startShieldMainVideo(str) {
                     console.log("检测到不是正常视频样式，故删除该元素");
                     continue;
                 }
-                shieldVideo_userName_uid_title(v, upName, id, title);
+                shieldVideo_userName_uid_title(v, upName, id, title, videoTime);
             }
             list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
             if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
@@ -365,7 +487,6 @@ function startShieldMainVideo(str) {
         }
     }, 1000);
 }
-
 
 /**
  * 屏蔽首页顶部推荐视频
@@ -419,6 +540,104 @@ function delMessageAT() {
 
 
 /**
+ * 移除视频播放页播放器下面和右侧和右下角的推广
+ */
+function delVideoRightButtonAD() {
+    const interval = setInterval(() => {
+        const id = document.getElementById("right-bottom-banner");
+        const idGame = document.getElementsByClassName("video-page-game-card-small")[0];
+        const className = document.getElementsByClassName("pop-live-small-mode part-undefined")[0];
+        const fixed_Nav = document.getElementsByClassName("fixed-nav")[0];
+        const float_nav_exp = document.getElementsByClassName("float-nav-exp")[0];
+        const elementById = document.getElementById("activity_vote");
+        if (elementById) {
+            elementById.remove();
+            delVideoRightButtonADIndex++;
+        }
+        if (fixed_Nav) {
+            fixed_Nav.remove();
+            delVideoRightButtonADIndex++;
+        }
+        if (float_nav_exp) {
+            try {
+                float_nav_exp.getElementsByClassName("item mini")[0].remove();//删除右侧的小窗按钮
+                float_nav_exp.getElementsByTagName("a")[0].remove();//删除右侧的反馈按钮
+                delVideoRightButtonADIndex++;
+            } catch (e) {
+            }
+        }
+        if (id) {
+            document.getElementById("right-bottom-banner").remove();//删除右下角的活动推广
+            delVideoRightButtonADIndex++;
+        }
+        if (idGame) {
+            idGame.remove();
+            delVideoRightButtonADIndex++;
+        }
+        if (className) {
+            className.remove();//删除右下角的直播推广
+            delVideoRightButtonADIndex++;
+        }
+        if (delVideoRightButtonADIndex === 6) {
+            clearInterval(interval);
+            console.log("视频页面的广告已经清除！")
+        }
+    }, 1000);
+}
+
+
+/**
+ * 屏蔽直播间对应的言论
+ * 暂时测试打印下效果
+ */
+function delDemo() {
+    const chatItems = document.getElementById("chat-items");
+    const list = chatItems.getElementsByClassName("chat-item danmaku-item");
+    for (let v of list) {
+        const userName = v.getAttribute("data-uname");
+        const uid = parseInt(v.getAttribute("data-uid"));
+        const content = v.getAttribute("data-danmaku");
+        let fansMeda = "这是个个性粉丝牌子";
+        try {
+            fansMeda = v.getElementsByClassName("fans-medal-content")[0].textContent;
+        } catch (e) {
+        }
+        if (!startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+            if (shieldFanCard(v, fansMeda)) {
+                console.log("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
+            }
+        }
+    }
+}
+
+/**
+ * 针对视频播放页右侧的视频进行过滤处理
+ */
+function delVideoRightVideo() {
+    let interval = setInterval(() => {
+        for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
+            const videoInfo = e.getElementsByClassName("info")[0];
+            //用户名
+            const name = videoInfo.getElementsByClassName("name")[0].textContent;
+            //视频标题
+            const videoTitle = videoInfo.getElementsByClassName("title")[0].textContent;
+            //用户空间地址
+            const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
+            const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
+            let videoTime;
+            try {
+                videoTime = e.getElementsByClassName("duration")[0].textContent;
+                clearInterval(interval);
+                shieldVideo_userName_uid_title(e, name, id, videoTitle, videoTime);
+            } catch (e) {
+                console.log("获取视频时长错误，出现异常错误=" + e)
+            }
+        }
+    }, 1000);
+}
+
+
+/**
  * 清理首页零散无用的推送,如个别直播推送，综艺，赛事等，零散的掺杂在视频列表中
  */
 function startShieldMainAFloorSingle() {
@@ -440,7 +659,6 @@ function startShieldMainAFloorSingle() {
         }
     }, 1000);
 }
-
 
 /**
  * 清理首页中的零散的直播间元素
@@ -464,7 +682,6 @@ function startShieldMainlive() {
     }, 500);
 }
 
-
 /***
  * 屏蔽首页左侧的轮播大图
  */
@@ -481,39 +698,12 @@ function startShieldMainLeftPic() {
     }
 }
 
-/**
- * 删除播放页右侧的悬浮按钮-（新版反馈等）
- */
-function delVideFixed_nav() {
-    const interval = setInterval(() => {
-        try {
-            document.getElementsByClassName("fixed-nav")[0].remove();
-            const temp = document.getElementsByClassName("float-nav-exp")[0];
-            temp.getElementsByClassName("item mini")[0].remove();//删除右侧的小窗按钮
-            temp.getElementsByTagName("a")[0].remove();//删除右侧的反馈按钮
-            clearInterval(interval);
-        } catch (e) {
-        }
-    }, 1000);
-}
 
 /**
- * 移除视频播放页播放器下面的广告
+ * 根据规则删除专栏和动态的评论区
+ * 针对于专栏和动态内容下面的评论区
  */
-function delVideoButtonAD() {
-    const elementById = document.getElementById("activity_vote");
-    if (elementById === null) {
-        return;
-    }
-    elementById.remove();
-    console.log("已删除视频播放页播放器下面的广告")
-}
-
-/**
- * 根据规则删除专栏的评论
- * 针对于专栏下面的评论区
- */
-function delColumnReplay() {
+function delDReplay() {
     const list = document.getElementsByClassName("list-item reply-wrap");
     for (let v of list) {
         const userInfo = v.getElementsByClassName("user")[0];//楼主信息
@@ -529,11 +719,10 @@ function delColumnReplay() {
             const replayName = replyInfo.getElementsByClassName("name")[0].textContent;
             const replayUid = parseInt(replyInfo.getElementsByClassName("name")[0].getAttribute("data-usercard-mid"));
             const replayContent = replyInfo.getElementsByTagName("span")[0].textContent;
-           startPrintShieldNameOrUIDOrContent(j,replayName,replayUid,replayContent);
+            startPrintShieldNameOrUIDOrContent(j, replayName, replayUid, replayContent);
         }
     }
 }
-
 
 /**
  * 删除搜索页面的视频元素
@@ -555,11 +744,11 @@ function searchRules(videoList) {
             v.parentNode.remove();
             continue;
         }
+        const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
         let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        shieldVideo_userName_uid_title(v.parentNode, name, id, title);
+        shieldVideo_userName_uid_title(v.parentNode, name, id, title, videoTime);
     }
 }
-
 
 function perf_observer(list, observer) {
     const entries = performance.getEntriesByType('resource');
@@ -628,22 +817,25 @@ function perf_observer(list, observer) {
             delMessageAT();
             continue;
         }
-        if (url.includes("api.bilibili.com/x/v2/reply/main?callback=jQuery")
-            || url.includes("api.bilibili.com/x/v2/reply/reply?callback=jQuery")
-            && getWindowUrl().includes("www.bilibili.com/read")) {//后面一个条件限制为仅仅是专栏页面的该api，消息中心的api疑似也是这个，后续在测试看下
-            delColumnReplay();
-            continue;
-        }
 
+        //后面一个条件限制为仅仅是专栏页面的该api，消息中心的api疑似也是这个，后续在测试看下
+        if (url.includes("api.bilibili.com/x/v2/reply/main?callback=jQuery") || url.includes("api.bilibili.com/x/v2/reply/reply?callback=jQuery")) {
+            if (windowUrl.includes("www.bilibili.com/read")) {
+                delDReplay();
+                continue;
+            }
+            if (windowUrl.includes("t.bilibili.com")) {
+                console.log("接收到了动态的评论区api")
+                delDReplay();
+                continue;
+            }
+        }
 
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
             console.log("不确定api链接！")
         }
-
-
     }
 }
-
 
 /**
  * 频道排行榜规则
@@ -693,7 +885,6 @@ function searchColumn() {
     }
 }
 
-
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -727,21 +918,17 @@ function ruleList(href) {
         }, 500);
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
-        for (let e of document.getElementsByClassName("video-page-card-small")) {//获取左侧的页面的视频列表
-            const videoInfo = e.getElementsByClassName("info")[0];
-            //用户名
-            const name = videoInfo.getElementsByClassName("name")[0].textContent;
-            //视频标题
-            const videoTitle = videoInfo.getElementsByClassName("title")[0].textContent;
-            //用户空间地址
-            const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
-            const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
-            shieldVideo_userName_uid_title(e, name, id, videoTitle);
-        }
-
-        delVideFixed_nav();
+        document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
+            delVideoRightVideo();
+        });
+        setTimeout(() => {
+            document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
+                console.log("用户点击了右侧的展开")
+                delVideoRightVideo();
+            })
+        }, 3000);
+        delVideoRightButtonAD();
         click_playerCtrlWhid();
-        delVideoButtonAD()
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         delMessageAT();
@@ -755,14 +942,13 @@ function ruleList(href) {
         frequencyChannelRules();
     }
 
-
 }
-
 
 (function () {
     'use strict';
     let href = getWindowUrl();
-    if (href.includes("https://message.bilibili.com/pages/nav/header_sync")) {//黑名单过滤url
+    if (href.includes("https://message.bilibili.com/pages/nav/header_sync")) {
+        //console.log("检测到不该出现的url=" + href);//最好把这url给补上
         return;
     }
     console.log("当前网页url= " + href);
@@ -783,6 +969,16 @@ function ruleList(href) {
     }, 1000);
 
 
+    if (href.includes("//live.bilibili.com/")) {
+        try {
+            document.getElementById("chat-items").addEventListener("DOMSubtreeModified", () => {
+                delDemo();
+            });
+            console.log("定义了监听器=chat-items")
+        } catch (e) {
+            console.log("测试，没找着id")
+        }
+    }
     if (href.includes("search.bilibili.com") && searchColumnBool === false) {
         try {
             document.getElementById("biliMainFooter").remove();
@@ -816,19 +1012,13 @@ function ruleList(href) {
         startShieldMainAFloorSingle();
         startShieldMainVideoTop();
     }
-
-
-    // Your code here...
 })();
-
-
 /**
  精简处理的地方有：
  搜索页面右侧悬浮按钮（貌似是新版的，没留意）
  搜索页面底部信息
  视频播放界面右侧个别悬浮按钮
  */
-
 
 /*****
  * 原本想写多一个处理从首页进去的的动态页面的评论区的，不知道为什么捕获不到那个api链接，如果捕获到了或许可以比较好处理写，用定时器一直监听也是比较麻烦，以后如果有机会或者，找到方法了在尝试解决把
@@ -860,6 +1050,18 @@ function ruleList(href) {
         console.log("用户点击了换一换")
     }, 500);
 });
+
+
+
+ 获取用户所有关注的思路：
+ 不确定js有没有相关可以发起请求的库，以java的为例，请求带上cookie，和referer，
+ 且用该api发起请求
+ https://api.bilibili.com/x/relation/followings?vmid=UID号&pn=页数，从1开始&ps=20&order=desc&order_type=attention&jsonp=jsonp&callback=__jp5
+ 其中referer值=https://space.bilibili.com/用户UID/fans/follow
+ 正常情况就可以得到内容了，根据总的关注数量，除以20，且除余就得出需要循环获取多少次了页数
+
+ 新计划
+ 根据规则屏蔽直播间的用户
 
 
 
