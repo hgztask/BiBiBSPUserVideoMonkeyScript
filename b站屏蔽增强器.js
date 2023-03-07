@@ -1,8 +1,11 @@
 // ==UserScript==
 // @name         b站屏蔽增强器
-// @version      0.6
+// @namespace    http://tampermonkey.net/
+// @license      MIT
+// @version      1.0.0
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看作者github对应仓库的README.md描述)，
 // @author       byhgz
+// @exclude      *://message.bilibili.com/pages/nav/header_sync
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match        *://search.bilibili.com/*
 // @match        *://www.bilibili.com/v/channel/*
@@ -947,10 +950,6 @@ function ruleList(href) {
 (function () {
     'use strict';
     let href = getWindowUrl();
-    if (href.includes("https://message.bilibili.com/pages/nav/header_sync")) {
-        //console.log("检测到不该出现的url=" + href);//最好把这url给补上
-        return;
-    }
     console.log("当前网页url= " + href);
     //监听网络变化
     var observer = new PerformanceObserver(perf_observer);
