@@ -11,6 +11,7 @@
 // @match        *://www.bilibili.com/v/channel/*
 // @match        *://message.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
+// @match        *://www.bilibili.com/v/topic/detail/?topic_id=*
 // @match        *://t.bilibili.com/*
 // @match        *://space.bilibili.com/*
 // @match        *://www.bilibili.com/video/*
@@ -54,7 +55,7 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
     52675587, 308174482, 286366141, 115496626, 516585427, 7407869, 21971309, 168618448, 163524651, 162007026, 300630871, 89015953, 10155123, 1360533588, 73149130, 8284785, 34774578,
     14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
     68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
-    3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567];
+    3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163];
 
 /**
  * 视频标题or专栏标题关键词
@@ -63,7 +64,7 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
  * 说明：比如某个视频有个张三关键词，你想要屏蔽张三关键词的旧如下所示例子，添加关键的地方即可，如果有多个就，按照下面例子中添加，即可，如果有两个类似的，靠左边的优先匹配到
  * @type {string[]}
  */
-const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三"];
+const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开"];
 /**
  * 评论关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
@@ -71,7 +72,7 @@ const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯
  * 同理跟上面标题关键词一样，只不过作用地方是在评论
  * @type {string[]}
  */
-const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三"];
+const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开"];
 
 /**
  * 专栏关键词
@@ -115,6 +116,26 @@ const filterSMax = 0;
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
 const paletteButtionBool = true;
+
+
+/**
+ *直播间的相关配置信息
+ */
+const liveData = {
+    //是否移除直播间底部的全部信息，包括动态和主播公告和简介及荣誉
+    bottomElement: true,
+    //移除直播间顶部的信息（包括顶部标题栏）
+    topElement: false,
+    //是否移除直播间底部的的简介和主播荣誉
+    bottomIntroduction: false,
+    //是否移除直播间的主播公告布局
+    container: false,
+    /**
+     * 是否屏蔽直播间底部动态
+     */
+    liveFeed: false
+}
+
 
 /**
  * 是否正在执行清理首页中的零散的直播间元素函数
@@ -490,7 +511,7 @@ function startShieldMainVideo(str) {
                 } catch (e) {
                     v.remove();
                     console.log("获取元素中，获取失败，下一行是该值的html");
-                    console.log(e)
+                    console.log(v)
                     continue;
                 }
                 let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
@@ -597,7 +618,7 @@ const delVideo = {
             }
         }, 2000);
     },
-    lListRightTopAD: function () {//移除播放页右上角的游戏推广
+    lListRightTopGameAD: function () {//移除播放页右上角的游戏推广
         const tempVar = document.getElementsByClassName("video-page-game-card-small")[0];
         if (tempVar) {
             tempVar.remove();
@@ -605,11 +626,41 @@ const delVideo = {
         }
     },
     listRightTopOtherAD: function () {//移除播放页右上角的其他推广
-        const tempVar = document.getElementsByClassName("video-page-special-card-small")[0];
-        if (tempVar) {
-            tempVar.remove();
-            console.log("移除播放页右上角的其他推广")
-        }
+        let index = 0;
+        const interval = setInterval(() => {
+            if (++index === 2) {
+                clearInterval(interval);
+            }
+            const tempVar = document.getElementsByClassName("video-page-special-card-small")[0];
+            if (tempVar) {
+                tempVar.remove();
+                console.log("移除播放页右上角的其他推广")
+            }
+        }, 2000);
+    },
+    listRightTopAD: function () {//移除播放页右上角的广告
+        let index = 0;
+        const interval = setInterval(() => {
+            if (++index === 2) {
+                clearInterval(interval);
+            }
+            const vcd = document.getElementsByClassName("vcd")[0];
+            if (vcd) {
+                vcd.remove();
+                console.log("已移除右上角的广告")
+            }
+        }, 2000);
+    }, commentArea: function () {
+        let index = 0;
+        const interval = setInterval(() => {
+            if (++index === 2) {
+                clearInterval(interval);
+            }
+            const ad = document.getElementById("bannerAd");
+            if (ad) {
+                ad.remove();
+            }
+        }, 2000);
     },
     rightBottomBanner: function () {//删除右下角的活动推广
         const id = document.getElementById("right-bottom-banner");
@@ -627,6 +678,45 @@ const delVideo = {
                 clearInterval(interval)
             }
         }, 2000);
+    }
+}
+
+//针对于直播间顶部的屏蔽处理
+function delLiveTopElement() {
+    if (liveData.topElement) {
+        document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")
+        console.log("已移除直播间顶部的信息（包括顶部标题栏）")
+        return;
+    }
+}
+
+//针对于直播间底部的屏蔽处理
+function delLiveBottomElement() {
+    document.getElementById("link-footer-vm").remove();
+    console.log("已移除底部的页脚信息")
+    if (liveData.bottomElement) {
+        document.getElementById("sections-vm").remove();
+        console.log("已移除直播间底部的全部信息")
+        return;
+    }
+    if (liveData.bottomIntroduction) {
+        document.getElementsByClassName("section-block f-clear z-section-blocks")[0].getElementsByClassName("left-container")[0].remove();
+        console.log("已移除直播间底部的的简介和主播荣誉")
+    } else {
+        if (liveData.liveFeed) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("room-feed")[0].remove();
+                    clearInterval(interval)
+                    console.log("已移除页面底部动态部分")
+                } catch (e) {
+                }
+            }, 2500);
+        }
+    }
+    if (liveData.container) {
+        document.getElementsByClassName("right-container")[0].remove();
+        console.log("已移除直播间的主播公告")
     }
 }
 
@@ -737,6 +827,26 @@ function startShieldMainLeftPic() {
             } catch (e) {
             }
         }, 1000);
+    }
+}
+
+/**
+ * 针对b站话题
+ */
+function deltopIC() {
+    for (let v of document.getElementsByClassName("list__topic-card")) {
+        const info = v.getElementsByClassName("bili-dyn-content__orig")[0];
+        const name = v.getElementsByClassName("bili-dyn-title")[0].textContent.trim();
+        const uid = parseInt(v.getElementsByClassName("bili-dyn-item__following")[0].getAttribute("data-mid"));
+        if (info.getElementsByClassName("bili-dyn-content__orig__desc").length === 1) {
+            const content = info.textContent;
+            startPrintShieldNameOrUIDOrContent(v, name, uid, content);
+            continue;
+        }//如果内容是视频样式
+        const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
+        const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
+        const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
+        shieldVideo_userName_uid_title(v, name, uid, title, videoTime);
     }
 }
 
@@ -871,6 +981,12 @@ function perf_observer(list, observer) {
                 delDReplay();
                 continue;
             }
+            if (windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题界面的楼层评论
+                console.log("话题界面的api")
+            }
+        }
+        if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
+            deltopIC();
         }
 
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
@@ -974,8 +1090,10 @@ function ruleList(href) {
         try {
             delVideo.rightFixdNav();
             delVideo.rightFixed_nav_ex();
-            delVideo.lListRightTopAD();
+            delVideo.lListRightTopGameAD();
             delVideo.listRightTopOtherAD();
+            delVideo.listRightTopAD();
+            delVideo.commentArea();
             setTimeout(() => {
                 delVideo.rightListBottonLive();
                 delVideo.rightBottomBanner();
@@ -1021,6 +1139,8 @@ function ruleList(href) {
 
 
     if (href.includes("//live.bilibili.com/")) {
+        delLiveTopElement();
+        delLiveBottomElement();
         try {
             document.getElementById("chat-items").addEventListener("DOMSubtreeModified", () => {
                 delDemo();
@@ -1050,6 +1170,11 @@ function ruleList(href) {
             } catch (e) {
             }
         }, 1000);
+    }
+
+
+    if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
+        deltopIC();
     }
 
     if (href === "https://www.bilibili.com/") { //首页
