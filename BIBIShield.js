@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.0.2
+// @version      1.0.3
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -22,11 +22,21 @@
 
 /**
  * 用户名黑名单模式
+ * 提示越靠前的优先匹配
+ * 例子，我想要屏蔽用户名叫张三的，内容两边加上“，如下所示
+ * ["张三"]
+ * 如追加在后面添加即可
+ * ["张三","李四"]
  * @type {string[]} 元素类型为字符串
  */
 const userNameArr = [];
 /**
  * 用户uid黑名单模式
+ * 提示越靠前的优先匹配
+ * 比如我想要想要根据某个用户的UID进行屏蔽，则填写纯数字即可，不用加UID，如：
+ * [114514]
+ * 多个就
+ * [114514,1433223]
  * @type {number[]}
  */
 const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920, 522828809, 15361927, 1514545, 1463474700, 473602930, 360222848, 34478056, 443966044, 365370701,
@@ -49,12 +59,16 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
 /**
  * 视频标题or专栏标题关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
+ * 提示越靠前的优先匹配
+ * 说明：比如某个视频有个张三关键词，你想要屏蔽张三关键词的旧如下所示例子，添加关键的地方即可，如果有多个就，按照下面例子中添加，即可，如果有两个类似的，靠左边的优先匹配到
  * @type {string[]}
  */
 const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三"];
 /**
  * 评论关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
+ * 提示越靠前的优先匹配
+ * 同理跟上面标题关键词一样，只不过作用地方是在评论
  * @type {string[]}
  */
 const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三"];
@@ -62,12 +76,15 @@ const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不�
 /**
  * 专栏关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
+ * 提示越靠前的优先匹配
+ * 同理跟上面标题关键词一样，只不过作用地方是在评论
  * @type {string[]}
  */
 const contentColumnKeyArr = ["抄袭"];
 /**
  * 粉丝牌
  * 根据粉丝牌屏蔽
+ * 提示越靠前的优先匹配
  * @type {string[]}
  */
 const fanCardKeyArr = [];
@@ -75,6 +92,10 @@ const fanCardKeyArr = [];
 /**
  *设置时长最小值，单位秒
  * 设置为 0，则不需要根据视频时长过滤
+ * 说明，比如我先过滤60秒以内的视频，即60以内的视频都会被屏蔽掉，限定允许出现的最小时长
+ * 可以这样填写
+ * 5*60
+ * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
  * @type {number}
  */
 const filterSMin = 0;
@@ -82,13 +103,17 @@ const filterSMin = 0;
 /**
  * 设置时长最大值，单位秒
  * 设置为 0，则不需要根据视频时长过滤
+ * 说明，允许出现的最大视频时长，超出该时长的都会被屏蔽掉，限定允许出现的最大时长
+ * 可以这样填写
+ * 5*60
+ * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
  * @type {number}
  */
 const filterSMax = 0;
 
-//是否屏蔽首页=左侧大图的轮播图
+//是否屏蔽首页=左侧大图的轮播图,反之false
 const homePicBool = true;
-//是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的
+//是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
 const paletteButtionBool = true;
 
 /**
@@ -104,11 +129,6 @@ let boolShieldMainlive = false;
  */
 let searchColumnBool = false;
 
-/**
- * 记录播放页的广告是屏蔽的地方
- * @type {number}
- */
-let delVideoRightButtonADIndex = 0;
 
 /**
  * 获取当前网页的url
@@ -543,49 +563,71 @@ function delMessageAT() {
 
 
 /**
- * 移除视频播放页播放器下面和右侧和右下角的推广
+ * 针对视频播放页的相关方法
  */
-function delVideoRightButtonAD() {
-    const interval = setInterval(() => {
-        const id = document.getElementById("right-bottom-banner");
-        const idGame = document.getElementsByClassName("video-page-game-card-small")[0];
-        const className = document.getElementsByClassName("pop-live-small-mode part-undefined")[0];
-        const fixed_Nav = document.getElementsByClassName("fixed-nav")[0];
-        const float_nav_exp = document.getElementsByClassName("float-nav-exp")[0];
-        const elementById = document.getElementById("activity_vote");
-        if (elementById) {
-            elementById.remove();
-            delVideoRightButtonADIndex++;
-        }
-        if (fixed_Nav) {
-            fixed_Nav.remove();
-            delVideoRightButtonADIndex++;
-        }
-        if (float_nav_exp) {
+const delVideo = {
+    rightFixdNav: function () { //移除播放页右侧的部分悬浮按钮-【新版反馈】【回到旧版】
+        let tempIndex = 0;
+        const interval = setInterval(() => {
+            if (++tempIndex === 2) {
+                clearInterval(interval);
+            }
             try {
-                float_nav_exp.getElementsByClassName("item mini")[0].remove();//删除右侧的小窗按钮
-                float_nav_exp.getElementsByTagName("a")[0].remove();//删除右侧的反馈按钮
-                delVideoRightButtonADIndex++;
+                const fixed_Nav = document.getElementsByClassName("fixed-nav")[0];
+                if (fixed_Nav) {
+                    fixed_Nav.remove();
+                }
             } catch (e) {
             }
+        }, 2000);
+    },
+    rightFixed_nav_ex: function () {//移除播放页右侧的部分悬浮按钮
+        let tempIndex = 0;
+        const interval = setInterval(() => {
+            if (++tempIndex === 2) {
+                clearInterval(interval);
+            }
+            try {
+                const float_nav_exp = document.getElementsByClassName("float-nav-exp")[0];
+                if (float_nav_exp) {
+                    float_nav_exp.getElementsByClassName("item mini")[0].remove();//删除右侧的小窗按钮
+                    float_nav_exp.getElementsByTagName("a")[0].remove();//删除右侧的反馈按钮
+                }
+            } catch (e) {
+            }
+        }, 2000);
+    },
+    lListRightTopAD: function () {//移除播放页右上角的游戏推广
+        const tempVar = document.getElementsByClassName("video-page-game-card-small")[0];
+        if (tempVar) {
+            tempVar.remove();
+            console.log("移除播放页右上角的游戏推广")
         }
+    },
+    listRightTopOtherAD: function () {//移除播放页右上角的其他推广
+        const tempVar = document.getElementsByClassName("video-page-special-card-small")[0];
+        if (tempVar) {
+            tempVar.remove();
+            console.log("移除播放页右上角的其他推广")
+        }
+    },
+    rightBottomBanner: function () {//删除右下角的活动推广
+        const id = document.getElementById("right-bottom-banner");
         if (id) {
-            document.getElementById("right-bottom-banner").remove();//删除右下角的活动推广
-            delVideoRightButtonADIndex++;
+            id.remove();
+            console.log("删除右下角的活动推广")
         }
-        if (idGame) {
-            idGame.remove();
-            delVideoRightButtonADIndex++;
-        }
-        if (className) {
-            className.remove();//删除右下角的直播推广
-            delVideoRightButtonADIndex++;
-        }
-        if (delVideoRightButtonADIndex === 6) {
-            clearInterval(interval);
-            console.log("视频页面的广告已经清除！")
-        }
-    }, 1000);
+    },
+    rightListBottonLive: function () {//删除右下角的直播推广
+        const interval = setInterval(() => {
+            const className = document.getElementsByClassName("pop-live-small-mode part-undefined")[0];
+            if (className) {
+                className.remove();
+                console.log("删除右下角的直播推广")
+                clearInterval(interval)
+            }
+        }, 2000);
+    }
 }
 
 
@@ -617,26 +659,23 @@ function delDemo() {
  * 针对视频播放页右侧的视频进行过滤处理
  */
 function delVideoRightVideo() {
-    setTimeout(() => {
-        for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
-            const videoInfo = e.getElementsByClassName("info")[0];
-            //用户名
-            const name = videoInfo.getElementsByClassName("name")[0].textContent;
-            //视频标题
-            const videoTitle = videoInfo.getElementsByClassName("title")[0].textContent;
-            //用户空间地址
-            const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
-            const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
-            let videoTime;
-            try {
-                videoTime = e.getElementsByClassName("duration")[0].textContent;
-                clearInterval(interval);
-                shieldVideo_userName_uid_title(e, name, id, videoTitle, videoTime);
-            } catch (e) {
-                console.log("获取视频时长错误，出现异常错误=" + e)
-            }
+    for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
+        const videoInfo = e.getElementsByClassName("info")[0];
+        //用户名
+        const name = videoInfo.getElementsByClassName("name")[0].textContent;
+        //视频标题
+        const videoTitle = videoInfo.getElementsByClassName("title")[0].textContent;
+        //用户空间地址
+        const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
+        const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
+        let videoTime = undefined;
+        try {
+            videoTime = e.getElementsByClassName("duration")[0].textContent;
+        } catch (e) {
+            console.log("获取视频时长错误，出现异常错误=" + e)
         }
-    }, 3000);
+        shieldVideo_userName_uid_title(e, name, id, videoTitle, videoTime);
+    }
 }
 
 
@@ -922,7 +961,9 @@ function ruleList(href) {
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
         document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
-            delVideoRightVideo();
+            setTimeout(() => {
+                delVideoRightVideo();
+            }, 1500);
         });
         setTimeout(() => {
             document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
@@ -930,8 +971,19 @@ function ruleList(href) {
                 delVideoRightVideo();
             })
         }, 3000);
-        delVideoRightButtonAD();
-        click_playerCtrlWhid();
+        try {
+            delVideo.rightFixdNav();
+            delVideo.rightFixed_nav_ex();
+            delVideo.lListRightTopAD();
+            delVideo.listRightTopOtherAD();
+            setTimeout(() => {
+                delVideo.rightListBottonLive();
+                delVideo.rightBottomBanner();
+            }, 3500);
+        } catch (e) {
+            console.log("屏蔽信息错误！！！！！！！！！！！！！！！")
+        }
+        //click_playerCtrlWhid();
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         delMessageAT();
@@ -952,7 +1004,7 @@ function ruleList(href) {
     let href = getWindowUrl();
     console.log("当前网页url= " + href);
     //监听网络变化
-    var observer = new PerformanceObserver(perf_observer);
+    const observer = new PerformanceObserver(perf_observer);
     observer.observe({entryTypes: ['resource']});
 
     ruleList(href)//正常加载网页时执行
