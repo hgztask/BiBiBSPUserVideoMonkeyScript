@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.0.4
+// @version      1.0.5
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -22,7 +22,7 @@
 // ==/UserScript==
 
 /**
- * 用户名黑名单模式
+ * 用户名黑名单模式，需要完全匹配
  * 提示越靠前的优先匹配
  * 例子，我想要屏蔽用户名叫张三的，内容两边加上“，如下所示
  * ["张三"]
@@ -31,6 +31,12 @@
  * @type {string[]} 元素类型为字符串
  */
 const userNameArr = [];
+
+/**
+ *用户名黑名单模式，不需要完全匹配，只需要名称匹配上关键词即可，比如标题有个张三叫什么，规则里写着张三，包含则屏蔽处理
+ * @type {string[]}
+ */
+const userNameKeyArr = ["原神", "舰长", "旅行者"];
 /**
  * 用户uid黑名单模式
  * 提示越靠前的优先匹配
@@ -55,7 +61,8 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
     52675587, 308174482, 286366141, 115496626, 516585427, 7407869, 21971309, 168618448, 163524651, 162007026, 300630871, 89015953, 10155123, 1360533588, 73149130, 8284785, 34774578,
     14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
     68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
-    3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163];
+    3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163, 1384853937, 397294542, 322003546, 3493113941199038,
+    318432901, 1636034895, 1340190821, 256667467];
 
 /**
  * 视频标题or专栏标题关键词
@@ -64,7 +71,7 @@ const userUIDArr = [442010132, 76525078, 225219967, 3493106108337121, 432029920,
  * 说明：比如某个视频有个张三关键词，你想要屏蔽张三关键词的旧如下所示例子，添加关键的地方即可，如果有多个就，按照下面例子中添加，即可，如果有两个类似的，靠左边的优先匹配到
  * @type {string[]}
  */
-const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开"];
+const titleKeyArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "手游流水"];
 /**
  * 评论关键词
  * 关键词小写，会有方法对内容中的字母转成小写的
@@ -72,7 +79,8 @@ const titleArr = ["感觉不如", "对标原神", "原神", "米哈游", "腾讯
  * 同理跟上面标题关键词一样，只不过作用地方是在评论
  * @type {string[]}
  */
-const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开"];
+const commentOnKeyArr = ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "米家", "崩崩",
+    "三蹦子"];
 
 /**
  * 专栏关键词
@@ -88,7 +96,7 @@ const contentColumnKeyArr = ["抄袭"];
  * 提示越靠前的优先匹配
  * @type {string[]}
  */
-const fanCardKeyArr = [];
+const fanCardArr = [];
 
 /**
  *设置时长最小值，单位秒
@@ -133,7 +141,9 @@ const liveData = {
     /**
      * 是否屏蔽直播间底部动态
      */
-    liveFeed: false
+    liveFeed: false,
+    //要移除顶部左侧的选项（不包括右侧），但必须要有该选项，比如下面例子的，赛事，就移除其，如需要添加别的在该数组后面添加即可，如["赛事","生活"]
+    topLeftBar: ["赛事"]
 }
 
 
@@ -186,7 +196,7 @@ function shieldUID(element, uid) {
 }
 
 /**
- *根据用户名屏蔽元素
+ *根据用户名屏蔽元素，当用户名完全匹配规则时屏蔽
  * @param element 网页元素
  * @param name 用户名
  * @returns {boolean}
@@ -239,8 +249,24 @@ function shieldColumnContent(element, content) {
  * @returns {string|null}
  */
 function shieldTitle(element, title) {
-    for (let str of titleArr) {
+    for (let str of titleKeyArr) {
         if (title.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
+            element.remove();
+            return str;
+        }
+    }
+    return null;
+}
+
+/**
+ * 根据用户名屏蔽元素，当用户名包含规则时进行屏蔽
+ * @param element
+ * @param name 用户名
+ * @returns {string|null}
+ */
+function shieldNameKey(element, name) {
+    for (let str of userNameKeyArr) {
+        if (name.toLowerCase().includes(str)) {
             element.remove();
             return str;
         }
@@ -255,7 +281,7 @@ function shieldTitle(element, title) {
  * @returns {boolean}
  */
 function shieldFanCard(element, key) {
-    return shieldArrKey(element, fanCardKeyArr, key);
+    return shieldArrKey(element, fanCardArr, key);
 }
 
 /**
@@ -339,42 +365,6 @@ function getTimeTotalSeconds(time) {
     return demoTime.h * 60 * 60 + demoTime.s;
 }
 
-/**
- *结合版-根据用户名和uid针对性屏蔽元素
- * @param element 网页元素
- * @param name 用户名
- * @param uid 用户uid
- * @returns {string|null}
- */
-function shieldNameOrUID(element, name, uid) {
-    if (shieldUID(element, uid)) {
-        return "uid";
-    }
-    if (shieldName(element, name)) {
-        return "name";
-    }
-    return null;
-}
-
-/**
- * 执行并打印相关屏蔽信息
- * @param element 网页元素
- * @param name 用户名
- * @param uid uid
- * @returns {boolean}
- */
-function startPrintShieldNameOrUID(element, name, uid) {
-    const userShield = shieldNameOrUID(element, name, uid);
-    if (userShield !== null) {
-        if (userShield === "uid") {
-            console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】");
-            return true;
-        }
-        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】");
-        return true;
-    }
-    return false;
-}
 
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
@@ -385,7 +375,14 @@ function startPrintShieldNameOrUID(element, name, uid) {
  * @returns {boolean}
  */
 function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
-    if (startPrintShieldNameOrUID(element, name, uid)) {
+    const isName = shieldName(element, name);
+    if (isName) {
+        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】，言论=" + content);
+        return true;
+    }
+    const isNameKey = shieldNameKey(element, name);
+    if (isNameKey != null) {
+        console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content);
         return true;
     }
     const key = shieldContent(element, content);
@@ -396,35 +393,6 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     return false;
 }
 
-function startPrintShieldTitle(element, arr, title, name) {
-    const key = shieldArrContent(element, titleArr, title);
-    if (key != null) {
-        console.log("已通过标题关键词【" + key + "】屏蔽用户【" + name + "】");
-        return true;
-    }
-    return false;
-}
-
-/**
- * 执行并打印屏蔽专栏信息
- * @param element 网页元素
- * @param name 用户名
- * @param uid uid
- * @param content 专栏内容
- * @param title 专栏标题
- * @returns {boolean}
- */
-function startPrintshieldcolumn(element, name, uid, content, title) {
-    if (startPrintShieldNameOrUID(element, name, uid)) {
-        return true;
-    }
-    const key = shieldColumnContent(element, content);
-    if (key !== null) {
-        console.log("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 原专栏内容=" + content);
-        return true;
-    }
-    return !!(startPrintShieldTitle(element, titleArr, title, name));
-}
 
 /**
  *  屏蔽视频元素
@@ -437,13 +405,19 @@ function startPrintshieldcolumn(element, name, uid, content, title) {
  * @returns {boolean} 是否执行完
  */
 function shieldVideo_userName_uid_title(element, name, uid, title, videoTime) {
-    let nameOrUID = shieldNameOrUID(element, name, uid);
-    if (nameOrUID != null) {
-        if (nameOrUID === "uid") {
-            console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title);
-            return true;
-        }
+    const isUid = shieldUID(element, uid);
+    if (isUid) {
+        console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title);
+        return true;
+    }
+    const isName = shieldName(element, name);
+    if (isName) {
         console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】 视频=" + title);
+        return true;
+    }
+    const isNameKey = shieldNameKey(element, name);
+    if (isNameKey != null) {
+        console.log("用户名【" + name + "】，因包含屏蔽规则【" + isNameKey + "】，故屏蔽该用户,视频标题=【" + title + "】");
         return true;
     }
     const videoTitle = shieldTitle(element, title);
@@ -687,6 +661,16 @@ function delLiveTopElement() {
         document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")
         console.log("已移除直播间顶部的信息（包括顶部标题栏）")
         return;
+    }
+    if (liveData.topLeftBar.length === 0) {
+        for (const element of liveData.topLeftBar) {
+            try {
+                document.getElementsByClassName(element)[0].remove();
+                console.log("已移除该项目=" + element)
+            } catch (e) {
+                console.log("不存在该项目！=" + element)
+            }
+        }
     }
 }
 
@@ -1036,10 +1020,31 @@ function searchColumn() {
         const userInfo = v.getElementsByClassName("flex_start flex_inline text3")[0];
         const title = v.getElementsByClassName("text1")[0].textContent;
         const textContent = v.getElementsByClassName("atc-desc b_text text_ellipsis_2l text3 fs_5")[0].textContent;//搜索专栏中的预览部分
-        const userName = userInfo.textContent;
+        const name = userInfo.textContent;
         const upSpatialAddress = userInfo.getAttribute("href");
-        let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        startPrintshieldcolumn(v, userName, id, textContent, title);
+        const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+        if (shieldUID(v, uid)) {
+            console.log("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent);
+            continue;
+        }
+        if (shieldName(v, name)) {
+            console.log("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent);
+            continue;
+        }
+        const isNameKey = shieldNameKey(v, name);
+        if (isNameKey != null) {
+            console.log("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent)
+            continue;
+        }
+        const isTitleKey = shieldTitle(v, title);
+        if (isTitleKey != null) {
+            console.log("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent);
+            continue;
+        }
+        const key = shieldColumnContent(v, textContent);
+        if (key !== null) {
+            console.log("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent);
+        }
     }
 }
 
