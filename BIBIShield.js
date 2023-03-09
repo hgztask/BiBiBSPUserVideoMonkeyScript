@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.0.6
+// @version      1.0.7
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -15,6 +15,8 @@
 // @match        *://t.bilibili.com/*
 // @match        *://space.bilibili.com/*
 // @match        *://www.bilibili.com/video/*
+// @match        *://live.bilibili.com/?spm_id_from=*
+// @match        *://live.bilibili.com/p/eden/area-tags?*
 // @match        *://live.bilibili.com/*
 // @match        https://www.bilibili.com/
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -39,7 +41,7 @@ const rule = {
      *用户名黑名单模式，不需要完全匹配，只需要名称匹配上关键词即可，比如标题有个张三叫什么，规则里写着张三，包含则屏蔽处理
      * @type {string[]}
      */
-    userNameKeyArr: ["原神", "舰长", "旅行者"],
+    userNameKeyArr: ["原神", "舰长", "旅行者", "女武神"],
     /**
      * 用户uid黑名单模式
      * 提示越靠前的优先匹配
@@ -65,7 +67,7 @@ const rule = {
         14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
         68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
         3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163, 1384853937, 397294542, 322003546, 3493113941199038,
-        318432901, 1636034895, 1340190821, 256667467],
+        318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801],
     /**
      * 视频标题or专栏标题关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -124,18 +126,55 @@ const rule = {
     liveData: {
         //是否移除直播间底部的全部信息，包括动态和主播公告和简介及荣誉
         bottomElement: true,
-        //移除直播间顶部的信息（包括顶部标题栏）
-        topElement: false,
+        //是否移除直播间顶部的信息（包括顶部标题栏）
+        topElement: true,
+        //是否移除直播间播放器头部的用户信息以及直播间基础信息
+        isheadInfoVm: true,
+        //是否移除直播间右侧的聊天布局
+        isRightChatLayout: false,
+        //是否移除直播间右侧的聊天内容
+        isChatHistoryPanel: false,
+        //是否移除右侧的聊天内容中的红色的系统提示
+        isSystemRedTip: true,
+        //是否移除右侧聊天内容中的用户进入房间提示
+        isEnterLiveRoomTip: true,
+        //是否移除左上角的b站直播logo
+        topLeftLogo: true,
+        //是否移除左上角的首页项目
+        topLeftHomeTitle: true,
         //是否移除直播间底部的的简介和主播荣誉
         bottomIntroduction: false,
         //是否移除直播间的主播公告布局
         container: false,
+        //是否移除直播首页右侧的悬浮按钮
+        rightSuspendButton: true,
+        //是否移除提示购物车
+        isShoppingCartTip: true,
+        //是否移除购物车
+        isShoppingCart: true,
+        //是否移除直播间的背景图
+        isDelbackground: true,
         /**
          * 是否屏蔽直播间底部动态
          */
         liveFeed: false,
         //要移除顶部左侧的选项（不包括右侧），但必须要有该选项，比如下面例子的，赛事，就移除其，如需要添加别的在该数组后面添加即可，如["赛事","生活"]
-        topLeftBar: ["赛事"]
+        topLeftBar: ["赛事", "购物", "知识", "生活", "电台", "娱乐"],
+        //是否移除礼物栏
+        delGiftLayout: false,
+        //是否移除立即上舰
+        isEmbark: true,
+        //是否移除礼物栏的的礼物部分
+        isGift: true,
+        //直播分区时屏蔽的类型，比如在手游直播界面里的全部中，会屏蔽对应的类型房间号
+        classify: ["和平精英"],
+        //是否移除悬浮的233娘
+        is233Ma: true,
+        //是否移除右侧悬浮靠边按钮-如实验-关注
+        isRightSuspenBotton: true,
+        //是否移除直播水印
+        isLiveRoomWatermark: true
+
     }
 }
 
@@ -214,16 +253,6 @@ const home = {
  * @type {boolean}
  */
 let searchColumnBool = false;
-
-
-/**
- * 获取当前网页的url
- * @returns {string}
- */
-function getWindowUrl() {
-
-    return window.location.href;
-}
 
 /**
  * 根据用户提供的网页元素和对应的数组及key，判断数组里是否完全等于key元素本身，进行屏蔽元素
@@ -434,6 +463,13 @@ const util = {
         }
         //一小时有60分钟，一分钟有60秒，所以，
         return demoTime.h * 60 * 60 + demoTime.s;
+    },
+    /**
+     * 获取当前网页的url
+     * @returns {string}
+     */
+    getWindowUrl: function () {
+        return window.location.href;
     }
 }
 
@@ -739,16 +775,49 @@ const video = {
     }
 }
 
+//频道
+const frequencyChannel = {
+    // 频道排行榜规则
+    listRules: function () {
+        let list = document.getElementsByClassName("rank-video-card");
+        if (list.length !== 0 && startExtracted(list)) {
+            console.log("已检测到频道综合的排行榜")
+        }
+    },
+    /**
+     * 频道精选视频等其他视频规则
+     * 已针对个别情况没有删除对应元素，做了个循环处理
+     */
+    videoRules: function () {
+        while (true) {
+            const list = document.getElementsByClassName("video-card");
+            const tempLength = list.length;
+            if (tempLength === 0) {
+                break;
+            }
+            startExtracted(list)
+            if (list.length === tempLength) {
+                console.log("页面元素没有变化了，故退出循环")
+                break;
+            }
+        }
+    }
+}
 
+//直播间
 const liveDel = {
     //针对于直播间顶部的屏蔽处理
     topElement: function () {
         if (rule.liveData.topElement) {
-            document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")
-            console.log("已移除直播间顶部的信息（包括顶部标题栏）")
+            try {
+                document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")[0].remove();
+                console.log("已移除直播间顶部的信息（包括顶部标题栏）")
+            } catch (e) {
+                console.log("已移除直播间顶部的信息（包括顶部标题栏）-出错")
+            }
             return;
         }
-        if (rule.liveData.topLeftBar.length === 0) {
+        if (rule.liveData.topLeftBar.length !== 0) {
             for (const element of rule.liveData.topLeftBar) {
                 try {
                     document.getElementsByClassName(element)[0].remove();
@@ -757,6 +826,28 @@ const liveDel = {
                     console.log("不存在该项目！=" + element)
                 }
             }
+        }
+        if (rule.liveData.topLeftLogo) {
+            document.getElementsByClassName("entry_logo")[0].remove();
+            console.log("已移除左上角的b站直播logo信息")
+        }
+        if (rule.liveData.topLeftHomeTitle) {
+            document.getElementsByClassName("entry-title")[0].remove();
+            console.log("已移除左上角的首页项目")
+        }
+    },
+    //针对直播间播放器头部的用户信息，举例子，，某某用户直播，就会显示器的信息和直播标题等
+    hreadElement: function () {
+        const liveData = rule.liveData;
+        if (liveData.isheadInfoVm) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementById("head-info-vm").remove()
+                    clearInterval(interval);
+                    console.log("已移除直播间头部的用户信息");
+                } catch (e) {
+                }
+            }, 2000);
         }
     },
     //针对于直播间底部的屏蔽处理
@@ -788,6 +879,50 @@ const liveDel = {
             console.log("已移除直播间的主播公告")
         }
     },
+    //礼物栏的布局处理
+    delGiftBar: function () {
+        if (rule.liveData.delGiftLayout) {
+            const temp = setInterval(() => {
+                const id = document.getElementById("gift-control-vm");
+                if (id) {
+                    id.remove();
+                    clearInterval(temp);
+                    console.log("已移除礼物栏")
+                }
+            }, 2000);
+            return;
+        }
+        if (rule.liveData.isEmbark) {
+            const temp = setInterval(() => {
+                const tempClass = document.getElementsByClassName("m-guard-ent gift-section guard-ent")[0];
+                if (tempClass) {
+                    tempClass.remove();
+                    clearInterval(temp);
+                    console.log("移除立即上舰")
+                }
+            }, 2000);
+        }
+        if (rule.liveData.isGift) {
+            const temp = setInterval(() => {
+                const element = document.getElementsByClassName("gift-presets p-relative t-right")[0];
+                if (element) {
+                    element.remove();
+                    clearInterval(temp);
+                    console.log("移除礼物栏的的礼物部分")
+                }
+            }, 2000);
+        }
+        if (rule.liveData.isEmbark && rule.liveData.isGift) {//如果立即上舰和礼物栏的部分礼物移除了就对其位置调整
+            const interval = setInterval(() => {
+                try {
+                    document.getElementById("gift-control-vm").style.height = "auto";
+                    document.getElementsByClassName("gift-control-panel f-clear b-box p-relative")[0].style.height = "40px";
+                    clearInterval(interval);
+                } catch (e) {
+                }
+            }, 1500);
+        }
+    },
     /**
      * 屏蔽直播间对应的言论
      * 暂时测试打印下效果
@@ -808,6 +943,153 @@ const liveDel = {
                 if (shield.fanCard(v, fansMeda)) {
                     console.log("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
                 }
+            }
+        }
+    },
+    //移除右侧的聊天布局
+    delRightChatLayout: function () {
+        const liveData = rule.liveData;
+        if (liveData.isRightChatLayout) {
+            const interval = setInterval(() => {
+                const id = document.getElementById("aside-area-vm");
+                if (id) {
+                    id.remove();
+                    clearInterval(interval);
+                    console.log("移除直播间右侧的聊天布局")
+                    document.getElementsByClassName("player-ctnr")[0].style.width = "100%";//移除完之后调整其布局位置
+                }
+            }, 2000);
+            return;
+        }
+        if (liveData.isChatHistoryPanel) {
+            const interval = setInterval(() => {
+                const tempClass = document.getElementsByClassName("chat-history-panel")[0];
+                if (tempClass) {
+                    tempClass.remove();
+                    clearInterval(interval);
+                    console.log("已移除直播间右侧的聊天内容");
+                    document.getElementById("aside-area-vm").style.height = "0px";//移除之后调整下布局
+                }
+            }, 2000);
+            return;
+        }
+        if (liveData.isSystemRedTip) {
+            const interval = setInterval(() => {//移除右侧的聊天布局系统提示
+                const tempE = document.getElementsByClassName("chat-item  convention-msg border-box")[0];
+                if (tempE) {
+                    tempE.remove();
+                    clearInterval(interval);
+                    console.log("已移除聊天布局的系统提示")
+                }
+            }, 2000);
+        }
+        if (liveData.isEnterLiveRoomTip) {
+            const interval = setInterval(() => {//移除右侧聊天内容中的用户进入房间提示
+                try {
+                    document.getElementById("brush-prompt").remove();
+                    clearInterval(interval);
+                    console.log("移除右侧聊天内容中的用户进入房间提示")
+                } catch (e) {
+                }
+            }, 2000);
+        }
+    },
+    delOtherE: function () {
+        const liveData = rule.liveData;
+        if (liveData.is233Ma) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementById("my-dear-haruna-vm").remove();
+                    clearInterval(interval);
+                    console.log("已移除2333娘")
+                } catch (e) {
+                }
+            }, 2000);
+        }
+        if (liveData.isRightSuspenBotton) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("side-bar-cntr")[0].remove();
+                    console.log("已移除右侧悬浮靠边按钮-如实验-关注")
+                    clearInterval(interval);
+                } catch (e) {
+                }
+            }, 2000);
+        }
+        if (liveData.isLiveRoomWatermark) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("web-player-icon-roomStatus")[0].remove();//移除播放器左上角的哔哩哔哩直播水印
+                    clearInterval(interval);
+                    console.log("已移除直播水印")
+                } catch (e) {
+                }
+            }, 2000);
+        }
+        if (liveData.isShoppingCartTip) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("shop-popover")[0].remove();//是否移除提示购物车
+                    clearInterval(interval);
+                    console.log("已移除提示购物车")
+                } catch (e) {
+                }
+            }, 2000);
+        }
+        if (liveData.isShoppingCart) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("ecommerce-entry gift-left-part")[0].remove();//是否移除购物车
+                    clearInterval(interval);
+                    console.log("已移除购物车")
+                } catch (e) {
+                }
+            }, 2000);
+        }
+        if (liveData.isDelbackground) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("room-bg webp p-fixed")[0].remove(); //移除直播背景图
+                    clearInterval(interval);
+                    console.log("已移除直播背景图")
+                } catch (e) {
+                }
+            }, 2000);
+        }
+        const interval01 = setInterval(() => {
+            try {
+                document.getElementsByClassName("web-player-icon-feedback")[0].remove();//移除播放器右上角的问号图标
+                clearInterval(interval01);
+            } catch (e) {
+            }
+        }, 2000);
+
+
+    },
+    //过滤直播间列表，该功能目前尚未完善，暂时用着先
+    delLiveRoom: function () {
+        const list = document.getElementsByClassName("index_3Uym8ODI");
+        for (let v of list) {
+            const title = v.getElementsByClassName("Item_2GEmdhg6")[0].textContent.trim();
+            const type = v.getElementsByClassName("Item_SI0N7ecx")[0].textContent;//分区类型
+            const name = v.getElementsByClassName("Item_QAOnosoB")[0].textContent.trim();
+            const index = v.getElementsByClassName("Item_3Iz_3buh")[0].textContent.trim();//直播间人气
+            if (rule.liveData.classify.includes(type)) {
+                v.remove();
+                console.log("已屏蔽直播分类为=" + type + " 的直播间 用户名=" + name + " 房间标题=" + title + " 人气=" + index)
+                continue;
+            }
+            if (shield.name(v, name)) {
+                console.log("已通过用户名=" + name + " 屏蔽直播间 直播分类=" + type + " 房间标题=" + title + " 人气=" + index)
+                continue;
+            }
+            const nameKey = shield.nameKey(v, name);
+            if (nameKey != null) {
+                console.log("用户名=" + name + " 包含了=屏蔽词=" + nameKey + " 故屏蔽该直播间 分类=" + type + " 房间标题=" + title + " 人气=" + index)
+                continue;
+            }
+            if (shield.titleKey(v, title)) {
+                console.log("已通过直播间标题=【" + title + "】屏蔽该房间 用户名=" + name + " 分类=" + type + " 人气=" + index);
             }
         }
     }
@@ -863,7 +1145,7 @@ function searchRules(videoList) {
 
 function perf_observer(list, observer) {
     const entries = performance.getEntriesByType('resource');
-    const windowUrl = getWindowUrl();
+    const windowUrl = util.getWindowUrl();
     for (let entry of entries) {
         const url = entry.name;
         const initiatorType = entry.initiatorType;
@@ -873,8 +1155,8 @@ function perf_observer(list, observer) {
         //只要json类的
         if (url.includes("api.bilibili.com/x/web-interface/web/channel")) {
             //针对于频道界面的综合视频和频道界面的精选视频
-            frequencyChannelRules();
-            channelListRules();
+            frequencyChannel.videoRules();
+            frequencyChannel.listRules();
             continue;
         }
         if (url.includes("https://api.bilibili.com/x/v2/reply/main?csrf=") ||
@@ -946,42 +1228,15 @@ function perf_observer(list, observer) {
         }
         if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
             deltopIC();
+            continue;
+        }
+        if (url.includes("api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web")) {//直播间列表，目前依旧还有点小问题，暂时不考虑维护了，后面再考虑
+            liveDel.delLiveRoom();
+            continue;
         }
 
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
             console.log("不确定api链接！")
-        }
-    }
-}
-
-/**
- * 频道排行榜规则
- */
-function channelListRules() {
-    let list = document.getElementsByClassName("rank-video-card");
-    if (list.length !== 0 && startExtracted(list)) {
-        console.log("已检测到频道综合的排行榜")
-    }
-}
-
-/**
- * 频道精选视频等其他视频规则
- * 已针对个别情况没有删除对应元素，做了个循环处理
- */
-function frequencyChannelRules() {
-//针对频道中的精选视频和在综合排行榜下面的视频
-    //let index = 0;
-    while (true) {
-        const list = document.getElementsByClassName("video-card");
-        const tempLength = list.length;
-        if (tempLength === 0) {
-            break;
-        }
-        //console.log("执行第" + index + "轮检测")
-        startExtracted(list)
-        if (list.length === tempLength) {
-            console.log("页面元素没有变化了，故退出循环")
-            break;
         }
     }
 }
@@ -1092,14 +1347,14 @@ function ruleList(href) {
         return;
     }
     if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
-        frequencyChannelRules();
+        frequencyChannel.videoRules();
     }
 
 }
 
 (function () {
     'use strict';
-    let href = getWindowUrl();
+    let href = util.getWindowUrl();
     console.log("当前网页url= " + href);
     //监听网络变化
     const observer = new PerformanceObserver(perf_observer);
@@ -1108,7 +1363,7 @@ function ruleList(href) {
     ruleList(href)//正常加载网页时执行
 
     setInterval(function () {//每秒监听网页中的url
-        const tempUrl = getWindowUrl();
+        const tempUrl = util.getWindowUrl();
         if (href === tempUrl) {//没有变化就结束本轮
             return;
         }//有变化就执行对应事件
@@ -1116,10 +1371,56 @@ function ruleList(href) {
         href = tempUrl;//更新url
         ruleList(href);//网页url发生变化时执行
     }, 1000);
+    if (href.includes("https://live.bilibili.com/?spm_id_from")) {//直播首页
+        console.log("进入直播首页了")
+        const interval01 = setInterval(() => {
+            const videoElement = document.getElementsByTagName("video")[0];
+            if (videoElement) {
+                videoElement.pause();//暂停视频
+                //删除直播首页顶部无用直播间（包括占用大屏幕的，还其右侧的直播间列表）
+                const bigPlayerClass = document.getElementsByClassName("player-area-ctnr border-box p-relative t-center")[0];
+                if (bigPlayerClass) {
+                    bigPlayerClass.remove();
+                    clearInterval(interval01);
+                }
+            }
+            const interval02 = setInterval(() => {
+                const classNameElement = document.getElementsByClassName("link-footer-ctnr")[0];
+                if (classNameElement) {
+                    classNameElement.remove();
+                    console.log("已移除页脚信息")
+                    clearInterval(interval02);
+                }
+            }, 2000);
+            if (rule.liveData.rightSuspendButton) {
+                const interval = setInterval(() => {
+                    const classNameElement = document.getElementsByClassName("live-sidebar-ctnr a-move-in-left ts-dot-4")[0];
+                    if (classNameElement) {
+                        clearInterval(interval);
+                        classNameElement.remove();
+                        console.log("已移除直播首页右侧的悬浮按钮");
+                        return;
+                    }
+                }, 2000);
+            }
+
+        }, 800);
+        return;
+    }
+    if (href.includes("live.bilibili.com/p/eden/area-tags")) {
+        console.log("直播专区")
+        liveDel.delLiveRoom();
+        return;
+    }
 
     if (href.includes("//live.bilibili.com/")) {
+        console.log("当前界面疑似是直播间")
         liveDel.topElement();
+        liveDel.hreadElement();
         liveDel.bottomElement();
+        liveDel.delGiftBar();
+        liveDel.delRightChatLayout();
+        liveDel.delOtherE();
         try {
             document.getElementById("chat-items").addEventListener("DOMSubtreeModified", () => {
                 liveDel.demo();
