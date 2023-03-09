@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.0.7
+// @version      1.0.8
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -120,6 +120,8 @@ const rule = {
      * @type {number}
      */
     filterSMax: 0,
+    //是否允许b站视频自动播放
+    autoPlay: false,
     /**
      *直播间的相关配置信息
      */
@@ -1311,6 +1313,17 @@ function ruleList(href) {
         }, 500);
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
+        if (rule.autoPlay === false) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByTagName("video")[0].pause();
+                    console.log("已自动暂定视频播放");
+                    clearInterval(interval);
+                } catch (e) {
+                }
+            }, 1000);
+        }
+
         document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
             setTimeout(() => {
                 video.rightVideo();
