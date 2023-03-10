@@ -23,9 +23,7 @@
 // @grant        none
 // ==/UserScript==
 
-/**
- * 规则
- */
+//规则
 const rule = {
     /**
      * 用户名黑名单模式，需要完全匹配
@@ -100,28 +98,40 @@ const rule = {
      * @type {string[]}
      */
     contentColumnKeyArr: ["抄袭"],
-    /**
-     *设置时长最小值，单位秒
-     * 设置为 0，则不需要根据视频时长过滤
-     * 说明，比如我先过滤60秒以内的视频，即60以内的视频都会被屏蔽掉，限定允许出现的最小时长
-     * 可以这样填写
-     * 5*60
-     * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
-     * @type {number}
-     */
-    filterSMin: 0,
-    /**
-     * 设置时长最大值，单位秒
-     * 设置为 0，则不需要根据视频时长过滤
-     * 说明，允许出现的最大视频时长，超出该时长的都会被屏蔽掉，限定允许出现的最大时长
-     * 可以这样填写
-     * 5*60
-     * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
-     * @type {number}
-     */
-    filterSMax: 0,
-    //是否允许b站视频自动播放
-    autoPlay: false,
+    //视频参数
+    videoData: {
+        /**
+         *设置时长最小值，单位秒
+         * 设置为 0，则不需要根据视频时长过滤
+         * 说明，比如我先过滤60秒以内的视频，即60以内的视频都会被屏蔽掉，限定允许出现的最小时长
+         * 可以这样填写
+         * 5*60
+         * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
+         * @type {number}
+         */
+        filterSMin: 0,
+        /**
+         * 设置时长最大值，单位秒
+         * 设置为 0，则不需要根据视频时长过滤
+         * 说明，允许出现的最大视频时长，超出该时长的都会被屏蔽掉，限定允许出现的最大时长
+         * 可以这样填写
+         * 5*60
+         * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
+         * @type {number}
+         */
+        filterSMax: 0,
+        //是否允许b站视频自动播放
+        autoPlay: false,
+        //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
+        isRhgthlayout: false,
+        //是否要移除右侧播放页的视频列表
+        isrigthVideoList: false,
+        //是否移除评论区布局
+        isCommentArea: false,
+        //是否移除视频页播放器下面的标签，也就是Tag
+        isTag: true,
+        isDesc: true,
+    },
     /**
      *直播间的相关配置信息
      */
@@ -186,6 +196,7 @@ const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
 const paletteButtionBool = true;
 
+//===========================================上面的的相关参数用户可以执行修改=========================================================================
 
 const home = {
     //是否正在执行清理首页中的零散的直播间元素函数，该值不需要修改
@@ -363,7 +374,7 @@ const shield = {
      * @returns {boolean}
      */
     videoMinFilterS: function (element, key) {
-        if (rule.filterSMin > key) {
+        if (rule.videoData.filterSMin > key) {
             element.remove();
             return true;
         }
@@ -376,10 +387,10 @@ const shield = {
      * @returns {boolean}
      */
     videoMaxFilterS: function (element, key) {
-        if (rule.filterSMax === 0 || rule.filterSMax < rule.filterSMin) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        if (rule.videoData.filterSMax === 0 || rule.videoData.filterSMax < rule.videoData.filterSMin) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
-        if (rule.filterSMax < key) {
+        if (rule.videoData.filterSMax < key) {
             element.remove();
             return true;
         }
@@ -472,6 +483,22 @@ const util = {
      */
     getWindowUrl: function () {
         return window.location.href;
+    },
+    /**
+     * 封装好的定时器检测元素，检测到将删除对应元素，ID方式
+     * @param {String}idName
+     * @param time
+     * @param {String}tip
+     */
+    circulateID: function (idName, time, tip) {
+        const interval = setInterval(() => {
+            const elementById = document.getElementById(idName);
+            if (elementById) {
+                elementById.remove();
+                clearInterval(interval);
+                console.log(tip);
+            }
+        }, time);
     }
 }
 
@@ -536,11 +563,11 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoTime) {
     }
     const timeTotalSeconds = util.getTimeTotalSeconds(videoTime);
     if (shield.videoMinFilterS(element, timeTotalSeconds)) {
-        console.log("已通过视频时长过滤时长小于=【" + rule.filterSMin + "】秒的视频 视频=【" + title + "】");
+        console.log("已通过视频时长过滤时长小于=【" + rule.videoData.filterSMin + "】秒的视频 视频=【" + title + "】");
         return true;
     }
     if (shield.videoMaxFilterS(element, timeTotalSeconds)) {
-        console.log("已通过视频时长过滤时长大于=【" + rule.filterSMax + "】秒的视频 视频=【" + title + "】");
+        console.log("已通过视频时长过滤时长大于=【" + rule.videoData.filterSMax + "】秒的视频 视频=【" + title + "】");
         return true;
     }
     return false;
@@ -651,50 +678,45 @@ function delMessageAT() {
 /**
  * 针对视频播放页的相关方法
  */
-const video = {
-    rightFixdNav: function () { //移除播放页右侧的部分悬浮按钮-【新版反馈】【回到旧版】
-        let tempIndex = 0;
+const videoFun = {
+    //移除右侧悬浮按钮
+    rightSuspendButton: function () {
+        let idnex = 0;
         const interval = setInterval(() => {
-            if (++tempIndex === 2) {
-                clearInterval(interval);
-            }
             try {
-                const fixed_Nav = document.getElementsByClassName("fixed-nav")[0];
-                if (fixed_Nav) {
-                    fixed_Nav.remove();
+                document.getElementsByClassName("storage-box")[0].remove();
+                if (++idnex === 2) {
+                    clearInterval(interval);
+                    console.log("已移除右侧的【返回旧版】【新版反馈】【客服】");
                 }
             } catch (e) {
             }
         }, 2000);
     },
-    rightFixed_nav_ex: function () {//移除播放页右侧的部分悬浮按钮
-        let tempIndex = 0;
-        const interval = setInterval(() => {
-            if (++tempIndex === 2) {
-                clearInterval(interval);
-            }
-            try {
-                const float_nav_exp = document.getElementsByClassName("float-nav-exp")[0];
-                if (float_nav_exp) {
-                    float_nav_exp.getElementsByClassName("item mini")[0].remove();//删除右侧的小窗按钮
-                    float_nav_exp.getElementsByTagName("a")[0].remove();//删除右侧的反馈按钮
+    delRightE: function () {
+        const video = rule.videoData;
+        let idnex03 = 0;
+        if (video.isRhgthlayout) {
+            const interval = setInterval(() => {
+                try {
+                    const element = document.getElementsByClassName("right-container is-in-large-ab")[0];
+                    if (element) {
+                        element.style.display = "none";
+                    }
+                    if (++idnex03 === 3) {
+                        clearInterval(interval);
+                        console.log("已移除视频播放器右侧的布局");
+                    }
+                } catch (e) {
                 }
-            } catch (e) {
-            }
-        }, 2000);
-    },
-    lListRightTopGameAD: function () {//移除播放页右上角的游戏推广
-        const tempVar = document.getElementsByClassName("video-page-game-card-small")[0];
-        if (tempVar) {
-            tempVar.remove();
-            console.log("移除播放页右上角的游戏推广")
+            }, 1500);
+            return;
         }
-    },
-    listRightTopOtherAD: function () {//移除播放页右上角的其他推广
-        let index = 0;
-        const interval = setInterval(() => {
-            if (++index === 2) {
-                clearInterval(interval);
+        let index01 = 0;
+        let index02 = 0;
+        const interval01 = setInterval(() => {
+            if (++index01 === 2) {
+                clearInterval(interval01);
             }
             const tempVar = document.getElementsByClassName("video-page-special-card-small")[0];
             if (tempVar) {
@@ -702,12 +724,9 @@ const video = {
                 console.log("移除播放页右上角的其他推广")
             }
         }, 2000);
-    },
-    listRightTopAD: function () {//移除播放页右上角的广告
-        let index = 0;
-        const interval = setInterval(() => {
-            if (++index === 2) {
-                clearInterval(interval);
+        const interval02 = setInterval(() => {
+            if (++index02 === 2) {
+                clearInterval(interval02);
             }
             const vcd = document.getElementsByClassName("vcd")[0];
             if (vcd) {
@@ -715,36 +734,80 @@ const video = {
                 console.log("已移除右上角的广告")
             }
         }, 2000);
-    }, commentArea: function () {
-        let index = 0;
-        const interval = setInterval(() => {
-            if (++index === 2) {
-                clearInterval(interval);
-            }
-            const ad = document.getElementById("bannerAd");
-            if (ad) {
-                ad.remove();
+        const interval03 = setInterval(() => {
+            const tempVar = document.getElementsByClassName("video-page-game-card-small")[0];
+            if (tempVar) {
+                tempVar.remove();
+                console.log("移除播放页右上角的游戏推广")
+                clearInterval(interval03)
             }
         }, 2000);
-    },
-    rightBottomBanner: function () {//删除右下角的活动推广
-        const id = document.getElementById("right-bottom-banner");
-        if (id) {
-            id.remove();
-            console.log("删除右下角的活动推广")
-        }
-    },
-    rightListBottonLive: function () {//删除右下角的直播推广
-        const interval = setInterval(() => {
+        const interval04 = setInterval(() => {
+            const id = document.getElementById("right-bottom-banner");
+            if (id) {
+                id.remove();
+                console.log("删除右下角的活动推广")
+                clearInterval(interval04);
+            }
+        }, 1500);
+        const interval05 = setInterval(() => {
             const className = document.getElementsByClassName("pop-live-small-mode part-undefined")[0];
             if (className) {
                 className.remove();
                 console.log("删除右下角的直播推广")
-                clearInterval(interval)
+                clearInterval(interval05)
             }
-        }, 2000);
+        }, 1000);
+        const interval06 = setInterval(() => {
+            const adE = document.getElementsByClassName("ad-report video-card-ad-small")[0];
+            if (adE) {
+                adE.remove();
+                console.log("已删除播放页右上角的广告内容")
+                clearInterval(interval06);
+            }
+        }, 1500);
+        if (video.isrigthVideoList) {
+            setInterval(() => {
+                try {
+                    document.getElementById("reco_list").remove();
+                    console.log("已移除播放页右侧的视频列表")
+                } catch (e) {
+                }
+            }, 2000);
+            return;
+        }
+        setTimeout(() => {
+            document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
+                console.log("用户点击了右侧的展开")
+                videoFun.rightVideo();
+            })
+        }, 3000);
     },
-    //针对视频播放页右侧的视频进行过滤处理
+    //对视频页的播放器下面的进行处理
+    delBottonE: function () {
+        this.commentArea();//处理评论区
+        util.circulateID("activity_vote", 2000, "已移除播放器底部的广告");
+        if (rule.videoData.isTag) {
+            util.circulateID("v_tag", 2000, "已移除播放器底部的tag栏");
+        }
+        if (rule.videoData.isDesc) {
+            util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
+        }
+    },
+    commentArea: function () {
+        const videoData = rule.videoData;
+        if (videoData.isCommentArea) {
+            const interval = setInterval(() => {
+                const elementById = document.getElementById("comment");
+                if (elementById) {
+                    elementById.remove();
+                    clearInterval(interval);
+                    console.log("已移除评论区")
+                }
+            }, 1500);
+        }
+    },
+//针对视频播放页右侧的视频进行过滤处理
     rightVideo: function () {
         for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
             const videoInfo = e.getElementsByClassName("info")[0];
@@ -763,8 +826,9 @@ const video = {
             }
             shieldVideo_userName_uid_title(e, name, id, videoTitle, videoTime);
         }
-    },
-    //点击播放器的宽屏按钮
+    }
+    ,
+//点击播放器的宽屏按钮
     click_playerCtrlWhid: function () {
         const interval = setInterval(() => {
             try {
@@ -1163,7 +1227,8 @@ function perf_observer(list, observer) {
         }
         if (url.includes("https://api.bilibili.com/x/v2/reply/main?csrf=") ||
             url.includes("api.bilibili.com/x/v2/reply/reply?csrf=") &&
-            windowUrl.includes("https://www.bilibili.com/video")) {
+            windowUrl.includes("https://www.bilibili.com/video") &&
+            !rule.videoData.isCommentArea) {
             //如果是视频播放页的话，且接收到评论的相应请求
             for (let v of document.getElementsByClassName("reply-item")) {//针对于评论区
                 const userInfo = v.getElementsByClassName("user-info")[0];
@@ -1312,45 +1377,6 @@ function ruleList(href) {
             }
         }, 500);
     }
-    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
-        if (rule.autoPlay === false) {
-            const interval = setInterval(() => {
-                try {
-                    document.getElementsByTagName("video")[0].pause();
-                    console.log("已自动暂定视频播放");
-                    clearInterval(interval);
-                } catch (e) {
-                }
-            }, 1000);
-        }
-
-        document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
-            setTimeout(() => {
-                video.rightVideo();
-            }, 1500);
-        });
-        setTimeout(() => {
-            document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
-                console.log("用户点击了右侧的展开")
-                video.rightVideo();
-            })
-        }, 3000);
-        try {
-            video.rightFixdNav();
-            video.rightFixed_nav_ex();
-            video.lListRightTopGameAD();
-            video.listRightTopOtherAD();
-            video.listRightTopAD();
-            video.commentArea();
-            setTimeout(() => {
-                video.rightListBottonLive();
-                video.rightBottomBanner();
-            }, 3500);
-        } catch (e) {
-            console.log("屏蔽信息错误！！！！！！！！！！！！！！！")
-        }
-        //click_playerCtrlWhid();
-    }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         delMessageAT();
         return;
@@ -1384,6 +1410,37 @@ function ruleList(href) {
         href = tempUrl;//更新url
         ruleList(href);//网页url发生变化时执行
     }, 1000);
+
+    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
+        const videoData = rule.videoData;
+        if (videoData.autoPlay === false) {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByTagName("video")[0].pause();
+                    console.log("已自动暂定视频播放");
+                    clearInterval(interval);
+                } catch (e) {
+                }
+            }, 1000);
+        }
+        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
+            document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
+                setTimeout(() => {
+                    videoFun.rightVideo();
+                }, 1500);
+            });
+        }
+
+
+        try {
+            videoFun.delRightE();
+            videoFun.delBottonE();
+            videoFun.rightSuspendButton();
+        } catch (e) {
+            console.log("屏蔽信息错误！！！！！！！！！！！！！！！")
+        }
+        //click_playerCtrlWhid();
+    }
     if (href.includes("https://live.bilibili.com/?spm_id_from")) {//直播首页
         console.log("进入直播首页了")
         const interval01 = setInterval(() => {
