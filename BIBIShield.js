@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.0.9
+// @version      1.1.0
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -18,6 +18,7 @@
 // @match        *://live.bilibili.com/?spm_id_from=*
 // @match        *://live.bilibili.com/p/eden/area-tags?*
 // @match        *://live.bilibili.com/*
+// @match        *://www.bilibili.com/v/popular*
 // @match        https://www.bilibili.com/
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        none
@@ -693,10 +694,12 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @returns {boolean} 是否执行完
  */
 async function shieldVideo_userName_uid_title(element, name, uid, title, videoTime, videoPlaybackVolume) {
-    const isUid = shield.uid(element, uid);
-    if (isUid) {
-        console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title);
-        return true;
+    if (uid !== null) {
+        const isUid = shield.uid(element, uid);
+        if (isUid) {
+            console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title);
+            return true;
+        }
     }
     const isName = shield.name(element, name);
     if (isName) {
@@ -1270,6 +1273,31 @@ const liveDel = {
     }
 }
 
+//热门
+const greatDemand = {
+    delVideo: function () {
+        let list = document.getElementsByClassName("video-card");
+        if (list.length === 0) {
+            list = document.getElementsByClassName("_card_1kuml_6");
+            for (let v of list) {
+                const title = v.getElementsByClassName("title")[1].textContent;
+                const name = v.getElementsByClassName("upName")[0].textContent;
+                const time = v.getElementsByClassName("time")[0].textContent;
+                shieldVideo_userName_uid_title(v, name, null, title, null, time);
+            }
+            return;
+        }
+        for (let v of list) {
+            //页面暂时没法获取uid，可能是我的技术问题，至少暂时先这样
+            const title = v.getElementsByClassName("video-name")[0].textContent;//标题
+            const name = v.getElementsByClassName("up-name__text")[0].textContent;//用户名
+            const play = v.getElementsByClassName("play-text")[0].textContent.trim();//播放量
+            //const like = v.getElementsByClassName("like-text")[0].textContent.trim();//弹幕量
+            shieldVideo_userName_uid_title(v, name, null, title, null, play);
+        }
+    }
+}
+
 
 /**
  * 针对b站话题
@@ -1329,7 +1357,7 @@ function perf_observer(list, observer) {
             continue;
         }
         //只要json类的
-        if (url.includes("api.bilibili.com/x/web-interface/web/channel")) {
+        if (url.includes("api.bilibili.com/x/web-interface/web/channel") && windowUrl.includes("www.bilibili.com/v/channel")) {
             //针对于频道界面的综合视频和频道界面的精选视频
             frequencyChannel.videoRules();
             frequencyChannel.listRules();
@@ -1414,6 +1442,11 @@ function perf_observer(list, observer) {
 
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
             console.log("不确定api链接！")
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/popular")
+            || url.includes("api.bilibili.com/x/copyright-music-publicity/toplist/music_list?csrf=")
+            && windowUrl.includes("www.bilibili.com/v/popular")) {//热门
+            greatDemand.delVideo();
         }
     }
 }
@@ -1524,7 +1557,6 @@ function ruleList(href) {
 
     if (href.includes("bilibili.com")) {
         bilibili(href);
-        return;
     }
 })();
 
@@ -1658,7 +1690,6 @@ function bilibili(href) {
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         deltopIC();
     }
-
     if (href === "https://www.bilibili.com/") { //首页
         home.startShieldLeftPic();
         if (paletteButtionBool) {
@@ -1677,6 +1708,9 @@ function bilibili(href) {
         }, 2000);
         home.startShieldMainAFloorSingle();
         home.startShieldVideoTop();
+    }
+    if (href.includes("www.bilibili.com/v/popular")) {//热门
+        greatDemand.delVideo();
     }
 }
 
