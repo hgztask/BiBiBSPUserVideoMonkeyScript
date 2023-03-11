@@ -692,7 +692,7 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @param{String}videoPlaybackVolume 播放量
  * @returns {boolean} 是否执行完
  */
-function shieldVideo_userName_uid_title(element, name, uid, title, videoTime, videoPlaybackVolume) {
+async function shieldVideo_userName_uid_title(element, name, uid, title, videoTime, videoPlaybackVolume) {
     const isUid = shield.uid(element, uid);
     if (isUid) {
         console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title);
@@ -884,6 +884,7 @@ const videoFun = {
         this.commentArea();//处理评论区
         util.circulateIDs("bannerAd", 2, 2500, "已移除播放器底部的广告");
         util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
+        util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
         if (rule.videoData.isTag) {
             util.circulateID("v_tag", 2000, "已移除播放器底部的tag栏");
         }
@@ -900,7 +901,7 @@ const videoFun = {
     }
     ,
 //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
-    rightVideo: function () {
+    rightVideo: async function () {//异步形式执行，避免阻塞主线程
         for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
             const videoInfo = e.getElementsByClassName("info")[0];
             //用户名
@@ -1560,13 +1561,15 @@ function bilibili(href) {
                     console.log("检测到右侧视频列表中符合条件")
                     document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
                         setTimeout(() => {
-                            videoFun.rightVideo();
+                            videoFun.rightVideo().then(() => {
+                            });
                         }, 1500);
                     });
                     clearInterval(interval)
                 }
             }, 3500);
         }
+
         videoFun.delRightE();
         videoFun.delBottonE();
         videoFun.rightSuspendButton();
@@ -1665,7 +1668,13 @@ function bilibili(href) {
         }
         //document.getElementById("bili-header-banner-img").remove()//删除首页顶部的图片
         document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
-        document.getElementsByClassName("banner-link")[0].remove();//删除首页顶部图片的跳转链接
+        const interval = setInterval(() => {
+            try {
+                document.getElementsByClassName("banner-link")[0].remove();//删除首页顶部图片的跳转链接
+                clearInterval(interval)
+            } catch (e) {
+            }
+        }, 2000);
         home.startShieldMainAFloorSingle();
         home.startShieldVideoTop();
     }
