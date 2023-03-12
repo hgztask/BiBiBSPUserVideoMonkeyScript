@@ -146,6 +146,8 @@ const rule = {
         isDesc: false,
         //是否移除视频播放完之后的，推荐视频
         isVideoEndRecommend: true,
+        //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
+        isRightVideo: true,
     },
     /**
      *直播间的相关配置信息
@@ -882,12 +884,15 @@ const videoFun = {
             util.circulateID("reco_list", 2000, "已移除播放页右侧的视频列表");
             return;
         }
-        setTimeout(() => {
-            document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
-                console.log("用户点击了右侧的展开")
-                videoFun.rightVideo();
-            })
-        }, 4000);
+        if (!video.isRightVideo) {
+            setTimeout(() => {
+                document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
+                    console.log("用户点击了右侧的展开")
+                    videoFun.rightVideo().then(() => {
+                    });
+                })
+            }, 4000);
+        }
     },
     //对视频页的播放器下面的进行处理
     delBottonE: function () {
@@ -895,6 +900,7 @@ const videoFun = {
         util.circulateIDs("bannerAd", 2, 2500, "已移除播放器底部的广告");
         util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
         util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
+        util.circulateClassName("ad-floor-cover b-img", 2000, "已移除播放器底部的图片广告");
         if (rule.videoData.isTag) {
             util.circulateID("v_tag", 2000, "已移除播放器底部的tag栏");
         }
@@ -1594,7 +1600,7 @@ function bilibili(href) {
             } catch (e) {
             }
         }, 1000);
-        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
+        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
             const interval = setInterval(() => {
                 if (document.getElementsByClassName("duration")[0]) {//先检测是否存在时间
                     console.log("检测到右侧视频列表中符合条件")
@@ -1608,7 +1614,6 @@ function bilibili(href) {
                 }
             }, 3500);
         }
-
         videoFun.delRightE();
         videoFun.delBottonE();
         videoFun.rightSuspendButton();
