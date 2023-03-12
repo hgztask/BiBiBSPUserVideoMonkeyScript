@@ -206,15 +206,11 @@ const rule = {
 
     }
 }
-
-
+//===========================================上面的的相关参数用户可以执行修改=========================================================================
 //是否屏蔽首页=左侧大图的轮播图,反之false
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
 const paletteButtionBool = true;
-
-//===========================================上面的的相关参数用户可以执行修改=========================================================================
-
 const home = {
     //是否正在执行清理首页中的零散的直播间元素函数，该值不需要修改
     boolShieldLive: false,
@@ -272,7 +268,15 @@ const home = {
     },
     //屏蔽首页顶部推荐视频
     startShieldVideoTop: function () {
-        startShieldMainVideo("feed-card");
+        frequencyChannel.startShieldMainVideo("feed-card");
+    },
+    //调整首页样式
+    stypeBody: function () {
+        try {
+            document.getElementsByClassName("bili-header__channel")[0].style.padding = 0;//调整-首页header按钮栏
+            document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
+        } catch (e) {
+        }
     }
 }
 
@@ -283,40 +287,40 @@ const home = {
  */
 let searchColumnBool = false;
 
-/**
- * 根据用户提供的网页元素和对应的数组及key，判断数组里是否完全等于key元素本身，进行屏蔽元素
- * @param element
- * @param arr 数组
- * @param key 唯一key
- * @returns {boolean}
- */
-function shieldArrKey(element, arr, key) {
-    if (arr.includes(key)) {
-        element.remove();
-        return true;
-    }
-    return false;
-}
-
-
-/**
- * 根据用户提供的字符串集合，与指定内容进行比较屏蔽，当content某个字符包含了了集合中的某个字符则返回对应的字符
- * 反之返回null
- * @param element 网页元素
- * @param arr 字符串数组
- * @param content 内容
- * @returns {null|String}
- */
-function shieldArrContent(element, arr, content) {
-    for (let str of arr) {
-        if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
+//删除元素
+const remove = {
+    /**
+     * 根据用户提供的网页元素和对应的数组及key，判断数组里是否完全等于key元素本身，进行屏蔽元素
+     * @param element
+     * @param arr 数组
+     * @param key 唯一key
+     * @returns {boolean}
+     */
+    shieldArrKey: function (element, arr, key) {
+        if (arr.includes(key)) {
             element.remove();
-            return str;
+            return true;
         }
+        return false;
+    },
+    /**
+     * 根据用户提供的字符串集合，与指定内容进行比较屏蔽，当content某个字符包含了了集合中的某个字符则返回对应的字符
+     * 反之返回null
+     * @param element 网页元素
+     * @param arr 字符串数组
+     * @param content 内容
+     * @returns {null|String}
+     */
+    shieldArrContent: function (element, arr, content) {
+        for (let str of arr) {
+            if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
+                element.remove();
+                return str;
+            }
+        }
+        return null;
     }
-    return null;
 }
-
 
 const shield = {
     /**
@@ -326,7 +330,7 @@ const shield = {
      * @returns {boolean}
      */
     uid: function (element, uid) {
-        return shieldArrKey(element, rule.userUIDArr, uid);
+        return remove.shieldArrKey(element, rule.userUIDArr, uid);
     },
     /**
      * 根据用户名屏蔽元素，当用户名完全匹配规则时屏蔽
@@ -335,7 +339,7 @@ const shield = {
      * @returns {boolean}
      */
     name: function (element, name) {
-        return shieldArrKey(element, rule.userNameArr, name);
+        return remove.shieldArrKey(element, rule.userNameArr, name);
     },
     /**
      * 根据用户名规则，当用规则字符包含用户名时返回对应的规则字符，反之null
@@ -344,7 +348,7 @@ const shield = {
      * @returns {String|null}
      */
     nameKey: function (element, name) {
-        return shieldArrContent(element, rule.userNameKeyArr, name)
+        return remove.shieldArrContent(element, rule.userNameKeyArr, name)
     },
     /**
      * 根据标题屏蔽元素
@@ -353,7 +357,7 @@ const shield = {
      * @returns {String|null}
      */
     titleKey: function (element, title) {
-        return shieldArrContent(element, rule.titleKeyArr, title)
+        return remove.shieldArrContent(element, rule.titleKeyArr, title)
     },
     /**
      * 根据用户言论屏蔽元素
@@ -362,7 +366,7 @@ const shield = {
      * @returns {String|null}
      */
     contentKey: function (element, content) {
-        return shieldArrContent(element, rule.commentOnKeyArr, content);
+        return remove.shieldArrContent(element, rule.commentOnKeyArr, content);
     },
     /**
      * 根据用户专栏内容关键词屏蔽元素
@@ -371,7 +375,7 @@ const shield = {
      * @returns {String|null}
      */
     columnContentKey: function (element, content) {
-        return shieldArrContent(element, rule.contentColumnKeyArr, content);
+        return remove.shieldArrContent(element, rule.contentColumnKeyArr, content);
     },
     /**
      * 根据用户粉丝牌进行屏蔽
@@ -380,7 +384,7 @@ const shield = {
      * @returns {boolean}
      */
     fanCard: function (element, key) {
-        return shieldArrKey(element, rule.fanCardArr, key);
+        return remove.shieldArrKey(element, rule.fanCardArr, key);
     },
     /**
      * 限制的视频时长最小值，低于该值的都屏蔽
@@ -479,7 +483,6 @@ const shield = {
     }
 }
 
-
 /**
  * 根据规则删除专栏和动态的评论区
  * 针对于专栏和动态内容下面的评论区
@@ -505,7 +508,6 @@ function delDReplay() {
         }
     }
 }
-
 
 /**
  * 工具类
@@ -657,7 +659,6 @@ const util = {
 
 }
 
-
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
  * @param element 网页元素
@@ -689,7 +690,6 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     }
     return false;
 }
-
 
 /**
  *  屏蔽视频元素
@@ -750,114 +750,36 @@ async function shieldVideo_userName_uid_title(element, name, uid, title, videoTi
     return false;
 }
 
-/**
- * 频道
- * 隐藏对应元素的视频
- * @param vdoc 视频列表
- * @returns {boolean}
- */
-function startExtracted(vdoc) {
-    let temp = false;
-    try {
-        for (const element of vdoc) {
-            //用户名
-            const upName = element.getElementsByClassName("up-name__text")[0].textContent;
-            //视频标题
-            let videoName = element.getElementsByClassName("video-name")[0].textContent;
-            //空间地址
-            const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
-            const videoTime = element.getElementsByClassName("play-duraiton")[0].textContent;
-            const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
-            const id = parseInt(upSpatialAddress.substring(lastIndexOf));
-            const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
-            temp = shieldVideo_userName_uid_title(element, upName, id, videoName, videoTime, topInfo[0].textContent);
+//消息中心
+const message = {
+    /**
+     * 删除消息中心的回复我的规则
+     */
+    delMessageReply: function () {
+        const list = document.getElementsByClassName("reply-item");
+        for (let v of list) {
+            const info = v.getElementsByClassName("name-field")[0];
+            const name = info.textContent;//用户名
+            const indess = info.getElementsByTagName("a")[0].getAttribute("href");
+            const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
+            const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
+            startPrintShieldNameOrUIDOrContent(v, name, uid, content);
         }
-    } catch (e) {
-        return temp;
-    }
-    return temp;
-}
-
-/**
- * 屏蔽首页对应的视频
- * @param {String} str
- */
-function startShieldMainVideo(str) {
-    const interval = setInterval(() => {
-        let list = document.getElementsByClassName(str);
-        if (list.length === 0) {
-            return;
+    },
+    /**
+     * 删除消息中的艾特我的规则
+     */
+    delMessageAT: function () {
+        for (let v of document.getElementsByClassName("at-item")) {
+            const userInfo = v.getElementsByClassName("name-field")[0].getElementsByTagName("a")[0];
+            const href = userInfo.getAttribute("href");
+            const userName = userInfo.textContent;
+            const uid = parseInt(href.substring(href.lastIndexOf("/") + 1));
+            const content = v.getElementsByClassName("content-list")[0].textContent;
+            startPrintShieldNameOrUIDOrContent(v, userName, uid, content);
         }
-        while (true) {
-            const tempLength = list.length;
-            for (let v of list) {
-                let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
-                try {
-                    videoInfo = v.getElementsByClassName("bili-video-card__info--right")[0];
-                    //视频标题
-                    title = videoInfo.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
-                    //用户名
-                    upName = videoInfo.getElementsByClassName("bili-video-card__info--author")[0].getAttribute("title");
-                    //用户空间地址
-                    upSpatialAddress = videoInfo.getElementsByClassName("bili-video-card__info--owner")[0].getAttribute("href");
-                    videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
-                    const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
-                    playbackVolume = topInfo[0].textContent;
-                } catch (e) {
-                    v.remove();
-                    console.log("获取元素中，获取失败，下一行是该值的html");
-                    console.log(v)
-                    continue;
-                }
-                let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-                if (isNaN(id)) {
-                    v.remove();
-                    console.log("检测到不是正常视频样式，故删除该元素");
-                    continue;
-                }
-                shieldVideo_userName_uid_title(v, upName, id, title, videoTime, playbackVolume);
-            }
-            list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
-            if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
-                continue;
-            }
-            clearInterval(interval);
-            return;
-        }
-    }, 1000);
-}
-
-
-/**
- * 删除消息中心的回复我的规则
- */
-function delMessageReply() {
-    const list = document.getElementsByClassName("reply-item");
-    for (let v of list) {
-        const info = v.getElementsByClassName("name-field")[0];
-        const name = info.textContent;//用户名
-        const indess = info.getElementsByTagName("a")[0].getAttribute("href");
-        const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
-        const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
-        startPrintShieldNameOrUIDOrContent(v, name, uid, content);
     }
 }
-
-
-/**
- * 删除消息中的艾特我的规则
- */
-function delMessageAT() {
-    for (let v of document.getElementsByClassName("at-item")) {
-        const userInfo = v.getElementsByClassName("name-field")[0].getElementsByTagName("a")[0];
-        const href = userInfo.getAttribute("href");
-        const userName = userInfo.textContent;
-        const uid = parseInt(href.substring(href.lastIndexOf("/") + 1));
-        const content = v.getElementsByClassName("content-list")[0].textContent;
-        startPrintShieldNameOrUIDOrContent(v, userName, uid, content);
-    }
-}
-
 
 /**
  * 针对视频播放页的相关方法
@@ -953,7 +875,7 @@ const frequencyChannel = {
     // 频道排行榜规则
     listRules: function () {
         let list = document.getElementsByClassName("rank-video-card");
-        if (list.length !== 0 && startExtracted(list)) {
+        if (list.length !== 0 && frequencyChannel.startExtracted(list)) {
             console.log("已检测到频道综合的排行榜")
         }
     },
@@ -968,7 +890,7 @@ const frequencyChannel = {
             if (tempLength === 0) {
                 break;
             }
-            startExtracted(list)
+            frequencyChannel.startExtracted(list)
             if (list.length === tempLength) {
                 console.log("页面元素没有变化了，故退出循环")
                 break;
@@ -992,9 +914,83 @@ const frequencyChannel = {
                 clearInterval(interval);
             }
         }, 50);
+    },
+    /**
+     * 屏蔽首页对应的视频
+     * @param {String} str
+     */
+    startShieldMainVideo: function (str) {
+        const interval = setInterval(() => {
+            let list = document.getElementsByClassName(str);
+            if (list.length === 0) {
+                return;
+            }
+            while (true) {
+                const tempLength = list.length;
+                for (let v of list) {
+                    let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
+                    try {
+                        videoInfo = v.getElementsByClassName("bili-video-card__info--right")[0];
+                        //视频标题
+                        title = videoInfo.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
+                        //用户名
+                        upName = videoInfo.getElementsByClassName("bili-video-card__info--author")[0].getAttribute("title");
+                        //用户空间地址
+                        upSpatialAddress = videoInfo.getElementsByClassName("bili-video-card__info--owner")[0].getAttribute("href");
+                        videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
+                        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+                        playbackVolume = topInfo[0].textContent;
+                    } catch (e) {
+                        v.remove();
+                        console.log("获取元素中，获取失败，下一行是该值的html");
+                        console.log(v)
+                        continue;
+                    }
+                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+                    if (isNaN(id)) {
+                        v.remove();
+                        console.log("检测到不是正常视频样式，故删除该元素");
+                        continue;
+                    }
+                    shieldVideo_userName_uid_title(v, upName, id, title, videoTime, playbackVolume);
+                }
+                list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
+                if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
+                    continue;
+                }
+                clearInterval(interval);
+                return;
+            }
+        }, 1000);
+    },
+    /**
+     * 频道
+     * 隐藏对应元素的视频
+     * @param vdoc 视频列表
+     * @returns {boolean}
+     */
+    startExtracted: function (vdoc) {
+        let temp = false;
+        try {
+            for (const element of vdoc) {
+                //用户名
+                const upName = element.getElementsByClassName("up-name__text")[0].textContent;
+                //视频标题
+                let videoName = element.getElementsByClassName("video-name")[0].textContent;
+                //空间地址
+                const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
+                const videoTime = element.getElementsByClassName("play-duraiton")[0].textContent;
+                const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
+                const id = parseInt(upSpatialAddress.substring(lastIndexOf));
+                const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
+                temp = shieldVideo_userName_uid_title(element, upName, id, videoName, videoTime, topInfo[0].textContent);
+            }
+        } catch (e) {
+            return temp;
+        }
+        return temp;
     }
 }
-
 //直播间
 const liveDel = {
     //针对于直播间顶部的屏蔽处理
@@ -1285,7 +1281,6 @@ const liveDel = {
         }
     }
 }
-
 //热门
 const greatDemand = {
     delVideo: function () {
@@ -1310,53 +1305,55 @@ const greatDemand = {
         }
     }
 }
-
-
-/**
- * 针对b站话题
- */
-function deltopIC() {
-    for (let v of document.getElementsByClassName("list__topic-card")) {
-        const info = v.getElementsByClassName("bili-dyn-content__orig")[0];
-        const name = v.getElementsByClassName("bili-dyn-title")[0].textContent.trim();
-        const uid = parseInt(v.getElementsByClassName("bili-dyn-item__following")[0].getAttribute("data-mid"));
-        if (info.getElementsByClassName("bili-dyn-content__orig__desc").length === 1) {
-            const content = info.textContent;
-            startPrintShieldNameOrUIDOrContent(v, name, uid, content);
-            continue;
-        }//如果内容是视频样式
-        const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
-        const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
-        const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
-        shieldVideo_userName_uid_title(v, name, uid, title, videoTime, null);
-    }
-}
-
-
-/**
- * 删除搜索页面的视频元素
- * @param videoList
- */
-function searchRules(videoList) {
-    for (let v of videoList) {
-        let info = v.getElementsByClassName("bili-video-card__info--right")[0];
-        let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
-        //用户名
-        let name = userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent;
-        //视频标题
-        let title = info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
-        //用户空间地址
-        let upSpatialAddress = userInfo.getAttribute("href");
-        if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
-            console.log("检测到不是正常视频内容，故隐藏该元素")
-            //如果获取的类型不符合规则则结束本轮
-            v.parentNode.remove();
-            continue;
+//搜索
+const search = {
+    /**
+     * 删除搜索页面的视频元素
+     * @param videoList
+     */
+    searchRules: function (videoList) {
+        for (let v of videoList) {
+            let info = v.getElementsByClassName("bili-video-card__info--right")[0];
+            let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
+            //用户名
+            let name = userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent;
+            //视频标题
+            let title = info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
+            //用户空间地址
+            let upSpatialAddress = userInfo.getAttribute("href");
+            if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
+                console.log("检测到不是正常视频内容，故隐藏该元素")
+                //如果获取的类型不符合规则则结束本轮
+                v.parentNode.remove();
+                continue;
+            }
+            const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
+            const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+            let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+            shieldVideo_userName_uid_title(v.parentNode, name, id, title, videoTime, topInfo[0].textContent);
         }
-        const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
-        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
-        let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        shieldVideo_userName_uid_title(v.parentNode, name, id, title, videoTime, topInfo[0].textContent);
+    },
+}
+//话题
+const subjectOfATalk = {
+    /**
+     * 针对b站话题
+     */
+    deltopIC: function () {
+        for (let v of document.getElementsByClassName("list__topic-card")) {
+            const info = v.getElementsByClassName("bili-dyn-content__orig")[0];
+            const name = v.getElementsByClassName("bili-dyn-title")[0].textContent.trim();
+            const uid = parseInt(v.getElementsByClassName("bili-dyn-item__following")[0].getAttribute("data-mid"));
+            if (info.getElementsByClassName("bili-dyn-content__orig__desc").length === 1) {
+                const content = info.textContent;
+                startPrintShieldNameOrUIDOrContent(v, name, uid, content);
+                continue;
+            }//如果内容是视频样式
+            const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
+            const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
+            const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
+            shieldVideo_userName_uid_title(v, name, uid, title, videoTime, null);
+        }
     }
 }
 
@@ -1406,7 +1403,7 @@ function perf_observer(list, observer) {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=4&fresh_type=4&feed_version=V8&fresh_idx_1h=")) {//首页换一换推送下面的视频
-            startShieldMainVideo("bili-video-card is-rcmd");
+            frequencyChannel.startShieldMainVideo("bili-video-card is-rcmd");
             home.startShieldMainAFloorSingle();
             home.startShieldMainlive();
             continue;
@@ -1417,7 +1414,7 @@ function perf_observer(list, observer) {
             continue;
         }
         if (url.includes("api.bilibili.com/x/msgfeed/reply?platform=") || url.includes("api.bilibili.com/x/msgfeed/reply?id=")) {//第一次加载对应json信息和后续添加的json信息
-            delMessageReply();
+            message.delMessageReply();
             continue;
         }
         if (url.includes("api.bilibili.com/x/article/metas?ids=")) {
@@ -1425,7 +1422,7 @@ function perf_observer(list, observer) {
             continue;
         }
         if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
-            delMessageAT();
+            message.delMessageAT();
             continue;
         }
 
@@ -1445,7 +1442,7 @@ function perf_observer(list, observer) {
             }
         }
         if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
-            deltopIC();
+            subjectOfATalk.deltopIC();
             continue;
         }
         if (url.includes("api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web")) {//直播间列表，目前依旧还有点小问题，暂时不考虑维护了，后面再考虑
@@ -1524,7 +1521,7 @@ function ruleList(href) {
                     console.log("删除搜索到的精确用户结果元素")
                 } catch (e) {
                 }
-                searchRules(list);
+                search.searchRules(list);
                 if (tempListLength === list.length) {
                     clearInterval(interval);
                     console.log("页面元素没有变化，故退出循环")
@@ -1534,11 +1531,11 @@ function ruleList(href) {
         }, 500);
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
-        delMessageAT();
+        message.delMessageAT();
         return;
     }
     if (href.includes("message.bilibili.com/#/reply") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
-        delMessageReply();
+        message.delMessageReply();
         return;
     }
     if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
@@ -1572,7 +1569,6 @@ function ruleList(href) {
         bilibili(href);
     }
 })();
-
 
 function bilibili(href) {
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
@@ -1700,10 +1696,11 @@ function bilibili(href) {
     }
 
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
-        deltopIC();
+        subjectOfATalk.deltopIC();
     }
     if (href === "https://www.bilibili.com/") { //首页
         home.startShieldLeftPic();
+        home.stypeBody();
         if (paletteButtionBool) {
             setTimeout(() => {
                 document.getElementsByClassName("palette-button-wrap")[0].style.display = "none";
@@ -1730,7 +1727,6 @@ function bilibili(href) {
         }
     }
 }
-
 
 /**
  精简处理的地方有：
@@ -1764,8 +1760,6 @@ function bilibili(href) {
  //设置页面元素监听点击事件
  document.getElementsByClassName("feed-roll-btn")[0].addEventListener("click", () => {
     setTimeout(() => {
-        startShieldMainVideoTop();
-        console.log("用户点击了换一换")
     }, 500);
 });
 
@@ -1784,4 +1778,3 @@ function bilibili(href) {
  这里写一下，避免下次还得用搜索引擎查找，目前已知match的网址规则可以这样填写，就匹配到了    *://message.bilibili.com/*
 
  */
-
