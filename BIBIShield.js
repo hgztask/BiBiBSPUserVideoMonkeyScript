@@ -6,6 +6,7 @@
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
+// @exclude      *://live.bilibili.com/blackboard/dropdown-menu.html
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match        *://search.bilibili.com/*
 // @match        *://www.bilibili.com/v/channel/*
@@ -489,6 +490,7 @@ function delDReplay() {
         const uid = parseInt(userInfo.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));//楼主UID
         const userContent = v.getElementsByClassName("text")[0].textContent;//内容
         const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
+        console.log("name=" + userName + " uid=" + uid + " 言论=" + userContent)
         if (startPrintShieldNameOrUIDOrContent(v, userName, uid, userContent)) {
             continue;
         }
@@ -663,6 +665,11 @@ const util = {
  * @returns {boolean}
  */
 function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
+    const isUid = shield.uid(element, uid);
+    if (isUid) {
+        console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content);
+        return true;
+    }
     const isName = shield.name(element, name);
     if (isName) {
         console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】，言论=" + content);
@@ -670,7 +677,7 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     }
     const isNameKey = shield.nameKey(element, name);
     if (isNameKey != null) {
-        console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content);
+        console.log("用户名=【" + name + "】包含了屏蔽词=【" + isNameKey + "】 故将其屏蔽 言论=" + content);
         return true;
     }
     const key = shield.contentKey(element, content);
@@ -1607,7 +1614,7 @@ function bilibili(href) {
         videoFun.rightSuspendButton();
         //click_playerCtrlWhid();
     }
-    if (href.includes("https://live.bilibili.com/?spm_id_from")) {//直播首页
+    if (href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") {//直播首页
         console.log("进入直播首页了")
         const interval01 = setInterval(() => {
             const videoElement = document.getElementsByTagName("video")[0];
@@ -1711,6 +1718,11 @@ function bilibili(href) {
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         greatDemand.delVideo();
+        try {
+            document.getElementsByClassName("international-footer")[0].remove();
+        } catch (e) {
+            console.log("屏蔽热门底部元素出错！" + e);
+        }
     }
 }
 
