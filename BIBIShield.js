@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.0
+// @version      1.1.1
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -283,11 +283,15 @@ const home = {
     stypeBody: function () {
         const interval = setInterval(() => {
             try {
-                document.getElementsByClassName("bili-header__channel")[0].style.padding = 0;//调整-首页header按钮栏
+                const headerChannelE = document.getElementsByClassName("bili-header__channel")[0];
+                headerChannelE.style.padding = 0;//调整-首页header按钮栏
+                headerChannelE.style.height = "auto";//调整其与下面控件的距离
                 document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
                 //调整换一换按钮位置
                 document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.left = "97%";//调整位置的左距
-                document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.top = "-13%";//调整位置的顶距
+                document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.top = "10%";//调整位置的顶距
+                document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__bar").style.position = "inherit";//调整顶栏样式
+                document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").style.position = "inherit";//调整往下滑动之后顶部的悬浮栏
                 clearInterval(interval)
             } catch (e) {
                 console.log("样式修改失败")
@@ -1794,7 +1798,7 @@ function bilibili(href) {
                 document.getElementsByClassName("palette-button-wrap")[0].style.display = "none";
             }, 2000);
         }
-        //document.getElementById("bili-header-banner-img").remove()//删除首页顶部的图片
+        document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__banner").remove()//删除首页顶部的图片位置的布局
         document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
         const interval = setInterval(() => {
             try {
