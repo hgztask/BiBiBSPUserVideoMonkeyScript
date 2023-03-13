@@ -67,7 +67,7 @@ const rule = {
         14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
         68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
         3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163, 1384853937, 397294542, 322003546, 3493113941199038,
-        318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801, 17803284, 2018921],
+        318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801, 17803284, 2018921, 27606241],
     /**
      * 视频标题or专栏标题关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -281,11 +281,18 @@ const home = {
     },
     //调整首页样式
     stypeBody: function () {
-        try {
-            document.getElementsByClassName("bili-header__channel")[0].style.padding = 0;//调整-首页header按钮栏
-            document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
-        } catch (e) {
-        }
+        const interval = setInterval(() => {
+            try {
+                document.getElementsByClassName("bili-header__channel")[0].style.padding = 0;//调整-首页header按钮栏
+                document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
+                //调整换一换按钮位置
+                document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.left = "97%";//调整位置的左距
+                document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.top = "-13%";//调整位置的顶距
+                clearInterval(interval)
+            } catch (e) {
+                console.log("样式修改失败")
+            }
+        }, 500);
     }
 }
 
@@ -822,7 +829,7 @@ const videoFun = {
     //对视频页的播放器下面的进行处理
     delBottonE: function () {
         this.commentArea();//处理评论区
-        util.circulateIDs("bannerAd", 2, 2500, "已移除播放器底部的广告");
+        util.circulateIDs("bannerAd", 10, 2500, "已移除播放器底部的广告");
         util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
         util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
         util.circulateClassName("ad-floor-cover b-img", 2000, "已移除播放器底部的图片广告");
