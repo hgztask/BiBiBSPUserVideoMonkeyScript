@@ -149,6 +149,15 @@ const rule = {
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
         isRightVideo: true,
     },
+    //动态相关配置信息
+    trendsData: {
+        //是否移除顶栏
+        isTop: false,
+        //是否移除右侧布局
+        isRightLayout: false,
+        //是覅移除话题布局上面的公告栏
+        isBiliDynBanner: true,
+    },
     /**
      *直播间的相关配置信息
      */
@@ -280,12 +289,6 @@ const home = {
     }
 }
 
-/**
- * 保准页面加载了本脚本之后只会触发一次该判断
- * 用于搜索页面的专栏按钮监听。且只会加载一次
- * @type {boolean}
- */
-let searchColumnBool = false;
 
 //删除元素
 const remove = {
@@ -973,6 +976,7 @@ const frequencyChannel = {
         let temp = false;
         try {
             for (const element of vdoc) {
+                element.style.margin = "0px 5px 0px 0px";//设置元素边距
                 //用户名
                 const upName = element.getElementsByClassName("up-name__text")[0].textContent;
                 //视频标题
@@ -989,6 +993,20 @@ const frequencyChannel = {
             return temp;
         }
         return temp;
+    },
+    cssStyle: {
+        tempVar: {
+            //是否执行了调整页面边距
+            backGaugeBool: false,
+        },
+        backGauge: function () {
+            if (this.tempVar.backGaugeBool) {
+                return;
+            }
+            this.tempVar.backGaugeBool = true;
+            document.getElementsByClassName("detail-panels")[0].style.width = "auto";//调整其页面左右边距
+            console.log("已调整频道界面的左右边距")
+        }
     }
 }
 //直播间
@@ -1308,6 +1326,12 @@ const greatDemand = {
 //搜索
 const search = {
     /**
+     * 保准页面加载了本脚本之后只会触发一次该判断
+     * 用于搜索页面的专栏按钮监听。且只会加载一次
+     * @type {boolean}
+     */
+    searchColumnBool: false,
+    /**
      * 删除搜索页面的视频元素
      * @param videoList
      */
@@ -1355,6 +1379,62 @@ const subjectOfATalk = {
             shieldVideo_userName_uid_title(v, name, uid, title, videoTime, null);
         }
     }
+}
+//动态
+const trends = {
+    topCssDisply: {
+        //针对于整体布局的细调整
+        body: function () {
+            const interval = setInterval(() => {
+                try {
+                    document.getElementsByClassName("bili-dyn-home--member")[0].style.justifyContent = 'space-between';
+                    document.getElementsByTagName("main")[0].style.width = "70%";
+                    document.getElementsByClassName("bili-dyn-my-info")[0].style.display = "none";//移除左侧中的个人基础面板信息
+                    console.log("已调整动态界面布局");
+                    clearInterval(interval)
+                } catch (e) {
+                }
+            });
+        },
+        //针对顶部的处理
+        topTar: function () {
+            const trends = rule.trendsData;
+            if (trends.isTop) {
+                const interval = setInterval(() => {
+                        try {
+                            document.getElementById("bili-header-container").remove();//移除顶部栏
+                            clearInterval(interval);
+                        } catch (e) {
+                        }
+                    }
+                );
+            }
+        }, rightLayout: function () {
+            const trendsData = rule.trendsData;
+            if (trendsData.isRightLayout) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
+                        document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
+                        clearInterval(interval);
+                        console.log("已移除右侧布局并调整中间动态容器布局宽度")
+                    } catch (e) {
+                    }
+                }, 1000);
+                return;
+            }
+            if (trendsData.isBiliDynBanner) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("bili-dyn-banner")[0].style.display = "none";
+                        console.log("已移除公告栏布局")
+                        clearInterval(interval)
+                    } catch (e) {
+                    }
+                });
+            }
+        }
+    },
 }
 
 function perf_observer(list, observer) {
@@ -1541,6 +1621,7 @@ function ruleList(href) {
     if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
         frequencyChannel.videoRules();
         frequencyChannel.delDevelop();
+        frequencyChannel.cssStyle.backGauge();
     }
 
 }
@@ -1673,14 +1754,14 @@ function bilibili(href) {
             console.log("测试，没找着id")
         }
     }
-    if (href.includes("search.bilibili.com") && searchColumnBool === false) {
+    if (href.includes("search.bilibili.com") && search.searchColumnBool === false) {
         try {
             document.getElementById("biliMainFooter").remove();
             document.getElementsByClassName("side-buttons flex_col_end p_absolute")[0].remove();
             console.log("已删除搜索底部信息和右侧悬浮按钮")
         } catch (e) {
         }
-        searchColumnBool = true;
+        search.searchColumnBool = true;
         const interval = setInterval(() => {
             try {
                 document.getElementsByClassName("vui_tabs--nav-link")[5].addEventListener("click", () => {//监听用户点击了专栏选项卡
@@ -1725,6 +1806,11 @@ function bilibili(href) {
         } catch (e) {
             console.log("屏蔽热门底部元素出错！" + e);
         }
+    }
+    if (href.includes("t.bilibili.com/?spm_id_from=")) {//动态的首页
+        trends.topCssDisply.body();
+        trends.topCssDisply.topTar();
+        trends.topCssDisply.rightLayout();
     }
 }
 
