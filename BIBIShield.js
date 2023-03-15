@@ -2,17 +2,19 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.1
+// @version      1.1.2
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
 // @exclude      *://live.bilibili.com/blackboard/dropdown-menu.html
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match        *://search.bilibili.com/*
+// @match        *://www.bilibili.com/v/food/*
 // @match        *://www.bilibili.com/v/channel/*
 // @match        *://message.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @match        *://www.bilibili.com/v/topic/detail/?topic_id=*
+// @match        *://www.bilibili.com/v/kichiku/*
 // @match        *://t.bilibili.com/*
 // @match        *://space.bilibili.com/*
 // @match        *://www.bilibili.com/video/*
@@ -67,7 +69,7 @@ const rule = {
         14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
         68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
         3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163, 1384853937, 397294542, 322003546, 3493113941199038,
-        318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801, 17803284, 2018921, 27606241],
+        318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801, 17803284, 2018921, 27606241, 475241354, 52643407, 1224520780, 421415625, 3461570449377355],
     /**
      * 视频标题or专栏标题关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -277,7 +279,7 @@ const home = {
     },
     //屏蔽首页顶部推荐视频
     startShieldVideoTop: function () {
-        frequencyChannel.startShieldMainVideo("feed-card");
+        home.startShieldMainVideo("feed-card");
     },
     //调整首页样式
     stypeBody: function () {
@@ -291,13 +293,61 @@ const home = {
                 document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.left = "97%";//调整位置的左距
                 document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div.feed-roll-btn").style.top = "10%";//调整位置的顶距
                 document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__bar").style.position = "inherit";//调整顶栏样式
-                document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").style.position = "inherit";//调整往下滑动之后顶部的悬浮栏
+                document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").remove();//调整往下滑动之后顶部的悬浮栏
                 clearInterval(interval)
             } catch (e) {
                 console.log("样式修改失败")
             }
         }, 500);
-    }
+    },
+    /**
+     * 屏蔽首页对应的视频
+     * @param {String} str 首页视频元素
+     */
+    startShieldMainVideo: function (str) {
+        const interval = setInterval(() => {
+            let list = document.getElementsByClassName(str);
+            if (list.length === 0) {
+                return;
+            }
+            while (true) {
+                const tempLength = list.length;
+                for (let v of list) {
+                    let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
+                    try {
+                        videoInfo = v.getElementsByClassName("bili-video-card__info--right")[0];
+                        //视频标题
+                        title = videoInfo.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
+                        //用户名
+                        upName = videoInfo.getElementsByClassName("bili-video-card__info--author")[0].getAttribute("title");
+                        //用户空间地址
+                        upSpatialAddress = videoInfo.getElementsByClassName("bili-video-card__info--owner")[0].getAttribute("href");
+                        videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
+                        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+                        playbackVolume = topInfo[0].textContent;
+                    } catch (e) {
+                        v.remove();
+                        console.log("获取元素中，获取失败，下一行是该值的html");
+                        console.log(v)
+                        continue;
+                    }
+                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+                    if (isNaN(id)) {
+                        v.remove();
+                        console.log("检测到不是正常视频样式，故删除该元素");
+                        continue;
+                    }
+                    shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume);
+                }
+                list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
+                if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
+                    continue;
+                }
+                clearInterval(interval);
+                return;
+            }
+        }, 1000);
+    },
 }
 
 
@@ -712,40 +762,44 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @param {String}name 用户名
  * @param {Number}uid 用户uid
  * @param {String}title 视频标题
+ * @param{String}videoHref 视频地址
  * @param  {String}videoTime 视频时间
  * @param{String}videoPlaybackVolume 播放量
  * @returns {boolean} 是否执行完
  */
-async function shieldVideo_userName_uid_title(element, name, uid, title, videoTime, videoPlaybackVolume) {
+async function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
+    if (videoHref == null) {
+        videoHref = "暂无设定";
+    }
     if (uid !== null) {
         const isUid = shield.uid(element, uid);
         if (isUid) {
-            console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title);
+            console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title + " 地址=" + videoHref);
             return true;
         }
     }
     const isName = shield.name(element, name);
     if (isName) {
-        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】 视频=" + title);
+        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】 视频=" + title + " 地址=" + videoHref);
         return true;
     }
     const isNameKey = shield.nameKey(element, name);
     if (isNameKey != null) {
-        console.log("用户名【" + name + "】，因包含屏蔽规则【" + isNameKey + "】，故屏蔽该用户,视频标题=【" + title + "】");
+        console.log("用户名=" + name + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref);
         return true;
     }
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
-        console.log("已通过视频标题关键词=【" + videoTitle + "】 屏蔽用户【" + name + "】 视频=" + title);
+        console.log("已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " 视频=" + title + " 地址=" + videoHref);
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
         if (shield.videoMinPlaybackVolume(element, change)) {
-            console.log("已滤视频播发量小于=【" + rule.videoData.broadcastMin + "】的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume);
+            console.log("已滤视频播发量小于=" + rule.videoData.broadcastMin + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref);
             return true;
         }
         if (shield.videoMaxPlaybackVolume(element, change)) {
-            console.log("已滤视频播发量大于=【" + rule.videoData.broadcastMax + "】的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume);
+            console.log("已滤视频播发量大于=" + rule.videoData.broadcastMax + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref);
             return true;
         }
     }
@@ -754,11 +808,11 @@ async function shieldVideo_userName_uid_title(element, name, uid, title, videoTi
     }
     const timeTotalSeconds = util.getTimeTotalSeconds(videoTime);
     if (shield.videoMinFilterS(element, timeTotalSeconds)) {
-        console.log("已通过视频时长过滤时长小于=【" + rule.videoData.filterSMin + "】秒的视频 视频=【" + title + "】");
+        console.log("已通过视频时长过滤时长小于=" + rule.videoData.filterSMin + "秒的视频 视频=【" + title + " 地址=" + videoHref);
         return true;
     }
     if (shield.videoMaxFilterS(element, timeTotalSeconds)) {
-        console.log("已通过视频时长过滤时长大于=【" + rule.videoData.filterSMax + "】秒的视频 视频=【" + title + "】");
+        console.log("已通过视频时长过滤时长大于=" + rule.videoData.filterSMax + "秒的视频 视频=" + title + " 地址=" + videoHref);
         return true;
     }
     return false;
@@ -865,7 +919,7 @@ const videoFun = {
             const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
             const playInfo = e.getElementsByClassName("playinfo")[0];
             playInfo.getElementsByClassName("")
-            shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null);
+            shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null, null);
         }
     }
     ,
@@ -906,7 +960,7 @@ const frequencyChannel = {
             }
             frequencyChannel.startExtracted(list)
             if (list.length === tempLength) {
-                console.log("页面元素没有变化了，故退出循环")
+                //console.log("页面元素没有变化了，故退出循环")
                 break;
             }
         }
@@ -930,54 +984,6 @@ const frequencyChannel = {
         }, 50);
     },
     /**
-     * 屏蔽首页对应的视频
-     * @param {String} str
-     */
-    startShieldMainVideo: function (str) {
-        const interval = setInterval(() => {
-            let list = document.getElementsByClassName(str);
-            if (list.length === 0) {
-                return;
-            }
-            while (true) {
-                const tempLength = list.length;
-                for (let v of list) {
-                    let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
-                    try {
-                        videoInfo = v.getElementsByClassName("bili-video-card__info--right")[0];
-                        //视频标题
-                        title = videoInfo.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
-                        //用户名
-                        upName = videoInfo.getElementsByClassName("bili-video-card__info--author")[0].getAttribute("title");
-                        //用户空间地址
-                        upSpatialAddress = videoInfo.getElementsByClassName("bili-video-card__info--owner")[0].getAttribute("href");
-                        videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
-                        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
-                        playbackVolume = topInfo[0].textContent;
-                    } catch (e) {
-                        v.remove();
-                        console.log("获取元素中，获取失败，下一行是该值的html");
-                        console.log(v)
-                        continue;
-                    }
-                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-                    if (isNaN(id)) {
-                        v.remove();
-                        console.log("检测到不是正常视频样式，故删除该元素");
-                        continue;
-                    }
-                    shieldVideo_userName_uid_title(v, upName, id, title, videoTime, playbackVolume);
-                }
-                list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
-                if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
-                    continue;
-                }
-                clearInterval(interval);
-                return;
-            }
-        }, 1000);
-    },
-    /**
      * 频道
      * 隐藏对应元素的视频
      * @param vdoc 视频列表
@@ -990,15 +996,18 @@ const frequencyChannel = {
                 element.style.margin = "0px 5px 0px 0px";//设置元素边距
                 //用户名
                 const upName = element.getElementsByClassName("up-name__text")[0].textContent;
+                const videoInfo = element.getElementsByClassName("video-name")[0];
                 //视频标题
-                let videoName = element.getElementsByClassName("video-name")[0].textContent;
+                const title = videoInfo.textContent.trim();
+                //视频地址
+                const videohref = videoInfo.getAttribute("href");
                 //空间地址
                 const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
                 const videoTime = element.getElementsByClassName("play-duraiton")[0].textContent;
                 const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
                 const id = parseInt(upSpatialAddress.substring(lastIndexOf));
                 const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
-                temp = shieldVideo_userName_uid_title(element, upName, id, videoName, videoTime, topInfo[0].textContent);
+                temp = shieldVideo_userName_uid_title(element, upName, id, title, videoInfo, videoTime, topInfo[0].textContent);
             }
         } catch (e) {
             return temp;
@@ -1320,7 +1329,7 @@ const greatDemand = {
                 const title = v.getElementsByClassName("title")[1].textContent;
                 const name = v.getElementsByClassName("upName")[0].textContent;
                 const time = v.getElementsByClassName("time")[0].textContent;
-                shieldVideo_userName_uid_title(v, name, null, title, null, time);
+                shieldVideo_userName_uid_title(v, name, null, title, null, null, time);
             }
             return;
         }
@@ -1365,7 +1374,7 @@ const search = {
             const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
             const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
             let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-            shieldVideo_userName_uid_title(v.parentNode, name, id, title, videoTime, topInfo[0].textContent);
+            shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent);
         }
     },
 }
@@ -1387,7 +1396,7 @@ const subjectOfATalk = {
             const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
             const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
             const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
-            shieldVideo_userName_uid_title(v, name, uid, title, videoTime, null);
+            shieldVideo_userName_uid_title(v, name, uid, title, null, videoTime, null);
         }
     }
 }
@@ -1494,7 +1503,7 @@ function perf_observer(list, observer) {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=4&fresh_type=4&feed_version=V8&fresh_idx_1h=")) {//首页换一换推送下面的视频
-            frequencyChannel.startShieldMainVideo("bili-video-card is-rcmd");
+            home.startShieldMainVideo("bili-video-card is-rcmd");
             home.startShieldMainAFloorSingle();
             home.startShieldMainlive();
             continue;
@@ -1548,6 +1557,9 @@ function perf_observer(list, observer) {
             || url.includes("api.bilibili.com/x/copyright-music-publicity/toplist/music_list?csrf=")
             && windowUrl.includes("www.bilibili.com/v/popular")) {//热门
             greatDemand.delVideo();
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/ranking") || url.includes("api.bilibili.com/x/web-interface/dynamic")) {//首页分区类的api
+            home.startShieldMainVideo("bili-video-card");
         }
     }
 }
@@ -1633,6 +1645,14 @@ function ruleList(href) {
         frequencyChannel.videoRules();
         frequencyChannel.delDevelop();
         frequencyChannel.cssStyle.backGauge();
+    }
+    if (href.includes("www.bilibili.com/v/food/")) {
+        home.startShieldMainVideo("bili-video-card");
+        try {
+            document.getElementById("biliMainFooter").remove();
+            console.log("已移除页脚信息")
+        } catch (e) {
+        }
     }
 
 }
@@ -1822,6 +1842,13 @@ function bilibili(href) {
         trends.topCssDisply.body();
         trends.topCssDisply.topTar();
         trends.topCssDisply.rightLayout();
+    }
+    if (href.includes("www.bilibili.com/v/kichiku/")) {
+        util.circulateID("biliMainFooter", 2000, "已移除底部信息");
+        util.circulateClassName("primary-btn feedback visible", 2000, "已移除右侧悬浮按钮");
+        util.circulateClassNames("eva-banner", 0, 10, 1500, "已移除界面中的横幅广告");
+        util.circulateClassNames("eva-banner", 1, 10, 1500, "已移除界面中的横幅广告");
+        util.circulateClassNames("eva-banner", 2, 10, 1500, "已移除界面中的横幅广告");
     }
 }
 
