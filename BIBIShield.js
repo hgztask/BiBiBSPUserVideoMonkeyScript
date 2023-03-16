@@ -201,7 +201,7 @@ const rule = {
         //要移除顶部左侧的选项（不包括右侧），但必须要有该选项，比如下面例子的，赛事，就移除其，如需要添加别的在该数组后面添加即可，如["赛事","生活"]
         topLeftBar: ["赛事", "购物", "知识", "生活", "电台", "娱乐"],
         //是否移除礼物栏
-        delGiftLayout: false,
+        delGiftLayout: true,
         //是否移除立即上舰
         isEmbark: true,
         //是否移除礼物栏的的礼物部分
@@ -1107,14 +1107,7 @@ const liveDel = {
     //礼物栏的布局处理
     delGiftBar: function () {
         if (rule.liveData.delGiftLayout) {
-            const temp = setInterval(() => {
-                const id = document.getElementById("gift-control-vm");
-                if (id) {
-                    id.remove();
-                    clearInterval(temp);
-                    console.log("已移除礼物栏")
-                }
-            }, 2000);
+            util.circulateIDs("gift-control-vm", 5, 1500, "已移除礼物栏")
             return;
         }
         if (rule.liveData.isEmbark) {
