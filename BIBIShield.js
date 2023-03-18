@@ -47,7 +47,7 @@ const rule = {
     /**
      * 用户uid黑名单模式
      * 提示越靠前的优先匹配
-     * 比如我想要想要根据某个用户的UID进行屏蔽，则填写纯数字即可，不用加UID，如：
+     * 比如我想要根据某个用户的UID进行屏蔽，则填写纯数字即可，不用加UID，如：
      * [114514]
      * 多个就
      * [114514,1433223]
@@ -70,7 +70,17 @@ const rule = {
         68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
         3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163, 1384853937, 397294542, 322003546, 3493113941199038,
         318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801, 17803284, 2018921, 27606241, 475241354, 52643407, 1224520780, 421415625,
-        3461570449377355, 474320556, 18751756, 233860055, 382789980, 302327610],
+        3461570449377355, 474320556, 18751756, 233860055, 382789980, 302327610, 156492572, 4679191, 152728, 36451416],
+    /**
+     * 用户白名单模式
+     * 提示越靠前的优先匹配
+     * 比如我不用屏蔽指定用户的内容，则填写用户的UID进行白名单，则填写纯数字即可，不用加UID，如：
+     * [114514]
+     * 多个就
+     * [114514,1433223]
+     * @type{number[]}
+     */
+    userWhiteUIDArr: [344490740],
     /**
      * 视频标题or专栏标题关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -78,7 +88,7 @@ const rule = {
      * 说明：比如某个视频有个张三关键词，你想要屏蔽张三关键词的旧如下所示例子，添加关键的地方即可，如果有多个就，按照下面例子中添加，即可，如果有两个类似的，靠左边的优先匹配到
      * @type {string[]}
      */
-    titleKeyArr: ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "手游流水", "答辩"],
+    titleKeyArr: ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "手游流水", "答辩", "mihoyo"],
     /**
      * 评论关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -87,7 +97,7 @@ const rule = {
      * @type {string[]}
      */
     commentOnKeyArr: ["感觉不如", "有趣", "原神", "幻塔", "差不多的了", "你说得对", "op", "百万", "腾讯", "网易", "米哈游", "薄纱", "卫兵", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "米家", "崩崩",
-        "三蹦子"],
+        "三蹦子", "mihoyo"],
     /**
      * 粉丝牌
      * 根据粉丝牌屏蔽
@@ -388,6 +398,10 @@ const remove = {
 }
 
 const shield = {
+    //是否是白名单用户
+    isWhiteUserUID: function (uid) {
+        return rule.userWhiteUIDArr.includes(uid);
+    },
     /**
      * 根据用户uid屏蔽元素
      * @param element
@@ -396,7 +410,8 @@ const shield = {
      */
     uid: function (element, uid) {
         return remove.shieldArrKey(element, rule.userUIDArr, uid);
-    },
+    }
+    ,
     /**
      * 根据用户名屏蔽元素，当用户名完全匹配规则时屏蔽
      * @param element
@@ -405,7 +420,8 @@ const shield = {
      */
     name: function (element, name) {
         return remove.shieldArrKey(element, rule.userNameArr, name);
-    },
+    }
+    ,
     /**
      * 根据用户名规则，当用规则字符包含用户名时返回对应的规则字符，反之null
      * @param element
@@ -414,7 +430,8 @@ const shield = {
      */
     nameKey: function (element, name) {
         return remove.shieldArrContent(element, rule.userNameKeyArr, name)
-    },
+    }
+    ,
     /**
      * 根据标题屏蔽元素
      * @param element
@@ -423,7 +440,8 @@ const shield = {
      */
     titleKey: function (element, title) {
         return remove.shieldArrContent(element, rule.titleKeyArr, title)
-    },
+    }
+    ,
     /**
      * 根据用户言论屏蔽元素
      * @param element
@@ -432,7 +450,8 @@ const shield = {
      */
     contentKey: function (element, content) {
         return remove.shieldArrContent(element, rule.commentOnKeyArr, content);
-    },
+    }
+    ,
     /**
      * 根据用户专栏内容关键词屏蔽元素
      * @param element
@@ -441,7 +460,8 @@ const shield = {
      */
     columnContentKey: function (element, content) {
         return remove.shieldArrContent(element, rule.contentColumnKeyArr, content);
-    },
+    }
+    ,
     /**
      * 根据用户粉丝牌进行屏蔽
      * @param element
@@ -450,7 +470,8 @@ const shield = {
      */
     fanCard: function (element, key) {
         return remove.shieldArrKey(element, rule.fanCardArr, key);
-    },
+    }
+    ,
     /**
      * 限制的视频时长最小值，低于该值的都屏蔽
      * 根据视频时长，过滤指定时长内的视频
@@ -464,7 +485,8 @@ const shield = {
             return true;
         }
         return false;
-    },
+    }
+    ,
     /**
      * 限制可展示的视频时长最大值，高于该值的都屏蔽
      * @param element
@@ -481,7 +503,8 @@ const shield = {
             return true;
         }
         return false;
-    },
+    }
+    ,
     /**
      * 限制视频播放量最小值，低于该值的都屏蔽
      * 根据视频播放量，过滤低于指定播放量的视频
@@ -495,7 +518,8 @@ const shield = {
             return true;
         }
         return false;
-    },
+    }
+    ,
     /**
      * 限制视频播放量最大值，高于该值的都屏蔽
      * 根据视频播放量，过滤高于指定播放量的视频
@@ -513,7 +537,8 @@ const shield = {
             return true;
         }
         return false;
-    },
+    }
+    ,
     /**
      * 限制可暂时的视频弹幕量最小值，低于该值的都屏蔽
      * 根据视频弹幕量，过滤低于指定弹幕量的视频
@@ -527,7 +552,8 @@ const shield = {
             return true;
         }
         return false;
-    },
+    }
+    ,
     /**
      * 限制可暂时的视频弹幕量最大值，高于该值的都屏蔽
      * 根据视频弹幕量，过滤高于指定弹幕量的视频
@@ -734,6 +760,14 @@ const util = {
  * @returns {boolean}
  */
 function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
+    if (shield.isWhiteUserUID(uid)) {
+        return false;
+    }
+    const key = shield.contentKey(element, content);
+    if (key != null) {
+        console.log("已通过言论关键词【" + key + "】屏蔽用户【" + name + "】 原言论=" + content);
+        return true;
+    }
     const isUid = shield.uid(element, uid);
     if (isUid) {
         console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content);
@@ -747,11 +781,6 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     const isNameKey = shield.nameKey(element, name);
     if (isNameKey != null) {
         console.log("用户名=【" + name + "】包含了屏蔽词=【" + isNameKey + "】 故将其屏蔽 言论=" + content);
-        return true;
-    }
-    const key = shield.contentKey(element, content);
-    if (key != null) {
-        console.log("已通过言论关键词【" + key + "】屏蔽用户【" + name + "】 原言论=" + content);
         return true;
     }
     return false;
@@ -770,29 +799,32 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @returns {boolean} 是否执行完
  */
 async function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
+    if (shield.isWhiteUserUID(uid)) {
+        return false;
+    }
     if (videoHref == null) {
         videoHref = "暂无设定";
     }
     if (uid !== null) {
         const isUid = shield.uid(element, uid);
         if (isUid) {
-            console.log("已通过id=【" + uid + "】屏蔽黑名单用户【" + name + "】 视频=" + title + " 地址=" + videoHref);
+            console.log("已通过id=" + uid + " 屏蔽黑名单用户 " + name + " 视频=" + title + " 地址=" + videoHref);
             return true;
         }
     }
     const isName = shield.name(element, name);
     if (isName) {
-        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】 视频=" + title + " 地址=" + videoHref);
+        console.log("已通过用户名屏蔽指定黑名单用户 " + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref);
         return true;
     }
     const isNameKey = shield.nameKey(element, name);
     if (isNameKey != null) {
-        console.log("用户名=" + name + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref);
+        console.log("用户名=" + name + " uid=" + uid + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref);
         return true;
     }
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
-        console.log("已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " 视频=" + title + " 地址=" + videoHref);
+        console.log("已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref);
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
@@ -1571,6 +1603,9 @@ function searchColumn() {
         const name = userInfo.textContent;
         const upSpatialAddress = userInfo.getAttribute("href");
         const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+        if (shield.isWhiteUserUID(uid)) {
+            continue;
+        }
         if (shield.uid(v, uid)) {
             console.log("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent);
             continue;
