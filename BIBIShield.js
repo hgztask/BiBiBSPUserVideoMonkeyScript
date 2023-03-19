@@ -23,9 +23,11 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/v/popular*
 // @match        https://www.bilibili.com/
+// @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        none
 // ==/UserScript==
+
 
 //规则
 const rule = {
@@ -60,17 +62,17 @@ const rule = {
         355864845, 403099700, 310049630, 396088710, 816408, 244830863, 1849036165, 433761998, 407470895, 494905797, 15290294, 492714942, 1508604210, 1059098601, 1057671967, 108145926,
         17016234, 35374392, 347017348, 33069452, 510854520, 376257755, 14934048, 570365721, 247006155, 3812, 1153772186, 296539, 2117160, 1428464, 421706, 281239563, 27537451, 29660334,
         412930970, 26823187, 5216704, 448091880, 17460940, 1261836580, 174945001, 182976969, 426820673, 490592134, 198402204, 1281412061, 65976968, 40648072, 141151718, 1992255481, 11624471,
-        1754181364, 196384402, 66367787, 128154158, 169545694, 5357279, 1152060393, 2038765, 3688216, 111220485, 6976808, 2346313, 28236100, 18227521, 440750397, 33309913, 280697705,
-        209324033, 488235430, 356479827, 1670897182, 177701043, 37652547, 125580767, 514090617, 50649550, 163969773, 509539484, 272571655, 473638012, 455144859, 34569089, 648428269,
-        43681957, 1715662667, 479377752, 238366138, 12475509, 29346851, 321253774, 89615638, 891858, 1301805267, 3529427, 243818176, 171384131, 11587623, 480266307, 450546148, 486810195,
-        430440081, 1242975719, 28263772, 507566, 22017278, 26287223, 245666267, 260548595, 180078002, 158597892, 363168957, 160905064, 35918416, 2073698, 54887854, 2785997, 441304288,
-        453875195, 304367432, 665571562, 359776394, 236691671, 435301455, 693055791, 1579905799, 617472671, 627472210, 1664466071, 188817014, 43417886, 177362409, 290792970, 167486665,
+        1754181364, 196384402, 66367787, 128154158, 169545694, 5357279, 1152060393, 2038765, 3688216, 111220485, 6976808, 2346313, 28236100, 18227521, 440750397, 33309913, 280697705, 209324033,
+        488235430, 356479827, 1670897182, 177701043, 37652547, 125580767, 514090617, 50649550, 163969773, 509539484, 272571655, 473638012, 455144859, 34569089, 648428269, 43681957, 1715662667,
+        479377752, 238366138, 12475509, 29346851, 321253774, 89615638, 891858, 1301805267, 3529427, 243818176, 171384131, 11587623, 480266307, 450546148, 486810195, 430440081, 1242975719, 28263772,
+        507566, 22017278, 26287223, 245666267, 260548595, 180078002, 158597892, 363168957, 160905064, 35918416, 2073698, 54887854, 2785997, 441304288, 453875195, 304367432, 665571562, 359776394,
+        236691671, 435301455, 693055791, 1579905799, 617472671, 627472210, 1664466071, 188817014, 43417886, 177362409, 290792970, 167486665, 614917881, 1518534198, 435549273, 498352621, 222874303,
         52675587, 308174482, 286366141, 115496626, 516585427, 7407869, 21971309, 168618448, 163524651, 162007026, 300630871, 89015953, 10155123, 1360533588, 73149130, 8284785, 34774578,
         14493378, 58242864, 282462500, 35989854, 252953029, 9015499, 38269762, 45048267, 87369426, 3222715, 397883721, 324460860, 7856986, 161782912, 38377537, 433207409, 497415994, 26366366,
         68559, 326499679, 398977139, 401000486, 45320548, 10479363, 393196002, 382806584, 284141005, 355076532, 525007481, 396438095, 396773226, 49771321, 360978058, 393471511, 381431441,
         3493087556930157, 27534330, 401742377, 29668335, 17065080, 101157782, 3493144377166772, 363264911, 27825218, 511045567, 16683163, 1384853937, 397294542, 322003546, 3493113941199038,
         318432901, 1636034895, 1340190821, 256667467, 179948458, 53584646, 238113050, 352159908, 582236801, 17803284, 2018921, 27606241, 475241354, 52643407, 1224520780, 421415625,
-        3461570449377355, 474320556, 18751756, 233860055, 382789980, 302327610, 156492572, 4679191, 152728, 36451416],
+        3461570449377355, 474320556, 18751756, 233860055, 382789980, 302327610, 156492572, 4679191, 152728, 36451416, 475023997, 400551353, 13387337, 4323055, 340746073, 504867964, 110618585, 32774179],
     /**
      * 用户白名单模式
      * 提示越靠前的优先匹配
@@ -80,7 +82,7 @@ const rule = {
      * [114514,1433223]
      * @type{number[]}
      */
-    userWhiteUIDArr: [344490740],
+    userWhiteUIDArr: [344490740, 1861980711],
     /**
      * 视频标题or专栏标题关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -88,7 +90,7 @@ const rule = {
      * 说明：比如某个视频有个张三关键词，你想要屏蔽张三关键词的旧如下所示例子，添加关键的地方即可，如果有多个就，按照下面例子中添加，即可，如果有两个类似的，靠左边的优先匹配到
      * @type {string[]}
      */
-    titleKeyArr: ["感觉不如", "对标原神", "原神", "米哈游", "腾讯", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "手游流水", "答辩", "mihoyo"],
+    titleKeyArr: ["感觉不如", "对标原神", "原神", "米哈游", "薄纱", "空大佐", "抄袭", "崩坏", "崩三", "塔塔开", "手游流水", "答辩", "mihoyo"],
     /**
      * 评论关键词
      * 关键词小写，会有方法对内容中的字母转成小写的
@@ -160,7 +162,7 @@ const rule = {
         //是否移除视频播放完之后的，推荐视频
         isVideoEndRecommend: true,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
-        isRightVideo: true,
+        isRightVideo: false,
     },
     //动态相关配置信息
     trendsData: {
@@ -387,11 +389,15 @@ const remove = {
      * @returns {null|String}
      */
     shieldArrContent: function (element, arr, content) {
-        for (let str of arr) {
-            if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
-                element.remove();
-                return str;
+        try {
+            for (let str of arr) {
+                if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
+                    element.remove();
+                    return str;
+                }
             }
+        } catch (e) {
+            return null;
         }
         return null;
     }
@@ -711,6 +717,91 @@ const util = {
             }
         }, time);
     },
+    //设置元素可自由拖动拖动
+    suspensionBall: function (dragId, func) {
+        let startEvt, moveEvt, endEvt;
+        // 判断是否支持触摸事件
+        if ("ontouchstart" in window) {
+            startEvt = "touchstart";
+            moveEvt = "touchmove";
+            endEvt = "touchend";
+        } else {
+            startEvt = "mousedown";
+            moveEvt = "mousemove";
+            endEvt = "mouseup";
+        }
+        // 获取元素
+
+        dragId.style.position = "absolute";
+        dragId.style.cursor = "move";
+        // 标记是拖曳还是点击
+        let isClick = true;
+        let disX, disY, left, top, starX, starY;
+
+        dragId.addEventListener(startEvt, function (e) {
+            // 阻止页面的滚动，缩放
+            e.preventDefault();
+            // 兼容IE浏览器
+            e = e || window.event;
+            isClick = true;
+            // 手指按下时的坐标
+            starX = e.touches ? e.touches[0].clientX : e.clientX;
+            starY = e.touches ? e.touches[0].clientY : e.clientY;
+            // 手指相对于拖动元素左上角的位置
+            disX = starX - dragId.offsetLeft;
+            disY = starY - dragId.offsetTop;
+            // 按下之后才监听后续事件
+            document.addEventListener(moveEvt, moveFun);
+            document.addEventListener(endEvt, endFun);
+        });
+
+        function moveFun(e) {
+            // 兼容IE浏览器
+            e = e || window.event;
+            // 防止触摸不灵敏，拖动距离大于20像素就认为不是点击，小于20就认为是点击跳转
+            if (
+                Math.abs(starX - (e.touches ? e.touches[0].clientX : e.clientX)) >
+                20 ||
+                Math.abs(starY - (e.touches ? e.touches[0].clientY : e.clientY)) > 20
+            ) {
+                isClick = false;
+            }
+            left = (e.touches ? e.touches[0].clientX : e.clientX) - disX;
+            top = (e.touches ? e.touches[0].clientY : e.clientY) - disY;
+            // 限制拖拽的X范围，不能拖出屏幕
+            if (left < 0) {
+                left = 0;
+            } else if (
+                left >
+                document.documentElement.clientWidth - dragId.offsetWidth
+            ) {
+                left = document.documentElement.clientWidth - dragId.offsetWidth;
+            }
+            // 限制拖拽的Y范围，不能拖出屏幕
+            if (top < 0) {
+                top = 0;
+            } else if (
+                top >
+                document.documentElement.clientHeight - dragId.offsetHeight
+            ) {
+                top = document.documentElement.clientHeight - dragId.offsetHeight;
+            }
+            dragId.style.left = left + "px";
+            dragId.style.top = top + "px";
+        }
+
+        function endFun() {
+            document.removeEventListener(moveEvt, moveFun);
+            document.removeEventListener(endEvt, endFun);
+            // 点击
+            if (func === undefined) {
+                return;
+            }
+            if (isClick) {
+                func();
+            }
+        }
+    },
     /**
      * 封装好的定时器检测元素，检测到将删除对应元素，class方式
      * @param elementStr
@@ -747,7 +838,7 @@ const util = {
                 clearInterval(interval);
             }
         }, time);
-    },
+    }
 
 }
 
@@ -765,22 +856,22 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     }
     const key = shield.contentKey(element, content);
     if (key != null) {
-        console.log("已通过言论关键词【" + key + "】屏蔽用户【" + name + "】 原言论=" + content);
+        console.log("已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isUid = shield.uid(element, uid);
     if (isUid) {
-        console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content);
+        console.log("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isName = shield.name(element, name);
     if (isName) {
-        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】，言论=" + content);
+        console.log("已通过用户名屏蔽指定黑名单用户【" + name + "】uid=【" + uid + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isNameKey = shield.nameKey(element, name);
     if (isNameKey != null) {
-        console.log("用户名=【" + name + "】包含了屏蔽词=【" + isNameKey + "】 故将其屏蔽 言论=" + content);
+        console.log("用户名=【" + name + "】包含了屏蔽词=【" + isNameKey + "】uid=【" + uid + "】 故将其屏蔽 言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     return false;
@@ -808,32 +899,32 @@ async function shieldVideo_userName_uid_title(element, name, uid, title, videoHr
     if (uid !== null) {
         const isUid = shield.uid(element, uid);
         if (isUid) {
-            console.log("已通过id=" + uid + " 屏蔽黑名单用户 " + name + " 视频=" + title + " 地址=" + videoHref);
+            console.log("已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
     }
     const isName = shield.name(element, name);
     if (isName) {
-        console.log("已通过用户名屏蔽指定黑名单用户 " + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref);
+        console.log("已通过用户名屏蔽指定黑名单用户 " + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isNameKey = shield.nameKey(element, name);
     if (isNameKey != null) {
-        console.log("用户名=" + name + " uid=" + uid + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref);
+        console.log("用户名=" + name + " uid=" + uid + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
-        console.log("已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref);
+        console.log("已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
         if (shield.videoMinPlaybackVolume(element, change)) {
-            console.log("已滤视频播发量小于=" + rule.videoData.broadcastMin + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref);
+            console.log("已滤视频播发量小于=" + rule.videoData.broadcastMin + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
         if (shield.videoMaxPlaybackVolume(element, change)) {
-            console.log("已滤视频播发量大于=" + rule.videoData.broadcastMax + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref);
+            console.log("已滤视频播发量大于=" + rule.videoData.broadcastMax + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
     }
@@ -1384,24 +1475,28 @@ const search = {
      */
     searchRules: function (videoList) {
         for (let v of videoList) {
-            let info = v.getElementsByClassName("bili-video-card__info--right")[0];
-            let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
-            //用户名
-            let name = userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent;
-            //视频标题
-            let title = info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
-            //用户空间地址
-            let upSpatialAddress = userInfo.getAttribute("href");
-            if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
-                console.log("检测到不是正常视频内容，故隐藏该元素")
-                //如果获取的类型不符合规则则结束本轮
-                v.parentNode.remove();
-                continue;
+            try {
+                let info = v.getElementsByClassName("bili-video-card__info--right")[0];
+                let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
+                //用户名
+                let name = userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent;
+                //视频标题
+                let title = info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
+                //用户空间地址
+                let upSpatialAddress = userInfo.getAttribute("href");
+                if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
+                    console.log("检测到不是正常视频内容，故隐藏该元素")
+                    //如果获取的类型不符合规则则结束本轮
+                    v.parentNode.remove();
+                    continue;
+                }
+                const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
+                const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+                let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+                shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent);
+            } catch (e) {
+                console.log("错误信息=" + e)
             }
-            const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
-            const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
-            let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-            shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent);
         }
     },
 }
@@ -1607,26 +1702,26 @@ function searchColumn() {
             continue;
         }
         if (shield.uid(v, uid)) {
-            console.log("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent);
+            console.log("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
         if (shield.name(v, name)) {
-            console.log("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent);
+            console.log("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
         const isNameKey = shield.nameKey(v, name);
         if (isNameKey != null) {
-            console.log("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent)
+            console.log("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
             continue;
         }
         const isTitleKey = shield.titleKey(v, title);
         if (isTitleKey != null) {
-            console.log("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent);
+            console.log("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
         const key = shield.columnContentKey(v, textContent);
         if (key !== null) {
-            console.log("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent);
+            console.log("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
         }
     }
 }
@@ -1657,7 +1752,7 @@ function ruleList(href) {
                 search.searchRules(list);
                 if (tempListLength === list.length) {
                     clearInterval(interval);
-                    console.log("页面元素没有变化，故退出循环")
+                    //console.log("页面元素没有变化，故退出循环")
                     break;
                 }
             }
