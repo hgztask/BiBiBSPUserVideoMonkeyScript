@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.3
+// @version      1.1.4
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -51,9 +51,6 @@ const rule = {
      * 用户uid黑名单模式
      * 提示越靠前的优先匹配
      * 比如我想要根据某个用户的UID进行屏蔽，则填写纯数字即可，不用加UID，如：
-     * [114514]
-     * 多个就
-     * [114514,1433223]
      * @type {number[]}
      */
     userUIDArr: [],
@@ -329,7 +326,7 @@ const home = {
                         console.log(v)
                         continue;
                     }
-                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+                    let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
                     if (isNaN(id)) {
                         v.remove();
                         util.print("检测到不是正常视频样式，故删除该元素");
@@ -1348,7 +1345,7 @@ const videoFun = {
             const videoTitle = videoInfo.getElementsByClassName("title")[0].textContent;
             //用户空间地址
             const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
-            const id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1));
+            const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
             const playInfo = e.getElementsByClassName("playinfo")[0];
             playInfo.getElementsByClassName("")
             shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null, null);
@@ -1437,7 +1434,7 @@ const frequencyChannel = {
                 const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
                 const videoTime = element.getElementsByClassName("play-duraiton")[0].textContent;
                 const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
-                const id = parseInt(upSpatialAddress.substring(lastIndexOf));
+                const id = upSpatialAddress.substring(lastIndexOf);
                 const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
                 temp = shieldVideo_userName_uid_title(element, upName, id, title, videoInfo, videoTime, topInfo[0].textContent);
             }
@@ -1799,7 +1796,7 @@ const search = {
                 }
                 const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
                 const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
-                let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+                let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
                 shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent);
             } catch (e) {
                 util.print("错误信息=" + e)
