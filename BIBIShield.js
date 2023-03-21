@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.4
+// @version      1.1.5
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -143,6 +143,10 @@ const rule = {
         isVideoEndRecommend: true,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
         isRightVideo: false,
+        //是否点击了水平翻转
+        flipHorizontal: false,
+        //是否点击了垂直翻转
+        flipVertical: false
     },
     //动态相关配置信息
     trendsData: {
@@ -211,13 +215,23 @@ const rule = {
     }
 }
 //===========================================上面的的相关参数用户可以执行修改=========================================================================
-const ruleKey = ["userNameArr", "userNameKeyArr", "userUIDArr", "userWhiteUIDArr", "titleKeyArr", "commentOnKeyArr", "fanCardArr", "contentColumnKeyArr"];
+const ruleKey = ["userNameArr", "userNameKeyArr", "userUIDArr", "userWhiteUIDArr", "titleKeyArr", "commentOnKeyArr", "fanCardArr", "contentColumnKeyArr", "filterSMin", "filterSMax", "broadcastMin", "broadcastMax", "barrageQuantityMin", "barrageQuantityMax"];
+
 
 //是否屏蔽首页=左侧大图的轮播图,反之false
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
 const paletteButtionBool = true;
 const home = {
+    background: {//主面板背景颜色及透明度
+        r: 92,
+        g: 80,
+        b: 80,
+        a: 1
+    },
+    getBackgroundStr: function () {
+        return util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
+    },
     //是否正在执行清理首页中的零散的直播间元素函数，该值不需要修改
     boolShieldLive: false,
     //清理首页零散无用的推送,如个别直播推送，综艺，赛事等，零散的掺杂在视频列表中
@@ -409,6 +423,12 @@ const shield = {
         rule.fanCardArr = this.getRuleLocalStorage("fanCardArr");
         rule.commentOnKeyArr = this.getRuleLocalStorage("commentOnKeyArr");
         rule.titleKeyArr = this.getRuleLocalStorage("titleKeyArr");
+        rule.videoData.filterSMin = this.getRuleLocalStorage("filterSMin");
+        rule.videoData.filterSMax = this.getRuleLocalStorage("filterSMax");
+        rule.videoData.broadcastMin = this.getRuleLocalStorage("broadcastMin");
+        rule.videoData.broadcastMax = this.getRuleLocalStorage("broadcastMax");
+        rule.videoData.barrageQuantityMin = this.getRuleLocalStorage("barrageQuantityMin");
+        rule.videoData.barrageQuantityMax = this.getRuleLocalStorage("barrageQuantityMax");
         util.print("已加载规则信息")
     },
     //是否是白名单用户
@@ -492,7 +512,11 @@ const shield = {
      * @returns {boolean}
      */
     videoMinFilterS: function (element, key) {
-        if (rule.videoData.filterSMin > key) {
+        const min = rule.videoData.filterSMin;
+        if (min === null) {
+            return false;
+        }
+        if (min > key) {
             element.remove();
             return true;
         }
@@ -507,7 +531,7 @@ const shield = {
      */
     videoMaxFilterS: function (element, key) {
         const max = rule.videoData.filterSMax;
-        if (max === 0 || max < rule.videoData.filterSMin) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        if (max === 0 || max < rule.videoData.filterSMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
         if (max < key) {
@@ -525,7 +549,11 @@ const shield = {
      * @returns {boolean}
      */
     videoMinPlaybackVolume: function (element, key) {
-        if (rule.videoData.broadcastMin > key) {
+        const min = rule.videoData.broadcastMin;
+        if (min === null) {
+            return false;
+        }
+        if (min > key) {
             element.remove();
             return true;
         }
@@ -541,7 +569,7 @@ const shield = {
      */
     videoMaxPlaybackVolume: function (element, key) {
         const max = rule.videoData.broadcastMax;
-        if (max === 0 || max < rule.videoData.broadcastMin) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        if (max === 0 || max < rule.videoData.broadcastMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
         if (max < key) {
@@ -855,7 +883,8 @@ const util = {
     print: function name(strContent) {
         $("#outputInfo").prepend(`<span>${this.toTimeString() + "\t\t" + strContent}</span><hr>`);
     },
-    getRuleFormatStr: function (userNameArr, userNameKeyArr, userUIDArr, userWhiteUIDArr, titleKeyArr, commentOnKeyArr, fanCardArr, contentColumnKeyArr) {
+    getRuleFormatStr: function (userNameArr, userNameKeyArr, userUIDArr, userWhiteUIDArr, titleKeyArr, commentOnKeyArr, fanCardArr, contentColumnKeyArr,
+                                filterSMin, videoDurationMax, broadcastMin, broadcastMax, barrageQuantityMin, barrageQuantityMax) {
         //温馨提示每个{}对象最后一个不可以有,符号
         return `{
     "用户名黑名单模式(精确匹配)": ${JSON.stringify(userNameArr)},
@@ -867,12 +896,12 @@ const util = {
     "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(fanCardArr)},
     "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(contentColumnKeyArr)},
     "视频参数": {
-        "时长最小值": null,
-        "时长最大值": null,
-        "播放量最小值": null,
-        "播放量最大值": null,
-        "弹幕量最小值": null,
-        "弹幕量最大值": null,
+        "时长最小值": ${filterSMin},
+        "时长最大值": ${videoDurationMax},
+        "播放量最小值": ${broadcastMin},
+        "播放量最大值": ${broadcastMax},
+        "弹幕量最小值": ${barrageQuantityMin},
+        "弹幕量最大值": ${barrageQuantityMax},
         "是否允许b站自动播放视频": null,
         "视频播放速度": null,
         "是否移除播放页右侧的的布局": null,
@@ -919,7 +948,10 @@ const util = {
     //获取格式化规则的内容
     getUrleToStringFormat: function () {
         let userNameArr = null, userNameKeyArr = null, userUIDArr = null, userWhiteUIDArr = null, titleKeyArr = null,
-            commentOnKeyArr = null, fanCardArr = null, contentColumnKeyArr = null;
+            commentOnKeyArr = null, fanCardArr = null,
+            contentColumnKeyArr = null,
+            filterSMin = null, filterSMax = null, broadcastMin = null, broadcastMax = null, barrageQuantityMin = null,
+            barrageQuantityMax = null;
         const storage = window.localStorage;
         for (const v of ruleKey) {
             const tempValue = storage.getItem(v);
@@ -955,18 +987,99 @@ const util = {
                 case "fanCardArr":
                     fanCardArr = tempValue.split(",");
                     break;
+                case "contentColumnKeyArr":
+                    contentColumnKeyArr = tempValue.split(",");
+                    break;
+                case "filterSMin":
+                    filterSMin = parseInt(tempValue);
+                    break;
+                case "filterSMax":
+                    filterSMax = parseInt(tempValue);
+                    break;
+                case "broadcastMin":
+                    broadcastMin = parseInt(tempValue);
+                    break;
+                case "broadcastMax":
+                    broadcastMax = parseInt(tempValue);
+                    break;
+                case "barrageQuantityMin":
+                    barrageQuantityMin = parseInt(tempValue);
+                    break;
+                case "barrageQuantityMax":
+                    barrageQuantityMax = parseInt(tempValue);
+                    break;
                 default:
                     break;
             }
         }
-        return this.getRuleFormatStr(userNameArr, userNameKeyArr, userUIDArr, userWhiteUIDArr, titleKeyArr, commentOnKeyArr, fanCardArr, contentColumnKeyArr);
+        return this.getRuleFormatStr(userNameArr, userNameKeyArr, userUIDArr, userWhiteUIDArr, titleKeyArr, commentOnKeyArr, fanCardArr, contentColumnKeyArr,
+            filterSMin, filterSMax, broadcastMin, broadcastMax, barrageQuantityMin, barrageQuantityMax);
     },
     /**
      * 打印内存变量中的规则信息
      * @returns {string}
      */
     getRuleInternalStorage: function () {
-        return this.getRuleFormatStr(rule.userNameArr, rule.userNameKeyArr, rule.userUIDArr, rule.userWhiteUIDArr, rule.titleKeyArr, rule.commentOnKeyArr, rule.fanCardArr, rule.contentColumnKeyArr)
+        return this.getRuleFormatStr(rule.userNameArr, rule.userNameKeyArr, rule.userUIDArr, rule.userWhiteUIDArr, rule.titleKeyArr, rule.commentOnKeyArr, rule.fanCardArr, rule.contentColumnKeyArr,
+            rule.videoData.filterSMin, rule.videoData.filterSMax, rule.videoData.broadcastMin, rule.videoData.broadcastMax, rule.videoData.barrageQuantityMin, rule.videoData.barrageQuantityMax)
+    },
+    /**
+     * 设置页面播放器的播放速度
+     * @param {Number|String} index
+     */
+    setVideoBackSpeed: function (index) {
+        const videoTag = $("video");
+        if (videoTag.length === 0) {
+            return;
+        }
+        try {
+            for (const v of videoTag) {
+                v.playbackRate = index;
+            }
+        } catch (error) {
+            console.log("出现错误，当前页面疑似没有播放器或者其他问题=" + error);
+        }
+    },
+    /**
+     *
+     * @param {String}xy x轴还是Y轴
+     * @param {String|Number}index
+     */
+    setVideoRotationAngle: function (xy, index) {
+        const videoV = $("video");
+        if (videoV === null) {
+            return false;
+        }
+        if (xy.toUpperCase() === "Y") {
+            videoV.css("transform", "rotateY(" + index + "deg)");
+            return true;
+        }
+        videoV.css("transform", "rotateX(" + index + "deg)");
+        return true;
+    },
+
+    /**
+     * 中心旋转视频画面
+     * @param {String|number}index 角度
+     * @return {boolean}
+     */
+    setVideoCenterRotation: function (index) {
+        const videoV = $("video");
+        if (videoV === null) {
+            return false;
+        }
+        videoV.css("transform", "rotate(" + index + "deg)");
+        return true;
+    },
+    /**
+     * @param {string|number}r
+     * @param {string|number}g
+     * @param {string|number}b
+     * @param {string|number}a 透明度，0到1，越小越透明
+     * @return {string}
+     */
+    getRGBA: function (r, g, b, a) {
+        return `rgba(${r},${g}, ${b}, ${a})`;
     }
 }
 
@@ -1887,7 +2000,7 @@ const layout = {
     css: {
         home: function () {
             $("#home_layout").css({
-                "background": "rgb(92, 80, 80)",
+                "background": `${home.getBackgroundStr()}`,
                 "margin": "0px",
                 "height": "85%",
                 "width": "90%",
@@ -1910,10 +2023,17 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-             <!-- 分割home_layout -->
+           <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
+            <div>
+<h1>面板设置</h1>
+<span>背景透明度</span>
+<input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
+<span id="backgroundPelluciditySpan">1</span>
+            </div>
+            <hr>
             <div>
               <h1 style="display: inline;">规则增删改查</h1>
               <span>当前页面为(暂时未写)</span>
@@ -1939,14 +2059,14 @@ const layout = {
                   <option value="batch">批量</option>
                 </select>
               </div>
-              <input type="text" id="inputModel" />
+              <input style="width: 29%;height: 20px;" type="text" id="inputModel"/>
               <textarea
                 id="inputTextAreaModel"
-                style="resize: none; width: 15%; height: 100px; display: none"
+                style="resize: none; width: 40%; height: 100px; display: none"
               ></textarea>
               <div id="replace">
                 替换(修改)
-                <input type="text" id="newInputModel" />
+                <input style="width: 29%;height: 20px;" type="text" id="newInputModel" />
               </div>
               <div>
                 <button id="butadd">增加</button>
@@ -1957,18 +2077,53 @@ const layout = {
                 <button id="butFind">查询</button>
                 <button id="butPrintAllInfo">打印当前页面规则信息</button>
                 <button id="butPrintVariableAllInfo">打印当前变量页面规则信息</button>
+                <button id="renovateVariableAll">刷新当前变量页面规则信息</button>
               </div>
             </div>
+            <hr>
             <h2>视频参数</h2>
-            <input type="number" id="inputVideo" />
+            <div>
+              <h3>视频播放速度</h3>
+            拖动更改页面视频播放速度
+              <input id="rangePlaySpeed" type="range" value="voice" min="0.1" max="16" step="0.01">
+              <span id="playbackSpeed">1.0x</span>
+              <div>固定视频播放速度值
+                <select id="playbackSpeedModel">
+                  <option value="1">1.0x</option>
+                <option value="0.25">0.25x</option>
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="0.9">0.9x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.35">1.35x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
+            </div>
+            </div>
+            <h3>播放画面翻转</h3>
+           <button id="flipHorizontal">水平翻转</button>
+           <button id="flipVertical">垂直翻转</button>
+           <div>
+            <select id="axleSelect">
+              <option value="Y">Y轴</option>
+              <option value="X">X轴</option>
+            </select>
+            自定义角度
+            <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
+           </div>
+            <h3>其他</h3>
+            <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
             <select id="selectVideo">
-              <option value="videoDurationMin">时长最小值</option>
-              <option value="videoDurationMax">时长最大值</option>
+              <option value="filterSMin">时长最小值(单位秒)</option>
+              <option value="filterSMax">时长最大值(单位秒)</option>
               <option value="broadcastMin">播放量最小值</option>
               <option value="broadcastMax">播放量最大值</option>
               <option value="barrageQuantityMin">弹幕量最小值</option>
               <option value="barrageQuantityMax">弹幕量最大值</option>
             </select>
+            <button id="butSelectVideo">确定</button>
+            <hr>
             <div>
               <h1>规则导入导出</h1>
               <div>
@@ -1985,6 +2140,7 @@ const layout = {
                 style="resize: none; height: 300px; width: 60%"
               ></textarea>
             </div>
+
           </div>
           <div>
             <h1>输出信息</h1>
@@ -1994,6 +2150,7 @@ const layout = {
           </div>
         </div>
       </div>
+      <!-- 分割home_layout -->
     `);
         }
     }
@@ -2042,7 +2199,7 @@ function perf_observer(list, observer) {
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=5&fresh_type=3&feed_version=V8&fresh_idx_1h=2&fetch_row=1&fresh_idx=2&brush=0&homepage_ver=1&ps=10&last_y_num=5&outside_trigger=&w_rid=")) {
             //首页带有换一换一栏的视频列表
             home.startShieldVideoTop();
-            util.print("首页带有换一换一栏的视频列表")
+            console.log("首页带有换一换一栏的视频列表")
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=4&fresh_type=4&feed_version=V8&fresh_idx_1h=")) {//首页换一换推送下面的视频
@@ -2081,7 +2238,7 @@ function perf_observer(list, observer) {
                 continue;
             }
             if (windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题界面的楼层评论
-                util.print("话题界面的api")
+                console.log("话题界面的api")
             }
         }
         if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
@@ -2094,7 +2251,7 @@ function perf_observer(list, observer) {
         }
 
         if (url.includes("api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?y_num=")) {//该api应该是首页可通过换一换是推荐下面的视频内容
-            util.print("不确定api链接！")
+            console.log("不确定api链接！")
         }
         if (url.includes("api.bilibili.com/x/web-interface/popular")
             || url.includes("api.bilibili.com/x/copyright-music-publicity/toplist/music_list?csrf=")
@@ -2278,6 +2435,98 @@ function ruleList(href) {
         $('#butFind').css("display", "none");
         $('#replace').css("display", "none");
 
+    });
+
+    $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
+        const vaule = $("#rangePlaySpeed").val();//获取值
+        util.setVideoBackSpeed(vaule);
+        $("#playbackSpeed").text(vaule + "x");//修改对应标签的文本显示
+    });
+
+
+    $('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
+        util.setVideoBackSpeed($('#playbackSpeedModel').val())
+    });
+
+
+    $("#flipHorizontal").click(function () {//水平翻转视频
+        const videoData = rule.videoData;
+        if (videoData.flipHorizontal) {
+            if (util.setVideoRotationAngle("Y", 0)) {
+                videoData.flipHorizontal = false;
+            }
+            return;
+        }
+        if (util.setVideoRotationAngle("Y", 180)) {
+            videoData.flipHorizontal = true;
+        }
+    });
+
+    $("#flipVertical").click(function () {//垂直翻转视频
+        const videoV = $("video");
+        if (videoV === null) {
+            return;
+        }
+        const videoData = rule.videoData;
+        if (videoData.flipVertical) {
+            if (util.setVideoRotationAngle("X", 0)) {
+                videoData.flipVertical = false;
+            }
+            return;
+        }
+        if (util.setVideoRotationAngle("X", 180)) {
+            videoData.flipVertical = true;
+        }
+    });
+
+
+    $("#axleRange").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放器旋转角度拖动条
+        const value = $("#axleRange").val();//获取值
+        util.setVideoCenterRotation(value);
+        $("#axleSpan").text(value + "%");//修改对应标签的文本显示
+    });
+
+    $("#backgroundPellucidityRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板背景透明度拖动条
+        const value = $("#backgroundPellucidityRange").val();//获取值
+        $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
+        const back = home.background;
+        $("#home_layout").css("background", util.getRGBA(back.r, back.g, back.b, value));
+    });
+
+
+    $("#butSelectVideo").click(function () {//确定时长播放量弹幕
+        const selectVideo = $("#selectVideo");
+        const typeV = selectVideo.val();
+        let inputVideoV = $("#inputVideo").val();
+        if (inputVideoV === "") {
+            return;
+        }
+        const name = selectVideo.find("option:selected").text();
+        inputVideoV = parseInt(inputVideoV);
+        switch (typeV) {
+            case "filterSMin":
+                window.localStorage.setItem("filterSMin", inputVideoV);
+                break;
+            case "videoDurationMax":
+                window.localStorage.setItem("filterSMin", inputVideoV);
+                break;
+            case "broadcastMin":
+                window.localStorage.setItem("broadcastMin", inputVideoV);
+                break;
+            case "broadcastMax":
+                window.localStorage.setItem("broadcastMax", inputVideoV);
+                break;
+            case "barrageQuantityMin":
+                window.localStorage.setItem("barrageQuantityMin", inputVideoV);
+                break;
+            case "barrageQuantityMax":
+                window.localStorage.setItem("barrageQuantityMax", inputVideoV);
+                break;
+            default:
+                alert("出现意外的值！")
+                return;
+        }
+        util.print("已设置" + name + "的值，请刷新刷新当前变量页面规则信息之后应用！");
     });
 
 
@@ -2507,6 +2756,14 @@ function ruleList(href) {
 //打印内存变量中的规则信息
     $("#butPrintVariableAllInfo").click(() => {
         util.print(util.getRuleInternalStorage());
+    })
+
+    $("#renovateVariableAll").click(function () {
+        if (!(confirm("确定要刷新吗?"))) {
+            return;
+        }
+        shield.setRuleInt();
+        util.print("已刷新页面的规则信息")
     })
 
 
