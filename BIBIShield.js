@@ -1080,6 +1080,24 @@ const util = {
      */
     getRGBA: function (r, g, b, a) {
         return `rgba(${r},${g}, ${b}, ${a})`;
+    },
+    /**
+     * 复制单行内容到粘贴板
+     * content : 需要复制的内容
+     * message : 复制完后的提示，不传则默认提示"复制成功"
+     */
+    copyToClip: function (content, message) {
+        var aux = document.createElement("input");
+        aux.setAttribute("value", content);
+        document.body.appendChild(aux);
+        aux.select();
+        document.execCommand("copy");
+        document.body.removeChild(aux);
+        if (message == null) {
+            alert("复制成功");
+        } else {
+            alert(message);
+        }
     }
 }
 
@@ -1138,6 +1156,9 @@ const butLayEvent = {
     butaddName: function (ruleStr, contentV) {
         if (contentV == '' || contentV.includes(" ")) {
             util.print("请输入正确的内容")
+            return;
+        }
+        if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
             return;
         }
         const localStorage = window.localStorage;
@@ -2023,7 +2044,7 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-           <!-- 分割home_layout -->
+          <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
@@ -2105,10 +2126,6 @@ const layout = {
            <button id="flipHorizontal">水平翻转</button>
            <button id="flipVertical">垂直翻转</button>
            <div>
-            <select id="axleSelect">
-              <option value="Y">Y轴</option>
-              <option value="X">X轴</option>
-            </select>
             自定义角度
             <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
            </div>
@@ -2129,6 +2146,7 @@ const layout = {
               <div>
                 导出
                 <button id="outFIleRule">导出规则</button>
+                <button id="outRuleCopy">导出到剪贴板</button>
               </div>
               <div>
                 导入
@@ -2534,6 +2552,7 @@ function ruleList(href) {
     $("#butadd").click(function () {
         const typeVal = $("#model option:selected").val();
         const content = $("#inputModel").val();
+
         switch (typeVal) {
             case "name":
                 butLayEvent.butaddName("userNameArr", content);
@@ -2745,6 +2764,11 @@ function ruleList(href) {
     $("#outFIleRule").click(() => {
         fileDownload(util.getUrleToStringFormat(), "规则.json");
     });
+
+
+    $("#outRuleCopy").click(function () {//导出到剪切板
+        util.copyToClip(util.getUrleToStringFormat());
+    })
 
 
 //打印当前页面规则信息
