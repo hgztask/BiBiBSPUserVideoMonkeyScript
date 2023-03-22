@@ -614,6 +614,36 @@ const shield = {
     }
 }
 
+
+//专栏或者动态楼主评论规则
+function getColumnOrDynamicReviewLandlord(v) {
+    const info = v.getElementsByClassName("user")[0];//信息
+    return {
+        //用户信息的html元素
+        userInfo: info,
+        //楼主用户名
+        name: info.getElementsByClassName("name")[0].textContent,
+        //楼主UID
+        uid: info.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"),
+        content: v.getElementsByClassName("text")[0].textContent//内容
+    }
+}
+
+//专栏或者动态楼层评论规则
+function getColumnOrDynamicReviewStorey(v) {
+    const info = v.getElementsByClassName("user")[0];//信息
+    return {
+        //用户信息的html元素
+        userInfo: info,
+        //用户名
+        name: info.getElementsByClassName("name")[0].textContent,
+        //UID
+        uid: info.getElementsByClassName("name")[0].getAttribute("data-usercard-mid"),
+        content: v.getElementsByTagName("span")[0].textContent//内容
+    }
+}
+
+
 /**
  * 根据规则删除专栏和动态的评论区
  * 针对于专栏和动态内容下面的评论区
@@ -621,22 +651,37 @@ const shield = {
 function delDReplay() {
     const list = document.getElementsByClassName("list-item reply-wrap");
     for (let v of list) {
-        const userInfo = v.getElementsByClassName("user")[0];//楼主信息
-        const userName = userInfo.getElementsByClassName("name")[0].textContent;//楼主用户名
-        const uid = parseInt(userInfo.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));//楼主UID
-        const userContent = v.getElementsByClassName("text")[0].textContent;//内容
-        const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
-        //util.print("name=" + userName + " uid=" + uid + " 言论=" + userContent)
-        util.print("已进入评论区")
-        if (startPrintShieldNameOrUIDOrContent(v, userName, uid, userContent)) {
+        const userData = getColumnOrDynamicReviewLandlord(v);
+        console.log("已进入评论区")
+        if (startPrintShieldNameOrUIDOrContent(v, userData.name, userData.uid, userData.content)) {
             continue;
         }
+        userData.userInfo.onmouseenter = (e) => {
+            const element = e.srcElement;
+            const uid = element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid");
+            const name = element.getElementsByClassName("name")[0].textContent;
+            $("#nameSuspensionDiv").text(name);
+            $("#uidSuspensionDiv").text(uid);
+            util.updateLocation(e);
+            $("#suspensionDiv").css("display", "inline-block");
+        };
+        const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
         for (let j of replyItem) {
-            const replyInfo = j.getElementsByClassName("user")[0];//楼层成员info信息
-            const replayName = replyInfo.getElementsByClassName("name")[0].textContent;
-            const replayUid = parseInt(replyInfo.getElementsByClassName("name")[0].getAttribute("data-usercard-mid"));
-            const replayContent = replyInfo.getElementsByTagName("span")[0].textContent;
-            startPrintShieldNameOrUIDOrContent(j, replayName, replayUid, replayContent);
+            const tempData = getColumnOrDynamicReviewStorey(j);
+            if (startPrintShieldNameOrUIDOrContent(j, tempData.name, tempData.uid, tempData.content)) {
+                continue;
+            }
+            j.onmouseenter = (e) => {
+                const element = e.srcElement;
+                const uid = element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid");
+                const name = element.getElementsByClassName("name")[0].textContent;
+                $("#nameSuspensionDiv").text(name);
+                $("#uidSuspensionDiv").text(uid);
+                util.updateLocation(e);
+                $("#suspensionDiv").css("display", "inline-block");
+            };
+
+
         }
     }
 }
@@ -1098,6 +1143,27 @@ const util = {
         } else {
             alert(message);
         }
+    },
+    /**
+     * 获取鼠标坐标
+     */
+    getMousePos: function (event) {
+        const e = event || window.event;
+        var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+        var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
+        const x = e.pageX || e.clientX + scrollX;
+        const y = e.pageY || e.clientY + scrollY;
+        return {x: x, y: y};
+    },
+    /**
+     * 更新悬浮按钮的坐标
+     * @param e 事件源
+     */
+    updateLocation: function (e) {
+        const xy = this.getMousePos(e); //获取当前鼠标悬停的坐标轴
+        $("#suspensionXY").text(`X:${xy.x} Y:${xy.y}`);
+        $("#suspensionDiv").css("left", xy.x + "px");
+        $("#suspensionDiv").css("top", xy.y + "px");
     }
 }
 
@@ -1327,7 +1393,7 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @param{String}videoPlaybackVolume 播放量
  * @returns {boolean} 是否执行完
  */
-async function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
+function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
     if (shield.isWhiteUserUID(uid)) {
         return false;
     }
@@ -1499,6 +1565,35 @@ const videoFun = {
     }
 }
 
+
+//获取频道界面单个的视频信息
+function getChannelVideoRules(element) {
+    const videoInfo = element.getElementsByClassName("video-name")[0];
+    //空间地址
+    const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
+    const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
+    const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
+    return {
+        //用户名
+        upName: element.getElementsByClassName("up-name__text")[0].textContent,
+        //视频标题
+        title: videoInfo.textContent.trim(),
+        //视频地址
+        videohref: "https:" + videoInfo.getAttribute("href"),
+        //视频时长
+        videoTime: element.getElementsByClassName("play-duraiton")[0].textContent,
+        //空间地址
+        upSpatialAddress: upSpatialAddress,
+        //UID
+        uid: upSpatialAddress.substring(lastIndexOf),
+        //播放量
+        playbackVolume: topInfo[0].textContent.trim(),
+        //弹幕量
+        barrageQuantity: topInfo[1].textContent.trim()
+    };
+}
+
+
 //频道
 const frequencyChannel = {
     data: {},
@@ -1555,22 +1650,18 @@ const frequencyChannel = {
     startExtracted: function (vdoc) {
         let temp = false;
         try {
-            for (const element of vdoc) {
+            for (let element of vdoc) {
+                element.onmouseenter = (e) => {
+                    const element = e.srcElement;
+                    const data = getChannelVideoRules(element);
+                    $("#nameSuspensionDiv").text(data.upName);
+                    $("#uidSuspensionDiv").text(data.uid);
+                    util.updateLocation(e);
+                    $("#suspensionDiv").css("display", "inline-block");
+                };
                 element.style.margin = "0px 5px 0px 0px";//设置元素边距
-                //用户名
-                const upName = element.getElementsByClassName("up-name__text")[0].textContent;
-                const videoInfo = element.getElementsByClassName("video-name")[0];
-                //视频标题
-                const title = videoInfo.textContent.trim();
-                //视频地址
-                const videohref = videoInfo.getAttribute("href");
-                //空间地址
-                const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
-                const videoTime = element.getElementsByClassName("play-duraiton")[0].textContent;
-                const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
-                const id = upSpatialAddress.substring(lastIndexOf);
-                const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
-                temp = shieldVideo_userName_uid_title(element, upName, id, title, videoInfo, videoTime, topInfo[0].textContent);
+                const data = getChannelVideoRules(element);
+                temp = shieldVideo_userName_uid_title(element, data.upName, data.uid, data.title, data.videohref, data.videoTime, data.playbackVolume);
             }
         } catch (e) {
             return temp;
@@ -1901,6 +1992,27 @@ const greatDemand = {
 }
 //搜索
 const search = {
+    getDataV: function (v) {
+        let info = v.getElementsByClassName("bili-video-card__info--right")[0];
+        let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
+        //用户空间地址
+        let upSpatialAddress = userInfo.getAttribute("href");
+        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+        return {
+            //用户名
+            name: userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent,
+            //标题
+            title: info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title"),
+            upSpatialAddress: upSpatialAddress,
+            uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1),
+            //视频的时间
+            videoTime: v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent,
+            //播放量
+            playbackVolume: topInfo[0],
+            //弹幕量
+            barrageQuantity: topInfo[1]
+        }
+    },
     /**
      * 保准页面加载了本脚本之后只会触发一次该判断
      * 用于搜索页面的专栏按钮监听。且只会加载一次
@@ -1923,7 +2035,7 @@ const search = {
                 //用户空间地址
                 let upSpatialAddress = userInfo.getAttribute("href");
                 if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
-                    util.print("检测到不是正常视频内容，故隐藏该元素")
+                    console.log("检测到不是正常视频内容，故隐藏该元素")
                     //如果获取的类型不符合规则则结束本轮
                     v.parentNode.remove();
                     continue;
@@ -1931,9 +2043,20 @@ const search = {
                 const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
                 const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
                 let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
-                shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent);
+                if (shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent)) {
+                    continue;
+                }
+                v.parentNode.onmouseenter = (e) => {
+                    const element = e.srcElement;
+                    const data = search.getDataV();
+                    $("#nameSuspensionDiv").text(data.name);
+                    $("#uidSuspensionDiv").text(data.uid);
+                    util.updateLocation(e);
+                    $("#suspensionDiv").css("display", "inline-block");
+                };
             } catch (e) {
-                util.print("错误信息=" + e)
+                v.parentNode.remove();
+                console.log("错误信息=" + e + " 删除该元素" + v)
             }
         }
     },
@@ -2038,6 +2161,14 @@ const layout = {
             $("button").css({
                 "height": "40px"
             });
+            $("#suspensionDiv").css({
+                "position": "fixed",
+                "display": "none",
+                "z-index": "1900",
+                "background": "rgb(149, 156, 135)",
+                "height": "30%",
+                "width": "10%",
+            })
 
         }
     },
@@ -2169,8 +2300,47 @@ const layout = {
         </div>
       </div>
       <!-- 分割home_layout -->
+    <!-- 悬浮屏蔽按钮 -->
+     <div id="suspensionDiv">坐标:
+      <span id="suspensionXY">xy</span>
+      <p>
+        标题(如有则显示):
+        <span id="suspensionTitle">占位符</span>
+      </p>
+      <p>
+        用户名：
+       <span id="nameSuspensionDiv">测试用户名</span>
+      </p>
+      <p>
+        用户UID：
+        <span id="uidSuspensionDiv">1433223</span>
+      </p>
+      <button id="butShieldName">add屏蔽用户名</button>
+      <button id="butShieldUid">add屏蔽用户名UID</button>
+    </div>
+   <!-- 悬浮屏蔽按钮 -->
     `);
         }
+    }
+}
+
+
+//获取动态页面-评论区信息-单个元素信息-楼主
+function getVideoCommentAreaOrTrendsLandlord(v) {
+    const userInfo = v.getElementsByClassName("user-info")[0];
+    return {
+        name: userInfo.getElementsByClassName("user-name")[0].textContent,
+        uid: userInfo.getElementsByClassName("user-name")[0].getAttribute("data-user-id"),
+        content: v.getElementsByClassName("reply-content")[0].parentNode.textContent
+    }
+}
+
+//获取动态页面-评论区信息-单个元素信息-楼层
+function getVideoCommentAreaOrTrendsStorey(j) {
+    return {
+        name: j.getElementsByClassName("sub-user-name")[0].textContent,
+        uid: j.getElementsByClassName("sub-user-name")[0].getAttribute("data-user-id"),
+        content: j.getElementsByClassName("reply-content-container sub-reply-content")[0].textContent
     }
 }
 
@@ -2197,19 +2367,32 @@ function perf_observer(list, observer) {
             !rule.videoData.isCommentArea) {
             //如果是视频播放页的话，且接收到评论的相应请求
             for (let v of document.getElementsByClassName("reply-item")) {//针对于评论区
-                const userInfo = v.getElementsByClassName("user-info")[0];
-                const userName = userInfo.getElementsByClassName("user-name")[0].textContent;
-                const userID = userInfo.getElementsByClassName("user-name")[0].getAttribute("data-user-id")
-                const root = v.getElementsByClassName("reply-content")[0].parentNode.textContent;//楼主评论
+                const data = getVideoCommentAreaOrTrendsLandlord(v);
                 const subReplyList = v.getElementsByClassName("sub-reply-list")[0];//楼主下面的评论区
-                if (startPrintShieldNameOrUIDOrContent(v, userName, userID, root)) {
+                if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
                     continue;
                 }
+                v.onmouseenter = (e) => {
+                    const element = e.srcElement;
+                    const data = getVideoCommentAreaOrTrendsLandlord(element);
+                    $("#nameSuspensionDiv").text(data.name);
+                    $("#uidSuspensionDiv").text(data.uid);
+                    util.updateLocation(e);
+                    $("#suspensionDiv").css("display", "inline-block");
+                };
                 for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
-                    const subUserName = j.getElementsByClassName("sub-user-name")[0].textContent;
-                    const subUserID = j.getElementsByClassName("sub-user-name")[0].getAttribute("data-user-id")
-                    const subContent = j.getElementsByClassName("reply-content-container sub-reply-content")[0].textContent;
-                    startPrintShieldNameOrUIDOrContent(j, subUserName, subUserID, subContent);
+                    const data = getVideoCommentAreaOrTrendsStorey(j);
+                    if (startPrintShieldNameOrUIDOrContent(j, data.name, data.uid, data.content)) {
+                        continue;
+                    }
+                    j.onmouseenter = (e) => {
+                        const element = e.srcElement;
+                        const data = getVideoCommentAreaOrTrendsStorey(element);
+                        $("#nameSuspensionDiv").text(data.name);
+                        $("#uidSuspensionDiv").text(data.uid);
+                        util.updateLocation(e);
+                        $("#suspensionDiv").css("display", "inline-block");
+                    };
                 }
             }
             continue;
@@ -2495,6 +2678,16 @@ function ruleList(href) {
         if (util.setVideoRotationAngle("X", 180)) {
             videoData.flipVertical = true;
         }
+    });
+
+
+    $("#butShieldName").click(() => {//悬浮小窗体-添加屏蔽用户名
+        const name = $("#nameSuspensionDiv").text();
+        butLayEvent.butaddName("userNameArr", name);
+    });
+    $("#butShieldUid").click(() => {//悬浮小窗体-添加屏蔽uid
+        const uid = $("#uidSuspensionDiv").text();
+        butLayEvent.butaddName("userUIDArr", uid);
     });
 
 
@@ -2930,6 +3123,17 @@ function bilibili(href) {
         videoFun.delRightE();
         videoFun.delBottonE();
         videoFun.rightSuspendButton();
+
+        const upInfo = document.querySelector("#v_upinfo > div.up-info_right > div.name > a.username");
+        upInfo.onmouseenter = (e) => {
+            const element = e.srcElement;
+            const adHref = element.href;
+            $("#nameSuspensionDiv").text(element.text.trim());
+            $("#uidSuspensionDiv").text(adHref.substring(adHref.lastIndexOf("/") + 1));
+            util.updateLocation(e);
+            $("#suspensionDiv").css("display", "inline-block");
+        };
+
         //click_playerCtrlWhid();
     }
     if (href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") {//直播首页
