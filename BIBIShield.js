@@ -1145,25 +1145,16 @@ const util = {
         }
     },
     /**
-     * 获取鼠标坐标
-     */
-    getMousePos: function (event) {
-        const e = event || window.event;
-        var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
-        var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
-        const x = e.pageX || e.clientX + scrollX;
-        const y = e.pageY || e.clientY + scrollY;
-        return {x: x, y: y};
-    },
-    /**
      * 更新悬浮按钮的坐标
      * @param e 事件源
      */
     updateLocation: function (e) {
-        const xy = this.getMousePos(e); //获取当前鼠标悬停的坐标轴
-        $("#suspensionXY").text(`X:${xy.x} Y:${xy.y}`);
-        $("#suspensionDiv").css("left", xy.x + "px");
-        $("#suspensionDiv").css("top", xy.y + "px");
+        const x = e.clientX;
+        const y = e.clientY;
+        //获取当前鼠标悬停的坐标轴
+        $("#suspensionXY").text(`X:${x} Y:${y}`);
+        $("#suspensionDiv").css("left", x + "px");
+        $("#suspensionDiv").css("top", y + "px");
     }
 }
 
@@ -2168,6 +2159,8 @@ const layout = {
                 "background": "rgb(149, 156, 135)",
                 "height": "30%",
                 "width": "10%",
+                "top": "50%",
+                "left": "85%"
             })
 
         }
