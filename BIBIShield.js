@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.5
+// @version      1.1.6
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -1153,6 +1153,9 @@ const util = {
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
         $("#suspensionXY").text(`X:${x} Y:${y}`);
+        if (!($("#quickLevitationShield").is(':checked'))) {
+            return;
+        }
         $("#suspensionDiv").css("left", x + "px");
         $("#suspensionDiv").css("top", y + "px");
     }
@@ -2168,15 +2171,19 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-          <!-- 分割home_layout -->
+        <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
             <div>
-<h1>面板设置</h1>
-<span>背景透明度</span>
-<input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
-<span id="backgroundPelluciditySpan">1</span>
+              <h1>面板设置</h1>
+              <div>
+                <span>背景透明度</span>
+                <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
+                <span id="backgroundPelluciditySpan">1</span>
+              </div>
+              <span>快捷悬浮屏蔽按钮跟随鼠标</span>
+              <input id="quickLevitationShield" type="checkbox">
             </div>
             <hr>
             <div>
