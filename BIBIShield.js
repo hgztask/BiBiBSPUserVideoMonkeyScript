@@ -22,7 +22,7 @@
 // @match        *://live.bilibili.com/?spm_id_from=*
 // @match        *://live.bilibili.com/p/eden/area-tags?*
 // @match        *://live.bilibili.com/*
-// @match        *://www.bilibili.com/v/popular*
+// @match        *://www.bilibili.com/opus/*
 // @match        https://www.bilibili.com/
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -3063,46 +3063,13 @@ function bilibili(href) {
  搜索页面底部信息
  视频播放界面右侧个别悬浮按钮
  */
-
 /*****
- * 原本想写多一个处理从首页进去的的动态页面的评论区的，不知道为什么捕获不到那个api链接，如果捕获到了或许可以比较好处理写，用定时器一直监听也是比较麻烦，以后如果有机会或者，找到方法了在尝试解决把
- * 对其部分上述代码先放在注释这边先，以后有缘再处理
- * 其中关键api放这：
- * api.bilibili.com/x/v2/reply/main?callback=
- * api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?host_mid=
- function dynamicCommentsf(v) {//动态评论区
-    const userInfo = v.getElementsByClassName("user")[0].getElementsByTagName("a")[0];//用户信息
-    const userUID = userInfo.getAttribute("data-usercard-mid");//用户UID
-    const userName = userInfo.text;//用户名
-}
- for (let v of document.getElementsByClassName("comment-list has-limit")[0].getElementsByClassName("con")) {
-    dynamicCommentsf(v);
-    const userContent = v.getElementsByClassName("text")[0].textContent;//楼主的言论
-    util.print(userContent)
-    for (let j of v.getElementsByClassName("reply-item reply-wrap")) {//楼主下面的评论
-        dynamicCommentsf(j)
-        const subContent = j.getElementsByClassName("text-con")[0].textContent;
-        //util.print(subContent);
-    }
-}
-
- //设置页面元素监听点击事件
- document.getElementsByClassName("feed-roll-btn")[0].addEventListener("click", () => {
-    setTimeout(() => {
-    }, 500);
-});
-
  获取用户所有关注的思路：
  不确定js有没有相关可以发起请求的库，以java的为例，请求带上cookie，和referer，
  且用该api发起请求
  https://api.bilibili.com/x/relation/followings?vmid=UID号&pn=页数，从1开始&ps=20&order=desc&order_type=attention&jsonp=jsonp&callback=__jp5
  其中referer值=https://space.bilibili.com/用户UID/fans/follow
  正常情况就可以得到内容了，根据总的关注数量，除以20，且除余就得出需要循环获取多少次了页数
-
- 新计划
- 根据规则屏蔽直播间的用户
-
-
 
  这里写一下，避免下次还得用搜索引擎查找，目前已知match的网址规则可以这样填写，就匹配到了    *://message.bilibili.com/*
 
