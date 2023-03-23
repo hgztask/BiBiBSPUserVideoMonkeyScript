@@ -1160,6 +1160,23 @@ const util = {
         const suspensionDiv = $("#suspensionDiv");
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
+    },
+    /**
+     * 获取链接的域名
+     * @param url 链接
+     * @return {null|string}
+     */
+    getRealmName: function (url) {
+        try {
+            const domain = url.split("/");
+            if (domain[2]) {
+                return domain[2];
+            } else {
+                return null;
+            }
+        } catch (e) {
+            return null;
+        }
     }
 }
 
