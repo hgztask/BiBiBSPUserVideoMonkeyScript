@@ -129,7 +129,7 @@ const rule = {
         //是否允许b站视频自动播放
         autoPlay: false,
         //控制视频播放速度
-        playbackSpeed: 1,
+        playbackSpeed: 0,
         //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
         isRhgthlayout: false,
         //是否要移除右侧播放页的视频列表
@@ -3105,9 +3105,12 @@ function bilibili(href) {
                     videoElement.pause();
                     util.print("已自动暂定视频播放");
                 }
-                //播放视频速度
-                videoElement.playbackRate = videoData.playbackSpeed;
-                util.print("已设置播放器的速度=" + videoData.playbackSpeed);
+                const playbackSpeed = videoData.playbackSpeed;
+                if (playbackSpeed !== 0) {
+                    //播放视频速度
+                    videoElement.playbackRate = playbackSpeed;
+                    util.print("已设置播放器的速度=" + playbackSpeed);
+                }
                 videoElement.addEventListener('ended', () => {//播放器结束之后事件
                     util.print("播放结束");
                     if (videoData.isVideoEndRecommend) {
