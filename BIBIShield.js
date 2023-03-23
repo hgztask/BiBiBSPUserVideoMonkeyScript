@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.6
+// @version      1.1.7
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2182,8 +2182,6 @@ const layout = {
                 <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
                 <span id="backgroundPelluciditySpan">1</span>
               </div>
-              <span>快捷悬浮屏蔽按钮跟随鼠标</span>
-              <input id="quickLevitationShield" type="checkbox">
             </div>
             <hr>
             <div>
@@ -2300,25 +2298,29 @@ const layout = {
         </div>
       </div>
       <!-- 分割home_layout -->
-    <!-- 悬浮屏蔽按钮 -->
-     <div id="suspensionDiv">坐标:
-      <span id="suspensionXY">xy</span>
-      <p>
-        标题(如有则显示):
-        <span id="suspensionTitle">占位符</span>
-      </p>
-      <p>
-        用户名：
-       <span id="nameSuspensionDiv">测试用户名</span>
-      </p>
-      <p>
-        用户UID：
-        <span id="uidSuspensionDiv">1433223</span>
-      </p>
-      <button id="butShieldName">add屏蔽用户名</button>
-      <button id="butShieldUid">add屏蔽用户名UID</button>
-    </div>
-   <!-- 悬浮屏蔽按钮 -->
+      <!-- 悬浮屏蔽按钮 -->
+      <div id="suspensionDiv">坐标:
+        <span id="suspensionXY">xy</span>
+        <div>
+          <span>快捷悬浮屏蔽按钮跟随鼠标</span>
+          <input id="quickLevitationShield" type="checkbox">
+        </div>
+        <p>
+          标题(如有则显示):
+          <span id="suspensionTitle">占位符</span>
+        </p>
+        <p>
+          用户名：
+         <span id="nameSuspensionDiv">测试用户名</span>
+        </p>
+        <p>
+          用户UID：
+          <span id="uidSuspensionDiv">1433223</span>
+        </p>
+        <button id="butShieldName">add屏蔽用户名</button>
+        <button id="butShieldUid">add屏蔽用户名UID</button>
+      </div>
+     <!-- 悬浮屏蔽按钮 -->
     `);
         }
     }
