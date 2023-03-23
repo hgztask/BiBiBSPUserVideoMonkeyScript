@@ -2043,8 +2043,7 @@ const search = {
                     continue;
                 }
                 v.parentNode.onmouseenter = (e) => {
-                    const element = e.srcElement;
-                    const data = search.getDataV();
+                    const data = search.getDataV(e.srcElement);
                     $("#nameSuspensionDiv").text(data.name);
                     $("#uidSuspensionDiv").text(data.uid);
                     util.updateLocation(e);
