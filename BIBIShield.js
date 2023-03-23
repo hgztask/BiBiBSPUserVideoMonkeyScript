@@ -223,6 +223,8 @@ const ruleKey = ["userNameArr", "userNameKeyArr", "userUIDArr", "userWhiteUIDArr
 const homePicBool = true;
 //是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
 const paletteButtionBool = true;
+//是否隐藏了面板
+let myidClickIndex = true;
 const home = {
     background: {//主面板背景颜色及透明度
         r: 92,
@@ -434,7 +436,11 @@ const shield = {
     },
     //是否是白名单用户
     isWhiteUserUID: function (uid) {
-        return rule.userWhiteUIDArr.includes(uid);
+        const userWhiteUIDArr = rule.userWhiteUIDArr;
+        if (userWhiteUIDArr === null) {
+            return false;
+        }
+        return userWhiteUIDArr.includes(uid);
     },
     /**
      * 根据用户uid屏蔽元素
@@ -2581,15 +2587,31 @@ function ruleList(href) {
 
 }
 
+/**
+ * 隐藏显示面板
+ */
+function hideDisplayHomeLaylout() {
+    const home_layout = document.getElementById("home_layout");
+    if (myidClickIndex) {
+        home_layout.style.display = "block";
+        myidClickIndex = false;
+        console.log("显示")
+        return;
+    }
+    home_layout.style.display = "none";
+    myidClickIndex = true;
+    console.log("隐藏")
+}
+
 (function () {
     'use strict';
     let href = util.getWindowUrl();
     util.print("当前网页url= " + href);
     console.log("当前网页url=" + href);
     shield.setRuleInt();
+    //加载布局
     layout.loading.home();
     layout.css.home();
-    //加载布局
     $("body").prepend('<button id="mybut">按钮</button>');
     $("#mybut").css({
         "position": "fixed",
@@ -2605,19 +2627,17 @@ function ruleList(href) {
     });
 
 
-    let myidClickIndex = true; //是否隐藏了面板
-    const home_layout = document.getElementById("home_layout");
-    $("#mybut").click(() => {
-        if (myidClickIndex) {
-            home_layout.style.display = "block";
-            myidClickIndex = false;
-            console.log("显示")
-            return;
-        }
-        home_layout.style.display = "none";
-        myidClickIndex = true;
-        console.log("隐藏")
+    document.getElementById("mybut").addEventListener("click", function () {
+        hideDisplayHomeLaylout();
     })
+
+
+    $(document).keyup(function (event) {//单按键监听-按下之后松开事件
+        const keycode = event.keyCode;
+        if (keycode === 192) {
+            hideDisplayHomeLaylout();
+        }
+    });
 
 
     $('#model').change(() => {//监听模式下拉列表
