@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.7
+// @version      1.1.8
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -129,7 +129,7 @@ const rule = {
         //是否允许b站视频自动播放
         autoPlay: false,
         //控制视频播放速度
-        playbackSpeed: 1.35,
+        playbackSpeed: 1,
         //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
         isRhgthlayout: false,
         //是否要移除右侧播放页的视频列表
