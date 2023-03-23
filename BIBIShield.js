@@ -1830,10 +1830,11 @@ const liveDel = {
                 fansMeda = v.getElementsByClassName("fans-medal-content")[0].textContent;
             } catch (e) {
             }
-            if (!startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
-                if (shield.fanCard(v, fansMeda)) {
-                    util.print("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
-                }
+            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+                continue;
+            }
+            if (shield.fanCard(v, fansMeda)) {
+                util.print("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
             }
         }
     },
@@ -2315,7 +2316,7 @@ const layout = {
           </div>
           <div>
             <h1>输出信息</h1>
-            <button onclick="document.querySelector('#outputInfo').innerHTML = '';">清空信息</button>
+            <button id="butClearMessage">清空信息</button>
             <div id="outputInfo">
             </div>
           </div>
@@ -2786,6 +2787,12 @@ function hideDisplayHomeLaylout() {
                 return;
         }
         util.print("已设置" + name + "的值，请刷新刷新当前变量页面规则信息之后应用！");
+    });
+
+    $("#butClearMessage").click(() => {
+        if (confirm("是要清空消息吗？")) {
+            document.querySelector('#outputInfo').innerHTML = '';
+        }
     });
 
 
