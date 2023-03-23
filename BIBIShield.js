@@ -8,6 +8,7 @@
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
 // @exclude      *://message.bilibili.com/pages/nav/index_new_pc_sync
 // @exclude      *://live.bilibili.com/blackboard/dropdown-menu.html
+// @exclude      *://live.bilibili.com/p/html/live-web-mng/*
 // @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match        *://search.bilibili.com/*
 // @match        *://www.bilibili.com/v/food/*
@@ -1132,7 +1133,7 @@ const util = {
      * message : 复制完后的提示，不传则默认提示"复制成功"
      */
     copyToClip: function (content, message) {
-        var aux = document.createElement("input");
+        const aux = document.createElement("input");
         aux.setAttribute("value", content);
         document.body.appendChild(aux);
         aux.select();
@@ -1156,8 +1157,9 @@ const util = {
         if (!($("#quickLevitationShield").is(':checked'))) {
             return;
         }
-        $("#suspensionDiv").css("left", x + "px");
-        $("#suspensionDiv").css("top", y + "px");
+        const suspensionDiv = $("#suspensionDiv");
+        suspensionDiv.css("left", x + "px");
+        suspensionDiv.css("top", y + "px");
     }
 }
 
@@ -1179,7 +1181,7 @@ const urleCrud = {
      * 批量添加，要求以数组形式
      * @param {Array} paarr
      * @param {Array} key
-     * @param {String} rulerams
+     * @param rule
      */
     addAll: function (paarr, key, rule) {
         const setList = new Set(paarr);
@@ -1214,7 +1216,7 @@ const urleCrud = {
 
 const butLayEvent = {
     butaddName: function (ruleStr, contentV) {
-        if (contentV == '' || contentV.includes(" ")) {
+        if (contentV === '' || contentV.includes(" ")) {
             util.print("请输入正确的内容")
             return;
         }
@@ -1235,7 +1237,7 @@ const butLayEvent = {
         urleCrud.add(arrayList, contentV, ruleStr);
     },
     butaddAllName: function (ruleStr, contentV) {
-        if (contentV == '') {
+        if (contentV === '') {
             util.print("请输入正确的内容")
             return;
         }
@@ -1256,7 +1258,7 @@ const butLayEvent = {
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
     butDelName: function (ruleStr, contentV) {
-        if (contentV == '' || contentV.includes(" ")) {
+        if (contentV === '' || contentV.includes(" ")) {
             util.print("请输入正确的内容")
             return;
         }
@@ -1289,7 +1291,7 @@ const butLayEvent = {
     },
     //查询
     butFindKey: function (ruleStr, contentV) {
-        if (contentV == '' || contentV.includes(" ")) {
+        if (contentV === '' || contentV.includes(" ")) {
             util.print("请输入正确的内容")
             return;
         }
@@ -2588,17 +2590,18 @@ function ruleList(href) {
 
 
     let myidClickIndex = true; //是否隐藏了面板
-    const myid = document.getElementById("mybut");
     const home_layout = document.getElementById("home_layout");
-    myid.addEventListener("click", () => {
+    $("#mybut").click(() => {
         if (myidClickIndex) {
             home_layout.style.display = "block";
             myidClickIndex = false;
+            console.log("显示")
             return;
         }
         home_layout.style.display = "none";
         myidClickIndex = true;
-    });
+        console.log("隐藏")
+    })
 
 
     $('#model').change(() => {//监听模式下拉列表
@@ -2611,32 +2614,39 @@ function ruleList(href) {
     });
     $('#singleDoubleModel').change(() => {//监听模式下拉列表
         const modelStr = $('#singleDoubleModel').val();
+        const inputTextAreaModel = $('#inputTextAreaModel');
+        const inputModel = $('#inputModel');
+        const butadd = $('#butadd');
+        const butdel = $('#butdel');
+        const butaddAll = $('#butaddAll');
+        const butdelAll = $('#butdelAll');
+        const butSet = $('#butSet');
+        const butFind = $('#butFind');
+        const replace = $('#replace');
         if (modelStr === "one") {//如果中的是单个
-            $('#inputTextAreaModel').css("display", "none");
-            $('#inputModel').css("display", "block");
-
+            inputTextAreaModel.css("display", "none");
+            inputModel.css("display", "block");
             //暂时显示对应的按钮
-            $('#butadd').css("display", "inline");
-            $('#butdel').css("display", "inline");
-            $('#butSet').css("display", "inline");
-            $('#butFind').css("display", "inline");
-            $('#replace').css("display", "inline");
-
-            $('#butaddAll').css("display", "none");
-            $('#butdelAll').css("display", "none");
+            butadd.css("display", "inline");
+            butdel.css("display", "inline");
+            butSet.css("display", "inline");
+            butFind.css("display", "inline");
+            replace.css("display", "inline");
+            butaddAll.css("display", "none");
+            butdelAll.css("display", "none");
             return;
         }//如果选择的是批量
-        $('#inputModel').css("display", "none");
-        $('#inputTextAreaModel').css("display", "block");
+        inputModel.css("display", "none");
+        inputTextAreaModel.css("display", "block");
 
-        $('#butaddAll').css("display", "inline");
-        $('#butdelAll').css("display", "inline");
+        butaddAll.css("display", "inline");
+        butdelAll.css("display", "inline");
         //暂时隐藏别的按钮先
-        $('#butadd').css("display", "none");
-        $('#butdel').css("display", "none");
-        $('#butSet').css("display", "none");
-        $('#butFind').css("display", "none");
-        $('#replace').css("display", "none");
+        butadd.css("display", "none");
+        butdel.css("display", "none");
+        butSet.css("display", "none");
+        butFind.css("display", "none");
+        replace.css("display", "none");
 
     });
 
@@ -3166,7 +3176,6 @@ function bilibili(href) {
                         clearInterval(interval);
                         classNameElement.remove();
                         util.print("已移除直播首页右侧的悬浮按钮");
-                        return;
                     }
                 }, 2000);
             }
