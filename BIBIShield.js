@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.8
+// @version      1.1.9
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -1823,7 +1823,7 @@ const liveDel = {
         const list = chatItems.getElementsByClassName("chat-item danmaku-item");
         for (let v of list) {
             const userName = v.getAttribute("data-uname");
-            const uid = parseInt(v.getAttribute("data-uid"));
+            const uid = v.getAttribute("data-uid");
             const content = v.getAttribute("data-danmaku");
             let fansMeda = "这是个个性粉丝牌子";
             try {
@@ -2234,14 +2234,14 @@ const layout = {
                   <option value="batch">批量</option>
                 </select>
               </div>
-              <input style="width: 29%;height: 20px;" type="text" id="inputModel"/>
+             <input style="width: 29%;height: 20px;" type="text" id="inputModel"  maxlength="30"/>
               <textarea
                 id="inputTextAreaModel"
                 style="resize: none; width: 40%; height: 100px; display: none"
               ></textarea>
               <div id="replace">
                 替换(修改)
-                <input style="width: 29%;height: 20px;" type="text" id="newInputModel" />
+               <input style="width: 29%;height: 20px;" type="text" id="newInputModel"   maxlength="30" />
               </div>
               <div>
                 <button id="butadd">增加</button>
@@ -2312,7 +2312,24 @@ const layout = {
                 style="resize: none; height: 300px; width: 60%"
               ></textarea>
             </div>
-
+              <hr>
+            <div>
+              <h1>
+                反馈问题
+              </h1>
+              <p>
+                作者b站：
+                <span>
+                  <a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a>
+                </span>
+              </p>
+              <p>
+                本脚本gf反馈页
+                <span>
+                  <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
+                </span>
+              </p>
+            </div>
           </div>
           <div>
             <h1>输出信息</h1>
