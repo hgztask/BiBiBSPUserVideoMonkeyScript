@@ -36,69 +36,6 @@
 
 //规则
 const rule = {
-    /**
-     * 用户名黑名单模式，需要完全匹配
-     * 提示越靠前的优先匹配
-     * 例子，我想要屏蔽用户名叫张三的，内容两边加上“，如下所示
-     * ["张三"]
-     * 如追加在后面添加即可
-     * ["张三","李四"]
-     * @type {string[]} 元素类型为字符串
-     */
-    userNameArr: [],
-    /**
-     *用户名黑名单模式，不需要完全匹配，只需要名称匹配上关键词即可，比如标题有个张三叫什么，规则里写着张三，包含则屏蔽处理
-     * @type {string[]}
-     */
-    userNameKeyArr: [],
-    /**
-     * 用户uid黑名单模式
-     * 提示越靠前的优先匹配
-     * 比如我想要根据某个用户的UID进行屏蔽，则填写纯数字即可，不用加UID，如：
-     * @type {number[]}
-     */
-    userUIDArr: [],
-    /**
-     * 用户白名单模式
-     * 提示越靠前的优先匹配
-     * 比如我不用屏蔽指定用户的内容，则填写用户的UID进行白名单，则填写纯数字即可，不用加UID，如：
-     * [114514]
-     * 多个就
-     * [114514,1433223]
-     * @type{number[]}
-     */
-    userWhiteUIDArr: [],
-    /**
-     * 视频标题or专栏标题关键词
-     * 关键词小写，会有方法对内容中的字母转成小写的
-     * 提示越靠前的优先匹配
-     * 说明：比如某个视频有个张三关键词，你想要屏蔽张三关键词的旧如下所示例子，添加关键的地方即可，如果有多个就，按照下面例子中添加，即可，如果有两个类似的，靠左边的优先匹配到
-     * @type {string[]}
-     */
-    titleKeyArr: [],
-    /**
-     * 评论关键词
-     * 关键词小写，会有方法对内容中的字母转成小写的
-     * 提示越靠前的优先匹配
-     * 同理跟上面标题关键词一样，只不过作用地方是在评论
-     * @type {string[]}
-     */
-    commentOnKeyArr: [],
-    /**
-     * 粉丝牌
-     * 根据粉丝牌屏蔽
-     * 提示越靠前的优先匹配
-     * @type {string[]}
-     */
-    fanCardArr: [],
-    /**
-     * 专栏关键词
-     * 关键词小写，会有方法对内容中的字母转成小写的
-     * 提示越靠前的优先匹配
-     * 同理跟上面标题关键词一样，只不过作用地方是在评论
-     * @type {string[]}
-     */
-    contentColumnKeyArr: [],
     //视频参数
     videoData: {
         /**
@@ -409,38 +346,10 @@ const remove = {
 }
 
 const shield = {
-    //读取存储在浏览器页面的localStorage并返回其数组
-    getRuleLocalStorage: function (rule) {
-        let arr;
-        try {
-            arr = window.localStorage.getItem(rule).split(",");
-        } catch (e) {
-            return null;
-        }
-        return arr;
-    },
-    //加载规则信息并初始化
-    setRuleInt: function () {
-        rule.userNameArr = this.getRuleLocalStorage("userNameArr");
-        rule.userNameKeyArr = this.getRuleLocalStorage("userNameKeyArr");
-        rule.userUIDArr = this.getRuleLocalStorage("userUIDArr");
-        rule.userWhiteUIDArr = this.getRuleLocalStorage("userWhiteUIDArr");
-        rule.contentColumnKeyArr = this.getRuleLocalStorage("contentColumnKeyArr");
-        rule.fanCardArr = this.getRuleLocalStorage("fanCardArr");
-        rule.commentOnKeyArr = this.getRuleLocalStorage("commentOnKeyArr");
-        rule.titleKeyArr = this.getRuleLocalStorage("titleKeyArr");
-        rule.videoData.filterSMin = this.getRuleLocalStorage("filterSMin");
-        rule.videoData.filterSMax = this.getRuleLocalStorage("filterSMax");
-        rule.videoData.broadcastMin = this.getRuleLocalStorage("broadcastMin");
-        rule.videoData.broadcastMax = this.getRuleLocalStorage("broadcastMax");
-        rule.videoData.barrageQuantityMin = this.getRuleLocalStorage("barrageQuantityMin");
-        rule.videoData.barrageQuantityMax = this.getRuleLocalStorage("barrageQuantityMax");
-        util.print("已加载规则信息")
-    },
     //是否是白名单用户
     isWhiteUserUID: function (uid) {
-        const userWhiteUIDArr = rule.userWhiteUIDArr;
-        if (userWhiteUIDArr === null) {
+        const userWhiteUIDArr = util.getData("userWhiteUIDArr");
+        if (userWhiteUIDArr === null || userWhiteUIDArr === undefined) {
             return false;
         }
         return userWhiteUIDArr.includes(uid);
@@ -452,7 +361,7 @@ const shield = {
      * @returns {boolean}
      */
     uid: function (element, uid) {
-        return remove.shieldArrKey(element, rule.userUIDArr, uid);
+        return remove.shieldArrKey(element, util.getData("userUIDArr"), parseInt(uid));
     }
     ,
     /**
@@ -462,7 +371,7 @@ const shield = {
      * @returns {boolean}
      */
     name: function (element, name) {
-        return remove.shieldArrKey(element, rule.userNameArr, name);
+        return remove.shieldArrKey(element, util.getData("userNameArr"), name);
     },
     /**
      * 根据用户名规则，当用规则字符包含用户名时返回对应的规则字符，反之null
@@ -471,7 +380,7 @@ const shield = {
      * @returns {String|null}
      */
     nameKey: function (element, name) {
-        return remove.shieldArrContent(element, rule.userNameKeyArr, name)
+        return remove.shieldArrContent(element, util.getData("userNameKeyArr"), name)
     }
     ,
     /**
@@ -481,7 +390,7 @@ const shield = {
      * @returns {String|null}
      */
     titleKey: function (element, title) {
-        return remove.shieldArrContent(element, rule.titleKeyArr, title)
+        return remove.shieldArrContent(element, util.getData("titleKeyArr"), title)
     }
     ,
     /**
@@ -491,7 +400,7 @@ const shield = {
      * @returns {String|null}
      */
     contentKey: function (element, content) {
-        return remove.shieldArrContent(element, rule.commentOnKeyArr, content);
+        return remove.shieldArrContent(element, util.getData("commentOnKeyArr"), content);
     }
     ,
     /**
@@ -501,7 +410,7 @@ const shield = {
      * @returns {String|null}
      */
     columnContentKey: function (element, content) {
-        return remove.shieldArrContent(element, rule.contentColumnKeyArr, content);
+        return remove.shieldArrContent(element, util.getData("contentColumnKeyArr"), content);
     }
     ,
     /**
@@ -511,7 +420,7 @@ const shield = {
      * @returns {boolean}
      */
     fanCard: function (element, key) {
-        return remove.shieldArrKey(element, rule.fanCardArr, key);
+        return remove.shieldArrKey(element, util.getData("fanCardArr"), key);
     }
     ,
     /**
@@ -700,6 +609,18 @@ function delDReplay() {
  * 工具类
  */
 const util = {
+    //设置数据
+    setData: function (key, content) {
+        GM_setValue(key, content);
+    },
+    //读取数据
+    getData: function (key) {
+        return GM_getValue(key);
+    },
+    //删除数据
+    delData: function (key) {
+        GM_deleteValue(key);
+    },
     /**
      * 分割时分秒字符串
      * @param {String}time
@@ -1002,81 +923,16 @@ const util = {
     },
     //获取格式化规则的内容
     getUrleToStringFormat: function () {
-        let userNameArr = null, userNameKeyArr = null, userUIDArr = null, userWhiteUIDArr = null, titleKeyArr = null,
-            commentOnKeyArr = null, fanCardArr = null,
-            contentColumnKeyArr = null,
-            filterSMin = null, filterSMax = null, broadcastMin = null, broadcastMax = null, barrageQuantityMin = null,
-            barrageQuantityMax = null;
-        const storage = window.localStorage;
-        for (const v of ruleKey) {
-            const tempValue = storage.getItem(v);
-            if (tempValue == null) {
-                continue;
-            }
-            switch (v) {
-                case "userNameArr":
-                    userNameArr = tempValue.split(",");
-                    break;
-                case "userNameKeyArr":
-                    userNameKeyArr = tempValue.split(",");
-                    break;
-                case "userUIDArr":
-                    userUIDArr = [];
-                    for (const tempV of tempValue.split(",")) {
-                        try {
-                            userUIDArr.push(parseInt(tempV));
-                        } catch (error) {
-                            util.print("导出userUIDArr时转成数据类型出错！" + error);
-                        }
-                    }
-                    break;
-                case "userWhiteUIDArr":
-                    userWhiteUIDArr = tempValue.split(",");
-                    break;
-                case "titleKeyArr":
-                    titleKeyArr = tempValue.split(",");
-                    break;
-                case "commentOnKeyArr":
-                    commentOnKeyArr = tempValue.split(",");
-                    break;
-                case "fanCardArr":
-                    fanCardArr = tempValue.split(",");
-                    break;
-                case "contentColumnKeyArr":
-                    contentColumnKeyArr = tempValue.split(",");
-                    break;
-                case "filterSMin":
-                    filterSMin = parseInt(tempValue);
-                    break;
-                case "filterSMax":
-                    filterSMax = parseInt(tempValue);
-                    break;
-                case "broadcastMin":
-                    broadcastMin = parseInt(tempValue);
-                    break;
-                case "broadcastMax":
-                    broadcastMax = parseInt(tempValue);
-                    break;
-                case "barrageQuantityMin":
-                    barrageQuantityMin = parseInt(tempValue);
-                    break;
-                case "barrageQuantityMax":
-                    barrageQuantityMax = parseInt(tempValue);
-                    break;
-                default:
-                    break;
-            }
-        }
-        return this.getRuleFormatStr(userNameArr, userNameKeyArr, userUIDArr, userWhiteUIDArr, titleKeyArr, commentOnKeyArr, fanCardArr, contentColumnKeyArr,
-            filterSMin, filterSMax, broadcastMin, broadcastMax, barrageQuantityMin, barrageQuantityMax);
+        return this.getRuleFormatStr(util.getData("userNameArr"), util.getData("userNameKeyArr"), util.getData("userUIDArr"), util.getData("userWhiteUIDArr"),
+            util.getData("titleKeyArr"), util.getData("commentOnKeyArr"), util.getData("fanCardArr"), util.getData("contentColumnKeyArr"), util.getData("filterSMin"),
+            util.getData("filterSMax"), util.getData("broadcastMin"),util.getData("broadcastMax"),util.getData("barrageQuantityMin"), util.getData("barrageQuantityMax"));
     },
     /**
      * 打印内存变量中的规则信息
      * @returns {string}
      */
     getRuleInternalStorage: function () {
-        return this.getRuleFormatStr(rule.userNameArr, rule.userNameKeyArr, rule.userUIDArr, rule.userWhiteUIDArr, rule.titleKeyArr, rule.commentOnKeyArr, rule.fanCardArr, rule.contentColumnKeyArr,
-            rule.videoData.filterSMin, rule.videoData.filterSMax, rule.videoData.broadcastMin, rule.videoData.broadcastMax, rule.videoData.barrageQuantityMin, rule.videoData.barrageQuantityMax)
+        return "未定"
     },
     /**
      * 设置页面播放器的播放速度
@@ -1200,17 +1056,17 @@ const urleCrud = {
      */
     add: function (arr, key, rule) {
         arr.push(key);
-        localStorage.setItem(rule, arr);
+        util.setData(rule, arr);
         util.print("已添加该值=" + key)
     },
     /**
      * 批量添加，要求以数组形式
-     * @param {Array} paarr
+     * @param {Array} arr
      * @param {Array} key
      * @param rule
      */
-    addAll: function (paarr, key, rule) {
-        const setList = new Set(paarr);
+    addAll: function (arr, key, rule) {
+        const setList = new Set(arr);
         const setListLength = setList.size;
         for (const v of key) {
             setList.add(v);
@@ -1219,7 +1075,7 @@ const urleCrud = {
             util.print("内容长度无变化，可能是已经有了的值")
             return;
         }
-        localStorage.setItem(rule, Array.from(setList));
+        util.setData(rule, Array.from(setList));
         util.print("已添加该值=" + key)
     },
     del: function (arr, key, rule) {
@@ -1234,7 +1090,7 @@ const urleCrud = {
             return;
         }
         arr.splice(index, 1);
-        localStorage.setItem(rule, arr);
+        util.setData(rule, arr);
         util.print("已经删除该元素=" + key)
     }
 
@@ -1249,13 +1105,11 @@ const butLayEvent = {
         if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
             return;
         }
-        const localStorage = window.localStorage;
-        let arrayList = localStorage.getItem(ruleStr);
+        let arrayList = util.getData(ruleStr);
         if (arrayList === null) {
             urleCrud.add([], contentV, ruleStr);
             return;
         }
-        arrayList = arrayList.split(",");
         if (arrayList.includes(contentV)) {
             util.print("当前已有该值！");
             return;
@@ -1274,13 +1128,11 @@ const butLayEvent = {
             util.print("内容不正确！内容需要数组或者json格式！错误信息=" + error)
             return;
         }
-        const localStorage = window.localStorage;
-        let arrayList = localStorage.getItem(ruleStr);
+        let arrayList = util.getData(ruleStr);
         if (arrayList === null) {
             urleCrud.addAll([], tempList, ruleStr);
             return;
         }
-        arrayList = arrayList.split(",");
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
     butDelName: function (ruleStr, contentV) {
@@ -1288,13 +1140,11 @@ const butLayEvent = {
             util.print("请输入正确的内容")
             return;
         }
-        const localStorage = window.localStorage;
-        let arrayList = localStorage.getItem(ruleStr);
+        let arrayList = util.getData(ruleStr);
         if (arrayList === null) {
             util.print("没有内容哟")
             return;
         }
-        arrayList = arrayList.split(",");
         if (!arrayList.includes(contentV)) {
             util.print("没有该内容哟=" + contentV)
             return;
@@ -1302,9 +1152,7 @@ const butLayEvent = {
         urleCrud.del(arrayList, contentV, ruleStr);
     },
     butDelAllName: function (ruleStr) {
-        const localStorage = window.localStorage;
-        let arrayList = localStorage.getItem(ruleStr);
-        if (arrayList === null) {
+        if (util.getData(ruleStr) === null) {
             util.print("没有内容哟")
             return;
         }
@@ -1312,7 +1160,7 @@ const butLayEvent = {
         if (!b) {
             return;
         }
-        delete localStorage[ruleStr];
+        util.delData(ruleStr);
         util.print("已全部清除=" + ruleStr);
     },
     //查询
@@ -1321,13 +1169,11 @@ const butLayEvent = {
             util.print("请输入正确的内容")
             return;
         }
-        const localStorage = window.localStorage;
-        let arrayList = localStorage.getItem(ruleStr);
+        let arrayList = util.getData(ruleStr);
         if (arrayList === null) {
             util.print("找不到该内容！");
             return;
         }
-        arrayList = arrayList.split(",");
         if (arrayList.includes(contentV)) {
             util.print("搜索的值，已存在！");
             return;
@@ -1345,13 +1191,11 @@ const butLayEvent = {
             util.print("请输入正确的内容，两者内容不能相同")
             return;
         }
-        const localStorage = window.localStorage;
-        let arrayList = localStorage.getItem(ruleStr);
+        let arrayList = util.getData(ruleStr);
         if (arrayList === null) {
             util.print("找不到该内容！");
             return;
         }
-        arrayList = arrayList.split(",");
         if (!arrayList.includes(oldKey)) {
             util.print("找不到该内容！，无法替换！");
             return;
@@ -1362,7 +1206,7 @@ const butLayEvent = {
             return;
         }
         arrayList.splice(index, 1, newKey);
-        localStorage.setItem(ruleStr, arrayList);
+        util.setData(ruleStr, arrayList);
         util.print("替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
     }
 }
@@ -2260,9 +2104,7 @@ const layout = {
                 <button id="butdelAll" style="display: none">全部删除</button>
                 <button id="butSet">修改</button>
                 <button id="butFind">查询</button>
-                <button id="butPrintAllInfo">打印当前页面规则信息</button>
-                <button id="butPrintVariableAllInfo">打印当前变量页面规则信息</button>
-                <button id="renovateVariableAll">刷新当前变量页面规则信息</button>
+                <button id="butPrintAllInfo">打印规则信息</button> 
               </div>
             </div>
             <hr>
@@ -2642,7 +2484,6 @@ function hideDisplayHomeLaylout() {
     let href = util.getWindowUrl();
     util.print("当前网页url= " + href);
     console.log("当前网页url=" + href);
-    shield.setRuleInt();
     //加载布局
     layout.loading.home();
     layout.css.home();
@@ -2806,28 +2647,28 @@ function hideDisplayHomeLaylout() {
         inputVideoV = parseInt(inputVideoV);
         switch (typeV) {
             case "filterSMin":
-                window.localStorage.setItem("filterSMin", inputVideoV);
+                util.setData("filterSMin", inputVideoV);
                 break;
             case "videoDurationMax":
-                window.localStorage.setItem("filterSMin", inputVideoV);
+                util.setData("filterSMin", inputVideoV);
                 break;
             case "broadcastMin":
-                window.localStorage.setItem("broadcastMin", inputVideoV);
+                util.setData("broadcastMin", inputVideoV);
                 break;
             case "broadcastMax":
-                window.localStorage.setItem("broadcastMax", inputVideoV);
+                util.setData("broadcastMax", inputVideoV);
                 break;
             case "barrageQuantityMin":
-                window.localStorage.setItem("barrageQuantityMin", inputVideoV);
+                util.setData("barrageQuantityMin", inputVideoV);
                 break;
             case "barrageQuantityMax":
-                window.localStorage.setItem("barrageQuantityMax", inputVideoV);
+                util.setData("barrageQuantityMax", inputVideoV);
                 break;
             default:
                 alert("出现意外的值！")
                 return;
         }
-        util.print("已设置" + name + "的值，请刷新刷新当前变量页面规则信息之后应用！");
+        util.print("已设置" + name + "的值");
     });
 
     $("#butClearMessage").click(() => {
@@ -2841,7 +2682,6 @@ function hideDisplayHomeLaylout() {
     $("#butadd").click(function () {
         const typeVal = $("#model option:selected").val();
         const content = $("#inputModel").val();
-
         switch (typeVal) {
             case "name":
                 butLayEvent.butaddName("userNameArr", content);
@@ -3066,19 +2906,6 @@ function hideDisplayHomeLaylout() {
     })
 
 
-//打印内存变量中的规则信息
-    $("#butPrintVariableAllInfo").click(() => {
-        util.print(util.getRuleInternalStorage());
-    })
-
-    $("#renovateVariableAll").click(function () {
-        if (!(confirm("确定要刷新吗?"))) {
-            return;
-        }
-        shield.setRuleInt();
-        util.print("已刷新页面的规则信息")
-    })
-
 
     //导入规则按钮事件
     $("#inputFIleRule").click(function () {
@@ -3100,35 +2927,35 @@ function hideDisplayHomeLaylout() {
         }
         let list = jsonRule["用户名黑名单模式(精确匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("userNameArr", list);
+            util.setData("userNameArr", list);
         }
         list = jsonRule["用户名黑名单模式(模糊匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("userNameKeyArr", list);
+            util.setData("userNameKeyArr", list);
         }
         list = jsonRule["用户uid黑名单模式(精确匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("userUIDArr", list);
+            util.setData("userUIDArr", list);
         }
         list = jsonRule["用户uid白名单模式(精确匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("userWhiteUIDArr", list);
+            util.setData("userWhiteUIDArr", list);
         }
         list = jsonRule["标题黑名单模式(模糊匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("titleKeyArr", list);
+            util.setData("titleKeyArr", list);
         }
         list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("commentOnKeyArr", list);
+            util.setData("commentOnKeyArr", list);
         }
         list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("fanCardArr", list);
+            util.setData("fanCardArr", list);
         }
         list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
         if (!(list === null || list.length === 0)) {
-            window.localStorage.setItem("contentColumnKeyArr", list);
+            util.setData("contentColumnKeyArr", list);
         }
         util.print("已导入");
     })
