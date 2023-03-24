@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.11
+// @version      1.1.12
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -156,8 +156,6 @@ const rule = {
     }
 }
 //===========================================上面的的相关参数用户可以执行修改=========================================================================
-const ruleKey = ["userNameArr", "userNameKeyArr", "userUIDArr", "userWhiteUIDArr", "titleKeyArr", "commentOnKeyArr", "fanCardArr", "contentColumnKeyArr", "filterSMin", "filterSMax", "broadcastMin", "broadcastMax", "barrageQuantityMin", "barrageQuantityMax"];
-
 
 //是否屏蔽首页=左侧大图的轮播图,反之false
 const homePicBool = true;
@@ -1041,7 +1039,7 @@ const urleCrud = {
     /**
      * 单个元素进行添加
      * @param {Array} arr
-     * @param {String} key
+     * @param {String,number} key
      * @param {String} rule
      */
     add: function (arr, key, rule) {
@@ -1088,7 +1086,7 @@ const urleCrud = {
 
 const butLayEvent = {
     butaddName: function (ruleStr, contentV) {
-        if (contentV === '' || contentV.includes(" ")) {
+        if (contentV === '') {
             util.print("请输入正确的内容")
             return;
         }
@@ -2176,7 +2174,7 @@ const layout = {
           </div>
           <div>
             <h1>输出信息</h1>
-            <button onclick="document.querySelector('#outputInfo').innerHTML = '';">清空信息</button>
+            <button id="butClearMessage">清空信息</button>
             <div id="outputInfo">
             </div>
           </div>
@@ -2600,7 +2598,7 @@ function hideDisplayHomeLaylout() {
     });
     $("#butShieldUid").click(() => {//悬浮小窗体-添加屏蔽uid
         const uid = $("#uidSuspensionDiv").text();
-        butLayEvent.butaddName("userUIDArr", uid);
+        butLayEvent.butaddName("userUIDArr", parseInt(uid));
     });
 
 
@@ -2672,7 +2670,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butaddName("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butaddName("userUIDArr", content);
+                butLayEvent.butaddName("userUIDArr", parseInt(content));
                 break;
             case "bName":
                 butLayEvent.butaddName("userWhiteUIDArr", content);
@@ -2707,7 +2705,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butaddAllName("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butaddAllName("userUIDArr", content);
+                butLayEvent.butaddAllName("userUIDArr", parseInt(content));
                 break;
             case "bName":
                 butLayEvent.butaddAllName("userWhiteUIDArr", content);
