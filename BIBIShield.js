@@ -2486,7 +2486,7 @@ function perf_observer(list, observer) {
                 continue;
             }
             if (windowUrl.includes("t.bilibili.com")) {
-                util.print("接收到了动态的评论区api")
+                console.log("接收到了动态的评论区api")
                 delDReplay();
                 continue;
             }
