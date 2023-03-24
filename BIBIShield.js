@@ -2315,10 +2315,9 @@ const layout = {
             <hr>
             <div>
               <h1>快捷键</h1>
-              <p>
-                显示隐藏面板 快捷键\`
-              </p>
-              <p>选中取消快捷悬浮屏蔽按钮跟随鼠标 快捷键2</p>
+              <p> 显示隐藏面板 快捷键\`</p>
+              <p>选中取消快捷悬浮屏蔽按钮跟随鼠标 快捷键1</p>
+              <p>隐藏快捷悬浮屏蔽按钮 快捷键2</p>
             </div>
             <hr>
             <div>
@@ -2664,12 +2663,12 @@ function hideDisplayHomeLaylout() {
         if (keycode === 192) {//按下`按键显示隐藏面板
             hideDisplayHomeLaylout();
         }
-        if (keycode === 49) {//显示快捷悬浮屏蔽按钮
-            $("#suspensionDiv").css("display", "inline-block");
-        }
-        if (keycode === 50) {//选中快捷悬浮屏蔽按钮跟随鼠标
+        if (keycode === 49) {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
             const q = $("#quickLevitationShield");
             q.prop("checked", !q.is(':checked'));
+        }
+        if (keycode === 50) {//隐藏快捷悬浮屏蔽按钮 键盘上的2
+            $("#suspensionDiv").css("display", "none");
         }
 
     });
