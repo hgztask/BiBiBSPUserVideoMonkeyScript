@@ -27,7 +27,10 @@
 // @match        https://www.bilibili.com/
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
+// @grant        GM_addValueChangeListener
 // ==/UserScript==
 
 
@@ -2200,6 +2203,13 @@ const layout = {
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
+          
+          <div>
+  <h1>测试</h1>
+  <button id="writeData">写入数据</button>
+  <button id="readData">读取数据</button>
+</div>
+          
             <div>
               <h1>面板设置</h1>
               <div>
@@ -2621,12 +2631,10 @@ function hideDisplayHomeLaylout() {
     if (myidClickIndex) {
         home_layout.style.display = "block";
         myidClickIndex = false;
-        console.log("显示")
         return;
     }
     home_layout.style.display = "none";
     myidClickIndex = true;
-    console.log("隐藏")
 }
 
 (function () {
