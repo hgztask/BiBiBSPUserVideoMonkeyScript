@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.12
+// @version      1.1.13
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -1153,7 +1153,7 @@ const butLayEvent = {
     },
     //查询
     butFindKey: function (ruleStr, contentV) {
-        if (contentV === '' || contentV.includes(" ")) {
+        if (contentV === '') {
             util.print("请输入正确的内容")
             return;
         }
@@ -2845,7 +2845,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butFindKey("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butFindKey("userUIDArr", content);
+                butLayEvent.butFindKey("userUIDArr", parseInt(content));
                 break;
             case "bName":
                 butLayEvent.butFindKey("userWhiteUIDArr", content);
