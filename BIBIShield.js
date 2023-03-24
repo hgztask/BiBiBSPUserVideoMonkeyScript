@@ -2196,7 +2196,7 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-        <!-- 分割home_layout -->
+      <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
@@ -2234,14 +2234,14 @@ const layout = {
                   <option value="batch">批量</option>
                 </select>
               </div>
-             <input style="width: 29%;height: 20px;" type="text" id="inputModel"  maxlength="30"/>
+              <input style="width: 29%;height: 20px;" type="text" id="inputModel"  maxlength="30"/>
               <textarea
                 id="inputTextAreaModel"
                 style="resize: none; width: 40%; height: 100px; display: none"
               ></textarea>
               <div id="replace">
                 替换(修改)
-               <input style="width: 29%;height: 20px;" type="text" id="newInputModel"   maxlength="30" />
+                <input style="width: 29%;height: 20px;" type="text" id="newInputModel"   maxlength="30" />
               </div>
               <div>
                 <button id="butadd">增加</button>
@@ -2312,7 +2312,15 @@ const layout = {
                 style="resize: none; height: 300px; width: 60%"
               ></textarea>
             </div>
-              <hr>
+            <hr>
+            <div>
+              <h1>快捷键</h1>
+              <p>
+                显示隐藏面板 快捷键\`
+              </p>
+              <p>选中取消快捷悬浮屏蔽按钮跟随鼠标 快捷键2</p>
+            </div>
+            <hr>
             <div>
               <h1>
                 反馈问题
@@ -2329,11 +2337,12 @@ const layout = {
                   <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
                 </span>
               </p>
+
             </div>
           </div>
           <div>
             <h1>输出信息</h1>
-            <button id="butClearMessage">清空信息</button>
+            <button onclick="document.querySelector('#outputInfo').innerHTML = '';">清空信息</button>
             <div id="outputInfo">
             </div>
           </div>
@@ -2652,9 +2661,17 @@ function hideDisplayHomeLaylout() {
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
         const keycode = event.keyCode;
-        if (keycode === 192) {
+        if (keycode === 192) {//按下`按键显示隐藏面板
             hideDisplayHomeLaylout();
         }
+        if (keycode === 49) {//显示快捷悬浮屏蔽按钮
+            $("#suspensionDiv").css("display", "inline-block");
+        }
+        if (keycode === 50) {//选中快捷悬浮屏蔽按钮跟随鼠标
+            const q = $("#quickLevitationShield");
+            q.prop("checked", !q.is(':checked'));
+        }
+
     });
 
 
