@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.10
+// @version      1.1.11
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -313,7 +313,7 @@ const remove = {
      * @returns {boolean}
      */
     shieldArrKey: function (element, arr, key) {
-        if (arr == null) {
+        if (arr === null || arr === undefined) {
             return false;
         }
         if (arr.includes(key)) {
@@ -331,6 +331,9 @@ const remove = {
      * @returns {null|String}
      */
     shieldArrContent: function (element, arr, content) {
+        if (arr === null || arr === undefined) {
+            return null;
+        }
         try {
             for (let str of arr) {
                 if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
@@ -859,25 +862,25 @@ const util = {
     print: function name(strContent) {
         $("#outputInfo").prepend(`<span>${this.toTimeString() + "\t\t" + strContent}</span><hr>`);
     },
-    getRuleFormatStr: function (userNameArr, userNameKeyArr, userUIDArr, userWhiteUIDArr, titleKeyArr, commentOnKeyArr, fanCardArr, contentColumnKeyArr,
-                                filterSMin, videoDurationMax, broadcastMin, broadcastMax, barrageQuantityMin, barrageQuantityMax) {
+    //获取格式化规则的内容
+    getRuleFormatStr: function () {
         //温馨提示每个{}对象最后一个不可以有,符号
         return `{
-    "用户名黑名单模式(精确匹配)": ${JSON.stringify(userNameArr)},
-    "用户名黑名单模式(模糊匹配)": ${JSON.stringify(userNameKeyArr)},
-    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(userUIDArr)},
-    "用户uid白名单模式(精确匹配)": ${JSON.stringify(userWhiteUIDArr)},
-    "标题黑名单模式(模糊匹配)": ${JSON.stringify(titleKeyArr)},
-    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(commentOnKeyArr)},
-    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(fanCardArr)},
-    "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(contentColumnKeyArr)},
+    "用户名黑名单模式(精确匹配)": ${JSON.stringify(util.getData("userNameArr"))},
+    "用户名黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("userNameKeyArr"))},
+    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(util.getData("userUIDArr"))},
+    "用户uid白名单模式(精确匹配)": ${JSON.stringify(util.getData("userWhiteUIDArr"))},
+    "标题黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("titleKeyArr"))},
+    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("commentOnKeyArr"))},
+    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(util.getData("fanCardArr"))},
+    "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("contentColumnKeyArr"))},
     "视频参数": {
-        "时长最小值": ${filterSMin},
-        "时长最大值": ${videoDurationMax},
-        "播放量最小值": ${broadcastMin},
-        "播放量最大值": ${broadcastMax},
-        "弹幕量最小值": ${barrageQuantityMin},
-        "弹幕量最大值": ${barrageQuantityMax},
+        "时长最小值": ${util.getData("filterSMin")},
+        "时长最大值": ${util.getData("filterSMax")},
+        "播放量最小值": ${util.getData("broadcastMin")},
+        "播放量最大值": ${util.getData("broadcastMax")},
+        "弹幕量最小值": ${util.getData("barrageQuantityMin")},
+        "弹幕量最大值": ${util.getData("barrageQuantityMax")},
         "是否允许b站自动播放视频": null,
         "视频播放速度": null,
         "是否移除播放页右侧的的布局": null,
@@ -920,19 +923,6 @@ const util = {
         "是否移除直播水印": null
     }
     }`;
-    },
-    //获取格式化规则的内容
-    getUrleToStringFormat: function () {
-        return this.getRuleFormatStr(util.getData("userNameArr"), util.getData("userNameKeyArr"), util.getData("userUIDArr"), util.getData("userWhiteUIDArr"),
-            util.getData("titleKeyArr"), util.getData("commentOnKeyArr"), util.getData("fanCardArr"), util.getData("contentColumnKeyArr"), util.getData("filterSMin"),
-            util.getData("filterSMax"), util.getData("broadcastMin"),util.getData("broadcastMax"),util.getData("barrageQuantityMin"), util.getData("barrageQuantityMax"));
-    },
-    /**
-     * 打印内存变量中的规则信息
-     * @returns {string}
-     */
-    getRuleInternalStorage: function () {
-        return "未定"
     },
     /**
      * 设置页面播放器的播放速度
@@ -2047,13 +2037,6 @@ const layout = {
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
-          
-          <div>
-  <h1>测试</h1>
-  <button id="writeData">写入数据</button>
-  <button id="readData">读取数据</button>
-</div>
-          
             <div>
               <h1>面板设置</h1>
               <div>
@@ -2482,7 +2465,6 @@ function hideDisplayHomeLaylout() {
 (function () {
     'use strict';
     let href = util.getWindowUrl();
-    util.print("当前网页url= " + href);
     console.log("当前网页url=" + href);
     //加载布局
     layout.loading.home();
@@ -2501,10 +2483,10 @@ function hideDisplayHomeLaylout() {
         "border-radius": "50%"
     });
 
-
     document.getElementById("mybut").addEventListener("click", function () {
         hideDisplayHomeLaylout();
     })
+
 
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
@@ -2891,20 +2873,19 @@ function hideDisplayHomeLaylout() {
 
 //点击导出规则事件
     $("#outFIleRule").click(() => {
-        fileDownload(util.getUrleToStringFormat(), "规则.json");
+        fileDownload(util.getRuleFormatStr(), "规则.json");
     });
 
 
     $("#outRuleCopy").click(function () {//导出到剪切板
-        util.copyToClip(util.getUrleToStringFormat());
+        util.copyToClip(util.getRuleFormatStr());
     })
 
 
 //打印当前页面规则信息
     $("#butPrintAllInfo").click(() => {
-        util.print(util.getUrleToStringFormat());
+        util.print(util.getRuleFormatStr());
     })
-
 
 
     //导入规则按钮事件
