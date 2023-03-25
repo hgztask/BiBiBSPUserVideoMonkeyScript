@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.13
+// @version      1.1.14
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -857,8 +857,14 @@ const util = {
     toTimeString: function () {
         return new Date().toLocaleString();
     },
-    print: function name(strContent) {
-        $("#outputInfo").prepend(`<span>${this.toTimeString() + "\t\t" + strContent}</span><hr>`);
+    printElement: function (id, element) {
+        $(id).prepend(element);
+    },
+    print: function (strContent) {
+        this.printElement("#outputInfo", `<span>${this.toTimeString() + "\t\t" + strContent}</span><hr>`)
+    },
+    printRGBB: function (color, strContent) {
+        this.printElement("#outputInfo", `<b style="color: ${color}; ">${this.toTimeString() + "\t\t" + strContent}</b><hr>`)
     },
     //获取格式化规则的内容
     getRuleFormatStr: function () {
@@ -1045,7 +1051,7 @@ const urleCrud = {
     add: function (arr, key, rule) {
         arr.push(key);
         util.setData(rule, arr);
-        util.print("已添加该值=" + key)
+        util.printRGBB("＃006400",`添加${rule}的值成功=${key}`);
     },
     /**
      * 批量添加，要求以数组形式
@@ -1195,7 +1201,7 @@ const butLayEvent = {
         }
         arrayList.splice(index, 1, newKey);
         util.setData(ruleStr, arrayList);
-        util.print("替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
+        util.printRGBB("green","替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
     }
 }
 
@@ -1214,12 +1220,12 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     }
     const key = shield.contentKey(element, content);
     if (key != null) {
-        util.print("已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        util.printRGBB("#00BFFF","已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isUid = shield.uid(element, uid);
     if (isUid) {
-        util.print("已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        util.printRGBB("yellow","已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isName = shield.name(element, name);
@@ -1257,7 +1263,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     if (uid !== null) {
         const isUid = shield.uid(element, uid);
         if (isUid) {
-            util.print("已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+            util.printRGBB("yellow","已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
     }
@@ -1273,7 +1279,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     }
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
-        util.print("已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        util.printRGBB("#66CCCC","已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
@@ -2114,7 +2120,7 @@ const layout = {
            <button id="flipVertical">垂直翻转</button>
            <div>
             自定义角度
-            <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
+            <input id="axleRange" type="range" value="0" min="-180" max="180" step="1"><span id="axleSpan">0%</span>
            </div>
             <h3>其他</h3>
             <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
@@ -2127,6 +2133,9 @@ const layout = {
               <option value="barrageQuantityMax">弹幕量最大值</option>
             </select>
             <button id="butSelectVideo">确定</button>
+             <div>
+              <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
+            </div>
             <hr>
             <div>
               <h1>规则导入导出</h1>
@@ -2194,11 +2203,11 @@ const layout = {
         </p>
         <p>
           用户名：
-         <span id="nameSuspensionDiv">测试用户名</span>
+         <span id="nameSuspensionDiv"></span>
         </p>
         <p>
           用户UID：
-          <span id="uidSuspensionDiv">1433223</span>
+          <span id="uidSuspensionDiv"></span>
         </p>
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
@@ -2484,7 +2493,6 @@ function hideDisplayHomeLaylout() {
     document.getElementById("mybut").addEventListener("click", function () {
         hideDisplayHomeLaylout();
     })
-
 
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
