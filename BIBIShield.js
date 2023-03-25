@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.14
+// @version      1.1.15
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -24,7 +24,7 @@
 // @match        *://live.bilibili.com/p/eden/area-tags?*
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/opus/*
-// @match        https://www.bilibili.com/
+// @match        *://www.bilibili.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        GM_setValue
@@ -1051,7 +1051,7 @@ const urleCrud = {
     add: function (arr, key, rule) {
         arr.push(key);
         util.setData(rule, arr);
-        util.printRGBB("＃006400",`添加${rule}的值成功=${key}`);
+        util.printRGBB("#006400",`添加${rule}的值成功=${key}`);
     },
     /**
      * 批量添加，要求以数组形式
@@ -3131,7 +3131,7 @@ function bilibili(href) {
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         subjectOfATalk.deltopIC();
     }
-    if (href === "https://www.bilibili.com/") { //首页
+    if (href === "https://www.bilibili.com/"||href.includes("www.bilibili.com/?spm_id_from")) { //首页
         home.startShieldLeftPic();
         home.stypeBody();
         if (paletteButtionBool) {
