@@ -155,12 +155,8 @@ const rule = {
 
     }
 }
-//===========================================上面的的相关参数用户可以执行修改=========================================================================
 
-//是否屏蔽首页=左侧大图的轮播图,反之false
-const homePicBool = true;
-//是否屏蔽首页右侧悬浮的按钮，其中包含反馈，内测等等之类的,反之false
-const paletteButtionBool = true;
+
 //是否隐藏了面板
 let myidClickIndex = true;
 const home = {
@@ -216,16 +212,14 @@ const home = {
     },
     //屏蔽首页左侧的轮播大图
     startShieldLeftPic: function () {
-        if (homePicBool) {
-            const interval = setInterval(() => {
-                try {
-                    document.getElementsByClassName("recommended-swipe grid-anchor")[0].style.display = "none"
-                    util.print("执行了屏蔽首页轮播图")
-                    clearInterval(interval);
-                } catch (e) {
-                }
-            }, 1000);
-        }
+        const interval = setInterval(() => {
+            try {
+                document.getElementsByClassName("recommended-swipe grid-anchor")[0].style.display = "none"
+                util.print("执行了屏蔽首页轮播图")
+                clearInterval(interval);
+            } catch (e) {
+            }
+        }, 1000);
     },
     //屏蔽首页顶部推荐视频
     startShieldVideoTop: function () {
@@ -1051,7 +1045,7 @@ const urleCrud = {
     add: function (arr, key, rule) {
         arr.push(key);
         util.setData(rule, arr);
-        util.printRGBB("#006400",`添加${rule}的值成功=${key}`);
+        util.printRGBB("#006400", `添加${rule}的值成功=${key}`);
     },
     /**
      * 批量添加，要求以数组形式
@@ -1201,7 +1195,7 @@ const butLayEvent = {
         }
         arrayList.splice(index, 1, newKey);
         util.setData(ruleStr, arrayList);
-        util.printRGBB("green","替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
+        util.printRGBB("green", "替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
     }
 }
 
@@ -1220,12 +1214,12 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     }
     const key = shield.contentKey(element, content);
     if (key != null) {
-        util.printRGBB("#00BFFF","已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        util.printRGBB("#00BFFF", "已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isUid = shield.uid(element, uid);
     if (isUid) {
-        util.printRGBB("yellow","已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        util.printRGBB("yellow", "已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     const isName = shield.name(element, name);
@@ -1263,7 +1257,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     if (uid !== null) {
         const isUid = shield.uid(element, uid);
         if (isUid) {
-            util.printRGBB("yellow","已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+            util.printRGBB("yellow", "已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
     }
@@ -1279,7 +1273,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     }
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
-        util.printRGBB("#66CCCC","已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        util.printRGBB("#66CCCC", "已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
@@ -3131,14 +3125,12 @@ function bilibili(href) {
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         subjectOfATalk.deltopIC();
     }
-    if (href === "https://www.bilibili.com/"||href.includes("www.bilibili.com/?spm_id_from")) { //首页
+    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from")) { //首页
         home.startShieldLeftPic();
         home.stypeBody();
-        if (paletteButtionBool) {
-            setTimeout(() => {
-                document.getElementsByClassName("palette-button-wrap")[0].style.display = "none";
-            }, 2000);
-        }
+        setTimeout(() => {
+            document.getElementsByClassName("palette-button-wrap")[0].style.display = "none";
+        }, 2000);
         document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__banner").remove()//删除首页顶部的图片位置的布局
         document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
         const interval = setInterval(() => {
