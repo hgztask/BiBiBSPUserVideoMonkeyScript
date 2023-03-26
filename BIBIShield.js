@@ -2624,7 +2624,7 @@ function hideDisplayHomeLaylout() {
     });
     $("#heightRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板高度拖动条
         const value = $("#heightRange").val();//获取值
-        $("#wheightSpan").text(value+"%");//修改对应标签的文本显示
+        $("#heightSpan").text(value+"%");//修改对应标签的文本显示
         $("#home_layout").css("height", `${value}%`);
     });
     $("#widthRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板宽度拖动条
