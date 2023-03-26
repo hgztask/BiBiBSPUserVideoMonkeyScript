@@ -2000,13 +2000,14 @@ const layout = {
             $("#home_layout").css({
                 "background": `${home.getBackgroundStr()}`,
                 "margin": "0px",
-                "height": "85%",
+                "height": "700%",
                 "width": "90%",
-                "max-height": "85%",
+                "max-height": "100%",
                 "position": "fixed",
                 "z-index": "2000",
                 "inset": "5% 5% 50%",
-                "overflow-y": "auto"
+                "overflow-y": "auto",
+                "top":"0px"
             });
             $("#gridLayout").css({
                 "display": "grid",
@@ -2041,6 +2042,16 @@ const layout = {
                 <span>背景透明度</span>
                 <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
                 <span id="backgroundPelluciditySpan">1</span>
+              </div>
+              <div>·
+                <span>高度</span>
+                <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
+                <span id="heightSpan">100%</span>
+              </div>
+               <div>
+                <span>宽度</span>
+                <input id="widthRange" type="range" value="90" min="20" max="90" step="0.1">
+                <span id="widthSpan">90%</span>
               </div>
             </div>
             <hr>
@@ -2615,6 +2626,16 @@ function hideDisplayHomeLaylout() {
         $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
         const back = home.background;
         $("#home_layout").css("background", util.getRGBA(back.r, back.g, back.b, value));
+    });
+    $("#heightRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板高度拖动条
+        const value = $("#heightRange").val();//获取值
+        $("#wheightSpan").text(value+"%");//修改对应标签的文本显示
+        $("#home_layout").css("height", `${value}%`);
+    });
+    $("#widthRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板宽度拖动条
+        const value = $("#widthRange").val();//获取值
+        $("#widthSpan").text(value+"%");//修改对应标签的文本显示
+        $("#home_layout").css("width", `${value}%`);
     });
 
 
