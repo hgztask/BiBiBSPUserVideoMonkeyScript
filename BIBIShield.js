@@ -2006,7 +2006,7 @@ const layout = {
             });
             $("#gridLayout").css({
                 "display": "grid",
-                "grid-template-columns": "50% auto"
+                "grid-template-columns": "30% auto"
             });
             $("button").css({
                 "height": "40px"
