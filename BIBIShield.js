@@ -1072,11 +1072,6 @@ const urleCrud = {
             util.print("未有该元素！")
             return;
         }
-        if (arr.length === 1) {
-            delete localStorage[rule];
-            util.print("已经删除该元素=" + key)
-            return;
-        }
         arr.splice(index, 1);
         util.setData(rule, arr);
         util.print("已经删除该元素=" + key)
