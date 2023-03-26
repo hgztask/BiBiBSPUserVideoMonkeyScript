@@ -2043,7 +2043,7 @@ const layout = {
                 <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
                 <span id="backgroundPelluciditySpan">1</span>
               </div>
-              <div>·
+              <div>
                 <span>高度</span>
                 <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
                 <span id="heightSpan">100%</span>
