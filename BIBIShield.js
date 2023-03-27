@@ -2148,7 +2148,7 @@ const layout = {
               <div>
                 导入
                 <button id="inputFIleRule">确定导入</button>
-                <button id="inputMergeUIDRule">确定合并导入UID规则</button>
+               <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
               </div>
               <textarea
                 id="ruleEditorInput"
@@ -2901,7 +2901,8 @@ function hideDisplayHomeLaylout() {
 
     //点击导出UID规则事件
     $("#outUIDFIleRule").click(() => {
-        fileDownload(JSON.stringify(util.getData("userUIDArr")), "UID规则.json");
+        const list = util.getData("userUIDArr");
+        fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
     });
 
 
@@ -2991,7 +2992,7 @@ function hideDisplayHomeLaylout() {
             return;
         }
         const data = util.getData("userUIDArr");
-        if (data === undefined || data === null || !data instanceof Array||data.length===0) {
+        if (data === undefined || data === null || !(data instanceof Array)||data.length===0) {
             if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
                 util.setData("userUIDArr",uidList);
                 alert("添加成功！")
