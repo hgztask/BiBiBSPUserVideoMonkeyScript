@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.16
+// @version      1.1.17
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2075,7 +2075,7 @@ const layout = {
                   <option value="batch">批量</option>
                 </select>
               </div>
-              <input style="width: 29%;height: 20px;" type="text" id="inputModel"  maxlength="30"/>
+              <input style="width: 42.5%;height: 20px;" type="text" id="inputModel"  maxlength="30"/>
               <textarea
                 id="inputTextAreaModel"
                 style="resize: none; width: 40%; height: 100px; display: none"
@@ -2891,7 +2891,11 @@ function hideDisplayHomeLaylout() {
 
 //点击导出规则事件
     $("#outFIleRule").click(() => {
-        fileDownload(util.getRuleFormatStr(), "规则.json");
+        let s = prompt("保存为","规则");
+        if (s.includes(" ") || s === ""||s.length===0) {
+            s="规则";
+        }
+        fileDownload(util.getRuleFormatStr(), s+".json");
     });
 
 
