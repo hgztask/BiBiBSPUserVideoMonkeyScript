@@ -2139,14 +2139,16 @@ const layout = {
             <hr>
             <div>
               <h1>规则导入导出</h1>
-              <div>
+               <div>
                 导出
-                <button id="outFIleRule">导出规则</button>
-                <button id="outRuleCopy">导出到剪贴板</button>
+                <button id="outFIleRule">导出全部规则</button>
+                <button id="outRuleCopy">导出全部规则到剪贴板</button>
+                <button id="outUIDFIleRule">导出全部UID规则</button>
               </div>
               <div>
                 导入
                 <button id="inputFIleRule">确定导入</button>
+                <button id="inputMergeUIDRule">确定合并导入UID规则</button>
               </div>
               <textarea
                 id="ruleEditorInput"
@@ -2897,6 +2899,12 @@ function hideDisplayHomeLaylout() {
         util.copyToClip(util.getRuleFormatStr());
     })
 
+    //点击导出UID规则事件
+    $("#outUIDFIleRule").click(() => {
+        fileDownload(JSON.stringify(util.getData("userUIDArr")), "UID规则.json");
+    });
+
+
 
 //打印当前页面规则信息
     $("#butPrintAllInfo").click(() => {
@@ -2955,6 +2963,55 @@ function hideDisplayHomeLaylout() {
             util.setData("contentColumnKeyArr", list);
         }
         util.print("已导入");
+    })
+
+
+    $("#inputMergeUIDRule").click(function () {
+        const content = $("#ruleEditorInput").val();
+        let uidList;
+        try {
+            uidList = JSON.parse(content)
+            if (!(uidList instanceof Array)) {
+                throw new Error();
+            }
+        } catch (e) {
+            alert("类型错误，导入的内容不是jsoN")
+            return;
+        }
+        for (let i = 0; i < uidList.length; i++) {
+            try {
+                uidList[i] = parseInt(uidList[i]);
+            } catch (e) {
+                alert("数组中存在非数字内容")
+                return;
+            }
+        }
+        if (uidList.length === 0) {
+            alert("该数组长度为0！")
+            return;
+        }
+        const data = util.getData("userUIDArr");
+        if (data === undefined || data === null || !data instanceof Array||data.length===0) {
+            if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
+                util.setData("userUIDArr",uidList);
+                alert("添加成功！")
+            }
+            return;
+        }
+        let index=0;
+        for (const v of uidList) {
+            if (data.includes(v)) {
+                continue;
+            }
+            index++;
+            data.push(v);
+        }
+        if (index === 0) {
+            alert("内容没有变化！，可能是原先的规则里已经有了");
+            return;
+        }
+        alert(`已新增${index}个UID规则`);
+        util.setData("userUIDArr",data);
     })
 
 
