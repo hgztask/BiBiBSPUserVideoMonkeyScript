@@ -1128,7 +1128,7 @@ const butLayEvent = {
             util.print("没有内容哟")
             return;
         }
-        if (isNumber===true) {
+        if (isNumber === true) {
             contentV = parseInt(contentV);
         }
         if (!arrayList.includes(contentV)) {
@@ -2104,8 +2104,9 @@ const layout = {
             <div>
               <h3>视频播放速度</h3>
             拖动更改页面视频播放速度
-              <input id="rangePlaySpeed" type="range" value="voice" min="0.1" max="16" step="0.01">
+              <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
               <span id="playbackSpeed">1.0x</span>
+               <button id="preservePlaySpeed">保存</button>
               <div>固定视频播放速度值
                 <select id="playbackSpeedModel">
                   <option value="1">1.0x</option>
@@ -2118,6 +2119,7 @@ const layout = {
                 <option value="1.5">1.5x</option>
                 <option value="2">2x</option>
               </select>
+              <button id="preservePlaybackSpeedModel">保存</button>
             </div>
             </div>
             <h3>播放画面翻转</h3>
@@ -2576,6 +2578,19 @@ function hideDisplayHomeLaylout() {
     });
 
 
+    $("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
+        const val = $('#playbackSpeedModel').val();
+        util.setData("playbackSpeed", parseFloat(val));
+        util.print("已保存播放速度数据=" + val);
+    });
+
+    $("#preservePlaySpeed").click(() => {//保存拖动条中的值的播放数据
+        const val = $("#rangePlaySpeed").val();
+        util.setData("rangePlaySpeed", parseFloat(val));
+        util.print("已保存播放速度数据=" + val);
+    });
+
+
     $("#flipHorizontal").click(function () {//水平翻转视频
         const videoData = rule.videoData;
         if (videoData.flipHorizontal) {
@@ -2766,7 +2781,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butDelName("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butDelName("userUIDArr", content,true);
+                butLayEvent.butDelName("userUIDArr", content, true);
                 break;
             case "bName":
                 butLayEvent.butDelName("userWhiteUIDArr", content);
@@ -3080,12 +3095,19 @@ function bilibili(href) {
                     videoElement.pause();
                     util.print("已自动暂定视频播放");
                 }
-                const playbackSpeed = videoData.playbackSpeed;
-                if (playbackSpeed !== 0) {
+                function setVideoSpeedInfo() {
+                    const data = util.getData("playbackSpeed");
+                    if (data === undefined) {
+                        return;
+                    }
+                    if (data === 0 || data < 0.1) {
+                        return;
+                    }
                     //播放视频速度
-                    videoElement.playbackRate = playbackSpeed;
-                    util.print("已设置播放器的速度=" + playbackSpeed);
+                    videoElement.playbackRate = data;
+                    util.print("已设置播放器的速度=" + data);
                 }
+                setVideoSpeedInfo();
                 videoElement.addEventListener('ended', () => {//播放器结束之后事件
                     util.print("播放结束");
                     if (videoData.isVideoEndRecommend) {
