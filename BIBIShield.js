@@ -41,6 +41,7 @@ const rule = {
                 $(id).text(arr.length);
             }
         }
+
         setText(util.getData("userNameArr"), "#textUserName");
         setText(util.getData("userNameKeyArr"), "#textUserNameKey");
         setText(util.getData("userUIDArr"), "#textUserUID");
@@ -2163,30 +2164,30 @@ const layout = {
             </div>
             <hr>
             <div>
-              <h1>规则信息</h1>
+                <h1>规则信息</h1>
               <p>用户名黑名单模式(精确匹配)个数:
-                <span id="textUserName"></span>个
+                <span id="textUserName" style="color: yellow;"></span>个
               </p>  
               <p>用户名黑名单模式(模糊匹配)个数:
-                <span id="textUserNameKey"></span>个
+                <span id="textUserNameKey" style="color: yellow;"></span>个
               </p>
               <p>用户uid黑名单模式(精确匹配)个数:
-                <span id="textUserUID"></span>个
+                <span id="textUserUID" style="color: yellow;"></span>个
               </p>
               <p>用户白名单模式(精确匹配)个数:
-                <span id="textUserBName"></span>个
+                <span id="textUserBName" style="color: yellow;"></span>个
               </p>
               <p>标题黑名单模式(模糊匹配)个数:
-                <span id="textUserTitle"></span>个
+                <span id="textUserTitle" style="color: yellow;"></span>个
               </p>
               <p>评论关键词黑名单模式(模糊匹配)个数:
-                <span id="textContentOn"></span>个
+                <span id="textContentOn"style="color: yellow;"></span>个
               </p>
               <p>粉丝牌黑名单模式(精确匹配)个数:
-                <span id="textFanCard"></span>个
+                <span id="textFanCard" style="color: yellow;"></span>个
               </p>
               <p>专栏关键词内容黑名单模式(模糊匹配)个数:
-              <span id="textColumn"></span>个
+              <span id="textColumn" style="color: yellow;"></span>个
               </p>
             </div>
             <hr>
@@ -2238,7 +2239,7 @@ const layout = {
           </div>
           <div>
             <h1>输出信息</h1>
-            <button>清空信息</button>
+            <button id="butClearMessage">清空信息</button>
             <div id="outputInfo">
             </div>
           </div>
