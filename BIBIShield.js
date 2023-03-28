@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.19
+// @version      1.1.20
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -34,8 +34,22 @@
 // ==/UserScript==
 
 
-//规则
 const rule = {
+    ruleLength: function () {
+        function setText(arr, id) {
+            if (arr !== undefined && arr !== null) {
+                $(id).text(arr.length);
+            }
+        }
+        setText(util.getData("userNameArr"), "#textUserName");
+        setText(util.getData("userNameKeyArr"), "#textUserNameKey");
+        setText(util.getData("userUIDArr"), "#textUserUID");
+        setText(util.getData("userWhiteUIDArr"), "#textUserBName");
+        setText(util.getData("titleKeyArr"), "#textUserTitle");
+        setText(util.getData("commentOnKeyArr"), "#textContentOn");
+        setText(util.getData("fanCardArr"), "#textFanCard");
+        setText(util.getData("contentColumnKeyArr"), "#textColumn");
+    },
     //视频参数
     videoData: {
         /**
@@ -1040,20 +1054,21 @@ const urleCrud = {
      * 单个元素进行添加
      * @param {Array} arr
      * @param {String,number} key
-     * @param {String} rule
+     * @param {String} ruleStrName
      */
-    add: function (arr, key, rule) {
+    add: function (arr, key, ruleStrName) {
         arr.push(key);
-        util.setData(rule, arr);
-        util.printRGBB("#006400", `添加${rule}的值成功=${key}`);
+        util.setData(ruleStrName, arr);
+        util.printRGBB("#006400", `添加${ruleStrName}的值成功=${key}`);
+        rule.ruleLength();
     },
     /**
      * 批量添加，要求以数组形式
      * @param {Array} arr
      * @param {Array} key
-     * @param rule
+     * @param ruleStrName
      */
-    addAll: function (arr, key, rule) {
+    addAll: function (arr, key, ruleStrName) {
         const setList = new Set(arr);
         const setListLength = setList.size;
         for (const v of key) {
@@ -1063,18 +1078,20 @@ const urleCrud = {
             util.print("内容长度无变化，可能是已经有了的值")
             return;
         }
-        util.setData(rule, Array.from(setList));
+        util.setData(ruleStrName, Array.from(setList));
         util.print("已添加该值=" + key)
+        rule.ruleLength();
     },
-    del: function (arr, key, rule) {
+    del: function (arr, key, ruleStrName) {
         const index = arr.indexOf(key);
         if (index === -1) {
             util.print("未有该元素！")
             return;
         }
         arr.splice(index, 1);
-        util.setData(rule, arr);
-        util.print("已经删除该元素=" + key)
+        util.setData(ruleStrName, arr);
+        util.print("已经删除该元素=" + key);
+        rule.ruleLength();
     }
 
 }
@@ -2032,10 +2049,11 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-      <!-- 分割home_layout -->
+       <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
+
             <div>
               <h1>面板设置</h1>
               <div>
@@ -2048,7 +2066,7 @@ const layout = {
                 <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
                 <span id="heightSpan">100%</span>
               </div>
-               <div>
+              <div>
                 <span>宽度</span>
                 <input id="widthRange" type="range" value="90" min="20" max="90" step="0.1">
                 <span id="widthSpan">90%</span>
@@ -2096,7 +2114,7 @@ const layout = {
                 <button id="butdelAll" style="display: none">全部删除</button>
                 <button id="butSet">修改</button>
                 <button id="butFind">查询</button>
-                <button id="butPrintAllInfo">打印规则信息</button> 
+                <button id="butPrintAllInfo">打印规则信息</button>
               </div>
             </div>
             <hr>
@@ -2105,8 +2123,8 @@ const layout = {
               <h3>视频播放速度</h3>
             拖动更改页面视频播放速度
               <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
-              <span id="playbackSpeed">1.0x</span>
-               <button id="preservePlaySpeed">保存</button>
+              <span id="playbackSpeedModel">1.0x</span>
+              <button id="preservePlaySpeed">保存</button>
               <div>固定视频播放速度值
                 <select id="playbackSpeedModel">
                   <option value="1">1.0x</option>
@@ -2127,9 +2145,9 @@ const layout = {
            <button id="flipVertical">垂直翻转</button>
            <div>
             自定义角度
-            <input id="axleRange" type="range" value="0" min="-180" max="180" step="1"><span id="axleSpan">0%</span>
+            <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
            </div>
-            <h3>其他</h3>
+           <h3>其他</h3>
             <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
             <select id="selectVideo">
               <option value="filterSMin">时长最小值(单位秒)</option>
@@ -2140,13 +2158,41 @@ const layout = {
               <option value="barrageQuantityMax">弹幕量最大值</option>
             </select>
             <button id="butSelectVideo">确定</button>
-             <div>
+            <div>
               <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
             </div>
             <hr>
             <div>
+              <h1>规则信息</h1>
+              <p>用户名黑名单模式(精确匹配)个数:
+                <span id="textUserName"></span>个
+              </p>  
+              <p>用户名黑名单模式(模糊匹配)个数:
+                <span id="textUserNameKey"></span>个
+              </p>
+              <p>用户uid黑名单模式(精确匹配)个数:
+                <span id="textUserUID"></span>个
+              </p>
+              <p>用户白名单模式(精确匹配)个数:
+                <span id="textUserBName"></span>个
+              </p>
+              <p>标题黑名单模式(模糊匹配)个数:
+                <span id="textUserTitle"></span>个
+              </p>
+              <p>评论关键词黑名单模式(模糊匹配)个数:
+                <span id="textContentOn"></span>个
+              </p>
+              <p>粉丝牌黑名单模式(精确匹配)个数:
+                <span id="textFanCard"></span>个
+              </p>
+              <p>专栏关键词内容黑名单模式(模糊匹配)个数:
+              <span id="textColumn"></span>个
+              </p>
+            </div>
+            <hr>
+            <div>
               <h1>规则导入导出</h1>
-               <div>
+              <div>
                 导出
                 <button id="outFIleRule">导出全部规则</button>
                 <button id="outRuleCopy">导出全部规则到剪贴板</button>
@@ -2155,7 +2201,7 @@ const layout = {
               <div>
                 导入
                 <button id="inputFIleRule">确定导入</button>
-               <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
+                <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
               </div>
               <textarea
                 id="ruleEditorInput"
@@ -2192,7 +2238,7 @@ const layout = {
           </div>
           <div>
             <h1>输出信息</h1>
-            <button id="butClearMessage">清空信息</button>
+            <button>清空信息</button>
             <div id="outputInfo">
             </div>
           </div>
@@ -2498,6 +2544,9 @@ function hideDisplayHomeLaylout() {
         "border": "none",
         "border-radius": "50%"
     });
+
+
+    rule.ruleLength();
 
     document.getElementById("mybut").addEventListener("click", function () {
         hideDisplayHomeLaylout();
@@ -3095,6 +3144,7 @@ function bilibili(href) {
                     videoElement.pause();
                     util.print("已自动暂定视频播放");
                 }
+
                 function setVideoSpeedInfo() {
                     const data = util.getData("playbackSpeed");
                     if (data === undefined) {
@@ -3107,6 +3157,7 @@ function bilibili(href) {
                     videoElement.playbackRate = data;
                     util.print("已设置播放器的速度=" + data);
                 }
+
                 setVideoSpeedInfo();
                 videoElement.addEventListener('ended', () => {//播放器结束之后事件
                     util.print("播放结束");
