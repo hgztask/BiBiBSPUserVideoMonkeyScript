@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.20
+// @version      1.1.21
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2181,7 +2181,7 @@ const layout = {
                 <span id="textUserTitle" style="color: yellow;"></span>个
               </p>
               <p>评论关键词黑名单模式(模糊匹配)个数:
-                <span id="textContentOn"style="color: yellow;"></span>个
+                <span id="textContentOn" style="color: yellow;"></span>个
               </p>
               <p>粉丝牌黑名单模式(精确匹配)个数:
                 <span id="textFanCard" style="color: yellow;"></span>个
