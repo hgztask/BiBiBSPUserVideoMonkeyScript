@@ -2619,7 +2619,7 @@ function hideDisplayHomeLaylout() {
     $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
         const vaule = $("#rangePlaySpeed").val();//获取值
         util.setVideoBackSpeed(vaule);
-        $("#playbackSpeed").text(vaule + "x");//修改对应标签的文本显示
+        $("#playbackSpeedModel").text(vaule + "x");//修改对应标签的文本显示
     });
 
 
