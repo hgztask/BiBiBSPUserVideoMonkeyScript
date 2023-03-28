@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.17
+// @version      1.1.18
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -1118,7 +1118,7 @@ const butLayEvent = {
         }
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
-    butDelName: function (ruleStr, contentV) {
+    butDelName: function (ruleStr, contentV, isNumber) {
         if (contentV === '' || contentV.includes(" ")) {
             util.print("请输入正确的内容")
             return;
@@ -1128,10 +1128,15 @@ const butLayEvent = {
             util.print("没有内容哟")
             return;
         }
+        if (isNumber===true) {
+            contentV = parseInt(contentV);
+        }
         if (!arrayList.includes(contentV)) {
             util.print("没有该内容哟=" + contentV)
             return;
         }
+
+
         urleCrud.del(arrayList, contentV, ruleStr);
     },
     butDelAllName: function (ruleStr) {
@@ -2002,7 +2007,7 @@ const layout = {
                 "z-index": "2000",
                 "inset": "5% 5% 50%",
                 "overflow-y": "auto",
-                "top":"0px"
+                "top": "0px"
             });
             $("#gridLayout").css({
                 "display": "grid",
@@ -2626,12 +2631,12 @@ function hideDisplayHomeLaylout() {
     });
     $("#heightRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板高度拖动条
         const value = $("#heightRange").val();//获取值
-        $("#heightSpan").text(value+"%");//修改对应标签的文本显示
+        $("#heightSpan").text(value + "%");//修改对应标签的文本显示
         $("#home_layout").css("height", `${value}%`);
     });
     $("#widthRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板宽度拖动条
         const value = $("#widthRange").val();//获取值
-        $("#widthSpan").text(value+"%");//修改对应标签的文本显示
+        $("#widthSpan").text(value + "%");//修改对应标签的文本显示
         $("#home_layout").css("width", `${value}%`);
     });
 
@@ -2761,7 +2766,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butDelName("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butDelName("userUIDArr", content);
+                butLayEvent.butDelName("userUIDArr", content,true);
                 break;
             case "bName":
                 butLayEvent.butDelName("userWhiteUIDArr", content);
@@ -2891,11 +2896,11 @@ function hideDisplayHomeLaylout() {
 
 //点击导出规则事件
     $("#outFIleRule").click(() => {
-        let s = prompt("保存为","规则");
-        if (s.includes(" ") || s === ""||s.length===0) {
-            s="规则";
+        let s = prompt("保存为", "规则");
+        if (s.includes(" ") || s === "" || s.length === 0) {
+            s = "规则";
         }
-        fileDownload(util.getRuleFormatStr(), s+".json");
+        fileDownload(util.getRuleFormatStr(), s + ".json");
     });
 
 
@@ -2908,7 +2913,6 @@ function hideDisplayHomeLaylout() {
         const list = util.getData("userUIDArr");
         fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
     });
-
 
 
 //打印当前页面规则信息
@@ -2996,14 +3000,14 @@ function hideDisplayHomeLaylout() {
             return;
         }
         const data = util.getData("userUIDArr");
-        if (data === undefined || data === null || !(data instanceof Array)||data.length===0) {
+        if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
             if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
-                util.setData("userUIDArr",uidList);
+                util.setData("userUIDArr", uidList);
                 alert("添加成功！")
             }
             return;
         }
-        let index=0;
+        let index = 0;
         for (const v of uidList) {
             if (data.includes(v)) {
                 continue;
@@ -3016,7 +3020,7 @@ function hideDisplayHomeLaylout() {
             return;
         }
         alert(`已新增${index}个UID规则`);
-        util.setData("userUIDArr",data);
+        util.setData("userUIDArr", data);
     })
 
 
