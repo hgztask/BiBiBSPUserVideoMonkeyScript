@@ -2088,7 +2088,7 @@ const layout = {
                 <span id="widthSpan">90%</span>
               </div>
             </div>
-            <h2>快捷相符面板</h2>
+            <h2>快捷悬浮面板</h2>
 <span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键2可隐藏该快捷悬浮屏蔽面板)
             <hr>
             <div>
