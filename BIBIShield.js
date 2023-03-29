@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.22
+// @version      1.1.23
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -51,13 +51,20 @@ const rule = {
         setText(util.getData("fanCardArr"), "#textFanCard");
         setText(util.getData("contentColumnKeyArr"), "#textColumn");
     },
-    showInfo:function () {
+    showInfo: function () {
         const isDShielPanel = util.getData("isDShielPanel");
+        const isAutoPlay = util.getData("autoPlay");
         const dShielPanel = $("#DShielPanel");
+        const autoPlayCheckbox = $("#autoPlayCheckbox");
         if (isDShielPanel === null || isDShielPanel === undefined) {
-           dShielPanel.attr("checked",false);
-        }else {
-        dShielPanel.attr("checked",isDShielPanel);
+            dShielPanel.attr("checked", false);
+        } else {
+            dShielPanel.attr("checked", isDShielPanel);
+        }
+        if (isAutoPlay === null || isAutoPlay === undefined) {
+            autoPlayCheckbox.attr("checked", false);
+        } else {
+            autoPlayCheckbox.attr("checked", isAutoPlay);
         }
 
 
@@ -92,10 +99,6 @@ const rule = {
         barrageQuantityMin: 0,
         //设置弹幕量最大值，为0则不生效
         barrageQuantityMax: 0,
-        //是否允许b站视频自动播放
-        autoPlay: false,
-        //控制视频播放速度
-        playbackSpeed: 0,
         //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
         isRhgthlayout: false,
         //是否要移除右侧播放页的视频列表
@@ -598,7 +601,7 @@ function delDReplay() {
         }
         userData.userInfo.onmouseenter = (e) => {
             const element = e.srcElement;
-            util.showSDPanel(e,element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"))
+            util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"))
         };
         const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
         for (let j of replyItem) {
@@ -608,7 +611,7 @@ function delDReplay() {
             }
             j.onmouseenter = (e) => {
                 const element = e.srcElement;
-                util.showSDPanel(e,element.getElementsByClassName("name")[0].textContent,element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
+                util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
             };
 
 
@@ -1057,8 +1060,8 @@ const util = {
      * @param name 用户名
      * @param uid uid
      */
-    showSDPanel: function (e,name, uid) {
-        const newVar =util.getData("isDShielPanel");
+    showSDPanel: function (e, name, uid) {
+        const newVar = util.getData("isDShielPanel");
         if (newVar) {
             return;
         }
@@ -1547,7 +1550,7 @@ const frequencyChannel = {
                 element.onmouseenter = (e) => {
                     const element = e.srcElement;
                     const data = getChannelVideoRules(element);
-                    util.showSDPanel(e,data.upName,data.uid);
+                    util.showSDPanel(e, data.upName, data.uid);
                 };
                 element.style.margin = "0px 5px 0px 0px";//设置元素边距
                 const data = getChannelVideoRules(element);
@@ -1939,7 +1942,7 @@ const search = {
                 }
                 v.parentNode.onmouseenter = (e) => {
                     const data = search.getDataV(e.srcElement);
-                    util.showSDPanel(e,data.name,data.uid);
+                    util.showSDPanel(e, data.name, data.uid);
                 };
             } catch (e) {
                 v.parentNode.remove();
@@ -2138,6 +2141,7 @@ const layout = {
             <hr>
             <h2>视频参数</h2>
             <div>
+            <span>禁止打开b站视频时的自动播放</span><input type="checkbox" id="autoPlayCheckbox">
               <h3>视频播放速度</h3>
             拖动更改页面视频播放速度
               <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
@@ -2342,7 +2346,7 @@ function perf_observer(list, observer) {
                 v.onmouseenter = (e) => {
                     const element = e.srcElement;
                     const data = getVideoCommentAreaOrTrendsLandlord(element);
-                    util.showSDPanel(e,data.name,data.uid);
+                    util.showSDPanel(e, data.name, data.uid);
                 };
                 for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
                     const data = getVideoCommentAreaOrTrendsStorey(j);
@@ -2352,7 +2356,7 @@ function perf_observer(list, observer) {
                     j.onmouseenter = (e) => {
                         const element = e.srcElement;
                         const data = getVideoCommentAreaOrTrendsStorey(element);
-                        util.showSDPanel(e,data.name,data.uid);
+                        util.showSDPanel(e, data.name, data.uid);
                     };
                 }
             }
@@ -2577,7 +2581,6 @@ function hideDisplayHomeLaylout() {
         if (keycode === 50) {//隐藏快捷悬浮屏蔽按钮 键盘上的2
             $("#suspensionDiv").css("display", "none");
         }
-
     });
 
 
@@ -2718,7 +2721,11 @@ function hideDisplayHomeLaylout() {
 
 
     $("#DShielPanel").click(() => {//点击禁用快捷悬浮屏蔽面板自动显示
-        util.setData("isDShielPanel",$("#DShielPanel").is(":checked"));
+        util.setData("isDShielPanel", $("#DShielPanel").is(":checked"));
+    });
+
+    $("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
+        util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
     });
 
 
@@ -3139,6 +3146,7 @@ function hideDisplayHomeLaylout() {
         console.log("页面url发生变化了，原=" + href + " 现=" + tempUrl);
         href = tempUrl;//更新url
         ruleList(href);//网页url发生变化时执行
+        bilibili(href);
     }, 1000);
 
     if (href.includes("bilibili.com")) {
@@ -3157,10 +3165,25 @@ function bilibili(href) {
                     return;
                 }
                 clearInterval(interval);
-                if (videoData.autoPlay === false) {
-                    videoElement.pause();
-                    util.print("已自动暂定视频播放");
+                const autoPlay = util.getData("autoPlay");
+                if (autoPlay === true) {
+                    const intervalAutoPlay = setInterval(() => {
+                        const au = $("input[aria-label='自动开播']");
+                        if (au.length === 0) {
+                            return;
+                        }
+                        videoElement.pause();
+                        if (au.is(":checked")) {
+                            au.attr("checked", false);
+                            console.log(au.is(":checked"));
+                        } else {
+                            clearInterval(intervalAutoPlay);
+                            console.log("退出intervalAutoPlay")
+                            console.log("已自动暂定视频播放");
+                        }
+                    }, 800);
                 }
+
                 function setVideoSpeedInfo() {
                     const data = util.getData("playbackSpeed");
                     if (data === undefined) {
@@ -3206,7 +3229,7 @@ function bilibili(href) {
         upInfo.onmouseenter = (e) => {
             const element = e.srcElement;
             const adHref = element.href;
-            util.showSDPanel(e,element.text.trim(),adHref.substring(adHref.lastIndexOf("/") + 1));
+            util.showSDPanel(e, element.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
         };
 
         //click_playerCtrlWhid();
