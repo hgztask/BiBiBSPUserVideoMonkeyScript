@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.21
+// @version      1.1.22
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -50,6 +50,17 @@ const rule = {
         setText(util.getData("commentOnKeyArr"), "#textContentOn");
         setText(util.getData("fanCardArr"), "#textFanCard");
         setText(util.getData("contentColumnKeyArr"), "#textColumn");
+    },
+    showInfo:function () {
+        const isDShielPanel = util.getData("isDShielPanel");
+        const dShielPanel = $("#DShielPanel");
+        if (isDShielPanel === null || isDShielPanel === undefined) {
+           dShielPanel.attr("checked",false);
+        }else {
+        dShielPanel.attr("checked",isDShielPanel);
+        }
+
+
     },
     //视频参数
     videoData: {
@@ -587,12 +598,7 @@ function delDReplay() {
         }
         userData.userInfo.onmouseenter = (e) => {
             const element = e.srcElement;
-            const uid = element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid");
-            const name = element.getElementsByClassName("name")[0].textContent;
-            $("#nameSuspensionDiv").text(name);
-            $("#uidSuspensionDiv").text(uid);
-            util.updateLocation(e);
-            $("#suspensionDiv").css("display", "inline-block");
+            util.showSDPanel(e,element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"))
         };
         const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
         for (let j of replyItem) {
@@ -602,12 +608,7 @@ function delDReplay() {
             }
             j.onmouseenter = (e) => {
                 const element = e.srcElement;
-                const uid = element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid");
-                const name = element.getElementsByClassName("name")[0].textContent;
-                $("#nameSuspensionDiv").text(name);
-                $("#uidSuspensionDiv").text(uid);
-                util.updateLocation(e);
-                $("#suspensionDiv").css("display", "inline-block");
+                util.showSDPanel(e,element.getElementsByClassName("name")[0].textContent,element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
             };
 
 
@@ -887,6 +888,7 @@ const util = {
     "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("commentOnKeyArr"))},
     "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(util.getData("fanCardArr"))},
     "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("contentColumnKeyArr"))},
+    "禁用快捷悬浮屏蔽面板自动显示":${util.getData("isDShielPanel")},
     "视频参数": {
         "时长最小值": ${util.getData("filterSMin")},
         "时长最大值": ${util.getData("filterSMax")},
@@ -1029,6 +1031,9 @@ const util = {
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
     },
+    dShielPanel: function () {
+
+    },
     /**
      * 获取链接的域名
      * @param url 链接
@@ -1045,6 +1050,22 @@ const util = {
         } catch (e) {
             return null;
         }
+    },
+    /**
+     * 显示屏蔽面板
+     * @param e 事件源
+     * @param name 用户名
+     * @param uid uid
+     */
+    showSDPanel: function (e,name, uid) {
+        const newVar =util.getData("isDShielPanel");
+        if (newVar) {
+            return;
+        }
+        $("#nameSuspensionDiv").text(name);
+        $("#uidSuspensionDiv").text(uid);
+        this.updateLocation(e);
+        $("#suspensionDiv").css("display", "inline-block");
     }
 }
 
@@ -1526,10 +1547,7 @@ const frequencyChannel = {
                 element.onmouseenter = (e) => {
                     const element = e.srcElement;
                     const data = getChannelVideoRules(element);
-                    $("#nameSuspensionDiv").text(data.upName);
-                    $("#uidSuspensionDiv").text(data.uid);
-                    util.updateLocation(e);
-                    $("#suspensionDiv").css("display", "inline-block");
+                    util.showSDPanel(e,data.upName,data.uid);
                 };
                 element.style.margin = "0px 5px 0px 0px";//设置元素边距
                 const data = getChannelVideoRules(element);
@@ -1921,10 +1939,7 @@ const search = {
                 }
                 v.parentNode.onmouseenter = (e) => {
                     const data = search.getDataV(e.srcElement);
-                    $("#nameSuspensionDiv").text(data.name);
-                    $("#uidSuspensionDiv").text(data.uid);
-                    util.updateLocation(e);
-                    $("#suspensionDiv").css("display", "inline-block");
+                    util.showSDPanel(e,data.name,data.uid);
                 };
             } catch (e) {
                 v.parentNode.remove();
@@ -2073,6 +2088,8 @@ const layout = {
                 <span id="widthSpan">90%</span>
               </div>
             </div>
+            <h2>快捷相符面板</h2>
+<span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键2可隐藏该快捷悬浮屏蔽面板)
             <hr>
             <div>
               <h1 style="display: inline;">规则增删改查</h1>
@@ -2325,10 +2342,7 @@ function perf_observer(list, observer) {
                 v.onmouseenter = (e) => {
                     const element = e.srcElement;
                     const data = getVideoCommentAreaOrTrendsLandlord(element);
-                    $("#nameSuspensionDiv").text(data.name);
-                    $("#uidSuspensionDiv").text(data.uid);
-                    util.updateLocation(e);
-                    $("#suspensionDiv").css("display", "inline-block");
+                    util.showSDPanel(e,data.name,data.uid);
                 };
                 for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
                     const data = getVideoCommentAreaOrTrendsStorey(j);
@@ -2338,10 +2352,7 @@ function perf_observer(list, observer) {
                     j.onmouseenter = (e) => {
                         const element = e.srcElement;
                         const data = getVideoCommentAreaOrTrendsStorey(element);
-                        $("#nameSuspensionDiv").text(data.name);
-                        $("#uidSuspensionDiv").text(data.uid);
-                        util.updateLocation(e);
-                        $("#suspensionDiv").css("display", "inline-block");
+                        util.showSDPanel(e,data.name,data.uid);
                     };
                 }
             }
@@ -2548,7 +2559,7 @@ function hideDisplayHomeLaylout() {
 
 
     rule.ruleLength();
-
+    rule.showInfo();
     document.getElementById("mybut").addEventListener("click", function () {
         hideDisplayHomeLaylout();
     })
@@ -2703,6 +2714,11 @@ function hideDisplayHomeLaylout() {
         const value = $("#widthRange").val();//获取值
         $("#widthSpan").text(value + "%");//修改对应标签的文本显示
         $("#home_layout").css("width", `${value}%`);
+    });
+
+
+    $("#DShielPanel").click(() => {//点击禁用快捷悬浮屏蔽面板自动显示
+        util.setData("isDShielPanel",$("#DShielPanel").is(":checked"));
     });
 
 
@@ -3145,7 +3161,6 @@ function bilibili(href) {
                     videoElement.pause();
                     util.print("已自动暂定视频播放");
                 }
-
                 function setVideoSpeedInfo() {
                     const data = util.getData("playbackSpeed");
                     if (data === undefined) {
@@ -3191,10 +3206,7 @@ function bilibili(href) {
         upInfo.onmouseenter = (e) => {
             const element = e.srcElement;
             const adHref = element.href;
-            $("#nameSuspensionDiv").text(element.text.trim());
-            $("#uidSuspensionDiv").text(adHref.substring(adHref.lastIndexOf("/") + 1));
-            util.updateLocation(e);
-            $("#suspensionDiv").css("display", "inline-block");
+            util.showSDPanel(e,element.text.trim(),adHref.substring(adHref.lastIndexOf("/") + 1));
         };
 
         //click_playerCtrlWhid();
