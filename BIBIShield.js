@@ -1170,7 +1170,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null||arrayList===undefined) {
+        if (arrayList === null || arrayList === undefined) {
             urleCrud.add([], contentV, ruleStr);
             return;
         }
@@ -1193,7 +1193,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null||arrayList===undefined) {
+        if (arrayList === null || arrayList === undefined) {
             urleCrud.addAll([], tempList, ruleStr);
             return;
         }
@@ -1205,7 +1205,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null||arrayList===undefined) {
+        if (arrayList === null || arrayList === undefined) {
             util.print("没有内容哟")
             return;
         }
@@ -1222,7 +1222,7 @@ const butLayEvent = {
     },
     butDelAllName: function (ruleStr) {
         const list = util.getData(ruleStr);
-        if (list=== null||list===undefined) {
+        if (list === null || list === undefined) {
             util.print("没有内容哟")
             return;
         }
@@ -1241,7 +1241,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null||arrayList===undefined) {
+        if (arrayList === null || arrayList === undefined) {
             util.print("找不到该内容！");
             return;
         }
@@ -1263,7 +1263,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null||arrayList===undefined) {
+        if (arrayList === null || arrayList === undefined) {
             util.print("找不到该内容！");
             return;
         }
@@ -1357,10 +1357,12 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
         util.printRGBB("#66CCCC", "已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        return true;
     }
     const titleKeyCanonical = shield.titleKeyCanonical(element, title);
     if (titleKeyCanonical != null) {
         util.printRGBB("#66CCCC", "已通过视频标题正则表达式=" + titleKeyCanonical + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        return true;
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
@@ -3052,13 +3054,13 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butFindKey("titleKeyArr", content);
                 break;
-                case "titleCanonical":
+            case "titleCanonical":
                 butLayEvent.butFindKey("titleKeyCanonicalArr", content);
                 break;
             case "contentOn":
                 butLayEvent.butFindKey("commentOnKeyArr", content);
                 break;
-                case "contentOnCanonical":
+            case "contentOnCanonical":
                 butLayEvent.butFindKey("contentOnKeyCanonicalArr", content);
                 break;
             case "fanCard":
