@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.25
+// @version      1.1.26
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -938,8 +938,8 @@ const util = {
         "播放量最大值": ${util.getData("broadcastMax")},
         "弹幕量最小值": ${util.getData("barrageQuantityMin")},
         "弹幕量最大值": ${util.getData("barrageQuantityMax")},
-        "是否允许b站自动播放视频": null,
-        "视频播放速度": null,
+        "是否允许b站自动播放视频": ${util.getData("autoPlay")},
+        "视频播放速度": ${util.getData("playbackSpeed")},
         "是否移除播放页右侧的的布局": null,
         "是否要移除右侧播放页的视频列表": null,
         "是否移除评论区布局": null,
@@ -3096,6 +3096,20 @@ function hideDisplayHomeLaylout() {
         fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
     });
     $("#outShieldingSettings").click(() => {//导出当前b站登录账号针对弹幕的屏蔽设定
+//已经登录b站账号的前提下，打开该api
+//https://api.bilibili.com/x/dm/filter/user
+//即可获取到该账号下的b站云端最新的屏蔽词内容
+
+//type类型
+//0 屏蔽文本
+//1 屏蔽正则
+//2 屏蔽用户
+        /**
+         * filter 规则内容
+         */
+        /**
+         *opened 是否启用
+         */
         const item = window.localStorage.getItem("bpx_player_profile");
         if (item === null || item === undefined) {
             alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
@@ -3129,9 +3143,9 @@ function hideDisplayHomeLaylout() {
 
     //导入规则按钮事件
     $("#inputFIleRule").click(function () {
-        const content = $("#ruleEditorInput").val();
+        let content = $("#ruleEditorInput").val();
         if (content === "" || content === " ") {
-            util.print("请填写正确的规则样式！");
+            alert("请填写正确的规则样式！");
             return;
         }
         const b = confirm("需要注意的是，这一步操作会覆盖你先前的规则！您确定要导入吗？");
@@ -3140,9 +3154,10 @@ function hideDisplayHomeLaylout() {
         }
         let jsonRule = [];
         try {
+            content=content.replaceAll("undefined", "null");
             jsonRule = JSON.parse(content);
         } catch (error) {
-            util.print("内容格式错误！" + error)
+            alert("内容格式错误！" + error)
             return;
         }
         let list = jsonRule["用户名黑名单模式(精确匹配)"];
