@@ -2219,6 +2219,7 @@ const layout = {
                 <button id="outFIleRule">导出全部规则</button>
                 <button id="outRuleCopy">导出全部规则到剪贴板</button>
                 <button id="outUIDFIleRule">导出全部UID规则</button>
+                 <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
               </div>
               <div>
                 导入
@@ -2540,7 +2541,7 @@ function hideDisplayHomeLaylout() {
     myidClickIndex = true;
 }
 
-(function () {
+(() => {
     'use strict';
     let href = util.getWindowUrl();
     console.log("当前网页url=" + href);
@@ -3000,6 +3001,30 @@ function hideDisplayHomeLaylout() {
     $("#outUIDFIleRule").click(() => {
         const list = util.getData("userUIDArr");
         fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
+    });
+    $("#outShieldingSettings").click(() => {//导出当前b站登录账号针对弹幕的屏蔽设定
+        const item = window.localStorage.getItem("bpx_player_profile");
+        if (item === null || item === undefined) {
+            alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
+            return;
+        }
+        const arrList = JSON.parse(item)["blockList"];
+        if (arrList === undefined || arrList === null || arrList.length === 0) {
+            alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
+            return;
+        }
+        const list=[];
+        for (const arrListElement of arrList) {
+            const type = arrListElement["type"];
+            const filter = arrListElement["filter"];
+            const opened = arrListElement["opened"];
+            const id = arrListElement["id"];
+            if (type === 2) {
+                continue;
+            }
+          list.push(arrListElement);
+        }
+        fileDownload(JSON.stringify(list),"b站账号弹幕屏蔽设定规则.json");
     });
 
 
