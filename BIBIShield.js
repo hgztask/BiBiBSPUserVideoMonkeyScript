@@ -1232,6 +1232,7 @@ const butLayEvent = {
         }
         util.delData(ruleStr);
         util.print("已全部清除=" + ruleStr);
+        rule.ruleLength();
     },
     //查询
     butFindKey: function (ruleStr, contentV) {
