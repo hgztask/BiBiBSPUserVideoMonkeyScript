@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.24
+// @version      1.1.25
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -47,7 +47,9 @@ const rule = {
         setText(util.getData("userUIDArr"), "#textUserUID");
         setText(util.getData("userWhiteUIDArr"), "#textUserBName");
         setText(util.getData("titleKeyArr"), "#textUserTitle");
+        setText(util.getData("titleKeyCanonicalArr"), "#textUserTitleCanonical");
         setText(util.getData("commentOnKeyArr"), "#textContentOn");
+        setText(util.getData("contentOnKeyCanonicalArr"), "#textContentOnCanonical");
         setText(util.getData("fanCardArr"), "#textFanCard");
         setText(util.getData("contentColumnKeyArr"), "#textColumn");
     },
@@ -347,9 +349,9 @@ const remove = {
      * 根据用户提供的字符串集合，与指定内容进行比较屏蔽，当content某个字符包含了了集合中的某个字符则返回对应的字符
      * 反之返回null
      * @param element 网页元素
-     * @param arr 字符串数组
-     * @param content 内容
-     * @returns {null|String}
+     * @param {string[]}arr 字符串数组
+     * @param {string}content 内容
+     * @returns {null|string}
      */
     shieldArrContent: function (element, arr, content) {
         if (arr === null || arr === undefined) {
@@ -361,6 +363,29 @@ const remove = {
                     element.remove();
                     return str;
                 }
+            }
+        } catch (e) {
+            return null;
+        }
+        return null;
+    },
+    /**
+     * 根据用户提供的字符串集合，与指定内容进行比较，当content某个字符包含了了集合中的某个正则匹配则返回对应的字符
+     * 反之返回null
+     * @param {string[]}arr 字符串数组
+     * @param {string}content 内容
+     * @return {null|string}
+     */
+    arrContentCanonical: function (arr, content) {
+        if (arr === null || arr === undefined) {
+            return null;
+        }
+        try {
+            for (let str of arr) {
+                if (content.search(new RegExp(str)) === -1) {
+                    continue;
+                }
+                return str;
             }
         } catch (e) {
             return null;
@@ -415,8 +440,21 @@ const shield = {
      */
     titleKey: function (element, title) {
         return remove.shieldArrContent(element, util.getData("titleKeyArr"), title)
-    }
-    ,
+    },
+    /**
+     * 根据标题屏蔽元素
+     * 正则表达式匹配模式
+     * @param element
+     * @param title
+     * @return {string|null}
+     */
+    titleKeyCanonical: function (element, title) {
+        const canonical = remove.arrContentCanonical(util.getData("titleKeyCanonicalArr"), title);
+        if (canonical !== null) {
+            element.remove();
+        }
+        return canonical;
+    },
     /**
      * 根据用户言论屏蔽元素
      * @param element
@@ -1131,7 +1169,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null) {
+        if (arrayList === null||arrayList===undefined) {
             urleCrud.add([], contentV, ruleStr);
             return;
         }
@@ -1154,7 +1192,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null) {
+        if (arrayList === null||arrayList===undefined) {
             urleCrud.addAll([], tempList, ruleStr);
             return;
         }
@@ -1166,7 +1204,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null) {
+        if (arrayList === null||arrayList===undefined) {
             util.print("没有内容哟")
             return;
         }
@@ -1182,7 +1220,8 @@ const butLayEvent = {
         urleCrud.del(arrayList, contentV, ruleStr);
     },
     butDelAllName: function (ruleStr) {
-        if (util.getData(ruleStr) === null) {
+        const list = util.getData(ruleStr);
+        if (list=== null||list===undefined) {
             util.print("没有内容哟")
             return;
         }
@@ -1200,7 +1239,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null) {
+        if (arrayList === null||arrayList===undefined) {
             util.print("找不到该内容！");
             return;
         }
@@ -1222,7 +1261,7 @@ const butLayEvent = {
             return;
         }
         let arrayList = util.getData(ruleStr);
-        if (arrayList === null) {
+        if (arrayList === null||arrayList===undefined) {
             util.print("找不到该内容！");
             return;
         }
@@ -1316,6 +1355,10 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     const videoTitle = shield.titleKey(element, title);
     if (videoTitle != null) {
         util.printRGBB("#66CCCC", "已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+    }
+    const titleKeyCanonical = shield.titleKeyCanonical(element, title);
+    if (titleKeyCanonical != null) {
+        util.printRGBB("#66CCCC", "已通过视频标题正则表达式=" + titleKeyCanonical + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
@@ -2100,18 +2143,16 @@ const layout = {
             </div>
             <div id="tableBody">
               <select id="model">
-                <option value="name">用户名黑名单模式(精确匹配)</option>
+               <option value="name">用户名黑名单模式(精确匹配)</option>
                 <option value="nameKey">用户名黑名单模式(模糊匹配)</option>
                 <option value="uid">用户uid黑名单模式(精确匹配)</option>
                 <option value="bName">用户白名单模式(精确匹配)</option>
                 <option value="title">标题黑名单模式(模糊匹配)</option>
-                <option value="contentOn">
-                  评论关键词黑名单模式(模糊匹配)
-                </option>
+                <option value="titleCanonical">标题黑名单模式(正则匹配)</option>
+                <option value="contentOn">评论关键词黑名单模式(模糊匹配)</option>
+                <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
                 <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
-                <option value="column">
-                  专栏关键词内容黑名单模式(模糊匹配)
-                </option>
+                <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
               </select>
               <div>
                 <select id="singleDoubleModel">
@@ -2201,8 +2242,14 @@ const layout = {
               <p>标题黑名单模式(模糊匹配)个数:
                 <span id="textUserTitle" style="color: yellow;"></span>个
               </p>
+                <p>标题黑名单模式(正则匹配)个数:
+                <span id="textUserTitleCanonical" style="color: yellow;"></span>个
+              </p>
               <p>评论关键词黑名单模式(模糊匹配)个数:
                 <span id="textContentOn" style="color: yellow;"></span>个
+              </p>
+               <p>评论关键词黑名单模式(正则匹配)个数:
+                <span id="textContentOnCanonical" style="color: yellow;"></span>个
               </p>
               <p>粉丝牌黑名单模式(精确匹配)个数:
                 <span id="textFanCard" style="color: yellow;"></span>个
@@ -2225,6 +2272,7 @@ const layout = {
                 导入
                 <button id="inputFIleRule">确定导入</button>
                 <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
+                <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
               </div>
               <textarea
                 id="ruleEditorInput"
@@ -2462,6 +2510,11 @@ function searchColumn() {
         const isTitleKey = shield.titleKey(v, title);
         if (isTitleKey != null) {
             util.print("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+            continue;
+        }
+        const titleKeyCanonical = shield.titleKeyCanonical(v, title);
+        if (titleKeyCanonical != null) {
+            util.print(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
             continue;
         }
         const key = shield.columnContentKey(v, textContent);
@@ -2792,8 +2845,14 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butaddName("titleKeyArr", content);
                 break;
+            case "titleCanonical":
+                butLayEvent.butaddName("titleKeyCanonicalArr", content);
+                break;
             case "contentOn":
                 butLayEvent.butaddName("commentOnKeyArr", content);
+                break;
+            case "contentOnCanonical":
+                butLayEvent.butaddName("contentOnKeyCanonicalArr", content);
                 break;
             case "fanCard":
                 butLayEvent.butaddName("fanCardArr", content);
@@ -2827,8 +2886,14 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butaddAllName("titleKeyArr", content);
                 break;
+            case "titleCanonical":
+                butLayEvent.butaddAllName("titleKeyCanonicalArr", content);
+                break;
             case "contentOn":
                 butLayEvent.butaddAllName("commentOnKeyArr", content);
+                break;
+            case "contentOnCanonical":
+                butLayEvent.butaddAllName("contentOnKeyCanonicalArr", content);
                 break;
             case "fanCard":
                 butLayEvent.butaddAllName("fanCardArr", content);
@@ -2863,8 +2928,14 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butDelName("titleKeyArr", content);
                 break;
+            case "titleCanonical":
+                butLayEvent.butDelName("titleKeyCanonicalArr", content);
+                break;
             case "contentOn":
                 butLayEvent.butDelName("commentOnKeyArr", content);
+                break;
+            case "contentOnCanonical":
+                butLayEvent.butDelName("contentOnKeyCanonicalArr", content);
                 break;
             case "fanCard":
                 butLayEvent.butDelName("fanCardArr", content);
@@ -2897,8 +2968,14 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butDelAllName("titleKeyArr");
                 break;
+            case "titleCanonical":
+                butLayEvent.butDelAllName("titleKeyCanonicalArr");
+                break;
             case "contentOn":
                 butLayEvent.butDelAllName("commentOnKeyArr");
+                break;
+            case "contentOnCanonical":
+                butLayEvent.butDelAllName("contentOnKeyCanonicalArr");
                 break;
             case "fanCard":
                 butLayEvent.butDelAllName("fanCardArr");
@@ -2932,8 +3009,14 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butSetKey("titleKeyArr", oldContent, newContent);
                 break;
+            case "titleCanonical":
+                butLayEvent.butSetKey("titleKeyCanonicalArr", oldContent, newContent);
+                break;
             case "contentOn":
                 butLayEvent.butSetKey("commentOnKeyArr", oldContent, newContent);
+                break;
+            case "contentOnCanonical":
+                butLayEvent.butSetKey("contentOnKeyCanonicalArr", oldContent, newContent);
                 break;
             case "fanCard":
                 butLayEvent.butSetKey("fanCardArr", oldContent, newContent);
@@ -2967,8 +3050,14 @@ function hideDisplayHomeLaylout() {
             case "title":
                 butLayEvent.butFindKey("titleKeyArr", content);
                 break;
+                case "titleCanonical":
+                butLayEvent.butFindKey("titleKeyCanonicalArr", content);
+                break;
             case "contentOn":
                 butLayEvent.butFindKey("commentOnKeyArr", content);
+                break;
+                case "contentOnCanonical":
+                butLayEvent.butFindKey("contentOnKeyCanonicalArr", content);
                 break;
             case "fanCard":
                 butLayEvent.butFindKey("fanCardArr", content);
@@ -3013,7 +3102,7 @@ function hideDisplayHomeLaylout() {
             alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
             return;
         }
-        const list=[];
+        const list = [];
         for (const arrListElement of arrList) {
             const type = arrListElement["type"];
             const filter = arrListElement["filter"];
@@ -3022,9 +3111,9 @@ function hideDisplayHomeLaylout() {
             if (type === 2) {
                 continue;
             }
-          list.push(arrListElement);
+            list.push(arrListElement);
         }
-        fileDownload(JSON.stringify(list),"b站账号弹幕屏蔽设定规则.json");
+        fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
     });
 
 
@@ -3094,7 +3183,7 @@ function hideDisplayHomeLaylout() {
         try {
             uidList = JSON.parse(content)
             if (!(uidList instanceof Array)) {
-                throw new Error();
+                throw new Error("错误信息，导入的类型不是数组！");
             }
         } catch (e) {
             alert("类型错误，导入的内容不是jsoN")
@@ -3135,6 +3224,10 @@ function hideDisplayHomeLaylout() {
         alert(`已新增${index}个UID规则`);
         util.setData("userUIDArr", data);
     })
+
+    $("#inputShieldingSettings").click(() => {//导入本地b站弹幕屏蔽规则
+        alert("暂时未写")
+    });
 
 
     /**
