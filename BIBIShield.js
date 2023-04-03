@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.26
+// @version      1.1.27
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -927,7 +927,9 @@ const util = {
     "用户uid黑名单模式(精确匹配)": ${JSON.stringify(util.getData("userUIDArr"))},
     "用户uid白名单模式(精确匹配)": ${JSON.stringify(util.getData("userWhiteUIDArr"))},
     "标题黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("titleKeyArr"))},
+    "标题黑名单模式(正则匹配)": ${JSON.stringify(util.getData("titleKeyCanonicalArr"))},
     "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("commentOnKeyArr"))},
+    "评论关键词黑名单模式(正则匹配)": ${JSON.stringify(util.getData("contentOnKeyCanonicalArr"))},
     "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(util.getData("fanCardArr"))},
     "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("contentColumnKeyArr"))},
     "禁用快捷悬浮屏蔽面板自动显示":${util.getData("isDShielPanel")},
