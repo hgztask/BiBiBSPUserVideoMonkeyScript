@@ -24,8 +24,8 @@ public class FileDemo {
                     list.add(v);
                     //该目录是空目录
                     System.out.printf("该目录是空目录%s 空列表个数：%s%n", v,list.size());
-                    boolean delete = FileUtil.del(v);
-                    System.out.println(delete?"删除成功！"+v:"删除失败"+v);
+                    //boolean delete = FileUtil.del(v);
+                    //System.out.println(delete?"删除成功！"+v:"删除失败"+v);
                 }
             }
             @SuppressWarnings("all")
@@ -44,7 +44,7 @@ public class FileDemo {
      * 重复上一步步骤
      */
     public static void main(String[] args) {
-        File file = new File("D:\\program");
+        File file = new File("C:\\");
         if (!file.isDirectory()) {
             System.out.println("该路径非目录");
             return;
