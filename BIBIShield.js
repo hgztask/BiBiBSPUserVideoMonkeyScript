@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.27
+// @version      1.1.28
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -26,12 +26,14 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/opus/*
 // @match        *://www.bilibili.com/*
+// @match        *://www.youtube.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
 // @grant        GM_addValueChangeListener
+// @grant        GM_addStyle
 // ==/UserScript==
 
 
@@ -674,6 +676,10 @@ const util = {
     delData: function (key) {
         GM_deleteValue(key);
     },
+    //添加样式
+    addStyle: function (cssStyleStr) {
+        GM_addStyle(cssStyleStr);
+    },
     /**
      * 分割时分秒字符串
      * @param {String}time
@@ -1111,6 +1117,12 @@ const util = {
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
     }
+}
+
+//监听网络变化
+function startMonitorTheNetwork() {
+    const observer = new PerformanceObserver(perf_observer);
+    observer.observe({entryTypes: ['resource']});
 }
 
 
@@ -2089,7 +2101,7 @@ const layout = {
                 "width": "90%",
                 "max-height": "100%",
                 "position": "fixed",
-                "z-index": "2000",
+                "z-index": "2023",
                 "inset": "5% 5% 50%",
                 "overflow-y": "auto",
                 "top": "0px"
@@ -2189,6 +2201,9 @@ const layout = {
             <h2>视频参数</h2>
             <div>
             <span>禁止打开b站视频时的自动播放</span><input type="checkbox" id="autoPlayCheckbox">
+               <div>
+                <span>视频画中画</span><input type="checkbox" id="fenestruleCheckbox">
+              </div>
               <h3>视频播放速度</h3>
             拖动更改页面视频播放速度
               <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
@@ -2624,9 +2639,9 @@ function hideDisplayHomeLaylout() {
 
     rule.ruleLength();
     rule.showInfo();
-    document.getElementById("mybut").addEventListener("click", function () {
+    $("#mybut").click(() => {
         hideDisplayHomeLaylout();
-    })
+    });
 
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
@@ -3156,7 +3171,7 @@ function hideDisplayHomeLaylout() {
         }
         let jsonRule = [];
         try {
-            content=content.replaceAll("undefined", "null");
+            content = content.replaceAll("undefined", "null");
             jsonRule = JSON.parse(content);
         } catch (error) {
             alert("内容格式错误！" + error)
@@ -3270,13 +3285,29 @@ function hideDisplayHomeLaylout() {
         document.body.removeChild(element);
     }
 
+    $("#fenestruleCheckbox").change(function () {
+        if ($("#fenestruleCheckbox").is(":checked")) {//如果是选中状态
+            try {
+                for (const v of $("video")) {
+                    v.requestPictureInPicture();//进入画中画
+                }
+            } catch (e) {
+                alert("未找到视频播放器！")
+            }
+        } else {
+            try {
+                for (const v of $("video")) {
+                    v.exitPictureInPicture();//退出画中画
+                }
+            } catch (e) {
+                alert("未找到视频播放器！")
+            }
+        }
+    });
 
-//监听网络变化
-    const observer = new PerformanceObserver(perf_observer);
-    observer.observe({entryTypes: ['resource']});
 
     ruleList(href)//正常加载网页时执行
-
+    //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
         const tempUrl = util.getWindowUrl();
         if (href === tempUrl) {//没有变化就结束本轮
@@ -3290,9 +3321,19 @@ function hideDisplayHomeLaylout() {
 
     if (href.includes("bilibili.com")) {
         bilibili(href);
+        startMonitorTheNetwork();
     }
 })
 ();
+
+/**
+ *
+ * @param {string}href
+ */
+function youtube(href) {
+
+}
+
 
 function bilibili(href) {
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
