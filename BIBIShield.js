@@ -398,12 +398,12 @@ const shield = {
  */
 const remove = {
     //是否是白名单用户
-        isWhiteUserUID: function (uid) {
-            const userWhiteUIDArr = util.getData("userWhiteUIDArr");
-            if (userWhiteUIDArr === null || userWhiteUIDArr === undefined) {
-                return false;
-            }
-            return userWhiteUIDArr.includes(uid);
+    isWhiteUserUID: function (uid) {
+        const userWhiteUIDArr = util.getData("userWhiteUIDArr");
+        if (userWhiteUIDArr === null || userWhiteUIDArr === undefined) {
+            return false;
+        }
+        return userWhiteUIDArr.includes(uid);
     },
     /**
      * 根据用户uid屏蔽元素
@@ -441,7 +441,7 @@ const remove = {
     nameKey: function (element, name) {
         const shieldArrContent = shield.arrContent(util.getData("userNameKeyArr"), name);
         if (shieldArrContent !== null) {
-        element.remove();
+            element.remove();
         }
         return shieldArrContent;
     }
@@ -510,7 +510,7 @@ const remove = {
     fanCard: function (element, key) {
         if (shield.arrKey(util.getData("fanCardArr"), key)) {
             element.remove();
-            return  true;
+            return true;
         }
         return false;
     }
@@ -711,7 +711,7 @@ const util = {
      * 发起http请求
      * @param {Object}x
      */
-    httpRequest:function (x) {
+    httpRequest: function (x) {
         GM_xmlhttpRequest(x);
     },
     /**
@@ -1196,16 +1196,24 @@ const urleCrud = {
         util.print("已添加该值=" + key)
         rule.ruleLength();
     },
+    /**
+     *
+     * @param arr
+     * @param key
+     * @param ruleStrName
+     * @return {boolean}
+     */
     del: function (arr, key, ruleStrName) {
         const index = arr.indexOf(key);
         if (index === -1) {
             util.print("未有该元素！")
-            return;
+            return false;
         }
         arr.splice(index, 1);
         util.setData(ruleStrName, arr);
         util.print("已经删除该元素=" + key);
         rule.ruleLength();
+        return true;
     }
 
 }
@@ -1249,26 +1257,21 @@ const butLayEvent = {
         }
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
-    butDelName: function (ruleStr, contentV, isNumber) {
+    butDelName: function (ruleStr, contentV) {
         if (contentV === '' || contentV.includes(" ")) {
             util.print("请输入正确的内容")
-            return;
+            return false;
         }
         let arrayList = util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             util.print("没有内容哟")
-            return;
-        }
-        if (isNumber === true) {
-            contentV = parseInt(contentV);
+            return false;
         }
         if (!arrayList.includes(contentV)) {
             util.print("没有该内容哟=" + contentV)
-            return;
+            return false;
         }
-
-
-        urleCrud.del(arrayList, contentV, ruleStr);
+        return urleCrud.del(arrayList, contentV, ruleStr);
     },
     butDelAllName: function (ruleStr) {
         const list = util.getData(ruleStr);
@@ -1305,7 +1308,6 @@ const butLayEvent = {
     //修改
     butSetKey: function (ruleStr, oldKey, newKey) {
         if (oldKey === '' || oldKey.includes(" ") || newKey === "" || newKey.includes(" ")) {
-            util.print("请输入正确的内容")
             return;
         }
         if (oldKey === newKey) {
@@ -2899,7 +2901,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butaddName("userUIDArr", parseInt(content));
                 break;
             case "bName":
-                butLayEvent.butaddName("userWhiteUIDArr", content);
+                butLayEvent.butaddName("userWhiteUIDArr", parseInt(content));
                 break;
             case "title":
                 butLayEvent.butaddName("titleKeyArr", content);
@@ -2940,7 +2942,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butaddAllName("userUIDArr", parseInt(content));
                 break;
             case "bName":
-                butLayEvent.butaddAllName("userWhiteUIDArr", content);
+                butLayEvent.butaddAllName("userWhiteUIDArr", parseInt(content));
                 break;
             case "title":
                 butLayEvent.butaddAllName("titleKeyArr", content);
@@ -2979,10 +2981,10 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butDelName("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butDelName("userUIDArr", content, true);
+                butLayEvent.butDelName("userUIDArr", parseInt(content));
                 break;
             case "bName":
-                butLayEvent.butDelName("userWhiteUIDArr", content);
+                butLayEvent.butDelName("userWhiteUIDArr", parseInt(content));
                 break;
             case "title":
                 butLayEvent.butDelName("titleKeyArr", content);
@@ -3060,10 +3062,8 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butSetKey("userNameKeyArr", oldContent, newContent);
                 break;
             case "uid":
-                butLayEvent.butSetKey("userUIDArr", oldContent, newContent);
-                break;
             case "bName":
-                butLayEvent.butSetKey("userWhiteUIDArr", oldContent, newContent);
+               alert("暂时不支持修改UID");
                 break;
             case "title":
                 butLayEvent.butSetKey("titleKeyArr", oldContent, newContent);
@@ -3104,7 +3104,7 @@ function hideDisplayHomeLaylout() {
                 butLayEvent.butFindKey("userUIDArr", parseInt(content));
                 break;
             case "bName":
-                butLayEvent.butFindKey("userWhiteUIDArr", content);
+                butLayEvent.butFindKey("userWhiteUIDArr", parseInt(content));
                 break;
             case "title":
                 butLayEvent.butFindKey("titleKeyArr", content);
