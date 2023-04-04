@@ -1113,7 +1113,9 @@ const util = {
             return;
         }
         $("#nameSuspensionDiv").text(name);
-        $("#uidSuspensionDiv").text(uid);
+        const uidA = $("#uidSuspensionDiv");
+        uidA.text(uid);
+        uidA.attr("href",`https://space.bilibili.com/${uid}`);
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
     }
@@ -2354,7 +2356,7 @@ const layout = {
         </p>
         <p>
           用户UID：
-          <span id="uidSuspensionDiv"></span>
+          <a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a>
         </p>
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
