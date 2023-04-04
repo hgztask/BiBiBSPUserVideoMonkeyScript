@@ -330,41 +330,36 @@ const home = {
 }
 
 
-//删除元素
-const remove = {
+/**
+ * 判断内容是否匹配上元素
+ */
+const shield = {
     /**
-     * 根据用户提供的网页元素和对应的数组及key，判断数组里是否完全等于key元素本身，进行屏蔽元素
-     * @param element
+     * 根据用户提供的网页元素和对应的数组及key，精确匹配数组某个元素
      * @param arr 数组
      * @param key 唯一key
      * @returns {boolean}
      */
-    shieldArrKey: function (element, arr, key) {
+    arrKey: function (arr, key) {
         if (arr === null || arr === undefined) {
             return false;
         }
-        if (arr.includes(key)) {
-            element.remove();
-            return true;
-        }
-        return false;
+        return arr.includes(key);
     },
     /**
-     * 根据用户提供的字符串集合，与指定内容进行比较屏蔽，当content某个字符包含了了集合中的某个字符则返回对应的字符
+     * 根据用户提供的字符串集合，当content某个字符包含了了集合中的某个字符则返回对应的字符，模糊匹配
      * 反之返回null
-     * @param element 网页元素
      * @param {string[]}arr 字符串数组
      * @param {string}content 内容
      * @returns {null|string}
      */
-    shieldArrContent: function (element, arr, content) {
+    arrContent: function (arr, content) {
         if (arr === null || arr === undefined) {
             return null;
         }
         try {
             for (let str of arr) {
                 if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
-                    element.remove();
                     return str;
                 }
             }
@@ -374,7 +369,7 @@ const remove = {
         return null;
     },
     /**
-     * 根据用户提供的字符串集合，与指定内容进行比较，当content某个字符包含了了集合中的某个正则匹配则返回对应的字符
+     * 根据用户提供的字符串集合，与指定内容进行比较，当content某个字符包含了了集合中的某个正则匹配则返回对应的字符，正则匹配
      * 反之返回null
      * @param {string[]}arr 字符串数组
      * @param {string}content 内容
@@ -398,7 +393,10 @@ const remove = {
     }
 }
 
-const shield = {
+/**
+ * 针对内容符合规则的删除元素并返回状态值
+ */
+const remove = {
     //是否是白名单用户
         isWhiteUserUID: function (uid) {
             const userWhiteUIDArr = util.getData("userWhiteUIDArr");
@@ -414,7 +412,11 @@ const shield = {
      * @returns {boolean}
      */
     uid: function (element, uid) {
-        return remove.shieldArrKey(element, util.getData("userUIDArr"), parseInt(uid));
+        if (shield.arrKey(util.getData("userUIDArr"), parseInt(uid))) {
+            element.remove();
+            return true;
+        }
+        return false;
     }
     ,
     /**
@@ -424,7 +426,11 @@ const shield = {
      * @returns {boolean}
      */
     name: function (element, name) {
-        return remove.shieldArrKey(element, util.getData("userNameArr"), name);
+        if (shield.arrKey(util.getData("userNameArr"), name)) {
+            element.remove();
+            return true;
+        }
+        return false;
     },
     /**
      * 根据用户名规则，当用规则字符包含用户名时返回对应的规则字符，反之null
@@ -433,7 +439,11 @@ const shield = {
      * @returns {String|null}
      */
     nameKey: function (element, name) {
-        return remove.shieldArrContent(element, util.getData("userNameKeyArr"), name)
+        const shieldArrContent = shield.arrContent(util.getData("userNameKeyArr"), name);
+        if (shieldArrContent !== null) {
+        element.remove();
+        }
+        return shieldArrContent;
     }
     ,
     /**
@@ -443,7 +453,11 @@ const shield = {
      * @returns {String|null}
      */
     titleKey: function (element, title) {
-        return remove.shieldArrContent(element, util.getData("titleKeyArr"), title)
+        const shieldArrContent = shield.arrContent(util.getData("titleKeyArr"), title);
+        if (shieldArrContent !== null) {
+            element.remove();
+        }
+        return shieldArrContent;
     },
     /**
      * 根据标题屏蔽元素
@@ -453,7 +467,7 @@ const shield = {
      * @return {string|null}
      */
     titleKeyCanonical: function (element, title) {
-        const canonical = remove.arrContentCanonical(util.getData("titleKeyCanonicalArr"), title);
+        const canonical = shield.arrContentCanonical(util.getData("titleKeyCanonicalArr"), title);
         if (canonical !== null) {
             element.remove();
         }
@@ -466,7 +480,11 @@ const shield = {
      * @returns {String|null}
      */
     contentKey: function (element, content) {
-        return remove.shieldArrContent(element, util.getData("commentOnKeyArr"), content);
+        const shieldArrContent = shield.arrContent(util.getData("commentOnKeyArr"), content);
+        if (shieldArrContent !== null) {
+            element.remove();
+        }
+        return shieldArrContent;
     }
     ,
     /**
@@ -476,7 +494,11 @@ const shield = {
      * @returns {String|null}
      */
     columnContentKey: function (element, content) {
-        return remove.shieldArrContent(element, util.getData("contentColumnKeyArr"), content);
+        const shieldArrContent = shield.arrContent(element, util.getData("contentColumnKeyArr"), content);
+        if (shieldArrContent !== null) {
+            element.remove();
+        }
+        return shieldArrContent;
     }
     ,
     /**
@@ -486,7 +508,11 @@ const shield = {
      * @returns {boolean}
      */
     fanCard: function (element, key) {
-        return remove.shieldArrKey(element, util.getData("fanCardArr"), key);
+        if (shield.arrKey(util.getData("fanCardArr"), key)) {
+            element.remove();
+            return  true;
+        }
+        return false;
     }
     ,
     /**
@@ -1316,25 +1342,25 @@ const butLayEvent = {
  * @returns {boolean}
  */
 function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
-    if (shield.isWhiteUserUID(uid)) {
+    if (remove.isWhiteUserUID(uid)) {
         return false;
     }
-    const key = shield.contentKey(element, content);
+    const key = remove.contentKey(element, content);
     if (key != null) {
         util.printRGBB("#00BFFF", "已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
-    const isUid = shield.uid(element, uid);
+    const isUid = remove.uid(element, uid);
     if (isUid) {
         util.printRGBB("yellow", "已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
-    const isName = shield.name(element, name);
+    const isName = remove.name(element, name);
     if (isName) {
         util.print("已通过用户名屏蔽指定黑名单用户【" + name + "】uid=【" + uid + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
-    const isNameKey = shield.nameKey(element, name);
+    const isNameKey = remove.nameKey(element, name);
     if (isNameKey != null) {
         util.print("用户名=【" + name + "】包含了屏蔽词=【" + isNameKey + "】uid=【" + uid + "】 故将其屏蔽 言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
@@ -1355,46 +1381,46 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @returns {boolean} 是否执行完
  */
 function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
-    if (shield.isWhiteUserUID(uid)) {
+    if (remove.isWhiteUserUID(uid)) {
         return false;
     }
     if (videoHref == null) {
         videoHref = "暂无设定";
     }
     if (uid !== null) {
-        const isUid = shield.uid(element, uid);
+        const isUid = remove.uid(element, uid);
         if (isUid) {
             util.printRGBB("yellow", "已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
     }
-    const isName = shield.name(element, name);
+    const isName = remove.name(element, name);
     if (isName) {
         util.print("已通过用户名屏蔽指定黑名单用户 " + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
-    const isNameKey = shield.nameKey(element, name);
+    const isNameKey = remove.nameKey(element, name);
     if (isNameKey != null) {
         util.print("用户名=" + name + " uid=" + uid + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
-    const videoTitle = shield.titleKey(element, title);
+    const videoTitle = remove.titleKey(element, title);
     if (videoTitle != null) {
         util.printRGBB("#66CCCC", "已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
-    const titleKeyCanonical = shield.titleKeyCanonical(element, title);
+    const titleKeyCanonical = remove.titleKeyCanonical(element, title);
     if (titleKeyCanonical != null) {
         util.printRGBB("#66CCCC", "已通过视频标题正则表达式=" + titleKeyCanonical + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
         return true;
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
-        if (shield.videoMinPlaybackVolume(element, change)) {
+        if (remove.videoMinPlaybackVolume(element, change)) {
             util.print("已滤视频播发量小于=" + rule.videoData.broadcastMin + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
-        if (shield.videoMaxPlaybackVolume(element, change)) {
+        if (remove.videoMaxPlaybackVolume(element, change)) {
             util.print("已滤视频播发量大于=" + rule.videoData.broadcastMax + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
             return true;
         }
@@ -1403,11 +1429,11 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
         return false;
     }
     const timeTotalSeconds = util.getTimeTotalSeconds(videoTime);
-    if (shield.videoMinFilterS(element, timeTotalSeconds)) {
+    if (remove.videoMinFilterS(element, timeTotalSeconds)) {
         util.print("已通过视频时长过滤时长小于=" + rule.videoData.filterSMin + "秒的视频 视频=【" + title + " 地址=" + videoHref);
         return true;
     }
-    if (shield.videoMaxFilterS(element, timeTotalSeconds)) {
+    if (remove.videoMaxFilterS(element, timeTotalSeconds)) {
         util.print("已通过视频时长过滤时长大于=" + rule.videoData.filterSMax + "秒的视频 视频=" + title + " 地址=" + videoHref);
         return true;
     }
@@ -1778,7 +1804,7 @@ const liveDel = {
             if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
                 continue;
             }
-            if (shield.fanCard(v, fansMeda)) {
+            if (remove.fanCard(v, fansMeda)) {
                 util.print("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
             }
         }
@@ -1916,16 +1942,16 @@ const liveDel = {
                 util.print("已屏蔽直播分类为=" + type + " 的直播间 用户名=" + name + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
-            if (shield.name(v, name)) {
+            if (remove.name(v, name)) {
                 util.print("已通过用户名=" + name + " 屏蔽直播间 直播分类=" + type + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
-            const nameKey = shield.nameKey(v, name);
+            const nameKey = remove.nameKey(v, name);
             if (nameKey != null) {
                 util.print("用户名=" + name + " 包含了=屏蔽词=" + nameKey + " 故屏蔽该直播间 分类=" + type + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
-            if (shield.titleKey(v, title)) {
+            if (remove.titleKey(v, title)) {
                 util.print("已通过直播间标题=【" + title + "】屏蔽该房间 用户名=" + name + " 分类=" + type + " 人气=" + index);
             }
         }
@@ -2524,33 +2550,33 @@ function searchColumn() {
         const name = userInfo.textContent;
         const upSpatialAddress = userInfo.getAttribute("href");
         const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        if (shield.isWhiteUserUID(uid)) {
+        if (remove.isWhiteUserUID(uid)) {
             continue;
         }
-        if (shield.uid(v, uid)) {
+        if (remove.uid(v, uid)) {
             util.print("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
-        if (shield.name(v, name)) {
+        if (remove.name(v, name)) {
             util.print("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
-        const isNameKey = shield.nameKey(v, name);
+        const isNameKey = remove.nameKey(v, name);
         if (isNameKey != null) {
             util.print("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
             continue;
         }
-        const isTitleKey = shield.titleKey(v, title);
+        const isTitleKey = remove.titleKey(v, title);
         if (isTitleKey != null) {
             util.print("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
-        const titleKeyCanonical = shield.titleKeyCanonical(v, title);
+        const titleKeyCanonical = remove.titleKeyCanonical(v, title);
         if (titleKeyCanonical != null) {
             util.print(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
             continue;
         }
-        const key = shield.columnContentKey(v, textContent);
+        const key = remove.columnContentKey(v, textContent);
         if (key !== null) {
             util.print("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
         }
