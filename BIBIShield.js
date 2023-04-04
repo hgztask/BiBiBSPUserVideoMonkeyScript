@@ -34,6 +34,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_addValueChangeListener
 // @grant        GM_addStyle
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 
@@ -399,12 +400,12 @@ const remove = {
 
 const shield = {
     //是否是白名单用户
-    isWhiteUserUID: function (uid) {
-        const userWhiteUIDArr = util.getData("userWhiteUIDArr");
-        if (userWhiteUIDArr === null || userWhiteUIDArr === undefined) {
-            return false;
-        }
-        return userWhiteUIDArr.includes(uid);
+        isWhiteUserUID: function (uid) {
+            const userWhiteUIDArr = util.getData("userWhiteUIDArr");
+            if (userWhiteUIDArr === null || userWhiteUIDArr === undefined) {
+                return false;
+            }
+            return userWhiteUIDArr.includes(uid);
     },
     /**
      * 根据用户uid屏蔽元素
@@ -679,6 +680,13 @@ const util = {
     //添加样式
     addStyle: function (cssStyleStr) {
         GM_addStyle(cssStyleStr);
+    },
+    /**
+     * 发起http请求
+     * @param {Object}x
+     */
+    httpRequest:function (x) {
+        GM_xmlhttpRequest(x);
     },
     /**
      * 分割时分秒字符串
@@ -3327,6 +3335,7 @@ function hideDisplayHomeLaylout() {
         bilibili(href);
         startMonitorTheNetwork();
     }
+
 })
 ();
 
