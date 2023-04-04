@@ -961,6 +961,7 @@ const util = {
     //获取格式化规则的内容
     getRuleFormatStr: function () {
         //温馨提示每个{}对象最后一个不可以有,符号
+        const playbackSpeed = util.getData("playbackSpeed");
         return `{
     "用户名黑名单模式(精确匹配)": ${JSON.stringify(util.getData("userNameArr"))},
     "用户名黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("userNameKeyArr"))},
@@ -981,7 +982,7 @@ const util = {
         "弹幕量最小值": ${util.getData("barrageQuantityMin")},
         "弹幕量最大值": ${util.getData("barrageQuantityMax")},
         "是否允许b站自动播放视频": ${util.getData("autoPlay")},
-        "视频播放速度": ${util.getData("playbackSpeed")},
+        "视频播放速度": ${isNaN(playbackSpeed)?undefined:playbackSpeed},
         "是否移除播放页右侧的的布局": null,
         "是否要移除右侧播放页的视频列表": null,
         "是否移除评论区布局": null,
@@ -3247,7 +3248,7 @@ function hideDisplayHomeLaylout() {
         if (!(list === null || list.length === 0)) {
             util.setData("contentColumnKeyArr", list);
         }
-        util.print("已导入");
+        alert("已导入");
     })
 
 
