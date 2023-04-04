@@ -1115,7 +1115,7 @@ const util = {
         $("#nameSuspensionDiv").text(name);
         const uidA = $("#uidSuspensionDiv");
         uidA.text(uid);
-        uidA.attr("href",`https://space.bilibili.com/${uid}`);
+        uidA.attr("href", `https://space.bilibili.com/${uid}`);
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
     }
@@ -2096,36 +2096,38 @@ const trends = {
 const layout = {
     css: {
         home: function () {
-            $("#home_layout").css({
-                "background": `${home.getBackgroundStr()}`,
-                "margin": "0px",
-                "height": "700%",
-                "width": "90%",
-                "max-height": "100%",
-                "position": "fixed",
-                "z-index": "2023",
-                "inset": "5% 5% 50%",
-                "overflow-y": "auto",
-                "top": "0px"
-            });
-            $("#gridLayout").css({
-                "display": "grid",
-                "grid-template-columns": "30% auto"
-            });
-            $("button").css({
-                "height": "40px"
-            });
-            $("#suspensionDiv").css({
-                "position": "fixed",
-                "display": "none",
-                "z-index": "1900",
-                "background": "rgb(149, 156, 135)",
-                "height": "30%",
-                "width": "10%",
-                "top": "50%",
-                "left": "85%"
-            })
-
+            util.addStyle(`
+            #home_layout{
+                background: ${home.getBackgroundStr()};
+                margin: 0px;
+                height: 100%;
+                width: 90%;
+                max-height: 100%;
+                position: fixed;
+                z-index: 2023;
+                left:5%;
+                overflow-y: auto;
+                border: 3px solid green;
+            }
+            #gridLayout{
+            display: grid;
+            grid-template-columns: 30% auto; 
+            }
+            button{
+             height: 40px;
+             }
+             #suspensionDiv{
+              position: fixed;
+                display: none;
+                z-index: 1900;
+                background: rgb(149, 156, 135);
+                height: 30%;
+                width: 10%;
+                top: 50%;
+                left: 85%;
+                 border: 3px solid green;
+             }
+            `);
         }
     },
     loading: {
