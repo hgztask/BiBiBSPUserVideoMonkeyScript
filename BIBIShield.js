@@ -196,6 +196,8 @@ const rule = {
 //是否隐藏了面板
 let myidClickIndex = true;
 const home = {
+    //首页下拉底部时依次加载视频的个数
+    videoIndex: 20,
     background: {//主面板背景颜色及透明度
         r: 92,
         g: 80,
@@ -1129,53 +1131,53 @@ const util = {
 }
 
 
-const localData={
-    getArrUID:function () {
+const localData = {
+    getArrUID: function () {
         return util.getData("userUIDArr");
     },
-    setArrUID:function (key) {
-        util.setData("userUIDArr",key);
+    setArrUID: function (key) {
+        util.setData("userUIDArr", key);
     },
-    getArrWhiteUID:function () {
+    getArrWhiteUID: function () {
         return util.getData("userWhiteUIDArr");
     },
-    setArrWhiteUID:function (key) {
-         util.setData("userWhiteUIDArr",key);
+    setArrWhiteUID: function (key) {
+        util.setData("userWhiteUIDArr", key);
     },
-    getArrName:function () {
+    getArrName: function () {
         return util.getData("userNameArr");
     },
-    setArrName:function (key) {
-        util.setData("userNameArr",key);
+    setArrName: function (key) {
+        util.setData("userNameArr", key);
     },
-    getArrNameKey:function () {
+    getArrNameKey: function () {
         return util.getData("userNameKeyArr");
     },
-    setArrNameKey:function (key) {
-        util.setData("userNameKeyArr",key);
+    setArrNameKey: function (key) {
+        util.setData("userNameKeyArr", key);
     },
-    getArrTitle:function () {
+    getArrTitle: function () {
         return util.getData("titleKeyArr");
     },
-    setArrTitle:function (key) {
-        util.setData("titleKeyArr",key);
-    },getArrTitleKeyCanonical:function () {
+    setArrTitle: function (key) {
+        util.setData("titleKeyArr", key);
+    }, getArrTitleKeyCanonical: function () {
         return util.getData("titleKeyCanonicalArr");
     },
-    setArrTitleKeyCanonical:function (key) {
-        util.setData("titleKeyCanonicalArr",key);
+    setArrTitleKeyCanonical: function (key) {
+        util.setData("titleKeyCanonicalArr", key);
     },
-    getArrContentOnKeyCanonicalArr:function () {
+    getArrContentOnKeyCanonicalArr: function () {
         return util.getData("contentOnKeyCanonicalArr");
     },
-    setArrContentOnKeyCanonicalArr:function (key) {
-        util.setData("contentOnKeyCanonicalArr",key);
+    setArrContentOnKeyCanonicalArr: function (key) {
+        util.setData("contentOnKeyCanonicalArr", key);
     },
-    getVideo_zone:function () {
+    getVideo_zone: function () {
         return util.getData("video_zone");
     },
-    setVideo_zone:function (key) {
-        util.setData("video_zone",key);
+    setVideo_zone: function (key) {
+        util.setData("video_zone", key);
     }
 
 
@@ -3442,39 +3444,38 @@ function hideDisplayHomeLaylout() {
     });
 
 
-    const video_zoneList={//分区rid对应的类型
-        1:"动画(主分区)",
-        13:"番剧(主分区)",
-        167:"国创(主分区)",
-        3:"音乐(主分区)",
-        129:"舞蹈(主分区)",
-        4:"游戏(主分区)",
-        36:"知识(主分区)",
-        188:"科技(主分区)",
-        234:"运动(主分区)",
-        223:"汽车(主分区)",
-        160:"生活(主分区)",
-        211:"美食(主分区)",
-        217:"动物圈(主分区)",
-        119:"鬼畜(主分区)",
-        155:"时尚(主分区)",
-        202:"资讯(主分区)",
-        5:"娱乐(主分区)",
-        181:"影视(主分区)",
-        177:"纪录片(主分区)",
-        23:"电影(主分区)",
-        11:"电视剧(主分区)",
+    const video_zoneList = {//分区rid对应的类型
+        1: "动画(主分区)",
+        13: "番剧(主分区)",
+        167: "国创(主分区)",
+        3: "音乐(主分区)",
+        129: "舞蹈(主分区)",
+        4: "游戏(主分区)",
+        36: "知识(主分区)",
+        188: "科技(主分区)",
+        234: "运动(主分区)",
+        223: "汽车(主分区)",
+        160: "生活(主分区)",
+        211: "美食(主分区)",
+        217: "动物圈(主分区)",
+        119: "鬼畜(主分区)",
+        155: "时尚(主分区)",
+        202: "资讯(主分区)",
+        5: "娱乐(主分区)",
+        181: "影视(主分区)",
+        177: "纪录片(主分区)",
+        23: "电影(主分区)",
+        11: "电视剧(主分区)",
     }
     for (const v in video_zoneList) {
         $("#video_zoneSelect").append(`<option value=${v}>${video_zoneList[v]}</option>`);
     }
     $('#video_zoneSelect').change(() => {//监听模式下拉列表--下拉列表-首页推荐视频分区
         const tempVar = parseInt($('#video_zoneSelect').val());
-        util.print("选择分区="+video_zoneList[tempVar]+" uid="+tempVar);
+        util.print("选择分区=" + video_zoneList[tempVar] + " uid=" + tempVar);
         $("#video_zoneSpan").text(video_zoneList[tempVar]);
         localData.setVideo_zone(tempVar);
     });
-
 
 
     ruleList(href)//正常加载网页时执行
@@ -3672,12 +3673,13 @@ function bilibili(href) {
         return;
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from")) {//首页
-        document.getElementsByClassName("container is-version8")[0].innerHTML = '';//先清空该标签的内容
+        console.log("进入了首页")
+        document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div").innerHTML="";//先清空该标签的内容
         function loadingVideoE(ps) {
-            const rid=localData.getVideo_zone();
+            const rid = localData.getVideo_zone();
             util.httpRequest({
                 method: "get",
-                url: `https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${rid===undefined?1:rid}`,
+                url: `https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${rid === undefined ? 1 : rid}`,
                 headers: {
                     "User-Agent": navigator.userAgent,
                 },
@@ -3696,10 +3698,12 @@ function bilibili(href) {
                         const view = v["stat"]["view"];//播放量
                         const danmaku = v["stat"]["danmaku"];//弹幕量
                         const aid = v["stat"]["aid"];//av号
-                        const ctime = v["ctime"];//发布时间戳
+                        const ctime = v["ctime"];//视频审核时间时间戳
+                        const pubdate = v["pubdate"];//视频上传时间时间戳
                         const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
                         const duration = v["duration"];//视频时长秒
                         const bvidSub = bvid.substring(0, bvid.indexOf("?"));
+                        const tname = v["tname"];//分区
                         // if (shield.arrKey(localData.getArrUID(),uid)){
                         //     continue;
                         // }
@@ -3720,10 +3724,13 @@ function bilibili(href) {
         $(window).scroll(function () {
             if ($(this).scrollTop() + $(this).height() === $(document).height()) {//到达底部之后加载
                 console.log("触底了")
-                loadingVideoE(50);
+                    loadingVideoE(home.videoIndex);
+                if (home.videoIndex <= 50) {
+                    home.videoIndex += 10;
+                }
             }
         });
-        loadingVideoE(30);
+        loadingVideoE(25);
         //首页
         home.stypeBody();
         document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__banner").remove()//删除首页顶部的图片位置的布局
