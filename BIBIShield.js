@@ -2641,6 +2641,9 @@ function perf_observer() {
             if (windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题界面的楼层评论
                 console.log("话题界面的api")
             }
+            if (windowUrl.search("space.bilibili.com/.*dynamic") !== -1) {
+                delDReplay();
+            }
         }
         if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
             subjectOfATalk.deltopIC();
@@ -3817,7 +3820,7 @@ function bilibili(href) {
             console.log(homeGrid);
             clearInterval(interval);
             homeGrid.html("");//先清空该标签的内容
-             loadingVideoE(25);
+            loadingVideoE(25);
             // //首页
             home.stypeBody();
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
@@ -3843,6 +3846,15 @@ function bilibili(href) {
     if (href.includes("www.bilibili.com/v/")) {
         homePrefecture();
         return;
+    }
+    if (href.includes("space.bilibili.com/")) {//个人主页
+        const hrefUID = parseInt(href.split("/")[3]);
+        if (shield.arrKey(localData.getArrUID(), hrefUID)) {
+            setTimeout(() => {
+            alert("当前用户时是黑名单！UID=" + hrefUID)
+            }, 4500);
+        }
+        console.log("个人主页")
     }
 }
 
