@@ -262,14 +262,14 @@ const home = {
                         // util.print("检测到不是正常视频样式，故删除该元素");
                         continue;
                     }
-                    $(v).mouseenter((e)=>{
+                    $(v).mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
                         const info = domElement.querySelector(".bili-video-card__info--right");
                         const videoTitle = info.querySelectorAll("[title]")[0].textContent;
                         const userName = info.querySelectorAll("[title]")[1].textContent;
                         let href = info.querySelector(".bili-video-card__info--owner").href;
-                        href=href.substring(href.lastIndexOf("/")+1);
-                        util.showSDPanel(e,userName,href,videoTitle);
+                        href = href.substring(href.lastIndexOf("/") + 1);
+                        util.showSDPanel(e, userName, href, videoTitle);
                     });
                     shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume);
                 }
@@ -615,34 +615,34 @@ function getColumnOrDynamicReviewStorey(v) {
  * 针对于专栏和动态内容下面的评论区
  */
 function delDReplay() {
-    const interval = setInterval(()=>{
-    const list = document.getElementsByClassName("list-item reply-wrap");
+    const interval = setInterval(() => {
+        const list = document.getElementsByClassName("list-item reply-wrap");
         if (list === undefined) {
             return;
         }
         clearInterval(interval);
-    for (let v of list) {
-        const userData = getColumnOrDynamicReviewLandlord(v);
-        if (startPrintShieldNameOrUIDOrContent(v, userData.name, userData.uid, userData.content)) {
-            continue;
-        }
-        userData.userInfo.onmouseenter = (e) => {
-            const element = e.srcElement;
-            util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"))
-        };
-        const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
-        for (let j of replyItem) {
-            const tempData = getColumnOrDynamicReviewStorey(j);
-            if (startPrintShieldNameOrUIDOrContent(j, tempData.name, tempData.uid, tempData.content)) {
+        for (let v of list) {
+            const userData = getColumnOrDynamicReviewLandlord(v);
+            if (startPrintShieldNameOrUIDOrContent(v, userData.name, userData.uid, userData.content)) {
                 continue;
             }
-            j.onmouseenter = (e) => {
+            userData.userInfo.onmouseenter = (e) => {
                 const element = e.srcElement;
-                util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
+                util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"))
             };
+            const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
+            for (let j of replyItem) {
+                const tempData = getColumnOrDynamicReviewStorey(j);
+                if (startPrintShieldNameOrUIDOrContent(j, tempData.name, tempData.uid, tempData.content)) {
+                    continue;
+                }
+                j.onmouseenter = (e) => {
+                    const element = e.srcElement;
+                    util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
+                };
+            }
         }
-    }
-},1000);
+    }, 1000);
 }
 
 /**
@@ -3725,9 +3725,9 @@ function bilibili(href) {
         subjectOfATalk.deltopIC();
         return;
     }
-    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from")) {//首页
-        console.log("进入了首页")
-        document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div").innerHTML = "";//先清空该标签的内容
+    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
+        console.log("进入了首页");
+
         function loadingVideoE(ps) {
             const rid = localData.getVideo_zone();
             util.httpRequest({
@@ -3782,7 +3782,7 @@ function bilibili(href) {
                                 view, danmaku
                             )
                         );
-                        $("div[class='bili-video-card is-rcmd']:last").mouseenter((e)=>{
+                        $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
                             const domElement = e.delegateTarget;//dom对象
                             const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
                             const userInfo = domElement.querySelector(".bili-video-card__info--owner");
@@ -3808,11 +3808,21 @@ function bilibili(href) {
                 }
             }
         });
-        loadingVideoE(25);
-        //首页
-        home.stypeBody();
-        document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
-        $(".feed-roll-btn").remove();//移除换一换
+        const interval = setInterval(() => {
+            const homeGrid = $(".container.is-version8");
+            if (homeGrid === null) {
+                console.log(homeGrid);
+                return;
+            }
+            console.log(homeGrid);
+            clearInterval(interval);
+            homeGrid.html("");//先清空该标签的内容
+             loadingVideoE(25);
+            // //首页
+            home.stypeBody();
+            document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
+            $(".feed-roll-btn").remove();//移除换一换
+        }, 500);
         return;
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
