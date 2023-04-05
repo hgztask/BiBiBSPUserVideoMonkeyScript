@@ -2278,7 +2278,7 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-       <!-- 分割home_layout -->
+          <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
@@ -2300,17 +2300,16 @@ const layout = {
                 <input id="widthRange" type="range" value="90" min="20" max="90" step="0.1">
                 <span id="widthSpan">90%</span>
               </div>
+
+              <h2>快捷悬浮面板</h2>
+              <span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键2可隐藏该快捷悬浮屏蔽面板)
             </div>
-            <h2>快捷悬浮面板</h2>
-<span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键2可隐藏该快捷悬浮屏蔽面板)
             <hr>
-            <div>
-              <h1 style="display: inline;">规则增删改查</h1>
-              <span>当前页面为(暂时未写)</span>
-            </div>
-            <div id="tableBody">
+            <details open>
+              <summary>规则增删改查</summary>
+              <div id="tableBody">
               <select id="model">
-               <option value="name">用户名黑名单模式(精确匹配)</option>
+                <option value="name">用户名黑名单模式(精确匹配)</option>
                 <option value="nameKey">用户名黑名单模式(模糊匹配)</option>
                 <option value="uid">用户uid黑名单模式(精确匹配)</option>
                 <option value="bName">用户白名单模式(精确匹配)</option>
@@ -2346,46 +2345,51 @@ const layout = {
                 <button id="butPrintAllInfo">打印规则信息</button>
               </div>
             </div>
+            </details>
             <hr>
-            <h2>视频参数</h2>
-            <div>
-            <span>禁止打开b站视频时的自动播放</span><input type="checkbox" id="autoPlayCheckbox">
-               <div>
-                <span>视频画中画</span><input type="checkbox" id="fenestruleCheckbox">
-              </div>
-              <h3>视频播放速度</h3>
-            拖动更改页面视频播放速度
-              <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
-              <span id="playbackSpeedSpan">1.0x</span>
-              <button id="preservePlaySpeed">保存</button>
-              <div>固定视频播放速度值
-                <select id="playbackSpeedModel">
+            <details open>
+              <summary>视频参数</summary>
+              <div>
+                <span>禁止打开b站视频时的自动播放</span><input type="checkbox" id="autoPlayCheckbox">
+                <div>
+                  <span>视频画中画</span><input type="checkbox" id="fenestruleCheckbox">
+                </div>
+                <h3>视频播放速度</h3>
+              拖动更改页面视频播放速度
+                <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+                <span id="playbackSpeedModel">1.0x</span>
+                <button id="preservePlaySpeed">保存</button>
+                <div>固定视频播放速度值
+                  <select id="playbackSpeedModel">
                   <option value="1">1.0x</option>
-                <option value="0.25">0.25x</option>
-                <option value="0.5">0.5x</option>
-                <option value="0.75">0.75x</option>
-                <option value="0.9">0.9x</option>
-                <option value="1.25">1.25x</option>
-                <option value="1.35">1.35x</option>
-                <option value="1.5">1.5x</option>
-                <option value="2">2x</option>
-              </select>
-              <button id="preservePlaybackSpeedModel">保存</button>
-            </div>
+                  <option value="0.25">0.25x</option>
+                  <option value="0.5">0.5x</option>
+                  <option value="0.75">0.75x</option>
+                  <option value="0.9">0.9x</option>
+                  <option value="1.25">1.25x</option>
+                  <option value="1.35">1.35x</option>
+                  <option value="1.5">1.5x</option>
+                  <option value="2">2x</option>
+                </select>
+                <button id="preservePlaybackSpeedModel">保存</button>
+              </div>
               <h3>首页推荐视频分区</h3>
-            <span>指定推送</span><span id="video_zoneSpan"></span>
-            <select id="video_zoneSelect">
-              <option value="1">下拉选择</option>
-            </select>
-            </div>
-            <h3>播放画面翻转</h3>
-           <button id="flipHorizontal">水平翻转</button>
-           <button id="flipVertical">垂直翻转</button>
-           <div>
-            自定义角度
-            <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
-           </div>
-           <h3>其他</h3>
+              <span>指定推送</span><span id="video_zoneSpan"></span><span>分区</span>
+              <select id="video_zoneSelect">
+                <option value="1">下拉选择</option>
+              </select>
+              </div>
+              <h3>播放画面翻转</h3>
+             <button id="flipHorizontal">水平翻转</button>
+             <button id="flipVertical">垂直翻转</button>
+             <div>
+              自定义角度
+              <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
+             </div>
+            </details>
+            <hr>
+           <details>
+            <summary>其他</summary> 
             <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
             <select id="selectVideo">
               <option value="filterSMin">时长最小值(单位秒)</option>
@@ -2399,69 +2403,77 @@ const layout = {
             <div>
               <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
             </div>
+           </details>
             <hr>
-            <div>
-                <h1>规则信息</h1>
-              <p>用户名黑名单模式(精确匹配)个数:
-                <span id="textUserName" style="color: yellow;"></span>个
-              </p>  
-              <p>用户名黑名单模式(模糊匹配)个数:
-                <span id="textUserNameKey" style="color: yellow;"></span>个
-              </p>
-              <p>用户uid黑名单模式(精确匹配)个数:
-                <span id="textUserUID" style="color: yellow;"></span>个
-              </p>
-              <p>用户白名单模式(精确匹配)个数:
-                <span id="textUserBName" style="color: yellow;"></span>个
-              </p>
-              <p>标题黑名单模式(模糊匹配)个数:
-                <span id="textUserTitle" style="color: yellow;"></span>个
-              </p>
+            <details>
+              <summary>规则信息</summary>
+              <div>
+                <p>用户名黑名单模式(精确匹配)个数:
+                  <span id="textUserName" style="color: yellow;"></span>个
+                </p>  
+                <p>用户名黑名单模式(模糊匹配)个数:
+                  <span id="textUserNameKey" style="color: yellow;"></span>个
+                </p>
+                <p>用户uid黑名单模式(精确匹配)个数:
+                  <span id="textUserUID" style="color: yellow;"></span>个
+                </p>
+                <p>用户白名单模式(精确匹配)个数:
+                  <span id="textUserBName" style="color: yellow;"></span>个
+                </p>
+                <p>标题黑名单模式(模糊匹配)个数:
+                  <span id="textUserTitle" style="color: yellow;"></span>个
+                </p>
                 <p>标题黑名单模式(正则匹配)个数:
-                <span id="textUserTitleCanonical" style="color: yellow;"></span>个
-              </p>
-              <p>评论关键词黑名单模式(模糊匹配)个数:
-                <span id="textContentOn" style="color: yellow;"></span>个
-              </p>
-               <p>评论关键词黑名单模式(正则匹配)个数:
-                <span id="textContentOnCanonical" style="color: yellow;"></span>个
-              </p>
-              <p>粉丝牌黑名单模式(精确匹配)个数:
-                <span id="textFanCard" style="color: yellow;"></span>个
-              </p>
-              <p>专栏关键词内容黑名单模式(模糊匹配)个数:
-              <span id="textColumn" style="color: yellow;"></span>个
-              </p>
-            </div>
-            <hr>
-            <div>
-              <h1>规则导入导出</h1>
-              <div>
-                导出
-                <button id="outFIleRule">导出全部规则</button>
-                <button id="outRuleCopy">导出全部规则到剪贴板</button>
-                <button id="outUIDFIleRule">导出全部UID规则</button>
-                 <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
+                  <span id="textUserTitleCanonical" style="color: yellow;"></span>个
+                </p>
+                <p>评论关键词黑名单模式(模糊匹配)个数:
+                  <span id="textContentOn" style="color: yellow;"></span>个
+                </p>
+                <p>评论关键词黑名单模式(正则匹配)个数:
+                  <span id="textContentOnCanonical" style="color: yellow;"></span>个
+                </p>
+                <p>粉丝牌黑名单模式(精确匹配)个数:
+                  <span id="textFanCard" style="color: yellow;"></span>个
+                </p>
+                <p>专栏关键词内容黑名单模式(模糊匹配)个数:
+                <span id="textColumn" style="color: yellow;"></span>个
+                </p>
               </div>
-              <div>
-                导入
-                <button id="inputFIleRule">确定导入</button>
-                <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
-                <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
-              </div>
-              <textarea
-                id="ruleEditorInput"
-                placeholder="请填写导出多的规则内容"
-                style="resize: none; height: 300px; width: 60%"
-              ></textarea>
-            </div>
+            </details>
             <hr>
-            <div>
+            <details>
+              <summary>规则导入导出</summary>
+              <div>
+                <div>
+                  导出
+                  <button id="outFIleRule">导出全部规则</button>
+                  <button id="outRuleCopy">导出全部规则到剪贴板</button>
+                  <button id="outUIDFIleRule">导出全部UID规则</button>
+                  <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
+                </div>
+                <div>
+                  导入
+                  <button id="inputFIleRule">确定导入</button>
+                  <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
+                  <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
+                </div>
+                <textarea
+                  id="ruleEditorInput"
+                  placeholder="请填写导出多的规则内容"
+                  style="resize: none; height: 300px; width: 60%"
+                ></textarea>
+              </div>
+            </details>
+            <hr>
+            <details>
+              <summary>快捷键</summary>
+              <div>
               <h1>快捷键</h1>
               <p> 显示隐藏面板 快捷键\`</p>
               <p>选中取消快捷悬浮屏蔽按钮跟随鼠标 快捷键1</p>
               <p>隐藏快捷悬浮屏蔽按钮 快捷键2</p>
             </div>
+            </details>
             <hr>
             <div>
               <h1>
