@@ -27,7 +27,6 @@
 // @match        *://www.bilibili.com/opus/*
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
-// @match        https://blog.csdn.net/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        GM_setValue
