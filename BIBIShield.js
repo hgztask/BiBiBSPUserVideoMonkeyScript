@@ -209,13 +209,14 @@ const home = {
     },
     //调整首页样式
     stypeBody: function () {
+        document.querySelector(".bili-header__banner").remove()//删除首页顶部的图片位置的布局
         const interval = setInterval(() => {
             try {
                 const headerChannelE = document.getElementsByClassName("bili-header__channel")[0];
                 headerChannelE.style.padding = 0;//调整-首页header按钮栏
                 headerChannelE.style.height = "auto";//调整其与下面控件的距离
                 document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
-                $(".feed-roll-btn").remove();//移除换一换
+
                 document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__bar").style.position = "inherit";//调整顶栏样式
                 document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").remove();//调整往下滑动之后顶部的悬浮栏
                 clearInterval(interval)
@@ -258,9 +259,18 @@ const home = {
                     let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
                     if (isNaN(id)) {
                         v.remove();
-                        util.print("检测到不是正常视频样式，故删除该元素");
+                        // util.print("检测到不是正常视频样式，故删除该元素");
                         continue;
                     }
+                    $(v).mouseenter((e)=>{
+                        const domElement = e.delegateTarget;//dom对象
+                        const info = domElement.querySelector(".bili-video-card__info--right");
+                        const videoTitle = info.querySelectorAll("[title]")[0].textContent;
+                        const userName = info.querySelectorAll("[title]")[1].textContent;
+                        let href = info.querySelector(".bili-video-card__info--owner").href;
+                        href=href.substring(href.lastIndexOf("/")+1);
+                        util.showSDPanel(e,userName,href,videoTitle);
+                    });
                     shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume);
                 }
                 list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
@@ -605,10 +615,14 @@ function getColumnOrDynamicReviewStorey(v) {
  * 针对于专栏和动态内容下面的评论区
  */
 function delDReplay() {
+    const interval = setInterval(()=>{
     const list = document.getElementsByClassName("list-item reply-wrap");
+        if (list === undefined || list === 0) {
+            return;
+        }
+        clearInterval(interval);
     for (let v of list) {
         const userData = getColumnOrDynamicReviewLandlord(v);
-        console.log("已进入评论区")
         if (startPrintShieldNameOrUIDOrContent(v, userData.name, userData.uid, userData.content)) {
             continue;
         }
@@ -626,10 +640,9 @@ function delDReplay() {
                 const element = e.srcElement;
                 util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
             };
-
-
         }
     }
+},1000);
 }
 
 /**
@@ -2645,6 +2658,7 @@ function perf_observer() {
         }
         if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
             home.startShieldMainVideo("bili-video-card");
+            continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/ranking/region?")) {//首页分区排行榜
             for (let v of document.querySelectorAll(".bili-rank-list-video__list.video-rank-list")) {//遍历每个排行榜
@@ -2665,7 +2679,6 @@ function perf_observer() {
             }
         }
     }
-
     performance.clearResourceTimings();//清除资源时间
 }
 
@@ -2764,6 +2777,7 @@ function ruleList(href) {
         home.startShieldMainVideo("bili-video-card");
         console.log("通过URL变动执行屏蔽首页分区视频")
         homePrefecture();
+
     }
 
 }
@@ -3768,7 +3782,7 @@ function bilibili(href) {
                                 view, danmaku
                             )
                         );
-                        $("div[class='bili-video-card is-rcmd']:last").mouseenter(function (e) {
+                        $("div[class='bili-video-card is-rcmd']:last").mouseenter((e)=>{
                             const domElement = e.delegateTarget;//dom对象
                             const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
                             const userInfo = domElement.querySelector(".bili-video-card__info--owner");
@@ -3797,8 +3811,8 @@ function bilibili(href) {
         loadingVideoE(25);
         //首页
         home.stypeBody();
-        document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__banner").remove()//删除首页顶部的图片位置的布局
         document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
+        $(".feed-roll-btn").remove();//移除换一换
         return;
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
