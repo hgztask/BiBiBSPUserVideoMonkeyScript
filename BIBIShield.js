@@ -3671,7 +3671,7 @@ function bilibili(href) {
         subjectOfATalk.deltopIC();
         return;
     }
-    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from")) {
+    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from")) {//首页
         document.getElementsByClassName("container is-version8")[0].innerHTML = '';//先清空该标签的内容
         function loadingVideoE(ps) {
             const rid=localData.getVideo_zone();
@@ -3720,7 +3720,7 @@ function bilibili(href) {
         $(window).scroll(function () {
             if ($(this).scrollTop() + $(this).height() === $(document).height()) {//到达底部之后加载
                 console.log("触底了")
-                loadingVideoE(30);
+                loadingVideoE(50);
             }
         });
         loadingVideoE(30);
