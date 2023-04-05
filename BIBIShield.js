@@ -1144,6 +1144,16 @@ const util = {
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
+    },
+    /**
+     * 对UID后面带有其他符号的字符截取掉并保留UID返回
+     * @param {string}uidStr
+     * @return {number}
+     */
+    getSubUid: function (uidStr) {
+        const indexOf = uidStr.indexOf("?");
+        const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
+        return parseInt(uid);
     }
 }
 
@@ -3730,7 +3740,6 @@ function bilibili(href) {
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
-
         function loadingVideoE(ps) {
             const rid = localData.getVideo_zone();
             util.httpRequest({
@@ -3848,10 +3857,11 @@ function bilibili(href) {
         return;
     }
     if (href.includes("space.bilibili.com/")) {//个人主页
-        const hrefUID = parseInt(href.split("/")[3]);
+        const hrefUID = util.getSubUid(href.split("/")[3]);
+        console.log(hrefUID);
         if (shield.arrKey(localData.getArrUID(), hrefUID)) {
             setTimeout(() => {
-            alert("当前用户时是黑名单！UID=" + hrefUID)
+                alert("当前用户时是黑名单！UID=" + hrefUID)
             }, 4500);
         }
         console.log("个人主页")
