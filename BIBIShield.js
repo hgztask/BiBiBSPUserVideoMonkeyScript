@@ -251,8 +251,8 @@ const home = {
                         playbackVolume = topInfo[0].textContent;
                     } catch (e) {
                         v.remove();
-                        console.log("获取元素中，获取失败，下一行是该值的html");
-                        console.log(v)
+                        // console.log("获取元素中，获取失败，下一行是该值的html");
+                        // console.log(v)
                         continue;
                     }
                     let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
@@ -2645,10 +2645,8 @@ function perf_observer() {
         }
         if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
             home.startShieldMainVideo("bili-video-card");
-            console.log("通过api执行屏蔽首页视频" + url)
         }
         if (url.includes("api.bilibili.com/x/web-interface/ranking/region?")) {//首页分区排行榜
-            console.log("获取到首页分区排行榜api")
             for (let v of document.querySelectorAll(".bili-rank-list-video__list.video-rank-list")) {//遍历每个排行榜
                 for (let q of v.querySelectorAll("li[class='bili-rank-list-video__item']")) {//遍历某个排行榜中的项目
                     const title = q.querySelector("[title]").textContent;
@@ -2762,14 +2760,10 @@ function ruleList(href) {
         frequencyChannel.delDevelop();
         frequencyChannel.cssStyle.backGauge();
     }
-    if (href.includes("www.bilibili.com/v/food/")) {
+    if (href.includes("www.bilibili.com/v/")) {
         home.startShieldMainVideo("bili-video-card");
-        console.log("通过URL变动执行屏蔽首页视频")
-        try {
-            document.getElementById("biliMainFooter").remove();
-            util.print("已移除页脚信息")
-        } catch (e) {
-        }
+        console.log("通过URL变动执行屏蔽首页分区视频")
+        homePrefecture();
     }
 
 }
@@ -3689,6 +3683,7 @@ function bilibili(href) {
         }
         return;
     }
+
     if (href.includes("search.bilibili.com") && search.searchColumnBool === false) {
         try {
             document.getElementById("biliMainFooter").remove();
@@ -3821,13 +3816,21 @@ function bilibili(href) {
         trends.topCssDisply.rightLayout();
         return;
     }
-    if (href.includes("www.bilibili.com/v/kichiku/")) {
-        util.circulateID("biliMainFooter", 2000, "已移除底部信息");
-        util.circulateClassName("primary-btn feedback visible", 2000, "已移除右侧悬浮按钮");
-        util.circulateClassNames("eva-banner", 0, 10, 1500, "已移除界面中的横幅广告");
-        util.circulateClassNames("eva-banner", 1, 10, 1500, "已移除界面中的横幅广告");
-        util.circulateClassNames("eva-banner", 2, 10, 1500, "已移除界面中的横幅广告");
+    if (href.includes("www.bilibili.com/v/")) {
+        homePrefecture();
         return;
+    }
+}
+
+/**
+ * 中中针对于专区的广告页脚信息屏蔽
+ */
+function homePrefecture() {
+    util.circulateID("biliMainFooter", 2000, "已移除底部信息");
+    util.circulateClassName("primary-btn feedback visible", 2000, "已移除右侧悬浮按钮");
+    for (let v of document.querySelectorAll(".eva-banner")) {
+        v.remove();
+        console.log("已移除界面中的横幅广告");
     }
 }
 
