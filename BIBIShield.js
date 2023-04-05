@@ -617,7 +617,7 @@ function getColumnOrDynamicReviewStorey(v) {
 function delDReplay() {
     const interval = setInterval(()=>{
     const list = document.getElementsByClassName("list-item reply-wrap");
-        if (list === undefined || list === 0) {
+        if (list === undefined) {
             return;
         }
         clearInterval(interval);
