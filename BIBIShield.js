@@ -3724,18 +3724,10 @@ function bilibili(href) {
             }
         });
         loadingVideoE(30);
-
         //首页
         home.stypeBody();
         document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__banner").remove()//删除首页顶部的图片位置的布局
         document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
-        const interval = setInterval(() => {
-            try {
-                document.getElementsByClassName("banner-link")[0].remove();//删除首页顶部图片的跳转链接
-                clearInterval(interval)
-            } catch (e) {
-            }
-        }, 2000);
         return;
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
