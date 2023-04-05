@@ -27,6 +27,7 @@
 // @match        *://www.bilibili.com/opus/*
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
+// @match        https://blog.csdn.net/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        GM_setValue
@@ -2539,7 +2540,7 @@ function getVideoCommentAreaOrTrendsStorey(j) {
 }
 
 
-function perf_observer(list, observer) {
+function perf_observer() {
     const entries = performance.getEntriesByType('resource');
     const windowUrl = util.getWindowUrl();
     for (let entry of entries) {
@@ -2630,6 +2631,8 @@ function perf_observer(list, observer) {
             home.startShieldMainVideo("bili-video-card");
         }
     }
+
+    performance.clearResourceTimings();//清除资源时间
 }
 
 /**
@@ -3491,9 +3494,16 @@ function hideDisplayHomeLaylout() {
         bilibili(href);
     }, 1000);
 
+
+
+
+
+
     if (href.includes("bilibili.com")) {
         bilibili(href);
         startMonitorTheNetwork();
+
+
     }
 
 })
@@ -3674,7 +3684,7 @@ function bilibili(href) {
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from")) {//首页
         console.log("进入了首页")
-        document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div").innerHTML="";//先清空该标签的内容
+        document.querySelector("#i_cecream > div.bili-feed4 > main > div.feed2 > div > div").innerHTML = "";//先清空该标签的内容
         function loadingVideoE(ps) {
             const rid = localData.getVideo_zone();
             util.httpRequest({
@@ -3724,7 +3734,7 @@ function bilibili(href) {
         $(window).scroll(function () {
             if ($(this).scrollTop() + $(this).height() === $(document).height()) {//到达底部之后加载
                 console.log("触底了")
-                    loadingVideoE(home.videoIndex);
+                loadingVideoE(home.videoIndex);
                 if (home.videoIndex <= 50) {
                     home.videoIndex += 10;
                 }
@@ -3761,6 +3771,9 @@ function bilibili(href) {
         return;
     }
 }
+
+
+
 
 /**
  精简处理的地方有：
