@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @license      MIT
 // @version      1.1.31
-// @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，
+// @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
 // @exclude      *://message.bilibili.com/pages/nav/index_new_pc_sync
@@ -27,6 +27,7 @@
 // @match        *://www.bilibili.com/opus/*
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
+// @match        *://github.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        GM_setValue
@@ -2910,6 +2911,10 @@ const video_zoneList = {
     'use strict';
     let href = util.getWindowUrl();
     console.log("当前网页url=" + href);
+    if (href.includes("github.com")) {
+        github(href);
+        return;
+    }
     //加载布局
     layout.loading.home();
     layout.css.home();
@@ -3653,10 +3658,7 @@ const video_zoneList = {
     if (href.includes("bilibili.com")) {
         bilibili(href);
         startMonitorTheNetwork();
-
-
     }
-
 })
 ();
 
@@ -3666,6 +3668,12 @@ const video_zoneList = {
  */
 function youtube(href) {
 
+}
+
+function github(href) {
+    setInterval(() => {//github站内所有的链接都从新的标签页打开，而不从当前页面打开
+        $("a").attr("target", "_blank");
+    }, 1000);
 }
 
 
@@ -3850,7 +3858,7 @@ function bilibili(href) {
                 const author_name = v["author_name"];//用户名
                 const author_id = v["author_id"];//用户UID
                 const bvid = v["bvid"];//视频bv号
-                tempFunc(author_id,title,author_name,bvid,duration,"",view_count,danmaku,cover);
+                tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku, cover);
             }
         };
 
