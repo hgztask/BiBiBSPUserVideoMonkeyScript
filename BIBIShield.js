@@ -1773,7 +1773,7 @@ const frequencyChannel = {
     },
     //设置当前频道的id
     setChannel_id: function (id) {
-        util.setData("channel_id",parseInt(id));
+        util.setData("channel_id", parseInt(id));
     },
     //获取当前频道的id
     getChannel_id: function () {
@@ -3628,7 +3628,7 @@ const video_zoneList = {
         const tempVar = parseInt($('#video_zoneSelect').val());
         if ($('#pushTypeSelect').val() === "分区") {
             util.print("选择了分区" + video_zoneList[tempVar] + " uid=" + tempVar);
-        localData.setVideo_zone(tempVar);
+            localData.setVideo_zone(tempVar);
         } else {
             util.print("选择了频道" + frequencyChannel.data.channel_idList[tempVar] + " uid=" + tempVar);
             frequencyChannel.setChannel_id(tempVar);
@@ -3850,18 +3850,10 @@ function bilibili(href) {
                 const author_name = v["author_name"];//用户名
                 const author_id = v["author_id"];//用户UID
                 const bvid = v["bvid"];//视频bv号
-                if (title === undefined) {
-                    console.log("当前值异常！");
-                    continue;
-                }
-                $(".container.is-version8").append(
-                    addElement.homeVideoE.getHtmlStr(
-                        title, "https://www.bilibili.com/" + bvid, cover, author_id, author_name, duration, "",
-                        view_count, danmaku
-                    )
-                );
+                tempFunc(author_id,title,author_name,bvid,duration,"",view_count,danmaku,cover);
             }
         };
+
         //加载频道视频数据
         function loadingVideoZE() {
             httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${frequencyChannel.getChannel_id()}&sort_type=${frequencyChannel.getSort_type()}&offset=${frequencyChannel.getOffset()}&page_size=30`, function (res) {
@@ -3874,12 +3866,60 @@ function bilibili(href) {
                 if (frequencyChannel.getOffset() === "") {
                     ergodicList(bodyList[0]["items"]);
                     ergodicList(bodyList.slice(1));
-                }else {
+                } else {
                     ergodicList(bodyList);
                 }
                 frequencyChannel.setOffset(body["data"]["offset"]);
             });
         };
+
+        /**
+         *
+         * @param uid uid
+         * @param videoTitle 标题
+         * @param userName 用户名
+         * @param bvid by号
+         * @param duration  视频时长
+         * @param ctimeStr 发布时间
+         * @param view 播放量
+         * @param danmaku 弹幕量
+         * @param pic 封面
+         */
+        function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
+            if (shield.arrKey(localData.getArrUID(), uid)) {
+                util.print(`已通过黑名单UID=【${uid}】屏蔽该用户【${userName}】标题【${videoTitle}】`);
+                return;
+            }
+            const isNameKey = shield.arrContent(localData.getArrNameKey(), userName);
+            if (isNameKey != null) {
+                util.print(`已通过黑名单用户名关键词【${isNameKey}】屏蔽用户【${userName}】UID【u${uid}】标题【${videoTitle}】`);
+                return;
+            }
+            const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
+            if (isTitleKey != null) {
+                util.print(`已通过黑名单标题关键词【${isTitleKey}】屏蔽用户【${userName}】UID【${uid}】标题【${videoTitle}】`)
+                return;
+            }
+            const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
+            if (isTitleKeyCanonical != null) {
+                util.print(`已通过黑名单正则标题【${isTitleKeyCanonical}】屏蔽用户【${userName}】UID【${uid}】标题【${videoTitle}】`);
+                return;
+            }
+            $(".container.is-version8").append(
+                addElement.homeVideoE.getHtmlStr(
+                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, util.formateTime(duration), ctimeStr,
+                    view, danmaku)
+            );
+            $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
+                const userInfo = domElement.querySelector(".bili-video-card__info--owner");
+                const userHref = userInfo.href;
+                const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
+                util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
+                //console.log(tempElement);
+            });
+        }
 
         //加载分区视频数据
         function loadingVideoE(ps) {
@@ -3892,7 +3932,7 @@ function bilibili(href) {
                 for (const v of archives) {
                     const picUil = v["pic"];
                     const videoTitle = v["title"];
-                    const bvid = v["bvid"];
+                    let bvid = v["bvid"];
                     const uid = v["owner"]["mid"];
                     const name = v["owner"]["name"];
                     const view = v["stat"]["view"];//播放量
@@ -3903,42 +3943,8 @@ function bilibili(href) {
                     const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
                     const duration = v["duration"];//视频时长秒
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
-                    const tname = v["tname"];//分区
-                    if (shield.arrKey(localData.getArrUID(), uid)) {
-                        util.print(`已通过黑名单UID=【${uid}】屏蔽该用户【${name}】标题【${videoTitle}】`);
-                        continue;
-                    }
-                    const isNameKey = shield.arrContent(localData.getArrNameKey(), name);
-                    if (isNameKey != null) {
-                        util.print(`已通过黑名单用户名关键词【${isNameKey}】屏蔽用户【${name}】UID【u${uid}】标题【${videoTitle}】`);
-                        continue;
-                    }
-                    const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
-                    if (isTitleKey != null) {
-                        util.print(`已通过黑名单标题关键词【${isTitleKey}】屏蔽用户【${name}】UID【${uid}】标题【${videoTitle}】`)
-                        continue;
-                    }
-                    const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
-                    if (isTitleKeyCanonical != null) {
-                        util.print(`已通过黑名单正则标题【${isTitleKeyCanonical}】屏蔽用户【${name}】UID【${uid}】标题【${videoTitle}】`);
-                        continue;
-                    }
-                    $(".container.is-version8").append(
-                        addElement.homeVideoE.getHtmlStr(
-                            videoTitle, "https://www.bilibili.com/" + (bvidSub === "" ? bvid : bvidSub), picUil, uid, name, util.formateTime(duration), ctimeStr,
-                            view, danmaku
-                        )
-                    );
-                    $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
-                        const domElement = e.delegateTarget;//dom对象
-                        const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
-                        const userInfo = domElement.querySelector(".bili-video-card__info--owner");
-                        const userHref = userInfo.href;
-                        const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
-                        util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
-                        //console.log(tempElement);
-                    });
-
+                    bvid = (bvidSub === "" ? bvid : bvidSub);
+                    tempFunc(uid, videoTitle, name, bvid, duration, ctimeStr, view, danmaku, picUil);
                 }
             });
         }
