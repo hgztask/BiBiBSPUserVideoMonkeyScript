@@ -645,6 +645,26 @@ function delDReplay() {
     }, 1000);
 }
 
+
+const httpUtil={
+    /**
+     *封装get请求
+     * @param {string}url 请求URL
+     * @param {function}func 相应成功函数
+     */
+    get:function (url,func) {
+        util.httpRequest({
+            method: "get",
+            url: url,
+            headers: {
+                "User-Agent": navigator.userAgent,
+            },  onload: func//相应成功！
+        })
+    }
+}
+
+
+
 /**
  * 工具类
  */
@@ -2838,6 +2858,8 @@ function hideDisplayHomeLaylout() {
     });
 
 
+
+
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
         const keycode = event.keyCode;
         if (keycode === 192) {//按下`按键显示隐藏面板
@@ -3742,72 +3764,66 @@ function bilibili(href) {
         console.log("进入了首页");
         function loadingVideoE(ps) {
             const rid = localData.getVideo_zone();
-            util.httpRequest({
-                method: "get",
-                url: `https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${rid === undefined ? 1 : rid}`,
-                headers: {
-                    "User-Agent": navigator.userAgent,
-                },
-                onload: function (res) {
-                    const bodyJson = JSON.parse(res.responseText);
-                    if (bodyJson["code"] !== 0) {
-                        return;
+            httpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${rid === undefined ? 1 : rid}`,function (res) {
+                const bodyJson = JSON.parse(res.responseText);
+                if (bodyJson["code"] !== 0) {
+                    return;
+                }
+                const archives = bodyJson["data"]["archives"];
+                for (const v of archives) {
+                    const picUil = v["pic"];
+                    const videoTitle = v["title"];
+                    const bvid = v["bvid"];
+                    const uid = v["owner"]["mid"];
+                    const name = v["owner"]["name"];
+                    const view = v["stat"]["view"];//播放量
+                    const danmaku = v["stat"]["danmaku"];//弹幕量
+                    const aid = v["stat"]["aid"];//av号
+                    const ctime = v["ctime"];//视频审核时间时间戳
+                    const pubdate = v["pubdate"];//视频上传时间时间戳
+                    const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
+                    const duration = v["duration"];//视频时长秒
+                    const bvidSub = bvid.substring(0, bvid.indexOf("?"));
+                    const tname = v["tname"];//分区
+                    if (shield.arrKey(localData.getArrUID(), uid)) {
+                        util.print(`已通过黑名单UID=【${uid}】屏蔽该用户【${name}】标题【${videoTitle}】`);
+                        continue;
                     }
-                    const archives = bodyJson["data"]["archives"];
-                    for (const v of archives) {
-                        const picUil = v["pic"];
-                        const videoTitle = v["title"];
-                        const bvid = v["bvid"];
-                        const uid = v["owner"]["mid"];
-                        const name = v["owner"]["name"];
-                        const view = v["stat"]["view"];//播放量
-                        const danmaku = v["stat"]["danmaku"];//弹幕量
-                        const aid = v["stat"]["aid"];//av号
-                        const ctime = v["ctime"];//视频审核时间时间戳
-                        const pubdate = v["pubdate"];//视频上传时间时间戳
-                        const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
-                        const duration = v["duration"];//视频时长秒
-                        const bvidSub = bvid.substring(0, bvid.indexOf("?"));
-                        const tname = v["tname"];//分区
-                        if (shield.arrKey(localData.getArrUID(), uid)) {
-                            util.print(`已通过黑名单UID=【${uid}】屏蔽该用户【${name}】标题【${videoTitle}】`);
-                            continue;
-                        }
-                        const isNameKey = shield.arrContent(localData.getArrNameKey(), name);
-                        if (isNameKey != null) {
-                            util.print(`已通过黑名单用户名关键词【${isNameKey}】屏蔽用户【${name}】UID【u${uid}】标题【${videoTitle}】`);
-                            continue;
-                        }
-                        const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
-                        if (isTitleKey != null) {
-                            util.print(`已通过黑名单标题关键词【${isTitleKey}】屏蔽用户【${name}】UID【${uid}】标题【${videoTitle}】`)
-                            continue;
-                        }
-                        const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
-                        if (isTitleKeyCanonical != null) {
-                            util.print(`已通过黑名单正则标题【${isTitleKeyCanonical}】屏蔽用户【${name}】UID【${uid}】标题【${videoTitle}】`);
-                            continue;
-                        }
-                        $(".container.is-version8").append(
-                            addElement.homeVideoE.getHtmlStr(
-                                videoTitle, "https://www.bilibili.com/" + (bvidSub === "" ? bvid : bvidSub), picUil, uid, name, util.formateTime(duration), ctimeStr,
-                                view, danmaku
-                            )
-                        );
-                        $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
-                            const domElement = e.delegateTarget;//dom对象
-                            const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
-                            const userInfo = domElement.querySelector(".bili-video-card__info--owner");
-                            const userHref = userInfo.href;
-                            const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
-                            util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
-                            //console.log(tempElement);
-                        });
+                    const isNameKey = shield.arrContent(localData.getArrNameKey(), name);
+                    if (isNameKey != null) {
+                        util.print(`已通过黑名单用户名关键词【${isNameKey}】屏蔽用户【${name}】UID【u${uid}】标题【${videoTitle}】`);
+                        continue;
+                    }
+                    const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
+                    if (isTitleKey != null) {
+                        util.print(`已通过黑名单标题关键词【${isTitleKey}】屏蔽用户【${name}】UID【${uid}】标题【${videoTitle}】`)
+                        continue;
+                    }
+                    const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
+                    if (isTitleKeyCanonical != null) {
+                        util.print(`已通过黑名单正则标题【${isTitleKeyCanonical}】屏蔽用户【${name}】UID【${uid}】标题【${videoTitle}】`);
+                        continue;
+                    }
+                    $(".container.is-version8").append(
+                        addElement.homeVideoE.getHtmlStr(
+                            videoTitle, "https://www.bilibili.com/" + (bvidSub === "" ? bvid : bvidSub), picUil, uid, name, util.formateTime(duration), ctimeStr,
+                            view, danmaku
+                        )
+                    );
+                    $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
+                        const domElement = e.delegateTarget;//dom对象
+                        const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
+                        const userInfo = domElement.querySelector(".bili-video-card__info--owner");
+                        const userHref = userInfo.href;
+                        const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
+                        util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
+                        //console.log(tempElement);
+                    });
 
-                    }
-                    // code
                 }
             });
+
+
         }
 
         //监听页面触底
