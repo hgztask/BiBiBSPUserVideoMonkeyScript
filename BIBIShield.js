@@ -1764,8 +1764,12 @@ function getChannelVideoRules(element) {
 //频道
 const frequencyChannel = {
     data: {
-        sort_type: "hot",//排序的方式 hot热门
-        offset: "",//需要给出个初始值，之后可以迭代生成，如果为空字符串则为从顶部内容获取
+        //排序的方式 hot热门
+        sort_type: "hot",
+        //需要给出个初始值，之后可以迭代生成，如果为空字符串则为从顶部内容获取
+        offsetData: {
+            //k是频道id，v是当时加载的坐标
+        },
         channel_idList: {
             7700690: "战双帕弥什",
             7295336: "元歌",
@@ -1790,11 +1794,15 @@ const frequencyChannel = {
     getSort_type: function () {
         return this.data.sort_type;
     },
-    setOffset: function (s) {
-        this.data.offset = s;
+    setOffset: function (id,s) {
+        this.data.offsetData[id]=s;
     },
-    getOffset: function () {
-        return this.data.offset;
+    getOffset: function (id) {
+        const data = this.data.offsetData[id];
+        if (data === undefined||data===null) {
+            return "";
+        }
+        return data;
     },
     // 频道排行榜规则
     listRules: function () {
@@ -3864,20 +3872,21 @@ function bilibili(href) {
 
         //加载频道视频数据
         function loadingVideoZE() {
-            httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${frequencyChannel.getChannel_id()}&sort_type=${frequencyChannel.getSort_type()}&offset=${frequencyChannel.getOffset()}&page_size=30`, function (res) {
+            const tempChannelId = frequencyChannel.getChannel_id();
+            httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${frequencyChannel.getSort_type()}&offset=${frequencyChannel.getOffset(tempChannelId)}&page_size=30`, function (res) {
                 const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
                     console.log("没有获取到值");
                     return;
                 }
                 const bodyList = body["data"]["list"];
-                if (frequencyChannel.getOffset() === "") {
+                if (frequencyChannel.getOffset(tempChannelId) === "") {
                     ergodicList(bodyList[0]["items"]);
                     ergodicList(bodyList.slice(1));
                 } else {
                     ergodicList(bodyList);
                 }
-                frequencyChannel.setOffset(body["data"]["offset"]);
+                frequencyChannel.setOffset(tempChannelId,body["data"]["offset"]);
             });
         };
 
@@ -4025,7 +4034,7 @@ function bilibili(href) {
 }
 
 /**
- * 中中针对于专区的广告页脚信息屏蔽
+ * 中中针对于分区的广告页脚信息屏蔽
  */
 function homePrefecture() {
     util.circulateID("biliMainFooter", 2000, "已移除底部信息");
@@ -4035,14 +4044,6 @@ function homePrefecture() {
         console.log("已移除界面中的横幅广告");
     }
 }
-
-
-/**
- 精简处理的地方有：
- 搜索页面右侧悬浮按钮（貌似是新版的，没留意）
- 搜索页面底部信息
- 视频播放界面右侧个别悬浮按钮
- */
 /*****
  获取用户所有关注的思路：
  不确定js有没有相关可以发起请求的库，以java的为例，请求带上cookie，和referer，
