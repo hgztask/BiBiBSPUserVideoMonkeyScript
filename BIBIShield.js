@@ -1773,7 +1773,20 @@ const frequencyChannel = {
         channel_idList: {
             7700690: "战双帕弥什",
             7295336: "元歌",
-            17941: "恐怖游戏"
+            17941: "恐怖游戏",
+            1833:"搞笑",
+            17683:"单机游戏",
+            2908447:"碧蓝航线",
+            9734740:"apex英雄",
+            47988:"我的世界",
+            152655:"沙盒游戏",
+            391:"AMV",
+            47996:"冷知识",
+            1562:"喵星人",
+            497221:"鬼畜调教",
+            6578:"计算机",
+            68:"鬼畜",
+            530918:"动漫杂谈"
         }
     },
     //设置当前频道的id
@@ -3924,7 +3937,7 @@ function bilibili(href) {
             }
             $(".container.is-version8").append(
                 addElement.homeVideoE.getHtmlStr(
-                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, util.formateTime(duration), ctimeStr,
+                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
                     view, danmaku)
             );
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
@@ -3961,7 +3974,7 @@ function bilibili(href) {
                     const duration = v["duration"];//视频时长秒
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
                     bvid = (bvidSub === "" ? bvid : bvidSub);
-                    tempFunc(uid, videoTitle, name, bvid, duration, ctimeStr, view, danmaku, picUil);
+                    tempFunc(uid, videoTitle, name, bvid, duration, util.formateTime(ctimeStr), view, danmaku, picUil);
                 }
             });
         }
