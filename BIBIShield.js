@@ -3822,13 +3822,12 @@ function bilibili(href) {
         });
         const interval = setInterval(() => {
             const homeGrid = $(".container.is-version8");
-            if (homeGrid === null) {
-                console.log(homeGrid);
+            if (homeGrid === null||homeGrid===undefined||homeGrid.children().length===0) {
                 return;
             }
-            console.log(homeGrid);
             clearInterval(interval);
             homeGrid.html("");//先清空该标签的内容
+            console.log("清除内容")
             loadingVideoE(25);
             // //首页
             home.stypeBody();
