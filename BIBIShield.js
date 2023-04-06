@@ -72,7 +72,6 @@ const rule = {
         } else {
             autoPlayCheckbox.attr("checked", isAutoPlay);
         }
-        $("#video_zoneSpan").text(localData.getVideo_zone());
 
 
     },
@@ -203,6 +202,20 @@ const home = {
         g: 80,
         b: 80,
         a: 1
+    },
+    /**
+     *
+     * @return {string|}
+     */
+    getPushType: function () {
+        const data = util.getData("pushType");
+        if (data === null || data === undefined) {
+            return "专区";
+        }
+        return data;
+    },
+    setPushType: function (key) {
+        util.setData("pushType", key);
     },
     getBackgroundStr: function () {
         return util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
@@ -646,23 +659,22 @@ function delDReplay() {
 }
 
 
-const httpUtil={
+const httpUtil = {
     /**
      *封装get请求
      * @param {string}url 请求URL
      * @param {function}func 相应成功函数
      */
-    get:function (url,func) {
+    get: function (url, func) {
         util.httpRequest({
             method: "get",
             url: url,
             headers: {
                 "User-Agent": navigator.userAgent,
-            },  onload: func//相应成功！
+            }, onload: func//相应成功！
         })
     }
 }
-
 
 
 /**
@@ -1221,7 +1233,11 @@ const localData = {
         util.setData("contentOnKeyCanonicalArr", key);
     },
     getVideo_zone: function () {
-        return util.getData("video_zone");
+        const data = util.getData("video_zone");
+        if (data === undefined || data === null) {
+            return 1;
+        }
+        return parseInt(data);
     },
     setVideo_zone: function (key) {
         util.setData("video_zone", key);
@@ -1746,8 +1762,39 @@ function getChannelVideoRules(element) {
 
 //频道
 const frequencyChannel = {
-    data: {},
-
+    data: {
+        sort_type: "hot",//排序的方式 hot热门
+        offset: "",//需要给出个初始值，之后可以迭代生成，如果为空字符串则为从顶部内容获取
+        channel_idList: {
+            7700690: "战双帕弥什",
+            7295336: "元歌",
+            17941: "恐怖游戏"
+        }
+    },
+    //设置当前频道的id
+    setChannel_id: function (id) {
+        util.setData("channel_id",parseInt(id));
+    },
+    //获取当前频道的id
+    getChannel_id: function () {
+        const data = util.getData("channel_id");
+        if (data === undefined || data == null) {
+            return 17941;//默认返回恐怖游戏的频道
+        }
+        return parseInt(data);
+    },
+    setSort_type: function (typeStr) {
+        this.data.sort_type = typeStr;
+    },
+    getSort_type: function () {
+        return this.data.sort_type;
+    },
+    setOffset: function (s) {
+        this.data.offset = s;
+    },
+    getOffset: function () {
+        return this.data.offset;
+    },
     // 频道排行榜规则
     listRules: function () {
         let list = document.getElementsByClassName("rank-video-card");
@@ -2419,8 +2466,12 @@ const layout = {
                 </select>
                 <button id="preservePlaybackSpeedModel">保存</button>
               </div>
-              <h3>首页推荐视频分区</h3>
-              <span>指定推送</span><span id="video_zoneSpan"></span><span>分区</span>
+              <h3>首页推荐视频</h3>
+              <span>指定推送</span>
+              <select id="pushTypeSelect">
+                <option value="分区">分区</option>
+                <option value="频道">频道</option>
+              </select>
               <select id="video_zoneSelect">
                 <option value="1">下拉选择</option>
               </select>
@@ -2829,7 +2880,8 @@ function hideDisplayHomeLaylout() {
     myidClickIndex = true;
 };
 
-const video_zoneList = {//分区rid对应的类型
+//分区rid对应的类型
+const video_zoneList = {
     1: "动画(主分区)",
     13: "番剧(主分区)",
     167: "国创(主分区)",
@@ -2881,8 +2933,6 @@ const video_zoneList = {//分区rid对应的类型
     $("#mybut").click(() => {
         hideDisplayHomeLaylout();
     });
-
-
 
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
@@ -3553,15 +3603,36 @@ const video_zoneList = {//分区rid对应的类型
     });
 
 
-
-    for (const v in video_zoneList) {
-        $("#video_zoneSelect").append(`<option value=${v}>${video_zoneList[v]}</option>`);
+    function addVideo_zoneListE() {
+        for (const v in video_zoneList) {
+            $("#video_zoneSelect").append(`<option value=${v}>${video_zoneList[v]}</option>`);
+        }
     }
-    $('#video_zoneSelect').change(() => {//监听模式下拉列表--下拉列表-首页推荐视频分区
+
+    addVideo_zoneListE();
+    $('#pushTypeSelect').change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
+        const tempVar = $('#pushTypeSelect').val();
+        $("#video_zoneSelect>option:not(:first)").remove();//清空下拉选择器内的元素（除第一个）
+        home.setPushType(tempVar);
+        if (tempVar === "分区") {
+            addVideo_zoneListE();
+            return;
+        }
+        const list = frequencyChannel.data.channel_idList;
+        for (const v in list) {
+            $("#video_zoneSelect").append(`<option value=${v}>${list[v]}</option>`);
+        }
+    });
+
+    $('#video_zoneSelect').change(() => {//监听模式下拉列表--下拉列表-首页推荐视频分区亦或者频道
         const tempVar = parseInt($('#video_zoneSelect').val());
-        util.print("选择分区=" + video_zoneList[tempVar] + " uid=" + tempVar);
-        $("#video_zoneSpan").text(video_zoneList[tempVar]);
+        if ($('#pushTypeSelect').val() === "分区") {
+            util.print("选择了分区" + video_zoneList[tempVar] + " uid=" + tempVar);
         localData.setVideo_zone(tempVar);
+        } else {
+            util.print("选择了频道" + frequencyChannel.data.channel_idList[tempVar] + " uid=" + tempVar);
+            frequencyChannel.setChannel_id(tempVar);
+        }
     });
 
 
@@ -3765,9 +3836,54 @@ function bilibili(href) {
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+
+        //针对频道api中的数据遍历处理并添加进去网页元素
+        function ergodicList(list) {
+            for (const v of list) {
+                const av = v["id"];//视频av号
+                const title = v["name"];//标题
+                const cover = v["cover"];//封面
+                const view_count = v["view_count"];//播放量
+                const like_count = v["like_count"];//点赞量
+                const danmaku = v["danmaku"];//弹幕量
+                const duration = v["duration"];//时长【格式化之后的时分秒】
+                const author_name = v["author_name"];//用户名
+                const author_id = v["author_id"];//用户UID
+                const bvid = v["bvid"];//视频bv号
+                if (title === undefined) {
+                    console.log("当前值异常！");
+                    continue;
+                }
+                $(".container.is-version8").append(
+                    addElement.homeVideoE.getHtmlStr(
+                        title, "https://www.bilibili.com/" + bvid, cover, author_id, author_name, duration, "",
+                        view_count, danmaku
+                    )
+                );
+            }
+        };
+        //加载频道视频数据
+        function loadingVideoZE() {
+            httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${frequencyChannel.getChannel_id()}&sort_type=${frequencyChannel.getSort_type()}&offset=${frequencyChannel.getOffset()}&page_size=30`, function (res) {
+                const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
+                if (body["code"] !== 0) {
+                    console.log("没有获取到值");
+                    return;
+                }
+                const bodyList = body["data"]["list"];
+                if (frequencyChannel.getOffset() === "") {
+                    ergodicList(bodyList[0]["items"]);
+                    ergodicList(bodyList.slice(1));
+                }else {
+                    ergodicList(bodyList);
+                }
+                frequencyChannel.setOffset(body["data"]["offset"]);
+            });
+        };
+
+        //加载分区视频数据
         function loadingVideoE(ps) {
-            const rid = localData.getVideo_zone();
-            httpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${rid === undefined ? 1 : rid}`,function (res) {
+            httpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${localData.getVideo_zone()}`, function (res) {
                 const bodyJson = JSON.parse(res.responseText);
                 if (bodyJson["code"] !== 0) {
                     return;
@@ -3825,29 +3941,37 @@ function bilibili(href) {
 
                 }
             });
-
-
         }
+
 
         //监听页面触底
         $(window).scroll(function () {
             if ($(this).scrollTop() + $(this).height() === $(document).height()) {//到达底部之后加载
                 console.log("触底了")
-                loadingVideoE(home.videoIndex);
-                if (home.videoIndex <= 50) {
+                //loadingVideoE(home.videoIndex);
+                const temp = home.getPushType();
+                if (home.videoIndex <= 50 && temp === "分区") {
                     home.videoIndex += 10;
                 }
+                if (temp === "分区") {
+                    loadingVideoE(home.videoIndex);
+                    return;
+                }
+                loadingVideoZE();
             }
         });
         const interval = setInterval(() => {
             const homeGrid = $(".container.is-version8");
-            if (homeGrid === null||homeGrid===undefined||homeGrid.children().length===0) {
+            if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) {
                 return;
             }
             clearInterval(interval);
             homeGrid.html("");//先清空该标签的内容
-            console.log("清除内容")
-            loadingVideoE(25);
+            if (home.getPushType() === "分区") {
+                loadingVideoE(25);
+            } else {
+                loadingVideoZE();
+            }
             // //首页
             home.stypeBody();
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
