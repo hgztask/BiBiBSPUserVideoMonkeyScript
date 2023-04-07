@@ -726,6 +726,34 @@ const util = {
         GM_xmlhttpRequest(x);
     },
     /**
+     * 获取当前网页cookie
+     * @return {string}
+     */
+    getCookie: function () {
+        return document.cookie;
+    },
+    /**
+     * 获取当前网页cookie，已键值对形式对象返回
+     * @return {{}}
+     */
+    getCookieList: function () {
+        const arrCookie = {};
+        const cookie = this.getCookie();
+        if (cookie === "") {
+            return arrCookie;
+        }
+        if (!cookie.includes(";")) {
+            return arrCookie;
+        }
+        const split = cookieStr.split(";");
+        for (const v of split) {
+            const tempV = v.split("=");
+            arrCookie[tempV[0]] = tempV[1];
+        }
+        return arrCookie;
+
+    },
+    /**
      * 分割时分秒字符串
      * @param {String}time
      * @returns {{s: number, h: number, m: number}|{s: number, m: number}}
@@ -1817,11 +1845,11 @@ const frequencyChannel = {
      * @param typeStr 频道对应的排序类型
      * @param s 具体的内容
      */
-    setOffset: function (id,typeStr,s) {
+    setOffset: function (id, typeStr, s) {
         if (this.data.offsetData[id] === undefined) {
-        this.data.offsetData[id]={};
+            this.data.offsetData[id] = {};
         }
-        this.data.offsetData[id][typeStr]=s;
+        this.data.offsetData[id][typeStr] = s;
         console.log(this.data.offsetData);
     },
     /**
@@ -1830,7 +1858,7 @@ const frequencyChannel = {
      * @param typeStr 频道对应的排序类型
      * @return {string|}
      */
-    getOffset: function (id,typeStr) {
+    getOffset: function (id, typeStr) {
         console.log(this.data.offsetData);
         const data = this.data.offsetData[id];
         if (data === undefined || data === null) {
@@ -2969,6 +2997,8 @@ function loadChannel() {
     'use strict';
     let href = util.getWindowUrl();
     console.log("当前网页url=" + href);
+
+
     if (href.includes("github.com")) {
         github(href);
         return;
@@ -3719,7 +3749,7 @@ function loadChannel() {
                         continue;
                     }
                     tempVideoZoneSelect.val(v);
-                    util.print( `通过value找到该值！=${tempContent}`);
+                    util.print(`通过value找到该值！=${tempContent}`);
                     return;
                 }
             }
@@ -3959,7 +3989,7 @@ function bilibili(href) {
         function loadingVideoZE() {
             const tempChannelId = frequencyChannel.getChannel_id();
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
-            const tempOffset = frequencyChannel.getOffset(tempChannelId,tempSortType);//视频列表偏移量
+            const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
             httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
                 const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
@@ -3967,13 +3997,13 @@ function bilibili(href) {
                     return;
                 }
                 const bodyList = body["data"]["list"];
-                if (tempOffset === ""&&tempSortType==="hot") {
+                if (tempOffset === "" && tempSortType === "hot") {
                     ergodicList(bodyList[0]["items"]);
                     ergodicList(bodyList.slice(1));
                 } else {
                     ergodicList(bodyList);
                 }
-                frequencyChannel.setOffset(tempChannelId,tempSortType, body["data"]["offset"]);
+                frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
             });
         };
 
