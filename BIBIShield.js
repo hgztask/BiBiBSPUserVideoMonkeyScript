@@ -2880,6 +2880,7 @@ function ruleList(href) {
         frequencyChannel.videoRules();
         frequencyChannel.delDevelop();
         frequencyChannel.cssStyle.backGauge();
+        return;
     }
     if (href.includes("www.bilibili.com/v/")) {
         home.startShieldMainVideo("bili-video-card");
