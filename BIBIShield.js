@@ -80,9 +80,15 @@ const rule = {
         if (pushType === "分区") {
             loadPartition();
             videoZoneSelect.val(localData.getVideo_zone());
-        } else {
+        } else if (pushType === "频道") {
+            const tempSortTypeSelect = $("#sort_typeSelect");
+            const tempSortType = frequencyChannel.getSort_type();
             loadChannel();
             videoZoneSelect.val(frequencyChannel.getChannel_id());
+            tempSortTypeSelect.val(tempSortType);
+            tempSortTypeSelect.css("display", "inline")
+        } else {
+            util.printRGBB("red", "初始化时出现了不该出现的结果");
         }
 
     },
@@ -1778,8 +1784,6 @@ function getChannelVideoRules(element) {
 //频道
 const frequencyChannel = {
     data: {
-        //排序的方式 hot热门
-        sort_type: "hot",
         //需要给出个初始值，之后可以迭代生成，如果为空字符串则为从顶部内容获取
         offsetData: {
             //k是频道id，v是当时加载的坐标
@@ -1798,21 +1802,45 @@ const frequencyChannel = {
         }
         return parseInt(data);
     },
+    //设置频道推送的类型，热门还是以播放量亦或者最新
     setSort_type: function (typeStr) {
-        this.data.sort_type = typeStr;
+        util.setData("sort_type", typeStr);
     },
+    //获取频道推送的类型，热门还是以播放量亦或者最新
     getSort_type: function () {
-        return this.data.sort_type;
+        const data = util.getData("sort_type");
+        return data === undefined || data === null ? "hot" : data;//默认返回热门
     },
-    setOffset: function (id, s) {
-        this.data.offsetData[id] = s;
+    /**
+     *
+     * @param id 频道id
+     * @param typeStr 频道对应的排序类型
+     * @param s 具体的内容
+     */
+    setOffset: function (id,typeStr,s) {
+        if (this.data.offsetData[id] === undefined) {
+        this.data.offsetData[id]={};
+        }
+        this.data.offsetData[id][typeStr]=s;
+        console.log(this.data.offsetData);
     },
-    getOffset: function (id) {
+    /**
+     * 偏移量
+     * @param id 频道id
+     * @param typeStr 频道对应的排序类型
+     * @return {string|}
+     */
+    getOffset: function (id,typeStr) {
+        console.log(this.data.offsetData);
         const data = this.data.offsetData[id];
         if (data === undefined || data === null) {
             return "";
         }
-        return data;
+        const tempData = data[typeStr];
+        if (tempData === undefined || tempData === null) {
+            return "";
+        }
+        return data[typeStr];
     },
     // 频道排行榜规则
     listRules: function () {
@@ -2384,6 +2412,9 @@ const layout = {
                 left: 85%;
                  border: 3px solid green;
              }
+              #sort_typeSelect{
+               display: none;
+               }
             `);
         }
     },
@@ -2490,6 +2521,11 @@ const layout = {
               <select id="pushTypeSelect">
                 <option value="分区">分区</option>
                 <option value="频道">频道</option>
+              </select>
+               <select id="sort_typeSelect">
+                <option value="hot">近期热门</option>
+                <option value="view">播放最多（近30天投稿）</option>
+                <option value="new">最新投稿</option>
               </select>
               <select id="video_zoneSelect">
                 <option value="1">下拉选择</option>
@@ -3625,11 +3661,15 @@ function loadChannel() {
     const tempPushTypeSelect = $('#pushTypeSelect');
     tempPushTypeSelect.change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
         const tempVar = tempPushTypeSelect.val();
+        const tempSortTypeSelect = $("#sort_typeSelect");
         $("#video_zoneSelect>option:not(:first)").remove();//清空下拉选择器内的元素（除第一个）
         if (tempVar === "分区") {
             loadPartition();
+            tempSortTypeSelect.css("display", "none");
             return;
         }
+        tempSortTypeSelect.css("display", "inline");
+        tempSortTypeSelect.val(frequencyChannel.getSort_type());
         loadChannel();
     });
 
@@ -3642,8 +3682,11 @@ function loadChannel() {
             util.print("选择了分区" + home.data.video_zoneList[selectVar] + " uid=" + selectVar);
             localData.setVideo_zone(selectVar);
         } else {
-            util.print("选择了频道" + frequencyChannel.data.channel_idList[selectVar] + " uid=" + selectVar);
+            const tempSortTypeSelect = $("#sort_typeSelect");
+            const tempVar = tempSortTypeSelect.val();
+            util.print("选择了" + tempSortTypeSelect.text() + "的频道" + frequencyChannel.data.channel_idList[selectVar] + " uid=" + selectVar);
             frequencyChannel.setChannel_id(selectVar);
+            frequencyChannel.setSort_type(tempVar)
         }
         alert("已设置！")
     });
@@ -3659,6 +3702,7 @@ function loadChannel() {
     });
     $("#findButon").click(() => {
         const tempContent = temoTypeInput.val();
+
         function tempFunc(typeStr, tempContent) {
             const list = typeStr === "分区" ? home.data.video_zoneList : frequencyChannel.data.channel_idList;
             if (tempIdCheckbox.is(":checked")) {//通过ID方式查找
@@ -3673,8 +3717,7 @@ function loadChannel() {
                         continue;
                     }
                     tempVideoZoneSelect.val(v);
-                    console.log("测试")
-                    util.printRGBB("red", `通过value找到该值！=${tempContent}`);
+                    util.print( `通过value找到该值！=${tempContent}`);
                     return;
                 }
             }
@@ -3906,27 +3949,29 @@ function bilibili(href) {
                 const author_name = v["author_name"];//用户名
                 const author_id = v["author_id"];//用户UID
                 const bvid = v["bvid"];//视频bv号
-                tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku===undefined?0:danmaku, cover);
+                tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover);
             }
         };
 
         //加载频道视频数据
         function loadingVideoZE() {
             const tempChannelId = frequencyChannel.getChannel_id();
-            httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${frequencyChannel.getSort_type()}&offset=${frequencyChannel.getOffset(tempChannelId)}&page_size=30`, function (res) {
+            const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
+            const tempOffset = frequencyChannel.getOffset(tempChannelId,tempSortType);//视频列表偏移量
+            httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
                 const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
                     alert("未获取到频道视频数据");
                     return;
                 }
                 const bodyList = body["data"]["list"];
-                if (frequencyChannel.getOffset(tempChannelId) === "") {
+                if (tempOffset === ""&&tempSortType==="hot") {
                     ergodicList(bodyList[0]["items"]);
                     ergodicList(bodyList.slice(1));
                 } else {
                     ergodicList(bodyList);
                 }
-                frequencyChannel.setOffset(tempChannelId, body["data"]["offset"]);
+                frequencyChannel.setOffset(tempChannelId,tempSortType, body["data"]["offset"]);
             });
         };
 
@@ -4040,7 +4085,7 @@ function bilibili(href) {
             home.stypeBody();
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
             $(".feed-roll-btn").remove();//移除换一换
-        }, 500);
+        }, 100);
         return;
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
@@ -4093,6 +4138,15 @@ function homePrefecture() {
  https://api.bilibili.com/x/relation/followings?vmid=UID号&pn=页数，从1开始&ps=20&order=desc&order_type=attention&jsonp=jsonp&callback=__jp5
  其中referer值=https://space.bilibili.com/用户UID/fans/follow
  正常情况就可以得到内容了，根据总的关注数量，除以20，且除余就得出需要循环获取多少次了页数
+
+
+ 获取用户订阅的频道
+ https://api.bilibili.com/x/web-interface/web/channel/subscribe/list
+ 应该要带上cookie
+
+ 获取频道精选视频列表
+ https://api.bilibili.com/x/web-interface/web/channel/featured/list?channel_id=7700690&filter_type=2023&offset=&page_size=30
+ 主要说下如综合频道不同的一些地方：其中多了filter_type属性，该值为0时为全部年份，2023则对应的年份，并没有sort_type属性
 
  这里写一下，避免下次还得用搜索引擎查找，目前已知match的网址规则可以这样填写，就匹配到了    *://message.bilibili.com/*
 
