@@ -2516,6 +2516,7 @@ const layout = {
                 </select>
                 <button id="preservePlaybackSpeedModel">保存</button>
               </div>
+              <hr>
               <h3>首页推荐视频</h3>
               <span>指定推送</span>
               <select id="pushTypeSelect">
@@ -2535,6 +2536,7 @@ const layout = {
                id<input type="checkbox" id="isIdCheckbox"><input type="text" placeholder="查询的类型关键词" id="typeInput">
                <button id="findButon">查询</button>
              </div>
+             <hr>
               </div>
               <h3>播放画面翻转</h3>
              <button id="flipHorizontal">水平翻转</button>
@@ -4130,24 +4132,3 @@ function homePrefecture() {
         console.log("已移除界面中的横幅广告");
     }
 }
-
-/*****
- 获取用户所有关注的思路：
- 不确定js有没有相关可以发起请求的库，以java的为例，请求带上cookie，和referer，
- 且用该api发起请求
- https://api.bilibili.com/x/relation/followings?vmid=UID号&pn=页数，从1开始&ps=20&order=desc&order_type=attention&jsonp=jsonp&callback=__jp5
- 其中referer值=https://space.bilibili.com/用户UID/fans/follow
- 正常情况就可以得到内容了，根据总的关注数量，除以20，且除余就得出需要循环获取多少次了页数
-
-
- 获取用户订阅的频道
- https://api.bilibili.com/x/web-interface/web/channel/subscribe/list
- 应该要带上cookie
-
- 获取频道精选视频列表
- https://api.bilibili.com/x/web-interface/web/channel/featured/list?channel_id=7700690&filter_type=2023&offset=&page_size=30
- 主要说下如综合频道不同的一些地方：其中多了filter_type属性，该值为0时为全部年份，2023则对应的年份，并没有sort_type属性
-
- 这里写一下，避免下次还得用搜索引擎查找，目前已知match的网址规则可以这样填写，就匹配到了    *://message.bilibili.com/*
-
- */
