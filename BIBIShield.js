@@ -3905,7 +3905,7 @@ function bilibili(href) {
                 const author_name = v["author_name"];//用户名
                 const author_id = v["author_id"];//用户UID
                 const bvid = v["bvid"];//视频bv号
-                tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku, cover);
+                tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku===undefined?0:danmaku, cover);
             }
         };
 
