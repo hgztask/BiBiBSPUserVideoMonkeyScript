@@ -4006,7 +4006,9 @@ function bilibili(href) {
                 const author_name = v["author_name"];//用户名
                 const author_id = v["author_id"];//用户UID
                 const bvid = v["bvid"];//视频bv号
-                tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover);
+                if (tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover)) {
+                    Qmsg.info("过滤了视频！！");
+                }
             }
         };
 
@@ -4050,22 +4052,22 @@ function bilibili(href) {
         function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
             if (shield.arrKey(localData.getArrUID(), uid)) {
                 util.print(`已通过黑名单UID=【${uid}】屏蔽该用户【${userName}】标题【${videoTitle}】`);
-                return;
+                return true;
             }
             const isNameKey = shield.arrContent(localData.getArrNameKey(), userName);
             if (isNameKey != null) {
                 util.print(`已通过黑名单用户名关键词【${isNameKey}】屏蔽用户【${userName}】UID【u${uid}】标题【${videoTitle}】`);
-                return;
+                return true;
             }
             const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
             if (isTitleKey != null) {
                 util.print(`已通过黑名单标题关键词【${isTitleKey}】屏蔽用户【${userName}】UID【${uid}】标题【${videoTitle}】`)
-                return;
+                return true;
             }
             const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
             if (isTitleKeyCanonical != null) {
                 util.print(`已通过黑名单正则标题【${isTitleKeyCanonical}】屏蔽用户【${userName}】UID【${uid}】标题【${videoTitle}】`);
-                return;
+                return true;
             }
             $(".container.is-version8").append(
                 addElement.homeVideoE.getHtmlStr(
@@ -4110,7 +4112,9 @@ function bilibili(href) {
                     const duration = v["duration"];//视频时长秒
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
                     bvid = (bvidSub === "" ? bvid : bvidSub);
-                    tempFunc(uid, videoTitle, name, bvid, duration, util.formateTime(ctimeStr), view, danmaku, picUil);
+                    if (tempFunc(uid, videoTitle, name, bvid, duration, util.formateTime(ctimeStr), view, danmaku, picUil)) {
+                        Qmsg.info("过滤了视频！！");
+                    }
                 }
                 loading.close();
             });
