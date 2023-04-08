@@ -2291,7 +2291,7 @@ const search = {
             //标题
             title: info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title"),
             upSpatialAddress: upSpatialAddress,
-            uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1),
+            uid: util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
             //视频的时间
             videoTime: v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent,
             //播放量
@@ -2324,22 +2324,22 @@ const search = {
                 if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
                     console.log("检测到不是正常视频内容，故隐藏该元素")
                     //如果获取的类型不符合规则则结束本轮
-                    v.parentNode.remove();
+                    v.remove();
                     continue;
                 }
                 const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
                 const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
                 let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
-                if (shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent)) {
+                if (shieldVideo_userName_uid_title(v, name, id, title, null, videoTime, topInfo[0].textContent)) {
                     Qmsg.info("屏蔽了视频！！");
                     continue;
                 }
-                v.parentNode.onmouseenter = (e) => {
+                v.onmouseenter = (e) => {
                     const data = search.getDataV(e.srcElement);
                     util.showSDPanel(e, data.name, data.uid);
                 };
             } catch (e) {
-                v.parentNode.remove();
+                v.remove();
                 console.log("错误信息=" + e + " 删除该元素" + v)
             }
         }
@@ -2934,7 +2934,8 @@ function ruleList(href) {
     if (href.includes("https://search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
         const interval = setInterval(() => {
             while (true) {
-                const list = document.getElementsByClassName("bili-video-card");
+                const list = $(".video-list.row").children();//获取该标签下的直接子标签并返回DOM数组
+                //const list = document.getElementsByClassName("bili-video-card");
                 const tempListLength = list.length;
                 if (tempListLength === 0) {
                     break;
@@ -2950,6 +2951,7 @@ function ruleList(href) {
                 } catch (e) {
                 }
                 search.searchRules(list);
+                console.log(list);
                 if (tempListLength === list.length) {
                     clearInterval(interval);
                     //util.print("页面元素没有变化，故退出循环")
@@ -3050,8 +3052,6 @@ function loadChannel() {
     $("#mybut").click(() => {
         hideDisplayHomeLaylout();
     });
-
-
 
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
@@ -3993,6 +3993,7 @@ function bilibili(href) {
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+
         //针对频道api中的数据遍历处理并添加进去网页元素
         function ergodicList(list) {
             for (const v of list) {
@@ -4130,8 +4131,8 @@ function bilibili(href) {
                 }
                 if (temp === "分区") {
                     loadingVideoE(home.videoIndex);
-                }else {
-                loadingVideoZE();
+                } else {
+                    loadingVideoZE();
                 }
             }
         });
@@ -4150,10 +4151,10 @@ function bilibili(href) {
             // //首页
             home.stypeBody();
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
-            setTimeout(()=>{
-            $(".feed-roll-btn").remove();//移除换一换
+            setTimeout(() => {
+                $(".feed-roll-btn").remove();//移除换一换
                 console.log("移除换一换");
-            },1500);
+            }, 1500);
         }, 100);
         return;
     }
