@@ -225,7 +225,7 @@ const home = {
     },
     /**
      *
-     * @return {string|}
+     * @return {string}
      */
     getPushType: function () {
         const data = util.getData("pushType");
@@ -702,6 +702,44 @@ const httpUtil = {
     }
 }
 
+
+const htmlStr = {
+    /**
+     *返回用户卡片基础信息面板布局
+     * @param uid{number} uid
+     * @param userName{string} 用户名
+     * @param level 用户等级
+     * @param sign{string} 签名
+     * @param image{string} 头像
+     * @param gz{string} 关注量
+     * @param fs{string}  粉丝数量
+     * @param hz {string} 获赞
+     * @return {string}
+     */
+    getUserCard: function (uid, userName, level, sign, image, gz, fs, hz) {
+        return ` <div id="popDiv" style=" border-radius: 8px; display: none;background-color: rgb(152, 152, 152);z-index: 11;width: 374px; height: 35%; position: fixed; 
+left: 0;  bottom: 0;">
+      <img src="http://i0.hdslb.com/bfs/space/768cc4fd97618cf589d23c2711a1d1a729f42235.png@750w_240h.webp"/>
+      <img src="${image}@96w_96h.webp" alt="头像" style="width: 48px; height: 48px; border-radius: 50%" />
+      <div class="info">
+      <p class="user"><a class="name" style=" color: rgb(251, 114, 153); --darkreader-inline-color: #fb6b94;" href="//space.bilibili.com/${uid}" target="_blank"data-darkreader-inline-color="">${userName}</a>
+          <a href="//www.bilibili.com/html/help.html#k_${level}" target="_blank">
+          <img class="level"src="//s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/ic_user level_6.64b9440.svg"/>
+          </a>
+        </p>
+        <p class="social">
+         <span>${gz}</span><span>关注</span>
+            <span>${fs}</span><span class="gray-text"> 粉丝</span>
+          <span>${hz}</span><span class="gray-text"> 获赞</span>
+        </p>
+        <p class="verify"></p>
+        <p class="sign">${sign}</p>
+      </div>
+      <button style="position: absolute;top: 0;right: 0;" onclick="document.querySelector('#popDiv').remove()">关闭</button>
+    </div>`;
+    }
+
+}
 
 /**
  * 工具类
@@ -2448,7 +2486,7 @@ const layout = {
             display: grid;
             grid-template-columns: 30% auto; 
             }
-            button{
+            #gridLayout button{
              height: 40px;
              }
              #suspensionDiv{
@@ -2716,12 +2754,12 @@ const layout = {
       <div id="suspensionDiv">坐标:
         <span id="suspensionXY">xy</span>
         <div>
-          <span>快捷悬浮屏蔽按钮跟随鼠标</span>
+          <span>按钮跟随鼠标</span>
           <input id="quickLevitationShield" type="checkbox">
         </div>
         <p>
-          标题(如有则显示):
-          <span id="suspensionTitle">占位符</span>
+          标题:
+          <span id="suspensionTitle"></span>
         </p>
         <p>
           用户名：
@@ -2733,6 +2771,7 @@ const layout = {
         </p>
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
+        <button id="findUserInfo">查询基本信息</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3164,6 +3203,42 @@ function loadChannel() {
     $("#butShieldUid").click(() => {//悬浮小窗体-添加屏蔽uid
         const uid = $("#uidSuspensionDiv").text();
         butLayEvent.butaddName("userUIDArr", parseInt(uid));
+    });
+    $("#findUserInfo").click((e) => {
+        const uid = $("#uidSuspensionDiv").text();
+        if (uid === "") {
+            alert("未检测到UID！")
+            return;
+        }
+        const loading = Qmsg.loading("正在获取中！");
+        httpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${uid}&photo=false`, (res) => {
+            const body = JSON.parse(res.responseText);
+            if (body["code"] !== 0) {
+                Qmsg.error("请求失败！");
+                loading.close();
+                return;
+            }
+            loading.close();
+            const cradInfo = body["data"]["card"];
+            const uid = cradInfo["mid"];//uid
+            const sex = cradInfo["sex"];//性别
+            const userName = cradInfo["name"];
+            const fans = cradInfo["fans"];//粉丝数
+            const sign = cradInfo["sign"];//个性签名信息
+            const face = cradInfo["face"];//头像
+            const current_level = cradInfo["level_info"]["current_level"];//当前用户b站等级
+            const friend = cradInfo["friend"];//关注量
+            const follower = body["data"]["follower"];//粉丝量
+            const like_num = body["data"]["like_num"];//点赞量
+            const userCardHtml = htmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
+            if ($("#popDiv").length === 0) {
+                $("body").append(userCardHtml);
+            } else {
+                $("#popDiv").remove();
+                $("body").append(userCardHtml);
+            }
+            $("#popDiv").css("display", "inline");
+        });
     });
 
 
