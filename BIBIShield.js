@@ -2937,19 +2937,6 @@ function ruleList(href) {
                 const list = $(".video-list.row").children();//获取该标签下的直接子标签并返回DOM数组
                 //const list = document.getElementsByClassName("bili-video-card");
                 const tempListLength = list.length;
-                if (tempListLength === 0) {
-                    break;
-                }
-                try {//删除搜索到的精确结果元素
-                    document.getElementsByClassName("activity-game-list i_wrapper search-all-list")[0].remove();
-                    util.print("删除搜索到的精确结果元素")
-                } catch (e) {
-                }
-                try {//删除搜索到的精确用户结果元素
-                    document.getElementsByClassName("user-list search-all-list")[0].remove();
-                    util.print("删除搜索到的精确用户结果元素")
-                } catch (e) {
-                }
                 search.searchRules(list);
                 console.log(list);
                 if (tempListLength === list.length) {
