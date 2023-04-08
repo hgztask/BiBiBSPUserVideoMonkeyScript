@@ -690,15 +690,17 @@ const httpUtil = {
     /**
      *封装get请求
      * @param {string}url 请求URL
-     * @param {function}func 相应成功函数
+     * @param {function}resolve 相应成功
+     * @param {function}reject 相应失败
      */
-    get: function (url, func) {
+    get: function (url, resolve, reject) {
         util.httpRequest({
             method: "get",
             url: url,
             headers: {
                 "User-Agent": navigator.userAgent,
-            }, onload: func//相应成功！
+            }, onload: resolve,
+            onerror: reject
         })
     }
 }
@@ -2551,6 +2553,9 @@ const layout = {
                 <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
                 <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
                 <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
+                <option value="column">查成分(UID)</option>
+                <option value="column">查成分(动态内容-模糊匹配)</option>
+                <option value="column">查成分(动态内容-正则匹配)</option>
               </select>
               <div>
                 <select id="singleDoubleModel">
@@ -2773,6 +2778,7 @@ const layout = {
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
+        <button id="findUserComposition" title="通过最近动态和关注列表进行判断">查成分</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3205,10 +3211,10 @@ function loadChannel() {
         const uid = $("#uidSuspensionDiv").text();
         butLayEvent.butaddName("userUIDArr", parseInt(uid));
     });
-    $("#findUserInfo").click((e) => {
+    $("#findUserInfo").click(() => {
         const uid = $("#uidSuspensionDiv").text();
         if (uid === "") {
-            alert("未检测到UID！")
+            Qmsg.error("未检测到UID！")
             return;
         }
         const loading = Qmsg.loading("正在获取中！");
@@ -3239,6 +3245,38 @@ function loadChannel() {
                 $("body").append(userCardHtml);
             }
             $("#popDiv").css("display", "inline");
+        });
+    });
+    $("#findUserComposition").click(() => {
+        const uid = $("#uidSuspensionDiv").text();
+        if (uid === "") {
+            Qmsg.error("未检测到UID！")
+            return;
+        }
+        const loading = Qmsg.loading("正在获取中！");
+        httpUtil.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?&host_mid=" + uid, (res) => {
+            const body = JSON.parse(res.responseText);
+            if (body["code"] === undefined || body["code"] !== 0) {
+                loading.close();
+                Qmsg.error("获取数据失败！");
+                return;
+            }
+            const arrList = body["data"]["items"];
+            if (arrList === undefined || arrList === null || arrList.length === 0) {
+                Qmsg.error("该用户获取不到动态！");
+                loading.close();
+                return;
+            }
+            loading.close();
+            Qmsg.success("获取成功！");
+            for (const v of arrList) {
+               const stringify = JSON.stringify(v);
+               Qmsg.info(stringify);
+            }
+        }, (err) => {
+            loading.clone();
+
+            Qmsg.error("请求失败=" + err);
         });
     });
 
