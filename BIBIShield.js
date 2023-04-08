@@ -2935,7 +2935,6 @@ function ruleList(href) {
         const interval = setInterval(() => {
             while (true) {
                 const list = $(".video-list.row").children();//获取该标签下的直接子标签并返回DOM数组
-                //const list = document.getElementsByClassName("bili-video-card");
                 const tempListLength = list.length;
                 search.searchRules(list);
                 console.log(list);
