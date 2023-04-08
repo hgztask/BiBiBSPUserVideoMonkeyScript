@@ -285,6 +285,7 @@ const home = {
                         playbackVolume = topInfo[0].textContent;
                     } catch (e) {
                         v.remove();
+                        Qmsg.info("清理异常元素");
                         // console.log("获取元素中，获取失败，下一行是该值的html");
                         // console.log(v)
                         continue;
@@ -292,6 +293,7 @@ const home = {
                     let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
                     if (isNaN(id)) {
                         v.remove();
+                        Qmsg.info("清理非正常视频样式");
                         // util.print("检测到不是正常视频样式，故删除该元素");
                         continue;
                     }
@@ -304,14 +306,15 @@ const home = {
                         href = href.substring(href.lastIndexOf("/") + 1);
                         util.showSDPanel(e, userName, href, videoTitle);
                     });
-                    shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume);
+                    if (shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume)) {
+                        Qmsg.info("屏蔽视频！");
+                    }
                 }
                 list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
                 if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
                     continue;
                 }
                 clearInterval(interval);
-                Qmsg.info("已执行完清理！");
                 return;
             }
         }, 1000);
@@ -370,7 +373,7 @@ const shield = {
         }
         try {
             for (let str of arr) {
-                if (content.search(new RegExp(str)) === -1) {
+                if (content.search(str) === -1) {
                     continue;
                 }
                 return str;
@@ -658,6 +661,7 @@ function delDReplay() {
         for (let v of list) {
             const userData = getColumnOrDynamicReviewLandlord(v);
             if (startPrintShieldNameOrUIDOrContent(v, userData.name, userData.uid, userData.content)) {
+                Qmsg.info("屏蔽了言论！！");
                 continue;
             }
             userData.userInfo.onmouseenter = (e) => {
@@ -668,6 +672,7 @@ function delDReplay() {
             for (let j of replyItem) {
                 const tempData = getColumnOrDynamicReviewStorey(j);
                 if (startPrintShieldNameOrUIDOrContent(j, tempData.name, tempData.uid, tempData.content)) {
+                    Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
                 j.onmouseenter = (e) => {
@@ -1675,7 +1680,9 @@ const message = {
             const indess = info.getElementsByTagName("a")[0].getAttribute("href");
             const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
             const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
-            startPrintShieldNameOrUIDOrContent(v, name, uid, content);
+            if (startPrintShieldNameOrUIDOrContent(v, name, uid, content)) {
+                Qmsg.info("屏蔽了言论！！");
+            }
         }
     },
     /**
@@ -1688,7 +1695,9 @@ const message = {
             const userName = userInfo.textContent;
             const uid = parseInt(href.substring(href.lastIndexOf("/") + 1));
             const content = v.getElementsByClassName("content-list")[0].textContent;
-            startPrintShieldNameOrUIDOrContent(v, userName, uid, content);
+            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+                Qmsg.info("屏蔽了言论！！");
+            }
         }
     }
 }
@@ -1763,7 +1772,9 @@ const videoFun = {
             const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
             const playInfo = e.getElementsByClassName("playinfo")[0];
             playInfo.getElementsByClassName("")
-            shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null, null);
+            if (shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null, null)) {
+                Qmsg.info("屏蔽了视频！！");
+            }
         }
     }
     ,
@@ -1872,6 +1883,7 @@ const frequencyChannel = {
     listRules: function () {
         let list = document.getElementsByClassName("rank-video-card");
         if (list.length !== 0 && frequencyChannel.startExtracted(list)) {
+            Qmsg.info("屏蔽了视频！！");
             console.log("已检测到频道综合的排行榜")
         }
     },
@@ -1886,7 +1898,9 @@ const frequencyChannel = {
             if (tempLength === 0) {
                 break;
             }
-            frequencyChannel.startExtracted(list)
+            if (frequencyChannel.startExtracted(list)) {
+                Qmsg.info("屏蔽了视频！！");
+            }
             if (list.length === tempLength) {
                 //util.print("页面元素没有变化了，故退出循环")
                 break;
@@ -2079,6 +2093,7 @@ const liveDel = {
             } catch (e) {
             }
             if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+                Qmsg.info("屏蔽了言论！！");
                 continue;
             }
             if (remove.fanCard(v, fansMeda)) {
@@ -2244,7 +2259,9 @@ const greatDemand = {
                 const title = v.getElementsByClassName("title")[1].textContent;
                 const name = v.getElementsByClassName("upName")[0].textContent;
                 const time = v.getElementsByClassName("time")[0].textContent;
-                shieldVideo_userName_uid_title(v, name, null, title, null, null, time);
+                if (shieldVideo_userName_uid_title(v, name, null, title, null, null, time)) {
+                    Qmsg.info("屏蔽了视频！！");
+                }
             }
             return;
         }
@@ -2254,7 +2271,9 @@ const greatDemand = {
             const name = v.getElementsByClassName("up-name__text")[0].textContent;//用户名
             const play = v.getElementsByClassName("play-text")[0].textContent.trim();//播放量
             //const like = v.getElementsByClassName("like-text")[0].textContent.trim();//弹幕量
-            shieldVideo_userName_uid_title(v, name, null, title, null, play);
+            if (shieldVideo_userName_uid_title(v, name, null, title, null, play)) {
+                Qmsg.info("屏蔽了视频！！");
+            }
         }
     }
 }
@@ -2312,6 +2331,7 @@ const search = {
                 const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
                 let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
                 if (shieldVideo_userName_uid_title(v.parentNode, name, id, title, null, videoTime, topInfo[0].textContent)) {
+                    Qmsg.info("屏蔽了视频！！");
                     continue;
                 }
                 v.parentNode.onmouseenter = (e) => {
@@ -2337,13 +2357,17 @@ const subjectOfATalk = {
             const uid = parseInt(v.getElementsByClassName("bili-dyn-item__following")[0].getAttribute("data-mid"));
             if (info.getElementsByClassName("bili-dyn-content__orig__desc").length === 1) {
                 const content = info.textContent;
-                startPrintShieldNameOrUIDOrContent(v, name, uid, content);
+                if (startPrintShieldNameOrUIDOrContent(v, name, uid, content)) {
+                    Qmsg.info("屏蔽了言论！！");
+                }
                 continue;
             }//如果内容是视频样式
             const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
             const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
             const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
-            shieldVideo_userName_uid_title(v, name, uid, title, null, videoTime, null);
+            if (shieldVideo_userName_uid_title(v, name, uid, title, null, videoTime, null)) {
+                Qmsg.info("屏蔽了视频！！");
+            }
         }
     }
 }
@@ -2762,6 +2786,7 @@ function perf_observer() {
                 const data = getVideoCommentAreaOrTrendsLandlord(v);
                 const subReplyList = v.getElementsByClassName("sub-reply-list")[0];//楼主下面的评论区
                 if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
+                    Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
                 v.onmouseenter = (e) => {
@@ -2772,6 +2797,7 @@ function perf_observer() {
                 for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
                     const data = getVideoCommentAreaOrTrendsStorey(j);
                     if (startPrintShieldNameOrUIDOrContent(j, data.name, data.uid, data.content)) {
+                        Qmsg.info("屏蔽了言论！！");
                         continue;
                     }
                     j.onmouseenter = (e) => {
@@ -3967,7 +3993,6 @@ function bilibili(href) {
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
-
         //针对频道api中的数据遍历处理并添加进去网页元素
         function ergodicList(list) {
             for (const v of list) {
@@ -3990,10 +4015,12 @@ function bilibili(href) {
             const tempChannelId = frequencyChannel.getChannel_id();
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
             const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
+            const loading = Qmsg.loading("正在加载数据！");
             httpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
                 const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
                     alert("未获取到频道视频数据");
+                    loading.close();
                     return;
                 }
                 const bodyList = body["data"]["list"];
@@ -4004,6 +4031,7 @@ function bilibili(href) {
                     ergodicList(bodyList);
                 }
                 frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
+                loading.close();
             });
         };
 
@@ -4058,10 +4086,12 @@ function bilibili(href) {
 
         //加载分区视频数据
         function loadingVideoE(ps) {
+            const loading = Qmsg.loading("正在加载数据！");
             httpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${localData.getVideo_zone()}`, function (res) {
                 const bodyJson = JSON.parse(res.responseText);
                 if (bodyJson["code"] !== 0) {
-                    alert("未获取到视频数据！")
+                    alert("未获取到视频数据！");
+                    loading.close();
                     return;
                 }
                 const archives = bodyJson["data"]["archives"];
@@ -4082,6 +4112,7 @@ function bilibili(href) {
                     bvid = (bvidSub === "" ? bvid : bvidSub);
                     tempFunc(uid, videoTitle, name, bvid, duration, util.formateTime(ctimeStr), view, danmaku, picUil);
                 }
+                loading.close();
             });
         }
 
@@ -4089,8 +4120,6 @@ function bilibili(href) {
         //监听页面触底
         $(window).scroll(function () {
             if ($(this).scrollTop() + $(this).height() === $(document).height()) {//到达底部之后加载
-               Qmsg.info("正在加载数据！");
-                //loadingVideoE(home.videoIndex);
                 const temp = home.getPushType();
                 if (home.videoIndex <= 50 && temp === "分区") {
                     home.videoIndex += 10;
@@ -4117,7 +4146,10 @@ function bilibili(href) {
             // //首页
             home.stypeBody();
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
+            setTimeout(()=>{
             $(".feed-roll-btn").remove();//移除换一换
+                console.log("移除换一换");
+            },1500);
         }, 100);
         return;
     }
