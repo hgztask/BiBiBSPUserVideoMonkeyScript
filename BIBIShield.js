@@ -29,6 +29,7 @@
 // @match        *://www.youtube.com/*
 // @match        *://github.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
+// @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -37,7 +38,6 @@
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
-
 
 const rule = {
     ruleLength: function () {
@@ -90,7 +90,6 @@ const rule = {
         } else {
             util.printRGBB("red", "初始化时出现了不该出现的结果");
         }
-
     },
     //视频参数
     videoData: {
@@ -312,6 +311,7 @@ const home = {
                     continue;
                 }
                 clearInterval(interval);
+                Qmsg.info("已执行完清理！");
                 return;
             }
         }, 1000);
@@ -1850,7 +1850,6 @@ const frequencyChannel = {
             this.data.offsetData[id] = {};
         }
         this.data.offsetData[id][typeStr] = s;
-        console.log(this.data.offsetData);
     },
     /**
      * 偏移量
@@ -1859,7 +1858,6 @@ const frequencyChannel = {
      * @return {string|}
      */
     getOffset: function (id, typeStr) {
-        console.log(this.data.offsetData);
         const data = this.data.offsetData[id];
         if (data === undefined || data === null) {
             return "";
@@ -3028,6 +3026,8 @@ function loadChannel() {
     });
 
 
+
+
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
         const keycode = event.keyCode;
         if (keycode === 192) {//按下`按键显示隐藏面板
@@ -4044,6 +4044,7 @@ function bilibili(href) {
                     videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
                     view, danmaku)
             );
+            home.startShieldMainVideo("bili-video-card is-rcmd");
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
@@ -4088,7 +4089,7 @@ function bilibili(href) {
         //监听页面触底
         $(window).scroll(function () {
             if ($(this).scrollTop() + $(this).height() === $(document).height()) {//到达底部之后加载
-                console.log("触底了")
+               Qmsg.info("正在加载数据！");
                 //loadingVideoE(home.videoIndex);
                 const temp = home.getPushType();
                 if (home.videoIndex <= 50 && temp === "分区") {
@@ -4096,9 +4097,9 @@ function bilibili(href) {
                 }
                 if (temp === "分区") {
                     loadingVideoE(home.videoIndex);
-                    return;
-                }
+                }else {
                 loadingVideoZE();
+                }
             }
         });
         const interval = setInterval(() => {
