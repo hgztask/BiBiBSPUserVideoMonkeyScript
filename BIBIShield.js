@@ -2553,9 +2553,7 @@ const layout = {
                 <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
                 <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
                 <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
-                <option value="column">查成分(UID)</option>
-                <option value="column">查成分(动态内容-模糊匹配)</option>
-                <option value="column">查成分(动态内容-正则匹配)</option>
+                <option value="checkTheIngredients">查成分</option>
               </select>
               <div>
                 <select id="singleDoubleModel">
@@ -3259,7 +3257,7 @@ function loadChannel() {
             return;
         }
         const loading = Qmsg.loading("正在获取中！");
-        httpUtil.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?&host_mid=" + uid, (res) => {
+        httpUtil.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?&host_mid=" + uid, (res) => {//根据动态
             const body = JSON.parse(res.responseText);
             if (body["code"] === undefined || body["code"] !== 0) {
                 loading.close();
@@ -3276,8 +3274,13 @@ function loadChannel() {
             Qmsg.success("获取成功！");
             for (const v of arrList) {
                const stringify = JSON.stringify(v);
-               Qmsg.info(stringify);
+                if (!stringify.includes("原神")) {
+                    continue;
+                }
+                Qmsg.success("查询当前用户动态有原神关键词！");
+                return;
             }
+            Qmsg.error("未查询到指定类型的动态信息!");
         }, (err) => {
             loading.clone();
 
