@@ -949,7 +949,7 @@ const util = {
         }
         // 获取元素
 
-        dragId.style.position = "absolute";
+        dragId.style.position = "fixed";
         dragId.style.cursor = "move";
         // 标记是拖曳还是点击
         let isClick = true;
@@ -3080,6 +3080,8 @@ function loadChannel() {
         "border": "none",
         "border-radius": "50%"
     });
+
+    util.suspensionBall(document.getElementById("suspensionDiv"));
 
 
     rule.ruleLength();
