@@ -89,7 +89,7 @@ const rule = {
             tempSortTypeSelect.val(tempSortType);
             tempSortTypeSelect.css("display", "inline")
         } else {
-            util.printRGBB("red", "初始化时出现了不该出现的结果");
+            Qmsg.error("初始化时出现了不该出现的结果");
         }
     },
     //视频参数
@@ -255,7 +255,7 @@ const home = {
                 document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").remove();//调整往下滑动之后顶部的悬浮栏
                 clearInterval(interval)
             } catch (e) {
-                util.print("样式修改失败")
+                Print.ln("样式修改失败")
             }
         }, 500);
     },
@@ -295,7 +295,7 @@ const home = {
                     if (isNaN(id)) {
                         v.remove();
                         Qmsg.info("清理非正常视频样式");
-                        // util.print("检测到不是正常视频样式，故删除该元素");
+                        // Print.ln("检测到不是正常视频样式，故删除该元素");
                         continue;
                     }
                     $(v).mouseenter((e) => {
@@ -744,6 +744,26 @@ left: 0;  bottom: 0;">
 
 }
 
+
+const Print = {
+    ln: function (content) {
+        util.printElement("#outputInfo", `<dd>${content}</dd>`);
+    },
+    video: function (color, content, name, uid, title, videoHref) {
+        util.printElement("#outputInfo", `
+        <dd><b
+            style="color: ${color}; ">${util.toTimeString()}${content}屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>标题【<a href="${videoHref}" target="_blank">${title}</a>】</b>
+        </dd>`);
+    }, commentOn: function (color, content, name, uid, primaryContent) {
+        util.printElement("#outputInfo", `
+        <dd>
+    style="color: ${color}; ">${util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
+   原言论=【${primaryContent}】</b>
+</dd>`);
+    }
+};
+
+
 /**
  * 工具类
  */
@@ -910,7 +930,7 @@ const util = {
             if (elementById) {
                 elementById.remove();
                 clearInterval(interval);
-                util.print(tip);
+                Print.ln(tip);
             }
         }, time);
     },
@@ -927,7 +947,7 @@ const util = {
             const byElement = document.getElementById(elementStr);
             if (byElement) {
                 byElement.remove();
-                util.print(tip);
+                Print.ln(tip);
             }
             if (++tempIndex === index) {
                 clearInterval(interval);
@@ -1031,7 +1051,7 @@ const util = {
             if (byElement) {
                 byElement.remove();
                 clearInterval(interval);
-                util.print(tip);
+                Print.ln(tip);
             }
         }, time);
     },
@@ -1049,7 +1069,7 @@ const util = {
             const byElement = document.getElementsByClassName(elementStr)[elementIndex];
             if (byElement) {
                 byElement.remove();
-                util.print(tip);
+                Print.ln(tip);
             }
             if (++tempIndex === index) {
                 clearInterval(interval);
@@ -1065,12 +1085,6 @@ const util = {
     },
     printElement: function (id, element) {
         $(id).prepend(element);
-    },
-    print: function (strContent) {
-        this.printElement("#outputInfo", `<span>${this.toTimeString() + "\t\t" + strContent}</span><hr>`)
-    },
-    printRGBB: function (color, strContent) {
-        this.printElement("#outputInfo", `<b style="color: ${color}; ">${this.toTimeString() + "\t\t" + strContent}</b><hr>`)
     },
     //获取格式化规则的内容
     getRuleFormatStr: function () {
@@ -1439,7 +1453,7 @@ const urleCrud = {
     add: function (arr, key, ruleStrName) {
         arr.push(key);
         util.setData(ruleStrName, arr);
-        util.printRGBB("#006400", `添加${ruleStrName}的值成功=${key}`);
+        Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
         rule.ruleLength();
     },
     /**
@@ -1455,11 +1469,11 @@ const urleCrud = {
             setList.add(v);
         }
         if (setListLength === setList.size) {
-            util.print("内容长度无变化，可能是已经有了的值")
+            Print.ln("内容长度无变化，可能是已经有了的值")
             return;
         }
         util.setData(ruleStrName, Array.from(setList));
-        util.print("已添加该值=" + key)
+        Print.ln("已添加该值=" + key)
         rule.ruleLength();
     },
     /**
@@ -1472,12 +1486,12 @@ const urleCrud = {
     del: function (arr, key, ruleStrName) {
         const index = arr.indexOf(key);
         if (index === -1) {
-            util.print("未有该元素！")
+            Print.ln("未有该元素！")
             return false;
         }
         arr.splice(index, 1);
         util.setData(ruleStrName, arr);
-        util.print("已经删除该元素=" + key);
+        Print.ln("已经删除该元素=" + key);
         rule.ruleLength();
         return true;
     }
@@ -1487,7 +1501,7 @@ const urleCrud = {
 const butLayEvent = {
     butaddName: function (ruleStr, contentV) {
         if (contentV === '') {
-            util.print("请输入正确的内容")
+            Print.ln("请输入正确的内容")
             return;
         }
         if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
@@ -1499,21 +1513,21 @@ const butLayEvent = {
             return;
         }
         if (arrayList.includes(contentV)) {
-            util.print("当前已有该值！");
+            Print.ln("当前已有该值！");
             return;
         }
         urleCrud.add(arrayList, contentV, ruleStr);
     },
     butaddAllName: function (ruleStr, contentV) {
         if (contentV === '') {
-            util.print("请输入正确的内容")
+            Print.ln("请输入正确的内容")
             return;
         }
         let tempList;
         try {
             tempList = JSON.parse(contentV);
         } catch (error) {
-            util.print("内容不正确！内容需要数组或者json格式！错误信息=" + error)
+            Qmsg.error("内容不正确！内容需要数组或者json格式！错误信息=" + error);
             return;
         }
         let arrayList = util.getData(ruleStr);
@@ -1525,16 +1539,16 @@ const butLayEvent = {
     },
     butDelName: function (ruleStr, contentV) {
         if (contentV === '' || contentV.includes(" ")) {
-            util.print("请输入正确的内容")
+            Print.ln("请输入正确的内容")
             return false;
         }
         let arrayList = util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
-            util.print("没有内容哟")
+            Print.ln("没有内容哟")
             return false;
         }
         if (!arrayList.includes(contentV)) {
-            util.print("没有该内容哟=" + contentV)
+            Print.ln("没有该内容哟=" + contentV)
             return false;
         }
         return urleCrud.del(arrayList, contentV, ruleStr);
@@ -1542,7 +1556,7 @@ const butLayEvent = {
     butDelAllName: function (ruleStr) {
         const list = util.getData(ruleStr);
         if (list === null || list === undefined) {
-            util.print("没有内容哟")
+            Print.ln("没有内容哟")
             return;
         }
         const b = confirm("您确定要全部删除吗？");
@@ -1550,25 +1564,25 @@ const butLayEvent = {
             return;
         }
         util.delData(ruleStr);
-        util.print("已全部清除=" + ruleStr);
+        Print.ln("已全部清除=" + ruleStr);
         rule.ruleLength();
     },
     //查询
     butFindKey: function (ruleStr, contentV) {
         if (contentV === '') {
-            util.print("请输入正确的内容")
+            Print.ln("请输入正确的内容")
             return;
         }
         let arrayList = util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
-            util.print("找不到该内容！");
+            Print.ln("找不到该内容！");
             return;
         }
         if (arrayList.includes(contentV)) {
-            util.print("搜索的值，已存在！");
+            Print.ln("搜索的值，已存在！");
             return;
         }
-        util.print("找不到该内容！");
+        Print.ln("找不到该内容！");
     },
 
     //修改
@@ -1577,26 +1591,26 @@ const butLayEvent = {
             return;
         }
         if (oldKey === newKey) {
-            util.print("请输入正确的内容，两者内容不能相同")
+            Print.ln("请输入正确的内容，两者内容不能相同")
             return;
         }
         let arrayList = util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
-            util.print("找不到该内容！");
+            Print.ln("找不到该内容！");
             return;
         }
         if (!arrayList.includes(oldKey)) {
-            util.print("找不到该内容！，无法替换！");
+            Print.ln("找不到该内容！，无法替换！");
             return;
         }
         const index = arrayList.indexOf(oldKey);
         if (index === -1) {
-            util.print("未有该元素！")
+            Print.ln("未有该元素！")
             return;
         }
         arrayList.splice(index, 1, newKey);
         util.setData(ruleStr, arrayList);
-        util.printRGBB("green", "替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
+        Qmsg.success("替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
     }
 }
 
@@ -1615,22 +1629,22 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
     }
     const key = remove.contentKey(element, content);
     if (key != null) {
-        util.printRGBB("#00BFFF", "已通过言论关键词【" + key + "】屏蔽用户【" + name + "】uid=【" + uid + "】 原言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.commentOn("#00BFFF", `已通过言论关键词了【${key}】`, name, uid, content);
         return true;
     }
     const isUid = remove.uid(element, uid);
     if (isUid) {
-        util.printRGBB("yellow", "已通过uid=【" + uid + "】屏蔽黑名单用户【" + name + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.commentOn("#yellow", `已通过UID屏蔽`, name, uid, content);
         return true;
     }
     const isName = remove.name(element, name);
     if (isName) {
-        util.print("已通过用户名屏蔽指定黑名单用户【" + name + "】uid=【" + uid + "】，言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.commentOn(null, `已通过指定用户名【${isName}】`, name, uid, content);
         return true;
     }
     const isNameKey = remove.nameKey(element, name);
     if (isNameKey != null) {
-        util.print("用户名=【" + name + "】包含了屏蔽词=【" + isNameKey + "】uid=【" + uid + "】 故将其屏蔽 言论=" + content + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.commentOn(null, `已通过指定用户名模糊规则【${isNameKey}】`, name, uid, content);
         return true;
     }
     return false;
@@ -1652,44 +1666,41 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     if (remove.isWhiteUserUID(uid)) {
         return false;
     }
-    if (videoHref == null) {
-        videoHref = "暂无设定";
-    }
     if (uid !== null) {
         const isUid = remove.uid(element, uid);
         if (isUid) {
-            util.printRGBB("yellow", "已通过id=" + uid + " 屏蔽黑名单用户=" + name + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.video("yellow", "已通过UID屏蔽", name, uid, title, videoHref);
             return true;
         }
     }
     const isName = remove.name(element, name);
     if (isName) {
-        util.print("已通过用户名屏蔽指定黑名单用户 " + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.video(null, "已通过用户名屏蔽", name, uid, title, videoHref);
         return true;
     }
     const isNameKey = remove.nameKey(element, name);
     if (isNameKey != null) {
-        util.print("用户名=" + name + " uid=" + uid + " 因包含屏蔽规则=" + isNameKey + " 故屏蔽该用户,视频标题=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.video(null, `已通过用户名模糊屏蔽规则=【${isNameKey}】`, name, uid, title, videoHref)
         return true;
     }
     const videoTitle = remove.titleKey(element, title);
     if (videoTitle != null) {
-        util.printRGBB("#66CCCC", "已通过视频标题关键词=" + videoTitle + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${videoTitle}】`, name, uid, title, videoHref);
         return true;
     }
     const titleKeyCanonical = remove.titleKeyCanonical(element, title);
     if (titleKeyCanonical != null) {
-        util.printRGBB("#66CCCC", "已通过视频标题正则表达式=" + titleKeyCanonical + " 屏蔽用户" + name + " uid=" + uid + " 视频=" + title + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+        Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${titleKeyCanonical}`, name, uid, title, videoHref);
         return true;
     }
     if (videoPlaybackVolume !== null) {
         const change = util.changeFormat(videoPlaybackVolume);
         if (remove.videoMinPlaybackVolume(element, change)) {
-            util.print("已滤视频播发量小于=" + rule.videoData.broadcastMin + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.video(null, `已过滤视频播放量小于=【${rule.videoData.broadcastMin}】的视频`, name, uid, title, videoHref);
             return true;
         }
         if (remove.videoMaxPlaybackVolume(element, change)) {
-            util.print("已滤视频播发量大于=" + rule.videoData.broadcastMax + "的视频 name=" + name + " uid=" + uid + " title=" + title + " 预估播放量=" + videoPlaybackVolume + " 地址=" + videoHref + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.video(null, `已过滤视频播放量大于=【${rule.videoData.broadcastMax}】的视频`, name, uid, title, videoHref);
             return true;
         }
     }
@@ -1698,11 +1709,11 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     }
     const timeTotalSeconds = util.getTimeTotalSeconds(videoTime);
     if (remove.videoMinFilterS(element, timeTotalSeconds)) {
-        util.print("已通过视频时长过滤时长小于=" + rule.videoData.filterSMin + "秒的视频 视频=【" + title + " 地址=" + videoHref);
+        Print.video(null, `已通过视频时长过滤时长小于=【${rule.videoData.filterSMin}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     if (remove.videoMaxFilterS(element, timeTotalSeconds)) {
-        util.print("已通过视频时长过滤时长大于=" + rule.videoData.filterSMax + "秒的视频 视频=" + title + " 地址=" + videoHref);
+        Print.video(null, `已过滤时长大于=【${rule.videoData.filterSMax}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     return false;
@@ -1771,7 +1782,7 @@ const videoFun = {
         if (!video.isRightVideo) {
             setTimeout(() => {
                 document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
-                    util.print("用户点击了右侧的展开")
+                    Print.ln("用户点击了右侧的展开")
                     videoFun.rightVideo().then(() => {
                     });
                 })
@@ -1824,7 +1835,7 @@ const videoFun = {
         const interval = setInterval(() => {
             try {
                 document.getElementsByClassName("bpx-player-ctrl-btn bpx-player-ctrl-wide")[0].click()
-                util.print("已自动点击播放器的宽屏")
+                Print.ln("已自动点击播放器的宽屏")
                 clearInterval(interval);
             } catch (e) {
             }
@@ -1943,7 +1954,7 @@ const frequencyChannel = {
                 Qmsg.info("屏蔽了视频！！");
             }
             if (list.length === tempLength) {
-                //util.print("页面元素没有变化了，故退出循环")
+                //Print.ln("页面元素没有变化了，故退出循环")
                 break;
             }
         }
@@ -1959,7 +1970,7 @@ const frequencyChannel = {
                     toggleClass.remove();
                     clearInterval(interval);
                     this.data.develop = true;
-                    util.print("已点击展开列表并移除收起按钮")
+                    Print.ln("已点击展开列表并移除收起按钮")
                 }
             } catch (e) {
                 clearInterval(interval);
@@ -2001,7 +2012,7 @@ const frequencyChannel = {
             }
             this.tempVar.backGaugeBool = true;
             document.getElementsByClassName("detail-panels")[0].style.width = "auto";//调整其页面左右边距
-            util.print("已调整频道界面的左右边距")
+            Print.ln("已调整频道界面的左右边距")
         }
     }
 }
@@ -2012,9 +2023,9 @@ const liveDel = {
         if (rule.liveData.topElement) {
             try {
                 document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")[0].remove();
-                util.print("已移除直播间顶部的信息（包括顶部标题栏）")
+                Print.ln("已移除直播间顶部的信息（包括顶部标题栏）")
             } catch (e) {
-                util.print("已移除直播间顶部的信息（包括顶部标题栏）-出错")
+                Print.ln("已移除直播间顶部的信息（包括顶部标题栏）-出错")
             }
             return;
         }
@@ -2022,19 +2033,19 @@ const liveDel = {
             for (const element of rule.liveData.topLeftBar) {
                 try {
                     document.getElementsByClassName(element)[0].remove();
-                    util.print("已移除该项目=" + element)
+                    Print.ln("已移除该项目=" + element)
                 } catch (e) {
-                    util.print("不存在该项目！=" + element)
+                    Print.ln("不存在该项目！=" + element)
                 }
             }
         }
         if (rule.liveData.topLeftLogo) {
             document.getElementsByClassName("entry_logo")[0].remove();
-            util.print("已移除左上角的b站直播logo信息")
+            Print.ln("已移除左上角的b站直播logo信息")
         }
         if (rule.liveData.topLeftHomeTitle) {
             document.getElementsByClassName("entry-title")[0].remove();
-            util.print("已移除左上角的首页项目")
+            Print.ln("已移除左上角的首页项目")
         }
     },
     //针对直播间播放器头部的用户信息，举例子，，某某用户直播，就会显示器的信息和直播标题等
@@ -2045,7 +2056,7 @@ const liveDel = {
                 try {
                     document.getElementById("head-info-vm").remove()
                     clearInterval(interval);
-                    util.print("已移除直播间头部的用户信息");
+                    Print.ln("已移除直播间头部的用户信息");
                 } catch (e) {
                 }
             }, 2000);
@@ -2054,22 +2065,22 @@ const liveDel = {
     //针对于直播间底部的屏蔽处理
     bottomElement: function () {
         document.getElementById("link-footer-vm").remove();
-        util.print("已移除底部的页脚信息")
+        Print.ln("已移除底部的页脚信息")
         if (rule.liveData.bottomElement) {
             document.getElementById("sections-vm").remove();
-            util.print("已移除直播间底部的全部信息")
+            Print.ln("已移除直播间底部的全部信息")
             return;
         }
         if (rule.liveData.bottomIntroduction) {
             document.getElementsByClassName("section-block f-clear z-section-blocks")[0].getElementsByClassName("left-container")[0].remove();
-            util.print("已移除直播间底部的的简介和主播荣誉")
+            Print.ln("已移除直播间底部的的简介和主播荣誉")
         } else {
             if (rule.liveData.liveFeed) {
                 const interval = setInterval(() => {
                     try {
                         document.getElementsByClassName("room-feed")[0].remove();
                         clearInterval(interval)
-                        util.print("已移除页面底部动态部分")
+                        Print.ln("已移除页面底部动态部分")
                     } catch (e) {
                     }
                 }, 2500);
@@ -2077,7 +2088,7 @@ const liveDel = {
         }
         if (rule.liveData.container) {
             document.getElementsByClassName("right-container")[0].remove();
-            util.print("已移除直播间的主播公告")
+            Print.ln("已移除直播间的主播公告")
         }
     },
     //礼物栏的布局处理
@@ -2092,7 +2103,7 @@ const liveDel = {
                 if (tempClass) {
                     tempClass.remove();
                     clearInterval(temp);
-                    util.print("移除立即上舰")
+                    Print.ln("移除立即上舰")
                 }
             }, 2000);
         }
@@ -2102,7 +2113,7 @@ const liveDel = {
                 if (element) {
                     element.remove();
                     clearInterval(temp);
-                    util.print("移除礼物栏的的礼物部分")
+                    Print.ln("移除礼物栏的的礼物部分")
                 }
             }, 2000);
         }
@@ -2138,7 +2149,7 @@ const liveDel = {
                 continue;
             }
             if (remove.fanCard(v, fansMeda)) {
-                util.print("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
+                Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
             }
         }
     },
@@ -2151,7 +2162,7 @@ const liveDel = {
                 if (id) {
                     id.remove();
                     clearInterval(interval);
-                    util.print("移除直播间右侧的聊天布局")
+                    Print.ln("移除直播间右侧的聊天布局")
                     document.getElementsByClassName("player-ctnr")[0].style.width = "100%";//移除完之后调整其布局位置
                 }
             }, 2000);
@@ -2163,7 +2174,7 @@ const liveDel = {
                 if (tempClass) {
                     tempClass.remove();
                     clearInterval(interval);
-                    util.print("已移除直播间右侧的聊天内容");
+                    Print.ln("已移除直播间右侧的聊天内容");
                     document.getElementById("aside-area-vm").style.height = "0px";//移除之后调整下布局
                 }
             }, 2000);
@@ -2175,7 +2186,7 @@ const liveDel = {
                 if (tempE) {
                     tempE.remove();
                     clearInterval(interval);
-                    util.print("已移除聊天布局的系统提示")
+                    Print.ln("已移除聊天布局的系统提示")
                 }
             }, 2000);
         }
@@ -2184,7 +2195,7 @@ const liveDel = {
                 try {
                     document.getElementById("brush-prompt").remove();
                     clearInterval(interval);
-                    util.print("移除右侧聊天内容中的用户进入房间提示")
+                    Print.ln("移除右侧聊天内容中的用户进入房间提示")
                 } catch (e) {
                 }
             }, 2000);
@@ -2197,7 +2208,7 @@ const liveDel = {
                 try {
                     document.getElementById("my-dear-haruna-vm").remove();
                     clearInterval(interval);
-                    util.print("已移除2333娘")
+                    Print.ln("已移除2333娘")
                 } catch (e) {
                 }
             }, 2000);
@@ -2206,7 +2217,7 @@ const liveDel = {
             const interval = setInterval(() => {
                 try {
                     document.getElementsByClassName("side-bar-cntr")[0].remove();
-                    util.print("已移除右侧悬浮靠边按钮-如实验-关注")
+                    Print.ln("已移除右侧悬浮靠边按钮-如实验-关注")
                     clearInterval(interval);
                 } catch (e) {
                 }
@@ -2217,7 +2228,7 @@ const liveDel = {
                 try {
                     document.getElementsByClassName("web-player-icon-roomStatus")[0].remove();//移除播放器左上角的哔哩哔哩直播水印
                     clearInterval(interval);
-                    util.print("已移除直播水印")
+                    Print.ln("已移除直播水印")
                 } catch (e) {
                 }
             }, 2000);
@@ -2227,7 +2238,7 @@ const liveDel = {
                 try {
                     document.getElementsByClassName("shop-popover")[0].remove();//是否移除提示购物车
                     clearInterval(interval);
-                    util.print("已移除提示购物车")
+                    Print.ln("已移除提示购物车")
                 } catch (e) {
                 }
             }, 2000);
@@ -2237,7 +2248,7 @@ const liveDel = {
                 try {
                     document.getElementsByClassName("ecommerce-entry gift-left-part")[0].remove();//是否移除购物车
                     clearInterval(interval);
-                    util.print("已移除购物车")
+                    Print.ln("已移除购物车")
                 } catch (e) {
                 }
             }, 2000);
@@ -2247,7 +2258,7 @@ const liveDel = {
                 try {
                     document.getElementsByClassName("room-bg webp p-fixed")[0].remove(); //移除直播背景图
                     clearInterval(interval);
-                    util.print("已移除直播背景图")
+                    Print.ln("已移除直播背景图")
                 } catch (e) {
                 }
             }, 2000);
@@ -2272,20 +2283,20 @@ const liveDel = {
             const index = v.getElementsByClassName("Item_3Iz_3buh")[0].textContent.trim();//直播间人气
             if (rule.liveData.classify.includes(type)) {
                 v.remove();
-                util.print("已屏蔽直播分类为=" + type + " 的直播间 用户名=" + name + " 房间标题=" + title + " 人气=" + index)
+                Print.ln("已屏蔽直播分类为=" + type + " 的直播间 用户名=" + name + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
             if (remove.name(v, name)) {
-                util.print("已通过用户名=" + name + " 屏蔽直播间 直播分类=" + type + " 房间标题=" + title + " 人气=" + index)
+                Print.ln("已通过用户名=" + name + " 屏蔽直播间 直播分类=" + type + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
             const nameKey = remove.nameKey(v, name);
             if (nameKey != null) {
-                util.print("用户名=" + name + " 包含了=屏蔽词=" + nameKey + " 故屏蔽该直播间 分类=" + type + " 房间标题=" + title + " 人气=" + index)
+                Print.ln("用户名=" + name + " 包含了=屏蔽词=" + nameKey + " 故屏蔽该直播间 分类=" + type + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
             if (remove.titleKey(v, title)) {
-                util.print("已通过直播间标题=【" + title + "】屏蔽该房间 用户名=" + name + " 分类=" + type + " 人气=" + index);
+                Print.ln("已通过直播间标题=【" + title + "】屏蔽该房间 用户名=" + name + " 分类=" + type + " 人气=" + index);
             }
         }
     }
@@ -2381,7 +2392,7 @@ const search = {
                 };
             } catch (e) {
                 v.remove();
-                console.log("错误信息=" + e + " 删除该元素" + v)
+                //console.log("错误信息=" + e + " 删除该元素" + v)
             }
         }
     },
@@ -2422,7 +2433,7 @@ const trends = {
                     document.getElementsByClassName("bili-dyn-home--member")[0].style.justifyContent = 'space-between';
                     document.getElementsByTagName("main")[0].style.width = "70%";
                     document.getElementsByClassName("bili-dyn-my-info")[0].style.display = "none";//移除左侧中的个人基础面板信息
-                    util.print("已调整动态界面布局");
+                    Print.ln("已调整动态界面布局");
                     clearInterval(interval)
                 } catch (e) {
                 }
@@ -2449,7 +2460,7 @@ const trends = {
                         document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
                         document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
                         clearInterval(interval);
-                        util.print("已移除右侧布局并调整中间动态容器布局宽度")
+                        Print.ln("已移除右侧布局并调整中间动态容器布局宽度")
                     } catch (e) {
                     }
                 }, 1000);
@@ -2459,7 +2470,7 @@ const trends = {
                 const interval = setInterval(() => {
                     try {
                         document.getElementsByClassName("bili-dyn-banner")[0].style.display = "none";
-                        util.print("已移除公告栏布局")
+                        Print.ln("已移除公告栏布局")
                         clearInterval(interval)
                     } catch (e) {
                     }
@@ -2577,7 +2588,7 @@ const layout = {
                 <button id="butdelAll" style="display: none">全部删除</button>
                 <button id="butSet">修改</button>
                 <button id="butFind">查询</button>
-                <button onclick="util.print(util.getRuleFormatStr());">打印规则信息</button>
+                <button id="printRuleBut">打印规则信息</button>
               </div>
             </div>
             </details>
@@ -2747,7 +2758,11 @@ const layout = {
           </div>
           <div>
             <h1>输出信息</h1>
-            <button id="butClearMessage">清空信息</button>
+             <div>
+              <button id="butClearMessage">清空信息</button>
+              二次确认
+              <input type="checkbox" checked="checked">
+            </div>
             <div id="outputInfo">
             </div>
           </div>
@@ -2908,13 +2923,13 @@ function perf_observer() {
                     const title = q.querySelector("[title]").textContent;
                     const isTitle = shield.arrContent(localData.getArrTitle(), title);
                     if (isTitle != null) {
-                        util.print(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
+                        Print.ln(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
                         q.remove();
                         continue;
                     }
                     const isTitleCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
                     if (isTitleCanonical != null) {
-                        util.print(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
+                        Print.ln(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
                         q.remove();
                     }
                 }
@@ -2946,31 +2961,31 @@ function searchColumn() {
             continue;
         }
         if (remove.uid(v, uid)) {
-            util.print("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.ln("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
         if (remove.name(v, name)) {
-            util.print("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.ln("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
         const isNameKey = remove.nameKey(v, name);
         if (isNameKey != null) {
-            util.print("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
+            Print.ln("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
             continue;
         }
         const isTitleKey = remove.titleKey(v, title);
         if (isTitleKey != null) {
-            util.print("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.ln("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
             continue;
         }
         const titleKeyCanonical = remove.titleKeyCanonical(v, title);
         if (titleKeyCanonical != null) {
-            util.print(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
+            Print.ln(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
             continue;
         }
         const key = remove.columnContentKey(v, textContent);
         if (key !== null) {
-            util.print("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+            Print.ln("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
         }
     }
 }
@@ -2986,10 +3001,9 @@ function ruleList(href) {
                 const list = document.getElementsByClassName("col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
                 const tempListLength = list.length;
                 search.searchRules(list);
-                console.log(list);
                 if (tempListLength === list.length) {
                     clearInterval(interval);
-                    //util.print("页面元素没有变化，故退出循环")
+                    //Print.ln("页面元素没有变化，故退出循环")
                     break;
                 }
             }
@@ -3167,13 +3181,13 @@ function loadChannel() {
     $("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
         const val = $('#playbackSpeedModel').val();
         util.setData("playbackSpeed", parseFloat(val));
-        util.print("已保存播放速度数据=" + val);
+        Print.ln("已保存播放速度数据=" + val);
     });
 
     $("#preservePlaySpeed").click(() => {//保存拖动条中的值的播放数据
         const val = $("#rangePlaySpeed").val();
         util.setData("rangePlaySpeed", parseFloat(val));
-        util.print("已保存播放速度数据=" + val);
+        Print.ln("已保存播放速度数据=" + val);
     });
 
 
@@ -3273,9 +3287,8 @@ function loadChannel() {
                 return;
             }
             loading.close();
-            Qmsg.success("获取成功！");
             for (const v of arrList) {
-               const stringify = JSON.stringify(v);
+                const stringify = JSON.stringify(v);
                 if (!stringify.includes("原神")) {
                     continue;
                 }
@@ -3285,7 +3298,6 @@ function loadChannel() {
             Qmsg.error("未查询到指定类型的动态信息!");
         }, (err) => {
             loading.clone();
-
             Qmsg.error("请求失败=" + err);
         });
     });
@@ -3356,13 +3368,16 @@ function loadChannel() {
                 alert("出现意外的值！")
                 return;
         }
-        util.print("已设置" + name + "的值");
+        Print.ln("已设置" + name + "的值");
     });
 
     $("#butClearMessage").click(() => {
-        if (confirm("是要清空消息吗？")) {
-            document.querySelector('#outputInfo').innerHTML = '';
+        if ($("#butClearMessage+input:first").is(":checked")) {
+            if (!confirm("是要清空消息吗？")) {
+                return;
+            }
         }
+        document.querySelector('#outputInfo').innerHTML = '';
     });
 
 
@@ -3608,7 +3623,12 @@ function loadChannel() {
                 console.log("butdel出现错误了的结果")
                 break;
         }
-    })
+    });
+
+
+    $("#printRuleBut").click(() => {
+        Print.ln(util.getRuleFormatStr());
+    });
 
 
 //点击导出规则事件
@@ -3847,12 +3867,12 @@ function loadChannel() {
         const selectVar = parseInt(tempVideoZoneSelect.val());
         home.setPushType(pushType);
         if (pushType === "分区") {
-            util.print("选择了分区" + home.data.video_zoneList[selectVar] + " uid=" + selectVar);
+            Print.ln("选择了分区" + home.data.video_zoneList[selectVar] + " uid=" + selectVar);
             localData.setVideo_zone(selectVar);
         } else {
             const tempSortTypeSelect = $("#sort_typeSelect");
             const tempVar = tempSortTypeSelect.val();
-            util.print("选择了" + tempSortTypeSelect.text() + "的频道" + frequencyChannel.data.channel_idList[selectVar] + " uid=" + selectVar);
+            Print.ln("选择了" + tempSortTypeSelect.text() + "的频道" + frequencyChannel.data.channel_idList[selectVar] + " uid=" + selectVar);
             frequencyChannel.setChannel_id(selectVar);
             frequencyChannel.setSort_type(tempVar)
         }
@@ -3876,7 +3896,7 @@ function loadChannel() {
             if (tempIdCheckbox.is(":checked")) {//通过ID方式查找
                 if (tempContent in list) {
                     tempVideoZoneSelect.val(tempContent);
-                    util.print(`通过ID方式找到该值！=${list[tempContent]}`);
+                    Print.ln(`通过ID方式找到该值！=${list[tempContent]}`);
                     return;
                 }
             } else {
@@ -3885,11 +3905,11 @@ function loadChannel() {
                         continue;
                     }
                     tempVideoZoneSelect.val(v);
-                    util.print(`通过value找到该值！=${tempContent}`);
+                    Print.ln(`通过value找到该值！=${tempContent}`);
                     return;
                 }
             }
-            util.printRGBB("red", "未找到该值！");
+            Qmsg.error("未找到该值！");
         }
 
         if (tempPushTypeSelect.val() === "分区") {
@@ -3975,12 +3995,12 @@ function bilibili(href) {
                     }
                     //播放视频速度
                     videoElement.playbackRate = data;
-                    util.print("已设置播放器的速度=" + data);
+                    Print.ln("已设置播放器的速度=" + data);
                 }
 
                 setVideoSpeedInfo();
                 videoElement.addEventListener('ended', () => {//播放器结束之后事件
-                    util.print("播放结束");
+                    Print.ln("播放结束");
                     if (videoData.isVideoEndRecommend) {
                         util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
                     }
@@ -4032,7 +4052,7 @@ function bilibili(href) {
                 const classNameElement = document.getElementsByClassName("link-footer-ctnr")[0];
                 if (classNameElement) {
                     classNameElement.remove();
-                    util.print("已移除页脚信息")
+                    Print.ln("已移除页脚信息")
                     clearInterval(interval02);
                 }
             }, 2000);
@@ -4042,7 +4062,7 @@ function bilibili(href) {
                     if (classNameElement) {
                         clearInterval(interval);
                         classNameElement.remove();
-                        util.print("已移除直播首页右侧的悬浮按钮");
+                        Print.ln("已移除直播首页右侧的悬浮按钮");
                     }
                 }, 2000);
             }
@@ -4078,7 +4098,7 @@ function bilibili(href) {
         try {
             document.getElementById("biliMainFooter").remove();
             document.getElementsByClassName("side-buttons flex_col_end p_absolute")[0].remove();
-            util.print("已删除搜索底部信息和右侧悬浮按钮")
+            Print.ln("已删除搜索底部信息和右侧悬浮按钮")
         } catch (e) {
         }
         search.searchColumnBool = true;
@@ -4162,22 +4182,22 @@ function bilibili(href) {
          */
         function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
             if (shield.arrKey(localData.getArrUID(), uid)) {
-                util.print(`已通过黑名单UID=【${uid}】屏蔽该用户【${userName}】标题【${videoTitle}】`);
+                Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
             const isNameKey = shield.arrContent(localData.getArrNameKey(), userName);
             if (isNameKey != null) {
-                util.print(`已通过黑名单用户名关键词【${isNameKey}】屏蔽用户【${userName}】UID【u${uid}】标题【${videoTitle}】`);
+                Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
             const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
             if (isTitleKey != null) {
-                util.print(`已通过黑名单标题关键词【${isTitleKey}】屏蔽用户【${userName}】UID【${uid}】标题【${videoTitle}】`)
+                Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
             const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
             if (isTitleKeyCanonical != null) {
-                util.print(`已通过黑名单正则标题【${isTitleKeyCanonical}】屏蔽用户【${userName}】UID【${uid}】标题【${videoTitle}】`);
+                Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
             $(".container.is-version8").append(
@@ -4193,7 +4213,6 @@ function bilibili(href) {
                 const userHref = userInfo.href;
                 const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
                 util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
-                //console.log(tempElement);
             });
         }
 
