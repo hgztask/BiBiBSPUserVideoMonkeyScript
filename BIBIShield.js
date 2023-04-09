@@ -2921,6 +2921,11 @@ function perf_observer() {
                     }
                 }
             }
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?")) {//搜索界面
+            Qmsg.info("检测到搜索的接口");
+            //search.searchRules();
         }
     }
     performance.clearResourceTimings();//清除资源时间
@@ -2980,7 +2985,7 @@ function ruleList(href) {
     if (href.includes("https://search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
         const interval = setInterval(() => {
             while (true) {
-                const list = $(".video-list.row").children();//获取该标签下的直接子标签并返回DOM数组
+                const list = document.getElementsByClassName("col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
                 const tempListLength = list.length;
                 search.searchRules(list);
                 console.log(list);
@@ -3008,7 +3013,7 @@ function ruleList(href) {
     }
     if (href.includes("www.bilibili.com/v/")) {
         home.startShieldMainVideo("bili-video-card");
-        console.log("通过URL变动执行屏蔽首页分区视频")
+        console.log("通过URL变动执行屏蔽首页分区视频");
         homePrefecture();
 
     }
