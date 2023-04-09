@@ -2637,7 +2637,7 @@ const layout = {
              <button id="flipVertical">垂直翻转</button>
              <div>
               自定义角度
-              <input id="axleRange" type="range" value="0" min="0" max="180" step="1"><span id="axleSpan">0%</span>
+              <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
              </div>
             </details>
             <hr>
