@@ -757,7 +757,7 @@ const Print = {
     }, commentOn: function (color, content, name, uid, primaryContent) {
         util.printElement("#outputInfo", `
         <dd>
-    style="color: ${color}; ">${util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
+        <b  style="color: ${color}; ">${util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
    原言论=【${primaryContent}】</b>
 </dd>`);
     }
@@ -2572,7 +2572,7 @@ const layout = {
                   <option value="batch">批量</option>
                 </select>
               </div>
-              <input style="width: 42.5%;height: 20px;" type="text" id="inputModel"  maxlength="30"/>
+              <input style="width: 42.5%;height: 20px;" type="text" id="inputModel"  maxlength="50"/>
               <textarea
                 id="inputTextAreaModel"
                 style="resize: none; width: 40%; height: 100px; display: none"
