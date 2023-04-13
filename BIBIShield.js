@@ -295,7 +295,10 @@ const home = {
                     if (isNaN(id)) {
                         v.remove();
                         Qmsg.info("清理非正常视频样式");
-                        // Print.ln("检测到不是正常视频样式，故删除该元素");
+                        continue;
+                    }
+                    if (shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume)) {
+                        Qmsg.info("屏蔽视频！");
                         continue;
                     }
                     $(v).mouseenter((e) => {
@@ -307,9 +310,6 @@ const home = {
                         href = href.substring(href.lastIndexOf("/") + 1);
                         util.showSDPanel(e, userName, href, videoTitle);
                     });
-                    if (shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume)) {
-                        Qmsg.info("屏蔽视频！");
-                    }
                 }
                 list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
                 if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
@@ -1830,19 +1830,39 @@ const videoFun = {
     ,
 //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
     rightVideo: async function () {//异步形式执行，避免阻塞主线程
-        for (let e of $(".rec-list").children()) {//获取右侧的页面的视频列表
-            const videoInfo = e.getElementsByClassName("info")[0];
-            //用户名
-            const name = videoInfo.getElementsByClassName("name")[0].textContent;
-            //视频标题
-            const videoTitle = videoInfo.getElementsByClassName("title")[0].textContent;
-            //用户空间地址
-            const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
-            const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
-            if (shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null, null)) {
-                Qmsg.info("屏蔽了视频！！");
+        const interval = setInterval(() => {
+            let list;
+            try {
+                list =document.querySelectorAll(".video-page-card-small");
+            } catch (e) {
+                return;
             }
-        }
+            if (list.length === 0) {
+                return;
+            }
+            clearInterval(interval);
+            for (let v of list) {//获取右侧的页面的视频列表
+                //用户名
+                const name = v.querySelector(".name").textContent;
+                //视频标题
+                const videoTitle = v.querySelector(".title").textContent;
+                //用户空间地址
+                const upSpatialAddress = v.querySelector(".upname>a").href;
+                const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
+                if (shieldVideo_userName_uid_title(v, name, parseInt(id), videoTitle, null, null, null)) {
+                    Qmsg.info("屏蔽了视频！！");
+                    continue;
+                }
+                $(v).mouseenter((e) => {
+                    const domElement = e.delegateTarget;//dom对象
+                    const name = domElement.querySelector(".name").textContent;
+                    const title = domElement.querySelector(".title").textContent;
+                    const upSpatialAddress = domElement.querySelector(".upname>a").href;
+                    const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
+                    util.showSDPanel(e,name,id,title);
+                });
+            }
+        }, 1000);
     }
     ,
 //点击播放器的宽屏按钮
@@ -3016,7 +3036,7 @@ function searchColumn() {
                 const name = info.querySelector(".lh_xs").text;
                 const userHref = info.href;
                 const uid = userHref.substring(userHref.lastIndexOf("/") + 1);
-                util.showSDPanel(e,name,uid,title);
+                util.showSDPanel(e, name, uid, title);
             });
         }
     }, 1000);
@@ -4046,18 +4066,12 @@ function bilibili(href) {
         }, 1000);
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
             const interval = setInterval(() => {
-                const rec_list = $(".rec-list").children();
-                if (rec_list.length === 0) {
+                const list =document.querySelectorAll(".video-page-card-small");;
+                if (list.length === 0) {
                     return;
                 }
                 videoFun.rightVideo();
-                console.log("检测到右侧视频列表中符合条件")
-                document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
-                    setTimeout(() => {
-                        videoFun.rightVideo().then(() => {
-                        });
-                    }, 1500);
-                });
+                console.log("检测到右侧视频列表中符合条件");
                 clearInterval(interval)
 
             }, 2000);
@@ -4072,7 +4086,6 @@ function bilibili(href) {
             const adHref = element.href;
             util.showSDPanel(e, element.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
         };
-        //click_playerCtrlWhid();
         return;
     }
     if (href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") {//直播首页
