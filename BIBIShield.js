@@ -1312,6 +1312,25 @@ const util = {
         const indexOf = uidStr.indexOf("?");
         const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
         return parseInt(uid);
+    },
+    /**
+     * 截取网页的BV号
+     * @param url
+     * @return {null|string}
+     */
+    getUrlBVID: function (url) {
+        const arr = url.split("/");
+        if (arr.length <= 0) {
+            return null;
+        }
+        const bvid = arr[4];
+        if (bvid === undefined) {
+            return null;
+        }
+        if (!bvid.startsWith("BV")) {
+            return null;
+        }
+        return bvid;
     }
 }
 
@@ -1367,6 +1386,20 @@ const localData = {
     },
     setVideo_zone: function (key) {
         util.setData("video_zone", key);
+    },
+    /**
+     * 获取已观看的视频数组
+     * @return {Array}
+     */
+    getWatchedArr:function () {
+        return util.getData("watchedArr");
+    },
+    /**
+     * 设置已观看的视频
+     * @param {string}key
+     */
+    setWatchedArr:function (key) {
+        util.setData("watchedArr",key);
     }
 
 
@@ -4020,12 +4053,12 @@ function github(href) {
 function bilibiliOne(href) {
 
     if (href.includes("t.bilibili.com") ||
-        href.includes("search.bilibili.com")||
-    href.includes("www.bilibili.com/v")||
-    href.includes("www.bilibili.com/anime")||
-    href.includes("www.bilibili.com/guochuang")||
-    href.includes("message.bilibili.com")||
-    href.includes("space.bilibili.com")) {//移除该三个个界面的部分顶栏信息
+        href.includes("search.bilibili.com") ||
+        href.includes("www.bilibili.com/v") ||
+        href.includes("www.bilibili.com/anime") ||
+        href.includes("www.bilibili.com/guochuang") ||
+        href.includes("message.bilibili.com") ||
+        href.includes("space.bilibili.com")) {//移除该三个个界面的部分顶栏信息
         const interval01 = setInterval(() => {
             const left_entry = $(".left-entry");
             if (left_entry.length === 0) {
