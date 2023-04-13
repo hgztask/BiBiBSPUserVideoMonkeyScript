@@ -715,10 +715,10 @@ const HttpUtil = {
      * @param reject
      */
     getCookie: function (url, cookie, resolve, reject) {
-        this.httpRequest("get",url,{
+        this.httpRequest("get", url, {
             "User-Agent": navigator.userAgent,
             "cookie": cookie
-        },resolve, reject);
+        }, resolve, reject);
     }
 }
 
@@ -1830,7 +1830,7 @@ const videoFun = {
     ,
 //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
     rightVideo: async function () {//异步形式执行，避免阻塞主线程
-        for (let e of document.getElementsByClassName("video-page-card-small")) {//获取右侧的页面的视频列表
+        for (let e of $(".rec-list").children()) {//获取右侧的页面的视频列表
             const videoInfo = e.getElementsByClassName("info")[0];
             //用户名
             const name = videoInfo.getElementsByClassName("name")[0].textContent;
@@ -1839,8 +1839,6 @@ const videoFun = {
             //用户空间地址
             const upSpatialAddress = e.getElementsByClassName("upname")[0].getElementsByTagName("a")[0].getAttribute("href");
             const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
-            const playInfo = e.getElementsByClassName("playinfo")[0];
-            playInfo.getElementsByClassName("")
             if (shieldVideo_userName_uid_title(e, name, id, videoTitle, null, null, null)) {
                 Qmsg.info("屏蔽了视频！！");
             }
@@ -2889,7 +2887,7 @@ function perf_observer() {
             message.delMessageReply();
             continue;
         }
-        if (url.includes("api.bilibili.com/x/article/metas?ids=")) {
+        if (url.includes("api.bilibili.com/x/article/metas?ids=")) {//搜索专栏
             searchColumn();
             continue;
         }
@@ -2966,45 +2964,62 @@ function perf_observer() {
  * 根据规则屏蔽搜索专栏项目
  */
 function searchColumn() {
-    const list = document.getElementsByClassName("col_6 mb_x40");
-    for (let v of list) {
-        const userInfo = v.getElementsByClassName("flex_start flex_inline text3")[0];
-        const title = v.getElementsByClassName("text1")[0].textContent;
-        const textContent = v.getElementsByClassName("atc-desc b_text text_ellipsis_2l text3 fs_5")[0].textContent;//搜索专栏中的预览部分
-        const name = userInfo.textContent;
-        const upSpatialAddress = userInfo.getAttribute("href");
-        const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-        if (remove.isWhiteUserUID(uid)) {
-            continue;
+    const interval = setInterval(() => {
+        const list = $(".media-list.row.mt_lg").children();
+        if (list.length === 0) {
+            return;
         }
-        if (remove.uid(v, uid)) {
-            Print.ln("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
-            continue;
+        clearInterval(interval);
+        for (let v of list) {
+            const userInfo = v.querySelector(".flex_start.flex_inline.text3");
+            const title = v.querySelector(".text1").textContent;
+            const textContent = v.querySelector(".atc-desc.b_text.text_ellipsis_2l.text3.fs_5").textContent;//搜索专栏中的预览部分
+            const name = userInfo.text;
+            const upSpatialAddress = userInfo.href;
+            const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+            if (remove.isWhiteUserUID(uid)) {
+                continue;
+            }
+            if (remove.uid(v, uid)) {
+                Print.ln("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                continue;
+            }
+            if (remove.name(v, name)) {
+                Print.ln("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                continue;
+            }
+            const isNameKey = remove.nameKey(v, name);
+            if (isNameKey != null) {
+                Print.ln("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
+                continue;
+            }
+            const isTitleKey = remove.titleKey(v, title);
+            if (isTitleKey != null) {
+                Print.ln("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                continue;
+            }
+            const titleKeyCanonical = remove.titleKeyCanonical(v, title);
+            if (titleKeyCanonical != null) {
+                Print.ln(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
+                continue;
+            }
+            const key = remove.columnContentKey(v, textContent);
+            if (key !== null) {
+                Print.ln("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                continue;
+            }
+            $(v).mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                console.log(domElement);
+                const title = domElement.querySelector(".text1").textContent;
+                const info = domElement.querySelector(".flex_start.flex_inline.text3");
+                const name = info.querySelector(".lh_xs").text;
+                const userHref = info.href;
+                const uid = userHref.substring(userHref.lastIndexOf("/") + 1);
+                util.showSDPanel(e,name,uid,title);
+            });
         }
-        if (remove.name(v, name)) {
-            Print.ln("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
-            continue;
-        }
-        const isNameKey = remove.nameKey(v, name);
-        if (isNameKey != null) {
-            Print.ln("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
-            continue;
-        }
-        const isTitleKey = remove.titleKey(v, title);
-        if (isTitleKey != null) {
-            Print.ln("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
-            continue;
-        }
-        const titleKeyCanonical = remove.titleKeyCanonical(v, title);
-        if (titleKeyCanonical != null) {
-            Print.ln(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
-            continue;
-        }
-        const key = remove.columnContentKey(v, textContent);
-        if (key !== null) {
-            Print.ln("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
-        }
-    }
+    }, 1000);
 }
 
 /**
@@ -3014,20 +3029,21 @@ function searchColumn() {
 function ruleList(href) {
     if (href.includes("https://search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
         const interval = setInterval(() => {
-                const list = $(".video-list").children();
-                const tempListLength = list.length;
-                if (list.length === 0) {
-                    return;
-                }
-                if (list[0].textContent === "") {
-                    return;
-                }
-                search.searchRules(list);
-                if (tempListLength === list.length) {
-                    clearInterval(interval);
-                    //Print.ln("页面元素没有变化，故退出循环")
-                }
-        }, 500);
+            const list = $(".video-list").children();
+            const tempListLength = list.length;
+            if (list.length === 0) {
+                return;
+            }
+            if (list[0].textContent === "") {
+                return;
+            }
+            search.searchRules(list);
+            if (tempListLength === list.length) {
+                clearInterval(interval);
+                //Print.ln("页面元素没有变化，故退出循环")
+            }
+        }, 100);
+        return;
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         message.delMessageAT();
@@ -3123,8 +3139,6 @@ function loadChannel() {
     $("#mybut").click(() => {
         hideDisplayHomeLaylout();
     });
-
-
 
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
@@ -4032,17 +4046,21 @@ function bilibili(href) {
         }, 1000);
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
             const interval = setInterval(() => {
-                if (document.getElementsByClassName("duration")[0]) {//先检测是否存在时间
-                    console.log("检测到右侧视频列表中符合条件")
-                    document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
-                        setTimeout(() => {
-                            videoFun.rightVideo().then(() => {
-                            });
-                        }, 1500);
-                    });
-                    clearInterval(interval)
+                const rec_list = $(".rec-list").children();
+                if (rec_list.length === 0) {
+                    return;
                 }
-            }, 3500);
+                videoFun.rightVideo();
+                console.log("检测到右侧视频列表中符合条件")
+                document.getElementById("reco_list").addEventListener("DOMSubtreeModified", () => {
+                    setTimeout(() => {
+                        videoFun.rightVideo().then(() => {
+                        });
+                    }, 1500);
+                });
+                clearInterval(interval)
+
+            }, 2000);
         }
         videoFun.delRightE();
         videoFun.delBottonE();
@@ -4115,30 +4133,6 @@ function bilibili(href) {
         }
         return;
     }
-
-    if (href.includes("search.bilibili.com") && search.searchColumnBool === false) {
-        try {
-            document.getElementById("biliMainFooter").remove();
-            document.getElementsByClassName("side-buttons flex_col_end p_absolute")[0].remove();
-            Print.ln("已删除搜索底部信息和右侧悬浮按钮")
-        } catch (e) {
-        }
-        search.searchColumnBool = true;
-        const interval = setInterval(() => {
-            try {
-                document.getElementsByClassName("vui_tabs--nav-link")[5].addEventListener("click", () => {//监听用户点击了专栏选项卡
-                    setTimeout(() => {
-                        console.log("用户点击了专栏")
-                        searchColumn();
-                    }, 500);
-                });
-                clearInterval(interval);
-            } catch (e) {
-            }
-        }, 1000);
-        return;
-    }
-
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         subjectOfATalk.deltopIC();
         return;
