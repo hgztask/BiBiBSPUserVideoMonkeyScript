@@ -4023,7 +4023,9 @@ function bilibiliOne(href) {
         href.includes("search.bilibili.com")||
     href.includes("www.bilibili.com/v")||
     href.includes("www.bilibili.com/anime")||
-    href.includes("www.bilibili.com/guochuang")) {//移除该三个个界面的部分顶栏信息
+    href.includes("www.bilibili.com/guochuang")||
+    href.includes("message.bilibili.com")||
+    href.includes("space.bilibili.com")) {//移除该三个个界面的部分顶栏信息
         const interval01 = setInterval(() => {
             const left_entry = $(".left-entry");
             if (left_entry.length === 0) {
