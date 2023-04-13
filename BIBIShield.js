@@ -1833,7 +1833,7 @@ const videoFun = {
         const interval = setInterval(() => {
             let list;
             try {
-                list =document.querySelectorAll(".video-page-card-small");
+                list = document.querySelectorAll(".video-page-card-small");
             } catch (e) {
                 return;
             }
@@ -1859,7 +1859,7 @@ const videoFun = {
                     const title = domElement.querySelector(".title").textContent;
                     const upSpatialAddress = domElement.querySelector(".upname>a").href;
                     const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
-                    util.showSDPanel(e,name,id,title);
+                    util.showSDPanel(e, name, id, title);
                 });
             }
         }, 1000);
@@ -3992,6 +3992,7 @@ function loadChannel() {
 
     if (href.includes("bilibili.com")) {
         bilibili(href);
+        bilibiliOne(href);
         startMonitorTheNetwork();
     }
 })
@@ -4009,6 +4010,65 @@ function github(href) {
     setInterval(() => {//github站内所有的链接都从新的标签页打开，而不从当前页面打开
         $("a").attr("target", "_blank");
     }, 1000);
+}
+
+/**
+ *
+ * 首次加载时只会加载一次
+ * @param {string}href
+ */
+function bilibiliOne(href) {
+
+    if (href.includes("t.bilibili.com") ||
+        href.includes("search.bilibili.com")||
+    href.includes("www.bilibili.com/v")||
+    href.includes("www.bilibili.com/anime")||
+    href.includes("www.bilibili.com/guochuang")) {//移除该三个个界面的部分顶栏信息
+        const interval01 = setInterval(() => {
+            const left_entry = $(".left-entry");
+            if (left_entry.length === 0) {
+                return;
+            }
+            const v_popover_wrap = $(".v-popover-wrap:contains('下载'),.v-popover-wrap:contains('会员购'),.v-popover-wrap:contains('赛事'),.v-popover-wrap:contains('漫画')");
+            if (v_popover_wrap.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            v_popover_wrap.remove();
+            console.log("移除标题栏的下载");
+        }, 1000);
+
+        const interval02 = setInterval(() => {
+            const logo = $(".mini-header__logo");
+            if (logo.length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            logo.remove();
+            console.log("已移除顶栏左侧的logo");
+        }, 1000);
+    }
+    if (href.includes("search.bilibili.com")) {
+        $("#biliMainFooter").remove();
+        console.log("已清空底部信息");
+        $(".side-buttons.flex_col_end p_absolute").remove();
+        console.log("已移除bilibili右侧悬浮按钮");
+        return;
+    }
+    if (href.includes("www.bilibili.com/v/channel")) {
+        const interval01 = setInterval(() => {
+            const nav_link_ulMini = $(".nav-link-ul.mini");
+            if (nav_link_ulMini.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            const item = $(".nav-link-item:contains('下载'),.nav-link-item:contains('赛事'),.nav-link-item:contains('漫画'),.nav-link-item:contains('会员购')");
+            console.log(item);
+            item.remove();
+            $(".navbar_logo").remove();//移除左上角的bilibili的LOGO
+            console.log("已移除坐上顶栏部分项目");
+        }, 1000);
+    }
 }
 
 
@@ -4066,7 +4126,8 @@ function bilibili(href) {
         }, 1000);
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
             const interval = setInterval(() => {
-                const list =document.querySelectorAll(".video-page-card-small");;
+                const list = document.querySelectorAll(".video-page-card-small");
+                ;
                 if (list.length === 0) {
                     return;
                 }
