@@ -2545,8 +2545,8 @@ const layout = {
                 background: rgb(149, 156, 135);
                 height: 30%;
                 width: 10%;
-                top: 50%;
-                left: 85%;
+                top: 70%;
+                left: 90%;
                  border: 3px solid green;
              }
               #sort_typeSelect{
