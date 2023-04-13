@@ -3018,7 +3018,7 @@ function ruleList(href) {
                 const tempListLength = list.length;
                 if (list.length === 0) {
                     return;
-
+                }
                 if (list[0].textContent === "") {
                     return;
                 }
