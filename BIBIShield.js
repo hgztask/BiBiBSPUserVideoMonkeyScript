@@ -3014,16 +3014,19 @@ function searchColumn() {
 function ruleList(href) {
     if (href.includes("https://search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
         const interval = setInterval(() => {
-            while (true) {
-                const list = document.getElementsByClassName("col_xs_1_5 col_md_2 col_xl_1_7 mb_x40");
+                const list = $(".video-list").children();
                 const tempListLength = list.length;
+                if (list.length === 0) {
+                    return;
+
+                if (list[0].textContent === "") {
+                    return;
+                }
                 search.searchRules(list);
                 if (tempListLength === list.length) {
                     clearInterval(interval);
                     //Print.ln("页面元素没有变化，故退出循环")
-                    break;
                 }
-            }
         }, 500);
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
