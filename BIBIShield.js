@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.34
+// @version      1.1.35
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2632,7 +2632,6 @@ const layout = {
                 <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
                 <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
                 <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
-                <option value="checkTheIngredients">查成分</option>
               </select>
               <div>
                 <select id="singleDoubleModel">
@@ -2859,7 +2858,6 @@ const layout = {
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
-        <button id="findUserComposition" title="通过最近动态和关注列表进行判断">查成分</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3355,41 +3353,7 @@ function loadChannel() {
             $("#popDiv").css("display", "inline");
         });
     });
-    $("#findUserComposition").click(() => {
-        const uid = $("#uidSuspensionDiv").text();
-        if (uid === "") {
-            Qmsg.error("未检测到UID！")
-            return;
-        }
-        const loading = Qmsg.loading("正在获取中！");
-        HttpUtil.get("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?&host_mid=" + uid, (res) => {//根据动态
-            const body = JSON.parse(res.responseText);
-            if (body["code"] === undefined || body["code"] !== 0) {
-                loading.close();
-                Qmsg.error("获取数据失败！");
-                return;
-            }
-            const arrList = body["data"]["items"];
-            if (arrList === undefined || arrList === null || arrList.length === 0) {
-                Qmsg.error("该用户获取不到动态！");
-                loading.close();
-                return;
-            }
-            loading.close();
-            for (const v of arrList) {
-                const stringify = JSON.stringify(v);
-                if (!stringify.includes("原神")) {
-                    continue;
-                }
-                Qmsg.success("查询当前用户动态有原神关键词！");
-                return;
-            }
-            Qmsg.error("未查询到指定类型的动态信息!");
-        }, (err) => {
-            loading.clone();
-            Qmsg.error("请求失败=" + err);
-        });
-    });
+
 
 
     $("#axleRange").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放器旋转角度拖动条
