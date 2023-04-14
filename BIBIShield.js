@@ -1917,7 +1917,7 @@ function getChannelVideoRules(element) {
     const videoInfo = element.getElementsByClassName("video-name")[0];
     //空间地址
     const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
-    const lastIndexOf = upSpatialAddress.lastIndexOf("/") + 1;
+    const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
     const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
     return {
         //用户名
@@ -1931,7 +1931,7 @@ function getChannelVideoRules(element) {
         //空间地址
         upSpatialAddress: upSpatialAddress,
         //UID
-        uid: upSpatialAddress.substring(lastIndexOf),
+        uid: util.getSubUid(lastIndexOf),
         //播放量
         playbackVolume: topInfo[0].textContent.trim(),
         //弹幕量
