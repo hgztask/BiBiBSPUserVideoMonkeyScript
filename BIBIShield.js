@@ -3988,7 +3988,7 @@ function loadChannel() {
 
     if (href.includes("bilibili.com")) {
         bilibili(href);
-        bilibiliOne(href,document.title);
+        bilibiliOne(href, document.title);
         startMonitorTheNetwork();
     }
 })
@@ -4014,7 +4014,7 @@ function github(href) {
  * @param {string}href
  * @param {string}windonsTitle
  */
-function bilibiliOne(href,windonsTitle) {
+function bilibiliOne(href, windonsTitle) {
 
     if (href.includes("t.bilibili.com") ||
         href.includes("search.bilibili.com") ||
@@ -4036,7 +4036,6 @@ function bilibiliOne(href,windonsTitle) {
             v_popover_wrap.remove();
             console.log("移除标题栏的下载");
         }, 1000);
-
         const interval02 = setInterval(() => {
             const logo = $(".mini-header__logo");
             if (logo.length === 0) {
@@ -4045,6 +4044,18 @@ function bilibiliOne(href,windonsTitle) {
             clearInterval(interval02);
             logo.remove();
             console.log("已移除顶栏左侧的logo");
+        }, 1000);
+    }
+    if (href.includes("t.bilibili.com") && windonsTitle === "动态首页-哔哩哔哩") {
+        console.log("动态页面")
+        const interval01 = setInterval(() => {
+            const login = $(".bili-dyn-login-register");
+            if (login.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            login.remove();
+            console.log("已移除动态页面中的提示登录");
         }, 1000);
     }
     if (href.includes("search.bilibili.com")) {
@@ -4069,8 +4080,8 @@ function bilibiliOne(href,windonsTitle) {
         }, 1000);
         return;
     }
-    if (href.includes("www.bilibili.com")&&windonsTitle==="哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
-        console.log("测试效果,当前确实是首页");
+    if ((href.includes("www.bilibili.com") && windonsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windonsTitle === "动态首页-哔哩哔哩")) {
+        console.log("测试效果")
         const interval01 = setInterval(() => {
             const login = $(".lt-col>.login-tip:contains('立即登录')");
             if (login.length === 0) {
@@ -4080,7 +4091,7 @@ function bilibiliOne(href,windonsTitle) {
             login.remove();
             console.log("已移除页面右下角的提示登录");
         }, 1000);
-        const interval02 = setInterval(()=>{
+        const interval02 = setInterval(() => {
             const login = $(".login-panel-popover");
             if (login.length === 0) {
                 return;
@@ -4088,8 +4099,7 @@ function bilibiliOne(href,windonsTitle) {
             clearInterval(interval02);
             login.remove();
             console.log("已移除页面的提示登录信息");
-        },1000);
-
+        }, 1000);
     }
 }
 
