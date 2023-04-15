@@ -1391,15 +1391,15 @@ const localData = {
      * 获取已观看的视频数组
      * @return {Array}
      */
-    getWatchedArr:function () {
+    getWatchedArr: function () {
         return util.getData("watchedArr");
     },
     /**
      * 设置已观看的视频
      * @param {string}key
      */
-    setWatchedArr:function (key) {
-        util.setData("watchedArr",key);
+    setWatchedArr: function (key) {
+        util.setData("watchedArr", key);
     }
 
 
@@ -3355,7 +3355,6 @@ function loadChannel() {
     });
 
 
-
     $("#axleRange").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放器旋转角度拖动条
         const value = $("#axleRange").val();//获取值
         util.setVideoCenterRotation(value);
@@ -3989,7 +3988,7 @@ function loadChannel() {
 
     if (href.includes("bilibili.com")) {
         bilibili(href);
-        bilibiliOne(href);
+        bilibiliOne(href,document.title);
         startMonitorTheNetwork();
     }
 })
@@ -4013,8 +4012,9 @@ function github(href) {
  *
  * 首次加载时只会加载一次
  * @param {string}href
+ * @param {string}windonsTitle
  */
-function bilibiliOne(href) {
+function bilibiliOne(href,windonsTitle) {
 
     if (href.includes("t.bilibili.com") ||
         href.includes("search.bilibili.com") ||
@@ -4067,6 +4067,29 @@ function bilibiliOne(href) {
             $(".navbar_logo").remove();//移除左上角的bilibili的LOGO
             console.log("已移除坐上顶栏部分项目");
         }, 1000);
+        return;
+    }
+    if (href.includes("www.bilibili.com")&&windonsTitle==="哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
+        console.log("测试效果,当前确实是首页");
+        const interval01 = setInterval(() => {
+            const login = $(".lt-col>.login-tip:contains('立即登录')");
+            if (login.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            login.remove();
+            console.log("已移除页面右下角的提示登录");
+        }, 1000);
+        const interval02 = setInterval(()=>{
+            const login = $(".login-panel-popover");
+            if (login.length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            login.remove();
+            console.log("已移除页面的提示登录信息");
+        },1000);
+
     }
 }
 
