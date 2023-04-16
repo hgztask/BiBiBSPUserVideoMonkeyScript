@@ -735,6 +735,15 @@ const HttpUtil = {
             url = url + "aid=" + bvOrAv;//不需要带上AV号
         }
         return this.get(url, resolve, reject);
+    },
+    /**
+     * 发送请求获取直播间基本信息
+     * @param id 直播间房间号
+     * @param resolve 响应成功
+     * @param reject 响应失败!
+     */
+    getLiveInfo:function (id, resolve, reject) {
+        return this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
     }
 };
 
@@ -1369,7 +1378,25 @@ const util = {
             return null;
         }
         return bvid;
+    },
+    /**
+     * 截取网页中的Url直播间的ID
+     * @param {string}url
+     * @returns {string|null}
+     */
+    getUrlLiveID:function (url) {
+    let id;
+    try {
+        url = url+"".split("/")[3];
+        id = url.substring(0, url.indexOf("?"));
+    } catch (e) {
+        return null;
     }
+    if (isNaN(id)) {
+        return null;
+    }
+    return id;
+}
 }
 
 
