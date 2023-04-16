@@ -720,6 +720,21 @@ const HttpUtil = {
             "User-Agent": navigator.userAgent,
             "cookie": cookie
         }, resolve, reject);
+    },
+    /**
+     * 发送请求获取视频的基本信息
+     * @param {string|number}bvOrAv
+     * @param {function}resolve
+     * @param {function}reject
+     */
+    getVideoInfo: function (bvOrAv,resolve,reject) {
+        let url = "https://api.bilibili.com/x/player/pagelist?";
+        if (bvOrAv+"".startsWith("BV")) {
+            url = url + "bvid=" + bvOrAv;//需要带上BV号
+        } else {
+            url = url + "aid=" + bvOrAv;//不需要带上AV号
+        }
+        return this.get(url, resolve, reject);
     }
 }
 
@@ -936,7 +951,7 @@ const util = {
      * @param {string|number}strNumber
      * @returns {string}
      */
-    getNumberFormat:function (strNumber) {
+    getNumberFormat: function (strNumber) {
         strNumber += "";
         const length = strNumber.length;
         if (length <= 4) {
@@ -2608,6 +2623,18 @@ const layout = {
               #sort_typeSelect{
                display: none;
                }
+          #mybut{
+        position: fixed;
+        z-index: 50;
+        width: 50px;
+        height:50px;
+        left: 96%;
+        bottom: 85%;
+        background: rgb(67, 67, 124);
+        color: white;
+        border: none;
+        border-radius: 50%;
+    }
             `);
         }
     },
@@ -3194,23 +3221,10 @@ function loadChannel() {
     }
     //加载布局
     layout.loading.home();
-    layout.css.home();
     $("body").prepend('<button id="mybut">按钮</button>');
-    $("#mybut").css({
-        "position": "fixed",
-        "z-index": "50",
-        "width": "50px",
-        "height": " 50px",
-        "left": "96%",
-        "bottom": "85%",
-        "background": "rgb(67, 67, 124)",
-        "color": "white",
-        "border": "none",
-        "border-radius": "50%"
-    });
+    layout.css.home();
 
     util.suspensionBall(document.getElementById("suspensionDiv"));
-
 
     rule.ruleLength();
     rule.showInfo();
@@ -4352,7 +4366,7 @@ function bilibili(href) {
             }
             $(".container.is-version8").append(
                 addElement.homeVideoE.getHtmlStr(
-                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName,duration, ctimeStr,
+                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
                     util.getNumberFormat(view), util.getNumberFormat(danmaku))
             );
             home.startShieldMainVideo("bili-video-card is-rcmd");
@@ -4387,6 +4401,7 @@ function bilibili(href) {
                     const view = v["stat"]["view"];//播放量
                     const danmaku = v["stat"]["danmaku"];//弹幕量
                     const aid = v["stat"]["aid"];//av号
+                    const cid = v["cid"];
                     const ctime = v["ctime"];//视频审核时间时间戳
                     const pubdate = v["pubdate"];//视频上传时间时间戳
                     const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
@@ -4491,17 +4506,17 @@ function homePrefecture() {
  * @param {string}href
  */
 function csdn(href) {
-    document.body.contentEditable='true';
-    document.designMode='on';
+    document.body.contentEditable = 'true';
+    document.designMode = 'on';
 
     //优化登陆后复制
-    $('code').css({'user-select':'unset'})
-    $('#content_views pre').css({'user-select':'unset'})
+    $('code').css({'user-select': 'unset'})
+    $('#content_views pre').css({'user-select': 'unset'})
 
     //移除“登陆后复制”按钮
     $('.hljs-button').remove();
     //移除readmore按钮，并显示全文
     $('.hide-article-box').remove();
-    $('.article_content').css({'height':'initial'})
+    $('.article_content').css({'height': 'initial'})
 
 }
