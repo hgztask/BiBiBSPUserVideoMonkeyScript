@@ -28,6 +28,7 @@
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
 // @match        *://github.com/*
+// @match        *://blog.csdn.net/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -3187,6 +3188,10 @@ function loadChannel() {
         github(href);
         return;
     }
+    if (href.includes("blog.csdn.net")) {
+        csdn(href);
+        return;
+    }
     //加载布局
     layout.loading.home();
     layout.css.home();
@@ -4478,4 +4483,25 @@ function homePrefecture() {
         v.remove();
         console.log("已移除界面中的横幅广告");
     }
+}
+
+
+/**
+ *
+ * @param {string}href
+ */
+function csdn(href) {
+    document.body.contentEditable='true';
+    document.designMode='on';
+
+    //优化登陆后复制
+    $('code').css({'user-select':'unset'})
+    $('#content_views pre').css({'user-select':'unset'})
+
+    //移除“登陆后复制”按钮
+    $('.hljs-button').remove();
+    //移除readmore按钮，并显示全文
+    $('.hide-article-box').remove();
+    $('.article_content').css({'height':'initial'})
+
 }
