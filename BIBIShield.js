@@ -929,6 +929,20 @@ const util = {
         return parseInt(str);
     },
     /**
+     * 将视频播放量和弹幕量格式化输出
+     * 不超出4位数的按原数字返回字符串
+     * 反之截取只保留万返回字符串
+     * @param {string|number}strNumber
+     * @returns {string}
+     */
+    getNumberFormat:function (strNumber) {
+        const length = strNumber.length;
+        if (length <= 4) {
+            return strNumber;
+        }
+        return strNumber.substring(0, length - 4)+"万";
+    },
+    /**
      * 获取当前网页的url
      * @returns {string}
      */
