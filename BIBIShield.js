@@ -4388,7 +4388,7 @@ function bilibili(href) {
                     const duration = v["duration"];//视频时长秒
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
                     bvid = (bvidSub === "" ? bvid : bvidSub);
-                    if (tempFunc(uid, videoTitle, name, bvid, duration, util.formateTime(ctimeStr), view, danmaku, picUil)) {
+                    if (tempFunc(uid, videoTitle, name, bvid, duration, ctimeStr, view, danmaku, picUil)) {
                         Qmsg.info("过滤了视频！！");
                     }
                 }
