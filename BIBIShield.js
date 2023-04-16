@@ -727,16 +727,16 @@ const HttpUtil = {
      * @param {function}resolve
      * @param {function}reject
      */
-    getVideoInfo: function (bvOrAv,resolve,reject) {
+    getVideoInfo: function (bvOrAv, resolve, reject) {
         let url = "https://api.bilibili.com/x/player/pagelist?";
-        if (bvOrAv+"".startsWith("BV")) {
+        if (bvOrAv + "".startsWith("BV")) {
             url = url + "bvid=" + bvOrAv;//需要带上BV号
         } else {
             url = url + "aid=" + bvOrAv;//不需要带上AV号
         }
         return this.get(url, resolve, reject);
     }
-}
+};
 
 
 const htmlStr = {
@@ -2908,6 +2908,7 @@ const layout = {
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
+        <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3392,6 +3393,55 @@ function loadChannel() {
                 $("body").append(userCardHtml);
             }
             $("#popDiv").css("display", "inline");
+        });
+    });
+
+
+    $("#getVideoDanMueBut").click(() => {
+        const windowUrl = util.getWindowUrl();
+        if (!windowUrl.includes("www.bilibili.com/video")) {
+            alert("当前不是播放页!");
+            return;
+        }
+        const urlBVID = util.getUrlBVID(windowUrl);
+        if (urlBVID === null) {
+            alert("获取不到BV号!");
+            return;
+        }
+        if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
+            return;
+        }
+        const loading = Qmsg.loading("正在获取数据中!");
+        HttpUtil.getVideoInfo(urlBVID, (res) => {
+            const body = JSON.parse(res.responseText);
+            const code = body["code"];
+            const message = body["message"];
+            if (code !== 0) {
+                Qmsg.error("获取失败!" + message);
+                loading.close();
+                return;
+            }
+            let data;
+            try {
+                data = body["data"][0];
+            } catch (e) {
+                Qmsg.error("获取数据失败!" + e);
+                loading.close();
+                return;
+            }
+            if (data === null || data == undefined) {
+                Qmsg.error("获取到的数据为空的!");
+                loading.close();
+                return;
+            }
+            loading.close();
+            const cid = data["cid"];
+            Qmsg.success("cid=" + cid);
+            window.open(`https://comment.bilibili.com/${cid}.xml`,'target','');
+        }, (err) => {
+            loading.close();
+            Qmsg.error("错误状态!");
+            Qmsg.error(err);
         });
     });
 
@@ -4056,7 +4106,10 @@ function github(href) {
  * @param {string}windonsTitle
  */
 function bilibiliOne(href, windonsTitle) {
-
+    if (href.includes("www.bilibili.com/video")) {
+        $("#getVideoDanMueBut").css("display","inline");
+        return;
+    }
     if (href.includes("t.bilibili.com") ||
         href.includes("search.bilibili.com") ||
         href.includes("www.bilibili.com/v") ||
