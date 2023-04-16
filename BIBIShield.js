@@ -936,11 +936,19 @@ const util = {
      * @returns {string}
      */
     getNumberFormat:function (strNumber) {
+        strNumber += "";
         const length = strNumber.length;
         if (length <= 4) {
             return strNumber;
         }
-        return strNumber.substring(0, length - 4)+"万";
+        if (length === 5) {
+            const start = strNumber.substring(0, 1);
+            const end = strNumber.substring(1, 2);
+            return start + "." + end + "万";
+        }
+        const start = strNumber.substring(0, length - 4);
+        const end = strNumber.substring(length - 3, 4);
+        return start + "." + end + "万";
     },
     /**
      * 获取当前网页的url
@@ -4339,8 +4347,8 @@ function bilibili(href) {
             }
             $(".container.is-version8").append(
                 addElement.homeVideoE.getHtmlStr(
-                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
-                    view, danmaku)
+                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName,duration, ctimeStr,
+                    util.getNumberFormat(view), util.getNumberFormat(danmaku))
             );
             home.startShieldMainVideo("bili-video-card is-rcmd");
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
