@@ -742,7 +742,7 @@ const HttpUtil = {
      * @param resolve 响应成功
      * @param reject 响应失败!
      */
-    getLiveInfo:function (id, resolve, reject) {
+    getLiveInfo: function (id, resolve, reject) {
         return this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
     }
 };
@@ -1384,19 +1384,19 @@ const util = {
      * @param {string}url
      * @returns {string|null}
      */
-    getUrlLiveID:function (url) {
-    let id;
-    try {
-        url = url+"".split("/")[3];
-        id = url.substring(0, url.indexOf("?"));
-    } catch (e) {
-        return null;
+    getUrlLiveID: function (url) {
+        let id;
+        try {
+            url = url + "".split("/")[3];
+            id = url.substring(0, url.indexOf("?"));
+        } catch (e) {
+            return null;
+        }
+        if (isNaN(id)) {
+            return null;
+        }
+        return id;
     }
-    if (isNaN(id)) {
-        return null;
-    }
-    return id;
-}
 }
 
 
@@ -2609,6 +2609,18 @@ const trends = {
                     }
                 });
             }
+            //移除话题上面的广告
+            const interval01 = setInterval(() => {
+            const bili_dyn_ads = $(".bili-dyn-ads");
+                if (bili_dyn_ads.length === 0) {
+                    return;
+                }
+                clearInterval(interval01);
+                bili_dyn_ads.remove();
+                console.log("已移除话题上面的广告");
+            }, 1000);
+
+
         }
     },
 }
@@ -3464,7 +3476,7 @@ function loadChannel() {
             loading.close();
             const cid = data["cid"];
             Qmsg.success("cid=" + cid);
-            window.open(`https://comment.bilibili.com/${cid}.xml`,'target','');
+            window.open(`https://comment.bilibili.com/${cid}.xml`, 'target', '');
         }, (err) => {
             loading.close();
             Qmsg.error("错误状态!");
@@ -4134,7 +4146,7 @@ function github(href) {
  */
 function bilibiliOne(href, windonsTitle) {
     if (href.includes("www.bilibili.com/video")) {
-        $("#getVideoDanMueBut").css("display","inline");
+        $("#getVideoDanMueBut").css("display", "inline");
         return;
     }
     if (href.includes("t.bilibili.com") ||
@@ -4178,6 +4190,10 @@ function bilibiliOne(href, windonsTitle) {
             login.remove();
             console.log("已移除动态页面中的提示登录");
         }, 1000);
+        //.bili-dyn-ads
+        trends.topCssDisply.body();
+        trends.topCssDisply.topTar();
+        trends.topCssDisply.rightLayout();
     }
     if (href.includes("search.bilibili.com")) {
         $("#biliMainFooter").remove();
@@ -4202,7 +4218,6 @@ function bilibiliOne(href, windonsTitle) {
         return;
     }
     if ((href.includes("www.bilibili.com") && windonsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windonsTitle === "动态首页-哔哩哔哩")) {
-        console.log("测试效果")
         const interval01 = setInterval(() => {
             const login = $(".lt-col>.login-tip:contains('立即登录')");
             if (login.length === 0) {
@@ -4544,12 +4559,6 @@ function bilibili(href) {
         } catch (e) {
             console.log("屏蔽热门底部元素出错！" + e);
         }
-        return;
-    }
-    if (href.includes("t.bilibili.com/?spm_id_from=")) {//动态的首页
-        trends.topCssDisply.body();
-        trends.topCssDisply.topTar();
-        trends.topCssDisply.rightLayout();
         return;
     }
     if (href.includes("www.bilibili.com/v/")) {
