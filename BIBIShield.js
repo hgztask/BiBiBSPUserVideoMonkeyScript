@@ -2997,7 +2997,8 @@ function perf_observer() {
             windowUrl.includes("https://www.bilibili.com/video") &&
             !rule.videoData.isCommentArea) {
             //如果是视频播放页的话，且接收到评论的相应请求
-            for (let v of document.getElementsByClassName("reply-item")) {//针对于评论区
+            const list = $(".reply-list").children();
+            for (let v of list) {//针对于评论区
                 const data = getVideoCommentAreaOrTrendsLandlord(v);
                 const subReplyList = v.getElementsByClassName("sub-reply-list")[0];//楼主下面的评论区
                 if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
