@@ -1574,6 +1574,7 @@ const urleCrud = {
         util.setData(ruleStrName, arr);
         Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
         rule.ruleLength();
+        return true;
     },
     /**
      * 批量添加，要求以数组形式
@@ -1620,22 +1621,22 @@ const urleCrud = {
 const butLayEvent = {
     butaddName: function (ruleStr, contentV) {
         if (contentV === '') {
-            Print.ln("请输入正确的内容")
-            return;
+            Qmsg.error("请输入正确的内容");
+            return false;
         }
         if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
-            return;
+            return false;
         }
         let arrayList = util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             urleCrud.add([], contentV, ruleStr);
-            return;
+            return false;
         }
         if (arrayList.includes(contentV)) {
-            Print.ln("当前已有该值！");
-            return;
+            Qmsg.error("当前已有该值！")
+            return false;
         }
-        urleCrud.add(arrayList, contentV, ruleStr);
+        return urleCrud.add(arrayList, contentV, ruleStr);;
     },
     butaddAllName: function (ruleStr, contentV) {
         if (contentV === '') {
@@ -1657,10 +1658,6 @@ const butLayEvent = {
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
     butDelName: function (ruleStr, contentV) {
-        if (contentV === '' || contentV.includes(" ")) {
-            Print.ln("请输入正确的内容")
-            return false;
-        }
         let arrayList = util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             Print.ln("没有内容哟")
@@ -2524,8 +2521,10 @@ const search = {
                     continue;
                 }
                 v.onmouseenter = (e) => {
-                    const data = search.getDataV(e.srcElement);
+                    const srcElement = e.srcElement;
+                    const data = search.getDataV(srcElement);
                     util.showSDPanel(e, data.name, data.uid);
+                    search.searchRules($(".video-list").children());
                 };
             } catch (e) {
                 v.remove();
@@ -3405,7 +3404,16 @@ function loadChannel() {
     });
     $("#butShieldUid").click(() => {//悬浮小窗体-添加屏蔽uid
         const uid = $("#uidSuspensionDiv").text();
-        butLayEvent.butaddName("userUIDArr", parseInt(uid));
+        const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(uid));
+        if (tempLoop) {
+            const videoE = getDataVideoE();
+            if (videoE === null) {
+                return;
+            }
+            videoE.remove();
+            Qmsg.info("删除元素！");
+            console.log(videoE);
+        }
     });
     $("#findUserInfo").click(() => {
         const uid = $("#uidSuspensionDiv").text();
@@ -4133,13 +4141,18 @@ function loadChannel() {
 })
 ();
 
-/**
- *
- * @param {string}href
- */
-function youtube(href) {
 
+
+let dataVideoE=null;
+
+getDataVideoE=function () {
+    return dataVideoE;
 }
+
+setDataVideoE=function (videoE) {
+    dataVideoE=videoE;
+}
+
 
 function github(href) {
     setInterval(() => {//github站内所有的链接都从新的标签页打开，而不从当前页面打开
