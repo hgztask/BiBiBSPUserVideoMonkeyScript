@@ -4509,10 +4509,10 @@ function bilibili(href) {
                     const ctime = v["ctime"];//视频审核时间时间戳
                     const pubdate = v["pubdate"];//视频上传时间时间戳
                     const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
-                    const duration = v["duration"];//视频时长秒
+                    const duration = v["duration"];//视频时长秒，专区-存数字时间
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
                     bvid = (bvidSub === "" ? bvid : bvidSub);
-                    if (tempFunc(uid, videoTitle, name, bvid, duration, ctimeStr, view, danmaku, picUil)) {
+                    if (tempFunc(uid, videoTitle, name, bvid, util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
                         Qmsg.info("过滤了视频！！");
                     }
                 }
