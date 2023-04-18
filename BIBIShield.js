@@ -1341,7 +1341,8 @@ const util = {
             return;
         }
         $("#nameSuspensionDiv").text(name);
-        const uidA = $("#uidSuspensionDiv");
+        let uidA = $("#uidSuspensionDiv");
+        uid = util.getSubUid(uid);
         uidA.text(uid);
         uidA.attr("href", `https://space.bilibili.com/${uid}`);
         if (title !== undefined) {
@@ -1349,6 +1350,8 @@ const util = {
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
+
+
     },
     /**
      * 对UID后面带有其他符号的字符截取掉并保留UID返回
@@ -1356,6 +1359,7 @@ const util = {
      * @return {number}
      */
     getSubUid: function (uidStr) {
+        uidStr = uidStr + "";
         const indexOf = uidStr.indexOf("?");
         const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
         return parseInt(uid);
@@ -2611,7 +2615,7 @@ const trends = {
             }
             //移除话题上面的广告
             const interval01 = setInterval(() => {
-            const bili_dyn_ads = $(".bili-dyn-ads");
+                const bili_dyn_ads = $(".bili-dyn-ads");
                 if (bili_dyn_ads.length === 0) {
                     return;
                 }
@@ -2932,6 +2936,10 @@ const layout = {
           <span>按钮跟随鼠标</span>
           <input id="quickLevitationShield" type="checkbox">
         </div>
+       <div>
+       <span>屏蔽元素跟随删除</span>
+       <input id="delECheckbox" type="checkbox"> 
+       </div>
         <p>
           标题:
           <span id="suspensionTitle"></span>
