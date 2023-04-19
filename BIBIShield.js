@@ -2469,20 +2469,20 @@ const greatDemand = {
 //搜索
 const search = {
     getDataV: function (v) {
-        let info = v.getElementsByClassName("bili-video-card__info--right")[0];
-        let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
+        let info = v.querySelector(".bili-video-card__info--right");
+        let userInfo = info.querySelector(".bili-video-card__info--owner");
         //用户空间地址
         let upSpatialAddress = userInfo.getAttribute("href");
-        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+        const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
         return {
             //用户名
-            name: userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent,
+            name: userInfo.querySelector(".bili-video-card__info--author").textContent,
             //标题
-            title: info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title"),
+            title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
             upSpatialAddress: upSpatialAddress,
             uid: util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
             //视频的时间
-            videoTime: v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent,
+            videoTime: v.querySelector(".bili-video-card__stats__duration").textContent,
             //播放量
             playbackVolume: topInfo[0],
             //弹幕量
@@ -3194,7 +3194,7 @@ function ruleList(href) {
                 clearInterval(interval);
                 //Print.ln("页面元素没有变化，故退出循环")
             }
-        }, 100);
+        }, 10);
         return;
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
