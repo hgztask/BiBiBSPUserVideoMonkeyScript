@@ -79,6 +79,9 @@ const rule = {
         const videoZoneSelect = $("#video_zoneSelect");
         const pushType = home.getPushType();
         pushTypeSelect.val(pushType);
+        switch (pushType) {
+            case "":
+        }
         if (pushType === "分区") {
             loadPartition();
             videoZoneSelect.val(localData.getVideo_zone());
@@ -90,7 +93,7 @@ const rule = {
             tempSortTypeSelect.val(tempSortType);
             tempSortTypeSelect.css("display", "inline")
         } else {
-            Qmsg.error("初始化时出现了不该出现的结果");
+            Qmsg.error("初始化时出现了不该出现的结果");//一般情况下，当用户没有指定首页推送的视频类型时，会提示该信息，现要求优化，不显示直接修改对应的默认值即可
         }
     },
     //视频参数
@@ -2499,22 +2502,22 @@ const search = {
     searchRules: function (videoList) {
         for (let v of videoList) {
             try {
-                let info = v.getElementsByClassName("bili-video-card__info--right")[0];
-                let userInfo = info.getElementsByClassName("bili-video-card__info--owner")[0];
+                let info = v.querySelector(".bili-video-card__info--right");
+                let userInfo = info.querySelector(".bili-video-card__info--owner");
                 //用户名
-                let name = userInfo.getElementsByClassName("bili-video-card__info--author")[0].textContent;
+                let name = userInfo.querySelector(".bili-video-card__info--author").textContent;
                 //视频标题
-                let title = info.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
+                let title = info.querySelector(".bili-video-card__info--tit").title;
                 //用户空间地址
                 let upSpatialAddress = userInfo.getAttribute("href");
-                if (!upSpatialAddress.startsWith("//space.bilibili.com/")) {
-                    console.log("检测到不是正常视频内容，故隐藏该元素")
+                if (!upSpatialAddress.includes("//space.bilibili.com/")) {
+                    Qmsg.info("检测到不是正常视频内容，故隐藏该元素");
                     //如果获取的类型不符合规则则结束本轮
                     v.remove();
                     continue;
                 }
-                const videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
-                const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+                const videoTime = v.querySelector(".bili-video-card__stats__duration").textContent;//视频的时间
+                const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
                 let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
                 if (shieldVideo_userName_uid_title(v, name, id, title, null, videoTime, topInfo[0].textContent)) {
                     Qmsg.info("屏蔽了视频！！");
