@@ -1473,9 +1473,12 @@ const localData = {
     setWatchedArr: function (key) {
         util.setData("watchedArr", key);
     }
-
-
 }
+
+localLastItenData = {
+    searchUID: null,
+};
+
 
 //添加元素
 addElement = {
@@ -1639,7 +1642,8 @@ const butLayEvent = {
             Qmsg.error("当前已有该值！")
             return false;
         }
-        return urleCrud.add(arrayList, contentV, ruleStr);;
+        return urleCrud.add(arrayList, contentV, ruleStr);
+        ;
     },
     butaddAllName: function (ruleStr, contentV) {
         if (contentV === '') {
@@ -3179,7 +3183,88 @@ function searchColumn() {
  * @param href{String} url链接
  */
 function ruleList(href) {
-    if (href.includes("https://search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
+    if (href.includes("live.bilibili.com/p/eden/area-tags")) {
+        console.log("直播专区")
+        liveDel.delLiveRoom();
+        return;
+    }
+    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
+        const videoData = rule.videoData;
+        const interval = setInterval(() => {
+            try {
+                const videoElement = document.getElementsByTagName("video")[0];
+                if (videoElement === undefined) {
+                    return;
+                }
+                clearInterval(interval);
+                const autoPlay = util.getData("autoPlay");
+                if (autoPlay === true) {
+                    const intervalAutoPlay = setInterval(() => {
+                        const au = $("input[aria-label='自动开播']");
+                        if (au.length === 0) {
+                            return;
+                        }
+                        videoElement.pause();
+                        if (au.is(":checked")) {
+                            au.attr("checked", false);
+                            console.log(au.is(":checked"));
+                        } else {
+                            clearInterval(intervalAutoPlay);
+                            console.log("退出intervalAutoPlay")
+                            console.log("已自动暂定视频播放");
+                        }
+                    }, 800);
+                }
+
+                function setVideoSpeedInfo() {
+                    const data = util.getData("playbackSpeed");
+                    if (data === undefined) {
+                        return;
+                    }
+                    if (data === 0 || data < 0.1) {
+                        return;
+                    }
+                    //播放视频速度
+                    videoElement.playbackRate = data;
+                    Print.ln("已设置播放器的速度=" + data);
+                }
+
+                setVideoSpeedInfo();
+                videoElement.addEventListener('ended', () => {//播放器结束之后事件
+                    Print.ln("播放结束");
+                    if (videoData.isVideoEndRecommend) {
+                        util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
+                    }
+                }, false);
+            } catch (e) {
+            }
+        }, 1000);
+        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
+            const interval = setInterval(() => {
+                const list = document.querySelectorAll(".video-page-card-small");
+                ;
+                if (list.length === 0) {
+                    return;
+                }
+                videoFun.rightVideo();
+                console.log("检测到右侧视频列表中符合条件");
+                clearInterval(interval)
+
+            }, 2000);
+        }
+        videoFun.delRightE();
+        videoFun.delBottonE();
+        videoFun.rightSuspendButton();
+
+        const upInfo = document.querySelector("#v_upinfo > div.up-info_right > div.name > a.username");
+        upInfo.onmouseenter = (e) => {
+            const element = e.srcElement;
+            const adHref = element.href;
+            util.showSDPanel(e, element.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
+        };
+        return;
+    }
+    if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
         const interval = setInterval(() => {
             const list = $(".video-list").children();
             const tempListLength = list.length;
@@ -4145,15 +4230,14 @@ function loadChannel() {
 ();
 
 
+let dataVideoE = null;
 
-let dataVideoE=null;
-
-getDataVideoE=function () {
+getDataVideoE = function () {
     return dataVideoE;
 }
 
-setDataVideoE=function (videoE) {
-    dataVideoE=videoE;
+setDataVideoE = function (videoE) {
+    dataVideoE = videoE;
 }
 
 
@@ -4170,8 +4254,76 @@ function github(href) {
  * @param {string}windonsTitle
  */
 function bilibiliOne(href, windonsTitle) {
+    if (href.includes("space.bilibili.com/")) {//个人主页
+        const hrefUID = util.getSubUid(href.split("/")[3]);
+        console.log(hrefUID);
+        if (shield.arrKey(localData.getArrUID(), hrefUID)) {
+            setTimeout(() => {
+                alert("当前用户时是黑名单！UID=" + hrefUID)
+            }, 4500);
+        }
+        console.log("个人主页")
+        return;
+    }
+    if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
+        subjectOfATalk.deltopIC();
+        return;
+    }
+    if (href.includes("//live.bilibili.com/")&& windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
+        console.log("当前界面疑似是直播间");
+        liveDel.topElement();
+        liveDel.hreadElement();
+        liveDel.bottomElement();
+        liveDel.delGiftBar();
+        liveDel.delRightChatLayout();
+        liveDel.delOtherE();
+        try {
+            document.getElementById("chat-items").addEventListener("DOMSubtreeModified", () => {
+                liveDel.demo();
+            });
+            console.log("定义了监听器=chat-items")
+        } catch (e) {
+            console.log("测试，没找着id")
+        }
+        return;
+    }
     if (href.includes("www.bilibili.com/video")) {
         $("#getVideoDanMueBut").css("display", "inline");
+        return;
+    }
+    if (href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") {//直播首页
+        console.log("进入直播首页了");
+        const interval01 = setInterval(() => {
+            const videoElement = document.getElementsByTagName("video")[0];
+            if (videoElement) {
+                videoElement.pause();//暂停视频
+                //删除直播首页顶部无用直播间（包括占用大屏幕的，还其右侧的直播间列表）
+                const bigPlayerClass = document.getElementsByClassName("player-area-ctnr border-box p-relative t-center")[0];
+                if (bigPlayerClass) {
+                    bigPlayerClass.remove();
+                    clearInterval(interval01);
+                }
+            }
+            const interval02 = setInterval(() => {
+                const classNameElement = document.getElementsByClassName("link-footer-ctnr")[0];
+                if (classNameElement) {
+                    classNameElement.remove();
+                    Print.ln("已移除页脚信息")
+                    clearInterval(interval02);
+                }
+            }, 2000);
+            if (rule.liveData.rightSuspendButton) {
+                const interval = setInterval(() => {
+                    const classNameElement = document.getElementsByClassName("live-sidebar-ctnr a-move-in-left ts-dot-4")[0];
+                    if (classNameElement) {
+                        clearInterval(interval);
+                        classNameElement.remove();
+                        Print.ln("已移除直播首页右侧的悬浮按钮");
+                    }
+                }, 2000);
+            }
+
+        }, 800);
         return;
     }
     if (href.includes("t.bilibili.com") ||
@@ -4266,147 +4418,8 @@ function bilibiliOne(href, windonsTitle) {
 
 
 function bilibili(href) {
-    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
-        const videoData = rule.videoData;
-        const interval = setInterval(() => {
-            try {
-                const videoElement = document.getElementsByTagName("video")[0];
-                if (videoElement === undefined) {
-                    return;
-                }
-                clearInterval(interval);
-                const autoPlay = util.getData("autoPlay");
-                if (autoPlay === true) {
-                    const intervalAutoPlay = setInterval(() => {
-                        const au = $("input[aria-label='自动开播']");
-                        if (au.length === 0) {
-                            return;
-                        }
-                        videoElement.pause();
-                        if (au.is(":checked")) {
-                            au.attr("checked", false);
-                            console.log(au.is(":checked"));
-                        } else {
-                            clearInterval(intervalAutoPlay);
-                            console.log("退出intervalAutoPlay")
-                            console.log("已自动暂定视频播放");
-                        }
-                    }, 800);
-                }
-
-                function setVideoSpeedInfo() {
-                    const data = util.getData("playbackSpeed");
-                    if (data === undefined) {
-                        return;
-                    }
-                    if (data === 0 || data < 0.1) {
-                        return;
-                    }
-                    //播放视频速度
-                    videoElement.playbackRate = data;
-                    Print.ln("已设置播放器的速度=" + data);
-                }
-
-                setVideoSpeedInfo();
-                videoElement.addEventListener('ended', () => {//播放器结束之后事件
-                    Print.ln("播放结束");
-                    if (videoData.isVideoEndRecommend) {
-                        util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
-                    }
-                }, false);
-            } catch (e) {
-            }
-        }, 1000);
-        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
-            const interval = setInterval(() => {
-                const list = document.querySelectorAll(".video-page-card-small");
-                ;
-                if (list.length === 0) {
-                    return;
-                }
-                videoFun.rightVideo();
-                console.log("检测到右侧视频列表中符合条件");
-                clearInterval(interval)
-
-            }, 2000);
-        }
-        videoFun.delRightE();
-        videoFun.delBottonE();
-        videoFun.rightSuspendButton();
-
-        const upInfo = document.querySelector("#v_upinfo > div.up-info_right > div.name > a.username");
-        upInfo.onmouseenter = (e) => {
-            const element = e.srcElement;
-            const adHref = element.href;
-            util.showSDPanel(e, element.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
-        };
-        return;
-    }
-    if (href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") {//直播首页
-        console.log("进入直播首页了")
-        const interval01 = setInterval(() => {
-            const videoElement = document.getElementsByTagName("video")[0];
-            if (videoElement) {
-                videoElement.pause();//暂停视频
-                //删除直播首页顶部无用直播间（包括占用大屏幕的，还其右侧的直播间列表）
-                const bigPlayerClass = document.getElementsByClassName("player-area-ctnr border-box p-relative t-center")[0];
-                if (bigPlayerClass) {
-                    bigPlayerClass.remove();
-                    clearInterval(interval01);
-                }
-            }
-            const interval02 = setInterval(() => {
-                const classNameElement = document.getElementsByClassName("link-footer-ctnr")[0];
-                if (classNameElement) {
-                    classNameElement.remove();
-                    Print.ln("已移除页脚信息")
-                    clearInterval(interval02);
-                }
-            }, 2000);
-            if (rule.liveData.rightSuspendButton) {
-                const interval = setInterval(() => {
-                    const classNameElement = document.getElementsByClassName("live-sidebar-ctnr a-move-in-left ts-dot-4")[0];
-                    if (classNameElement) {
-                        clearInterval(interval);
-                        classNameElement.remove();
-                        Print.ln("已移除直播首页右侧的悬浮按钮");
-                    }
-                }, 2000);
-            }
-
-        }, 800);
-        return;
-    }
-    if (href.includes("live.bilibili.com/p/eden/area-tags")) {
-        console.log("直播专区")
-        liveDel.delLiveRoom();
-        return;
-    }
-    if (href.includes("//live.bilibili.com/")) {
-        console.log("当前界面疑似是直播间")
-        liveDel.topElement();
-        liveDel.hreadElement();
-        liveDel.bottomElement();
-        liveDel.delGiftBar();
-        liveDel.delRightChatLayout();
-        liveDel.delOtherE();
-        try {
-            document.getElementById("chat-items").addEventListener("DOMSubtreeModified", () => {
-                liveDel.demo();
-            });
-            console.log("定义了监听器=chat-items")
-        } catch (e) {
-            console.log("测试，没找着id")
-        }
-        return;
-    }
-    if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
-        subjectOfATalk.deltopIC();
-        return;
-    }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
-
         //针对频道api中的数据遍历处理并添加进去网页元素
         function ergodicList(list) {
             for (const v of list) {
@@ -4589,16 +4602,6 @@ function bilibili(href) {
     if (href.includes("www.bilibili.com/v/")) {
         homePrefecture();
         return;
-    }
-    if (href.includes("space.bilibili.com/")) {//个人主页
-        const hrefUID = util.getSubUid(href.split("/")[3]);
-        console.log(hrefUID);
-        if (shield.arrKey(localData.getArrUID(), hrefUID)) {
-            setTimeout(() => {
-                alert("当前用户时是黑名单！UID=" + hrefUID)
-            }, 4500);
-        }
-        console.log("个人主页")
     }
 }
 
