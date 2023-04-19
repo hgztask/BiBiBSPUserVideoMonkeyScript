@@ -1492,9 +1492,6 @@ const localData = {
     }
 }
 
-localLastItenData = {
-    searchUID: null,
-};
 
 
 //添加元素
@@ -2521,6 +2518,9 @@ const search = {
      * @param videoList
      */
     searchRules: function (videoList) {
+        if (videoList === undefined || videoList === null) {
+            return;
+        }
         for (let v of videoList) {
             try {
                 let info = v.querySelector(".bili-video-card__info--right");
@@ -2544,12 +2544,15 @@ const search = {
                     Qmsg.info("屏蔽了视频！！");
                     continue;
                 }
-                v.onmouseenter = (e) => {
-                    const srcElement = e.srcElement;
-                    const data = search.getDataV(srcElement);
+                const jqE = $(v);
+                if (util.isEventJq(jqE,"mouseover")) {
+                    continue;
+                }
+                jqE.mouseenter((e)=>{
+                    const domElement = e.delegateTarget;//dom对象
+                    const data = search.getDataV(domElement);
                     util.showSDPanel(e, data.name, data.uid);
-                    search.searchRules($(".video-list").children());
-                };
+                });
             } catch (e) {
                 v.remove();
                 //console.log("错误信息=" + e + " 删除该元素" + v)
@@ -3125,7 +3128,12 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?")) {//搜索界面
+            if (windowUrl.includes("search.bilibili.com/video") || windowUrl.includes("search.bilibili.com/all")) {
+                search.searchRules($(".video-list").children());
+                continue;
+            }
             Qmsg.info("检测到搜索的接口");
+
             //search.searchRules();
         }
     }
@@ -3290,9 +3298,6 @@ function ruleList(href) {
             }
             if (list[0].textContent === "") {
                 return;
-            }
-            for (let v of list) {
-                console.log(v);
             }
             search.searchRules(list);
             if (tempListLength === list.length) {
@@ -3520,6 +3525,10 @@ function loadChannel() {
         const url = util.getWindowUrl();
         if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
             home.startShieldMainVideo(".bili-video-card.is-rcmd");
+            return;
+        }
+        if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
+            search.searchRules($(".video-list").children());
         }
 
     });
