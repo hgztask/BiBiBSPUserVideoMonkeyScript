@@ -269,7 +269,7 @@ const home = {
      */
     startShieldMainVideo: function (str) {
         const interval = setInterval(() => {
-            let list = document.getElementsByClassName(str);
+            let list = document.querySelectorAll(str);
             if (list.length === 0) {
                 return;
             }
@@ -295,7 +295,7 @@ const home = {
                         // console.log(v)
                         continue;
                     }
-                    let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
+                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
                     if (isNaN(id)) {
                         v.remove();
                         Qmsg.info("清理非正常视频样式");
@@ -305,7 +305,11 @@ const home = {
                         Qmsg.info("屏蔽视频！");
                         continue;
                     }
-                    $(v).mouseenter((e) => {
+                    const jqE = $(v);
+                    if (util.isEventJq(jqE, "mouseover")) {
+                        continue;
+                    }
+                    jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
                         const info = domElement.querySelector(".bili-video-card__info--right");
                         const videoTitle = info.querySelectorAll("[title]")[0].textContent;
@@ -1403,6 +1407,19 @@ const util = {
             return null;
         }
         return id;
+    },
+    /**
+     * 判断指定jq网页元素对象是否有某个事件
+     * @param element jq网页元素对象
+     * @param {string} eventName 事件名
+     * @returns {boolean}
+     */
+    isEventJq:function(element, eventName) {
+        const tempData = $._data(element[0], "events");
+        if (tempData === undefined) {
+            return false;
+        }
+        return Object.keys(tempData).includes(eventName);
     }
 }
 
@@ -3085,7 +3102,7 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
-            home.startShieldMainVideo("bili-video-card");
+            home.startShieldMainVideo(".bili-video-card");
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/ranking/region?")) {//首页分区排行榜
@@ -3274,6 +3291,9 @@ function ruleList(href) {
             if (list[0].textContent === "") {
                 return;
             }
+            for (let v of list) {
+                console.log(v);
+            }
             search.searchRules(list);
             if (tempListLength === list.length) {
                 clearInterval(interval);
@@ -3297,7 +3317,7 @@ function ruleList(href) {
         return;
     }
     if (href.includes("www.bilibili.com/v/")) {
-        home.startShieldMainVideo("bili-video-card");
+        home.startShieldMainVideo(".bili-video-card");
         console.log("通过URL变动执行屏蔽首页分区视频");
         homePrefecture();
 
@@ -3493,15 +3513,15 @@ function loadChannel() {
     $("#butShieldUid").click(() => {//悬浮小窗体-添加屏蔽uid
         const uid = $("#uidSuspensionDiv").text();
         const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(uid));
-        if (tempLoop) {
-            const videoE = getDataVideoE();
-            if (videoE === null) {
-                return;
-            }
-            videoE.remove();
-            Qmsg.info("删除元素！");
-            console.log(videoE);
+        if (!tempLoop) {
+           return;
         }
+        const title=document.title;
+        const url = util.getWindowUrl();
+        if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
+            home.startShieldMainVideo(".bili-video-card.is-rcmd");
+        }
+
     });
     $("#findUserInfo").click(() => {
         const uid = $("#uidSuspensionDiv").text();
@@ -4230,15 +4250,7 @@ function loadChannel() {
 ();
 
 
-let dataVideoE = null;
 
-getDataVideoE = function () {
-    return dataVideoE;
-}
-
-setDataVideoE = function (videoE) {
-    dataVideoE = videoE;
-}
 
 
 function github(href) {
@@ -4502,7 +4514,6 @@ function bilibili(href) {
                     videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
                     util.getNumberFormat(view), util.getNumberFormat(danmaku))
             );
-            home.startShieldMainVideo("bili-video-card is-rcmd");
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
