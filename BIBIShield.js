@@ -278,15 +278,15 @@ const home = {
                 for (let v of list) {
                     let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
                     try {
-                        videoInfo = v.getElementsByClassName("bili-video-card__info--right")[0];
+                        videoInfo = v.querySelector(".bili-video-card__info--right");
                         //视频标题
-                        title = videoInfo.getElementsByClassName("bili-video-card__info--tit")[0].getAttribute("title");
+                        title = videoInfo.querySelector(".bili-video-card__info--tit").getAttribute("title");
                         //用户名
-                        upName = videoInfo.getElementsByClassName("bili-video-card__info--author")[0].getAttribute("title");
+                        upName = videoInfo.querySelector(".bili-video-card__info--author").getAttribute("title");
                         //用户空间地址
-                        upSpatialAddress = videoInfo.getElementsByClassName("bili-video-card__info--owner")[0].getAttribute("href");
-                        videoTime = v.getElementsByClassName("bili-video-card__stats__duration")[0].textContent;//视频的时间
-                        const topInfo = v.getElementsByClassName("bili-video-card__stats--left")[0].getElementsByClassName("bili-video-card__stats--item");//1播放量2弹幕数
+                        upSpatialAddress = videoInfo.querySelector(".bili-video-card__info--owner").getAttribute("href");
+                        videoTime = v.querySelector(".bili-video-card__stats__duration").textContent;//视频的时间
+                        const topInfo =v.querySelectorAll(".bili-video-card__stats--left .bili-video-card__stats--item");//1播放量2弹幕数
                         playbackVolume = topInfo[0].textContent;
                     } catch (e) {
                         v.remove();
