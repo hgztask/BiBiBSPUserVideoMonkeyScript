@@ -706,21 +706,32 @@ function delDReplay() {
                 Qmsg.info("屏蔽了言论！！");
                 continue;
             }
-            userData.userInfo.onmouseenter = (e) => {
-                const element = e.srcElement;
-                util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"))
-            };
-            const replyItem = v.getElementsByClassName("reply-box")[0].getElementsByClassName("reply-item reply-wrap");//楼层成员
+            const jqE = $(userData.userInfo);
+            if (!util.isEventJq(jqE, "mouseover")) {
+                jqE.mouseenter((e) => {
+                    const domElement = e.delegateTarget;//dom对象
+                    const name = domElement.querySelector(".name").textContent;
+                    const uid = domElement.querySelector("a").getAttribute("data-usercard-mid");
+                    util.showSDPanel(e, name, uid);
+                });
+            }
+            const replyItem = v.querySelectorAll(".reply-box .reply-item.reply-wrap");//楼层成员
             for (let j of replyItem) {
                 const tempData = getColumnOrDynamicReviewStorey(j);
                 if (startPrintShieldNameOrUIDOrContent(j, tempData.name, tempData.uid, tempData.content)) {
                     Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
-                j.onmouseenter = (e) => {
-                    const element = e.srcElement;
-                    util.showSDPanel(e, element.getElementsByClassName("name")[0].textContent, element.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"));
-                };
+                const jqE = $(j);
+                if (util.isEventJq(jqE, "mouseover")) {
+                    continue;
+                }
+                jqE.mouseenter((e) => {
+                    const domElement = e.delegateTarget;//dom对象
+                    const name = domElement.querySelector(".name").textContent;
+                    const uid = domElement.querySelector("a").getAttribute("data-usercard-mid");
+                    util.showSDPanel(e, name, uid);
+                });
             }
         }
     }, 1000);
@@ -1380,7 +1391,7 @@ const util = {
         if (newVar) {
             return;
         }
-        if ($("#fixedPanelValueCheckbox").is(':checked')){
+        if ($("#fixedPanelValueCheckbox").is(':checked')) {
             return;
         }
         $("#nameSuspensionDiv").text(name);
