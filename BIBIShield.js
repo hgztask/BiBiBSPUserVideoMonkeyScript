@@ -3007,6 +3007,7 @@ const layout = {
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
         <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
+        <button id="getLiveHighEnergyListBut">获取高能用户列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3648,14 +3649,34 @@ function loadChannel() {
         });
     });
 
+    $("#getLiveHighEnergyListBut").click(()=>{//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
+        const title = document.title;
+        const url = util.getWindowUrl();
+        if (!(title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && url.includes("live.bilibili.com"))) {
+            Qmsg.error("错误的引用了该功能！");
+            return;
+        }
+        const list = document.querySelectorAll(".list-body>.list>*>.name");
+        if (list.length === 0) {
+            Qmsg.info("未获取到高能用户列表，当前长度微0，说明没有高能用户存在！");
+            return;
+        }
+        const array =[];
+        for (let v of list) {
+            const name = v.textContent;
+            array.push(name);
+        }
+        fileDownload(JSON.stringify(array),util.toTimeString()+"直播间高能用户列表.json");
+    });
 
-    $("#axleRange").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放器旋转角度拖动条
+
+    $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
         const value = $("#axleRange").val();//获取值
         util.setVideoCenterRotation(value);
         $("#axleSpan").text(value + "%");//修改对应标签的文本显示
     });
 
-    $("#backgroundPellucidityRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板背景透明度拖动条
+    $("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
         const value = $("#backgroundPellucidityRange").val();//获取值
         $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
         const back = home.background;
