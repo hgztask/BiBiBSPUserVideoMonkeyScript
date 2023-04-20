@@ -286,7 +286,7 @@ const home = {
                         //用户空间地址
                         upSpatialAddress = videoInfo.querySelector(".bili-video-card__info--owner").getAttribute("href");
                         videoTime = v.querySelector(".bili-video-card__stats__duration").textContent;//视频的时间
-                        const topInfo =v.querySelectorAll(".bili-video-card__stats--left .bili-video-card__stats--item");//1播放量2弹幕数
+                        const topInfo = v.querySelectorAll(".bili-video-card__stats--left .bili-video-card__stats--item");//1播放量2弹幕数
                         playbackVolume = topInfo[0].textContent;
                     } catch (e) {
                         v.remove();
@@ -1414,7 +1414,7 @@ const util = {
      * @param {string} eventName 事件名
      * @returns {boolean}
      */
-    isEventJq:function(element, eventName) {
+    isEventJq: function (element, eventName) {
         const tempData = $._data(element[0], "events");
         if (tempData === undefined) {
             return false;
@@ -1491,7 +1491,6 @@ const localData = {
         util.setData("watchedArr", key);
     }
 }
-
 
 
 //添加元素
@@ -2283,31 +2282,6 @@ const liveDel = {
             }, 1500);
         }
     },
-    /**
-     * 屏蔽直播间对应的言论
-     * 暂时测试打印下效果
-     */
-    demo: function () {
-        const chatItems = document.getElementById("chat-items");
-        const list = chatItems.getElementsByClassName("chat-item danmaku-item");
-        for (let v of list) {
-            const userName = v.getAttribute("data-uname");
-            const uid = v.getAttribute("data-uid");
-            const content = v.getAttribute("data-danmaku");
-            let fansMeda = "这是个个性粉丝牌子";
-            try {
-                fansMeda = v.getElementsByClassName("fans-medal-content")[0].textContent;
-            } catch (e) {
-            }
-            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
-                Qmsg.info("屏蔽了言论！！");
-                continue;
-            }
-            if (remove.fanCard(v, fansMeda)) {
-                Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
-            }
-        }
-    },
     //移除右侧的聊天布局
     delRightChatLayout: function () {
         const liveData = rule.liveData;
@@ -2545,10 +2519,10 @@ const search = {
                     continue;
                 }
                 const jqE = $(v);
-                if (util.isEventJq(jqE,"mouseover")) {
+                if (util.isEventJq(jqE, "mouseover")) {
                     continue;
                 }
-                jqE.mouseenter((e)=>{
+                jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
                     const data = search.getDataV(domElement);
                     util.showSDPanel(e, data.name, data.uid);
@@ -3519,9 +3493,9 @@ function loadChannel() {
         const uid = $("#uidSuspensionDiv").text();
         const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(uid));
         if (!tempLoop) {
-           return;
+            return;
         }
-        const title=document.title;
+        const title = document.title;
         const url = util.getWindowUrl();
         if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
             home.startShieldMainVideo(".bili-video-card.is-rcmd");
@@ -4259,9 +4233,6 @@ function loadChannel() {
 ();
 
 
-
-
-
 function github(href) {
     setInterval(() => {//github站内所有的链接都从新的标签页打开，而不从当前页面打开
         $("a").attr("target", "_blank");
@@ -4290,7 +4261,7 @@ function bilibiliOne(href, windonsTitle) {
         subjectOfATalk.deltopIC();
         return;
     }
-    if (href.includes("//live.bilibili.com/")&& windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
+    if (href.includes("//live.bilibili.com/") && windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
         console.log("当前界面疑似是直播间");
         liveDel.topElement();
         liveDel.hreadElement();
@@ -4298,14 +4269,55 @@ function bilibiliOne(href, windonsTitle) {
         liveDel.delGiftBar();
         liveDel.delRightChatLayout();
         liveDel.delOtherE();
-        try {
-            document.getElementById("chat-items").addEventListener("DOMSubtreeModified", () => {
-                liveDel.demo();
+        const interval01 = setInterval(() => {
+            const chat_items = $("#chat-items");
+            if (chat_items.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            chat_items.bind("DOMNodeInserted", () => {
+                const list = $("#chat-items").children();
+                if (list.length === 0) {
+                    return;
+                }
+                if (list.length >= 50) {
+                    for (let i = 0; i <20; i++) {
+                        list[i].remove();
+                    }
+                    console.log("当前弹幕内容超出或达到50个，已自动进行截取，保留30个");
+                    return;
+                }
+                for (let v of list) {
+                    const userName = v.getAttribute("data-uname");
+                    const uid = v.getAttribute("data-uid");
+                    const content = v.getAttribute("data-danmaku");
+                    let fansMeda = "这是个个性粉丝牌子";
+                    try {
+                        fansMeda = v.querySelector(".fans-medal-content").text;
+                    } catch (e) {
+                    }
+                    if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+                        Qmsg.info("屏蔽了言论！！");
+                        continue;
+                    }
+                    if (remove.fanCard(v, fansMeda)) {
+                        Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
+                        continue;
+                    }
+                    const jqE = $(v);
+                    if (util.isEventJq(jqE,"mouseover")) {
+                        continue;
+                    }
+                    jqE.mouseenter((e) => {
+                        const domElement = e.delegateTarget;//dom对象
+                        const name = domElement.getAttribute("data-uname");
+                        const uid = domElement.getAttribute("data-uid");
+                         util.showSDPanel(e, name, uid);
+                    });
+                }
             });
-            console.log("定义了监听器=chat-items")
-        } catch (e) {
-            console.log("测试，没找着id")
-        }
+            console.log("定义了监听器!");
+        }, 1000);
         return;
     }
     if (href.includes("www.bilibili.com/video")) {
@@ -4441,6 +4453,7 @@ function bilibiliOne(href, windonsTitle) {
 function bilibili(href) {
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+
         //针对频道api中的数据遍历处理并添加进去网页元素
         function ergodicList(list) {
             for (const v of list) {
