@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.35
+// @version      1.1.36
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -4379,6 +4379,7 @@ function bilibiliOne(href, windonsTitle) {
     }
     if (href.includes("//live.bilibili.com/") && windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
         console.log("当前界面疑似是直播间");
+        $("#getLiveHighEnergyListBut").css("display", "inline");//显示获取高能用户列表按钮
         liveDel.topElement();
         liveDel.hreadElement();
         liveDel.bottomElement();
