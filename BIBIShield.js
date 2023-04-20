@@ -3007,7 +3007,7 @@ const layout = {
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
         <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
-        <button id="getLiveHighEnergyListBut">获取高能用户列表</button>
+        <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3649,7 +3649,7 @@ function loadChannel() {
         });
     });
 
-    $("#getLiveHighEnergyListBut").click(()=>{//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
+    $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
         const title = document.title;
         const url = util.getWindowUrl();
         if (!(title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && url.includes("live.bilibili.com"))) {
@@ -3661,12 +3661,12 @@ function loadChannel() {
             Qmsg.info("未获取到高能用户列表，当前长度微0，说明没有高能用户存在！");
             return;
         }
-        const array =[];
+        const array = [];
         for (let v of list) {
             const name = v.textContent;
             array.push(name);
         }
-        fileDownload(JSON.stringify(array),util.toTimeString()+"直播间高能用户列表.json");
+        fileDownload(JSON.stringify(array), util.toTimeString() + "直播间高能用户列表.json");
     });
 
 
@@ -4338,45 +4338,11 @@ function bilibiliOne(href, windonsTitle) {
         subjectOfATalk.deltopIC();
         return;
     }
-    if (href.includes("//live.bilibili.com/") && windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
-        console.log("当前界面疑似是直播间");
-        liveDel.topElement();
-        liveDel.hreadElement();
-        liveDel.bottomElement();
-        liveDel.delGiftBar();
-        liveDel.delRightChatLayout();
-        liveDel.delOtherE();
-
-
-        const interval01 = setInterval(() => {
-            const chat_items = $("#chat-items");
-            if (chat_items.length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            chat_items.bind("DOMNodeInserted", () => {
-                const list = $("#chat-items").children();
-                if (list.length === 0) {
-                    return;
-                }
-                if (list.length >= 100) {
-                    for (let i = 0; i < 50; i++) {
-                        list[i].remove();
-                    }
-                    Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
-                    return;
-                }
-                live.shield(list);
-            });
-            console.log("定义了监听器!");
-        }, 1000);
-        return;
-    }
     if (href.includes("www.bilibili.com/video")) {
         $("#getVideoDanMueBut").css("display", "inline");
         return;
     }
-    if (href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") {//直播首页
+    if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windonsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
         console.log("进入直播首页了");
         const interval01 = setInterval(() => {
             const videoElement = document.getElementsByTagName("video")[0];
@@ -4409,6 +4375,38 @@ function bilibiliOne(href, windonsTitle) {
             }
 
         }, 800);
+        return;
+    }
+    if (href.includes("//live.bilibili.com/") && windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
+        console.log("当前界面疑似是直播间");
+        liveDel.topElement();
+        liveDel.hreadElement();
+        liveDel.bottomElement();
+        liveDel.delGiftBar();
+        liveDel.delRightChatLayout();
+        liveDel.delOtherE();
+        const interval01 = setInterval(() => {
+            const chat_items = $("#chat-items");
+            if (chat_items.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            chat_items.bind("DOMNodeInserted", () => {
+                const list = $("#chat-items").children();
+                if (list.length === 0) {
+                    return;
+                }
+                if (list.length >= 100) {
+                    for (let i = 0; i < 50; i++) {
+                        list[i].remove();
+                    }
+                    Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
+                    return;
+                }
+                live.shield(list);
+            });
+            console.log("定义了监听器!");
+        }, 1000);
         return;
     }
     if (href.includes("t.bilibili.com") ||
