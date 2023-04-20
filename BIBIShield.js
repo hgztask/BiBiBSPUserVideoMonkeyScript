@@ -4280,11 +4280,11 @@ function bilibiliOne(href, windonsTitle) {
                 if (list.length === 0) {
                     return;
                 }
-                if (list.length >= 50) {
-                    for (let i = 0; i <20; i++) {
+                if (list.length >= 100) {
+                    for (let i = 0; i <50; i++) {
                         list[i].remove();
                     }
-                    console.log("当前弹幕内容超出或达到50个，已自动进行截取，保留30个");
+                    Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
                     return;
                 }
                 for (let v of list) {
