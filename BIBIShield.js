@@ -330,6 +330,39 @@ const home = {
     },
 }
 
+const live = {
+    shield: function (list) {
+        for (let v of list) {
+            const userName = v.getAttribute("data-uname");
+            const uid = v.getAttribute("data-uid");
+            const content = v.getAttribute("data-danmaku");
+            let fansMeda = "这是个个性粉丝牌子";
+            try {
+                fansMeda = v.querySelector(".fans-medal-content").text;
+            } catch (e) {
+            }
+            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+                Qmsg.info("屏蔽了言论！！");
+                continue;
+            }
+            if (remove.fanCard(v, fansMeda)) {
+                Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
+                continue;
+            }
+            const jqE = $(v);
+            if (util.isEventJq(jqE, "mouseover")) {
+                continue;
+            }
+            jqE.mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const name = domElement.getAttribute("data-uname");
+                const uid = domElement.getAttribute("data-uid");
+                util.showSDPanel(e, name, uid);
+            });
+        }
+    }
+};
+
 
 /**
  * 判断内容是否匹配上元素
@@ -1345,6 +1378,9 @@ const util = {
     showSDPanel: function (e, name, uid, title) {
         const newVar = util.getData("isDShielPanel");
         if (newVar) {
+            return;
+        }
+        if ($("#fixedPanelValueCheckbox").is(':checked')){
             return;
         }
         $("#nameSuspensionDiv").text(name);
@@ -2940,6 +2976,10 @@ const layout = {
        <span>屏蔽元素跟随删除</span>
        <input id="delECheckbox" type="checkbox"> 
        </div>
+       <div>
+       <span>固定面板值</span>
+       <input id="fixedPanelValueCheckbox" type="checkbox">
+       </div>
         <p>
           标题:
           <span id="suspensionTitle"></span>
@@ -3503,6 +3543,11 @@ function loadChannel() {
         }
         if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
             search.searchRules($(".video-list").children());
+            return;
+        }
+        if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
+            live.shield($("#chat-items").children());
+            return;
         }
 
     });
@@ -4269,6 +4314,8 @@ function bilibiliOne(href, windonsTitle) {
         liveDel.delGiftBar();
         liveDel.delRightChatLayout();
         liveDel.delOtherE();
+
+
         const interval01 = setInterval(() => {
             const chat_items = $("#chat-items");
             if (chat_items.length === 0) {
@@ -4281,40 +4328,13 @@ function bilibiliOne(href, windonsTitle) {
                     return;
                 }
                 if (list.length >= 100) {
-                    for (let i = 0; i <50; i++) {
+                    for (let i = 0; i < 50; i++) {
                         list[i].remove();
                     }
                     Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
                     return;
                 }
-                for (let v of list) {
-                    const userName = v.getAttribute("data-uname");
-                    const uid = v.getAttribute("data-uid");
-                    const content = v.getAttribute("data-danmaku");
-                    let fansMeda = "这是个个性粉丝牌子";
-                    try {
-                        fansMeda = v.querySelector(".fans-medal-content").text;
-                    } catch (e) {
-                    }
-                    if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
-                        Qmsg.info("屏蔽了言论！！");
-                        continue;
-                    }
-                    if (remove.fanCard(v, fansMeda)) {
-                        Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
-                        continue;
-                    }
-                    const jqE = $(v);
-                    if (util.isEventJq(jqE,"mouseover")) {
-                        continue;
-                    }
-                    jqE.mouseenter((e) => {
-                        const domElement = e.delegateTarget;//dom对象
-                        const name = domElement.getAttribute("data-uname");
-                        const uid = domElement.getAttribute("data-uid");
-                         util.showSDPanel(e, name, uid);
-                    });
-                }
+                live.shield(list);
             });
             console.log("定义了监听器!");
         }, 1000);
