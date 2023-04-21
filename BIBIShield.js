@@ -3005,6 +3005,7 @@ const layout = {
         <button id="findUserInfo">查询基本信息</button>
         <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
         <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
+        <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
@@ -3669,6 +3670,45 @@ function loadChannel() {
         }
         fileDownload(JSON.stringify(array), util.toTimeString() + "直播间高能用户列表.json");
     });
+
+    $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
+        if (!(document.title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && util.getWindowUrl().includes("live.bilibili.com"))) {
+            Qmsg.error("错误的引用了该功能！");
+            return;
+        }
+        const list = document.querySelectorAll("#chat-items>*");
+        if (list.length === 0) {
+            Qmsg.error("未检测到弹幕内容！");
+            return;
+        }
+        const arrData = [];
+        for (let v of list) {
+            const name = v.getAttribute("data-uname");
+            const uid = v.getAttribute("data-uid");
+            const timeDate = parseInt(v.getAttribute("data-ts"));//时间戳-秒
+            const content = v.getAttribute("data-danmaku");
+            /**
+             * 弹幕类型
+             * 0 正常弹幕消息
+             * 1 表情包弹幕消息
+             * @type {string}
+             */
+            const type = v.getAttribute("data-type");
+            const data = {
+                name: name,
+                uid: uid,
+                content: content,
+                timeDate: timeDate,
+                toTime: util.timestampToTime(timeDate*1000)
+            };
+            if (type === "1") {
+                data["imge"] = v.getAttribute("data-image");
+            }
+            arrData.push(data);
+        }
+        fileDownload(JSON.stringify(arrData),util.toTimeString()+"_直播间弹幕内容.json");
+        Qmsg.success("获取成功并执行导出内容");
+    })
 
 
     $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
@@ -4381,6 +4421,7 @@ function bilibiliOne(href, windonsTitle) {
     if (href.includes("//live.bilibili.com/") && windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
         console.log("当前界面疑似是直播间");
         $("#getLiveHighEnergyListBut").css("display", "inline");//显示获取高能用户列表按钮
+        $("#getLiveDisplayableBarrageListBut").css("display", "inline");//显示获取当前可显示的弹幕列表
         liveDel.topElement();
         liveDel.hreadElement();
         liveDel.bottomElement();
