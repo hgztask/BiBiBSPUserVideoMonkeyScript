@@ -3004,8 +3004,8 @@ const layout = {
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
         <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
-        <button id="getVideoCommentArea" style="display: none">获取评论区列表内容</button>
-        <button id="getLiveHighEnergyListBut" style="display: none" title="获取评论区目前页面可见得内容">获取高能用户列表</button>
+        <button id="getVideoCommentArea" style="display: none" title="获取评论区目前页面可见得内容">获取评论区列表内容</button>
+        <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
