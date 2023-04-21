@@ -3688,7 +3688,7 @@ function loadChannel() {
             data["sub"] = subArr;
             arr.push(data);
         }
-        fileDownload(JSON.stringify(arr),"评论区列表-"+util.timestampToTime());
+        fileDownload(JSON.stringify(arr),"评论区列表-"+util.toTimeString());
         Qmsg.success("已获取成功！");
     });
 
