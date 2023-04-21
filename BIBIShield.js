@@ -4082,7 +4082,7 @@ function loadChannel() {
 
 //点击导出规则事件
     $("#outFIleRule").click(() => {
-        let s = prompt("保存为", "规则");
+        let s = prompt("保存为", "规则-"+util.toTimeString());
         if (s.includes(" ") || s === "" || s.length === 0) {
             s = "规则";
         }
