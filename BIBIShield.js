@@ -3017,20 +3017,20 @@ const layout = {
 
 //获取动态页面-评论区信息-单个元素信息-楼主
 function getVideoCommentAreaOrTrendsLandlord(v) {
-    const userInfo = v.getElementsByClassName("user-info")[0];
+    const userInfo = v.querySelector(".user-info");
     return {
-        name: userInfo.getElementsByClassName("user-name")[0].textContent,
-        uid: userInfo.getElementsByClassName("user-name")[0].getAttribute("data-user-id"),
-        content: v.getElementsByClassName("reply-content")[0].parentNode.textContent
+        name: userInfo.querySelector(".user-name").textContent,
+        uid: userInfo.querySelector(".user-name").getAttribute("data-user-id"),
+        content: v.querySelector(".reply-content").parentNode.textContent
     }
 }
 
 //获取动态页面-评论区信息-单个元素信息-楼层
 function getVideoCommentAreaOrTrendsStorey(j) {
     return {
-        name: j.getElementsByClassName("sub-user-name")[0].textContent,
-        uid: j.getElementsByClassName("sub-user-name")[0].getAttribute("data-user-id"),
-        content: j.getElementsByClassName("reply-content-container sub-reply-content")[0].textContent
+        name: j.querySelector(".sub-user-name").textContent,
+        uid: j.querySelector(".sub-user-name").getAttribute("data-user-id"),
+        content: j.querySelector(".reply-content").textContent
     }
 }
 
@@ -3056,30 +3056,40 @@ function perf_observer() {
             windowUrl.includes("https://www.bilibili.com/video") &&
             !rule.videoData.isCommentArea) {
             //如果是视频播放页的话，且接收到评论的相应请求
-            const list = $(".reply-list").children();
+            const list = document.querySelectorAll(".reply-list>.reply-item");
             for (let v of list) {//针对于评论区
                 const data = getVideoCommentAreaOrTrendsLandlord(v);
-                const subReplyList = v.getElementsByClassName("sub-reply-list")[0];//楼主下面的评论区
+                const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
                 if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
                     Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
-                v.onmouseenter = (e) => {
-                    const element = e.srcElement;
-                    const data = getVideoCommentAreaOrTrendsLandlord(element);
-                    util.showSDPanel(e, data.name, data.uid);
-                };
-                for (let j of subReplyList.getElementsByClassName("sub-reply-item")) {
+                const jqE = $(v);
+                if (!util.isEventJq(jqE, "mouseover")) {
+                    jqE.mouseenter((e) => {
+                        const domElement = e.delegateTarget;//dom对象
+                        const data = getVideoCommentAreaOrTrendsLandlord(domElement);
+                        util.showSDPanel(e, data.name, data.uid);
+                    });
+                }
+                if (subReplyList.length === 0) {
+                    continue;
+                }
+                for (let j of subReplyList) {
                     const data = getVideoCommentAreaOrTrendsStorey(j);
                     if (startPrintShieldNameOrUIDOrContent(j, data.name, data.uid, data.content)) {
                         Qmsg.info("屏蔽了言论！！");
                         continue;
                     }
-                    j.onmouseenter = (e) => {
-                        const element = e.srcElement;
-                        const data = getVideoCommentAreaOrTrendsStorey(element);
+                    const jqE = $(j);
+                    if (util.isEventJq(jqE, "mouseover")) {
+                        continue;
+                    }
+                    jqE.mouseenter((e) => {
+                        const domElement = e.delegateTarget;//dom对象
+                        const data = getVideoCommentAreaOrTrendsStorey(domElement);
                         util.showSDPanel(e, data.name, data.uid);
-                    };
+                    });
                 }
             }
             continue;
@@ -3688,7 +3698,7 @@ function loadChannel() {
             data["sub"] = subArr;
             arr.push(data);
         }
-        fileDownload(JSON.stringify(arr),"评论区列表-"+util.toTimeString());
+        fileDownload(JSON.stringify(arr), "评论区列表-" + util.toTimeString());
         Qmsg.success("已获取成功！");
     });
 
@@ -4082,7 +4092,7 @@ function loadChannel() {
 
 //点击导出规则事件
     $("#outFIleRule").click(() => {
-        let s = prompt("保存为", "规则-"+util.toTimeString());
+        let s = prompt("保存为", "规则-" + util.toTimeString());
         if (s.includes(" ") || s === "" || s.length === 0) {
             s = "规则";
         }
