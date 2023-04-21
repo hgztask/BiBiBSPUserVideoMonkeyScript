@@ -660,11 +660,6 @@ const remove = {
 }
 
 
-
-
-
-
-
 /**
  * 根据规则删除专栏和动态的评论区
  * 针对于专栏和动态内容下面的评论区
@@ -672,7 +667,7 @@ const remove = {
 function delDReplay() {
     const interval = setInterval(() => {
         const list = document.querySelectorAll(".comment-list.has-limit>*");
-        if (list.length=== 0) {
+        if (list.length === 0) {
             return;
         }
         clearInterval(interval);
@@ -770,16 +765,26 @@ const HttpUtil = {
         } else {
             url = url + "aid=" + bvOrAv;//不需要带上AV号
         }
-        return this.get(url, resolve, reject);
+         this.get(url, resolve, reject);
     },
     /**
      * 发送请求获取直播间基本信息
      * @param id 直播间房间号
-     * @param resolve 响应成功
-     * @param reject 响应失败!
+     * @param resolve
+     * @param reject
      */
     getLiveInfo: function (id, resolve, reject) {
-        return this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
+         this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
+    },
+    /**
+     * 获取用户关注的用户直播列表
+     * @param cookie
+     * @param page 页数，每页最多29个
+     * @param resolve
+     * @param reject
+     */
+    getUsersFollowTheLiveList:function (cookie,page,resolve, reject) {
+        this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
     }
 };
 
@@ -1457,6 +1462,16 @@ const util = {
 
 
 const localData = {
+    getSESSDATA: function () {
+        const data = util.getData("SESSDATA");
+        if (data === undefined || data === null) {
+            return null;
+        }
+        return data;
+    },
+    setSESSDATA: function (key) {
+        util.setData("SESSDATA", key);
+    },
     getArrUID: function () {
         return util.getData("userUIDArr");
     },
@@ -2930,6 +2945,14 @@ const layout = {
             </div>
             </details>
             <hr>
+            <details>
+            <summary>b站SESSDATA</summary>
+            <p>该数据一些b站api需要用到，一般情况下不用设置，以下的设置和读取均是需要用户自行添加b站对应的SESSDATA值，读取时候也是读取用户自己添加进去的SESSDATA值，脚本本身不获取b站登录的SESSDATA</p>
+            <P>提示：为空字符串则取消移除SESSDATA，不可带有空格</P>
+            <button title="为空字符串则取消" id="setSessdataBut">设置SESSDATA</button>
+            <button  id="getSessdataBut">读取SESSDATA</button>
+            </details>
+            <hr>
             <div>
               <h1>
                 反馈问题
@@ -2946,7 +2969,6 @@ const layout = {
                   <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
                 </span>
               </p>
-
             </div>
           </div>
           <div>
@@ -4072,6 +4094,36 @@ function loadChannel() {
 
     $("#printRuleBut").click(() => {
         Print.ln(util.getRuleFormatStr());
+    });
+
+
+    $("#setSessdataBut").click(() => {
+        const content = prompt("请输入要保存的SESSDATA值");
+        if (content === "" || content === null) {
+            localData.setSESSDATA(null);
+            return;
+        }
+        if (content.includes(" ")) {
+            Qmsg.error("内容中包含空格，请去除空格！");
+            return;
+        }
+        if (!confirm(`要保存的SESSDATA是\n${content}`)) {
+            return;
+        }
+        localData.setSESSDATA(content);
+        Qmsg.success("已设置SESSDATA的值！");
+    });
+    $("#getSessdataBut").click(() => {
+        const data = localData.getSESSDATA();
+        if (data === null) {
+            const tip = '用户未添加SESSDATA或者已删除存储在脚本的SESSDATA';
+            Qmsg.error(tip);
+            alert(tip);
+            return;
+        }
+        Qmsg.success("已将值输出到脚本面板的输出信息上！");
+        Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
+        Print.ln(data);
     });
 
 
