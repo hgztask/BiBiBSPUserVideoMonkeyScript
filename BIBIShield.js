@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.36
+// @version      1.1.37
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2755,7 +2755,7 @@ const layout = {
               </div>
 
               <h2>快捷悬浮面板</h2>
-              <span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键2可隐藏该快捷悬浮屏蔽面板)
+              <span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)
             </div>
             <hr>
             <details open>
@@ -2939,8 +2939,9 @@ const layout = {
               <div>
               <h1>快捷键</h1>
               <p> 显示隐藏面板 快捷键\`</p>
-              <p>选中取消快捷悬浮屏蔽按钮跟随鼠标 快捷键1</p>
-              <p>隐藏快捷悬浮屏蔽按钮 快捷键2</p>
+              <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
+              <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
+              <p>隐藏快捷悬浮屏蔽面板 快捷键3</p>
             </div>
             </details>
             <hr>
@@ -2983,10 +2984,6 @@ const layout = {
           <span>按钮跟随鼠标</span>
           <input id="quickLevitationShield" type="checkbox">
         </div>
-       <div>
-       <span>屏蔽元素跟随删除</span>
-       <input id="delECheckbox" type="checkbox"> 
-       </div>
        <div>
        <span>固定面板值</span>
        <input id="fixedPanelValueCheckbox" type="checkbox">
@@ -3430,6 +3427,10 @@ function loadChannel() {
             q.prop("checked", !q.is(':checked'));
         }
         if (keycode === 50) {//隐藏快捷悬浮屏蔽按钮 键盘上的2
+            const q = $("#fixedPanelValueCheckbox");
+            q.prop("checked", !q.is(':checked'));
+        }
+        if (keycode === 51) {//隐藏快捷悬浮屏蔽按钮 键盘上的3
             $("#suspensionDiv").css("display", "none");
         }
     });
