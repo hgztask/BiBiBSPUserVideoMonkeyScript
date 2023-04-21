@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.37
+// @version      1.1.38
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -3004,7 +3004,8 @@ const layout = {
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
         <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
-        <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
+        <button id="getVideoCommentArea" style="display: none">获取评论区列表内容</button>
+        <button id="getLiveHighEnergyListBut" style="display: none" title="获取评论区目前页面可见得内容">获取高能用户列表</button>
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->
@@ -3603,7 +3604,7 @@ function loadChannel() {
     });
 
 
-    $("#getVideoDanMueBut").click(() => {
+    $("#getVideoDanMueBut").click(() => {//打开当前视频弹幕列表
         const windowUrl = util.getWindowUrl();
         if (!windowUrl.includes("www.bilibili.com/video")) {
             alert("当前不是播放页!");
@@ -3649,6 +3650,46 @@ function loadChannel() {
             Qmsg.error("错误状态!");
             Qmsg.error(err);
         });
+    });
+
+    $("#getVideoCommentArea").click(() => {//获取视频的评论区列表可见的内容
+        const list = document.querySelectorAll(".reply-list>.reply-item");
+        if (list.length === 0) {
+            Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
+            return;
+        }
+        const arr = [];
+        for (let v of list) {
+            const rootName = v.querySelector(".user-name").textContent;
+            const rootUid = v.querySelector(".user-name").getAttribute("data-user-id");
+            const rootContent = v.querySelector(".root-reply .reply-content").textContent;
+            const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
+            const data = {
+                name: rootName,
+                uid: parseInt(rootUid),
+                content: rootContent,
+            };
+            if (subList.length === 0) {
+                arr.push(data);
+                continue;
+            }
+            const subArr = [];
+            for (let j of subList) {
+                const subName = j.querySelector(".sub-user-name").textContent;
+                const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
+                const subContent = j.querySelector(".reply-content").textContent;
+                const subData = {
+                    name: subName,
+                    uid: parseInt(subUid),
+                    content: subContent
+                };
+                subArr.push(subData);
+            }
+            data["sub"] = subArr;
+            arr.push(data);
+        }
+        fileDownload(JSON.stringify(arr),"评论区列表-"+util.timestampToTime());
+        Qmsg.success("已获取成功！");
     });
 
     $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
@@ -3699,14 +3740,14 @@ function loadChannel() {
                 uid: uid,
                 content: content,
                 timeDate: timeDate,
-                toTime: util.timestampToTime(timeDate*1000)
+                toTime: util.timestampToTime(timeDate * 1000)
             };
             if (type === "1") {
                 data["imge"] = v.getAttribute("data-image");
             }
             arrData.push(data);
         }
-        fileDownload(JSON.stringify(arrData),util.toTimeString()+"_直播间弹幕内容.json");
+        fileDownload(JSON.stringify(arrData), util.toTimeString() + "_直播间弹幕内容.json");
         Qmsg.success("获取成功并执行导出内容");
     })
 
@@ -4381,6 +4422,7 @@ function bilibiliOne(href, windonsTitle) {
     }
     if (href.includes("www.bilibili.com/video")) {
         $("#getVideoDanMueBut").css("display", "inline");
+        $("#getVideoCommentArea").css("display", "inline");
         return;
     }
     if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windonsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
