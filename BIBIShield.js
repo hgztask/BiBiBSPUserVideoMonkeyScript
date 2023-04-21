@@ -660,33 +660,9 @@ const remove = {
 }
 
 
-//专栏或者动态楼主评论规则
-function getColumnOrDynamicReviewLandlord(v) {
-    const info = v.getElementsByClassName("user")[0];//信息
-    return {
-        //用户信息的html元素
-        userInfo: info,
-        //楼主用户名
-        name: info.getElementsByClassName("name")[0].textContent,
-        //楼主UID
-        uid: info.getElementsByTagName("a")[0].getAttribute("data-usercard-mid"),
-        content: v.getElementsByClassName("text")[0].textContent//内容
-    }
-}
 
-//专栏或者动态楼层评论规则
-function getColumnOrDynamicReviewStorey(v) {
-    const info = v.getElementsByClassName("user")[0];//信息
-    return {
-        //用户信息的html元素
-        userInfo: info,
-        //用户名
-        name: info.getElementsByClassName("name")[0].textContent,
-        //UID
-        uid: info.getElementsByClassName("name")[0].getAttribute("data-usercard-mid"),
-        content: v.getElementsByTagName("span")[0].textContent//内容
-    }
-}
+
+
 
 
 /**
@@ -695,18 +671,21 @@ function getColumnOrDynamicReviewStorey(v) {
  */
 function delDReplay() {
     const interval = setInterval(() => {
-        const list = document.getElementsByClassName("list-item reply-wrap");
-        if (list === undefined) {
+        const list = document.querySelectorAll(".comment-list.has-limit>*");
+        if (list.length=== 0) {
             return;
         }
         clearInterval(interval);
         for (let v of list) {
-            const userData = getColumnOrDynamicReviewLandlord(v);
-            if (startPrintShieldNameOrUIDOrContent(v, userData.name, userData.uid, userData.content)) {
+            const rootUserinfo = v.querySelector(".user>.name");
+            const rootName = rootUserinfo.textContent;
+            const rootUid = rootUserinfo.getAttribute("data-usercard-mid");
+            const rootContent = v.querySelector(".text").textContent;
+            if (startPrintShieldNameOrUIDOrContent(v, rootName, parseInt(rootUid), rootContent)) {
                 Qmsg.info("屏蔽了言论！！");
                 continue;
             }
-            const jqE = $(userData.userInfo);
+            const jqE = $(v);
             if (!util.isEventJq(jqE, "mouseover")) {
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
@@ -715,10 +694,16 @@ function delDReplay() {
                     util.showSDPanel(e, name, uid);
                 });
             }
-            const replyItem = v.querySelectorAll(".reply-box .reply-item.reply-wrap");//楼层成员
+            const replyItem = v.querySelectorAll(".reply-box>.reply-item.reply-wrap");//楼层成员
+            if (replyItem.length === 0) {
+                continue;
+            }
             for (let j of replyItem) {
-                const tempData = getColumnOrDynamicReviewStorey(j);
-                if (startPrintShieldNameOrUIDOrContent(j, tempData.name, tempData.uid, tempData.content)) {
+                const subUserInfo = j.querySelector(".user>.name");
+                const subName = subUserInfo.textContent;
+                const subUid = subUserInfo.getAttribute("data-usercard-mid");
+                const subContent = j.querySelector(".text-con").textContent;
+                if (startPrintShieldNameOrUIDOrContent(j, subName, parseInt(subUid), subContent)) {
                     Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
