@@ -1697,17 +1697,23 @@ const urleCrud = {
      * @param ruleStrName
      */
     addAll: function (arr, key, ruleStrName) {
-        const setList = new Set(arr);
-        const setListLength = setList.size;
-        for (const v of key) {
-            setList.add(v);
+        let tempLenSize=0;
+        const set = new Set();
+        for (let v of key) {
+            if (arr.includes(v)) {
+                continue;
+            }
+            tempLenSize++;
+            arr.push(v);
+            set.add(v);
         }
-        if (setListLength === setList.size) {
+
+        if (tempLenSize===0) {
             Print.ln("内容长度无变化，可能是已经有了的值")
             return;
         }
-        util.setData(ruleStrName, Array.from(setList));
-        Print.ln("已添加该值=" + key)
+        util.setData(ruleStrName, arr);
+        Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
         rule.ruleLength();
     },
     /**
@@ -3948,10 +3954,10 @@ function loadChannel() {
                 butLayEvent.butaddAllName("userNameKeyArr", content);
                 break;
             case "uid":
-                butLayEvent.butaddAllName("userUIDArr", parseInt(content));
+                butLayEvent.butaddAllName("userUIDArr", content);
                 break;
             case "bName":
-                butLayEvent.butaddAllName("userWhiteUIDArr", parseInt(content));
+                butLayEvent.butaddAllName("userWhiteUIDArr", content);
                 break;
             case "title":
                 butLayEvent.butaddAllName("titleKeyArr", content);
