@@ -2666,11 +2666,21 @@ const trends = {
     topCssDisply: {
         //针对于整体布局的细调整
         body: function () {
+            const sessdata = localData.getSESSDATA();
             const interval = setInterval(() => {
                 try {
-                    document.getElementsByClassName("bili-dyn-home--member")[0].style.justifyContent = 'space-between';
-                    document.getElementsByTagName("main")[0].style.width = "70%";
-                    document.getElementsByClassName("bili-dyn-my-info")[0].style.display = "none";//移除左侧中的个人基础面板信息
+                    document.querySelector(".bili-dyn-home--member").style.justifyContent = 'space-between';
+                    document.querySelector(".bili-dyn-my-info").style.display = "none";//移除左侧中的个人基础面板信息
+                    if (sessdata !== null) {
+                        const leftLiveLay = document.querySelector(".left");
+                        if (leftLiveLay.length === 0) {
+                            return;
+                        }
+                        leftLiveLay.style.display = "none";//当用户已经设置了sessdata值时，隐藏右侧的直播列表
+                        document.querySelector("main").style.width = "84%";
+                    } else {
+                        document.querySelector("main").style.width = "70%";
+                    }
                     Print.ln("已调整动态界面布局");
                     clearInterval(interval)
                 } catch (e) {
