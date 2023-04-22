@@ -714,7 +714,7 @@ function delDReplay() {
                 });
             }
         }
-    }, 1000);
+    }, 60);
 }
 
 
@@ -765,7 +765,7 @@ const HttpUtil = {
         } else {
             url = url + "aid=" + bvOrAv;//不需要带上AV号
         }
-         this.get(url, resolve, reject);
+        this.get(url, resolve, reject);
     },
     /**
      * 发送请求获取直播间基本信息
@@ -774,7 +774,7 @@ const HttpUtil = {
      * @param reject
      */
     getLiveInfo: function (id, resolve, reject) {
-         this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
+        this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
     },
     /**
      * 获取用户关注的用户直播列表
@@ -783,13 +783,13 @@ const HttpUtil = {
      * @param resolve
      * @param reject
      */
-    getUsersFollowTheLiveList:function (cookie,page,resolve, reject) {
+    getUsersFollowTheLiveList: function (cookie, page, resolve, reject) {
         this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
     }
 };
 
 
-const htmlStr = {
+const HtmlStr = {
     /**
      *返回用户卡片基础信息面板布局
      * @param uid{number} uid
@@ -823,8 +823,55 @@ left: 0;  bottom: 0;">
       </div>
       <button style="position: absolute;top: 0;right: 0;" onclick="document.querySelector('#popDiv').remove()">关闭</button>
     </div>`;
+    },
+    /**
+     * 获取直播列表布局
+     */
+    getLiveList: function () {
+        return `<div class="bili-dyn-live-users">
+        <div class="bili-dyn-live-users__header">
+            <div class="bili-dyn-live-users__title">
+                正在直播(<span>0</span>)<!--直播人数-->
+            </div>
+        </div>
+        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto;">
+        <!--列表中的项目-->
+        </div>
+    </div>`;
+    },
+    /**
+     *
+     * @param name 用户名
+     * @param uid 用户UID
+     * @param liveID 用户直播间房号
+     * @param image 用户头像
+     * @param title 直播间标题
+     * @returns {string}
+     */
+    getLiveItem: function (name, uid, liveID, image, title) {
+        return $(` <div class="bili-dyn-live-users__item" title="点击用户名打开直播间,点击用户头像打开用户主页">
+                <div class="bili-dyn-live-users__item__left">
+                    <div class="bili-dyn-live-users__item__face-container">
+                        <div class="bili-dyn-live-users__item__face">
+                            <div class="b-img--face b-img">
+                                <picture class="b-img__inner">
+                                <a href="https://space.bilibili.com/${uid}" target="_blank">
+                                <img src="${image}@76w_76h_!web-dynamic.webp"
+                                        loading="lazy" onload="bmgCmptOnload(this)" alt="图片异常">
+                                </a>
+                                </picture>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bili-dyn-live-users__item__right">
+                    <a href="https://live.bilibili.com/${liveID}" target="_blank">
+                        <div class="bili-dyn-live-users__item__uname bili-ellipsis">${name}</div>
+                    </a>
+                    <div class="bili-dyn-live-users__item__title bili-ellipsis">${title}</div>
+                </div>
+            </div>`);
     }
-
 }
 
 
@@ -1389,7 +1436,7 @@ const util = {
         uid = util.getSubUid(uid);
         uidA.text(uid);
         uidA.attr("href", `https://space.bilibili.com/${uid}`);
-        if (title !== undefined) {
+        if (title !== undefined || title !== null) {
             $("#suspensionTitle").text(title);
         }
         this.updateLocation(e);
@@ -1464,10 +1511,10 @@ const util = {
 const localData = {
     getSESSDATA: function () {
         const data = util.getData("SESSDATA");
-        if (data === undefined || data === null) {
+        if (data === undefined || data === null || data === "") {
             return null;
         }
-        return data;
+        return "SESSDATA=" + data;
     },
     setSESSDATA: function (key) {
         util.setData("SESSDATA", key);
@@ -2684,17 +2731,16 @@ const layout = {
                 background: ${home.getBackgroundStr()};
                 margin: 0px;
                 height: 100%;
-                width: 90%;
+                width: 100%;
                 max-height: 100%;
                 position: fixed;
                 z-index: 2023;
-                left:5%;
                 overflow-y: auto;
                 border: 3px solid green;
             }
             #gridLayout{
             display: grid;
-            grid-template-columns: 30% auto; 
+            grid-template-columns: 30% auto auto; 
             }
             #gridLayout button{
              height: 40px;
@@ -2702,7 +2748,7 @@ const layout = {
              #suspensionDiv{
               position: fixed;
                 display: none;
-                z-index: 1900;
+                z-index: 2024;
                 background: rgb(149, 156, 135);
                 height: 30%;
                 width: 10%;
@@ -2715,7 +2761,7 @@ const layout = {
                }
           #mybut{
         position: fixed;
-        z-index: 50;
+        z-index: 2024;
         width: 50px;
         height:50px;
         left: 96%;
@@ -3609,7 +3655,7 @@ function loadChannel() {
             const friend = cradInfo["friend"];//关注量
             const follower = body["data"]["follower"];//粉丝量
             const like_num = body["data"]["like_num"];//点赞量
-            const userCardHtml = htmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
+            const userCardHtml = HtmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
             if ($("#popDiv").length === 0) {
                 $("body").append(userCardHtml);
             } else {
@@ -4103,8 +4149,8 @@ function loadChannel() {
             localData.setSESSDATA(null);
             return;
         }
-        if (content.includes(" ")) {
-            Qmsg.error("内容中包含空格，请去除空格！");
+        if (content.includes(" ") || content.includes("=")) {
+            Qmsg.error("内容中包含空格或者=，请去除相关符号！");
             return;
         }
         if (!confirm(`要保存的SESSDATA是\n${content}`)) {
@@ -4586,6 +4632,69 @@ function bilibiliOne(href, windonsTitle) {
         trends.topCssDisply.body();
         trends.topCssDisply.topTar();
         trends.topCssDisply.rightLayout();
+
+        $("#gridLayout").append(HtmlStr.getLiveList());
+        const sessdata = localData.getSESSDATA();
+        if (sessdata === null) {
+            Qmsg.error("用户未配置sessdata，无法使用部分功能");
+            return;
+        }
+        Qmsg.success("用户配置了sessdata");
+        HttpUtil.getUsersFollowTheLiveList(sessdata, 1, (res) => {
+            const body = JSON.parse(res.responseText);
+            const code = body["code"];
+            const message = body["message"];
+            if (code !== 0) {
+                const info = "获取当前用户正在直播的用户错误！" + message;
+                Qmsg.error(info);
+                console.log(info);
+                return;
+            }
+            /**
+             *
+             * @type {Array}
+             */
+            const list = body["data"]["list"];
+            if (list === undefined || list === null || list.length === 0) {
+                const info = "未获取到当前用户关注的直播用户列表信息";
+                Qmsg.info(info);
+                console.log(info);
+                return;
+            }
+            let tempIndex = 0;
+            const jqEliveListBody = $("#gridLayout .bili-dyn-live-users__body");
+            for (let v of list) {
+                /**
+                 *直播状态
+                 * 0：未开播
+                 * 1：直播中
+                 * 2：轮播中
+                 */
+                const live_status = v["live_status"];
+                if (live_status === 0) {
+                    break;
+                }
+                if (live_status !== 1) {
+                    continue;
+                }
+                const roomid = v["roomid"];
+                const uid = v["uid"];
+                const uname = v["uname"];
+                const title = v["title"];
+                const face = v["face"];
+                const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
+                jqEliveListBody.append(liveItem);
+                $("#gridLayout .bili-dyn-live-users__title>span").text(`${++tempIndex}`);
+            }
+            if (tempIndex === 0) {
+                Qmsg.info("未获取到关注中正在直播的用户");
+                return;
+            }
+            Qmsg.success(`已获取到${tempIndex}个直播间`);
+        }, (err) => {
+            Qmsg.error("出现错误");
+            Qmsg.error(err);
+        });
     }
     if (href.includes("search.bilibili.com")) {
         $("#biliMainFooter").remove();
