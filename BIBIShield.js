@@ -2751,6 +2751,7 @@ const layout = {
                 display: none;
                 z-index: 2024;
                 background: rgb(149, 156, 135);
+                overflow-y: auto;
                 height: 30%;
                 width: 10%;
                 top: 70%;
