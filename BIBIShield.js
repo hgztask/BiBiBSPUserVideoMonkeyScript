@@ -1697,7 +1697,7 @@ const urleCrud = {
      * @param ruleStrName
      */
     addAll: function (arr, key, ruleStrName) {
-        let tempLenSize=0;
+        let tempLenSize = 0;
         const set = new Set();
         for (let v of key) {
             if (arr.includes(v)) {
@@ -1708,7 +1708,7 @@ const urleCrud = {
             set.add(v);
         }
 
-        if (tempLenSize===0) {
+        if (tempLenSize === 0) {
             Print.ln("内容长度无变化，可能是已经有了的值")
             return;
         }
@@ -4647,10 +4647,11 @@ function bilibiliOne(href, windonsTitle) {
             Qmsg.error("用户未配置sessdata，无法使用部分功能");
             return;
         }
-        let tempIndex = 0;
-        let tempPage=1;
-        let tempBool=false;
+        let tempPage = 1;
+        let tempBool = false;
         Qmsg.success("用户配置了sessdata");
+        const jqEliveListBody = $("#gridLayout .bili-dyn-live-users__body");
+
         function tempFunc() {
             HttpUtil.getUsersFollowTheLiveList(sessdata, tempPage++, (res) => {
                 const body = JSON.parse(res.responseText);
@@ -4673,7 +4674,6 @@ function bilibiliOne(href, windonsTitle) {
                     console.log(info);
                     return;
                 }
-                const jqEliveListBody = $("#gridLayout .bili-dyn-live-users__body");
                 for (let v of list) {
                     /**
                      *直播状态
@@ -4683,7 +4683,7 @@ function bilibiliOne(href, windonsTitle) {
                      */
                     const live_status = v["live_status"];
                     if (live_status === 0) {
-                        tempBool=true;
+                        tempBool = true;
                         break;
                     }
                     if (live_status !== 1) {
@@ -4696,8 +4696,8 @@ function bilibiliOne(href, windonsTitle) {
                     const face = v["face"];
                     const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
                     jqEliveListBody.append(liveItem);
-                    $("#gridLayout .bili-dyn-live-users__title>span").text(`${++tempIndex}`);
                 }
+                const tempIndex = jqEliveListBody.children().length;
                 if (tempIndex === 0) {
                     Qmsg.info("未获取到关注中正在直播的用户");
                     return;
@@ -4706,6 +4706,7 @@ function bilibiliOne(href, windonsTitle) {
                     tempFunc();
                     return;
                 }
+                $("#gridLayout .bili-dyn-live-users__title>span").text(`${tempIndex}`);
                 Qmsg.success(`已获取到${tempIndex}个直播间`);
             }, (err) => {
                 Qmsg.error("出现错误");
