@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.39
+// @version      1.1.40
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -834,6 +834,7 @@ left: 0;  bottom: 0;">
                 正在直播(<span>0</span>)<!--直播人数-->
             </div>
         </div>
+        <hr>
         <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto;">
         <!--列表中的项目-->
         </div>
@@ -4639,62 +4640,72 @@ function bilibiliOne(href, windonsTitle) {
             Qmsg.error("用户未配置sessdata，无法使用部分功能");
             return;
         }
+        let tempIndex = 0;
+        let tempPage=1;
+        let tempBool=false;
         Qmsg.success("用户配置了sessdata");
-        HttpUtil.getUsersFollowTheLiveList(sessdata, 1, (res) => {
-            const body = JSON.parse(res.responseText);
-            const code = body["code"];
-            const message = body["message"];
-            if (code !== 0) {
-                const info = "获取当前用户正在直播的用户错误！" + message;
-                Qmsg.error(info);
-                console.log(info);
-                return;
-            }
-            /**
-             *
-             * @type {Array}
-             */
-            const list = body["data"]["list"];
-            if (list === undefined || list === null || list.length === 0) {
-                const info = "未获取到当前用户关注的直播用户列表信息";
-                Qmsg.info(info);
-                console.log(info);
-                return;
-            }
-            let tempIndex = 0;
-            const jqEliveListBody = $("#gridLayout .bili-dyn-live-users__body");
-            for (let v of list) {
+        function tempFunc() {
+            HttpUtil.getUsersFollowTheLiveList(sessdata, tempPage++, (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    const info = "获取当前用户正在直播的用户错误！" + message;
+                    Qmsg.error(info);
+                    console.log(info);
+                    return;
+                }
                 /**
-                 *直播状态
-                 * 0：未开播
-                 * 1：直播中
-                 * 2：轮播中
+                 *
+                 * @type {Array}
                  */
-                const live_status = v["live_status"];
-                if (live_status === 0) {
-                    break;
+                const list = body["data"]["list"];
+                if (list === undefined || list === null || list.length === 0) {
+                    const info = "未获取到当前用户关注的直播用户列表信息";
+                    Qmsg.info(info);
+                    console.log(info);
+                    return;
                 }
-                if (live_status !== 1) {
-                    continue;
+                const jqEliveListBody = $("#gridLayout .bili-dyn-live-users__body");
+                for (let v of list) {
+                    /**
+                     *直播状态
+                     * 0：未开播
+                     * 1：直播中
+                     * 2：轮播中
+                     */
+                    const live_status = v["live_status"];
+                    if (live_status === 0) {
+                        tempBool=true;
+                        break;
+                    }
+                    if (live_status !== 1) {
+                        continue;
+                    }
+                    const roomid = v["roomid"];
+                    const uid = v["uid"];
+                    const uname = v["uname"];
+                    const title = v["title"];
+                    const face = v["face"];
+                    const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
+                    jqEliveListBody.append(liveItem);
+                    $("#gridLayout .bili-dyn-live-users__title>span").text(`${++tempIndex}`);
                 }
-                const roomid = v["roomid"];
-                const uid = v["uid"];
-                const uname = v["uname"];
-                const title = v["title"];
-                const face = v["face"];
-                const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
-                jqEliveListBody.append(liveItem);
-                $("#gridLayout .bili-dyn-live-users__title>span").text(`${++tempIndex}`);
-            }
-            if (tempIndex === 0) {
-                Qmsg.info("未获取到关注中正在直播的用户");
-                return;
-            }
-            Qmsg.success(`已获取到${tempIndex}个直播间`);
-        }, (err) => {
-            Qmsg.error("出现错误");
-            Qmsg.error(err);
-        });
+                if (tempIndex === 0) {
+                    Qmsg.info("未获取到关注中正在直播的用户");
+                    return;
+                }
+                if (!tempBool) {
+                    tempFunc();
+                    return;
+                }
+                Qmsg.success(`已获取到${tempIndex}个直播间`);
+            }, (err) => {
+                Qmsg.error("出现错误");
+                Qmsg.error(err);
+            });
+        };
+        tempFunc();
     }
     if (href.includes("search.bilibili.com")) {
         $("#biliMainFooter").remove();
