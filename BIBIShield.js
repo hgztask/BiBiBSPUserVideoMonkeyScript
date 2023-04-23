@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.40
+// @version      1.1.41
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -848,7 +848,6 @@ left: 0;  bottom: 0;">
         <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto;">
         <!--列表中的项目-->
         </div>
-        <hr>
     </div>`);
     },
     /**
@@ -4779,6 +4778,7 @@ function bilibiliOne(href, windonsTitle) {
 
         const liveLayout = $("#liveLayout");
         liveLayout.append(HtmlStr.getLiveList("关注列表在中正在直播的用户-"));
+        liveLayout.append(`<hr>`);
         const okBut = $(`<button>确定</button>`);
         const openBut = $(`<button>打开页面</button>`);
         const select_parent_name = $(`<select></select>`);
@@ -4815,9 +4815,14 @@ function bilibiliOne(href, windonsTitle) {
             const select_name_ID = select_name.val();
             const select_nameText = select_name.find("option:selected").text();
             const loading = Qmsg.loading(`正在获取${select_nameText}分区直播列表信息`);
-            liveList.children().remove();
+            const liveListChildren = liveList.children(".bili-dyn-live-users__body").children();
+            if (liveListChildren.length !== 0) {
+                liveListChildren.remove();
+            }
             tempFunc(select_parent_ID, select_name_ID, loading);
         });
+        // trends.data.setPartitionPage(id, ++partitionPage);
+        // tempFunc(parent_id, id, qmLoading);
         openBut.click(() => {
             const select_parent_ID = select_parent_name.val();
             const select_name_ID = select_name.val();
@@ -4831,14 +4836,34 @@ function bilibiliOne(href, windonsTitle) {
         liveLayout.append(openBut);
         const liveList = HtmlStr.getLiveList("直播分区-");
         liveLayout.append(liveList);
+        const flushBut = $(`<div style="display: flex;justify-content: center;">
+<div style="display: none">
+<button>加载更多</button>
+</div>
+</div>`);
+        liveLayout.append(flushBut);
+        liveLayout.append(`<hr>`);
         const sessdata = localData.getSESSDATA();
         if (sessdata !== null) {
             Qmsg.success("用户配置了sessdata");
             followListLive();
         }
 
+        flushBut.click(() => {
+            const select_parent_ID = select_parent_name.val();
+            const select_name_ID = select_name.val();
+            const select_nameText = select_name.find("option:selected").text();
+            const loading = Qmsg.loading(`正在获取${select_nameText}分区直播列表信息`);
+            tempFunc(select_parent_ID, select_name_ID, loading);
+        });
+
         function tempFunc(parent_id, id, qmLoading) {
             const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(1)");
+            if (tempE.length === 0) {
+                Qmsg.error("布局异常");
+                qmLoading.close();
+                return;
+            }
             let partitionPage = trends.data.getPartitionPage(id);
             HttpUtil.getLiveList(parent_id, id, partitionPage, "", (res) => {
                 const body = JSON.parse(res.responseText);
@@ -4854,15 +4879,9 @@ function bilibiliOne(href, windonsTitle) {
                 const list = body["data"]["list"];
                 if (list.length === 0) {
                     trends.data.setPartitionBool(id, true);
-                    const tempIndex = tempE.children().length;
-                    if (tempIndex === 0) {
-                        Qmsg.info("未获取到指定分区正在直播的用户");
-                        qmLoading.close();
-                        return;
-                    }
-                    $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
-                    Qmsg.success(`已获取到${trends.data.partitionEndTypeLiveName}分区的${tempIndex}个直播间`);
                     qmLoading.close();
+                    Qmsg.success(`已获取到${trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
+                    flushBut.find("div").hide();
                     return;
                 }
                 for (let v of list) {
@@ -4885,14 +4904,24 @@ function bilibiliOne(href, windonsTitle) {
                     const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
                     tempE.append(liveItem);
                 }
-                trends.data.setPartitionPage(id, ++partitionPage);
-                tempFunc(parent_id, id, qmLoading);
+                qmLoading.close();
+                const tempIndex = tempE.children().length;
+                if (tempIndex === 0) {
+                    Qmsg.info("未获取到指定分区正在直播的用户");
+                    flushBut.find("div").hide();
+                    qmLoading.close();
+                    return;
+                }
+                $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
+                Qmsg.success(`本轮已获取到${trends.data.partitionEndTypeLiveName}分区的${list.length}个直播间`);
+                flushBut.find("div").show();
+                trends.data.setPartitionPage(id,++partitionPage);
             }, (err) => {
                 Qmsg.error("错误信息" + err);
                 qmLoading.close();
             });
         };
-        tempFunc(3, 293, Qmsg.loading("正在获取分区直播列表信息"));
+        //tempFunc(3, 293, Qmsg.loading("正在获取分区直播列表信息"));
     }
     if (href.includes("search.bilibili.com")) {
         $("#biliMainFooter").remove();
