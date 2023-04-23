@@ -785,6 +785,16 @@ const HttpUtil = {
      */
     getUsersFollowTheLiveList: function (cookie, page, resolve, reject) {
         this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
+    },
+    /**
+     * 获取指定分区下的用户直播列表
+     * @param parent_id 父级分区
+     * @param id 子级分区
+     * @param page 页数
+     * @param sort 排序-如综合或者最新，最新live_time 为空着综合
+     */
+    getLiveList: function (parent_id, id, page, sort, resolve, reject) {
+        this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
     }
 };
 
@@ -827,17 +837,18 @@ left: 0;  bottom: 0;">
     /**
      * 获取直播列表布局
      */
-    getLiveList: function () {
+    getLiveList: function (typeTitle) {
         return `<div class="bili-dyn-live-users">
         <div class="bili-dyn-live-users__header">
             <div class="bili-dyn-live-users__title">
-                正在直播(<span>0</span>)<!--直播人数-->
+                ${typeTitle}(<span>0</span>)<!--直播人数-->
             </div>
         </div>
         <hr>
         <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto;">
         <!--列表中的项目-->
         </div>
+        <hr>
     </div>`;
     },
     /**
@@ -2663,6 +2674,26 @@ const subjectOfATalk = {
 }
 //动态
 const trends = {
+    data: {
+        /**
+         * 关注用户直播列表页数
+         */
+        concernPage: 1,
+        /**
+         * 关注用户直播-是否获取完列表item
+         */
+        concernBool: false,
+        /**
+         * 分区列表页数
+         */
+        partitionPage: 1,
+        /**
+         * 分区用户直播-是否获取完列表item
+         */
+        partitionBool: false,
+        partitionEndTypeLiveName: ""
+
+    },
     topCssDisply: {
         //针对于整体布局的细调整
         body: function () {
@@ -2799,7 +2830,6 @@ const layout = {
       <div id="home_layout" style="display: none">
         <div id="gridLayout">
           <div>
-
             <div>
               <h1>面板设置</h1>
               <div>
@@ -3045,6 +3075,9 @@ const layout = {
             <div id="outputInfo">
             </div>
           </div>
+          <div  id="liveLayout">
+          
+</div>
         </div>
       </div>
       <!-- 分割home_layout -->
@@ -4651,19 +4684,9 @@ function bilibiliOne(href, windonsTitle) {
         trends.topCssDisply.topTar();
         trends.topCssDisply.rightLayout();
 
-        $("#gridLayout").append(HtmlStr.getLiveList());
-        const sessdata = localData.getSESSDATA();
-        if (sessdata === null) {
-            Qmsg.error("用户未配置sessdata，无法使用部分功能");
-            return;
-        }
-        let tempPage = 1;
-        let tempBool = false;
-        Qmsg.success("用户配置了sessdata");
-        const jqEliveListBody = $("#gridLayout .bili-dyn-live-users__body");
-
-        function tempFunc() {
-            HttpUtil.getUsersFollowTheLiveList(sessdata, tempPage++, (res) => {
+        function followListLive() {
+            const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
+            HttpUtil.getUsersFollowTheLiveList(sessdata, trends.data.concernPage++, (res) => {
                 const body = JSON.parse(res.responseText);
                 const code = body["code"];
                 const message = body["message"];
@@ -4693,7 +4716,7 @@ function bilibiliOne(href, windonsTitle) {
                      */
                     const live_status = v["live_status"];
                     if (live_status === 0) {
-                        tempBool = true;
+                        trends.data.concernBool = true;
                         break;
                     }
                     if (live_status !== 1) {
@@ -4705,22 +4728,80 @@ function bilibiliOne(href, windonsTitle) {
                     const title = v["title"];
                     const face = v["face"];
                     const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
-                    jqEliveListBody.append(liveItem);
+                    tempE.append(liveItem);
                 }
-                const tempIndex = jqEliveListBody.children().length;
+                const tempIndex = tempE.children().length;
                 if (tempIndex === 0) {
                     Qmsg.info("未获取到关注中正在直播的用户");
                     return;
                 }
-                if (!tempBool) {
-                    tempFunc();
+                if (!trends.data.concernBool) {
+                    followListLive();
                     return;
                 }
-                $("#gridLayout .bili-dyn-live-users__title>span").text(`${tempIndex}`);
+                $("#liveLayout .bili-dyn-live-users__title>span:eq(0)").text(`${tempIndex}`);
                 Qmsg.success(`已获取到${tempIndex}个直播间`);
             }, (err) => {
                 Qmsg.error("出现错误");
                 Qmsg.error(err);
+            });
+        }
+
+        $("#liveLayout").append(HtmlStr.getLiveList("关注列表在中正在直播的用户-"));
+        $("#liveLayout").append(HtmlStr.getLiveList("直播分区-"));
+        const sessdata = localData.getSESSDATA();
+        if (sessdata !== null) {
+            Qmsg.success("用户配置了sessdata");
+            followListLive();
+        }
+
+        function tempFunc() {
+            const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(1)");
+            HttpUtil.getLiveList(3, 293, trends.data.partitionPage++, "", (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    const info = "获取直播分区信息错误！" + message;
+                    Qmsg.error(info);
+                    console.log(info);
+                    return;
+                }
+                const list = body["data"]["list"];
+                if (list.length === 0) {
+                    trends.data.partitionBool = true;
+                    const tempIndex = tempE.children().length;
+                    if (tempIndex === 0) {
+                        Qmsg.info("未获取到指定分区正在直播的用户");
+                        return;
+                    }
+                    $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
+                    Qmsg.success(`已获取到${trends.data.partitionEndTypeLiveName}分区的${tempIndex}个直播间`);
+                    return;
+                }
+                for (let v of list) {
+                    const roomid = v["roomid"];
+                    const title = v["title"];
+                    const uname = v["uname"];
+                    const uid = v["uid"];
+                    if (shield.arrKey(localData.getArrUID(), uid)) {
+                        const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
+                        Print.ln(tempInfo);
+                        Qmsg.success(tempInfo);
+                        continue;
+                    }
+                    const face = v["face"];
+                    const cover = v["cover"];//封面
+                    const system_cover = v["system_cover"];//关键帧
+                    const parent_name = v["parent_name"];//父级分区
+                    const area_name = v["area_name"];//子级分区
+                    trends.data.partitionEndTypeLiveName = `${parent_name}-${area_name}`;
+                    const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
+                    tempE.append(liveItem);
+                }
+                tempFunc();
+            }, (err) => {
+                Qmsg.error("错误信息" + err);
             });
         };
         tempFunc();
