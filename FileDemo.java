@@ -1,11 +1,19 @@
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,14 +74,22 @@ public class FileDemo {
 
     @Test
     public void get() {
-        String csrf = "56aac38ec2f7cbc752ecee4f7b4f42f2";
-        HttpResponse execute = HttpRequest.get("https://api.bilibili.com/x/relation/blacks?csrf=" + csrf + "&jsonp=jsonp&pn=1&ps=20&re_version=0")
-                .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.48")
-                .cookie("SESSDATA=34356bf5%2C1697689246%2Ca202a%2A42")
-                .execute();
-        System.out.println(execute.body());
-
-
+        JSON json =  JSONUtil.readJSON(new File("D:\\localfile\\所有直播间分区列表.json"), StandardCharsets.UTF_8);
+        JSONObject jsonObject = JSONUtil.parseObj(json);
+        for (String v : jsonObject.keySet()) {
+            List<JSONObject> list = jsonObject.get(v, List.class);
+            LinkedList<JSONObject> linkedList = new LinkedList<>(list);
+            String parent_name = linkedList.get(0).get("parent_name", String.class);
+            Integer parent_id = linkedList.get(0).get("parent_id", int.class);
+            JSONObject entries = new JSONObject();
+            entries.set("parent_name",parent_name);
+            entries.set("parent_id",parent_id);
+            entries.set("name","全部");
+            entries.set("id",0);
+            linkedList.addFirst(entries);
+            jsonObject.set(v,linkedList);
+        }
+        FileUtil.writeUtf8String(JSONUtil.toJsonStr(jsonObject),new File("D:\\localfile\\所有直播间分区列表_new.json"));
     }
 
 

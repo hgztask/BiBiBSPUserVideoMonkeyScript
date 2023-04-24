@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.41
+// @version      1.1.42
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2920,15 +2920,10 @@ const layout = {
                   <option value="batch">批量</option>
                 </select>
               </div>
-              <input style="width: 42.5%;height: 20px;" type="text" id="inputModel"  maxlength="50"/>
               <textarea
                 id="inputTextAreaModel"
                 style="resize: none; width: 40%; height: 100px; display: none"
               ></textarea>
-              <div id="replace">
-                替换(修改)
-                <input style="width: 29%;height: 20px;" type="text" id="newInputModel"   maxlength="30" />
-              </div>
               <div>
                 <button id="butadd">增加</button>
                 <button id="butaddAll" style="display: none">批量增加</button>
@@ -3582,8 +3577,6 @@ function loadChannel() {
         const keycode = event.keyCode;
         if (keycode === 192) {//按下`按键显示隐藏面板
             hideDisplayHomeLaylout();
-            const bili_jct = util.getCookieList()["bili_jct"];
-            console.log(bili_jct);
         }
         if (keycode === 49) {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
             const q = $("#quickLevitationShield");
@@ -3599,39 +3592,26 @@ function loadChannel() {
     });
 
 
-    $('#model').change(() => {//监听模式下拉列表
-        const modelStr = $('#model').val();
-        if (modelStr === "uid") {
-            document.getElementById("inputModel").type = "number";
-            return;
-        }
-        document.getElementById("inputModel").type = "text";
-    });
     $('#singleDoubleModel').change(() => {//监听模式下拉列表
         const modelStr = $('#singleDoubleModel').val();
         const inputTextAreaModel = $('#inputTextAreaModel');
-        const inputModel = $('#inputModel');
         const butadd = $('#butadd');
         const butdel = $('#butdel');
         const butaddAll = $('#butaddAll');
         const butdelAll = $('#butdelAll');
         const butSet = $('#butSet');
         const butFind = $('#butFind');
-        const replace = $('#replace');
         if (modelStr === "one") {//如果中的是单个
             inputTextAreaModel.css("display", "none");
-            inputModel.css("display", "block");
             //暂时显示对应的按钮
             butadd.css("display", "inline");
             butdel.css("display", "inline");
             butSet.css("display", "inline");
             butFind.css("display", "inline");
-            replace.css("display", "inline");
             butaddAll.css("display", "none");
             butdelAll.css("display", "none");
             return;
         }//如果选择的是批量
-        inputModel.css("display", "none");
         inputTextAreaModel.css("display", "block");
 
         butaddAll.css("display", "inline");
@@ -3641,8 +3621,6 @@ function loadChannel() {
         butdel.css("display", "none");
         butSet.css("display", "none");
         butFind.css("display", "none");
-        replace.css("display", "none");
-
     });
 
     $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
@@ -3994,7 +3972,14 @@ function loadChannel() {
 //增
     $("#butadd").click(function () {
         const typeVal = $("#model option:selected").val();
-        const content = $("#inputModel").val();
+        const content = prompt("请填写要添加的值");
+        if (content === null) {
+            return;
+        }
+        if (content === "") {
+            Qmsg.error("请输入正确的内容！");
+            return;
+        }
         switch (typeVal) {
             case "name":
                 butLayEvent.butaddName("userNameArr", content);
@@ -4003,6 +3988,10 @@ function loadChannel() {
                 butLayEvent.butaddName("userNameKeyArr", content);
                 break;
             case "uid":
+                if (isNaN(content)) {
+                    Qmsg.error("内容不是数字");
+                    return;
+                }
                 butLayEvent.butaddName("userUIDArr", parseInt(content));
                 break;
             case "bName":
@@ -4077,7 +4066,14 @@ function loadChannel() {
 //删
     $("#butdel").click(function () {
         const typeVal = $("#model option:selected").val();
-        const content = $("#inputModel").val();
+        const content = prompt("请输入你要删除的单个元素规则");
+        if (content === null) {
+            return;
+        }
+        if (content === "") {
+            Qmsg.error("请正确填写规则！");
+            return;
+        }
         switch (typeVal) {
             case "name":
                 butLayEvent.butDelName("userNameArr", content);
@@ -4086,6 +4082,10 @@ function loadChannel() {
                 butLayEvent.butDelName("userNameKeyArr", content);
                 break;
             case "uid":
+                if (isNaN(content)) {
+                    Qmsg.error("内容不是数字");
+                    return;
+                }
                 butLayEvent.butDelName("userUIDArr", parseInt(content));
                 break;
             case "bName":
@@ -4156,37 +4156,44 @@ function loadChannel() {
     })
 
     $("#butSet").click(() => {
+        const oldContent = prompt("请输入你要修改的单个元素规则");
+        const content = prompt("请输入修改之后的值");
+        if (content === null || oldContent === null) {
+            return;
+        }
+        if (content === "" || oldContent === "") {
+            Qmsg.error("请填写正常的内容");
+            return;
+        }
         const typeVal = $("#model option:selected").val();
-        const oldContent = $("#inputModel").val();
-        const newContent = $("#newInputModel").val();
         switch (typeVal) {
             case "name":
-                butLayEvent.butSetKey("userNameArr", oldContent, newContent);
+                butLayEvent.butSetKey("userNameArr", oldContent, content);
                 break;
             case "nameKey":
-                butLayEvent.butSetKey("userNameKeyArr", oldContent, newContent);
+                butLayEvent.butSetKey("userNameKeyArr", oldContent, content);
                 break;
             case "uid":
             case "bName":
                 alert("暂时不支持修改UID");
                 break;
             case "title":
-                butLayEvent.butSetKey("titleKeyArr", oldContent, newContent);
+                butLayEvent.butSetKey("titleKeyArr", oldContent, content);
                 break;
             case "titleCanonical":
-                butLayEvent.butSetKey("titleKeyCanonicalArr", oldContent, newContent);
+                butLayEvent.butSetKey("titleKeyCanonicalArr", oldContent, content);
                 break;
             case "contentOn":
-                butLayEvent.butSetKey("commentOnKeyArr", oldContent, newContent);
+                butLayEvent.butSetKey("commentOnKeyArr", oldContent, content);
                 break;
             case "contentOnCanonical":
-                butLayEvent.butSetKey("contentOnKeyCanonicalArr", oldContent, newContent);
+                butLayEvent.butSetKey("contentOnKeyCanonicalArr", oldContent, content);
                 break;
             case "fanCard":
-                butLayEvent.butSetKey("fanCardArr", oldContent, newContent);
+                butLayEvent.butSetKey("fanCardArr", oldContent, content);
                 break;
             case "column":
-                butLayEvent.butSetKey("contentColumnKeyArr", oldContent, newContent);
+                butLayEvent.butSetKey("contentColumnKeyArr", oldContent, content);
                 break;
             default:
                 console.log("butSet出现错误了的结果")
@@ -4197,7 +4204,14 @@ function loadChannel() {
 //查
     $("#butFind").click(function () {
         const typeVal = $("#model option:selected").val();
-        const content = $("#inputModel").val();
+        const content = prompt("请输入你要查询的单个元素规则");
+        if (content === null) {
+            return;
+        }
+        if (content === "") {
+            Qmsg.error("请正确填写规则！");
+            return;
+        }
         switch (typeVal) {
             case "name":
                 butLayEvent.butFindKey("userNameArr", content);
@@ -4206,6 +4220,10 @@ function loadChannel() {
                 butLayEvent.butFindKey("userNameKeyArr", content);
                 break;
             case "uid":
+                if (isNaN(content)) {
+                    Qmsg.error("内容不是数字");
+                    return;
+                }
                 butLayEvent.butFindKey("userUIDArr", parseInt(content));
                 break;
             case "bName":
@@ -4230,7 +4248,7 @@ function loadChannel() {
                 butLayEvent.butFindKey("contentColumnKeyArr", content);
                 break;
             default:
-                console.log("butdel出现错误了的结果")
+                console.log("butFind出现错误了的结果")
                 break;
         }
     });
