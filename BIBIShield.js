@@ -3077,18 +3077,9 @@ const layout = {
             </details>
             <hr>
             <div>
-              <h1>
-                反馈问题
-              </h1>
-              <p>
-                作者b站：
-                <span>
-                  <a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a>
-                </span>
-              </p>
-              <p>
-                本脚本gf反馈页
-                <span>
+              <h1> 反馈问题</h1>
+              <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
+              <p>本脚本gf反馈页<span>
                   <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
                 </span>
               </p>
@@ -4914,8 +4905,12 @@ function bilibiliOne(href, windonsTitle) {
                 }
                 $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
                 Qmsg.success(`本轮已获取到${trends.data.partitionEndTypeLiveName}分区的${list.length}个直播间`);
-                flushBut.find("div").show();
-                trends.data.setPartitionPage(id,++partitionPage);
+                if (list.length < 20) {
+                    flushBut.find("div").hide();
+                } else {
+                    flushBut.find("div").show();
+                    trends.data.setPartitionPage(id, ++partitionPage);
+                }
             }, (err) => {
                 Qmsg.error("错误信息" + err);
                 qmLoading.close();
