@@ -4880,7 +4880,7 @@ function bilibiliOne(href, windonsTitle) {
                 if (list.length === 0) {
                     trends.data.setPartitionBool(id, true);
                     qmLoading.close();
-                    Qmsg.success(`已获取到${trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
+                    Qmsg.success(`累计获取到${trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
                     flushBut.find("div").hide();
                     return;
                 }
