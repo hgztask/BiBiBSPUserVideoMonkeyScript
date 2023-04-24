@@ -2879,6 +2879,7 @@ const layout = {
           <div>
             <div>
               <h1>面板设置</h1>
+              <div style="display: flex;flex-wrap: wrap;justify-content: space-between;">
               <div>
                 <span>背景透明度</span>
                 <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
@@ -2891,17 +2892,21 @@ const layout = {
               </div>
               <div>
                 <span>宽度</span>
-                <input id="widthRange" type="range" value="90" min="20" max="90" step="0.1">
+                <input id="widthRange" type="range" value="90" min="20" max="200" step="0.1">
                 <span id="widthSpan">90%</span>
               </div>
-
+              </div>
               <h2>快捷悬浮面板</h2>
-              <span>禁用快捷悬浮屏蔽面板自动显示</span> <input type="checkbox" id="DShielPanel">(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)
+              <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
             </div>
             <hr>
             <details open>
               <summary>规则增删改查</summary>
               <div id="tableBody">
+                   <select id="singleDoubleModel">
+                  <option value="one">单个</option>
+                  <option value="batch">批量</option>
+                </select>
               <select id="model">
                 <option value="name">用户名黑名单模式(精确匹配)</option>
                 <option value="nameKey">用户名黑名单模式(模糊匹配)</option>
@@ -2914,12 +2919,7 @@ const layout = {
                 <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
                 <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
               </select>
-              <div>
-                <select id="singleDoubleModel">
-                  <option value="one">单个</option>
-                  <option value="batch">批量</option>
-                </select>
-              </div>
+          
               <textarea
                 id="inputTextAreaModel"
                 style="resize: none; width: 40%; height: 100px; display: none"
@@ -2939,9 +2939,9 @@ const layout = {
             <details open>
               <summary>视频参数</summary>
               <div>
-                <span>禁止打开b站视频时的自动播放</span><input type="checkbox" id="autoPlayCheckbox">
+                <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
                 <div>
-                  <span>视频画中画</span><input type="checkbox" id="fenestruleCheckbox">
+                  <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
                 </div>
                 <h3>视频播放速度</h3>
               拖动更改页面视频播放速度
@@ -2977,8 +2977,10 @@ const layout = {
               <select id="video_zoneSelect">
                 <option value="1">下拉选择</option>
               </select>
-              <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;">id<input type="checkbox" id="isIdCheckbox">
-              <button id="findButon" style="padding-right: 20px;">查询</button>
+              <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;">
+              <input type="checkbox" id="isIdCheckbox">
+              <span>id</span>
+              <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
               <button id="okButton">确定</button>
              </div>
              <hr>
@@ -3109,8 +3111,8 @@ const layout = {
             <h1>输出信息</h1>
              <div>
               <button id="butClearMessage">清空信息</button>
-              二次确认
               <input type="checkbox" checked="checked">
+              <span>二次确认</span>
             </div>
             <div id="outputInfo">
             </div>
