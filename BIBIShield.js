@@ -680,7 +680,7 @@ function delDReplay() {
                 Qmsg.info("屏蔽了言论！！");
                 continue;
             }
-            const jqE = $(v);
+            const jqE = $(rootUserinfo);
             if (!util.isEventJq(jqE, "mouseover")) {
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
@@ -702,7 +702,7 @@ function delDReplay() {
                     Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
-                const jqE = $(j);
+                const jqE = $(J);
                 if (util.isEventJq(jqE, "mouseover")) {
                     continue;
                 }
@@ -4665,7 +4665,7 @@ function bilibiliOne(href, windonsTitle) {
     //     console.log("检测到内容变化了")
     // });//处理每个页面顶部搜索的内容
     const interval01 = setInterval(() => {
-        const nav_search_input = $(".nav-search-input");
+        const nav_search_input = $(".nav-search-input,.search-input-el");
         if (nav_search_input.lastElementChild === 0) {
             return;
         }
@@ -4675,9 +4675,6 @@ function bilibiliOne(href, windonsTitle) {
             const interval01 = setInterval(() => {
                 const list = document.querySelectorAll(".trendings-double .trending-item");
                 if (list.length === 0) {
-                    const info = "未获取到热搜信息";
-                    console.log(info);
-                    Qmsg.error(info);
                     return;
                 }
                 clearInterval(interval01);
@@ -4704,7 +4701,7 @@ function bilibiliOne(href, windonsTitle) {
                         Print.ln(info);
                     }
                 });
-                nav_search_input.unbind();//删除该元素的所有jq添加的事件
+                // nav_search_input.unbind();//删除该元素的所有jq添加的事件
             }, 50);
         });
     }, 1000);
