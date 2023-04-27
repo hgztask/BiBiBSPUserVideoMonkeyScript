@@ -4659,6 +4659,57 @@ function github(href) {
  * @param {string}windonsTitle
  */
 function bilibiliOne(href, windonsTitle) {
+
+
+    // $(".search-panel").bind("DOMNodeInserted", () => {//处理每个页面顶部搜索的内容
+    //     console.log("检测到内容变化了")
+    // });//处理每个页面顶部搜索的内容
+    const interval01 = setInterval(() => {
+        const nav_search_input = $(".nav-search-input");
+        if (nav_search_input.lastElementChild === 0) {
+            return;
+        }
+        clearInterval(interval01);
+        nav_search_input.click(() => {
+            console.log("点击了");
+            const interval01 = setInterval(() => {
+                const list = document.querySelectorAll(".trendings-double .trending-item");
+                if (list.length === 0) {
+                    const info = "未获取到热搜信息";
+                    console.log(info);
+                    Qmsg.error(info);
+                    return;
+                }
+                clearInterval(interval01);
+                list.forEach((value, key, parent) => {
+                    const content = value.querySelector(".trending-text").textContent;
+                    const titleKey = remove.titleKey(value, content);
+                    if (titleKey !== null) {
+                        const info = `已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`;
+                        Qmsg.info(info);
+                        Print.ln(info);
+                        return;
+                    }
+                    const titleKeyCanonical = remove.titleKeyCanonical(value, content);
+                    if (titleKeyCanonical !== null) {
+                        const info = `已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`;
+                        Qmsg.info(info);
+                        Print.ln(info);
+                        return;
+                    }
+                    const contentKey = remove.contentKey(value, content);
+                    if (contentKey !== null) {
+                        const info = `已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`;
+                        Qmsg.info(info);
+                        Print.ln(info);
+                    }
+                });
+                nav_search_input.unbind();//删除该元素的所有jq添加的事件
+            }, 50);
+        });
+    }, 1000);
+
+
     if (href.includes("space.bilibili.com/")) {//个人主页
         const hrefUID = util.getSubUid(href.split("/")[3]);
         console.log(hrefUID);
