@@ -2892,7 +2892,7 @@ const layout = {
               </div>
               <div>
                 <span>宽度</span>
-                <input id="widthRange" type="range" value="90" min="20" max="200" step="0.1">
+                <input id="widthRange" type="range" value="100" min="20" max="100" step="0.1">
                 <span id="widthSpan">90%</span>
               </div>
               </div>
