@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.42
+// @version      1.1.43
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -684,8 +684,8 @@ function delDReplay() {
             if (!util.isEventJq(jqE, "mouseover")) {
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
-                    const name = domElement.querySelector(".name").textContent;
-                    const uid = domElement.querySelector("a").getAttribute("data-usercard-mid");
+                    const name = domElement.textContent;
+                    const uid = domElement.getAttribute("data-usercard-mid");
                     util.showSDPanel(e, name, uid);
                 });
             }
@@ -702,7 +702,7 @@ function delDReplay() {
                     Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
-                const jqE = $(J);
+                const jqE = $(j);
                 if (util.isEventJq(jqE, "mouseover")) {
                     continue;
                 }
@@ -2764,6 +2764,17 @@ const trends = {
                 } catch (e) {
                 }
             });
+            const interval02 = setInterval(() => {
+                const e = document.querySelectorAll(".bili-dyn-sidebar>*:nth-child(-n+2)");
+                if (e.length === 0) {
+                    return;
+                }
+                clearInterval(interval02);
+                e.forEach((value, key) => {
+                    value.remove();
+                });
+                console.log("已尝试移除个别多余的悬浮按钮");
+            }, 500);
         },
         //针对顶部的处理
         topTar: function () {
