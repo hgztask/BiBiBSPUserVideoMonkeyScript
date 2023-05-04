@@ -880,7 +880,7 @@ left: 0;  bottom: 0;">
                     <a href="https://live.bilibili.com/${liveID}" target="_blank">
                         <div class="bili-dyn-live-users__item__uname bili-ellipsis">${name}</div>
                     </a>
-                    <div class="bili-dyn-live-users__item__title bili-ellipsis">${title}</div>
+                    <div class="bili-dyn-live-users__item__title bili-ellipsis" title=${title}>${title}</div>
                 </div>
             </div>`);
     }
@@ -2974,9 +2974,13 @@ const layout = {
                 <button id="preservePlaybackSpeedModel">保存</button>
               </div>
               <hr>
+              <div>
+              <details>
+              <summary>首页</summary>
               <h3>首页推荐视频</h3>
               <span>指定推送</span>
-              <select id="pushTypeSelect">
+              <input type="checkbox">
+              <select id="pushTypeSelect" style="display: block">
                 <option value="分区">分区</option>
                 <option value="频道">频道</option>
               </select>
@@ -2993,7 +2997,9 @@ const layout = {
               <span>id</span>
               <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
               <button id="okButton">确定</button>
-             </div>
+              </div>
+              </details>
+              </div>
              <hr>
               </div>
               <h3>播放画面翻转</h3>
