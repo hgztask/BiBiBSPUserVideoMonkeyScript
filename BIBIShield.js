@@ -2975,7 +2975,7 @@ const layout = {
               </div>
               <hr>
               <div>
-              <details>
+              <details open>
               <summary>首页</summary>
               <h3>首页推荐视频</h3>
               <span>指定推送</span>
