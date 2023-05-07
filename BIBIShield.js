@@ -3153,6 +3153,10 @@ const layout = {
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
     },
+    getFilter_queue: function () {
+        return $(`<div style="position: fixed;z-index: 2022;  top: 25%; left: 4%; width: 50px; height: 50px; border-radius: 25px; background-color: #FFA500; color: #FFF; font-size: 20px; text-align: center; line-height: 50px;">屏蔽</div>
+`);
+    },
     loading: {
         home: function () {
             $("body").prepend(`
@@ -4718,8 +4722,6 @@ function github(href) {
  * @param {string}windonsTitle
  */
 function bilibiliOne(href, windonsTitle) {
-
-
     // $(".search-panel").bind("DOMNodeInserted", () => {//处理每个页面顶部搜索的内容
     //     console.log("检测到内容变化了")
     // });//处理每个页面顶部搜索的内容
@@ -4768,13 +4770,20 @@ function bilibiliOne(href, windonsTitle) {
 
     if (href.includes("space.bilibili.com/")) {//个人主页
         const hrefUID = util.getSubUid(href.split("/")[3]);
-        console.log(hrefUID);
         if (shield.arrKey(localData.getArrUID(), hrefUID)) {
             setTimeout(() => {
                 alert("当前用户时是黑名单！UID=" + hrefUID)
             }, 4500);
+            return;
         }
-        console.log("个人主页")
+
+        const temp = layout.getFilter_queue();
+        $("body").append(temp);
+        temp.click(() => {
+            butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
+        });
+
+
         return;
     }
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
