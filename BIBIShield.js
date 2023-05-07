@@ -3580,7 +3580,7 @@ function loadChannel() {
 }
 
 // 点击标签时执行此函数
-function openTab(tab) {
+function openTab(e) {
     // 获取所有标签布局
     const tabs = document.getElementsByClassName("tab");
     // 循环遍历每个标签布局
@@ -3589,7 +3589,9 @@ function openTab(tab) {
         tabs[i].classList.remove("active");
     }
     // 将指定的标签布局添加到“active”类，使它可见
-    document.getElementById(tab).classList.add("active");
+    const tempId = document.getElementById(e);
+    tempId.classList.add("active");
+
 };
 
 
@@ -3615,6 +3617,10 @@ function openTab(tab) {
 
     $("#tabUl>li>button").click((e) => {
         const domElement = e.delegateTarget;//dom对象
+        document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
+            $(value).css("color", "");
+        })
+        domElement.style.color = "yellow";
         openTab(domElement.value);
     });
 
