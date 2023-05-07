@@ -2844,13 +2844,21 @@ const layout = {
                 overflow-y: auto;
                 border: 3px solid green;
             }
-            #gridLayout{
-            display: grid;
-            grid-template-columns: 30% auto auto; 
-            }
-            #gridLayout button{
-             height: 40px;
-             }
+            
+     /* 隐藏标签布局，除了“active”的标签布局 */
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+    ul {
+      /* 隐藏ul标签的默认符号 */
+      list-style: none;
+    }
+            
+            
              #suspensionDiv{
               position: fixed;
                 display: none;
@@ -2884,72 +2892,239 @@ const layout = {
     loading: {
         home: function () {
             $("body").prepend(`
-          <!-- 分割home_layout -->
       <div id="home_layout" style="display: none">
-        <div id="gridLayout">
-          <div>
-            <div>
-              <h1>面板设置</h1>
-              <div style="display: flex;flex-wrap: wrap;justify-content: space-between;">
-              <div>
-                <span>背景透明度</span>
-                <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
-                <span id="backgroundPelluciditySpan">1</span>
-              </div>
-              <div>
-                <span>高度</span>
-                <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
-                <span id="heightSpan">100%</span>
-              </div>
-              <div>
-                <span>宽度</span>
-                <input id="widthRange" type="range" value="100" min="20" max="100" step="0.1">
-                <span id="widthSpan">90%</span>
-              </div>
-              </div>
-              <h2>快捷悬浮面板</h2>
-              <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
-            </div>
-            <hr>
-            <details open>
-              <summary>规则增删改查</summary>
-              <div id="tableBody">
-                   <select id="singleDoubleModel">
-                  <option value="one">单个</option>
-                  <option value="batch">批量</option>
-                </select>
-              <select id="model">
-                <option value="name">用户名黑名单模式(精确匹配)</option>
-                <option value="nameKey">用户名黑名单模式(模糊匹配)</option>
-                <option value="uid">用户uid黑名单模式(精确匹配)</option>
-                <option value="bName">用户白名单模式(精确匹配)</option>
-                <option value="title">标题黑名单模式(模糊匹配)</option>
-                <option value="titleCanonical">标题黑名单模式(正则匹配)</option>
-                <option value="contentOn">评论关键词黑名单模式(模糊匹配)</option>
-                <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
-                <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
-                <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
-              </select>
-          
-              <textarea
-                id="inputTextAreaModel"
-                style="resize: none; width: 40%; height: 100px; display: none"
-              ></textarea>
-              <div>
-                <button id="butadd">增加</button>
-                <button id="butaddAll" style="display: none">批量增加</button>
-                <button id="butdel">删除</button>
-                <button id="butdelAll" style="display: none">全部删除</button>
-                <button id="butSet">修改</button>
-                <button id="butFind">查询</button>
-                <button id="printRuleBut">打印规则信息</button>
-              </div>
-            </div>
-            </details>
-            <hr>
-            <details open>
-              <summary>视频参数</summary>
-              <div>
+      
+        <!-- 标签栏 -->
+  <ul style="display: flex; justify-content: space-around" id="tabUl">
+    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
+    <li><button value="panelSetsTheLayout">面板设置</button></li>
+    <li><button value="RuleCRUDLayout">规则增删改查</button></li>
+    <li><button value="HomePageLayout">首页</button></li>
+    <li><button value="video_params_layout">视频参数</button></li>
+    <li><button value="liveLayout">直播列表</button></li>
+    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
+    <li><button value="outputInfoLayout">输出信息</button></li>
+    <li><button value="otherLayout">其他</button></li>
+  </ul>
+  <!-- 标签布局 -->
+  <div class="tab active" id="panelSetsTheLayout">
+    <!-- 面板设置布局 -->
+    <h1>面板设置</h1>
+    <div style="display: flex;flex-wrap: wrap;justify-content: space-between;">
+      <div>
+        <span>背景透明度</span>
+        <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
+        <span id="backgroundPelluciditySpan">1</span>
+      </div>
+      <div>
+        <span>高度</span>
+        <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
+        <span id="heightSpan">100%</span>
+      </div>
+      <div>
+        <span>宽度</span>
+        <input id="widthRange" type="range" value="100" min="20" max="100" step="0.1">
+        <span id="widthSpan">90%</span>
+      </div>
+    </div>
+    <h2>快捷悬浮面板</h2>
+    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
+    <!-- 面板设置布局 -->
+  </div>
+  <div class="tab" id="RuleCRUDLayout">
+    <!-- 规则增删改查布局 -->
+      <div id="tableBody">
+        <select id="singleDoubleModel">
+          <option value="one">单个</option>
+          <option value="batch">批量</option>
+        </select>
+        <select id="model">
+          <option value="name">用户名黑名单模式(精确匹配)</option>
+          <option value="nameKey">用户名黑名单模式(模糊匹配)</option>
+          <option value="uid">用户uid黑名单模式(精确匹配)</option>
+          <option value="bName">用户白名单模式(精确匹配)</option>
+          <option value="title">标题黑名单模式(模糊匹配)</option>
+          <option value="titleCanonical">标题黑名单模式(正则匹配)</option>
+          <option value="contentOn">评论关键词黑名单模式(模糊匹配)</option>
+          <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
+          <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
+          <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
+        </select>
+        <textarea id="inputTextAreaModel" style="resize: none; width: 40%; height: 100px; display: none"></textarea>
+        <div>
+          <button id="butadd">增加</button>
+          <button id="butaddAll" style="display: none">批量增加</button>
+          <button id="butdel">删除</button>
+          <button id="butdelAll" style="display: none">全部删除</button>
+          <button id="butSet">修改</button>
+          <button id="butFind">查询</button>
+          <button id="printRuleBut">打印规则信息</button>
+        </div>
+      </div>
+    <details>
+      <summary>其他</summary> 
+      <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
+      <select id="selectVideo">
+        <option value="filterSMin">时长最小值(单位秒)</option>
+        <option value="filterSMax">时长最大值(单位秒)</option>
+        <option value="broadcastMin">播放量最小值</option>
+        <option value="broadcastMax">播放量最大值</option>
+        <option value="barrageQuantityMin">弹幕量最小值</option>
+        <option value="barrageQuantityMax">弹幕量最大值</option>
+      </select>
+      <button id="butSelectVideo">确定</button>
+     </details>
+    <!-- 规则增删改查布局 -->
+  </div>
+  <div class="tab" id="HomePageLayout">
+    <!-- 首页布局 -->
+    <details open>
+      <summary>首页</summary>
+      <h3>首页推荐视频</h3>
+      <span>指定推送</span>
+      <input type="checkbox">
+      <select id="pushTypeSelect" style="display: block">
+        <option value="分区">分区</option>
+        <option value="频道">频道</option>
+      </select>
+       <select id="sort_typeSelect">
+        <option value="hot">近期热门</option>
+        <option value="view">播放最多（近30天投稿）</option>
+        <option value="new">最新投稿</option>
+      </select>
+      <select id="video_zoneSelect">
+        <option value="1">下拉选择</option>
+      </select>
+      <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;">
+      <input type="checkbox" id="isIdCheckbox">
+      <span>id</span>
+      <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
+      <button id="okButton">确定</button>
+      </div>
+      </details>
+    <!-- 首页布局 -->
+  </div>
+  <div class="tab" id="ruleInfoLayout">
+    <!-- 规则信息布局 -->
+    <div>
+      <p>用户名黑名单模式(精确匹配)个数:
+        <span id="textUserName" style="color: yellow;"></span>个
+      </p>
+      <p>用户名黑名单模式(模糊匹配)个数:
+        <span id="textUserNameKey" style="color: yellow;"></span>个
+      </p>
+      <p>用户uid黑名单模式(精确匹配)个数:
+        <span id="textUserUID" style="color: yellow;"></span>个
+      </p>
+      <p>用户白名单模式(精确匹配)个数:
+        <span id="textUserBName" style="color: yellow;"></span>个
+      </p>
+      <p>标题黑名单模式(模糊匹配)个数:
+        <span id="textUserTitle" style="color: yellow;"></span>个
+      </p>
+      <p>标题黑名单模式(正则匹配)个数:
+        <span id="textUserTitleCanonical" style="color: yellow;"></span>个
+      </p>
+      <p>评论关键词黑名单模式(模糊匹配)个数:
+        <span id="textContentOn" style="color: yellow;"></span>个
+      </p>
+      <p>评论关键词黑名单模式(正则匹配)个数:
+        <span id="textContentOnCanonical" style="color: yellow;"></span>个
+      </p>
+      <p>粉丝牌黑名单模式(精确匹配)个数:
+        <span id="textFanCard" style="color: yellow;"></span>个
+      </p>
+      <p>专栏关键词内容黑名单模式(模糊匹配)个数:
+        <span id="textColumn" style="color: yellow;"></span>个
+      </p>
+    </div>
+
+    <details>
+      <summary>规则导入导出</summary>
+      <div>
+        <div>
+          导出
+          <button id="outFIleRule">导出全部规则</button>
+          <button id="outRuleCopy">导出全部规则到剪贴板</button>
+          <button id="outUIDFIleRule">导出全部UID规则</button>
+          <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
+        </div>
+        <div>
+          导入
+          <button id="inputFIleRule">确定导入</button>
+          <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
+          <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
+        </div>
+        <textarea id="ruleEditorInput" placeholder="请填写导出多的规则内容"
+          style="resize: none; height: 300px; width: 60%"></textarea>
+      </div>
+    </details>
+
+    <!-- 规则信息布局 -->
+  </div>
+  <div class="tab" id="outputInfoLayout">
+    <!-- 输出信息布局 -->
+    <div>
+      <button id="butClearMessage">清空信息</button>
+      <input type="checkbox" checked="checked">
+      <span>二次确认</span>
+    </div>
+    <div id="outputInfo">
+    </div>
+    <!-- 输出信息布局 -->
+  </div>
+    <!-- 输出信息布局 -->
+  <div class="tab" id="otherLayout">
+    <!-- 其他布局 -->
+    <div>
+      <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
+    </div>
+    <details>
+      <summary>快捷键</summary>
+      <div>
+        <h1>快捷键</h1>
+        <p> 显示隐藏面板 快捷键\`</p>
+        <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
+        <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
+        <p>隐藏快捷悬浮屏蔽面板 快捷键3</p>
+      </div>
+    </details>
+    <hr>
+    <details>
+      <summary>b站SESSDATA</summary>
+      <p>该数据一些b站api需要用到，一般情况下不用设置，以下的设置和读取均是需要用户自行添加b站对应的SESSDATA值，读取时候也是读取用户自己添加进去的SESSDATA值，脚本本身不获取b站登录的SESSDATA</p>
+      <P>提示：为空字符串则取消移除SESSDATA，不可带有空格</P>
+      <div style="display: flex; justify-content: space-between;" id="sgSessdata">
+        <button title="为空字符串则取消">设置SESSDATA</button>
+        <button>读取SESSDATA</button>
+      </div>
+      <div style=" display: flex;justify-content: space-between;" id="bili_jctDiv">
+        <button>设置bili_jct</button>
+        <button>设置b站登录的bili_jct</button>
+        <button>读取b站登录的bili_jct</button>
+        <button>读取bili_jct</button>
+      </div>
+    </details>
+    <hr>
+    <div>
+      <h1> 反馈问题</h1>
+      <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
+      <p>本脚本gf反馈页<span>
+          <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
+        </span>
+      </p>
+    </div>
+    <!-- 其他布局 -->
+
+  </div>
+  <div class="tab" id="liveLayout">
+    <!-- xxx布局 -->
+
+    <!-- xxx布局 -->
+</div>
+<div class="tab" id="video_params_layout">
+    <!-- 视频参数布局 -->
+      <div>
                 <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
                 <div>
                   <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
@@ -2975,32 +3150,8 @@ const layout = {
               </div>
               <hr>
               <div>
-              <details open>
-              <summary>首页</summary>
-              <h3>首页推荐视频</h3>
-              <span>指定推送</span>
-              <input type="checkbox">
-              <select id="pushTypeSelect" style="display: block">
-                <option value="分区">分区</option>
-                <option value="频道">频道</option>
-              </select>
-               <select id="sort_typeSelect">
-                <option value="hot">近期热门</option>
-                <option value="view">播放最多（近30天投稿）</option>
-                <option value="new">最新投稿</option>
-              </select>
-              <select id="video_zoneSelect">
-                <option value="1">下拉选择</option>
-              </select>
-              <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;">
-              <input type="checkbox" id="isIdCheckbox">
-              <span>id</span>
-              <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
-              <button id="okButton">确定</button>
+  
               </div>
-              </details>
-              </div>
-             <hr>
               </div>
               <h3>播放画面翻转</h3>
              <button id="flipHorizontal">水平翻转</button>
@@ -3009,137 +3160,19 @@ const layout = {
               自定义角度
               <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
              </div>
-            </details>
-            <hr>
-           <details>
-            <summary>其他</summary> 
-            <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
-            <select id="selectVideo">
-              <option value="filterSMin">时长最小值(单位秒)</option>
-              <option value="filterSMax">时长最大值(单位秒)</option>
-              <option value="broadcastMin">播放量最小值</option>
-              <option value="broadcastMax">播放量最大值</option>
-              <option value="barrageQuantityMin">弹幕量最小值</option>
-              <option value="barrageQuantityMax">弹幕量最大值</option>
-            </select>
-            <button id="butSelectVideo">确定</button>
-            <div>
-              <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
-            </div>
-           </details>
-            <hr>
-            <details>
-              <summary>规则信息</summary>
-              <div>
-                <p>用户名黑名单模式(精确匹配)个数:
-                  <span id="textUserName" style="color: yellow;"></span>个
-                </p>  
-                <p>用户名黑名单模式(模糊匹配)个数:
-                  <span id="textUserNameKey" style="color: yellow;"></span>个
-                </p>
-                <p>用户uid黑名单模式(精确匹配)个数:
-                  <span id="textUserUID" style="color: yellow;"></span>个
-                </p>
-                <p>用户白名单模式(精确匹配)个数:
-                  <span id="textUserBName" style="color: yellow;"></span>个
-                </p>
-                <p>标题黑名单模式(模糊匹配)个数:
-                  <span id="textUserTitle" style="color: yellow;"></span>个
-                </p>
-                <p>标题黑名单模式(正则匹配)个数:
-                  <span id="textUserTitleCanonical" style="color: yellow;"></span>个
-                </p>
-                <p>评论关键词黑名单模式(模糊匹配)个数:
-                  <span id="textContentOn" style="color: yellow;"></span>个
-                </p>
-                <p>评论关键词黑名单模式(正则匹配)个数:
-                  <span id="textContentOnCanonical" style="color: yellow;"></span>个
-                </p>
-                <p>粉丝牌黑名单模式(精确匹配)个数:
-                  <span id="textFanCard" style="color: yellow;"></span>个
-                </p>
-                <p>专栏关键词内容黑名单模式(模糊匹配)个数:
-                <span id="textColumn" style="color: yellow;"></span>个
-                </p>
-              </div>
-            </details>
-            <hr>
-            <details>
-              <summary>规则导入导出</summary>
-              <div>
-                <div>
-                  导出
-                  <button id="outFIleRule">导出全部规则</button>
-                  <button id="outRuleCopy">导出全部规则到剪贴板</button>
-                  <button id="outUIDFIleRule">导出全部UID规则</button>
-                  <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
-                </div>
-                <div>
-                  导入
-                  <button id="inputFIleRule">确定导入</button>
-                  <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
-                  <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
-                </div>
-                <textarea
-                  id="ruleEditorInput"
-                  placeholder="请填写导出多的规则内容"
-                  style="resize: none; height: 300px; width: 60%"
-                ></textarea>
-              </div>
-            </details>
-            <hr>
-            <details>
-              <summary>快捷键</summary>
-              <div>
-              <h1>快捷键</h1>
-              <p> 显示隐藏面板 快捷键\`</p>
-              <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
-              <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
-              <p>隐藏快捷悬浮屏蔽面板 快捷键3</p>
-            </div>
-            </details>
-            <hr>
-            <details>
-            <summary>b站SESSDATA</summary>
-            <p>该数据一些b站api需要用到，一般情况下不用设置，以下的设置和读取均是需要用户自行添加b站对应的SESSDATA值，读取时候也是读取用户自己添加进去的SESSDATA值，脚本本身不获取b站登录的SESSDATA</p>
-            <P>提示：为空字符串则取消移除SESSDATA，不可带有空格</P>
-            <div style="display: flex; justify-content: space-between;" id="sgSessdata">            
-            <button title="为空字符串则取消">设置SESSDATA</button>
-            <button>读取SESSDATA</button>
-            </div>
-            <div style=" display: flex;justify-content: space-between;" id="bili_jctDiv">
-            <button>设置bili_jct</button>
-            <button>设置b站登录的bili_jct</button>
-            <button>读取b站登录的bili_jct</button>
-            <button>读取bili_jct</button>
-            </div>
-            </details>
-            <hr>
-            <div>
-              <h1> 反馈问题</h1>
-              <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
-              <p>本脚本gf反馈页<span>
-                  <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
-                </span>
-              </p>
-            </div>
-          </div>
-          <div>
-            <h1>输出信息</h1>
-             <div>
-              <button id="butClearMessage">清空信息</button>
-              <input type="checkbox" checked="checked">
-              <span>二次确认</span>
-            </div>
-            <div id="outputInfo">
-            </div>
-          </div>
-          <div  id="liveLayout">
-          
+    <!-- 视频参数布局 -->
 </div>
-        </div>
-      </div>
-      <!-- 分割home_layout -->
+  <!-- 
+    <div class="tab" id="xxx">
+       -->
+    <!-- xxx布局 -->
+    
+    <!-- xxx布局 -->
+<!--  </div> -->
+      
+      
+    
+      </div><!-- 分割home_layout -->
       <!-- 悬浮屏蔽按钮 -->
       <div id="suspensionDiv">坐标:
         <span id="suspensionXY">xy</span>
@@ -3563,6 +3596,19 @@ function loadChannel() {
     }
 }
 
+// 点击标签时执行此函数
+function openTab(tab) {
+    // 获取所有标签布局
+    const tabs = document.getElementsByClassName("tab");
+    // 循环遍历每个标签布局
+    for (let i = 0; i < tabs.length; i++) {
+        // 从所有标签布局中删除“active”类，使它们不可见
+        tabs[i].classList.remove("active");
+    }
+    // 将指定的标签布局添加到“active”类，使它可见
+    document.getElementById(tab).classList.add("active");
+};
+
 
 (() => {
     'use strict';
@@ -3582,6 +3628,13 @@ function loadChannel() {
     layout.loading.home();
     $("body").prepend('<button id="mybut">按钮</button>');
     layout.css.home();
+
+
+    $("#tabUl>li>button").click((e) => {
+        const domElement = e.delegateTarget;//dom对象
+        openTab(domElement.value);
+    });
+
 
     util.suspensionBall(document.getElementById("suspensionDiv"));
 
