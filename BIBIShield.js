@@ -2889,28 +2889,8 @@ const layout = {
             `);
         }
     },
-    loading: {
-        home: function () {
-            $("body").prepend(`
-      <div id="home_layout" style="display: none">
-      
-        <!-- 标签栏 -->
-  <ul style="display: flex; justify-content: space-around" id="tabUl">
-    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
-    <li><button value="panelSetsTheLayout">面板设置</button></li>
-    <li><button value="RuleCRUDLayout">规则增删改查</button></li>
-    <li><button value="HomePageLayout">首页</button></li>
-    <li><button value="video_params_layout">视频参数</button></li>
-    <li><button value="liveLayout">直播列表</button></li>
-    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
-    <li><button value="outputInfoLayout">输出信息</button></li>
-    <li><button value="otherLayout">其他</button></li>
-  </ul>
-  <!-- 标签布局 -->
-  <div class="tab active" id="panelSetsTheLayout">
-    <!-- 面板设置布局 -->
-    <h1>面板设置</h1>
-    <div style="display: flex;flex-wrap: wrap;justify-content: space-between;">
+    getPanelSetsTheLayout: function () {//面板设置
+        return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
       <div>
         <span>背景透明度</span>
         <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
@@ -2927,13 +2907,11 @@ const layout = {
         <span id="widthSpan">90%</span>
       </div>
     </div>
-    <h2>快捷悬浮面板</h2>
-    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
-    <!-- 面板设置布局 -->
-  </div>
-  <div class="tab" id="RuleCRUDLayout">
-    <!-- 规则增删改查布局 -->
-      <div id="tableBody">
+    <h1>快捷悬浮面板</h1>
+    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>`;
+    },
+    getRuleCRUDLayout: function () {
+        return `<div id="tableBody">
         <select id="singleDoubleModel">
           <option value="one">单个</option>
           <option value="batch">批量</option>
@@ -2973,12 +2951,10 @@ const layout = {
         <option value="barrageQuantityMax">弹幕量最大值</option>
       </select>
       <button id="butSelectVideo">确定</button>
-     </details>
-    <!-- 规则增删改查布局 -->
-  </div>
-  <div class="tab" id="HomePageLayout">
-    <!-- 首页布局 -->
-    <details open>
+     </details>`;
+    },
+    getHomePageLayout: function () {
+        return ` <details open>
       <summary>首页</summary>
       <h3>首页推荐视频</h3>
       <span>指定推送</span>
@@ -3001,12 +2977,47 @@ const layout = {
       <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
       <button id="okButton">确定</button>
       </div>
-      </details>
-    <!-- 首页布局 -->
-  </div>
-  <div class="tab" id="ruleInfoLayout">
-    <!-- 规则信息布局 -->
-    <div>
+      </details>`;
+    },
+    getVideo_params_layout: function () {
+        return `<div>
+                <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
+                <div>
+                  <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
+                </div>
+                <h3>视频播放速度</h3>
+              拖动更改页面视频播放速度
+                <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+                <span id="playbackSpeedModel">1.0x</span>
+                <button id="preservePlaySpeed">保存</button>
+                <div>固定视频播放速度值
+                  <select id="playbackSpeedModel">
+                  <option value="1">1.0x</option>
+                  <option value="0.25">0.25x</option>
+                  <option value="0.5">0.5x</option>
+                  <option value="0.75">0.75x</option>
+                  <option value="0.9">0.9x</option>
+                  <option value="1.25">1.25x</option>
+                  <option value="1.35">1.35x</option>
+                  <option value="1.5">1.5x</option>
+                  <option value="2">2x</option>
+                </select>
+                <button id="preservePlaybackSpeedModel">保存</button>
+              </div>
+              <hr>
+              <div>
+              </div>
+              </div>
+              <h3>播放画面翻转</h3>
+             <button id="flipHorizontal">水平翻转</button>
+             <button id="flipVertical">垂直翻转</button>
+             <div>
+              自定义角度
+              <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
+             </div>`;
+    },
+    getRuleInfoLayout: function () {
+        return `<div>
       <p>用户名黑名单模式(精确匹配)个数:
         <span id="textUserName" style="color: yellow;"></span>个
       </p>
@@ -3038,7 +3049,6 @@ const layout = {
         <span id="textColumn" style="color: yellow;"></span>个
       </p>
     </div>
-
     <details>
       <summary>规则导入导出</summary>
       <div>
@@ -3058,25 +3068,19 @@ const layout = {
         <textarea id="ruleEditorInput" placeholder="请填写导出多的规则内容"
           style="resize: none; height: 300px; width: 60%"></textarea>
       </div>
-    </details>
-
-    <!-- 规则信息布局 -->
-  </div>
-  <div class="tab" id="outputInfoLayout">
-    <!-- 输出信息布局 -->
-    <div>
+    </details>`;
+    },
+    getOutputInfoLayout: function () {
+        return `<div>
       <button id="butClearMessage">清空信息</button>
       <input type="checkbox" checked="checked">
       <span>二次确认</span>
     </div>
     <div id="outputInfo">
-    </div>
-    <!-- 输出信息布局 -->
-  </div>
-    <!-- 输出信息布局 -->
-  <div class="tab" id="otherLayout">
-    <!-- 其他布局 -->
-    <div>
+    </div>`;
+    },
+    getOtherLayout: function () {
+        return `<div>
       <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
     </div>
     <details>
@@ -3113,65 +3117,33 @@ const layout = {
           <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
         </span>
       </p>
-    </div>
-    <!-- 其他布局 -->
-
-  </div>
-  <div class="tab" id="liveLayout">
-    <!-- xxx布局 -->
-
-    <!-- xxx布局 -->
-</div>
-<div class="tab" id="video_params_layout">
-    <!-- 视频参数布局 -->
-      <div>
-                <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
-                <div>
-                  <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
-                </div>
-                <h3>视频播放速度</h3>
-              拖动更改页面视频播放速度
-                <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
-                <span id="playbackSpeedModel">1.0x</span>
-                <button id="preservePlaySpeed">保存</button>
-                <div>固定视频播放速度值
-                  <select id="playbackSpeedModel">
-                  <option value="1">1.0x</option>
-                  <option value="0.25">0.25x</option>
-                  <option value="0.5">0.5x</option>
-                  <option value="0.75">0.75x</option>
-                  <option value="0.9">0.9x</option>
-                  <option value="1.25">1.25x</option>
-                  <option value="1.35">1.35x</option>
-                  <option value="1.5">1.5x</option>
-                  <option value="2">2x</option>
-                </select>
-                <button id="preservePlaybackSpeedModel">保存</button>
-              </div>
-              <hr>
-              <div>
-  
-              </div>
-              </div>
-              <h3>播放画面翻转</h3>
-             <button id="flipHorizontal">水平翻转</button>
-             <button id="flipVertical">垂直翻转</button>
-             <div>
-              自定义角度
-              <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
-             </div>
-    <!-- 视频参数布局 -->
-</div>
-  <!-- 
-    <div class="tab" id="xxx">
-       -->
-    <!-- xxx布局 -->
-    
-    <!-- xxx布局 -->
-<!--  </div> -->
-      
-      
-    
+    </div>`;
+    },
+    loading: {
+        home: function () {
+            $("body").prepend(`
+      <div id="home_layout" style="display: none">
+        <!-- 标签栏 -->
+  <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
+    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
+    <li><button value="panelSetsTheLayout">面板设置</button></li>
+    <li><button value="ruleCRUDLayout">规则增删改查</button></li>
+    <li><button value="homePageLayout">首页</button></li>
+    <li><button value="video_params_layout">视频参数</button></li>
+    <li><button value="liveLayout">直播列表</button></li>
+    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
+    <li><button value="outputInfoLayout">输出信息</button></li>
+    <li><button value="otherLayout">其他</button></li>
+  </ul>
+  <!-- 标签布局 -->
+  <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
+  <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
+  <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
+  <div class="tab" id="ruleInfoLayout"></div><!-- 规则信息布局 -->
+  <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
+  <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
+  <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
+  <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
       </div><!-- 分割home_layout -->
       <!-- 悬浮屏蔽按钮 -->
       <div id="suspensionDiv">坐标:
@@ -3206,6 +3178,13 @@ const layout = {
       </div>
      <!-- 悬浮屏蔽按钮 -->
     `);
+            $("#panelSetsTheLayout").append(layout.getPanelSetsTheLayout());
+            $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
+            $("#homePageLayout").append(layout.getHomePageLayout());
+            $("#video_params_layout").append(layout.getVideo_params_layout());
+            $("#ruleInfoLayout").append(layout.getRuleInfoLayout());
+            $("#outputInfoLayout").append(layout.getOutputInfoLayout());
+            $("#otherLayout").append(layout.getOtherLayout());
         }
     }
 }
