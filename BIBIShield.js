@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.43
+// @version      1.1.44
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -3119,33 +3119,8 @@ const layout = {
       </p>
     </div>`;
     },
-    loading: {
-        home: function () {
-            $("body").prepend(`
-      <div id="home_layout" style="display: none">
-        <!-- 标签栏 -->
-  <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
-    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
-    <li><button value="panelSetsTheLayout">面板设置</button></li>
-    <li><button value="ruleCRUDLayout">规则增删改查</button></li>
-    <li><button value="homePageLayout">首页</button></li>
-    <li><button value="video_params_layout">视频参数</button></li>
-    <li><button value="liveLayout">直播列表</button></li>
-    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
-    <li><button value="outputInfoLayout">输出信息</button></li>
-    <li><button value="otherLayout">其他</button></li>
-  </ul>
-  <!-- 标签布局 -->
-  <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
-  <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
-  <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
-  <div class="tab" id="ruleInfoLayout"></div><!-- 规则信息布局 -->
-  <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
-  <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
-  <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
-  <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
-      </div><!-- 分割home_layout -->
-      <!-- 悬浮屏蔽按钮 -->
+    getSuspensionDiv: function () {
+        return `<!-- 悬浮屏蔽按钮 -->
       <div id="suspensionDiv">坐标:
         <span id="suspensionXY">xy</span>
         <div>
@@ -3176,7 +3151,35 @@ const layout = {
         <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>
-     <!-- 悬浮屏蔽按钮 -->
+     <!-- 悬浮屏蔽按钮 -->`;
+    },
+    loading: {
+        home: function () {
+            $("body").prepend(`
+      <div id="home_layout" style="display: none">
+        <!-- 标签栏 -->
+  <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
+    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
+    <li><button value="panelSetsTheLayout">面板设置</button></li>
+    <li><button value="ruleCRUDLayout">规则增删改查</button></li>
+    <li><button value="homePageLayout">首页</button></li>
+    <li><button value="video_params_layout">视频参数</button></li>
+    <li><button value="liveLayout">直播列表</button></li>
+    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
+    <li><button value="outputInfoLayout">输出信息</button></li>
+    <li><button value="otherLayout">其他</button></li>
+  </ul>
+  <!-- 标签布局 -->
+  <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
+  <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
+  <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
+  <div class="tab" id="ruleInfoLayout"></div><!-- 规则信息布局 -->
+  <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
+  <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
+  <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
+  <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
+      </div>
+<!-- 分割home_layout -->
     `);
             $("#panelSetsTheLayout").append(layout.getPanelSetsTheLayout());
             $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
@@ -3185,6 +3188,7 @@ const layout = {
             $("#ruleInfoLayout").append(layout.getRuleInfoLayout());
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
+            $("body").append(layout.getSuspensionDiv());
         }
     }
 }
