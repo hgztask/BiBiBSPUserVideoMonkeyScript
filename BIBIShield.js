@@ -1641,17 +1641,17 @@ z-index: 2000;
         // 监听 input 的 value 变化
         $('#search-input').on('input', function () {
             const content = $(this).val();
-            const search_selectV = $("#search-select").val();
-            if (content === "" || content.startsWith(" ")) {
-                HoverBlockList.initList(list, search_selectV);
+            if (content === "" || content.includes(" ")) {
                 return;
             }
+            const search_selectV = $("#search-select").val();
             HoverBlockList.initList(list, search_selectV, content);
         });
         $("#clone-popLayoutList").click(() => {//点击关闭，则删掉悬浮列表下面的所有jq添加的事件并删除列表元素
             const popMain = $("#pop-ListLayout");
             popMain.off();
             popMain.remove();
+            $("#OpenTheFilteredList").show();
         });
 
     },
@@ -3011,8 +3011,7 @@ const layout = {
       /* 隐藏ul标签的默认符号 */
       list-style: none;
     }
-            
-            
+             /* 悬浮屏蔽布局 */
              #suspensionDiv{
               position: fixed;
                 display: none;
@@ -3025,6 +3024,23 @@ const layout = {
                 left: 90%;
                  border: 3px solid green;
              }
+             
+             #suspensionDiv p {
+  margin-top: 10px;
+}
+#suspensionDiv button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+}
+#suspensionDiv button:hover {
+  background-color: #3E8E41;
+}
+             
+             /* 悬浮屏蔽布局 */
               #sort_typeSelect{
                display: none;
                }
@@ -3062,7 +3078,9 @@ const layout = {
       </div>
     </div>
     <h1>快捷悬浮面板</h1>
-    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>`;
+    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
+    <h1>悬浮屏蔽筛选列表面板</h1>
+        <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
     },
     getRuleCRUDLayout: function () {
         return `<div id="tableBody">
@@ -3273,7 +3291,7 @@ const layout = {
     </div>`;
     },
     getSuspensionDiv: function () {
-        return `<!-- 悬浮屏蔽按钮 -->
+        return `<!-- 悬浮屏蔽布局 -->
       <div id="suspensionDiv">坐标:
         <span id="suspensionXY">xy</span>
         <div>
@@ -4119,7 +4137,14 @@ function openTab(e) {
         }
         fileDownload(JSON.stringify(arrData), util.toTimeString() + "_直播间弹幕内容.json");
         Qmsg.success("获取成功并执行导出内容");
-    })
+    });
+
+
+    const openTheFilteredList = $("#OpenTheFilteredList");
+    openTheFilteredList.click(() => {
+        openTheFilteredList.hide();
+        alert("点击了我我我我我")
+    });
 
 
     $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
