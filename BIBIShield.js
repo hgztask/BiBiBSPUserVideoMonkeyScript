@@ -1519,8 +1519,162 @@ const util = {
     },
     openWindow(url) {
         window.open(url, 'target', '');
+    },
+    /**
+     获取数组中所有对象的不同键集合
+     @param {Object[]} arr - 包含对象的数组
+     @return {string[]} - 包含不同键的数组 */
+    getDistinctKeys: function (arr) {
+        let keysSet = new Set();
+        arr.forEach(obj => {
+            Object.keys(obj).forEach(key => keysSet.add(key));
+        });
+        return [...keysSet];
     }
 }
+
+
+const HoverBlockList = {
+    /**
+     *匹配符合条件的数组
+     * @param arr 数组
+     * @param key 匹配元素键中的key
+     * @param search 符合上面参数，且包含该关键字的匹配
+     * @returns Array
+     */
+    searchAndInitList: function (arr, key, search = '') {
+        const searchStr = search.toString().toLowerCase();
+        const result = [];
+
+        function omitKey(obj, key, search) {
+            const newItem = Object.assign({}, obj);
+            delete newItem[key];
+            newItem[key] = search;
+            return newItem;
+        }
+
+        for (let i = 0, len = arr.length; i < len; i++) {
+            const item = arr[i];
+            if (item.hasOwnProperty(key) && item[key].toString().toLowerCase().includes(searchStr)) {
+                const existingItemIndex = result.findIndex(r => r.uid === item.uid);
+
+                if (existingItemIndex === -1) {
+                    const newItem = {
+                        uid: item.uid,
+                        show: item[$("#show-select").val()],
+                        items: [omitKey(item, key, search)]
+                    };
+
+                    result.push(newItem);
+                } else {
+                    result[existingItemIndex].items.push(omitKey(item, key, search));
+                }
+            }
+        }
+        return result;
+    },
+    /**
+     *数据例子
+     * [
+     *         {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
+     *         {"uid": 2, "name": "李四", "age": 25},
+     *         {"uid": 3, "name": "王四", "age": 30}
+     *     ];
+     * @param list 数据
+     * @param typeName 要显示在项目的值
+     * @param func 点击获取选中事件
+     */
+    init: function (list, typeName = "name", func) {
+        const pop_ListLayout = $("pop-ListLayout");
+        if (pop_ListLayout.length > 0) {
+            alert("请先关闭现有悬浮列表！");
+            return;
+        }
+        $("body").append(`<div id="pop-ListLayout" style="
+position: fixed;
+z-index: 2000;
+    left: 76%;
+    top: 9%;
+    background: cornflowerblue;">
+    <div style="display: flex;
+    flex-direction: row-reverse;
+">
+        <button  id="clone-popLayoutList">关闭</button>
+    </div>
+    <label>筛选条件:
+        <select id="search-select"></select>
+    </label>
+    <label>显示条件
+        <select id="show-select"></select>
+    </label>
+    <br>
+    <label>搜索内容:</label>
+    <input id="search-input" type="text">
+    <ul id="popList" style="list-style: none;padding: 0;overflow-y: auto;height: 350px; list-style: none;padding: 0;">
+    </ul>
+    <button id="getSelectedCheckboxItem">获取选中的数据</button>
+</div>`);
+
+        for (let v of util.getDistinctKeys(list)) {
+            $("#search-select").append(`<option value=${v}>${v}</option>`);
+            $("#show-select").append(`<option value=${v}>${v}</option>`);
+        }
+
+        HoverBlockList.initList(list, typeName);
+        $("#getSelectedCheckboxItem").click(() => {
+            // 获取所有选中的项
+            const checkedItems = $('#popList input[type="checkbox"]:checked');
+            if (checkedItems.length === 0) {
+                return;
+            }
+            const tempArrID = [];
+            // 遍历选中的元素并打印它们的值
+            checkedItems.each(function () {
+                tempArrID.push(parseInt($(this).val()));
+            });
+            if (tempArrID.length === 0) {
+                return;
+            }
+            func(tempArrID);
+        });
+
+        // 监听 input 的 value 变化
+        $('#search-input').on('input', function () {
+            const content = $(this).val();
+            const search_selectV = $("#search-select").val();
+            if (content === "" || content.startsWith(" ")) {
+                HoverBlockList.initList(list, search_selectV);
+                return;
+            }
+            HoverBlockList.initList(list, search_selectV, content);
+        });
+        $("#clone-popLayoutList").click(() => {//点击关闭，则删掉悬浮列表下面的所有jq添加的事件并删除列表元素
+            const popMain = $("#pop-ListLayout");
+            popMain.off();
+            popMain.remove();
+        });
+
+    },
+    /**
+     *
+     * @param dataList 数据列表
+     * @param itemKey 匹配元素键中的key
+     * @param search 搜索的关键词
+     * @returns {boolean}
+     */
+    initList: function (dataList, itemKey, search = "") {
+        const keyArr = HoverBlockList.searchAndInitList(dataList, itemKey, search);
+        if (keyArr.length === 0) {
+            return false;
+        }
+        const popList = $("#popList");
+        popList.children().remove();
+        keyArr.forEach((value) => {
+            popList.append($(`<li><label><input type="checkbox" value=${value.uid}>${value.show}</label></li>`));
+        });
+        return true;
+    }
+};
 
 
 const localData = {
@@ -3050,25 +3204,24 @@ const layout = {
       </p>
     </div>
     <details>
-      <summary>规则导入导出</summary>
-      <div>
-        <div>
-          导出
-          <button id="outFIleRule">导出全部规则</button>
-          <button id="outRuleCopy">导出全部规则到剪贴板</button>
-          <button id="outUIDFIleRule">导出全部UID规则</button>
-          <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
-        </div>
-        <div>
-          导入
-          <button id="inputFIleRule">确定导入</button>
-          <button title="与本地的黑名单UID合并" id="inputMergeUIDRule">确定合并导入UID规则</button>
-          <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
-        </div>
-        <textarea id="ruleEditorInput" placeholder="请填写导出多的规则内容"
-          style="resize: none; height: 300px; width: 60%"></textarea>
-      </div>
-    </details>`;
+  <summary>规则导入导出</summary>
+  <div style="display: flex; flex-direction: column; gap: 20px; padding: 20px;">
+    <div style="display: flex; gap: 10px; align-items:center;">
+      <button id="outFIleRule">导出全部规则</button>
+      <button id="outRuleCopy">导出全部规则到剪贴板</button>
+      <button id="outUIDFIleRule">导出全部UID规则</button>
+      <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
+    </div>
+    <div style="display: flex; gap: 10px; align-items:center;">
+      <button id="inputFIleRule">确定导入</button>
+      <button id="inputMergeUIDRule" title="与本地的黑名单UID合并">确定合并导入UID规则</button>
+      <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
+      <button id="pullDataFromTheCloudBut">拉取云端b站弹幕屏蔽规则(覆盖本地)</button>
+    </div>
+    <textarea id="ruleEditorInput" placeholder="请填写导出多的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;"></textarea>
+  </div>
+</details>
+`;
     },
     getOutputInfoLayout: function () {
         return `<div>
@@ -3485,7 +3638,6 @@ function ruleList(href) {
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
             const interval = setInterval(() => {
                 const list = document.querySelectorAll(".video-page-card-small");
-                ;
                 if (list.length === 0) {
                     return;
                 }
@@ -3499,12 +3651,18 @@ function ruleList(href) {
         videoFun.delBottonE();
         videoFun.rightSuspendButton();
 
-        const upInfo = document.querySelector("#v_upinfo > div.up-info_right > div.name > a.username");
-        upInfo.onmouseenter = (e) => {
-            const element = e.srcElement;
-            const adHref = element.href;
-            util.showSDPanel(e, element.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
-        };
+        const interval01 = setInterval(() => {
+            const upInfo = document.querySelector(".up-detail-top");
+            if (upInfo.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            $(upInfo).mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const adHref = domElement.href;
+                util.showSDPanel(e, domElement.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
+            });
+        }, 2000);
         return;
     }
     if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
@@ -3604,6 +3762,14 @@ function openTab(e) {
     let href = util.getWindowUrl();
     console.log("当前网页url=" + href);
 
+
+    HoverBlockList.init([
+        {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
+        {"uid": 2, "name": "李四", "age": 25},
+        {"uid": 3, "name": "王四", "age": 30}
+    ], "name", (data) => {
+        console.log(data);
+    });
 
     if (href.includes("github.com")) {
         github(href);
