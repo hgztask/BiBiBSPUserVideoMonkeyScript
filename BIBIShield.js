@@ -3221,24 +3221,26 @@ const layout = {
         <span id="textColumn" style="color: yellow;"></span>个
       </p>
     </div>
-    <details>
-  <summary>规则导入导出</summary>
-  <div style="display: flex; flex-direction: column; gap: 20px; padding: 20px;">
-    <div style="display: flex; gap: 10px; align-items:center;">
-      <button id="outFIleRule">导出全部规则</button>
-      <button id="outRuleCopy">导出全部规则到剪贴板</button>
-      <button id="outUIDFIleRule">导出全部UID规则</button>
-      <button id="outShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导出b站弹幕屏蔽规则</button>
-    </div>
-    <div style="display: flex; gap: 10px; align-items:center;">
-      <button id="inputFIleRule">确定导入</button>
-      <button id="inputMergeUIDRule" title="与本地的黑名单UID合并">确定合并导入UID规则</button>
-      <button id="inputShieldingSettings" title="当前b站账号下的针对于视频内的弹幕屏蔽规则">导入本地b站弹幕屏蔽规则</button>
-      <button id="pullDataFromTheCloudBut">拉取云端b站弹幕屏蔽规则(覆盖本地)</button>
-    </div>
-    <textarea id="ruleEditorInput" placeholder="请填写导出多的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;"></textarea>
-  </div>
-</details>
+    <div>
+    <h1>规则导入导出</h1>
+      <div>
+  <select id="outRuleSelect">
+  <option value="">导出全部规则</option>
+  <option value="">导出全部规则到剪贴板</option>
+  <option value="">导出全部UID规则</option>
+  <option value="">导出b站弹幕屏蔽规则</option>
+</select>
+<button id="outExport">导出</button>
+</div>
+<div>
+  <select id="inputRuleSelect">
+  <option value="">导入全部规则</option>
+  <option value="">确定合并导入UID规则</option>
+</select>
+<button id="inputExport">导入</button>
+</div>
+    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;"></textarea>
+</div>
 `;
     },
     getOutputInfoLayout: function () {
@@ -3780,15 +3782,6 @@ function openTab(e) {
     let href = util.getWindowUrl();
     console.log("当前网页url=" + href);
 
-
-    HoverBlockList.init([
-        {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
-        {"uid": 2, "name": "李四", "age": 25},
-        {"uid": 3, "name": "王四", "age": 30}
-    ], "name", (data) => {
-        console.log(data);
-    });
-
     if (href.includes("github.com")) {
         github(href);
         return;
@@ -4142,8 +4135,18 @@ function openTab(e) {
 
     const openTheFilteredList = $("#OpenTheFilteredList");
     openTheFilteredList.click(() => {
+        Qmsg.info("该功能暂未完善");
         openTheFilteredList.hide();
-        alert("点击了我我我我我")
+        const windowsTitle = document.title;
+        const windowUrl = util.getWindowUrl();
+        HoverBlockList.init([
+            {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
+            {"uid": 2, "name": "李四", "age": 25},
+            {"uid": 3, "name": "王四", "age": 30}
+        ], "name", (data) => {
+            console.log(data);
+        });
+        console.log(href);
     });
 
 
@@ -4593,177 +4596,193 @@ function openTab(e) {
 
 
 //点击导出规则事件
-    $("#outFIleRule").click(() => {
-        let s = prompt("保存为", "规则-" + util.toTimeString());
-        if (s.includes(" ") || s === "" || s.length === 0) {
-            s = "规则";
-        }
-        fileDownload(util.getRuleFormatStr(), s + ".json");
-    });
-
-
-    $("#outRuleCopy").click(function () {//导出到剪切板
-        util.copyToClip(util.getRuleFormatStr());
-    })
-
-    //点击导出UID规则事件
-    $("#outUIDFIleRule").click(() => {
-        const list = localData.getArrUID();
-        fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
-    });
-    $("#outShieldingSettings").click(() => {//导出当前b站登录账号针对弹幕的屏蔽设定
-//已经登录b站账号的前提下，打开该api
-//https://api.bilibili.com/x/dm/filter/user
-//即可获取到该账号下的b站云端最新的屏蔽词内容
-
-//type类型
-//0 屏蔽文本
-//1 屏蔽正则
-//2 屏蔽用户
-        /**
-         * filter 规则内容
-         */
-        /**
-         *opened 是否启用
-         */
-        const item = window.localStorage.getItem("bpx_player_profile");
-        if (item === null || item === undefined) {
-            alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
-            return;
-        }
-        const arrList = JSON.parse(item)["blockList"];
-        if (arrList === undefined || arrList === null || arrList.length === 0) {
-            alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
-            return;
-        }
-        const list = [];
-        for (const arrListElement of arrList) {
-            const type = arrListElement["type"];
-            const filter = arrListElement["filter"];
-            const opened = arrListElement["opened"];
-            const id = arrListElement["id"];
-            if (type === 2) {
-                continue;
+    $("#outExport").click(() => {
+        const selectedText = $('#outRuleSelect option:selected').text();
+        if (selectedText === "导出全部规则") {
+            let s = prompt("保存为", "规则-" + util.toTimeString());
+            if (s.includes(" ") || s === "" || s.length === 0) {
+                s = "规则";
             }
-            list.push(arrListElement);
-        }
-        fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
-    });
-
-
-    //导入规则按钮事件
-    $("#inputFIleRule").click(function () {
-        let content = $("#ruleEditorInput").val();
-        if (content === "" || content === " ") {
-            alert("请填写正确的规则样式！");
+            fileDownload(util.getRuleFormatStr(), s + ".json");
             return;
         }
-        const b = confirm("需要注意的是，这一步操作会覆盖你先前的规则！您确定要导入吗？");
-        if (!b) {
+        if (selectedText === "导出全部规则到剪贴板") {
+            util.copyToClip(util.getRuleFormatStr());
             return;
         }
-        let jsonRule = [];
-        try {
-            content = content.replaceAll("undefined", "null");
-            jsonRule = JSON.parse(content);
-        } catch (error) {
-            alert("内容格式错误！" + error)
+        if (selectedText === "导出全部UID规则") {
+            const list = localData.getArrUID();
+            fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
             return;
         }
-        let list = jsonRule["用户名黑名单模式(精确匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrName(list);
-        }
-        list = jsonRule["用户名黑名单模式(模糊匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrNameKey(list);
-        }
-        list = jsonRule["用户uid黑名单模式(精确匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrUID(list)
-        }
-        list = jsonRule["用户uid白名单模式(精确匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrWhiteUID(list);
-        }
-        list = jsonRule["标题黑名单模式(模糊匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrTitle(list);
-        }
-        list = jsonRule["标题黑名单模式(正则匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrTitleKeyCanonical(list);
-        }
-        list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
-        if (!(list === null || list.length === 0)) {
-            util.setData("commentOnKeyArr", list);
-        }
-        list = jsonRule["评论关键词黑名单模式(正则匹配)"];
-        if (!(list === null || list.length === 0)) {
-            localData.setArrContentOnKeyCanonicalArr(list);
-        }
-        list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
-        if (!(list === null || list.length === 0)) {
-            util.setData("fanCardArr", list);
-        }
-        list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
-        if (!(list === null || list.length === 0)) {
-            util.setData("contentColumnKeyArr", list);
-        }
-        alert("已导入");
-    })
-
-
-    $("#inputMergeUIDRule").click(function () {
-        const content = $("#ruleEditorInput").val();
-        let uidList;
-        try {
-            uidList = JSON.parse(content)
-            if (!(uidList instanceof Array)) {
-                throw new Error("错误信息，导入的类型不是数组！");
-            }
-        } catch (e) {
-            alert("类型错误，导入的内容不是jsoN")
-            return;
-        }
-        for (let i = 0; i < uidList.length; i++) {
-            try {
-                uidList[i] = parseInt(uidList[i]);
-            } catch (e) {
-                alert("数组中存在非数字内容")
+        if (selectedText === "导出b站弹幕屏蔽规则") {
+            //已经登录b站账号的前提下，打开该api
+            //https://api.bilibili.com/x/dm/filter/user
+            //即可获取到该账号下的b站云端最新的屏蔽词内容
+            //type类型
+            //0 屏蔽文本
+            //1 屏蔽正则
+            //2 屏蔽用户
+            /**
+             * filter 规则内容
+             */
+            /**
+             *opened 是否启用
+             */
+            const item = window.localStorage.getItem("bpx_player_profile");
+            if (item === null || item === undefined) {
+                alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
                 return;
             }
-        }
-        if (uidList.length === 0) {
-            alert("该数组长度为0！")
-            return;
-        }
-        const data = localData.getArrUID();
-        if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
-            if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
-                localData.setArrUID(uidList);
-                alert("添加成功！")
+            const arrList = JSON.parse(item)["blockList"];
+            if (arrList === undefined || arrList === null || arrList.length === 0) {
+                alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
+                return;
             }
-            return;
-        }
-        let index = 0;
-        for (const v of uidList) {
-            if (data.includes(v)) {
-                continue;
+            const list = [];
+            for (const arrListElement of arrList) {
+                const type = arrListElement["type"];
+                const filter = arrListElement["filter"];
+                const opened = arrListElement["opened"];
+                const id = arrListElement["id"];
+                if (type === 2) {
+                    continue;
+                }
+                list.push(arrListElement);
             }
-            index++;
-            data.push(v);
+            fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
         }
-        if (index === 0) {
-            alert("内容没有变化！，可能是原先的规则里已经有了");
+
+    });
+
+
+    //导入按钮事件
+    $("#inputExport").click(function () {
+        const selectedText = $('#inputRuleSelect option:selected').text();
+        if (selectedText === "导入全部规则") {
+            let content = $("#ruleEditorInput").val();
+            if (content === "" || content === " ") {
+                alert("请填写正确的规则样式！");
+                return;
+            }
+            const b = confirm("需要注意的是，这一步操作会覆盖你先前的规则！您确定要导入吗？");
+            if (!b) {
+                return;
+            }
+            let jsonRule = [];
+            try {
+                content = content.replaceAll("undefined", "null");
+                jsonRule = JSON.parse(content);
+            } catch (error) {
+                alert("内容格式错误！" + error)
+                return;
+            }
+            let list = jsonRule["用户名黑名单模式(精确匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrName(list);
+            }
+            list = jsonRule["用户名黑名单模式(模糊匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrNameKey(list);
+            }
+            list = jsonRule["用户uid黑名单模式(精确匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrUID(list)
+            }
+            list = jsonRule["用户uid白名单模式(精确匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrWhiteUID(list);
+            }
+            list = jsonRule["标题黑名单模式(模糊匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrTitle(list);
+            }
+            list = jsonRule["标题黑名单模式(正则匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrTitleKeyCanonical(list);
+            }
+            list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
+            if (!(list === null || list.length === 0)) {
+                util.setData("commentOnKeyArr", list);
+            }
+            list = jsonRule["评论关键词黑名单模式(正则匹配)"];
+            if (!(list === null || list.length === 0)) {
+                localData.setArrContentOnKeyCanonicalArr(list);
+            }
+            list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
+            if (!(list === null || list.length === 0)) {
+                util.setData("fanCardArr", list);
+            }
+            list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
+            if (!(list === null || list.length === 0)) {
+                util.setData("contentColumnKeyArr", list);
+            }
+            alert("已导入");
             return;
         }
-        alert(`已新增${index}个UID规则`);
-        localData.setArrUID(data);
+        if (selectedText === "确定合并导入UID规则") {
+            const content = $("#ruleEditorInput").val();
+            let uidList;
+            try {
+                uidList = JSON.parse(content)
+                if (!(uidList instanceof Array)) {
+                    throw new Error("错误信息，导入的类型不是数组！");
+                }
+            } catch (e) {
+                alert("类型错误，导入的内容不是jsoN")
+                return;
+            }
+            for (let i = 0; i < uidList.length; i++) {
+                try {
+                    uidList[i] = parseInt(uidList[i]);
+                } catch (e) {
+                    alert("数组中存在非数字内容")
+                    return;
+                }
+            }
+            if (uidList.length === 0) {
+                alert("该数组长度为0！")
+                return;
+            }
+            const data = localData.getArrUID();
+            if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
+                if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
+                    localData.setArrUID(uidList);
+                    alert("添加成功！")
+                }
+                return;
+            }
+            let index = 0;
+            for (const v of uidList) {
+                if (data.includes(v)) {
+                    continue;
+                }
+                index++;
+                data.push(v);
+            }
+            if (index === 0) {
+                alert("内容没有变化！，可能是原先的规则里已经有了");
+                return;
+            }
+            alert(`已新增${index}个UID规则`);
+            localData.setArrUID(data);
+            return;
+        }
+        if (selectedText === "导入本地b站弹幕屏蔽规则") {
+            alert("暂时未写")
+            return;
+        }
     })
 
-    $("#inputShieldingSettings").click(() => {//导入本地b站弹幕屏蔽规则
-        alert("暂时未写")
+
+    $('#inputRuleSelect').change(() => {//监听模式下拉列表
+        const selectedText = $('#inputRuleSelect option:selected').text();
+        const editorInput = $("#ruleEditorInput");
+        if (selectedText === "导入全部规则" || selectedText === "确定合并导入UID规则") {
+            editorInput.show();
+            return;
+        }
+        editorInput.hide();
     });
 
 
