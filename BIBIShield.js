@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.44
+// @version      1.1.45
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -95,6 +95,8 @@ const rule = {
         } else {
             Qmsg.error("初始化时出现了不该出现的结果");//一般情况下，当用户没有指定首页推送的视频类型时，会提示该信息，现要求优化，不显示直接修改对应的默认值即可
         }
+        $("#delVideoCommentSectionsCheackBox").prop('checked', localData.getDelVideoCommentSections());//设置
+
     },
     //视频参数
     videoData: {
@@ -130,8 +132,6 @@ const rule = {
         isRhgthlayout: false,
         //是否要移除右侧播放页的视频列表
         isrigthVideoList: false,
-        //是否移除评论区布局
-        isCommentArea: false,
         //是否移除视频页播放器下面的标签，也就是Tag
         isTag: false,
         //是覅移除视频页播放器下面的简介
@@ -720,13 +720,45 @@ function delDReplay() {
 
 const HttpUtil = {
     httpRequest: function (method, url, headers, resolve, reject) {
+        let tempHraders = {
+            "User-Agent": navigator.userAgent
+        };
+        if (headers !== null || headers !== undefined) {
+            tempHraders = Object.assign({}, tempHraders, headers)
+        }
         util.httpRequest({
             method: method,
             url: url,
-            headers: headers,
+            headers: tempHraders,
             onload: resolve,
             onerror: reject
         });
+    },
+    httpRequestPost: function (url, data, headers, resolve, reject) {
+        let temp = {
+            "Content-Type": "application/json"
+        };
+        if (headers !== null || headers !== undefined) {
+            temp = headers;
+        }
+        util.httpRequest({
+            method: "POST",
+            url: url,
+            headers: temp,
+            data: JSON.stringify(data),
+            onload: resolve,
+            onerror: reject
+        });
+
+    },
+    post: function (url, data, headers, resolve, reject) {
+
+        if (headers === null) {
+            this.httpRequest("POST", url, tempOld, resolve, reject);
+            return;
+        }
+
+        this.httpRequest("POST", url, headers, resolve, reject);
     },
     /**
      *封装get请求
@@ -883,6 +915,9 @@ left: 0;  bottom: 0;">
                     <div class="bili-dyn-live-users__item__title bili-ellipsis" title=${title}>${title}</div>
                 </div>
             </div>`);
+    },
+    postRuleApi: function (data) {
+        HttpUtil.httpRequest()
     }
 }
 
@@ -1769,7 +1804,25 @@ const localData = {
      */
     setWatchedArr: function (key) {
         util.setData("watchedArr", key);
-    }
+    },
+    getRuleApi: function () {
+        const data = util.getData("ruleApiUrl");
+        if (data === undefined || data === null) {
+            return null;
+        }
+        return data;
+    },
+    setRuleApi: function (url) {
+        util.setData("ruleApiUrl", url);
+    },
+    getDelVideoCommentSections: function () {//是否移除评论区布局
+        const data = util.getData("isCommentArea");
+        return data === true;
+
+    },
+    setDelVideoCommentSections: function (key) {//是否移除评论区布局
+        util.setData("isCommentArea", key === true ? true : false);
+    },
 }
 
 
@@ -2227,8 +2280,7 @@ const videoFun = {
     }
     ,
     commentArea: function () {
-        const videoData = rule.videoData;
-        if (videoData.isCommentArea) {
+        if (localData.getDelVideoCommentSections()) {
             util.circulateID("comment", 1500, "已移除评论区");
         }
     }
@@ -3186,7 +3238,11 @@ const layout = {
              <div>
               自定义角度
               <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
-             </div>`;
+             </div>
+             <div style="display: flex;">
+             <input type="checkbox" id="delVideoCommentSectionsCheackBox">移除视频播放页底下的评论区
+</div>
+`;
     },
     getRuleInfoLayout: function () {
         return `<div>
@@ -3225,16 +3281,18 @@ const layout = {
     <h1>规则导入导出</h1>
       <div>
   <select id="outRuleSelect">
-  <option value="">导出全部规则</option>
-  <option value="">导出全部规则到剪贴板</option>
-  <option value="">导出全部UID规则</option>
-  <option value="">导出b站弹幕屏蔽规则</option>
+  <option value="">全部规则到文件</option>
+  <option value="">全部规则到剪贴板</option>
+  <option value="">全部UID规则到文件</option>
+  <option value="">全部UID规则到云端</option>
+  <option value="">b站弹幕屏蔽规则</option>
 </select>
+<input type="text">
 <button id="outExport">导出</button>
 </div>
 <div>
   <select id="inputRuleSelect">
-  <option value="">导入全部规则</option>
+  <option value="">全部规则</option>
   <option value="">确定合并导入UID规则</option>
 </select>
 <button id="inputExport">导入</button>
@@ -3410,7 +3468,7 @@ function perf_observer() {
         if (url.includes("https://api.bilibili.com/x/v2/reply/main?csrf=") ||
             url.includes("api.bilibili.com/x/v2/reply/reply?csrf=") &&
             windowUrl.includes("https://www.bilibili.com/video") &&
-            !rule.videoData.isCommentArea) {
+            !localData.getDelVideoCommentSections()) {
             //如果是视频播放页的话，且接收到评论的相应请求
             const list = document.querySelectorAll(".reply-list>.reply-item");
             for (let v of list) {//针对于评论区
@@ -4156,6 +4214,12 @@ function openTab(e) {
         $("#axleSpan").text(value + "%");//修改对应标签的文本显示
     });
 
+    const tempdelBox = $("#delVideoCommentSectionsCheackBox");
+    tempdelBox.click(() => {
+        localData.setDelVideoCommentSections(tempdelBox.is(':checked'));
+    });
+
+
     $("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
         const value = $("#backgroundPellucidityRange").val();//获取值
         $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
@@ -4598,24 +4662,31 @@ function openTab(e) {
 //点击导出规则事件
     $("#outExport").click(() => {
         const selectedText = $('#outRuleSelect option:selected').text();
-        if (selectedText === "导出全部规则") {
+        if (selectedText === "全部规则到文件") {
             let s = prompt("保存为", "规则-" + util.toTimeString());
+            if (s === null) {
+                return;
+            }
             if (s.includes(" ") || s === "" || s.length === 0) {
                 s = "规则";
             }
             fileDownload(util.getRuleFormatStr(), s + ".json");
             return;
         }
-        if (selectedText === "导出全部规则到剪贴板") {
+        if (selectedText === "全部规则到剪贴板") {
             util.copyToClip(util.getRuleFormatStr());
             return;
         }
-        if (selectedText === "导出全部UID规则") {
+        if (selectedText === "全部UID规则到文件") {
             const list = localData.getArrUID();
             fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
             return;
         }
-        if (selectedText === "导出b站弹幕屏蔽规则") {
+        if (selectedText === "全部UID规则到云端") {//需要配置云端api网址
+            alert("11111111111")
+            return;
+        }
+        if (selectedText === "b站弹幕屏蔽规则") {
             //已经登录b站账号的前提下，打开该api
             //https://api.bilibili.com/x/dm/filter/user
             //即可获取到该账号下的b站云端最新的屏蔽词内容
@@ -4659,7 +4730,7 @@ function openTab(e) {
     //导入按钮事件
     $("#inputExport").click(function () {
         const selectedText = $('#inputRuleSelect option:selected').text();
-        if (selectedText === "导入全部规则") {
+        if (selectedText === "全部规则") {
             let content = $("#ruleEditorInput").val();
             if (content === "" || content === " ") {
                 alert("请填写正确的规则样式！");
@@ -4768,7 +4839,7 @@ function openTab(e) {
             localData.setArrUID(data);
             return;
         }
-        if (selectedText === "导入本地b站弹幕屏蔽规则") {
+        if (selectedText === "本地b站弹幕屏蔽规则") {
             alert("暂时未写")
             return;
         }
@@ -4778,7 +4849,7 @@ function openTab(e) {
     $('#inputRuleSelect').change(() => {//监听模式下拉列表
         const selectedText = $('#inputRuleSelect option:selected').text();
         const editorInput = $("#ruleEditorInput");
-        if (selectedText === "导入全部规则" || selectedText === "确定合并导入UID规则") {
+        if (selectedText === "全部规则" || selectedText === "确定合并导入UID规则") {
             editorInput.show();
             return;
         }
