@@ -1686,7 +1686,7 @@ const localData = {
     },
     temp: function (key) {
         const data = Util.getData(key);
-        if (data == undefined || data == null) {
+        if (data === undefined || data === null) {
             return [];
         }
         return data;
@@ -4043,7 +4043,7 @@ function openTab(e) {
                 loading.close();
                 return;
             }
-            if (data === null || data == undefined) {
+            if (data === null || data === undefined) {
                 Qmsg.error("获取到的数据为空的!");
                 loading.close();
                 return;
