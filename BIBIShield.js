@@ -28,7 +28,6 @@
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
 // @match        *://github.com/*
-// @match        *://blog.csdn.net/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -3195,7 +3194,7 @@ const layout = {
       <select id="video_zoneSelect">
         <option value="1">下拉选择</option>
       </select>
-      <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;">
+      <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;padding-right: 2%;">
       <input type="checkbox" id="isIdCheckbox">
       <span>id</span>
       <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
@@ -3279,6 +3278,7 @@ const layout = {
     </div>
     <div>
     <h1>规则导入导出</h1>
+    
       <div>
   <select id="outRuleSelect">
   <option value="">全部规则到文件</option>
@@ -3842,10 +3842,6 @@ function openTab(e) {
 
     if (href.includes("github.com")) {
         github(href);
-        return;
-    }
-    if (href.includes("blog.csdn.net")) {
-        csdn(href);
         return;
     }
     //加载布局
@@ -5693,22 +5689,3 @@ function homePrefecture() {
 }
 
 
-/**
- *
- * @param {string}href
- */
-function csdn(href) {
-    document.body.contentEditable = 'true';
-    document.designMode = 'on';
-
-    //优化登陆后复制
-    $('code').css({'user-select': 'unset'})
-    $('#content_views pre').css({'user-select': 'unset'})
-
-    //移除“登陆后复制”按钮
-    $('.hljs-button').remove();
-    //移除readmore按钮，并显示全文
-    $('.hide-article-box').remove();
-    $('.article_content').css({'height': 'initial'})
-
-}
