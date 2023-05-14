@@ -48,17 +48,17 @@ const Rule = {
             }
         }
 
-        setText(localData.getArrName(), "#textUserName");
-        setText(localData.getArrNameKey(), "#textUserNameKey");
-        setText(localData.getArrUID(), "#textUserUID");
-        setText(localData.getArrWhiteUID(), "#textUserBName");
-        setText(localData.getArrTitle(), "#textUserTitle");
-        setText(localData.getArrTitleKeyCanonical(), "#textUserTitleCanonical");
+        setText(LocalData.getArrName(), "#textUserName");
+        setText(LocalData.getArrNameKey(), "#textUserNameKey");
+        setText(LocalData.getArrUID(), "#textUserUID");
+        setText(LocalData.getArrWhiteUID(), "#textUserBName");
+        setText(LocalData.getArrTitle(), "#textUserTitle");
+        setText(LocalData.getArrTitleKeyCanonical(), "#textUserTitleCanonical");
         setText(Util.getData("commentOnKeyArr"), "#textContentOn");
-        setText(localData.getArrContentOnKeyCanonicalArr(), "#textContentOnCanonical");
-        setText(localData.getFanCardArr(), "#textFanCard");
-        setText(localData.getContentColumnKeyArr(), "#textColumn");
-        setText(localData.getDynamicArr(), "#textDynamicArr");
+        setText(LocalData.getArrContentOnKeyCanonicalArr(), "#textContentOnCanonical");
+        setText(LocalData.getFanCardArr(), "#textFanCard");
+        setText(LocalData.getContentColumnKeyArr(), "#textColumn");
+        setText(LocalData.getDynamicArr(), "#textDynamicArr");
     },
     showInfo: function () {
         const isDShielPanel = Util.getData("isDShielPanel");
@@ -84,7 +84,7 @@ const Rule = {
         }
         if (pushType === "分区") {
             loadPartition();
-            videoZoneSelect.val(localData.getVideo_zone());
+            videoZoneSelect.val(LocalData.getVideo_zone());
         } else if (pushType === "频道") {
             const tempSortTypeSelect = $("#sort_typeSelect");
             const tempSortType = frequencyChannel.getSort_type();
@@ -95,8 +95,8 @@ const Rule = {
         } else {
             Qmsg.error("初始化时出现了不该出现的结果");//一般情况下，当用户没有指定首页推送的视频类型时，会提示该信息，现要求优化，不显示直接修改对应的默认值即可
         }
-        $("#delVideoCommentSectionsCheackBox").prop('checked', localData.getDelVideoCommentSections());//设置
-
+        $("#delVideoCommentSectionsCheackBox").prop('checked', LocalData.getDelVideoCommentSections());//设置
+        $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
     },
     //视频参数
     videoData: {
@@ -433,7 +433,7 @@ const Shield = {
 const Remove = {
     //是否是白名单用户
     isWhiteUserUID: function (uid) {
-        const tempArr = localData.getArrWhiteUID();
+        const tempArr = LocalData.getArrWhiteUID();
         if (tempArr === null || tempArr === undefined) {
             return false;
         }
@@ -446,7 +446,7 @@ const Remove = {
      * @returns {boolean}
      */
     uid: function (element, uid) {
-        if (Shield.arrKey(localData.getArrUID(), parseInt(uid))) {
+        if (Shield.arrKey(LocalData.getArrUID(), parseInt(uid))) {
             element.remove();
             return true;
         }
@@ -460,7 +460,7 @@ const Remove = {
      * @returns {boolean}
      */
     name: function (element, name) {
-        if (Shield.arrKey(localData.getArrName(), name)) {
+        if (Shield.arrKey(LocalData.getArrName(), name)) {
             element.remove();
             return true;
         }
@@ -473,7 +473,7 @@ const Remove = {
      * @returns {String|null}
      */
     nameKey: function (element, name) {
-        const shieldArrContent = Shield.arrContent(localData.getArrNameKey(), name);
+        const shieldArrContent = Shield.arrContent(LocalData.getArrNameKey(), name);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -487,7 +487,7 @@ const Remove = {
      * @returns {String|null}
      */
     titleKey: function (element, title) {
-        const shieldArrContent = Shield.arrContent(localData.getArrTitle(), title);
+        const shieldArrContent = Shield.arrContent(LocalData.getArrTitle(), title);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -501,7 +501,7 @@ const Remove = {
      * @return {string|null}
      */
     titleKeyCanonical: function (element, title) {
-        const canonical = Shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
+        const canonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
         if (canonical !== null) {
             element.remove();
         }
@@ -528,7 +528,7 @@ const Remove = {
      * @returns {String|null}
      */
     columnContentKey: function (element, content) {
-        const shieldArrContent = Shield.arrContent(element, localData.getContentColumnKeyArr(), content);
+        const shieldArrContent = Shield.arrContent(element, LocalData.getContentColumnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -542,7 +542,7 @@ const Remove = {
      * @returns {boolean}
      */
     fanCard: function (element, key) {
-        if (Shield.arrKey(localData.getFanCardArr(), key)) {
+        if (Shield.arrKey(LocalData.getFanCardArr(), key)) {
             element.remove();
             return true;
         }
@@ -1288,12 +1288,12 @@ const Util = {
     //获取格式化规则的内容
     getRuleFormatStr: function () {
         //温馨提示每个{}对象最后一个不可以有,符号
-        return `{"用户名黑名单模式(精确匹配)": ${JSON.stringify(localData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(localData.getArrNameKey())},
-    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(localData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(localData.getArrWhiteUID())},
-    "标题黑名单模式(模糊匹配)": ${JSON.stringify(localData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrTitleKeyCanonical())},
-    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(Util.getData("commentOnKeyArr"))},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrContentOnKeyCanonicalArr())},
-    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(localData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getContentColumnKeyArr())},
-    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getDynamicArr())},"禁用快捷悬浮屏蔽面板自动显示":${Util.getData("isDShielPanel")}}`;
+        return `{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
+    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
+    "标题黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrTitleKeyCanonical())},
+    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(Util.getData("commentOnKeyArr"))},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
+    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getContentColumnKeyArr())},
+    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())},"禁用快捷悬浮屏蔽面板自动显示":${Util.getData("isDShielPanel")}}`;
     },
     /**
      * 设置页面播放器的播放速度
@@ -1656,7 +1656,7 @@ z-index: 2000;
 };
 
 
-const localData = {
+const LocalData = {
     getSESSDATA: function () {
         const data = Util.getData("SESSDATA");
         if (data === undefined || data === null || data === "") {
@@ -1783,6 +1783,12 @@ const localData = {
     setDelVideoCommentSections: function (key) {//是否移除评论区布局
         Util.setData("isCommentArea", key === true ? true : false);
     },
+    setPrivacyMode: function (key) {
+        Util.setData("isPrivacyMode", key === true);
+    },
+    getPrivacyMode: function () {
+        return Util.getData("isPrivacyMode") === true;
+    }
 }
 
 
@@ -2244,7 +2250,7 @@ const videoFun = {
     }
     ,
     commentArea: function () {
-        if (localData.getDelVideoCommentSections()) {
+        if (LocalData.getDelVideoCommentSections()) {
             Util.circulateID("comment", 1500, "已移除评论区");
         }
     }
@@ -2912,7 +2918,7 @@ const trends = {
     topCssDisply: {
         //针对于整体布局的细调整
         body: function () {
-            const sessdata = localData.getSESSDATA();
+            const sessdata = LocalData.getSESSDATA();
             const interval = setInterval(() => {
                 try {
                     document.querySelector(".bili-dyn-home--member").style.justifyContent = 'space-between';
@@ -3437,7 +3443,7 @@ function perf_observer() {
         if (url.includes("https://api.bilibili.com/x/v2/reply/main?csrf=") ||
             url.includes("api.bilibili.com/x/v2/reply/reply?csrf=") &&
             windowUrl.includes("https://www.bilibili.com/video") &&
-            !localData.getDelVideoCommentSections()) {
+            !LocalData.getDelVideoCommentSections()) {
             //如果是视频播放页的话，且接收到评论的相应请求
             const list = document.querySelectorAll(".reply-list>.reply-item");
             for (let v of list) {//针对于评论区
@@ -3530,13 +3536,13 @@ function perf_observer() {
             for (let v of document.querySelectorAll(".bili-rank-list-video__list.video-rank-list")) {//遍历每个排行榜
                 for (let q of v.querySelectorAll("li[class='bili-rank-list-video__item']")) {//遍历某个排行榜中的项目
                     const title = q.querySelector("[title]").textContent;
-                    const isTitle = Shield.arrContent(localData.getArrTitle(), title);
+                    const isTitle = Shield.arrContent(LocalData.getArrTitle(), title);
                     if (isTitle != null) {
                         Print.ln(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
                         q.remove();
                         continue;
                     }
-                    const isTitleCanonical = Shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
+                    const isTitleCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
                     if (isTitleCanonical != null) {
                         Print.ln(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
                         q.remove();
@@ -4170,7 +4176,7 @@ function openTab(e) {
 
     const tempdelBox = $("#delVideoCommentSectionsCheackBox");
     tempdelBox.click(() => {
-        localData.setDelVideoCommentSections(tempdelBox.is(':checked'));
+        LocalData.setDelVideoCommentSections(tempdelBox.is(':checked'));
     });
 
     $("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
@@ -4340,7 +4346,7 @@ function openTab(e) {
             return;
         }
         if (content === "") {
-            localData.setSESSDATA(null);
+            LocalData.setSESSDATA(null);
             return;
         }
         if (content.includes(" ") || content.includes("=")) {
@@ -4350,7 +4356,7 @@ function openTab(e) {
         if (!confirm(`要保存的SESSDATA是\n${content}`)) {
             return;
         }
-        localData.setSESSDATA(content);
+        LocalData.setSESSDATA(content);
         Qmsg.success("已设置SESSDATA的值！");
     });
 
@@ -4363,11 +4369,11 @@ function openTab(e) {
             Qmsg.error("内容有误，请正确书写！");
             return;
         }
-        localData.setBili_jct(content);
+        LocalData.setBili_jct(content);
         Qmsg.success(`已设置bili_jct的值为\n${content}`);
     });
     $("#bili_jctDiv>button:eq(1)").click(() => {
-        const data = localData.getWebBili_jct();
+        const data = LocalData.getWebBili_jct();
         if (data === null) {
             Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
             return;
@@ -4375,11 +4381,11 @@ function openTab(e) {
         if (!confirm("确定要将存储在网页中的bili_jct值并设置存储在油猴脚本bili_jct值吗？")) {
             return;
         }
-        localData.setBili_jct(data);
+        LocalData.setBili_jct(data);
         Qmsg.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
     });
     $("#bili_jctDiv>button:eq(2)").click(() => {
-        const data = localData.getWebBili_jct();
+        const data = LocalData.getWebBili_jct();
         if (data === null) {
             Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
             return;
@@ -4388,16 +4394,15 @@ function openTab(e) {
         Print.ln(data);
     });
     $("#bili_jctDiv>button:eq(3)").click(() => {
-        const biliJct = localData.getBili_jct();
+        const biliJct = LocalData.getBili_jct();
         if (biliJct === null) {
             Qmsg.error(`用户未设置bili_jct值`);
             return;
         }
         Qmsg.success("获取成功！，已将bili_jct值输出到面板上");
     });
-
     $("#sgSessdata>button:eq(1)").click(() => {
-        const data = localData.getSESSDATA();
+        const data = LocalData.getSESSDATA();
         if (data === null) {
             const tip = '用户未添加SESSDATA或者已删除存储在脚本的SESSDATA';
             Qmsg.error(tip);
@@ -4408,6 +4413,13 @@ function openTab(e) {
         Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
         Print.ln(data);
     });
+
+    const openPrivacyModeCheckbox = $("#openPrivacyModeCheckbox");
+    openPrivacyModeCheckbox.click(() => {
+        const isbool = openPrivacyModeCheckbox.is(":checked");
+        LocalData.setPrivacyMode(isbool);
+    });
+
 
     $("#outExport").click(() => {//点击导出规则事件
         const selectedText = $('#outRuleSelect option:selected').text();
@@ -4427,7 +4439,7 @@ function openTab(e) {
             return;
         }
         if (selectedText === "全部UID规则到文件") {
-            const list = localData.getArrUID();
+            const list = LocalData.getArrUID();
             fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
             return;
         }
@@ -4499,27 +4511,27 @@ function openTab(e) {
                 return;
             }
             let list = jsonRule["用户名黑名单模式(精确匹配)"];
-            localData.setArrName(list);
+            LocalData.setArrName(list);
             list = jsonRule["用户名黑名单模式(模糊匹配)"];
-            localData.setArrNameKey(list);
+            LocalData.setArrNameKey(list);
             list = jsonRule["用户uid黑名单模式(精确匹配)"];
-            localData.setArrUID(list)
+            LocalData.setArrUID(list)
             list = jsonRule["用户uid白名单模式(精确匹配)"];
-            localData.setArrWhiteUID(list);
+            LocalData.setArrWhiteUID(list);
             list = jsonRule["标题黑名单模式(模糊匹配)"];
-            localData.setArrTitle(list);
+            LocalData.setArrTitle(list);
             list = jsonRule["标题黑名单模式(正则匹配)"];
-            localData.setArrTitleKeyCanonical(list);
+            LocalData.setArrTitleKeyCanonical(list);
             list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
             Util.setData("commentOnKeyArr", list);
             list = jsonRule["评论关键词黑名单模式(正则匹配)"];
-            localData.setArrContentOnKeyCanonicalArr(list);
+            LocalData.setArrContentOnKeyCanonicalArr(list);
             list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
-            localData.setFanCardArr(list)
+            LocalData.setFanCardArr(list)
             list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
-            localData.setContentColumnKeyArr(list)
+            LocalData.setContentColumnKeyArr(list)
             list = jsonRule["动态关键词内容黑名单模式(模糊匹配)"];
-            localData.setDynamicArr(list);
+            LocalData.setDynamicArr(list);
             Rule.ruleLength();
             alert("已导入");
             return;
@@ -4548,10 +4560,10 @@ function openTab(e) {
                 alert("该数组长度为0！")
                 return;
             }
-            const data = localData.getArrUID();
+            const data = LocalData.getArrUID();
             if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
                 if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
-                    localData.setArrUID(uidList);
+                    LocalData.setArrUID(uidList);
                     alert("添加成功！")
                 }
                 return;
@@ -4569,7 +4581,7 @@ function openTab(e) {
                 return;
             }
             alert(`已新增${index}个UID规则`);
-            localData.setArrUID(data);
+            LocalData.setArrUID(data);
             return;
         }
         if (selectedText === "本地b站弹幕屏蔽规则") {
@@ -4587,8 +4599,8 @@ function openTab(e) {
             alert("请正确填写地址！");
             return;
         }
-        localData.setRuleApi(p);
-        Qmsg.success("已设置=" + localData.getRuleApi());
+        LocalData.setRuleApi(p);
+        Qmsg.success("已设置=" + LocalData.getRuleApi());
     });
 
     $('#inputRuleSelect').change(() => {//监听模式下拉列表
@@ -4663,7 +4675,7 @@ function openTab(e) {
         Home.setPushType(pushType);
         if (pushType === "分区") {
             Print.ln("选择了分区" + Home.data.video_zoneList[selectVar] + " uid=" + selectVar);
-            localData.setVideo_zone(selectVar);
+            LocalData.setVideo_zone(selectVar);
         } else {
             const tempSortTypeSelect = $("#sort_typeSelect");
             const tempVar = tempSortTypeSelect.val();
@@ -4793,7 +4805,7 @@ function bilibiliOne(href, windonsTitle) {
 
     if (href.includes("space.bilibili.com/")) {//个人主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
-        if (Shield.arrKey(localData.getArrUID(), hrefUID)) {
+        if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
             setTimeout(() => {
                 alert("当前用户时是黑名单！UID=" + hrefUID)
             }, 4500);
@@ -5096,7 +5108,7 @@ function bilibiliOne(href, windonsTitle) {
 </div>`);
         liveLayout.append(flushBut);
         liveLayout.append(`<hr>`);
-        const sessdata = localData.getSESSDATA();
+        const sessdata = LocalData.getSESSDATA();
         if (sessdata !== null) {
             Qmsg.success("用户配置了sessdata");
             followListLive();
@@ -5142,7 +5154,7 @@ function bilibiliOne(href, windonsTitle) {
                     const title = v["title"];
                     const uname = v["uname"];
                     const uid = v["uid"];
-                    if (Shield.arrKey(localData.getArrUID(), uid)) {
+                    if (Shield.arrKey(LocalData.getArrUID(), uid)) {
                         const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
                         Print.ln(tempInfo);
                         Qmsg.success(tempInfo);
@@ -5320,21 +5332,21 @@ function bilibili(href) {
          * @param pic 封面
          */
         function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
-            if (Shield.arrKey(localData.getArrUID(), uid)) {
+            if (Shield.arrKey(LocalData.getArrUID(), uid)) {
                 Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
-            const isNameKey = Shield.arrContent(localData.getArrNameKey(), userName);
+            const isNameKey = Shield.arrContent(LocalData.getArrNameKey(), userName);
             if (isNameKey != null) {
                 Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
-            const isTitleKey = Shield.arrContent(localData.getArrTitle(), videoTitle);
+            const isTitleKey = Shield.arrContent(LocalData.getArrTitle(), videoTitle);
             if (isTitleKey != null) {
                 Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
-            const isTitleKeyCanonical = Shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
+            const isTitleKeyCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
             if (isTitleKeyCanonical != null) {
                 Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
@@ -5357,7 +5369,7 @@ function bilibili(href) {
         //加载分区视频数据
         function loadingVideoE(ps) {
             const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${localData.getVideo_zone()}`, function (res) {
+            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`, function (res) {
                 const bodyJson = JSON.parse(res.responseText);
                 if (bodyJson["code"] !== 0) {
                     alert("未获取到视频数据！");
@@ -5485,7 +5497,7 @@ function shrieDynamicItems(list) {
             continue;
         }
         const tempContent = tempE.textContent;
-        const contentKey = Shield.arrContent(localData.getDynamicArr(), tempContent);
+        const contentKey = Shield.arrContent(LocalData.getDynamicArr(), tempContent);
         if (contentKey == null) {
             continue;
         }
