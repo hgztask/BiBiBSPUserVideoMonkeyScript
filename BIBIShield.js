@@ -1773,13 +1773,24 @@ const localData = {
     },
     setArrTitleKeyCanonical: function (key) {
         util.setData("titleKeyCanonicalArr", key);
-    },
+    },//获取评论关键词黑名单模式(正则匹配)
     getArrContentOnKeyCanonicalArr: function () {
         return util.getData("contentOnKeyCanonicalArr");
-    },
+    },//设置评论关键词黑名单模式(正则匹配)
     setArrContentOnKeyCanonicalArr: function (key) {
         util.setData("contentOnKeyCanonicalArr", key);
+    },//获取动态页屏蔽项目规则--模糊匹配
+    getDynamicArr: function () {
+        const data = util.getData("dynamicArr");
+        if (data === undefined || data === null) {
+            return [];
+        }
+        return data;
+    }, //设置动态页屏蔽项目规则-模糊匹配
+    setDynamicArr: function (key) {
+        util.setData("dynamicArr", key);
     },
+
     getVideo_zone: function () {
         const data = util.getData("video_zone");
         if (data === undefined || data === null) {
@@ -2053,10 +2064,14 @@ const butLayEvent = {
             return;
         }
         if (arrayList.includes(contentV)) {
-            Print.ln("搜索的值，已存在！");
+            const info = `搜索的值【${contentV}】，已存在！`;
+            Print.ln(info);
+            Qmsg.success(info);
             return;
         }
-        Print.ln("找不到该内容！");
+        const info = `找不到该内容！【${contentV}】`;
+        Print.ln(info);
+        Qmsg.error(info);
     },
 
     //修改
@@ -3140,16 +3155,17 @@ const layout = {
           <option value="batch">批量</option>
         </select>
         <select id="model">
-          <option value="name">用户名黑名单模式(精确匹配)</option>
-          <option value="nameKey">用户名黑名单模式(模糊匹配)</option>
-          <option value="uid">用户uid黑名单模式(精确匹配)</option>
-          <option value="bName">用户白名单模式(精确匹配)</option>
-          <option value="title">标题黑名单模式(模糊匹配)</option>
-          <option value="titleCanonical">标题黑名单模式(正则匹配)</option>
-          <option value="contentOn">评论关键词黑名单模式(模糊匹配)</option>
-          <option value="contentOnCanonical">评论关键词黑名单模式(正则匹配)</option>
-          <option value="fanCard">粉丝牌黑名单模式(精确匹配)</option>
-          <option value="column">专栏关键词内容黑名单模式(模糊匹配)</option>
+          <option value="userNameArr">用户名黑名单模式(精确匹配)</option>
+          <option value="userNameKeyArr">用户名黑名单模式(模糊匹配)</option>
+          <option value="userUIDArr">用户uid黑名单模式(精确匹配)</option>
+          <option value="userWhiteUIDArr">用户白名单模式(精确匹配)</option>
+          <option value="titleKeyArr">标题黑名单模式(模糊匹配)</option>
+          <option value="titleKeyCanonicalArr">标题黑名单模式(正则匹配)</option>
+          <option value="commentOnKeyArr">评论关键词黑名单模式(模糊匹配)</option>
+          <option value="contentOnKeyCanonicalArr">评论关键词黑名单模式(正则匹配)</option>
+          <option value="fanCardArr">粉丝牌黑名单模式(精确匹配)</option>
+          <option value="contentColumnKeyArr">专栏关键词内容黑名单模式(模糊匹配)</option>
+          <option value="dynamicArr">动态关键词内容黑名单模式(模糊匹配)</option>
         </select>
         <textarea id="inputTextAreaModel" style="resize: none; width: 40%; height: 100px; display: none"></textarea>
         <div>
@@ -4299,179 +4315,51 @@ function openTab(e) {
             Qmsg.error("请输入正确的内容！");
             return;
         }
-        switch (typeVal) {
-            case "name":
-                butLayEvent.butaddName("userNameArr", content);
-                break;
-            case "nameKey":
-                butLayEvent.butaddName("userNameKeyArr", content);
-                break;
-            case "uid":
-                if (isNaN(content)) {
-                    Qmsg.error("内容不是数字");
-                    return;
-                }
-                butLayEvent.butaddName("userUIDArr", parseInt(content));
-                break;
-            case "bName":
-                butLayEvent.butaddName("userWhiteUIDArr", parseInt(content));
-                break;
-            case "title":
-                butLayEvent.butaddName("titleKeyArr", content);
-                break;
-            case "titleCanonical":
-                butLayEvent.butaddName("titleKeyCanonicalArr", content);
-                break;
-            case "contentOn":
-                butLayEvent.butaddName("commentOnKeyArr", content);
-                break;
-            case "contentOnCanonical":
-                butLayEvent.butaddName("contentOnKeyCanonicalArr", content);
-                break;
-            case "fanCard":
-                butLayEvent.butaddName("fanCardArr", content);
-                break;
-            case "column":
-                butLayEvent.butaddName("contentColumnKeyArr", content);
-                break;
-            default:
-                console.log("butadd出现错误了的结果")
-                break;
+        if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
+            butLayEvent.butaddName(typeVal, parseInt(content));
+            return;
         }
+        butLayEvent.butaddName(typeVal, content);
     })
 
 
     $("#butaddAll").click(function () {
         const typeVal = $("#model option:selected").val();
         const content = $("#inputTextAreaModel").val();
-        switch (typeVal) {
-            case "name":
-                butLayEvent.butaddAllName("userNameArr", content);
-                break;
-            case "nameKey":
-                butLayEvent.butaddAllName("userNameKeyArr", content);
-                break;
-            case "uid":
-                butLayEvent.butaddAllName("userUIDArr", content);
-                break;
-            case "bName":
-                butLayEvent.butaddAllName("userWhiteUIDArr", content);
-                break;
-            case "title":
-                butLayEvent.butaddAllName("titleKeyArr", content);
-                break;
-            case "titleCanonical":
-                butLayEvent.butaddAllName("titleKeyCanonicalArr", content);
-                break;
-            case "contentOn":
-                butLayEvent.butaddAllName("commentOnKeyArr", content);
-                break;
-            case "contentOnCanonical":
-                butLayEvent.butaddAllName("contentOnKeyCanonicalArr", content);
-                break;
-            case "fanCard":
-                butLayEvent.butaddAllName("fanCardArr", content);
-                break;
-            case "column":
-                butLayEvent.butaddAllName("contentColumnKeyArr", content);
-                break;
-            default:
-                console.log("butadd出现错误了的结果")
-                break;
+        if (content === null) {
+            return;
         }
+        if (content === "") {
+            Qmsg.error("请输入正确的内容！");
+            return;
+        }
+        if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
+            alert("暂不支持uid和白名单uid");
+            return;
+        }
+        butLayEvent.butaddAllName(typeVal, content);
 
     })
-
-//删
-    $("#butdel").click(function () {
+    $("#butdel").click(function () {//删
         const typeVal = $("#model option:selected").val();
         const content = prompt("请输入你要删除的单个元素规则");
         if (content === null) {
             return;
         }
         if (content === "") {
-            Qmsg.error("请正确填写规则！");
+            Qmsg.error("请输入正确的内容！");
             return;
         }
-        switch (typeVal) {
-            case "name":
-                butLayEvent.butDelName("userNameArr", content);
-                break;
-            case "nameKey":
-                butLayEvent.butDelName("userNameKeyArr", content);
-                break;
-            case "uid":
-                if (isNaN(content)) {
-                    Qmsg.error("内容不是数字");
-                    return;
-                }
-                butLayEvent.butDelName("userUIDArr", parseInt(content));
-                break;
-            case "bName":
-                butLayEvent.butDelName("userWhiteUIDArr", parseInt(content));
-                break;
-            case "title":
-                butLayEvent.butDelName("titleKeyArr", content);
-                break;
-            case "titleCanonical":
-                butLayEvent.butDelName("titleKeyCanonicalArr", content);
-                break;
-            case "contentOn":
-                butLayEvent.butDelName("commentOnKeyArr", content);
-                break;
-            case "contentOnCanonical":
-                butLayEvent.butDelName("contentOnKeyCanonicalArr", content);
-                break;
-            case "fanCard":
-                butLayEvent.butDelName("fanCardArr", content);
-                break;
-            case "column":
-                butLayEvent.butDelName("contentColumnKeyArr", content);
-                break;
-            default:
-                console.log("butdel出现错误了的结果")
-                break;
+        if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
+            butLayEvent.butDelName(typeVal, parseInt(content));
+            return;
         }
+        butLayEvent.butDelName(typeVal, content);
     })
 
-//删
-    $("#butdelAll").click(function () {
+    $("#butdelAll").click(function () {//指定规则全删
         const typeVal = $("#model option:selected").val();
-        switch (typeVal) {
-            case "name":
-                butLayEvent.butDelAllName("userNameArr");
-                break;
-            case "nameKey":
-                butLayEvent.butDelAllName("userNameKeyArr");
-                break;
-            case "uid":
-                butLayEvent.butDelAllName("userUIDArr");
-                break;
-            case "bName":
-                butLayEvent.butDelAllName("userWhiteUIDArr");
-                break;
-            case "title":
-                butLayEvent.butDelAllName("titleKeyArr");
-                break;
-            case "titleCanonical":
-                butLayEvent.butDelAllName("titleKeyCanonicalArr");
-                break;
-            case "contentOn":
-                butLayEvent.butDelAllName("commentOnKeyArr");
-                break;
-            case "contentOnCanonical":
-                butLayEvent.butDelAllName("contentOnKeyCanonicalArr");
-                break;
-            case "fanCard":
-                butLayEvent.butDelAllName("fanCardArr");
-                break;
-            case "column":
-                butLayEvent.butDelAllName("contentColumnKeyArr");
-                break;
-            default:
-                console.log("butdelAll出现错误了的结果")
-                break;
-        }
+        butLayEvent.butDelAllName(typeVal);
     })
 
     $("#butSet").click(() => {
@@ -4485,39 +4373,11 @@ function openTab(e) {
             return;
         }
         const typeVal = $("#model option:selected").val();
-        switch (typeVal) {
-            case "name":
-                butLayEvent.butSetKey("userNameArr", oldContent, content);
-                break;
-            case "nameKey":
-                butLayEvent.butSetKey("userNameKeyArr", oldContent, content);
-                break;
-            case "uid":
-            case "bName":
-                alert("暂时不支持修改UID");
-                break;
-            case "title":
-                butLayEvent.butSetKey("titleKeyArr", oldContent, content);
-                break;
-            case "titleCanonical":
-                butLayEvent.butSetKey("titleKeyCanonicalArr", oldContent, content);
-                break;
-            case "contentOn":
-                butLayEvent.butSetKey("commentOnKeyArr", oldContent, content);
-                break;
-            case "contentOnCanonical":
-                butLayEvent.butSetKey("contentOnKeyCanonicalArr", oldContent, content);
-                break;
-            case "fanCard":
-                butLayEvent.butSetKey("fanCardArr", oldContent, content);
-                break;
-            case "column":
-                butLayEvent.butSetKey("contentColumnKeyArr", oldContent, content);
-                break;
-            default:
-                console.log("butSet出现错误了的结果")
-                break;
+        if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
+            butLayEvent.butSetKey(typeVal, parseInt(oldContent), parseInt(content));
+            return;
         }
+        butLayEvent.butSetKey(typeVal, oldContent, content);
     });
 
 //查
@@ -4528,48 +4388,14 @@ function openTab(e) {
             return;
         }
         if (content === "") {
-            Qmsg.error("请正确填写规则！");
+            Qmsg.error("请输入正确的内容！");
             return;
         }
-        switch (typeVal) {
-            case "name":
-                butLayEvent.butFindKey("userNameArr", content);
-                break;
-            case "nameKey":
-                butLayEvent.butFindKey("userNameKeyArr", content);
-                break;
-            case "uid":
-                if (isNaN(content)) {
-                    Qmsg.error("内容不是数字");
-                    return;
-                }
-                butLayEvent.butFindKey("userUIDArr", parseInt(content));
-                break;
-            case "bName":
-                butLayEvent.butFindKey("userWhiteUIDArr", parseInt(content));
-                break;
-            case "title":
-                butLayEvent.butFindKey("titleKeyArr", content);
-                break;
-            case "titleCanonical":
-                butLayEvent.butFindKey("titleKeyCanonicalArr", content);
-                break;
-            case "contentOn":
-                butLayEvent.butFindKey("commentOnKeyArr", content);
-                break;
-            case "contentOnCanonical":
-                butLayEvent.butFindKey("contentOnKeyCanonicalArr", content);
-                break;
-            case "fanCard":
-                butLayEvent.butFindKey("fanCardArr", content);
-                break;
-            case "column":
-                butLayEvent.butFindKey("contentColumnKeyArr", content);
-                break;
-            default:
-                console.log("butFind出现错误了的结果")
-                break;
+        if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
+            butLayEvent.butFindKey(typeVal, parseInt(content));
+            return;
         }
+        butLayEvent.butFindKey(typeVal, content);
     });
 
 
@@ -5053,14 +4879,11 @@ function bilibiliOne(href, windonsTitle) {
             }, 4500);
             return;
         }
-
         const temp = layout.getFilter_queue();
         $("body").append(temp);
         temp.click(() => {
             butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
         });
-
-
         return;
     }
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
@@ -5123,6 +4946,7 @@ function bilibiliOne(href, windonsTitle) {
                 return;
             }
             clearInterval(interval01);
+
             chat_items.bind("DOMNodeInserted", () => {
                 const list = $("#chat-items").children();
                 if (list.length === 0) {
@@ -5333,12 +5157,10 @@ function bilibiliOne(href, windonsTitle) {
             Qmsg.error(`未找到${content}分区的信息`);
         });
         openBut.click(() => {
-
             const select_parent_ID = select_parent_name.val();
             const select_name_ID = select_name.val();
             util.openWindow(`https://live.bilibili.com/p/eden/area-tags?areaId=${select_name_ID}&parentAreaId=${select_parent_ID}`);
         });
-
 
         liveLayout.append(select_parent_name);
         liveLayout.append(select_name);
@@ -5436,7 +5258,40 @@ function bilibiliOne(href, windonsTitle) {
                 qmLoading.close();
             });
         };
-        //tempFunc(3, 293, Qmsg.loading("正在获取分区直播列表信息"));
+
+        function tempLoadIng() {
+            const interval01 = setInterval(() => {
+                const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
+                if (tempList.length === 0) {
+                    return;
+                }
+                clearInterval(interval01);
+                shrieDynamicItems(tempList);
+            }, 1000);
+            const tempE01 = $(".bili-dyn-list__items");
+            if (util.isEventJq(tempE01, "DOMNodeInserted")) {
+                return;
+            }
+            tempE01.bind("DOMNodeInserted", () => {
+                shrieDynamicItems(tempE01.children());
+            });
+        }
+
+        tempLoadIng();
+        const interval02 = setInterval(() => {
+            const tempE = $(".bili-dyn-up-list__content");
+            if (tempE.length === 0) {
+                return;
+            }
+            const list = tempE.children();
+            if (list === null || list.length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            list.click(() => {
+                tempLoadIng();
+            });
+        }, 1000);
     }
     if (href.includes("search.bilibili.com")) {
         $("#biliMainFooter").remove();
@@ -5673,6 +5528,50 @@ function bilibili(href) {
     if (href.includes("www.bilibili.com/v/")) {
         homePrefecture();
         return;
+    }
+    if (href.includes("space.bilibili.com/[0-9]+/dynamic") !== -1) {
+        const interval01 = setInterval(() => {
+            const tempE = $(".bili-dyn-list__items");
+            if (tempE.length === 0) {
+                return;
+            }
+            const list = tempE.children();
+            if (list.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            shrieDynamicItems(list);
+            if (util.isEventJq(tempE, "DOMNodeInserted")) {
+                clearInterval(interval01);
+                return;
+            }
+            tempE.bind("DOMNodeInserted", () => {
+                shrieDynamicItems($(".bili-dyn-list__items").children());
+            });
+        }, 1000);
+    }
+
+
+}
+
+/**
+ * 屏蔽动态页动态项目
+ */
+function shrieDynamicItems(list) {
+    for (let v of list) {
+        let tempE = v.querySelector(".bili-rich-text");
+        if (tempE === null || tempE.length === 0) {//没有说明是其他的类型动态，如投稿了视频且没有评论显示
+            continue;
+        }
+        const tempContent = tempE.textContent;
+        const contentKey = shield.arrContent(localData.getDynamicArr(), tempContent);
+        if (contentKey == null) {
+            continue;
+        }
+        v.remove();
+        const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
+        Qmsg.success(tempInfo);
+        Print.ln(tempInfo);
     }
 }
 
