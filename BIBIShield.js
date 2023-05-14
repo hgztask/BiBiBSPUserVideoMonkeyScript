@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.46
+// @version      1.1.47
 // @description  根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -3234,7 +3234,7 @@ const layout = {
                 <h3>视频播放速度</h3>
               拖动更改页面视频播放速度
                 <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
-                <span id="playbackSpeedModel">1.0x</span>
+                <span id="playbackSpeedText">1.0x</span>
                 <button id="preservePlaySpeed">保存</button>
                 <div>固定视频播放速度值
                   <select id="playbackSpeedModel">
@@ -3948,7 +3948,7 @@ function openTab(e) {
     $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
         const vaule = $("#rangePlaySpeed").val();//获取值
         util.setVideoBackSpeed(vaule);
-        $("#playbackSpeedSpan").text(vaule + "x");//修改对应标签的文本显示
+        $("#playbackSpeedText").text(vaule + "x");//修改对应标签的文本显示
     });
 
 
@@ -5580,6 +5580,7 @@ function shrieDynamicItems(list) {
     for (let v of list) {
         let tempE = v.querySelector(".bili-rich-text");
         if (tempE === null || tempE.length === 0) {//没有说明是其他的类型动态，如投稿了视频且没有评论显示
+
             continue;
         }
         const tempContent = tempE.textContent;
