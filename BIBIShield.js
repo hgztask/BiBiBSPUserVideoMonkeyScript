@@ -330,7 +330,7 @@ const Home = {
     },
 }
 
-const live = {
+const Live = {
     shield: function (list) {
         for (let v of list) {
             const userName = v.getAttribute("data-uname");
@@ -2299,7 +2299,6 @@ const videoFun = {
     }
 }
 
-
 //获取频道界面单个的视频信息
 function getChannelVideoRules(element) {
     const videoInfo = element.getElementsByClassName("video-name")[0];
@@ -2326,7 +2325,6 @@ function getChannelVideoRules(element) {
         barrageQuantity: topInfo[1].textContent.trim()
     };
 }
-
 
 //频道
 const frequencyChannel = {
@@ -3400,7 +3398,6 @@ const layout = {
     }
 }
 
-
 //获取动态页面-评论区信息-单个元素信息-楼主
 function getVideoCommentAreaOrTrendsLandlord(v) {
     const userInfo = v.querySelector(".user-info");
@@ -3821,7 +3818,6 @@ function openTab(e) {
     $("body").prepend('<button id="mybut">按钮</button>');
     layout.css.home();
 
-
     $("#tabUl>li>button").click((e) => {
         const domElement = e.delegateTarget;//dom对象
         document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
@@ -3831,7 +3827,6 @@ function openTab(e) {
         openTab(domElement.value);
     });
 
-
     Util.suspensionBall(document.getElementById("suspensionDiv"));
 
     Rule.ruleLength();
@@ -3839,7 +3834,6 @@ function openTab(e) {
     $("#mybut").click(() => {
         hideDisplayHomeLaylout();
     });
-
 
     $(document).keyup(function (event) {//单按键监听-按下之后松开事件
         const keycode = event.keyCode;
@@ -3858,7 +3852,6 @@ function openTab(e) {
             $("#suspensionDiv").css("display", "none");
         }
     });
-
 
     $('#singleDoubleModel').change(() => {//监听模式下拉列表
         const modelStr = $('#singleDoubleModel').val();
@@ -3897,7 +3890,6 @@ function openTab(e) {
         $("#playbackSpeedText").text(vaule + "x");//修改对应标签的文本显示
     });
 
-
     $('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
         Util.setVideoBackSpeed($('#playbackSpeedModel').val())
     });
@@ -3914,7 +3906,6 @@ function openTab(e) {
         Util.setData("rangePlaySpeed", parseFloat(val));
         Print.ln("已保存播放速度数据=" + val);
     });
-
 
     $("#flipHorizontal").click(function () {//水平翻转视频
         const videoData = Rule.videoData;
@@ -3946,7 +3937,6 @@ function openTab(e) {
         }
     });
 
-
     $("#butShieldName").click(() => {//悬浮小窗体-添加屏蔽用户名
         const name = $("#nameSuspensionDiv").text();
         butLayEvent.butaddName("userNameArr", name);
@@ -3968,10 +3958,9 @@ function openTab(e) {
             return;
         }
         if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
-            live.shield($("#chat-items").children());
+            Live.shield($("#chat-items").children());
             return;
         }
-
     });
     $("#findUserInfo").click(() => {
         const uid = $("#uidSuspensionDiv").text();
@@ -4009,7 +3998,6 @@ function openTab(e) {
             $("#popDiv").css("display", "inline");
         });
     });
-
 
     $("#getVideoDanMueBut").click(() => {//打开当前视频弹幕列表
         const windowUrl = Util.getWindowUrl();
@@ -4158,7 +4146,6 @@ function openTab(e) {
         Qmsg.success("获取成功并执行导出内容");
     });
 
-
     const openTheFilteredList = $("#OpenTheFilteredList");
     openTheFilteredList.click(() => {
         Qmsg.info("该功能暂未完善");
@@ -4175,7 +4162,6 @@ function openTab(e) {
         console.log(href);
     });
 
-
     $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
         const value = $("#axleRange").val();//获取值
         Util.setVideoCenterRotation(value);
@@ -4186,7 +4172,6 @@ function openTab(e) {
     tempdelBox.click(() => {
         localData.setDelVideoCommentSections(tempdelBox.is(':checked'));
     });
-
 
     $("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
         const value = $("#backgroundPellucidityRange").val();//获取值
@@ -4205,7 +4190,6 @@ function openTab(e) {
         $("#home_layout").css("width", `${value}%`);
     });
 
-
     $("#DShielPanel").click(() => {//点击禁用快捷悬浮屏蔽面板自动显示
         Util.setData("isDShielPanel", $("#DShielPanel").is(":checked"));
     });
@@ -4213,7 +4197,6 @@ function openTab(e) {
     $("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
         Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
     });
-
 
     $("#butSelectVideo").click(function () {//确定时长播放量弹幕
         const selectVideo = $("#selectVideo");
@@ -4259,9 +4242,7 @@ function openTab(e) {
         document.querySelector('#outputInfo').innerHTML = '';
     });
 
-
-//增
-    $("#butadd").click(function () {
+    $("#butadd").click(function () {//增
         const typeVal = $("#model option:selected").val();
         const content = prompt("请填写要添加的值");
         if (content === null) {
@@ -4278,7 +4259,6 @@ function openTab(e) {
         butLayEvent.butaddName(typeVal, content);
     })
 
-
     $("#butaddAll").click(function () {
         const typeVal = $("#model option:selected").val();
         const content = $("#inputTextAreaModel").val();
@@ -4294,7 +4274,6 @@ function openTab(e) {
             return;
         }
         butLayEvent.butaddAllName(typeVal, content);
-
     })
     $("#butdel").click(function () {//删
         const typeVal = $("#model option:selected").val();
@@ -4312,7 +4291,6 @@ function openTab(e) {
         }
         butLayEvent.butDelName(typeVal, content);
     })
-
     $("#butdelAll").click(function () {//指定规则全删
         const typeVal = $("#model option:selected").val();
         butLayEvent.butDelAllName(typeVal);
@@ -4335,9 +4313,7 @@ function openTab(e) {
         }
         butLayEvent.butSetKey(typeVal, oldContent, content);
     });
-
-//查
-    $("#butFind").click(function () {
+    $("#butFind").click(function () {//查
         const typeVal = $("#model option:selected").val();
         const content = prompt("请输入你要查询的单个元素规则");
         if (content === null) {
@@ -4354,11 +4330,9 @@ function openTab(e) {
         butLayEvent.butFindKey(typeVal, content);
     });
 
-
     $("#printRuleBut").click(() => {
         Print.ln(Util.getRuleFormatStr());
     });
-
 
     $("#sgSessdata>button:eq(0)").click(() => {
         const content = prompt("请输入要保存的SESSDATA值");
@@ -4422,7 +4396,6 @@ function openTab(e) {
         Qmsg.success("获取成功！，已将bili_jct值输出到面板上");
     });
 
-
     $("#sgSessdata>button:eq(1)").click(() => {
         const data = localData.getSESSDATA();
         if (data === null) {
@@ -4436,9 +4409,7 @@ function openTab(e) {
         Print.ln(data);
     });
 
-
-//点击导出规则事件
-    $("#outExport").click(() => {
+    $("#outExport").click(() => {//点击导出规则事件
         const selectedText = $('#outRuleSelect option:selected').text();
         if (selectedText === "全部规则到文件") {
             let s = prompt("保存为", "规则-" + Util.toTimeString());
@@ -4505,7 +4476,6 @@ function openTab(e) {
 
         }
     });
-
 
     //导入按钮事件
     $("#inputExport").click(function () {
@@ -4631,7 +4601,6 @@ function openTab(e) {
         editorInput.hide();
     });
 
-
     /**
      * 内容导出为文件
      * @param {String}content 内容
@@ -4741,7 +4710,6 @@ function openTab(e) {
         }
     });
 
-
     ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
@@ -4754,7 +4722,6 @@ function openTab(e) {
         ruleList(href);//网页url发生变化时执行
         bilibili(href);
     }, 1000);
-
 
     if (href.includes("bilibili.com")) {
         bilibili(href);
@@ -4912,7 +4879,7 @@ function bilibiliOne(href, windonsTitle) {
                     Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
                     return;
                 }
-                live.shield(list);
+                Live.shield(list);
             });
             console.log("定义了监听器!");
         }, 1000);
