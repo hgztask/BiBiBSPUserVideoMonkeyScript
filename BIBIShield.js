@@ -40,7 +40,7 @@
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
-const rule = {
+const Rule = {
     ruleLength: function () {
         function setText(arr, id) {
             if (arr !== undefined && arr !== null) {
@@ -54,15 +54,15 @@ const rule = {
         setText(localData.getArrWhiteUID(), "#textUserBName");
         setText(localData.getArrTitle(), "#textUserTitle");
         setText(localData.getArrTitleKeyCanonical(), "#textUserTitleCanonical");
-        setText(util.getData("commentOnKeyArr"), "#textContentOn");
+        setText(Util.getData("commentOnKeyArr"), "#textContentOn");
         setText(localData.getArrContentOnKeyCanonicalArr(), "#textContentOnCanonical");
         setText(localData.getFanCardArr(), "#textFanCard");
         setText(localData.getContentColumnKeyArr(), "#textColumn");
         setText(localData.getDynamicArr(), "#textDynamicArr");
     },
     showInfo: function () {
-        const isDShielPanel = util.getData("isDShielPanel");
-        const isAutoPlay = util.getData("autoPlay");
+        const isDShielPanel = Util.getData("isDShielPanel");
+        const isAutoPlay = Util.getData("autoPlay");
         const dShielPanel = $("#DShielPanel");
         const autoPlayCheckbox = $("#autoPlayCheckbox");
         if (isDShielPanel === null || isDShielPanel === undefined) {
@@ -77,7 +77,7 @@ const rule = {
         }
         const pushTypeSelect = $("#pushTypeSelect");
         const videoZoneSelect = $("#video_zoneSelect");
-        const pushType = home.getPushType();
+        const pushType = Home.getPushType();
         pushTypeSelect.val(pushType);
         switch (pushType) {
             case "":
@@ -215,7 +215,7 @@ const rule = {
 
 //是否隐藏了面板
 let myidClickIndex = true;
-const home = {
+const Home = {
     //首页下拉底部时依次加载视频的个数
     videoIndex: 20,
     background: {//主面板背景颜色及透明度
@@ -233,17 +233,17 @@ const home = {
      * @return {string}
      */
     getPushType: function () {
-        const data = util.getData("pushType");
+        const data = Util.getData("pushType");
         if (data === null || data === undefined) {
             return "专区";
         }
         return data;
     },
     setPushType: function (key) {
-        util.setData("pushType", key);
+        Util.setData("pushType", key);
     },
     getBackgroundStr: function () {
-        return util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
+        return Util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
     },
     //调整首页样式
     stypeBody: function () {
@@ -306,7 +306,7 @@ const home = {
                         continue;
                     }
                     const jqE = $(v);
-                    if (util.isEventJq(jqE, "mouseover")) {
+                    if (Util.isEventJq(jqE, "mouseover")) {
                         continue;
                     }
                     jqE.mouseenter((e) => {
@@ -316,7 +316,7 @@ const home = {
                         const userName = info.querySelectorAll("[title]")[1].textContent;
                         let href = info.querySelector(".bili-video-card__info--owner").href;
                         href = href.substring(href.lastIndexOf("/") + 1);
-                        util.showSDPanel(e, userName, href, videoTitle);
+                        Util.showSDPanel(e, userName, href, videoTitle);
                     });
                 }
                 list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
@@ -345,19 +345,19 @@ const live = {
                 Qmsg.info("屏蔽了言论！！");
                 continue;
             }
-            if (remove.fanCard(v, fansMeda)) {
+            if (Remove.fanCard(v, fansMeda)) {
                 Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
                 continue;
             }
             const jqE = $(v);
-            if (util.isEventJq(jqE, "mouseover")) {
+            if (Util.isEventJq(jqE, "mouseover")) {
                 continue;
             }
             jqE.mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const name = domElement.getAttribute("data-uname");
                 const uid = domElement.getAttribute("data-uid");
-                util.showSDPanel(e, name, uid);
+                Util.showSDPanel(e, name, uid);
             });
         }
     }
@@ -367,7 +367,7 @@ const live = {
 /**
  * 判断内容是否匹配上元素
  */
-const shield = {
+const Shield = {
     /**
      * 根据用户提供的网页元素和对应的数组及key，精确匹配数组某个元素
      * @param arr 数组
@@ -430,7 +430,7 @@ const shield = {
 /**
  * 针对内容符合规则的删除元素并返回状态值
  */
-const remove = {
+const Remove = {
     //是否是白名单用户
     isWhiteUserUID: function (uid) {
         const tempArr = localData.getArrWhiteUID();
@@ -446,7 +446,7 @@ const remove = {
      * @returns {boolean}
      */
     uid: function (element, uid) {
-        if (shield.arrKey(localData.getArrUID(), parseInt(uid))) {
+        if (Shield.arrKey(localData.getArrUID(), parseInt(uid))) {
             element.remove();
             return true;
         }
@@ -460,7 +460,7 @@ const remove = {
      * @returns {boolean}
      */
     name: function (element, name) {
-        if (shield.arrKey(localData.getArrName(), name)) {
+        if (Shield.arrKey(localData.getArrName(), name)) {
             element.remove();
             return true;
         }
@@ -473,7 +473,7 @@ const remove = {
      * @returns {String|null}
      */
     nameKey: function (element, name) {
-        const shieldArrContent = shield.arrContent(localData.getArrNameKey(), name);
+        const shieldArrContent = Shield.arrContent(localData.getArrNameKey(), name);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -487,7 +487,7 @@ const remove = {
      * @returns {String|null}
      */
     titleKey: function (element, title) {
-        const shieldArrContent = shield.arrContent(localData.getArrTitle(), title);
+        const shieldArrContent = Shield.arrContent(localData.getArrTitle(), title);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -501,7 +501,7 @@ const remove = {
      * @return {string|null}
      */
     titleKeyCanonical: function (element, title) {
-        const canonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
+        const canonical = Shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
         if (canonical !== null) {
             element.remove();
         }
@@ -514,7 +514,7 @@ const remove = {
      * @returns {String|null}
      */
     contentKey: function (element, content) {
-        const shieldArrContent = shield.arrContent(util.getData("commentOnKeyArr"), content);
+        const shieldArrContent = Shield.arrContent(Util.getData("commentOnKeyArr"), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -528,7 +528,7 @@ const remove = {
      * @returns {String|null}
      */
     columnContentKey: function (element, content) {
-        const shieldArrContent = shield.arrContent(element, localData.getContentColumnKeyArr(), content);
+        const shieldArrContent = Shield.arrContent(element, localData.getContentColumnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -542,7 +542,7 @@ const remove = {
      * @returns {boolean}
      */
     fanCard: function (element, key) {
-        if (shield.arrKey(localData.getFanCardArr(), key)) {
+        if (Shield.arrKey(localData.getFanCardArr(), key)) {
             element.remove();
             return true;
         }
@@ -557,7 +557,7 @@ const remove = {
      * @returns {boolean}
      */
     videoMinFilterS: function (element, key) {
-        const min = rule.videoData.filterSMin;
+        const min = Rule.videoData.filterSMin;
         if (min === null) {
             return false;
         }
@@ -575,8 +575,8 @@ const remove = {
      * @returns {boolean}
      */
     videoMaxFilterS: function (element, key) {
-        const max = rule.videoData.filterSMax;
-        if (max === 0 || max < rule.videoData.filterSMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        const max = Rule.videoData.filterSMax;
+        if (max === 0 || max < Rule.videoData.filterSMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
         if (max < key) {
@@ -594,7 +594,7 @@ const remove = {
      * @returns {boolean}
      */
     videoMinPlaybackVolume: function (element, key) {
-        const min = rule.videoData.broadcastMin;
+        const min = Rule.videoData.broadcastMin;
         if (min === null) {
             return false;
         }
@@ -613,8 +613,8 @@ const remove = {
      * @returns {boolean}
      */
     videoMaxPlaybackVolume: function (element, key) {
-        const max = rule.videoData.broadcastMax;
-        if (max === 0 || max < rule.videoData.broadcastMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        const max = Rule.videoData.broadcastMax;
+        if (max === 0 || max < Rule.videoData.broadcastMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
         if (max < key) {
@@ -632,7 +632,7 @@ const remove = {
      * @returns {boolean}
      */
     videoMinBarrageQuantity: function (element, key) {
-        if (rule.videoData.barrageQuantityMin > key) {
+        if (Rule.videoData.barrageQuantityMin > key) {
             element.remove();
             return true;
         }
@@ -647,8 +647,8 @@ const remove = {
      * @returns {boolean}
      */
     videoMaxBarrageQuantity: function (element, key) {
-        const max = rule.videoData.barrageQuantityMax;
-        if (max === 0 || rule.videoData.barrageQuantityMin > max) {
+        const max = Rule.videoData.barrageQuantityMax;
+        if (max === 0 || Rule.videoData.barrageQuantityMin > max) {
             return false;
         }
         if (max > key) {
@@ -681,12 +681,12 @@ function delDReplay() {
                 continue;
             }
             const jqE = $(rootUserinfo);
-            if (!util.isEventJq(jqE, "mouseover")) {
+            if (!Util.isEventJq(jqE, "mouseover")) {
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
                     const name = domElement.textContent;
                     const uid = domElement.getAttribute("data-usercard-mid");
-                    util.showSDPanel(e, name, uid);
+                    Util.showSDPanel(e, name, uid);
                 });
             }
             const replyItem = v.querySelectorAll(".reply-box>.reply-item.reply-wrap");//楼层成员
@@ -703,14 +703,14 @@ function delDReplay() {
                     continue;
                 }
                 const jqE = $(j);
-                if (util.isEventJq(jqE, "mouseover")) {
+                if (Util.isEventJq(jqE, "mouseover")) {
                     continue;
                 }
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
                     const name = domElement.querySelector(".name").textContent;
                     const uid = domElement.querySelector("a").getAttribute("data-usercard-mid");
-                    util.showSDPanel(e, name, uid);
+                    Util.showSDPanel(e, name, uid);
                 });
             }
         }
@@ -726,7 +726,7 @@ const HttpUtil = {
         if (headers !== null || headers !== undefined) {
             tempHraders = Object.assign({}, tempHraders, headers)
         }
-        util.httpRequest({
+        Util.httpRequest({
             method: method,
             url: url,
             headers: tempHraders,
@@ -741,7 +741,7 @@ const HttpUtil = {
         if (headers !== null || headers !== undefined) {
             temp = headers;
         }
-        util.httpRequest({
+        Util.httpRequest({
             method: "POST",
             url: url,
             headers: temp,
@@ -848,12 +848,12 @@ const HtmlStr = {
     getUserCard: function (uid, userName, level, sign, image, gz, fs, hz) {
         return ` <div id="popDiv" style=" border-radius: 8px; display: none;background-color: rgb(152, 152, 152);z-index: 11;width: 374px; height: 35%; position: fixed; 
 left: 0;  bottom: 0;">
-      <img src="http://i0.hdslb.com/bfs/space/768cc4fd97618cf589d23c2711a1d1a729f42235.png@750w_240h.webp"/>
+      <img src="http://i0.hdslb.com/bfs/space/768cc4fd97618cf589d23c2711a1d1a729f42235.png@750w_240h.webp" alt=""/>
       <img src="${image}@96w_96h.webp" alt="头像" style="width: 48px; height: 48px; border-radius: 50%" />
       <div class="info">
       <p class="user"><a class="name" style=" color: rgb(251, 114, 153); --darkreader-inline-color: #fb6b94;" href="//space.bilibili.com/${uid}" target="_blank"data-darkreader-inline-color="">${userName}</a>
           <a href="//www.bilibili.com/html/help.html#k_${level}" target="_blank">
-          <img class="level"src="//s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/ic_user level_6.64b9440.svg"/>
+          <img class="level"src="//s1.hdslb.com/bfs/seed/jinkela/commentpc/static/img/ic_user level_6.64b9440.svg" alt=""/>
           </a>
         </p>
         <p class="social">
@@ -924,17 +924,17 @@ left: 0;  bottom: 0;">
 
 const Print = {
     ln: function (content) {
-        util.printElement("#outputInfo", `<dd>${content}</dd>`);
+        Util.printElement("#outputInfo", `<dd>${content}</dd>`);
     },
     video: function (color, content, name, uid, title, videoHref) {
-        util.printElement("#outputInfo", `
+        Util.printElement("#outputInfo", `
         <dd><b
-            style="color: ${color}; ">${util.toTimeString()}${content}屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>标题【<a href="${videoHref}" target="_blank">${title}</a>】</b>
+            style="color: ${color}; ">${Util.toTimeString()}${content}屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>标题【<a href="${videoHref}" target="_blank">${title}</a>】</b>
         </dd>`);
     }, commentOn: function (color, content, name, uid, primaryContent) {
-        util.printElement("#outputInfo", `
+        Util.printElement("#outputInfo", `
         <dd>
-        <b  style="color: ${color}; ">${util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
+        <b  style="color: ${color}; ">${Util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
    原言论=【${primaryContent}】</b>
 </dd>`);
     }
@@ -944,7 +944,7 @@ const Print = {
 /**
  * 工具类
  */
-const util = {
+const Util = {
     //设置数据
     setData: function (key, content) {
         GM_setValue(key, content);
@@ -1027,7 +1027,7 @@ const util = {
      * @returns {number}总秒
      */
     getTimeTotalSeconds: function (time) {
-        const demoTime = util.splitTimeHMS(time);
+        const demoTime = Util.splitTimeHMS(time);
         if (demoTime.h === undefined) {//表示时长没有时
             if (demoTime.m === 0) {//时长低于60秒
                 return demoTime.s;
@@ -1288,69 +1288,12 @@ const util = {
     //获取格式化规则的内容
     getRuleFormatStr: function () {
         //温馨提示每个{}对象最后一个不可以有,符号
-        const playbackSpeed = util.getData("playbackSpeed");
-        return `{
-    "用户名黑名单模式(精确匹配)": ${JSON.stringify(localData.getArrName())},
-    "用户名黑名单模式(模糊匹配)": ${JSON.stringify(localData.getArrNameKey())},
-    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(localData.getArrUID())},
-    "用户uid白名单模式(精确匹配)": ${JSON.stringify(localData.getArrWhiteUID())},
-    "标题黑名单模式(模糊匹配)": ${JSON.stringify(localData.getArrTitle())},
-    "标题黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrTitleKeyCanonical())},
-    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("commentOnKeyArr"))},
-    "评论关键词黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrContentOnKeyCanonicalArr())},
-    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(localData.getFanCardArr())},
-    "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getContentColumnKeyArr())},
-    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getDynamicArr())},
-    "禁用快捷悬浮屏蔽面板自动显示":${util.getData("isDShielPanel")},
-    "视频参数": {
-        "时长最小值": ${util.getData("filterSMin")},
-        "时长最大值": ${util.getData("filterSMax")},
-        "播放量最小值": ${util.getData("broadcastMin")},
-        "播放量最大值": ${util.getData("broadcastMax")},
-        "弹幕量最小值": ${util.getData("barrageQuantityMin")},
-        "弹幕量最大值": ${util.getData("barrageQuantityMax")},
-        "是否允许b站自动播放视频": ${util.getData("autoPlay")},
-        "视频播放速度": ${isNaN(playbackSpeed) ? undefined : playbackSpeed},
-        "是否移除播放页右侧的的布局": null,
-        "是否要移除右侧播放页的视频列表": null,
-        "是否移除评论区布局": null,
-        "是否移除视频页播放器下面的标签": null,
-        "是否移除视频页播放器下面的简介": null,
-        "是否移除视频播放完之后的推荐视频": null,
-        "是否取消对播放页右侧列表的视频内容过滤屏蔽处理": null
-    },
-    "动态相关配置信息": {
-        "是否移除顶栏": null,
-        "是否移除右侧布局": null,
-        "是否移除话题布局上面的公告栏": null
-    },
-    "直播间的相关配置信息": {
-        "是否移除直播间底部的全部信息": null,
-        "是否移除直播间顶部的信息": null,
-        "是否移除直播间播放器头部的用户信息以及直播间基础信息": null,
-        "是否移除直播间右侧的聊天布局": null,
-        "是否移除直播间右侧的聊天内容": null,
-        "是否移除右侧的聊天内容中的红色的系统提示": null,
-        "是否移除右侧聊天内容中的用户进入房间提示": null,
-        "是否移除左上角的b站直播logo": null,
-        "是否移除左上角的首页项目": null,
-        "是否移除直播间底部的的简介和主播荣誉": null,
-        "是否移除直播间的主播公告布局": null,
-        "是否移除直播首页右侧的悬浮按钮": null,
-        "是否移除提示购物车": null,
-        "是否移除购物车": null,
-        "是否移除直播间的背景图": null,
-        "是否屏蔽直播间底部动态": null,
-        "移除顶部左侧的选项（不包括右侧）": null,
-        "是否移除礼物栏": null,
-        "是否移除立即上舰": null,
-        "是否移除礼物栏的的礼物部分": null,
-        "直播分区时屏蔽的类型": null,
-        "是否移除悬浮的233娘": null,
-        "是否移除右侧悬浮靠边按钮": null,
-        "是否移除直播水印": null
-    }
-    }`;
+        return `{"用户名黑名单模式(精确匹配)": ${JSON.stringify(localData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(localData.getArrNameKey())},
+    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(localData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(localData.getArrWhiteUID())},
+    "标题黑名单模式(模糊匹配)": ${JSON.stringify(localData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrTitleKeyCanonical())},
+    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(Util.getData("commentOnKeyArr"))},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrContentOnKeyCanonicalArr())},
+    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(localData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getContentColumnKeyArr())},
+    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getDynamicArr())},"禁用快捷悬浮屏蔽面板自动显示":${Util.getData("isDShielPanel")}}`;
     },
     /**
      * 设置页面播放器的播放速度
@@ -1472,7 +1415,7 @@ const util = {
      * @param title 标题
      */
     showSDPanel: function (e, name, uid, title) {
-        const newVar = util.getData("isDShielPanel");
+        const newVar = Util.getData("isDShielPanel");
         if (newVar) {
             return;
         }
@@ -1481,7 +1424,7 @@ const util = {
         }
         $("#nameSuspensionDiv").text(name);
         let uidA = $("#uidSuspensionDiv");
-        uid = util.getSubUid(uid);
+        uid = Util.getSubUid(uid);
         uidA.text(uid);
         uidA.attr("href", `https://space.bilibili.com/${uid}`);
         if (title !== undefined || title !== null) {
@@ -1651,7 +1594,7 @@ z-index: 2000;
     <button id="getSelectedCheckboxItem">获取选中的数据</button>
 </div>`);
 
-        for (let v of util.getDistinctKeys(list)) {
+        for (let v of Util.getDistinctKeys(list)) {
             $("#search-select").append(`<option value=${v}>${v}</option>`);
             $("#show-select").append(`<option value=${v}>${v}</option>`);
         }
@@ -1715,34 +1658,34 @@ z-index: 2000;
 
 const localData = {
     getSESSDATA: function () {
-        const data = util.getData("SESSDATA");
+        const data = Util.getData("SESSDATA");
         if (data === undefined || data === null || data === "") {
             return null;
         }
         return "SESSDATA=" + data;
     },
     setSESSDATA: function (key) {
-        util.setData("SESSDATA", key);
+        Util.setData("SESSDATA", key);
     },
     getWebBili_jct: function () {
-        const data = util.getCookieList()["bili_jct"];
+        const data = Util.getCookieList()["bili_jct"];
         if (data === undefined) {
             return null;
         }
         return data;
     },
     getBili_jct: function () {
-        const data = util.getData("bili_jct");
+        const data = Util.getData("bili_jct");
         if (data === undefined || data === null === "") {
             return null;
         }
         return data;
     },
     setBili_jct: function (key) {
-        util.setData("bili_jct", key);
+        Util.setData("bili_jct", key);
     },
     temp: function (key) {
-        const data = util.getData(key);
+        const data = Util.getData(key);
         if (data == undefined || data == null) {
             return [];
         }
@@ -1752,60 +1695,60 @@ const localData = {
         return this.temp("userUIDArr");
     },
     setArrUID: function (key) {
-        util.setData("userUIDArr", key);
+        Util.setData("userUIDArr", key);
     },
     getArrWhiteUID: function () {
         return this.temp("userWhiteUIDArr");
     },
     setArrWhiteUID: function (key) {
-        util.setData("userWhiteUIDArr", key);
+        Util.setData("userWhiteUIDArr", key);
     },
     getArrName: function () {
         return this.temp("userNameArr");
     },
     setArrName: function (key) {
-        util.setData("userNameArr", key);
+        Util.setData("userNameArr", key);
     },
     getArrNameKey: function () {
         return this.temp("userNameKeyArr");
     },
     setArrNameKey: function (key) {
-        util.setData("userNameKeyArr", key);
+        Util.setData("userNameKeyArr", key);
     },
     getArrTitle: function () {
         return this.temp("titleKeyArr");
     },
     setArrTitle: function (key) {
-        util.setData("titleKeyArr", key);
+        Util.setData("titleKeyArr", key);
     }, getArrTitleKeyCanonical: function () {
         return this.temp("titleKeyCanonicalArr");
     },
     setArrTitleKeyCanonical: function (key) {
-        util.setData("titleKeyCanonicalArr", key);
+        Util.setData("titleKeyCanonicalArr", key);
     },//获取评论关键词黑名单模式(正则匹配)
     getArrContentOnKeyCanonicalArr: function () {
         return this.temp("contentOnKeyCanonicalArr");
     },//设置评论关键词黑名单模式(正则匹配)
     setArrContentOnKeyCanonicalArr: function (key) {
-        util.setData("contentOnKeyCanonicalArr", key);
+        Util.setData("contentOnKeyCanonicalArr", key);
     },//获取动态页屏蔽项目规则--模糊匹配
     getDynamicArr: function () {
         return this.temp("dynamicArr");
     }, //设置动态页屏蔽项目规则-模糊匹配
     setDynamicArr: function (key) {
-        util.setData("dynamicArr", key);
+        Util.setData("dynamicArr", key);
     }, //粉丝牌
     getFanCardArr: function () {
         return this.temp("fanCardArr");
     },//粉丝牌
     setFanCardArr: function (key) {
-        util.setData("fanCardArr", key);
+        Util.setData("fanCardArr", key);
     },//专栏关键词内容黑名单模式(模糊匹配)
     getContentColumnKeyArr: function () {
         return this.temp("contentColumnKeyArr");
     },//专栏关键词内容黑名单模式(模糊匹配)
     setContentColumnKeyArr: function (key) {
-        util.setData("contentColumnKeyArr", key);
+        Util.setData("contentColumnKeyArr", key);
     },
     getVideo_zone: function () {
         const data = this.temp("video_zone");
@@ -1815,30 +1758,30 @@ const localData = {
         return parseInt(data);
     },
     setVideo_zone: function (key) {
-        util.setData("video_zone", key);
+        Util.setData("video_zone", key);
     },//获取已观看的视频数组
     getWatchedArr: function () {
         return this.temp("watchedArr");
     },//设置已观看的视频
     setWatchedArr: function (key) {
-        util.setData("watchedArr", key);
+        Util.setData("watchedArr", key);
     },//获取已观看的视频
     getRuleApi: function () {
-        const data = util.getData("ruleApiUrl");
+        const data = Util.getData("ruleApiUrl");
         if (data === undefined || data === null) {
             return null;
         }
         return data;
     }, setRuleApi: function (url) {
-        util.setData("ruleApiUrl", url);
+        Util.setData("ruleApiUrl", url);
     },
     getDelVideoCommentSections: function () {//是否移除评论区布局
-        const data = util.getData("isCommentArea");
+        const data = Util.getData("isCommentArea");
         return data === true;
 
     },
     setDelVideoCommentSections: function (key) {//是否移除评论区布局
-        util.setData("isCommentArea", key === true ? true : false);
+        Util.setData("isCommentArea", key === true ? true : false);
     },
 }
 
@@ -1940,9 +1883,9 @@ const urleCrud = {
      */
     add: function (arr, key, ruleStrName) {
         arr.push(key);
-        util.setData(ruleStrName, arr);
+        Util.setData(ruleStrName, arr);
         Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
-        rule.ruleLength();
+        Rule.ruleLength();
         return true;
     },
     /**
@@ -1967,9 +1910,9 @@ const urleCrud = {
             Print.ln("内容长度无变化，可能是已经有了的值")
             return;
         }
-        util.setData(ruleStrName, arr);
+        Util.setData(ruleStrName, arr);
         Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
-        rule.ruleLength();
+        Rule.ruleLength();
     },
     /**
      *
@@ -1985,9 +1928,9 @@ const urleCrud = {
             return false;
         }
         arr.splice(index, 1);
-        util.setData(ruleStrName, arr);
+        Util.setData(ruleStrName, arr);
         Print.ln("已经删除该元素=" + key);
-        rule.ruleLength();
+        Rule.ruleLength();
         return true;
     }
 
@@ -2002,7 +1945,7 @@ const butLayEvent = {
         if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
             return false;
         }
-        let arrayList = util.getData(ruleStr);
+        let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             urleCrud.add([], contentV, ruleStr);
             return false;
@@ -2026,7 +1969,7 @@ const butLayEvent = {
             Qmsg.error("内容不正确！内容需要数组或者json格式！错误信息=" + error);
             return;
         }
-        let arrayList = util.getData(ruleStr);
+        let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             urleCrud.addAll([], tempList, ruleStr);
             return;
@@ -2034,7 +1977,7 @@ const butLayEvent = {
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
     butDelName: function (ruleStr, contentV) {
-        let arrayList = util.getData(ruleStr);
+        let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             Print.ln("没有内容哟")
             return false;
@@ -2046,7 +1989,7 @@ const butLayEvent = {
         return urleCrud.del(arrayList, contentV, ruleStr);
     },
     butDelAllName: function (ruleStr) {
-        const list = util.getData(ruleStr);
+        const list = Util.getData(ruleStr);
         if (list === null || list === undefined) {
             Print.ln("没有内容哟")
             return;
@@ -2055,9 +1998,9 @@ const butLayEvent = {
         if (!b) {
             return;
         }
-        util.delData(ruleStr);
+        Util.delData(ruleStr);
         Print.ln("已全部清除=" + ruleStr);
-        rule.ruleLength();
+        Rule.ruleLength();
     },
     //查询
     butFindKey: function (ruleStr, contentV) {
@@ -2065,7 +2008,7 @@ const butLayEvent = {
             Print.ln("请输入正确的内容")
             return;
         }
-        let arrayList = util.getData(ruleStr);
+        let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             Print.ln("找不到该内容！");
             return;
@@ -2090,7 +2033,7 @@ const butLayEvent = {
             Print.ln("请输入正确的内容，两者内容不能相同")
             return;
         }
-        let arrayList = util.getData(ruleStr);
+        let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             Print.ln("找不到该内容！");
             return;
@@ -2105,7 +2048,7 @@ const butLayEvent = {
             return;
         }
         arrayList.splice(index, 1, newKey);
-        util.setData(ruleStr, arrayList);
+        Util.setData(ruleStr, arrayList);
         Qmsg.success("替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
     }
 }
@@ -2120,25 +2063,25 @@ const butLayEvent = {
  * @returns {boolean}
  */
 function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
-    if (remove.isWhiteUserUID(uid)) {
+    if (Remove.isWhiteUserUID(uid)) {
         return false;
     }
-    const key = remove.contentKey(element, content);
+    const key = Remove.contentKey(element, content);
     if (key != null) {
         Print.commentOn("#00BFFF", `已通过言论关键词了【${key}】`, name, uid, content);
         return true;
     }
-    const isUid = remove.uid(element, uid);
+    const isUid = Remove.uid(element, uid);
     if (isUid) {
         Print.commentOn("#yellow", `已通过UID屏蔽`, name, uid, content);
         return true;
     }
-    const isName = remove.name(element, name);
+    const isName = Remove.name(element, name);
     if (isName) {
         Print.commentOn(null, `已通过指定用户名【${isName}】`, name, uid, content);
         return true;
     }
-    const isNameKey = remove.nameKey(element, name);
+    const isNameKey = Remove.nameKey(element, name);
     if (isNameKey != null) {
         Print.commentOn(null, `已通过指定用户名模糊规则【${isNameKey}】`, name, uid, content);
         return true;
@@ -2159,57 +2102,57 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @returns {boolean} 是否执行完
  */
 function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
-    if (remove.isWhiteUserUID(uid)) {
+    if (Remove.isWhiteUserUID(uid)) {
         return false;
     }
     if (uid !== null) {
-        const isUid = remove.uid(element, uid);
+        const isUid = Remove.uid(element, uid);
         if (isUid) {
             Print.video("yellow", "已通过UID屏蔽", name, uid, title, videoHref);
             return true;
         }
     }
-    const isName = remove.name(element, name);
+    const isName = Remove.name(element, name);
     if (isName) {
         Print.video(null, "已通过用户名屏蔽", name, uid, title, videoHref);
         return true;
     }
-    const isNameKey = remove.nameKey(element, name);
+    const isNameKey = Remove.nameKey(element, name);
     if (isNameKey != null) {
         Print.video(null, `已通过用户名模糊屏蔽规则=【${isNameKey}】`, name, uid, title, videoHref)
         return true;
     }
-    const videoTitle = remove.titleKey(element, title);
+    const videoTitle = Remove.titleKey(element, title);
     if (videoTitle != null) {
         Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${videoTitle}】`, name, uid, title, videoHref);
         return true;
     }
-    const titleKeyCanonical = remove.titleKeyCanonical(element, title);
+    const titleKeyCanonical = Remove.titleKeyCanonical(element, title);
     if (titleKeyCanonical != null) {
         Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${titleKeyCanonical}`, name, uid, title, videoHref);
         return true;
     }
     if (videoPlaybackVolume !== null) {
-        const change = util.changeFormat(videoPlaybackVolume);
-        if (remove.videoMinPlaybackVolume(element, change)) {
-            Print.video(null, `已过滤视频播放量小于=【${rule.videoData.broadcastMin}】的视频`, name, uid, title, videoHref);
+        const change = Util.changeFormat(videoPlaybackVolume);
+        if (Remove.videoMinPlaybackVolume(element, change)) {
+            Print.video(null, `已过滤视频播放量小于=【${Rule.videoData.broadcastMin}】的视频`, name, uid, title, videoHref);
             return true;
         }
-        if (remove.videoMaxPlaybackVolume(element, change)) {
-            Print.video(null, `已过滤视频播放量大于=【${rule.videoData.broadcastMax}】的视频`, name, uid, title, videoHref);
+        if (Remove.videoMaxPlaybackVolume(element, change)) {
+            Print.video(null, `已过滤视频播放量大于=【${Rule.videoData.broadcastMax}】的视频`, name, uid, title, videoHref);
             return true;
         }
     }
     if (videoTime === null) {
         return false;
     }
-    const timeTotalSeconds = util.getTimeTotalSeconds(videoTime);
-    if (remove.videoMinFilterS(element, timeTotalSeconds)) {
-        Print.video(null, `已通过视频时长过滤时长小于=【${rule.videoData.filterSMin}】秒的视频`, name, uid, title, videoHref);
+    const timeTotalSeconds = Util.getTimeTotalSeconds(videoTime);
+    if (Remove.videoMinFilterS(element, timeTotalSeconds)) {
+        Print.video(null, `已通过视频时长过滤时长小于=【${Rule.videoData.filterSMin}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
-    if (remove.videoMaxFilterS(element, timeTotalSeconds)) {
-        Print.video(null, `已过滤时长大于=【${rule.videoData.filterSMax}】秒的视频`, name, uid, title, videoHref);
+    if (Remove.videoMaxFilterS(element, timeTotalSeconds)) {
+        Print.video(null, `已过滤时长大于=【${Rule.videoData.filterSMax}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     return false;
@@ -2256,23 +2199,23 @@ const message = {
 const videoFun = {
     //移除右侧悬浮按钮
     rightSuspendButton: function () {
-        util.circulateClassNames("storage-box", 0, 2, 2000, "已移除右侧的【返回旧版】【新版反馈】【客服】");//针对新版界面
+        Util.circulateClassNames("storage-box", 0, 2, 2000, "已移除右侧的【返回旧版】【新版反馈】【客服】");//针对新版界面
 
     },
     delRightE: function () {
-        const video = rule.videoData;
+        const video = Rule.videoData;
         if (video.isRhgthlayout) {
-            util.circulateClassNames("right-container is-in-large-ab", 0, 3, 1500, "已移除视频播放器右侧的布局");
+            Util.circulateClassNames("right-container is-in-large-ab", 0, 3, 1500, "已移除视频播放器右侧的布局");
             return;
         }
-        util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
-        util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
-        util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
-        util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
-        util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
-        util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
+        Util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
+        Util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
+        Util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
+        Util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
+        Util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
+        Util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
         if (video.isrigthVideoList) {
-            util.circulateID("reco_list", 2000, "已移除播放页右侧的视频列表");
+            Util.circulateID("reco_list", 2000, "已移除播放页右侧的视频列表");
             return;
         }
         if (!video.isRightVideo) {
@@ -2288,21 +2231,21 @@ const videoFun = {
     //对视频页的播放器下面的进行处理
     delBottonE: function () {
         this.commentArea();//处理评论区
-        util.circulateIDs("bannerAd", 10, 2500, "已移除播放器底部的广告");
-        util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
-        util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
-        util.circulateClassName("ad-floor-cover b-img", 2000, "已移除播放器底部的图片广告");
-        if (rule.videoData.isTag) {
-            util.circulateID("v_tag", 2000, "已移除播放器底部的tag栏");
+        Util.circulateIDs("bannerAd", 10, 2500, "已移除播放器底部的广告");
+        Util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
+        Util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
+        Util.circulateClassName("ad-floor-cover b-img", 2000, "已移除播放器底部的图片广告");
+        if (Rule.videoData.isTag) {
+            Util.circulateID("v_tag", 2000, "已移除播放器底部的tag栏");
         }
-        if (rule.videoData.isDesc) {
-            util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
+        if (Rule.videoData.isDesc) {
+            Util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
         }
     }
     ,
     commentArea: function () {
         if (localData.getDelVideoCommentSections()) {
-            util.circulateID("comment", 1500, "已移除评论区");
+            Util.circulateID("comment", 1500, "已移除评论区");
         }
     }
     ,
@@ -2337,7 +2280,7 @@ const videoFun = {
                     const title = domElement.querySelector(".title").textContent;
                     const upSpatialAddress = domElement.querySelector(".upname>a").href;
                     const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
-                    util.showSDPanel(e, name, id, title);
+                    Util.showSDPanel(e, name, id, title);
                 });
             }
         }, 1000);
@@ -2376,7 +2319,7 @@ function getChannelVideoRules(element) {
         //空间地址
         upSpatialAddress: upSpatialAddress,
         //UID
-        uid: util.getSubUid(lastIndexOf),
+        uid: Util.getSubUid(lastIndexOf),
         //播放量
         playbackVolume: topInfo[0].textContent.trim(),
         //弹幕量
@@ -2396,11 +2339,11 @@ const frequencyChannel = {
     },
     //设置当前频道的id
     setChannel_id: function (id) {
-        util.setData("channel_id", parseInt(id));
+        Util.setData("channel_id", parseInt(id));
     },
     //获取当前频道的id
     getChannel_id: function () {
-        const data = util.getData("channel_id");
+        const data = Util.getData("channel_id");
         if (data === undefined || data == null) {
             return 17941;//默认返回恐怖游戏的频道
         }
@@ -2408,11 +2351,11 @@ const frequencyChannel = {
     },
     //设置频道推送的类型，热门还是以播放量亦或者最新
     setSort_type: function (typeStr) {
-        util.setData("sort_type", typeStr);
+        Util.setData("sort_type", typeStr);
     },
     //获取频道推送的类型，热门还是以播放量亦或者最新
     getSort_type: function () {
-        const data = util.getData("sort_type");
+        const data = Util.getData("sort_type");
         return data === undefined || data === null ? "hot" : data;//默认返回热门
     },
     /**
@@ -2503,7 +2446,7 @@ const frequencyChannel = {
                 element.onmouseenter = (e) => {
                     const element = e.srcElement;
                     const data = getChannelVideoRules(element);
-                    util.showSDPanel(e, data.upName, data.uid);
+                    Util.showSDPanel(e, data.upName, data.uid);
                 };
                 element.style.margin = "0px 5px 0px 0px";//设置元素边距
                 const data = getChannelVideoRules(element);
@@ -2533,7 +2476,7 @@ const frequencyChannel = {
 const liveDel = {
     //针对于直播间顶部的屏蔽处理
     topElement: function () {
-        if (rule.liveData.topElement) {
+        if (Rule.liveData.topElement) {
             try {
                 document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")[0].remove();
                 Print.ln("已移除直播间顶部的信息（包括顶部标题栏）")
@@ -2542,8 +2485,8 @@ const liveDel = {
             }
             return;
         }
-        if (rule.liveData.topLeftBar.length !== 0) {
-            for (const element of rule.liveData.topLeftBar) {
+        if (Rule.liveData.topLeftBar.length !== 0) {
+            for (const element of Rule.liveData.topLeftBar) {
                 try {
                     document.getElementsByClassName(element)[0].remove();
                     Print.ln("已移除该项目=" + element)
@@ -2552,18 +2495,18 @@ const liveDel = {
                 }
             }
         }
-        if (rule.liveData.topLeftLogo) {
+        if (Rule.liveData.topLeftLogo) {
             document.getElementsByClassName("entry_logo")[0].remove();
             Print.ln("已移除左上角的b站直播logo信息")
         }
-        if (rule.liveData.topLeftHomeTitle) {
+        if (Rule.liveData.topLeftHomeTitle) {
             document.getElementsByClassName("entry-title")[0].remove();
             Print.ln("已移除左上角的首页项目")
         }
     },
     //针对直播间播放器头部的用户信息，举例子，，某某用户直播，就会显示器的信息和直播标题等
     hreadElement: function () {
-        const liveData = rule.liveData;
+        const liveData = Rule.liveData;
         if (liveData.isheadInfoVm) {
             const interval = setInterval(() => {
                 try {
@@ -2579,16 +2522,16 @@ const liveDel = {
     bottomElement: function () {
         document.getElementById("link-footer-vm").remove();
         Print.ln("已移除底部的页脚信息")
-        if (rule.liveData.bottomElement) {
+        if (Rule.liveData.bottomElement) {
             document.getElementById("sections-vm").remove();
             Print.ln("已移除直播间底部的全部信息")
             return;
         }
-        if (rule.liveData.bottomIntroduction) {
+        if (Rule.liveData.bottomIntroduction) {
             document.getElementsByClassName("section-block f-clear z-section-blocks")[0].getElementsByClassName("left-container")[0].remove();
             Print.ln("已移除直播间底部的的简介和主播荣誉")
         } else {
-            if (rule.liveData.liveFeed) {
+            if (Rule.liveData.liveFeed) {
                 const interval = setInterval(() => {
                     try {
                         document.getElementsByClassName("room-feed")[0].remove();
@@ -2599,18 +2542,18 @@ const liveDel = {
                 }, 2500);
             }
         }
-        if (rule.liveData.container) {
+        if (Rule.liveData.container) {
             document.getElementsByClassName("right-container")[0].remove();
             Print.ln("已移除直播间的主播公告")
         }
     },
     //礼物栏的布局处理
     delGiftBar: function () {
-        if (rule.liveData.delGiftLayout) {
-            util.circulateIDs("gift-control-vm", 5, 1500, "已移除礼物栏")
+        if (Rule.liveData.delGiftLayout) {
+            Util.circulateIDs("gift-control-vm", 5, 1500, "已移除礼物栏")
             return;
         }
-        if (rule.liveData.isEmbark) {
+        if (Rule.liveData.isEmbark) {
             const temp = setInterval(() => {
                 const tempClass = document.getElementsByClassName("m-guard-ent gift-section guard-ent")[0];
                 if (tempClass) {
@@ -2620,7 +2563,7 @@ const liveDel = {
                 }
             }, 2000);
         }
-        if (rule.liveData.isGift) {
+        if (Rule.liveData.isGift) {
             const temp = setInterval(() => {
                 const element = document.getElementsByClassName("gift-presets p-relative t-right")[0];
                 if (element) {
@@ -2630,7 +2573,7 @@ const liveDel = {
                 }
             }, 2000);
         }
-        if (rule.liveData.isEmbark && rule.liveData.isGift) {//如果立即上舰和礼物栏的部分礼物移除了就对其位置调整
+        if (Rule.liveData.isEmbark && Rule.liveData.isGift) {//如果立即上舰和礼物栏的部分礼物移除了就对其位置调整
             const interval = setInterval(() => {
                 try {
                     document.getElementById("gift-control-vm").style.height = "auto";
@@ -2643,7 +2586,7 @@ const liveDel = {
     },
     //移除右侧的聊天布局
     delRightChatLayout: function () {
-        const liveData = rule.liveData;
+        const liveData = Rule.liveData;
         if (liveData.isRightChatLayout) {
             const interval = setInterval(() => {
                 const id = document.getElementById("aside-area-vm");
@@ -2690,7 +2633,7 @@ const liveDel = {
         }
     },
     delOtherE: function () {
-        const liveData = rule.liveData;
+        const liveData = Rule.liveData;
         if (liveData.is233Ma) {
             const interval = setInterval(() => {
                 try {
@@ -2769,21 +2712,21 @@ const liveDel = {
             const type = v.getElementsByClassName("Item_SI0N7ecx")[0].textContent;//分区类型
             const name = v.getElementsByClassName("Item_QAOnosoB")[0].textContent.trim();
             const index = v.getElementsByClassName("Item_3Iz_3buh")[0].textContent.trim();//直播间人气
-            if (rule.liveData.classify.includes(type)) {
+            if (Rule.liveData.classify.includes(type)) {
                 v.remove();
                 Print.ln("已屏蔽直播分类为=" + type + " 的直播间 用户名=" + name + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
-            if (remove.name(v, name)) {
+            if (Remove.name(v, name)) {
                 Print.ln("已通过用户名=" + name + " 屏蔽直播间 直播分类=" + type + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
-            const nameKey = remove.nameKey(v, name);
+            const nameKey = Remove.nameKey(v, name);
             if (nameKey != null) {
                 Print.ln("用户名=" + name + " 包含了=屏蔽词=" + nameKey + " 故屏蔽该直播间 分类=" + type + " 房间标题=" + title + " 人气=" + index)
                 continue;
             }
-            if (remove.titleKey(v, title)) {
+            if (Remove.titleKey(v, title)) {
                 Print.ln("已通过直播间标题=【" + title + "】屏蔽该房间 用户名=" + name + " 分类=" + type + " 人气=" + index);
             }
         }
@@ -2831,7 +2774,7 @@ const search = {
             //标题
             title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
             upSpatialAddress: upSpatialAddress,
-            uid: util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
+            uid: Util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
             //视频的时间
             videoTime: v.querySelector(".bili-video-card__stats__duration").textContent,
             //播放量
@@ -2878,13 +2821,13 @@ const search = {
                     continue;
                 }
                 const jqE = $(v);
-                if (util.isEventJq(jqE, "mouseover")) {
+                if (Util.isEventJq(jqE, "mouseover")) {
                     continue;
                 }
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
                     const data = search.getDataV(domElement);
-                    util.showSDPanel(e, data.name, data.uid);
+                    Util.showSDPanel(e, data.name, data.uid);
                 });
             } catch (e) {
                 v.remove();
@@ -3005,7 +2948,7 @@ const trends = {
         },
         //针对顶部的处理
         topTar: function () {
-            const trends = rule.trendsData;
+            const trends = Rule.trendsData;
             if (trends.isTop) {
                 const interval = setInterval(() => {
                         try {
@@ -3017,7 +2960,7 @@ const trends = {
                 );
             }
         }, rightLayout: function () {
-            const trendsData = rule.trendsData;
+            const trendsData = Rule.trendsData;
             if (trendsData.isRightLayout) {
                 const interval = setInterval(() => {
                     try {
@@ -3059,9 +3002,9 @@ const trends = {
 const layout = {
     css: {
         home: function () {
-            util.addStyle(`
+            Util.addStyle(`
             #home_layout{
-                background: ${home.getBackgroundStr()};
+                background: ${Home.getBackgroundStr()};
                 margin: 0px;
                 height: 100%;
                 width: 100%;
@@ -3304,16 +3247,16 @@ const layout = {
     </div>
     <div>
     <h1>规则导入导出</h1>
-    
+    <button id="setRuleApiAddress">设置api地址</button>
       <div>
   <select id="outRuleSelect">
-  <option value="">全部规则到文件</option>
-  <option value="">全部规则到剪贴板</option>
-  <option value="">全部UID规则到文件</option>
-  <option value="">全部UID规则到云端</option>
-  <option value="">b站弹幕屏蔽规则</option>
+  <option>全部规则到文件</option>
+  <option>全部规则到剪贴板</option>
+  <option>全部UID规则到文件</option>
+  <option>b站弹幕屏蔽规则</option>
+  <option>全部规则到云端api</option>
+  <option>全部UID规则到云端api</option>
 </select>
-<input type="text">
 <button id="outExport">导出</button>
 </div>
 <div>
@@ -3366,6 +3309,9 @@ const layout = {
         <button>读取bili_jct</button>
       </div>
     </details>
+    <div style="display: flex">
+    <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
+</div>
     <hr>
     <div>
       <h1> 反馈问题</h1>
@@ -3477,7 +3423,7 @@ function getVideoCommentAreaOrTrendsStorey(j) {
 
 function perf_observer() {
     const entries = performance.getEntriesByType('resource');
-    const windowUrl = util.getWindowUrl();
+    const windowUrl = Util.getWindowUrl();
     for (let entry of entries) {
         const url = entry.name;
         const initiatorType = entry.initiatorType;
@@ -3505,11 +3451,11 @@ function perf_observer() {
                     continue;
                 }
                 const jqE = $(v);
-                if (!util.isEventJq(jqE, "mouseover")) {
+                if (!Util.isEventJq(jqE, "mouseover")) {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
                         const data = getVideoCommentAreaOrTrendsLandlord(domElement);
-                        util.showSDPanel(e, data.name, data.uid);
+                        Util.showSDPanel(e, data.name, data.uid);
                     });
                 }
                 if (subReplyList.length === 0) {
@@ -3522,13 +3468,13 @@ function perf_observer() {
                         continue;
                     }
                     const jqE = $(j);
-                    if (util.isEventJq(jqE, "mouseover")) {
+                    if (Util.isEventJq(jqE, "mouseover")) {
                         continue;
                     }
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
                         const data = getVideoCommentAreaOrTrendsStorey(domElement);
-                        util.showSDPanel(e, data.name, data.uid);
+                        Util.showSDPanel(e, data.name, data.uid);
                     });
                 }
             }
@@ -3580,20 +3526,20 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
-            home.startShieldMainVideo(".bili-video-card");
+            Home.startShieldMainVideo(".bili-video-card");
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/ranking/region?")) {//首页分区排行榜
             for (let v of document.querySelectorAll(".bili-rank-list-video__list.video-rank-list")) {//遍历每个排行榜
                 for (let q of v.querySelectorAll("li[class='bili-rank-list-video__item']")) {//遍历某个排行榜中的项目
                     const title = q.querySelector("[title]").textContent;
-                    const isTitle = shield.arrContent(localData.getArrTitle(), title);
+                    const isTitle = Shield.arrContent(localData.getArrTitle(), title);
                     if (isTitle != null) {
                         Print.ln(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
                         q.remove();
                         continue;
                     }
-                    const isTitleCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
+                    const isTitleCanonical = Shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), title);
                     if (isTitleCanonical != null) {
                         Print.ln(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
                         q.remove();
@@ -3633,33 +3579,33 @@ function searchColumn() {
             const name = userInfo.text;
             const upSpatialAddress = userInfo.href;
             const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-            if (remove.isWhiteUserUID(uid)) {
+            if (Remove.isWhiteUserUID(uid)) {
                 continue;
             }
-            if (remove.uid(v, uid)) {
+            if (Remove.uid(v, uid)) {
                 Print.ln("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
                 continue;
             }
-            if (remove.name(v, name)) {
+            if (Remove.name(v, name)) {
                 Print.ln("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
                 continue;
             }
-            const isNameKey = remove.nameKey(v, name);
+            const isNameKey = Remove.nameKey(v, name);
             if (isNameKey != null) {
                 Print.ln("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
                 continue;
             }
-            const isTitleKey = remove.titleKey(v, title);
+            const isTitleKey = Remove.titleKey(v, title);
             if (isTitleKey != null) {
                 Print.ln("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
                 continue;
             }
-            const titleKeyCanonical = remove.titleKeyCanonical(v, title);
+            const titleKeyCanonical = Remove.titleKeyCanonical(v, title);
             if (titleKeyCanonical != null) {
                 Print.ln(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
                 continue;
             }
-            const key = remove.columnContentKey(v, textContent);
+            const key = Remove.columnContentKey(v, textContent);
             if (key !== null) {
                 Print.ln("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
                 continue;
@@ -3672,7 +3618,7 @@ function searchColumn() {
                 const name = info.querySelector(".lh_xs").text;
                 const userHref = info.href;
                 const uid = userHref.substring(userHref.lastIndexOf("/") + 1);
-                util.showSDPanel(e, name, uid, title);
+                Util.showSDPanel(e, name, uid, title);
             });
         }
     }, 1000);
@@ -3689,7 +3635,7 @@ function ruleList(href) {
         return;
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
-        const videoData = rule.videoData;
+        const videoData = Rule.videoData;
         const interval = setInterval(() => {
             try {
                 const videoElement = document.getElementsByTagName("video")[0];
@@ -3697,7 +3643,7 @@ function ruleList(href) {
                     return;
                 }
                 clearInterval(interval);
-                const autoPlay = util.getData("autoPlay");
+                const autoPlay = Util.getData("autoPlay");
                 if (autoPlay === true) {
                     const intervalAutoPlay = setInterval(() => {
                         const au = $("input[aria-label='自动开播']");
@@ -3717,7 +3663,7 @@ function ruleList(href) {
                 }
 
                 function setVideoSpeedInfo() {
-                    const data = util.getData("playbackSpeed");
+                    const data = Util.getData("playbackSpeed");
                     if (data === undefined) {
                         return;
                     }
@@ -3733,7 +3679,7 @@ function ruleList(href) {
                 videoElement.addEventListener('ended', () => {//播放器结束之后事件
                     Print.ln("播放结束");
                     if (videoData.isVideoEndRecommend) {
-                        util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
+                        Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
                     }
                 }, false);
             } catch (e) {
@@ -3764,7 +3710,7 @@ function ruleList(href) {
             $(upInfo).mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const adHref = domElement.href;
-                util.showSDPanel(e, domElement.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
+                Util.showSDPanel(e, domElement.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
             });
         }, 2000);
         return;
@@ -3802,7 +3748,7 @@ function ruleList(href) {
         return;
     }
     if (href.includes("www.bilibili.com/v/")) {
-        home.startShieldMainVideo(".bili-video-card");
+        Home.startShieldMainVideo(".bili-video-card");
         console.log("通过URL变动执行屏蔽首页分区视频");
         homePrefecture();
 
@@ -3829,7 +3775,7 @@ function hideDisplayHomeLaylout() {
  * 加载下拉框中的分区
  */
 function loadPartition() {
-    const tempVar = home.data.video_zoneList;
+    const tempVar = Home.data.video_zoneList;
     for (const v in tempVar) {
         $("#video_zoneSelect").append(`<option value=${v}>${tempVar[v]}</option>`);
     }
@@ -3863,7 +3809,7 @@ function openTab(e) {
 
 (() => {
     'use strict';
-    let href = util.getWindowUrl();
+    let href = Util.getWindowUrl();
     console.log("当前网页url=" + href);
 
     if (href.includes("github.com")) {
@@ -3886,10 +3832,10 @@ function openTab(e) {
     });
 
 
-    util.suspensionBall(document.getElementById("suspensionDiv"));
+    Util.suspensionBall(document.getElementById("suspensionDiv"));
 
-    rule.ruleLength();
-    rule.showInfo();
+    Rule.ruleLength();
+    Rule.showInfo();
     $("#mybut").click(() => {
         hideDisplayHomeLaylout();
     });
@@ -3947,38 +3893,38 @@ function openTab(e) {
 
     $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
         const vaule = $("#rangePlaySpeed").val();//获取值
-        util.setVideoBackSpeed(vaule);
+        Util.setVideoBackSpeed(vaule);
         $("#playbackSpeedText").text(vaule + "x");//修改对应标签的文本显示
     });
 
 
     $('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
-        util.setVideoBackSpeed($('#playbackSpeedModel').val())
+        Util.setVideoBackSpeed($('#playbackSpeedModel').val())
     });
 
 
     $("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
         const val = $('#playbackSpeedModel').val();
-        util.setData("playbackSpeed", parseFloat(val));
+        Util.setData("playbackSpeed", parseFloat(val));
         Print.ln("已保存播放速度数据=" + val);
     });
 
     $("#preservePlaySpeed").click(() => {//保存拖动条中的值的播放数据
         const val = $("#rangePlaySpeed").val();
-        util.setData("rangePlaySpeed", parseFloat(val));
+        Util.setData("rangePlaySpeed", parseFloat(val));
         Print.ln("已保存播放速度数据=" + val);
     });
 
 
     $("#flipHorizontal").click(function () {//水平翻转视频
-        const videoData = rule.videoData;
+        const videoData = Rule.videoData;
         if (videoData.flipHorizontal) {
-            if (util.setVideoRotationAngle("Y", 0)) {
+            if (Util.setVideoRotationAngle("Y", 0)) {
                 videoData.flipHorizontal = false;
             }
             return;
         }
-        if (util.setVideoRotationAngle("Y", 180)) {
+        if (Util.setVideoRotationAngle("Y", 180)) {
             videoData.flipHorizontal = true;
         }
     });
@@ -3988,14 +3934,14 @@ function openTab(e) {
         if (videoV === null) {
             return;
         }
-        const videoData = rule.videoData;
+        const videoData = Rule.videoData;
         if (videoData.flipVertical) {
-            if (util.setVideoRotationAngle("X", 0)) {
+            if (Util.setVideoRotationAngle("X", 0)) {
                 videoData.flipVertical = false;
             }
             return;
         }
-        if (util.setVideoRotationAngle("X", 180)) {
+        if (Util.setVideoRotationAngle("X", 180)) {
             videoData.flipVertical = true;
         }
     });
@@ -4012,9 +3958,9 @@ function openTab(e) {
             return;
         }
         const title = document.title;
-        const url = util.getWindowUrl();
+        const url = Util.getWindowUrl();
         if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
-            home.startShieldMainVideo(".bili-video-card.is-rcmd");
+            Home.startShieldMainVideo(".bili-video-card.is-rcmd");
             return;
         }
         if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
@@ -4066,12 +4012,12 @@ function openTab(e) {
 
 
     $("#getVideoDanMueBut").click(() => {//打开当前视频弹幕列表
-        const windowUrl = util.getWindowUrl();
+        const windowUrl = Util.getWindowUrl();
         if (!windowUrl.includes("www.bilibili.com/video")) {
             alert("当前不是播放页!");
             return;
         }
-        const urlBVID = util.getUrlBVID(windowUrl);
+        const urlBVID = Util.getUrlBVID(windowUrl);
         if (urlBVID === null) {
             alert("获取不到BV号!");
             return;
@@ -4105,7 +4051,7 @@ function openTab(e) {
             loading.close();
             const cid = data["cid"];
             Qmsg.success("cid=" + cid);
-            util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
+            Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
         }, (err) => {
             loading.close();
             Qmsg.error("错误状态!");
@@ -4149,13 +4095,13 @@ function openTab(e) {
             data["sub"] = subArr;
             arr.push(data);
         }
-        fileDownload(JSON.stringify(arr), "评论区列表-" + util.toTimeString());
+        fileDownload(JSON.stringify(arr), "评论区列表-" + Util.toTimeString());
         Qmsg.success("已获取成功！");
     });
 
     $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
         const title = document.title;
-        const url = util.getWindowUrl();
+        const url = Util.getWindowUrl();
         if (!(title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && url.includes("live.bilibili.com"))) {
             Qmsg.error("错误的引用了该功能！");
             return;
@@ -4170,11 +4116,11 @@ function openTab(e) {
             const name = v.textContent;
             array.push(name);
         }
-        fileDownload(JSON.stringify(array), util.toTimeString() + "直播间高能用户列表.json");
+        fileDownload(JSON.stringify(array), Util.toTimeString() + "直播间高能用户列表.json");
     });
 
     $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
-        if (!(document.title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && util.getWindowUrl().includes("live.bilibili.com"))) {
+        if (!(document.title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && Util.getWindowUrl().includes("live.bilibili.com"))) {
             Qmsg.error("错误的引用了该功能！");
             return;
         }
@@ -4201,14 +4147,14 @@ function openTab(e) {
                 uid: uid,
                 content: content,
                 timeDate: timeDate,
-                toTime: util.timestampToTime(timeDate * 1000)
+                toTime: Util.timestampToTime(timeDate * 1000)
             };
             if (type === "1") {
                 data["imge"] = v.getAttribute("data-image");
             }
             arrData.push(data);
         }
-        fileDownload(JSON.stringify(arrData), util.toTimeString() + "_直播间弹幕内容.json");
+        fileDownload(JSON.stringify(arrData), Util.toTimeString() + "_直播间弹幕内容.json");
         Qmsg.success("获取成功并执行导出内容");
     });
 
@@ -4218,7 +4164,7 @@ function openTab(e) {
         Qmsg.info("该功能暂未完善");
         openTheFilteredList.hide();
         const windowsTitle = document.title;
-        const windowUrl = util.getWindowUrl();
+        const windowUrl = Util.getWindowUrl();
         HoverBlockList.init([
             {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
             {"uid": 2, "name": "李四", "age": 25},
@@ -4232,7 +4178,7 @@ function openTab(e) {
 
     $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
         const value = $("#axleRange").val();//获取值
-        util.setVideoCenterRotation(value);
+        Util.setVideoCenterRotation(value);
         $("#axleSpan").text(value + "%");//修改对应标签的文本显示
     });
 
@@ -4245,8 +4191,8 @@ function openTab(e) {
     $("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
         const value = $("#backgroundPellucidityRange").val();//获取值
         $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
-        const back = home.background;
-        $("#home_layout").css("background", util.getRGBA(back.r, back.g, back.b, value));
+        const back = Home.background;
+        $("#home_layout").css("background", Util.getRGBA(back.r, back.g, back.b, value));
     });
     $("#heightRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板高度拖动条
         const value = $("#heightRange").val();//获取值
@@ -4261,11 +4207,11 @@ function openTab(e) {
 
 
     $("#DShielPanel").click(() => {//点击禁用快捷悬浮屏蔽面板自动显示
-        util.setData("isDShielPanel", $("#DShielPanel").is(":checked"));
+        Util.setData("isDShielPanel", $("#DShielPanel").is(":checked"));
     });
 
     $("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
-        util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
+        Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
     });
 
 
@@ -4280,22 +4226,22 @@ function openTab(e) {
         inputVideoV = parseInt(inputVideoV);
         switch (typeV) {
             case "filterSMin":
-                util.setData("filterSMin", inputVideoV);
+                Util.setData("filterSMin", inputVideoV);
                 break;
             case "videoDurationMax":
-                util.setData("filterSMin", inputVideoV);
+                Util.setData("filterSMin", inputVideoV);
                 break;
             case "broadcastMin":
-                util.setData("broadcastMin", inputVideoV);
+                Util.setData("broadcastMin", inputVideoV);
                 break;
             case "broadcastMax":
-                util.setData("broadcastMax", inputVideoV);
+                Util.setData("broadcastMax", inputVideoV);
                 break;
             case "barrageQuantityMin":
-                util.setData("barrageQuantityMin", inputVideoV);
+                Util.setData("barrageQuantityMin", inputVideoV);
                 break;
             case "barrageQuantityMax":
-                util.setData("barrageQuantityMax", inputVideoV);
+                Util.setData("barrageQuantityMax", inputVideoV);
                 break;
             default:
                 alert("出现意外的值！")
@@ -4410,7 +4356,7 @@ function openTab(e) {
 
 
     $("#printRuleBut").click(() => {
-        Print.ln(util.getRuleFormatStr());
+        Print.ln(Util.getRuleFormatStr());
     });
 
 
@@ -4495,18 +4441,18 @@ function openTab(e) {
     $("#outExport").click(() => {
         const selectedText = $('#outRuleSelect option:selected').text();
         if (selectedText === "全部规则到文件") {
-            let s = prompt("保存为", "规则-" + util.toTimeString());
+            let s = prompt("保存为", "规则-" + Util.toTimeString());
             if (s === null) {
                 return;
             }
             if (s.includes(" ") || s === "" || s.length === 0) {
                 s = "规则";
             }
-            fileDownload(util.getRuleFormatStr(), s + ".json");
+            fileDownload(Util.getRuleFormatStr(), s + ".json");
             return;
         }
         if (selectedText === "全部规则到剪贴板") {
-            util.copyToClip(util.getRuleFormatStr());
+            Util.copyToClip(Util.getRuleFormatStr());
             return;
         }
         if (selectedText === "全部UID规则到文件") {
@@ -4555,7 +4501,9 @@ function openTab(e) {
             }
             fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
         }
+        if (selectedText === "全部规则到云端api") {
 
+        }
     });
 
 
@@ -4580,55 +4528,29 @@ function openTab(e) {
                 alert("内容格式错误！" + error)
                 return;
             }
-
-            function isList(list) {
-                return list === null || list.length === 0;
-            }
-
             let list = jsonRule["用户名黑名单模式(精确匹配)"];
-            if (!isList(list)) {
-                localData.setArrName(list);
-            }
+            localData.setArrName(list);
             list = jsonRule["用户名黑名单模式(模糊匹配)"];
-            if (!isList(list)) {
-                localData.setArrNameKey(list);
-            }
+            localData.setArrNameKey(list);
             list = jsonRule["用户uid黑名单模式(精确匹配)"];
-            if (!isList(list)) {
-                localData.setArrUID(list)
-            }
+            localData.setArrUID(list)
             list = jsonRule["用户uid白名单模式(精确匹配)"];
-            if (!isList(list)) {
-                localData.setArrWhiteUID(list);
-            }
+            localData.setArrWhiteUID(list);
             list = jsonRule["标题黑名单模式(模糊匹配)"];
-            if (!isList(list)) {
-                localData.setArrTitle(list);
-            }
+            localData.setArrTitle(list);
             list = jsonRule["标题黑名单模式(正则匹配)"];
-            if (!isList(list)) {
-                localData.setArrTitleKeyCanonical(list);
-            }
+            localData.setArrTitleKeyCanonical(list);
             list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
-            if (!isList(list)) {
-                util.setData("commentOnKeyArr", list);
-            }
+            Util.setData("commentOnKeyArr", list);
             list = jsonRule["评论关键词黑名单模式(正则匹配)"];
-            if (!isList(list)) {
-                localData.setArrContentOnKeyCanonicalArr(list);
-            }
+            localData.setArrContentOnKeyCanonicalArr(list);
             list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
-            if (!isList(list)) {
-                localData.setFanCardArr(list)
-            }
+            localData.setFanCardArr(list)
             list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
-            if (!isList(list)) {
-                localData.setContentColumnKeyArr(list)
-            }
+            localData.setContentColumnKeyArr(list)
             list = jsonRule["动态关键词内容黑名单模式(模糊匹配)"];
-            if (!isList(list)) {
-                localData.setDynamicArr(list);
-            }
+            localData.setDynamicArr(list);
+            Rule.ruleLength();
             alert("已导入");
             return;
         }
@@ -4684,8 +4606,20 @@ function openTab(e) {
             alert("暂时未写")
             return;
         }
-    })
+    });
 
+    $("#setRuleApiAddress").click(() => {
+        const p = prompt("请设置api地址！");
+        if (p === null || p.includes(" ")) {
+            return;
+        }
+        if (!p.startsWith("http")) {
+            alert("请正确填写地址！");
+            return;
+        }
+        localData.setRuleApi(p);
+        Qmsg.success("已设置=" + localData.getRuleApi());
+    });
 
     $('#inputRuleSelect').change(() => {//监听模式下拉列表
         const selectedText = $('#inputRuleSelect option:selected').text();
@@ -4757,9 +4691,9 @@ function openTab(e) {
     $("#okButton").click(() => {//确定首页指定推送视频
         const pushType = $("#pushTypeSelect").val();
         const selectVar = parseInt(tempVideoZoneSelect.val());
-        home.setPushType(pushType);
+        Home.setPushType(pushType);
         if (pushType === "分区") {
-            Print.ln("选择了分区" + home.data.video_zoneList[selectVar] + " uid=" + selectVar);
+            Print.ln("选择了分区" + Home.data.video_zoneList[selectVar] + " uid=" + selectVar);
             localData.setVideo_zone(selectVar);
         } else {
             const tempSortTypeSelect = $("#sort_typeSelect");
@@ -4780,7 +4714,7 @@ function openTab(e) {
         }
 
         function tempFunc(typeStr, tempContent) {
-            const list = typeStr === "分区" ? home.data.video_zoneList : frequencyChannel.data.channel_idList;
+            const list = typeStr === "分区" ? Home.data.video_zoneList : frequencyChannel.data.channel_idList;
             if (tempIdCheckbox.is(":checked")) {//通过ID方式查找
                 if (tempContent in list) {
                     tempVideoZoneSelect.val(tempContent);
@@ -4811,7 +4745,7 @@ function openTab(e) {
     ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
-        const tempUrl = util.getWindowUrl();
+        const tempUrl = Util.getWindowUrl();
         if (href === tempUrl) {//没有变化就结束本轮
             return;
         }//有变化就执行对应事件
@@ -4863,21 +4797,21 @@ function bilibiliOne(href, windonsTitle) {
                 clearInterval(interval01);
                 list.forEach((value, key, parent) => {
                     const content = value.querySelector(".trending-text").textContent;
-                    const titleKey = remove.titleKey(value, content);
+                    const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
                         const info = `已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`;
                         Qmsg.info(info);
                         Print.ln(info);
                         return;
                     }
-                    const titleKeyCanonical = remove.titleKeyCanonical(value, content);
+                    const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
                         const info = `已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`;
                         Qmsg.info(info);
                         Print.ln(info);
                         return;
                     }
-                    const contentKey = remove.contentKey(value, content);
+                    const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
                         const info = `已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`;
                         Qmsg.info(info);
@@ -4891,8 +4825,8 @@ function bilibiliOne(href, windonsTitle) {
 
 
     if (href.includes("space.bilibili.com/")) {//个人主页
-        const hrefUID = util.getSubUid(href.split("/")[3]);
-        if (shield.arrKey(localData.getArrUID(), hrefUID)) {
+        const hrefUID = Util.getSubUid(href.split("/")[3]);
+        if (Shield.arrKey(localData.getArrUID(), hrefUID)) {
             setTimeout(() => {
                 alert("当前用户时是黑名单！UID=" + hrefUID)
             }, 4500);
@@ -4935,7 +4869,7 @@ function bilibiliOne(href, windonsTitle) {
                     clearInterval(interval02);
                 }
             }, 2000);
-            if (rule.liveData.rightSuspendButton) {
+            if (Rule.liveData.rightSuspendButton) {
                 const interval = setInterval(() => {
                     const classNameElement = document.getElementsByClassName("live-sidebar-ctnr a-move-in-left ts-dot-4")[0];
                     if (classNameElement) {
@@ -5178,7 +5112,7 @@ function bilibiliOne(href, windonsTitle) {
         openBut.click(() => {
             const select_parent_ID = select_parent_name.val();
             const select_name_ID = select_name.val();
-            util.openWindow(`https://live.bilibili.com/p/eden/area-tags?areaId=${select_name_ID}&parentAreaId=${select_parent_ID}`);
+            Util.openWindow(`https://live.bilibili.com/p/eden/area-tags?areaId=${select_name_ID}&parentAreaId=${select_parent_ID}`);
         });
 
         liveLayout.append(select_parent_name);
@@ -5241,7 +5175,7 @@ function bilibiliOne(href, windonsTitle) {
                     const title = v["title"];
                     const uname = v["uname"];
                     const uid = v["uid"];
-                    if (shield.arrKey(localData.getArrUID(), uid)) {
+                    if (Shield.arrKey(localData.getArrUID(), uid)) {
                         const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
                         Print.ln(tempInfo);
                         Qmsg.success(tempInfo);
@@ -5288,7 +5222,7 @@ function bilibiliOne(href, windonsTitle) {
                 shrieDynamicItems(tempList);
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
-            if (util.isEventJq(tempE01, "DOMNodeInserted")) {
+            if (Util.isEventJq(tempE01, "DOMNodeInserted")) {
                 return;
             }
             tempE01.bind("DOMNodeInserted", () => {
@@ -5419,21 +5353,21 @@ function bilibili(href) {
          * @param pic 封面
          */
         function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
-            if (shield.arrKey(localData.getArrUID(), uid)) {
+            if (Shield.arrKey(localData.getArrUID(), uid)) {
                 Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
-            const isNameKey = shield.arrContent(localData.getArrNameKey(), userName);
+            const isNameKey = Shield.arrContent(localData.getArrNameKey(), userName);
             if (isNameKey != null) {
                 Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
-            const isTitleKey = shield.arrContent(localData.getArrTitle(), videoTitle);
+            const isTitleKey = Shield.arrContent(localData.getArrTitle(), videoTitle);
             if (isTitleKey != null) {
                 Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
-            const isTitleKeyCanonical = shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
+            const isTitleKeyCanonical = Shield.arrContentCanonical(localData.getArrTitleKeyCanonical(), videoTitle);
             if (isTitleKeyCanonical != null) {
                 Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
@@ -5441,7 +5375,7 @@ function bilibili(href) {
             $(".container.is-version8").append(
                 addElement.homeVideoE.getHtmlStr(
                     videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
-                    util.getNumberFormat(view), util.getNumberFormat(danmaku))
+                    Util.getNumberFormat(view), Util.getNumberFormat(danmaku))
             );
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
@@ -5449,7 +5383,7 @@ function bilibili(href) {
                 const userInfo = domElement.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;
                 const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
-                util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
+                Util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
             });
         }
 
@@ -5477,11 +5411,11 @@ function bilibili(href) {
                     const cid = v["cid"];
                     const ctime = v["ctime"];//视频审核时间时间戳
                     const pubdate = v["pubdate"];//视频上传时间时间戳
-                    const ctimeStr = util.timestampToTime(ctime * 1000);//发布时间
+                    const ctimeStr = Util.timestampToTime(ctime * 1000);//发布时间
                     const duration = v["duration"];//视频时长秒，专区-存数字时间
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
                     bvid = (bvidSub === "" ? bvid : bvidSub);
-                    if (tempFunc(uid, videoTitle, name, bvid, util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
+                    if (tempFunc(uid, videoTitle, name, bvid, Util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
                         Qmsg.info("过滤了视频！！");
                     }
                 }
@@ -5501,12 +5435,12 @@ function bilibili(href) {
 <span>换一换</span></button>
 </div>`);
             $("#replaceItBut").click(() => {
-                const temp = home.getPushType();
-                if (home.videoIndex <= 50 && temp === "分区") {
-                    home.videoIndex += 10;
+                const temp = Home.getPushType();
+                if (Home.videoIndex <= 50 && temp === "分区") {
+                    Home.videoIndex += 10;
                 }
                 if (temp === "分区") {
-                    loadingVideoE(home.videoIndex);
+                    loadingVideoE(Home.videoIndex);
                 } else {
                     loadingVideoZE();
                 }
@@ -5520,13 +5454,13 @@ function bilibili(href) {
             }
             clearInterval(interval02);
             homeGrid.html("");//先清空该标签的内容
-            if (home.getPushType() === "分区") {
+            if (Home.getPushType() === "分区") {
                 loadingVideoE(25);
             } else {
                 loadingVideoZE();
             }
             // //首页
-            home.stypeBody();
+            Home.stypeBody();
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
             setTimeout(() => {
                 $(".feed-roll-btn").remove();//移除换一换
@@ -5560,7 +5494,7 @@ function bilibili(href) {
             }
             clearInterval(interval01);
             shrieDynamicItems(list);
-            if (util.isEventJq(tempE, "DOMNodeInserted")) {
+            if (Util.isEventJq(tempE, "DOMNodeInserted")) {
                 clearInterval(interval01);
                 return;
             }
@@ -5584,7 +5518,7 @@ function shrieDynamicItems(list) {
             continue;
         }
         const tempContent = tempE.textContent;
-        const contentKey = shield.arrContent(localData.getDynamicArr(), tempContent);
+        const contentKey = Shield.arrContent(localData.getDynamicArr(), tempContent);
         if (contentKey == null) {
             continue;
         }
@@ -5599,8 +5533,8 @@ function shrieDynamicItems(list) {
  * 中中针对于分区的广告页脚信息屏蔽
  */
 function homePrefecture() {
-    util.circulateID("biliMainFooter", 2000, "已移除底部信息");
-    util.circulateClassName("primary-btn feedback visible", 2000, "已移除右侧悬浮按钮");
+    Util.circulateID("biliMainFooter", 2000, "已移除底部信息");
+    Util.circulateClassName("primary-btn feedback visible", 2000, "已移除右侧悬浮按钮");
     for (let v of document.querySelectorAll(".eva-banner")) {
         v.remove();
         console.log("已移除界面中的横幅广告");
