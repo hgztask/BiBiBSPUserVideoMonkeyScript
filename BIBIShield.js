@@ -56,8 +56,9 @@ const rule = {
         setText(localData.getArrTitleKeyCanonical(), "#textUserTitleCanonical");
         setText(util.getData("commentOnKeyArr"), "#textContentOn");
         setText(localData.getArrContentOnKeyCanonicalArr(), "#textContentOnCanonical");
-        setText(util.getData("fanCardArr"), "#textFanCard");
-        setText(util.getData("contentColumnKeyArr"), "#textColumn");
+        setText(localData.getFanCardArr(), "#textFanCard");
+        setText(localData.getContentColumnKeyArr(), "#textColumn");
+        setText(localData.getDynamicArr(), "#textDynamicArr");
     },
     showInfo: function () {
         const isDShielPanel = util.getData("isDShielPanel");
@@ -527,7 +528,7 @@ const remove = {
      * @returns {String|null}
      */
     columnContentKey: function (element, content) {
-        const shieldArrContent = shield.arrContent(element, util.getData("contentColumnKeyArr"), content);
+        const shieldArrContent = shield.arrContent(element, localData.getContentColumnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -541,7 +542,7 @@ const remove = {
      * @returns {boolean}
      */
     fanCard: function (element, key) {
-        if (shield.arrKey(util.getData("fanCardArr"), key)) {
+        if (shield.arrKey(localData.getFanCardArr(), key)) {
             element.remove();
             return true;
         }
@@ -1297,8 +1298,9 @@ const util = {
     "标题黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrTitleKeyCanonical())},
     "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("commentOnKeyArr"))},
     "评论关键词黑名单模式(正则匹配)": ${JSON.stringify(localData.getArrContentOnKeyCanonicalArr())},
-    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(util.getData("fanCardArr"))},
-    "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(util.getData("contentColumnKeyArr"))},
+    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(localData.getFanCardArr())},
+    "专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getContentColumnKeyArr())},
+    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(localData.getDynamicArr())},
     "禁用快捷悬浮屏蔽面板自动显示":${util.getData("isDShielPanel")},
     "视频参数": {
         "时长最小值": ${util.getData("filterSMin")},
@@ -1739,60 +1741,74 @@ const localData = {
     setBili_jct: function (key) {
         util.setData("bili_jct", key);
     },
+    temp: function (key) {
+        const data = util.getData(key);
+        if (data == undefined || data == null) {
+            return [];
+        }
+        return data;
+    },
     getArrUID: function () {
-        return util.getData("userUIDArr");
+        return this.temp("userUIDArr");
     },
     setArrUID: function (key) {
         util.setData("userUIDArr", key);
     },
     getArrWhiteUID: function () {
-        return util.getData("userWhiteUIDArr");
+        return this.temp("userWhiteUIDArr");
     },
     setArrWhiteUID: function (key) {
         util.setData("userWhiteUIDArr", key);
     },
     getArrName: function () {
-        return util.getData("userNameArr");
+        return this.temp("userNameArr");
     },
     setArrName: function (key) {
         util.setData("userNameArr", key);
     },
     getArrNameKey: function () {
-        return util.getData("userNameKeyArr");
+        return this.temp("userNameKeyArr");
     },
     setArrNameKey: function (key) {
         util.setData("userNameKeyArr", key);
     },
     getArrTitle: function () {
-        return util.getData("titleKeyArr");
+        return this.temp("titleKeyArr");
     },
     setArrTitle: function (key) {
         util.setData("titleKeyArr", key);
     }, getArrTitleKeyCanonical: function () {
-        return util.getData("titleKeyCanonicalArr");
+        return this.temp("titleKeyCanonicalArr");
     },
     setArrTitleKeyCanonical: function (key) {
         util.setData("titleKeyCanonicalArr", key);
     },//获取评论关键词黑名单模式(正则匹配)
     getArrContentOnKeyCanonicalArr: function () {
-        return util.getData("contentOnKeyCanonicalArr");
+        return this.temp("contentOnKeyCanonicalArr");
     },//设置评论关键词黑名单模式(正则匹配)
     setArrContentOnKeyCanonicalArr: function (key) {
         util.setData("contentOnKeyCanonicalArr", key);
     },//获取动态页屏蔽项目规则--模糊匹配
     getDynamicArr: function () {
-        const data = util.getData("dynamicArr");
-        if (data === undefined || data === null) {
-            return [];
-        }
-        return data;
+        return this.temp("dynamicArr");
     }, //设置动态页屏蔽项目规则-模糊匹配
     setDynamicArr: function (key) {
         util.setData("dynamicArr", key);
+    }, //粉丝牌
+    getFanCardArr: function () {
+        return this.temp("fanCardArr");
+    },//粉丝牌
+    setFanCardArr: function (key) {
+        util.setData("fanCardArr", key);
+    },//专栏关键词内容黑名单模式(模糊匹配)
+    getContentColumnKeyArr: function () {
+        return this.temp("contentColumnKeyArr");
+    },//专栏关键词内容黑名单模式(模糊匹配)
+    setContentColumnKeyArr: function (key) {
+        util.setData("contentColumnKeyArr", key);
     },
-
     getVideo_zone: function () {
-        const data = util.getData("video_zone");
+        const data = this.temp("video_zone");
         if (data === undefined || data === null) {
             return 1;
         }
@@ -1800,29 +1816,20 @@ const localData = {
     },
     setVideo_zone: function (key) {
         util.setData("video_zone", key);
-    },
-    /**
-     * 获取已观看的视频数组
-     * @return {Array}
-     */
+    },//获取已观看的视频数组
     getWatchedArr: function () {
-        return util.getData("watchedArr");
-    },
-    /**
-     * 设置已观看的视频
-     * @param {string}key
-     */
+        return this.temp("watchedArr");
+    },//设置已观看的视频
     setWatchedArr: function (key) {
         util.setData("watchedArr", key);
-    },
+    },//获取已观看的视频
     getRuleApi: function () {
         const data = util.getData("ruleApiUrl");
         if (data === undefined || data === null) {
             return null;
         }
         return data;
-    },
-    setRuleApi: function (url) {
+    }, setRuleApi: function (url) {
         util.setData("ruleApiUrl", url);
     },
     getDelVideoCommentSections: function () {//是否移除评论区布局
@@ -3291,6 +3298,9 @@ const layout = {
       <p>专栏关键词内容黑名单模式(模糊匹配)个数:
         <span id="textColumn" style="color: yellow;"></span>个
       </p>
+      <p>动态关键词内容黑名单模式(模糊匹配)个数：
+       <span id="textDynamicArr" style="color: yellow;"></span>个
+      </p>
     </div>
     <div>
     <h1>规则导入导出</h1>
@@ -4570,45 +4580,54 @@ function openTab(e) {
                 alert("内容格式错误！" + error)
                 return;
             }
+
+            function isList(list) {
+                return list === null || list.length === 0;
+            }
+
             let list = jsonRule["用户名黑名单模式(精确匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrName(list);
             }
             list = jsonRule["用户名黑名单模式(模糊匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrNameKey(list);
             }
             list = jsonRule["用户uid黑名单模式(精确匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrUID(list)
             }
             list = jsonRule["用户uid白名单模式(精确匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrWhiteUID(list);
             }
             list = jsonRule["标题黑名单模式(模糊匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrTitle(list);
             }
             list = jsonRule["标题黑名单模式(正则匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrTitleKeyCanonical(list);
             }
             list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 util.setData("commentOnKeyArr", list);
             }
             list = jsonRule["评论关键词黑名单模式(正则匹配)"];
-            if (!(list === null || list.length === 0)) {
+            if (!isList(list)) {
                 localData.setArrContentOnKeyCanonicalArr(list);
             }
             list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
-            if (!(list === null || list.length === 0)) {
-                util.setData("fanCardArr", list);
+            if (!isList(list)) {
+                localData.setFanCardArr(list)
             }
             list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
-            if (!(list === null || list.length === 0)) {
-                util.setData("contentColumnKeyArr", list);
+            if (!isList(list)) {
+                localData.setContentColumnKeyArr(list)
+            }
+            list = jsonRule["动态关键词内容黑名单模式(模糊匹配)"];
+            if (!isList(list)) {
+                localData.setDynamicArr(list);
             }
             alert("已导入");
             return;
