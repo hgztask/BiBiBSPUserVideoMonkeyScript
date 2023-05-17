@@ -1078,7 +1078,7 @@ const Util = {
      * @returns {number}
      */
     changeFormat: function (str) {
-        if (str.includes("万")) {
+        if (str = "".includes("万")) {
             str = str.replace("万", "");
             if (str.includes(".")) {
                 str = str.replace(".", "");
@@ -4757,12 +4757,9 @@ function github(href) {
  * @param {string}windonsTitle
  */
 function bilibiliOne(href, windonsTitle) {
-    // $(".search-panel").bind("DOMNodeInserted", () => {//处理每个页面顶部搜索的内容
-    //     console.log("检测到内容变化了")
-    // });//处理每个页面顶部搜索的内容
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
-        if (nav_search_input.lastElementChild === 0) {
+        if (nav_search_input.length === 0) {
             return;
         }
         clearInterval(interval01);
@@ -4801,8 +4798,16 @@ function bilibiliOne(href, windonsTitle) {
             }, 50);
         });
     }, 1000);
-
-
+    if (LocalData.getPrivacyMode()) {//
+        const interval02 = setInterval(() => {
+            const tempE01 = document.querySelector(".right-entry") || document.querySelector(".nav-user-center");
+            if (tempE01 === null) {
+                return;
+            }
+            // clearInterval(interval02);
+            tempE01.style.visibility = "hidden";//隐藏元素继续占位
+        }, 1000);
+    }
     if (href.includes("space.bilibili.com/")) {//个人主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
         if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
