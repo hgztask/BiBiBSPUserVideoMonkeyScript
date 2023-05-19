@@ -3383,6 +3383,10 @@ const layout = {
                 <img src="https://hangexi.gitee.io/datafile/img/paymentCodeWX.png" alt="微信打赏支持" style="max-height: 500px;">
                 <span style="display: flex;justify-content: center;">微信赞助</span>
             </div>
+                <div>
+                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png" alt="QQ打赏支持" style="max-height: 500px;">
+                <span style="display: flex;justify-content: center;">QQ赞助</span>
+            </div>
         </div>
         <hr>
         <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>
