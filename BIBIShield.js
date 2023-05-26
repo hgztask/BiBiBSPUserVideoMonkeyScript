@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.50
+// @version      1.1.51
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -98,41 +98,13 @@ const Rule = {
     },
     //视频参数
     videoData: {
-        /**
-         *设置时长最小值，单位秒
-         * 设置为 0，则不需要根据视频时长过滤
-         * 说明，比如我先过滤60秒以内的视频，即60以内的视频都会被屏蔽掉，限定允许出现的最小时长
-         * 可以这样填写
-         * 5*60
-         * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
-         * @type {number}
-         */
-        filterSMin: 0,
-        /**
-         * 设置时长最大值，单位秒
-         * 设置为 0，则不需要根据视频时长过滤
-         * 说明，允许出现的最大视频时长，超出该时长的都会被屏蔽掉，限定允许出现的最大时长
-         * 可以这样填写
-         * 5*60
-         * 上面例子意思就是5分钟，同理想要6分钟就6*60，想要精确控制到秒就填写对应秒数即可
-         * @type {number}
-         */
-        filterSMax: 0,
-        //设置播放量最小值，为0则不生效
-        broadcastMin: 0,
-        //设置播放量最大值，为0则不生效
-        broadcastMax: 0,
-        //设置弹幕量最小值，为0则不生效
-        barrageQuantityMin: 0,
-        //设置弹幕量最大值，为0则不生效
-        barrageQuantityMax: 0,
         //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
         isRhgthlayout: false,
         //是否要移除右侧播放页的视频列表
         isrigthVideoList: false,
         //是否移除视频页播放器下面的标签，也就是Tag
         isTag: false,
-        //是覅移除视频页播放器下面的简介
+        //是否移除视频页播放器下面的简介
         isDesc: false,
         //是否移除视频播放完之后的，推荐视频
         isVideoEndRecommend: true,
@@ -555,7 +527,7 @@ const Remove = {
      * @returns {boolean}
      */
     videoMinFilterS: function (element, key) {
-        const min = Rule.videoData.filterSMin;
+        const min = LocalData.video.getFilterSMin();
         if (min === null) {
             return false;
         }
@@ -573,8 +545,8 @@ const Remove = {
      * @returns {boolean}
      */
     videoMaxFilterS: function (element, key) {
-        const max = Rule.videoData.filterSMax;
-        if (max === 0 || max < Rule.videoData.filterSMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        const max = LocalData.video.getfilterSMax();
+        if (max === 0 || max < LocalData.video.getFilterSMin() || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
         if (max < key) {
@@ -592,7 +564,7 @@ const Remove = {
      * @returns {boolean}
      */
     videoMinPlaybackVolume: function (element, key) {
-        const min = Rule.videoData.broadcastMin;
+        const min = LocalData.video.getBroadcastMin();
         if (min === null) {
             return false;
         }
@@ -611,8 +583,8 @@ const Remove = {
      * @returns {boolean}
      */
     videoMaxPlaybackVolume: function (element, key) {
-        const max = Rule.videoData.broadcastMax;
-        if (max === 0 || max < Rule.videoData.broadcastMin || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
+        const max = LocalData.video.getBroadcastMax();
+        if (max === 0 || max < LocalData.video.getBroadcastMin() || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
         }
         if (max < key) {
@@ -630,7 +602,7 @@ const Remove = {
      * @returns {boolean}
      */
     videoMinBarrageQuantity: function (element, key) {
-        if (Rule.videoData.barrageQuantityMin > key) {
+        if (LocalData.video.getBarrageQuantityMin() > key) {
             element.remove();
             return true;
         }
@@ -645,8 +617,8 @@ const Remove = {
      * @returns {boolean}
      */
     videoMaxBarrageQuantity: function (element, key) {
-        const max = Rule.videoData.barrageQuantityMax;
-        if (max === 0 || Rule.videoData.barrageQuantityMin > max) {
+        const max = LocalData.video.getBarrageQuantityMax();
+        if (max === 0 || LocalData.video.getBarrageQuantityMin() > max) {
             return false;
         }
         if (max > key) {
@@ -1786,9 +1758,35 @@ const LocalData = {
     },
     getPrivacyMode: function () {
         return Util.getData("isPrivacyMode") === true;
+    },
+    getVideoInt: function (rule) {
+        const data = Util.getData(rule);
+        if (data === undefined || data === null) {
+            return 0;
+        }
+        return parseInt(data);
+    },
+    video: {
+        getFilterSMin: function () {//获取限制时长最小值
+            return LocalData.getVideoInt("filterSMin");
+        },
+        getfilterSMax: function () {//获取时长最大值，为0则不生效
+            return LocalData.getVideoInt("filterSMax");
+        },
+        getBroadcastMin: function () {//获取播放量最大值，为0则不生效
+            return LocalData.getVideoInt("broadcastMin");
+        },
+        getBroadcastMax: function () {//获取播放量最大值，为0则不生效
+            return LocalData.getVideoInt("broadcastMax");
+        },
+        getBarrageQuantityMin: function () {//获取弹幕量最小值，为0则不生效
+            return LocalData.getVideoInt("barrageQuantityMin");
+        },
+        getBarrageQuantityMax: function () {//设置弹幕量最大值，为0则不生效
+            return LocalData.getVideoInt("barrageQuantityMax");
+        }
     }
 }
-
 
 //添加元素
 addElement = {
@@ -2139,11 +2137,11 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     if (videoPlaybackVolume !== null) {
         const change = Util.changeFormat(videoPlaybackVolume);
         if (Remove.videoMinPlaybackVolume(element, change)) {
-            Print.video(null, `已过滤视频播放量小于=【${Rule.videoData.broadcastMin}】的视频`, name, uid, title, videoHref);
+            Print.video(null, `已过滤视频播放量小于=【${LocalData.video.getBroadcastMin()}】的视频`, name, uid, title, videoHref);
             return true;
         }
         if (Remove.videoMaxPlaybackVolume(element, change)) {
-            Print.video(null, `已过滤视频播放量大于=【${Rule.videoData.broadcastMax}】的视频`, name, uid, title, videoHref);
+            Print.video(null, `已过滤视频播放量大于=【${LocalData.video.getBroadcastMax()}】的视频`, name, uid, title, videoHref);
             return true;
         }
     }
@@ -2152,11 +2150,11 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
     }
     const timeTotalSeconds = Util.getTimeTotalSeconds(videoTime);
     if (Remove.videoMinFilterS(element, timeTotalSeconds)) {
-        Print.video(null, `已通过视频时长过滤时长小于=【${Rule.videoData.filterSMin}】秒的视频`, name, uid, title, videoHref);
+        Print.video(null, `已通过视频时长过滤时长小于=【${LocalData.video.getFilterSMin()}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     if (Remove.videoMaxFilterS(element, timeTotalSeconds)) {
-        Print.video(null, `已过滤时长大于=【${Rule.videoData.filterSMax}】秒的视频`, name, uid, title, videoHref);
+        Print.video(null, `已过滤时长大于=【${LocalData.video.getfilterSMax()}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     return false;
@@ -3132,6 +3130,7 @@ const layout = {
       </div>
     <details>
       <summary>其他</summary> 
+      <h4 style="color: red">注意下面为0则不生效</h4>
       <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
       <select id="selectVideo">
         <option value="filterSMin">时长最小值(单位秒)</option>
@@ -3561,6 +3560,7 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
+            console.log("检测到首页分区类的api")
             Home.startShieldMainVideo(".bili-video-card");
             continue;
         }
@@ -3782,13 +3782,6 @@ function ruleList(href) {
         frequencyChannel.cssStyle.backGauge();
         return;
     }
-    if (href.includes("www.bilibili.com/v/")) {
-        Home.startShieldMainVideo(".bili-video-card");
-        console.log("通过URL变动执行屏蔽首页分区视频");
-        homePrefecture();
-
-    }
-
 };
 
 /**
@@ -4244,31 +4237,10 @@ function openTab(e) {
             return;
         }
         const name = selectVideo.find("option:selected").text();
-        inputVideoV = parseInt(inputVideoV);
-        switch (typeV) {
-            case "filterSMin":
-                Util.setData("filterSMin", inputVideoV);
-                break;
-            case "videoDurationMax":
-                Util.setData("filterSMin", inputVideoV);
-                break;
-            case "broadcastMin":
-                Util.setData("broadcastMin", inputVideoV);
-                break;
-            case "broadcastMax":
-                Util.setData("broadcastMax", inputVideoV);
-                break;
-            case "barrageQuantityMin":
-                Util.setData("barrageQuantityMin", inputVideoV);
-                break;
-            case "barrageQuantityMax":
-                Util.setData("barrageQuantityMax", inputVideoV);
-                break;
-            default:
-                alert("出现意外的值！")
-                return;
-        }
-        Print.ln("已设置" + name + "的值");
+        Util.setData(typeV, parseInt(inputVideoV));
+        const info = `已设置${name}的具体值【${inputVideoV}】，为0则不生效`;
+        Print.ln(info);
+        Qmsg.success(info);
     });
 
     $("#butClearMessage").click(() => {
@@ -4830,13 +4802,12 @@ function bilibiliOne(href, windonsTitle) {
             }, 50);
         });
     }, 1000);
-    if (LocalData.getPrivacyMode()) {//
+    if (LocalData.getPrivacyMode()) {
         const interval02 = setInterval(() => {
             const tempE01 = document.querySelector(".right-entry") || document.querySelector(".nav-user-center");
             if (tempE01 === null) {
                 return;
             }
-            // clearInterval(interval02);
             tempE01.style.visibility = "hidden";//隐藏元素继续占位
         }, 1000);
     }
@@ -5284,6 +5255,18 @@ function bilibiliOne(href, windonsTitle) {
         }, 1000);
         return;
     }
+    if (href.includes("www.bilibili.com/v")) {//首页分区页,该判断要低于频道等其他页面，主要是因为地址有相似的地方
+        let size = -1;
+        setInterval(() => {
+            const tempSize = document.querySelectorAll(".bili-video-card");
+            if (tempSize.length === size) {
+                return;
+            }
+            size = tempSize.length;
+            Home.startShieldMainVideo(".bili-video-card");
+        }, 1000);
+        return;
+    }
     if ((href.includes("www.bilibili.com") && windonsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windonsTitle === "动态首页-哔哩哔哩")) {
         const interval01 = setInterval(() => {
             const login = $(".lt-col>.login-tip:contains('立即登录')");
@@ -5494,10 +5477,12 @@ function bilibili(href) {
         }
         return;
     }
-    if (href.includes("www.bilibili.com/v/")) {
+    if (href.includes("www.bilibili.com/v/")) {//通过URL变动执行屏蔽首页分区视频
+        Home.startShieldMainVideo(".bili-video-card");
         homePrefecture();
         return;
     }
+
     if (href.includes("space.bilibili.com/[0-9]+/dynamic") !== -1) {
         const interval01 = setInterval(() => {
             const tempE = $(".bili-dyn-list__items");
