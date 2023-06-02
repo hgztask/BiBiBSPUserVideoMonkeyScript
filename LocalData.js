@@ -157,5 +157,18 @@ const LocalData = {
         getBarrageQuantityMax: function () {//设置弹幕量最大值，为0则不生效
             return LocalData.getVideoInt("barrageQuantityMax");
         }
+    },
+    AccountCenter: {
+        getInfo: function () {//读取本地账户信息
+            const data = Util.getData("AccountCenterInfo");
+            if (data === undefined || data === null) {
+                return {};
+            }
+            return data;
+        }, setInfo: function (key) {//设置本地账户信息
+            Util.setData("AccountCenterInfo", key);
+        },
+        info: {}
+
     }
 }
