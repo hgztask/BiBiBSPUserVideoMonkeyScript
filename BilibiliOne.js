@@ -149,13 +149,19 @@ function bilibiliOne(href, windonsTitle) {
         }, 1000);
         return;
     }
-    if (href.includes("t.bilibili.com") ||
-        href.includes("search.bilibili.com") ||
-        href.includes("www.bilibili.com/v") ||
-        href.includes("www.bilibili.com/anime") ||
-        href.includes("www.bilibili.com/guochuang") ||
-        href.includes("message.bilibili.com") ||
-        href.includes("space.bilibili.com")) {//移除该三个个界面的部分顶栏信息
+
+    function isHrefAdessTop(href) {
+        let topBarArr = ["t.bilibili.com", "search.bilibili.com", "www.bilibili.com/v", "www.bilibili.com/anime", "www.bilibili.com/guochuang", "message.bilibili.com",
+            "space.bilibili.com"];
+        topBarArr.forEach((value) => {
+            if (!href.includes(value)) {
+                return true;
+            }
+        });
+        return false;
+    }
+
+    if (isHrefAdessTop(href)) {//移除该三个个界面的部分顶栏信息
         const interval01 = setInterval(() => {
             const left_entry = $(".left-entry");
             if (left_entry.length === 0) {
