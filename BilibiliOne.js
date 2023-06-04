@@ -200,7 +200,7 @@ function bilibiliOne(href, windonsTitle) {
         trends.topCssDisply.body();
         trends.topCssDisply.topTar();
         trends.topCssDisply.rightLayout();
-        trends.layoutCss.items();
+        // trends.layoutCss.items();
 
         function followListLive() {
             const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
@@ -457,6 +457,7 @@ function bilibiliOne(href, windonsTitle) {
                 }
                 clearInterval(interval01);
                 shrieDynamicItems(tempList);
+                trends.layoutCss.items();
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
             if (Util.isEventJq(tempE01, "DOMNodeInserted")) {

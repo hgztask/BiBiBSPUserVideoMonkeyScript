@@ -2245,9 +2245,10 @@ const trends = {//动态
         items: function () {//调整动态列表的布局方式为类似网格
             Util.addStyle(`
             .bili-dyn-list__items{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
+           column-count: 2;
+            }
+            .bili-dyn-list__items>*{
+            page-break-inside: avoid;
             }
             `);
         }
@@ -4014,7 +4015,6 @@ function github(href) {
  * 屏蔽动态页动态项目
  */
 function shrieDynamicItems(list) {
-    trends.layoutCss.items();
     for (let v of list) {
         let tempE = v.querySelector(".bili-rich-text");
         if (tempE === null || tempE.length === 0) {//没有说明是其他的类型动态，如投稿了视频且没有评论显示
