@@ -200,6 +200,7 @@ function bilibiliOne(href, windonsTitle) {
         trends.topCssDisply.body();
         trends.topCssDisply.topTar();
         trends.topCssDisply.rightLayout();
+        trends.layoutCss.items();
 
         function followListLive() {
             const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
