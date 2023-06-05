@@ -2,7 +2,7 @@
  *
  * 首次加载时只会加载一次
  * @param {string}href
- * @param {string}windonsTitle
+ * @param {string}windowsTitle
  */
 function bilibiliOne(href, windonsTitle) {
     const interval01 = setInterval(() => {
@@ -53,7 +53,38 @@ function bilibiliOne(href, windonsTitle) {
                 return;
             }
             tempE01.style.visibility = "hidden";//隐藏元素继续占位
+        }, 1100);
+    }
+
+    function tempFunc(css) {
+        let tempIndex = 0;
+        const interval = setInterval(() => {
+            const leftEntryItems = document.querySelectorAll(css);
+            if (leftEntryItems.length === 0) {
+                return;
+            }
+            leftEntryItems.forEach((value) => {
+                const title = value.textContent;
+                switch (title) {
+                    case "首页":
+                    case "直播":
+                    case "番剧":
+                    case "主站":
+                        break;
+                    default:
+                        value.remove();
+                }
+            });
+            if (++tempIndex >= 10) {
+                clearInterval(interval);
+            }
         }, 1000);
+    }
+
+    if (href.includes("www.bilibili.com/v/channel")) {
+        tempFunc(".nav-link-ul");
+    } else {
+        tempFunc(".left-entry>*");
     }
     if (href.includes("space.bilibili.com/")) {//个人主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
@@ -150,41 +181,7 @@ function bilibiliOne(href, windonsTitle) {
         return;
     }
 
-    function isHrefAdessTop(href) {
-        let topBarArr = ["t.bilibili.com", "search.bilibili.com", "www.bilibili.com/v", "www.bilibili.com/anime", "www.bilibili.com/guochuang", "message.bilibili.com",
-            "space.bilibili.com"];
-        topBarArr.forEach((value) => {
-            if (!href.includes(value)) {
-                return true;
-            }
-        });
-        return false;
-    }
 
-    if (isHrefAdessTop(href)) {//移除该三个个界面的部分顶栏信息
-        const interval01 = setInterval(() => {
-            const left_entry = $(".left-entry");
-            if (left_entry.length === 0) {
-                return;
-            }
-            const v_popover_wrap = $(".v-popover-wrap:contains('下载'),.v-popover-wrap:contains('会员购'),.v-popover-wrap:contains('赛事'),.v-popover-wrap:contains('漫画')");
-            if (v_popover_wrap.length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            v_popover_wrap.remove();
-            console.log("移除标题栏的下载");
-        }, 1000);
-        const interval02 = setInterval(() => {
-            const logo = $(".mini-header__logo");
-            if (logo.length === 0) {
-                return;
-            }
-            clearInterval(interval02);
-            logo.remove();
-            console.log("已移除顶栏左侧的logo");
-        }, 1000);
-    }
     if (href.includes("t.bilibili.com") && windonsTitle === "动态首页-哔哩哔哩") {
         console.log("动态页面")
         const interval01 = setInterval(() => {
@@ -200,6 +197,7 @@ function bilibiliOne(href, windonsTitle) {
         trends.topCssDisply.body();
         trends.topCssDisply.topTar();
         trends.topCssDisply.rightLayout();
+
         // trends.layoutCss.items();
 
         function followListLive() {

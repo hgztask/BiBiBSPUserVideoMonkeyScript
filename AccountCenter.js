@@ -1,7 +1,7 @@
 const AccountCenter = {//账号中心
     info: function () {//加载配置信息
         const getInfo = LocalData.AccountCenter.getInfo();
-        if (getInfo === {} || getInfo === null || Object.keys(getInfo).length === 0) {
+        if (getInfo === {} || Object.keys(getInfo).length === 0) {
             this.login();
             return;
         }
