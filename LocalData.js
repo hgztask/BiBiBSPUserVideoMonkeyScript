@@ -128,7 +128,7 @@ const LocalData = {
     setPrivacyMode: function (key) {
         Util.setData("isPrivacyMode", key === true);
     },
-    getPrivacyMode: function () {
+    getPrivacyMode: function () {//隐私模式
         return Util.getData("isPrivacyMode") === true;
     },
     getVideoInt: function (rule) {

@@ -722,15 +722,8 @@ const HttpUtil = {
             onerror: reject
         });
 
-    },
-    post: function (url, data, headers, resolve, reject) {
-
-        if (headers === null) {
-            this.httpRequest("POST", url, tempOld, resolve, reject);
-            return;
-        }
-
-        this.httpRequest("POST", url, headers, resolve, reject);
+    }, post: function (url, data, resolve, reject) {
+        this.httpRequestPost(url, data, null, resolve, reject);
     },
     /**
      *封装get请求
@@ -2511,19 +2504,20 @@ const layout = {
   <option>全部规则到剪贴板</option>
   <option>全部UID规则到文件</option>
   <option>b站弹幕屏蔽规则</option>
-  <option>全部规则到云端api</option>
+  <option>全部规则到云端账号</option>
   <option>全部UID规则到云端api</option>
 </select>
 <button id="outExport">导出</button>
 </div>
 <div>
   <select id="inputRuleSelect">
-  <option value="">全部规则</option>
-  <option value="">确定合并导入UID规则</option>
+  <option value="">从云端账号导入覆盖本地规则</option>
+  <option value="">从下面编辑框导入全部规则</option>
+  <option value="">从下面编辑框合并导入UID规则</option>
 </select>
 <button id="inputExport">导入</button>
 </div>
-    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;"></textarea>
+    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
 </div>
 `;
     },
@@ -3684,29 +3678,63 @@ function openTab(e) {// 点击标签时执行此函数
 
     $("#outExport").click(() => {//点击导出规则事件
         const selectedText = $('#outRuleSelect option:selected').text();
-        if (selectedText === "全部规则到文件") {
-            let s = prompt("保存为", "规则-" + Util.toTimeString());
-            if (s === null) {
-                return;
-            }
-            if (s.includes(" ") || s === "" || s.length === 0) {
-                s = "规则";
-            }
-            fileDownload(Util.getRuleFormatStr(), s + ".json");
-            return;
-        }
-        if (selectedText === "全部规则到剪贴板") {
-            Util.copyToClip(Util.getRuleFormatStr());
-            return;
-        }
-        if (selectedText === "全部UID规则到文件") {
-            const list = LocalData.getArrUID();
-            fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
-            return;
-        }
-        if (selectedText === "全部UID规则到云端") {//需要配置云端api网址
-            alert("11111111111")
-            return;
+        switch (selectedText) {
+            case "全部规则到文件":
+                let s = prompt("保存为", "规则-" + Util.toTimeString());
+                if (s === null) {
+                    return;
+                }
+                if (s.includes(" ") || s === "" || s.length === 0) {
+                    s = "规则";
+                }
+                fileDownload(Util.getRuleFormatStr(), s + ".json");
+                break;
+            case "全部规则到剪贴板":
+                Util.copyToClip(Util.getRuleFormatStr());
+                break;
+            case "全部UID规则到文件":
+                const list = LocalData.getArrUID();
+                fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
+                break;
+            case "全部UID规则到云端":
+                alert("暂不支持");
+                break;
+            case "全部规则到云端账号":
+                const getInfo = LocalData.AccountCenter.getInfo();
+                if (getInfo === {} || Object.keys(getInfo).length === 0) {
+                    alert("请先登录在进行操作.");
+                    return;
+                }
+                if (!confirm("确定要将本地规则导出到对应账号的云端上吗")) {
+                    return;
+                }
+                const loading = Qmsg.loading("请稍等...");
+                $.ajax({
+                    type: "POST",
+                    url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+                    data: {
+                        model: "All",
+                        userName: getInfo["userName"],
+                        userPassword: getInfo["userPassword"],
+                        postData: Util.getRuleFormatStr()
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        loading.close();
+                        const message = data["message"];
+                        if (data["code"] !== 1) {
+                            Qmsg.error(message);
+                            return;
+                        }
+                        Qmsg.success(message);
+                        console.log(data["dataJson"])
+                    }, error: function (xhr, status, error) { //请求失败的回调函数
+                        loading.close();
+                        console.log(error);
+                        console.log(status);
+                    }
+                });
+                break;
         }
         if (selectedText === "b站弹幕屏蔽规则") {
             //已经登录b站账号的前提下，打开该api
@@ -3745,109 +3773,146 @@ function openTab(e) {// 点击标签时执行此函数
             }
             fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
         }
-        if (selectedText === "全部规则到云端api") {
-
-        }
     });
 
-    //导入按钮事件
+    function rulesAreImportedLocally(ruleRes) {//规则导入本地
+        let list = ruleRes["用户名黑名单模式(精确匹配)"];
+        LocalData.setArrName(list);
+        list = ruleRes["用户名黑名单模式(模糊匹配)"];
+        LocalData.setArrNameKey(list);
+        list = ruleRes["用户uid黑名单模式(精确匹配)"];
+        LocalData.setArrUID(list)
+        list = ruleRes["用户uid白名单模式(精确匹配)"];
+        LocalData.setArrWhiteUID(list);
+        list = ruleRes["标题黑名单模式(模糊匹配)"];
+        LocalData.setArrTitle(list);
+        list = ruleRes["标题黑名单模式(正则匹配)"];
+        LocalData.setArrTitleKeyCanonical(list);
+        list = ruleRes["评论关键词黑名单模式(模糊匹配)"];
+        Util.setData("commentOnKeyArr", list);
+        list = ruleRes["评论关键词黑名单模式(正则匹配)"];
+        LocalData.setArrContentOnKeyCanonicalArr(list);
+        list = ruleRes["粉丝牌黑名单模式(精确匹配)"];
+        LocalData.setFanCardArr(list)
+        list = ruleRes["专栏关键词内容黑名单模式(模糊匹配)"];
+        LocalData.setContentColumnKeyArr(list)
+        list = ruleRes["动态关键词内容黑名单模式(模糊匹配)"];
+        LocalData.setDynamicArr(list);
+        Rule.ruleLength();
+        alert("已导入");
+    }
+
+//导入按钮事件
     $("#inputExport").click(function () {
         const selectedText = $('#inputRuleSelect option:selected').text();
-        if (selectedText === "全部规则") {
-            let content = $("#ruleEditorInput").val();
-            if (content === "" || content === " ") {
-                alert("请填写正确的规则样式！");
-                return;
-            }
-            const b = confirm("需要注意的是，这一步操作会覆盖你先前的规则！您确定要导入吗？");
-            if (!b) {
-                return;
-            }
-            let jsonRule = [];
-            try {
-                content = content.replaceAll("undefined", "null");
-                jsonRule = JSON.parse(content);
-            } catch (error) {
-                alert("内容格式错误！" + error)
-                return;
-            }
-            let list = jsonRule["用户名黑名单模式(精确匹配)"];
-            LocalData.setArrName(list);
-            list = jsonRule["用户名黑名单模式(模糊匹配)"];
-            LocalData.setArrNameKey(list);
-            list = jsonRule["用户uid黑名单模式(精确匹配)"];
-            LocalData.setArrUID(list)
-            list = jsonRule["用户uid白名单模式(精确匹配)"];
-            LocalData.setArrWhiteUID(list);
-            list = jsonRule["标题黑名单模式(模糊匹配)"];
-            LocalData.setArrTitle(list);
-            list = jsonRule["标题黑名单模式(正则匹配)"];
-            LocalData.setArrTitleKeyCanonical(list);
-            list = jsonRule["评论关键词黑名单模式(模糊匹配)"];
-            Util.setData("commentOnKeyArr", list);
-            list = jsonRule["评论关键词黑名单模式(正则匹配)"];
-            LocalData.setArrContentOnKeyCanonicalArr(list);
-            list = jsonRule["粉丝牌黑名单模式(精确匹配)"];
-            LocalData.setFanCardArr(list)
-            list = jsonRule["专栏关键词内容黑名单模式(模糊匹配)"];
-            LocalData.setContentColumnKeyArr(list)
-            list = jsonRule["动态关键词内容黑名单模式(模糊匹配)"];
-            LocalData.setDynamicArr(list);
-            Rule.ruleLength();
-            alert("已导入");
-            return;
-        }
-        if (selectedText === "确定合并导入UID规则") {
-            const content = $("#ruleEditorInput").val();
-            let uidList;
-            try {
-                uidList = JSON.parse(content)
-                if (!(uidList instanceof Array)) {
-                    throw new Error("错误信息，导入的类型不是数组！");
-                }
-            } catch (e) {
-                alert("类型错误，导入的内容不是jsoN")
-                return;
-            }
-            for (let i = 0; i < uidList.length; i++) {
-                try {
-                    uidList[i] = parseInt(uidList[i]);
-                } catch (e) {
-                    alert("数组中存在非数字内容")
+        let content = $("#ruleEditorInput").val();
+        switch (selectedText) {
+            case "从云端账号导入覆盖本地规则":
+                const getInfo = LocalData.AccountCenter.getInfo();
+                if (getInfo === {} || Object.keys(getInfo).length === 0) {
+                    alert("请先登录在进行操作.");
                     return;
                 }
-            }
-            if (uidList.length === 0) {
-                alert("该数组长度为0！")
-                return;
-            }
-            const data = LocalData.getArrUID();
-            if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
-                if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
-                    LocalData.setArrUID(uidList);
-                    alert("添加成功！")
+                if (!confirm("确定要云端账号对应的规则导入并覆盖到本地吗？")) {
+                    return;
                 }
-                return;
-            }
-            let index = 0;
-            for (const v of uidList) {
-                if (data.includes(v)) {
-                    continue;
+                const loading = Qmsg.loading("请稍等...");
+                $.ajax({
+                    type: "GET",
+                    url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+                    data: {
+                        userName: getInfo["userName"],
+                        userPassword: getInfo["userPassword"]
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        loading.close();
+                        const message = data["message"];
+                        if (data["code"] !== 1) {
+                            Qmsg.error(message);
+                            return;
+                        }
+                        Qmsg.success(message);
+                        const time = data["data"]["time"];
+                        const ruleRes = data["data"]["ruleRes"];
+                        console.log(time);
+                        console.log(ruleRes);
+                        rulesAreImportedLocally(ruleRes);
+                    }, error: function (xhr, status, error) { //请求失败的回调函数
+                        loading.close();
+                        console.log(error);
+                        console.log(status);
+                    }
+                });
+                break;
+            case "全部规则":
+                if (content === "" || content === " ") {
+                    alert("请填写正确的规则样式！");
+                    return;
                 }
-                index++;
-                data.push(v);
-            }
-            if (index === 0) {
-                alert("内容没有变化！，可能是原先的规则里已经有了");
-                return;
-            }
-            alert(`已新增${index}个UID规则`);
-            LocalData.setArrUID(data);
-            return;
-        }
-        if (selectedText === "本地b站弹幕屏蔽规则") {
-            alert("暂时未写")
-            return;
+                const b = confirm("需要注意的是，这一步操作会覆盖你先前的规则！您确定要导入吗？");
+                if (!b) {
+                    return;
+                }
+                let jsonRule = [];
+                try {
+                    content = content.replaceAll("undefined", "null");
+                    jsonRule = JSON.parse(content);
+                } catch (error) {
+                    alert("内容格式错误！" + error)
+                    return;
+                }
+                rulesAreImportedLocally(jsonRule);
+                break;
+            case "确定合并导入UID规则":
+                let uidList;
+                try {
+                    uidList = JSON.parse(content)
+                    if (!(uidList instanceof Array)) {
+                        throw new Error("错误信息，导入的类型不是数组！");
+                    }
+                } catch (e) {
+                    alert("类型错误，导入的内容不是jsoN")
+                    return;
+                }
+                for (let i = 0; i < uidList.length; i++) {
+                    try {
+                        uidList[i] = parseInt(uidList[i]);
+                    } catch (e) {
+                        alert("数组中存在非数字内容")
+                        return;
+                    }
+                }
+                if (uidList.length === 0) {
+                    alert("该数组长度为0！")
+                    return;
+                }
+                const data = LocalData.getArrUID();
+                if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
+                    if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
+                        LocalData.setArrUID(uidList);
+                        alert("添加成功！")
+                    }
+                    return;
+                }
+                let index = 0;
+                for (const v of uidList) {
+                    if (data.includes(v)) {
+                        continue;
+                    }
+                    index++;
+                    data.push(v);
+                }
+                if (index === 0) {
+                    alert("内容没有变化！，可能是原先的规则里已经有了");
+                    return;
+                }
+                alert(`已新增${index}个UID规则`);
+                LocalData.setArrUID(data);
+                break;
+            case "本地b站弹幕屏蔽规则":
+                alert("暂时未写")
+                break;
         }
     });
 
@@ -3867,7 +3932,7 @@ function openTab(e) {// 点击标签时执行此函数
     $('#inputRuleSelect').change(() => {//监听模式下拉列表
         const selectedText = $('#inputRuleSelect option:selected').text();
         const editorInput = $("#ruleEditorInput");
-        if (selectedText === "全部规则" || selectedText === "确定合并导入UID规则") {
+        if (selectedText === "从下面编辑框导入全部规则" || selectedText === "从下面编辑框合并导入UID规则") {
             editorInput.show();
             return;
         }
