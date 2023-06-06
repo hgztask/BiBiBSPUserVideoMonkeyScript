@@ -66,7 +66,7 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/article/metas?ids=")) {//搜索专栏
-            searchColumn();
+           search.searchColumn();
             continue;
         }
         if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
