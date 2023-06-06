@@ -96,7 +96,7 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web")) {//直播间列表，目前依旧还有点小问题，暂时不考虑维护了，后面再考虑
-            liveDel.delLiveRoom();
+            Live.liveDel.delLiveRoom();
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/popular")

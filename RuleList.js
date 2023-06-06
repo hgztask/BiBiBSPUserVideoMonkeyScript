@@ -5,7 +5,7 @@
 function ruleList(href) {
     if (href.includes("live.bilibili.com/p/eden/area-tags")) {
         console.log("直播专区")
-        liveDel.delLiveRoom();
+        Live.liveDel.delLiveRoom();
         return;
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话

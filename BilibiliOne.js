@@ -149,12 +149,12 @@ function bilibiliOne(href, windonsTitle) {
         console.log("当前界面疑似是直播间");
         $("#getLiveHighEnergyListBut").css("display", "inline");//显示获取高能用户列表按钮
         $("#getLiveDisplayableBarrageListBut").css("display", "inline");//显示获取当前可显示的弹幕列表
-        liveDel.topElement();
-        liveDel.hreadElement();
-        liveDel.bottomElement();
-        liveDel.delGiftBar();
-        liveDel.delRightChatLayout();
-        liveDel.delOtherE();
+        Live.liveDel.topElement();
+        Live.liveDel.hreadElement();
+        Live.liveDel.bottomElement();
+        Live.liveDel.delGiftBar();
+        Live.liveDel.delRightChatLayout();
+        Live.liveDel.delOtherE();
         const interval01 = setInterval(() => {
             const chat_items = $("#chat-items");
             if (chat_items.length === 0) {
