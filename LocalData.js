@@ -107,15 +107,6 @@ const LocalData = {
     },//设置已观看的视频
     setWatchedArr: function (key) {
         Util.setData("watchedArr", key);
-    },//获取已观看的视频
-    getRuleApi: function () {
-        const data = Util.getData("ruleApiUrl");
-        if (data === undefined || data === null) {
-            return null;
-        }
-        return data;
-    }, setRuleApi: function (url) {
-        Util.setData("ruleApiUrl", url);
     },
     getDelVideoCommentSections: function () {//是否移除评论区布局
         const data = Util.getData("isCommentArea");
