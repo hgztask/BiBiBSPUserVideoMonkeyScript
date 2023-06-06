@@ -572,5 +572,23 @@ const Util = {
             Object.keys(obj).forEach(key => keysSet.add(key));
         });
         return [...keysSet];
+    },
+    /**
+     * 内容导出为文件
+     * @param {String}content 内容
+     * @param {String}fileName 文件名
+     */
+    fileDownload: function (content, fileName) {
+        // 获取导出文件内容
+        // 创建隐藏的下载文件链接
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', fileName);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        // 手动触发下载
+        element.click();
+        // 清理dom
+        document.body.removeChild(element);
     }
 }
