@@ -197,13 +197,13 @@ function bilibili(href) {
                 return;
             }
             clearInterval(interval01);
-            trends.shrieDynamicItems(list);
+            Trends.shrieDynamicItems(list);
             if (Util.isEventJq(tempE, "DOMNodeInserted")) {
                 clearInterval(interval01);
                 return;
             }
             tempE.bind("DOMNodeInserted", () => {
-                trends.shrieDynamicItems($(".bili-dyn-list__items").children());
+                Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
             });
         }, 1000);
     }

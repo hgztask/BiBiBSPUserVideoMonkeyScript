@@ -194,15 +194,15 @@ function bilibiliOne(href, windonsTitle) {
             console.log("已移除动态页面中的提示登录");
         }, 1000);
         //.bili-dyn-ads
-        trends.topCssDisply.body();
-        trends.topCssDisply.topTar();
-        trends.topCssDisply.rightLayout();
+        Trends.topCssDisply.body();
+        Trends.topCssDisply.topTar();
+        Trends.topCssDisply.rightLayout();
 
         // trends.layoutCss.items();
 
         function followListLive() {
             const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
-            HttpUtil.getUsersFollowTheLiveList(sessdata, trends.data.concernPage++, (res) => {
+            HttpUtil.getUsersFollowTheLiveList(sessdata, Trends.data.concernPage++, (res) => {
                 const body = JSON.parse(res.responseText);
                 const code = body["code"];
                 const message = body["message"];
@@ -232,7 +232,7 @@ function bilibiliOne(href, windonsTitle) {
                      */
                     const live_status = v["live_status"];
                     if (live_status === 0) {
-                        trends.data.concernBool = true;
+                        Trends.data.concernBool = true;
                         break;
                     }
                     if (live_status !== 1) {
@@ -251,7 +251,7 @@ function bilibiliOne(href, windonsTitle) {
                     Qmsg.info("未获取到关注中正在直播的用户");
                     return;
                 }
-                if (!trends.data.concernBool) {
+                if (!Trends.data.concernBool) {
                     followListLive();
                     return;
                 }
@@ -385,7 +385,7 @@ function bilibiliOne(href, windonsTitle) {
                 qmLoading.close();
                 return;
             }
-            let partitionPage = trends.data.getPartitionPage(id);
+            let partitionPage = Trends.data.getPartitionPage(id);
             HttpUtil.getLiveList(parent_id, id, partitionPage, "", (res) => {
                 const body = JSON.parse(res.responseText);
                 const code = body["code"];
@@ -399,9 +399,9 @@ function bilibiliOne(href, windonsTitle) {
                 }
                 const list = body["data"]["list"];
                 if (list.length === 0) {
-                    trends.data.setPartitionBool(id, true);
+                    Trends.data.setPartitionBool(id, true);
                     qmLoading.close();
-                    Qmsg.success(`累计获取到${trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
+                    Qmsg.success(`累计获取到${Trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
                     flushBut.find("div").hide();
                     return;
                 }
@@ -421,7 +421,7 @@ function bilibiliOne(href, windonsTitle) {
                     const system_cover = v["system_cover"];//关键帧
                     const parent_name = v["parent_name"];//父级分区
                     const area_name = v["area_name"];//子级分区
-                    trends.data.partitionEndTypeLiveName = `${parent_name}-${area_name}`;
+                    Trends.data.partitionEndTypeLiveName = `${parent_name}-${area_name}`;
                     const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
                     tempE.append(liveItem);
                 }
@@ -434,12 +434,12 @@ function bilibiliOne(href, windonsTitle) {
                     return;
                 }
                 $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
-                Qmsg.success(`本轮已获取到${trends.data.partitionEndTypeLiveName}分区的${list.length}个直播间`);
+                Qmsg.success(`本轮已获取到${Trends.data.partitionEndTypeLiveName}分区的${list.length}个直播间`);
                 if (list.length < 20) {
                     flushBut.find("div").hide();
                 } else {
                     flushBut.find("div").show();
-                    trends.data.setPartitionPage(id, ++partitionPage);
+                    Trends.data.setPartitionPage(id, ++partitionPage);
                 }
             }, (err) => {
                 Qmsg.error("错误信息" + err);
@@ -454,15 +454,15 @@ function bilibiliOne(href, windonsTitle) {
                     return;
                 }
                 clearInterval(interval01);
-                trends.shrieDynamicItems(tempList);
-                trends.layoutCss.items();
+                Trends.shrieDynamicItems(tempList);
+                Trends.layoutCss.items();
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
             if (Util.isEventJq(tempE01, "DOMNodeInserted")) {
                 return;
             }
             tempE01.bind("DOMNodeInserted", () => {
-                trends.shrieDynamicItems(tempE01.children());
+                Trends.shrieDynamicItems(tempE01.children());
             });
         }
 

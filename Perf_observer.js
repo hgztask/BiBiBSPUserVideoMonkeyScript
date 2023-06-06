@@ -25,7 +25,7 @@ function perf_observer() {
             const list = document.querySelectorAll(".reply-list>.reply-item");
             for (let v of list) {//针对于评论区
                 const usercontentWarp = v.querySelector(".content-warp");
-                const data = trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
+                const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
                 const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
                 if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
                     Qmsg.success("屏蔽了言论！！");
@@ -35,7 +35,7 @@ function perf_observer() {
                 if (!Util.isEventJq(jqE, "mouseover")) {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
-                        const data = trends.getVideoCommentAreaOrTrendsLandlord(domElement);
+                        const data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
                         Util.showSDPanel(e, data.name, data.uid);
                     });
                 }
@@ -43,7 +43,7 @@ function perf_observer() {
                     continue;
                 }
                 for (let j of subReplyList) {
-                    const data = trends.getVideoCommentAreaOrTrendsStorey(j);
+                    const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
                     if (startPrintShieldNameOrUIDOrContent(j, data.name, data.uid, data.content)) {
                         Qmsg.success("屏蔽了言论！！");
                         continue;
@@ -54,7 +54,7 @@ function perf_observer() {
                     }
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
-                        const data = trends.getVideoCommentAreaOrTrendsStorey(domElement);
+                        const data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
                         Util.showSDPanel(e, data.name, data.uid);
                     });
                 }
