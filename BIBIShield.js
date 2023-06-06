@@ -2497,7 +2497,6 @@ const layout = {
     </div>
     <div>
     <h1>规则导入导出</h1>
-    <button id="setRuleApiAddress">设置api地址</button>
       <div>
   <select id="outRuleSelect">
   <option>全部规则到文件</option>
@@ -3916,18 +3915,6 @@ function openTab(e) {// 点击标签时执行此函数
         }
     });
 
-    $("#setRuleApiAddress").click(() => {
-        const p = prompt("请设置api地址！");
-        if (p === null || p.includes(" ")) {
-            return;
-        }
-        if (!p.startsWith("http")) {
-            alert("请正确填写地址！");
-            return;
-        }
-        LocalData.setRuleApi(p);
-        Qmsg.success("已设置=" + LocalData.getRuleApi());
-    });
 
     $('#inputRuleSelect').change(() => {//监听模式下拉列表
         const selectedText = $('#inputRuleSelect option:selected').text();
