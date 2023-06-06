@@ -2671,6 +2671,7 @@ const layout = {
     <li><button value="outputInfoLayout">输出信息</button></li>
     <li><button value="otherLayout">其他</button></li>
     <li><button value="donateLayout">支持打赏作者</button></li>
+    <li><button value="ruleCenterLayout">规则中心</button></li>
     <li><button value="accountCenterLayout">账户中心</button></li>
   </ul>
   <!-- 标签布局 -->

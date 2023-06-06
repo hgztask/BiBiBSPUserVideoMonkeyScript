@@ -158,8 +158,6 @@ const LocalData = {
             return data;
         }, setInfo: function (key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
-        },
-        info: {}
-
+        }
     }
 }
