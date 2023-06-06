@@ -1,3 +1,39 @@
+function ruleSharingSet(userName, userPassword, bool) {
+    const loading = Qmsg.loading("请稍等...");
+    $.ajax({
+        type: "POST",
+        url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+        data: {
+            model: "setShare",
+            userName: userName,
+            userPassword: userPassword,
+            postData: bool
+        },
+        dataType: "json",
+        success: function (data) {
+            loading.close();
+            const message = data["message"];
+            if (data["code"] !== 1) {
+                Qmsg.error(message);
+                return;
+            }
+            $("#ruleSharingDiv>span").text(bool);
+            const getInfo = LocalData.AccountCenter.getInfo();
+            if (Object.keys(getInfo).length === 0) {
+                Qmsg.error("更新本地账户信息错误！");
+                return;
+            }
+            getInfo["share"] = bool;
+            LocalData.AccountCenter.setInfo(getInfo);
+            Qmsg.success(message);
+        }, error: function (xhr, status, error) { //请求失败的回调函数
+            loading.close();
+            console.log(error);
+            console.log(status);
+        }
+    });
+}
+
 const AccountCenter = {//账号中心
     info: function () {//加载配置信息
         const getInfo = LocalData.AccountCenter.getInfo();
@@ -61,7 +97,14 @@ const AccountCenter = {//账号中心
             <div>
                 <span>用户名：</span><span id="userNameSpan">我是用户名占位符</span>
             </div>
-            <div><span>注册时间：</span><span id="asideuserAddTimeSpan">我是注册时间占位符</span></div>
+            <div>
+            <span>注册时间：</span><span id="asideuserAddTimeSpan">我是注册时间占位符</span>
+            </div>
+            <div id="ruleSharingDiv">
+           规则共享状态：<span>我是规则共享状态占位符</span>
+            <button value="public">公开我的规则</button>
+            <button value="notPublic">不公开我的规则</button>
+            </div>
         </div>
     </div>
     <hr>
@@ -75,8 +118,10 @@ const AccountCenter = {//账号中心
         const getInfo = LocalData.AccountCenter.getInfo();
         const infoName = getInfo["userName"];
         const infoAddTime = getInfo["addTime"];
+        const share = getInfo["share"] === true;
         $("#userNameSpan").text(infoName);
         $("#asideuserAddTimeSpan").text(Util.timestampToTime(infoAddTime));
+        $("#ruleSharingDiv>span").text(share);
         $("#exitSignBut").click(() => {
             if (!confirm("您确定要退出登录吗")) {
                 return;
@@ -85,6 +130,18 @@ const AccountCenter = {//账号中心
             Qmsg.success("已退出登录！");
             $("#accountCenterLayout>*").remove();
             this.login();
+        });
+        $("#ruleSharingDiv>button[value='public']").click(() => {
+            if (!confirm("确定要公开自己的规则吗？")) {
+                return;
+            }
+            ruleSharingSet(infoName, getInfo["userPassword"], true);
+        });
+        $("#ruleSharingDiv>button[value='notPublic']").click(() => {
+            if (!confirm("确定要不公开自己的规则吗？")) {
+                return;
+            }
+            ruleSharingSet(infoName, getInfo["userPassword"], false);
         });
     }
 }
