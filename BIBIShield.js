@@ -186,9 +186,6 @@ const Rule = {
     }
 }
 
-//是否隐藏了面板
-let myidClickIndex = true;
-
 const Home = {
     //首页下拉底部时依次加载视频的个数
     videoIndex: 20,
@@ -202,6 +199,8 @@ const Home = {
         //分区rid对应的类型
         video_zoneList: JSON.parse(`{"1":"动画(主分区)","3":"音乐(主分区)","4":"游戏(主分区)","5":"娱乐(主分区)","11":"电视剧(主分区)","13":"番剧(主分区)","17":"单机游戏","19":"Mugen","20":"宅舞","21":"日常","22":"鬼畜调教","23":"电影(主分区)","24":"MAD·AMV","25":"MMD·3D","26":"音MAD","27":"综合","28":"原创音乐","29":"音乐现场","30":"VOCALOID·UTAU","31":"翻唱","32":"完结动画","33":"连载动画","36":"知识(主分区)","37":"人文·历史","47":"短片·手书·配音","51":"资讯","59":"演奏","65":"网络游戏","71":"综艺","75":"动物综合","76":"美食制作( 原[生活]->[美食圈] )","83":"其他国家","85":"小剧场","86":"特摄","95":"数码( 原手机平板 )","119":"鬼畜(主分区)","121":"GMV","122":"野生技术协会","124":"社科·法律·心理( 原社科人文、原趣味科普人文 )","126":"人力VOCALOID","127":"教程演示","129":"舞蹈(主分区)","130":"音乐综合","136":"音游","137":"明星综合","138":"搞笑","145":"欧美电影","146":"日本电影","147":"华语电影","152":"官方延伸","153":"国产动画","154":"舞蹈综合","155":"时尚(主分区)","156":"舞蹈教程","157":"美妆护肤","158":"穿搭","159":"时尚潮流","160":"生活(主分区)","161":"手工","162":"绘画","164":"健身","167":"国创(主分区)","168":"国产原创相关","169":"布袋戏","170":"资讯","171":"电子竞技","172":"手机游戏","173":"桌游棋牌","176":"汽车生活","177":"纪录片(主分区)","178":"科学·探索·自然","179":"军事","180":"社会·美食·旅行","181":"影视(主分区)","182":"影视杂谈","183":"影视剪辑","184":"预告·资讯","185":"国产剧","187":"海外剧","188":"科技(主分区)","193":"MV","195":"动态漫·广播剧","198":"街舞","199":"明星舞蹈","200":"中国舞","201":"科学科普","202":"资讯(主分区)","203":"热点","204":"环球","205":"社会","206":"综合","207":"财经商业","208":"校园学习","209":"职业职场","210":"手办·模玩","211":"美食(主分区)","212":"美食侦探","213":"美食测评","214":"田园美食","215":"美食记录","216":"鬼畜剧场","217":"动物圈(主分区)","218":"喵星人","219":"汪星人","220":"大熊猫","221":"野生动物","222":"爬宠","223":"汽车(主分区)","227":"购车攻略","228":"人文历史","229":"设计·创意","230":"软件应用","231":"计算机技术","232":"科工机械 ( 原工业·工程·机械 )","233":"极客DIY","234":"运动(主分区)","235":"篮球","236":"竞技体育","237":"运动文化","238":"运动综合","239":"家居房产","240":"摩托车","241":"娱乐杂谈","242":"粉丝创作","243":"乐评盘点","244":"音乐教学","245":"赛车","246":"改装玩车","247":"新能源车","248":"房车","249":"足球","250":"出行","251":"三农","252":"仿妆cos","253":"动漫杂谈"}`)
     },
+    //是否隐藏了面板
+    myidClickIndex: true,
     /**
      *
      * @return {string}
@@ -304,13 +303,13 @@ const Home = {
     },
     hideDisplayHomeLaylout: function () {//隐藏显示面板
         const home_layout = document.getElementById("home_layout");
-        if (myidClickIndex) {
+        if (Home.myidClickIndex) {
             home_layout.style.display = "block";
-            myidClickIndex = false;
+            Home.myidClickIndex = false;
             return;
         }
         home_layout.style.display = "none";
-        myidClickIndex = true;
+        Home.myidClickIndex = true;
     },
     homePrefecture: function () {//针对于分区的广告页脚信息屏蔽
         Util.circulateID("biliMainFooter", 2000, "已移除底部信息");
@@ -319,12 +318,22 @@ const Home = {
             v.remove();
             console.log("已移除界面中的横幅广告");
         }
+    },
+    openTab: function (e) {// 点击标签时执行此函数
+        // 获取所有标签布局
+        const tabs = document.getElementsByClassName("tab");
+        // 循环遍历每个标签布局
+        for (let i = 0; i < tabs.length; i++) {
+            // 从所有标签布局中删除“active”类，使它们不可见
+            tabs[i].classList.remove("active");
+        }
+        // 将指定的标签布局添加到“active”类，使它可见
+        const tempId = document.getElementById(e);
+        tempId.classList.add("active");
     }
 }
 
-/**
- *直播
- */
+//直播
 const Live = {
     shield: function (list) {
         for (let v of list) {
@@ -358,9 +367,7 @@ const Live = {
     }
 };
 
-/**
- * 判断内容是否匹配上元素
- */
+//判断内容是否匹配上元素
 const Shield = {
     /**
      * 根据用户提供的网页元素和对应的数组及key，精确匹配数组某个元素
@@ -421,9 +428,7 @@ const Shield = {
     }
 }
 
-/**
- * 针对内容符合规则的删除元素并返回状态值
- */
+//针对内容符合规则的删除元素并返回状态值
 const Remove = {
     //是否是白名单用户
     isWhiteUserUID: function (uid) {
@@ -653,7 +658,6 @@ const Remove = {
     }
 }
 
-
 /**
  * 根据规则删除专栏和动态的评论区
  * 针对于专栏和动态内容下面的评论区
@@ -710,7 +714,6 @@ function delDReplay() {
         }
     }, 60);
 }
-
 
 const HttpUtil = {
     httpRequest: function (method, url, headers, resolve, reject) {
@@ -818,7 +821,6 @@ const HttpUtil = {
     }
 };
 
-
 const HtmlStr = {
     /**
      *返回用户卡片基础信息面板布局
@@ -908,7 +910,6 @@ left: 0;  bottom: 0;">
     }
 }
 
-
 const Print = {
     ln: function (content) {
         Util.printElement("#outputInfo", `<dd>${content}</dd>`);
@@ -926,7 +927,6 @@ const Print = {
 </dd>`);
     }
 };
-
 
 const HoverBlockList = {
     /**
@@ -1069,7 +1069,6 @@ z-index: 2000;
         return true;
     }
 };
-
 
 //添加元素
 const addElement = {
@@ -1570,9 +1569,7 @@ const videoFun = {
     }
 }
 
-/**
- * 直播间
- */
+//直播间
 const liveDel = {
     //针对于直播间顶部的屏蔽处理
     topElement: function () {
@@ -2113,17 +2110,17 @@ const trends = {//动态
                 );
             }
         },
-            rightLayout: function () {
-                const trendsData = Rule.trendsData;
-                if (trendsData.isRightLayout) {
-                    const interval = setInterval(() => {
-                        try {
-                            document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
-                            document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
-                            clearInterval(interval);
-                            Print.ln("已移除右侧布局并调整中间动态容器布局宽度")
-                        } catch (e) {
-                        }
+        rightLayout: function () {
+            const trendsData = Rule.trendsData;
+            if (trendsData.isRightLayout) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
+                        document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
+                        clearInterval(interval);
+                        Print.ln("已移除右侧布局并调整中间动态容器布局宽度")
+                    } catch (e) {
+                    }
                 }, 1000);
                 return;
             }
@@ -2151,8 +2148,8 @@ const trends = {//动态
 
         }
     }, layoutCss: {
-            items: function () {//调整动态列表的布局方式为类似网格
-                Util.addStyle(`
+        items: function () {//调整动态列表的布局方式为类似网格
+            Util.addStyle(`
             .bili-dyn-list__items{
            column-count: 2;
             }
@@ -2160,7 +2157,7 @@ const trends = {//动态
             page-break-inside: avoid;
             }
             `);
-            }
+        }
         },
         getVideoCommentAreaOrTrendsLandlord: function (v) {//获取动态页面-评论区信息-单个元素信息-楼主
             return {
@@ -2194,9 +2191,7 @@ const trends = {//动态
                 Print.ln(tempInfo);
             }
         }
-}
-
-;
+};
 
 function loadPartition() {//加载下拉框中的分区
     const tempVar = Home.data.video_zoneList;
@@ -2211,19 +2206,6 @@ function loadChannel() {//加载下拉框中的频道信息
         $("#video_zoneSelect").append(`<option value=${v}>${list[v]}</option>`);
     }
 }
-
-function openTab(e) {// 点击标签时执行此函数
-    // 获取所有标签布局
-    const tabs = document.getElementsByClassName("tab");
-    // 循环遍历每个标签布局
-    for (let i = 0; i < tabs.length; i++) {
-        // 从所有标签布局中删除“active”类，使它们不可见
-        tabs[i].classList.remove("active");
-    }
-    // 将指定的标签布局添加到“active”类，使它可见
-    const tempId = document.getElementById(e);
-    tempId.classList.add("active");
-};
 
 (() => {
     'use strict';
@@ -2245,7 +2227,7 @@ function openTab(e) {// 点击标签时执行此函数
             $(value).css("color", "");
         })
         domElement.style.color = "yellow";
-        openTab(domElement.value);
+        Home.openTab(domElement.value);
     });
     Util.suspensionBall(document.getElementById("suspensionDiv"));
     Rule.ruleLength();
@@ -2310,7 +2292,6 @@ function openTab(e) {// 点击标签时执行此函数
     $('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
         Util.setVideoBackSpeed($('#playbackSpeedModel').val())
     });
-
 
     $("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
         const val = $('#playbackSpeedModel').val();
@@ -2500,7 +2481,7 @@ function openTab(e) {// 点击标签时执行此函数
             data["sub"] = subArr;
             arr.push(data);
         }
-        fileDownload(JSON.stringify(arr), "评论区列表-" + Util.toTimeString());
+        Util.fileDownload(JSON.stringify(arr), "评论区列表-" + Util.toTimeString());
         Qmsg.success("已获取成功！");
     });
 
@@ -2521,7 +2502,7 @@ function openTab(e) {// 点击标签时执行此函数
             const name = v.textContent;
             array.push(name);
         }
-        fileDownload(JSON.stringify(array), Util.toTimeString() + "直播间高能用户列表.json");
+        Util.fileDownload(JSON.stringify(array), Util.toTimeString() + "直播间高能用户列表.json");
     });
 
     $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
@@ -2559,7 +2540,7 @@ function openTab(e) {// 点击标签时执行此函数
             }
             arrData.push(data);
         }
-        fileDownload(JSON.stringify(arrData), Util.toTimeString() + "_直播间弹幕内容.json");
+        Util.fileDownload(JSON.stringify(arrData), Util.toTimeString() + "_直播间弹幕内容.json");
         Qmsg.success("获取成功并执行导出内容");
     });
 
@@ -2822,14 +2803,14 @@ function openTab(e) {// 点击标签时执行此函数
                 if (s.includes(" ") || s === "" || s.length === 0) {
                     s = "规则";
                 }
-                fileDownload(Util.getRuleFormatStr(), s + ".json");
+                Util.fileDownload(Util.getRuleFormatStr(), s + ".json");
                 break;
             case "全部规则到剪贴板":
                 Util.copyToClip(Util.getRuleFormatStr());
                 break;
             case "全部UID规则到文件":
                 const list = LocalData.getArrUID();
-                fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
+                Util.fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
                 break;
             case "全部UID规则到云端":
                 alert("暂不支持");
@@ -2906,7 +2887,7 @@ function openTab(e) {// 点击标签时执行此函数
                 }
                 list.push(arrListElement);
             }
-            fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
+            Util.fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
         }
     });
 
@@ -3061,25 +3042,6 @@ function openTab(e) {// 点击标签时执行此函数
         }
         editorInput.hide();
     });
-
-    /**
-     * 内容导出为文件
-     * @param {String}content 内容
-     * @param {String}fileName 文件名
-     */
-    function fileDownload(content, fileName) {
-        // 获取导出文件内容
-        // 创建隐藏的下载文件链接
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-        element.setAttribute('download', fileName);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        // 手动触发下载
-        element.click();
-        // 清理dom
-        document.body.removeChild(element);
-    }
 
     $("#fenestruleCheckbox").change(function () {
         if ($("#fenestruleCheckbox").is(":checked")) {//如果是选中状态
