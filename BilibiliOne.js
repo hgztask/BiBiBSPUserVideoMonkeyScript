@@ -4,7 +4,7 @@
  * @param {string}href
  * @param {string}windowsTitle
  */
-function bilibiliOne(href, windonsTitle) {
+function bilibiliOne(href, windowsTitle) {
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
         if (nav_search_input.length === 0) {
@@ -110,7 +110,7 @@ function bilibiliOne(href, windonsTitle) {
         $("#getVideoCommentArea").css("display", "inline");
         return;
     }
-    if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windonsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
+    if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
         console.log("进入直播首页了");
         const interval01 = setInterval(() => {
             const videoElement = document.getElementsByTagName("video")[0];
@@ -145,7 +145,7 @@ function bilibiliOne(href, windonsTitle) {
         }, 800);
         return;
     }
-    if (href.includes("//live.bilibili.com/") && windonsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
+    if (href.includes("//live.bilibili.com/") && windowsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
         console.log("当前界面疑似是直播间");
         $("#getLiveHighEnergyListBut").css("display", "inline");//显示获取高能用户列表按钮
         $("#getLiveDisplayableBarrageListBut").css("display", "inline");//显示获取当前可显示的弹幕列表
@@ -182,7 +182,7 @@ function bilibiliOne(href, windonsTitle) {
     }
 
 
-    if (href.includes("t.bilibili.com") && windonsTitle === "动态首页-哔哩哔哩") {
+    if (href.includes("t.bilibili.com") && windowsTitle === "动态首页-哔哩哔哩") {
         console.log("动态页面")
         const interval01 = setInterval(() => {
             const login = $(".bili-dyn-login-register");
@@ -516,7 +516,7 @@ function bilibiliOne(href, windonsTitle) {
         }, 1000);
         return;
     }
-    if ((href.includes("www.bilibili.com") && windonsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windonsTitle === "动态首页-哔哩哔哩")) {
+    if ((href.includes("www.bilibili.com") && windowsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windowsTitle === "动态首页-哔哩哔哩")) {
         const interval01 = setInterval(() => {
             const login = $(".lt-col>.login-tip:contains('立即登录')");
             if (login.length === 0) {
