@@ -31,6 +31,7 @@
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript/util/Util.js
+// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript/util/HttpUtil.js
 // @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript/LocalData.js
 // @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript/Bilibili.js
 // @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript/BilibiliOne.js
@@ -484,8 +485,7 @@ const Remove = {
             element.remove();
         }
         return shieldArrContent;
-    }
-    ,
+    },
     /**
      * 根据用户专栏内容关键词屏蔽元素
      * @param element
@@ -498,8 +498,7 @@ const Remove = {
             element.remove();
         }
         return shieldArrContent;
-    }
-    ,
+    },
     /**
      * 根据用户粉丝牌进行屏蔽
      * @param element
@@ -512,8 +511,7 @@ const Remove = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     /**
      * 限制的视频时长最小值，低于该值的都屏蔽
      * 根据视频时长，过滤指定时长内的视频
@@ -531,8 +529,7 @@ const Remove = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     /**
      * 限制可展示的视频时长最大值，高于该值的都屏蔽
      * @param element
@@ -549,8 +546,7 @@ const Remove = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     /**
      * 限制视频播放量最小值，低于该值的都屏蔽
      * 根据视频播放量，过滤低于指定播放量的视频
@@ -568,8 +564,7 @@ const Remove = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     /**
      * 限制视频播放量最大值，高于该值的都屏蔽
      * 根据视频播放量，过滤高于指定播放量的视频
@@ -587,8 +582,7 @@ const Remove = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     /**
      * 限制可暂时的视频弹幕量最小值，低于该值的都屏蔽
      * 根据视频弹幕量，过滤低于指定弹幕量的视频
@@ -602,8 +596,7 @@ const Remove = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     /**
      * 限制可暂时的视频弹幕量最大值，高于该值的都屏蔽
      * 根据视频弹幕量，过滤高于指定弹幕量的视频
@@ -796,14 +789,12 @@ const HoverBlockList = {
     searchAndInitList: function (arr, key, search = '') {
         const searchStr = search.toString().toLowerCase();
         const result = [];
-
         function omitKey(obj, key, search) {
             const newItem = Object.assign({}, obj);
             delete newItem[key];
             newItem[key] = search;
             return newItem;
         }
-
         for (let i = 0, len = arr.length; i < len; i++) {
             const item = arr[i];
             if (item.hasOwnProperty(key) && item[key].toString().toLowerCase().includes(searchStr)) {
@@ -888,7 +879,6 @@ z-index: 2000;
             }
             func(tempArrID);
         });
-
         // 监听 input 的 value 变化
         $('#search-input').on('input', function () {
             const content = $(this).val();
@@ -904,7 +894,6 @@ z-index: 2000;
             popMain.remove();
             $("#OpenTheFilteredList").show();
         });
-
     },
     /**
      *
@@ -931,7 +920,6 @@ z-index: 2000;
 const addElement = {
     homeVideoE: {
         /**
-         *
          * @param {string}title 视频标题
          * @param {string}videoAddess 视频地址
          * @param {string}videoImage 视频封面
@@ -2483,7 +2471,6 @@ function loadChannel() {//加载下拉框中的频道信息
             }
         }
     });
-
 
     const tempPushTypeSelect = $('#pushTypeSelect');
     tempPushTypeSelect.change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
