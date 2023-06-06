@@ -182,7 +182,7 @@ function bilibili(href) {
     }
     if (href.includes("www.bilibili.com/v/")) {//通过URL变动执行屏蔽首页分区视频
         Home.startShieldMainVideo(".bili-video-card");
-        homePrefecture();
+        Home.homePrefecture();
         return;
     }
 
@@ -197,13 +197,13 @@ function bilibili(href) {
                 return;
             }
             clearInterval(interval01);
-            shrieDynamicItems(list);
+            trends.shrieDynamicItems(list);
             if (Util.isEventJq(tempE, "DOMNodeInserted")) {
                 clearInterval(interval01);
                 return;
             }
             tempE.bind("DOMNodeInserted", () => {
-                shrieDynamicItems($(".bili-dyn-list__items").children());
+                trends.shrieDynamicItems($(".bili-dyn-list__items").children());
             });
         }, 1000);
     }

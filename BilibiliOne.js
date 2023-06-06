@@ -454,7 +454,7 @@ function bilibiliOne(href, windonsTitle) {
                     return;
                 }
                 clearInterval(interval01);
-                shrieDynamicItems(tempList);
+                trends.shrieDynamicItems(tempList);
                 trends.layoutCss.items();
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
@@ -462,7 +462,7 @@ function bilibiliOne(href, windonsTitle) {
                 return;
             }
             tempE01.bind("DOMNodeInserted", () => {
-                shrieDynamicItems(tempE01.children());
+                trends.shrieDynamicItems(tempE01.children());
             });
         }
 
