@@ -202,6 +202,8 @@ const Home = {
     },
     //是否隐藏了面板
     myidClickIndex: true,
+    //是否初次点击了规则中心按钮
+    isFirstRuleCenterLayoutClick: false,
     /**
      *
      * @return {string}
@@ -789,12 +791,14 @@ const HoverBlockList = {
     searchAndInitList: function (arr, key, search = '') {
         const searchStr = search.toString().toLowerCase();
         const result = [];
+
         function omitKey(obj, key, search) {
             const newItem = Object.assign({}, obj);
             delete newItem[key];
             newItem[key] = search;
             return newItem;
         }
+
         for (let i = 0, len = arr.length; i < len; i++) {
             const item = arr[i];
             if (item.hasOwnProperty(key) && item[key].toString().toLowerCase().includes(searchStr)) {
@@ -1638,6 +1642,99 @@ function loadChannel() {//加载下拉框中的频道信息
         domElement.style.color = "yellow";
         Home.openTab(domElement.value);
     });
+
+    $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
+        if (Home.isFirstRuleCenterLayoutClick) {
+            return;
+        }
+        Home.isFirstRuleCenterLayoutClick = true;
+        const loading = Qmsg.loading("请稍等...");
+        $.ajax({
+            type: "GET",
+            url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+            data: {
+                model: "ruleCenter"
+            },
+            dataType: "json",
+            success: function (data) {
+                loading.close();
+                const message = data["message"];
+                if (data["code"] !== 1) {
+                    Qmsg.error(message);
+                    return;
+                }
+                Qmsg.success(message);
+                const dataList = data["list"];
+                const $ruleCenterLayoutUl = $("#ruleCenterLayout>ul");
+                for (let index in dataList) {
+                    const userName = dataList[index]["userName"];
+                    const time = dataList[index]["rule"]["time"];
+                    const ruleRes = dataList[index]["rule"]["ruleRes"];
+                    let centerIndexE = [];
+                    for (let key in ruleRes) {
+                        centerIndexE.push(`<div>
+                    <span>${key}：</span><span>${ruleRes[key].length}</span>个
+                </div>`);
+                    }
+                    const item = `<li value="${index}">
+            <div>
+                <div>
+                    <span>作者：</span><span class="authorNameSpan">${userName}</span>
+                </div>
+                <div>
+                    <span>更新时间：</span><span class="updateTimeSpan">${Util.timestampToTime(time)}</span>
+                </div>
+            </div>
+            <div style="column-count: 4">
+            ${centerIndexE.join("")}
+            </div>
+            <div>
+                <button value="inputLocalRule">导入覆盖本地规则</button>
+                <button value="inputCloudRule">导入覆盖云端规则</button>
+            </div>
+        </li>`;
+                    $ruleCenterLayoutUl.append(item);
+                }
+                Util.addStyle(`
+   #ruleCenterLayout>ul li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgb(0, 217, 0);
+    }
+                    `);
+                $ruleCenterLayoutUl.on("click", "button", (e) => {
+                    const target = e.target;
+                    const li = $(target).closest("li").get(0);
+                    const liValue = li.getAttribute("value");
+                    const authorName = li.querySelector(".authorNameSpan").textContent;
+                    const userRuleData = dataList[liValue];
+                    const ruleRes = userRuleData["rule"]["ruleRes"];
+                    switch (target.getAttribute("value")) {
+                        case "inputLocalRule"://导入覆盖本地规则
+                            if (!confirm(`您确定要导入该用户 ${authorName} 的规则并覆盖您当前本地规则？`)) {
+                                return;
+                            }
+                            rulesAreImportedLocally(ruleRes);
+                            break;
+                        case "inputCloudRule"://导入覆盖云端规则
+                            alert("暂不支持导入覆盖云端规则！");
+                            break;
+                        default:
+                            alert("出现错误的选项！");
+                            break;
+                    }
+                });
+
+
+            }, error: function (xhr, status, error) { //请求失败的回调函数
+                loading.close();
+                console.log(error);
+                console.log(status);
+            }
+        });
+    });
+
     Util.suspensionBall(document.getElementById("suspensionDiv"));
     Rule.ruleLength();
     Rule.showInfo();
@@ -2205,14 +2302,15 @@ function loadChannel() {//加载下拉框中的频道信息
         const selectedText = $('#outRuleSelect option:selected').text();
         switch (selectedText) {
             case "全部规则到文件":
-                let s = prompt("保存为", "规则-" + Util.toTimeString());
+                let fileName = "规则-" + Util.toTimeString();
+                const s = prompt("保存为", fileName);
                 if (s === null) {
                     return;
                 }
-                if (s.includes(" ") || s === "" || s.length === 0) {
-                    s = "规则";
+                if (!(s.includes(" ") || s === "" || s.length === 0)) {
+                    fileName = s;
                 }
-                Util.fileDownload(Util.getRuleFormatStr(), s + ".json");
+                Util.fileDownload(Util.getRuleFormatStr(), fileName + ".json");
                 break;
             case "全部规则到剪贴板":
                 Util.copyToClip(Util.getRuleFormatStr());
@@ -2381,7 +2479,6 @@ function loadChannel() {//加载下拉框中的频道信息
                 }
                 let jsonRule = [];
                 try {
-                    content = content.replaceAll("undefined", "null");
                     jsonRule = JSON.parse(content);
                 } catch (error) {
                     alert("内容格式错误！" + error)
