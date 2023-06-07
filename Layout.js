@@ -395,8 +395,6 @@ const layout = {
         getRuleCenterLayout: function () {//规则中心
             return $(`<ul style="margin: 0;padding-left: 0">
 </ul>`);
-        }, getItem: function () {//规则中心中列表对应的项目item
-            $(`<li></li>`);
         }
     },
     getLogin: function () {//登录账号界面
@@ -413,7 +411,8 @@ const layout = {
 </div>`);
     }, loading: {
         home: function () {
-            $("body").prepend(`
+            const bodyJQE = $("body");
+            bodyJQE.prepend(`
       <div id="home_layout" style="display: none">
         <!-- 标签栏 -->
   <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
@@ -455,7 +454,7 @@ const layout = {
             $("#donateLayout").append(layout.getDonateLayout());
             $("#ruleCenterLayout").append(layout.ruleCenter.getRuleCenterLayout());
             AccountCenter.info();
-            $("body").append(layout.getSuspensionDiv());
+            bodyJQE.append(layout.getSuspensionDiv());
         }
     }
 }
