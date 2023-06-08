@@ -172,7 +172,7 @@ const Trends = {
             }
             v.remove();
             const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
-            Qmsg.success(tempInfo);
+            Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
             Print.ln(tempInfo);
         }
     }
