@@ -1691,6 +1691,7 @@ function loadChannel() {//加载下拉框中的频道信息
             <div>
                 <button value="inputLocalRule">导入覆盖本地规则</button>
                 <button value="inputCloudRule">导入覆盖云端规则</button>
+                <button value="lookUserRule">查看该用户的规则</button>
             </div>
         </li>`;
                     $ruleCenterLayoutUl.append(item);
@@ -1719,6 +1720,12 @@ function loadChannel() {//加载下拉框中的频道信息
                             break;
                         case "inputCloudRule"://导入覆盖云端规则
                             alert("暂不支持导入覆盖云端规则！");
+                            break;
+                        case "lookUserRule":
+                            if (!confirm(`您是要查看用户 ${authorName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) {
+                                return;
+                            }
+                            Util.openWindowWriteContent(JSON.stringify(ruleRes, null, 2));
                             break;
                         default:
                             alert("出现错误的选项！");
