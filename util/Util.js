@@ -627,7 +627,11 @@ const Util = {
         }
     },
     openWindowWriteContent: function (content) {//打开一个标签页并写入内容至页面
-        const newWindow = window.open();
-        newWindow.document.write(content);
+        try {
+            const newWindow = window.open();
+            newWindow.document.write(content);
+        } catch (e) {
+            alert("出现错误！用户必须将浏览器设置为允许弹出窗口才能打开新窗口！");
+        }
     }
 }
