@@ -1725,12 +1725,10 @@ function loadChannel() {//加载下拉框中的频道信息
                             break;
                     }
                 });
-
-
             }, error: function (xhr, status, error) { //请求失败的回调函数
                 loading.close();
-                console.log(error);
-                console.log(status);
+                console.log(error, status);
+                Qmsg.error(error + " " + status);
             }
         });
     });
