@@ -1,4 +1,11 @@
-function ruleSharingSet(userName, userPassword, bool) {
+/**
+ *
+ * @param userName
+ * @param userPassword
+ * @param {boolean}shareBool 共享状态
+ * @param {boolean}anonymityBool 匿名状态
+ */
+function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
     const loading = Qmsg.loading("请稍等...");
     $.ajax({
         type: "POST",
@@ -7,7 +14,8 @@ function ruleSharingSet(userName, userPassword, bool) {
             model: "setShare",
             userName: userName,
             userPassword: userPassword,
-            postData: bool
+            postData: shareBool,
+            anonymity: anonymityBool
         },
         dataType: "json",
         success: function (data) {
@@ -17,13 +25,13 @@ function ruleSharingSet(userName, userPassword, bool) {
                 Qmsg.error(message);
                 return;
             }
-            $("#ruleSharingDiv>span").text(bool);
+            $("#ruleSharingDiv>span").text(shareBool);
             const getInfo = LocalData.AccountCenter.getInfo();
             if (Object.keys(getInfo).length === 0) {
                 Qmsg.error("更新本地账户信息错误！");
                 return;
             }
-            getInfo["share"] = bool;
+            getInfo["share"] = shareBool;
             LocalData.AccountCenter.setInfo(getInfo);
             Qmsg.success(message);
         }, error: function (xhr, status, error) { //请求失败的回调函数
@@ -104,6 +112,7 @@ const AccountCenter = {//账号中心
            规则共享状态：<span>我是规则共享状态占位符</span>
             <button value="public">公开我的规则</button>
             <button value="notPublic">不公开我的规则</button>
+            <input type="checkbox" id="isAnonymityCheckbox"><span title="选中为匿名公布，反之不匿名公布，每次提交会覆盖上一次的匿名状态">是否匿名公布(鼠标悬停我提示信息)</span> 
             </div>
         </div>
     </div>
@@ -121,7 +130,7 @@ const AccountCenter = {//账号中心
         const share = getInfo["share"] === true;
         $("#userNameSpan").text(infoName);
         $("#asideuserAddTimeSpan").text(Util.timestampToTime(infoAddTime));
-        $("#ruleSharingDiv>span").text(share);
+        $("#ruleSharingDiv>span:eq(0)").text(share);
         $("#exitSignBut").click(() => {
             if (!confirm("您确定要退出登录吗")) {
                 return;
@@ -132,16 +141,17 @@ const AccountCenter = {//账号中心
             this.login();
         });
         $("#ruleSharingDiv>button[value='public']").click(() => {
-            if (!confirm("确定要公开自己的规则吗？")) {
+            const isAnonymity = $('#isAnonymityCheckbox').prop('checked');
+            if (!confirm("确定要公开自己的规则吗？\n匿名状态=" + isAnonymity)) {
                 return;
             }
-            ruleSharingSet(infoName, getInfo["userPassword"], true);
+            ruleSharingSet(infoName, getInfo["userPassword"], true, isAnonymity);
         });
         $("#ruleSharingDiv>button[value='notPublic']").click(() => {
-            if (!confirm("确定要不公开自己的规则吗？")) {
+            if (!confirm("确定不公开自己的规则吗？")) {
                 return;
             }
-            ruleSharingSet(infoName, getInfo["userPassword"], false);
+            ruleSharingSet(infoName, getInfo["userPassword"], false, false);
         });
     }
 }
