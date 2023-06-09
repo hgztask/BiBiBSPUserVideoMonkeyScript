@@ -30,19 +30,6 @@
 // @match        *://github.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\util\Util.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\util\HttpUtil.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\Layout.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\LocalData.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\Perf_observer.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\AccountCenter.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\FrequencyChannel.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\Live.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\Trends.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\Bilibili.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\BilibiliOne.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\RuleList.js
-// @require      https://hangexi.gitee.io/bibibspuservideomonkeyscript\other\Github.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
 // @connect      vip.mikuchase.ltd
@@ -53,6 +40,3195 @@
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
+/**
+ * 工具类
+ */
+const Util = {
+    //设置数据
+    setData: function (key, content) {
+        GM_setValue(key, content);
+    },
+    //读取数据
+    getData: function (key) {
+        return GM_getValue(key);
+    },
+    //删除数据
+    delData: function (key) {
+        GM_deleteValue(key);
+    },
+    //添加样式
+    addStyle: function (cssStyleStr) {
+        GM_addStyle(cssStyleStr);
+    },
+    /**
+     * 发起http请求
+     * @param {Object}x
+     */
+    httpRequest: function (x) {
+        GM_xmlhttpRequest(x);
+    },
+    /**
+     * 获取当前网页cookie
+     * @return {string}
+     */
+    getCookie: function () {
+        return document.cookie;
+    },
+    /**
+     * 获取当前网页cookie，已键值对形式对象返回
+     * @return {{}}
+     */
+    getCookieList: function () {
+        const arrCookie = {};
+        const cookie = this.getCookie();
+        if (cookie === "") {
+            return arrCookie;
+        }
+        if (!cookie.includes(";")) {
+            return arrCookie;
+        }
+        const split = cookie.split(";");
+        for (const v of split) {
+            const tempV = v.split("=");
+            arrCookie[tempV[0].trimStart()] = tempV[1];
+        }
+        return arrCookie;
+
+    },
+    /**
+     * 分割时分秒字符串
+     * @param {String}time
+     * @returns {{s: number, h: number, m: number}|{s: number, m: number}}
+     */
+    splitTimeHMS: function (time) {
+        const split = time.split(":");
+        if (split.length === 2) {//说明时长是在60分钟以内
+            const tempM = parseInt(split[0]);//分
+            const tempS = parseInt(split[1]);//秒
+            return {
+                m: tempM,
+                s: tempS
+            };
+        } else {//说明时长是在一小时以上的
+            const tempH = parseInt(split[0]);//时
+            const tempM = parseInt(split[0]);//分
+            const tempS = parseInt(split[1]);//秒
+            return {
+                h: tempH,
+                m: tempM,
+                s: tempS
+            };
+        }
+    },
+    /**
+     * 根据字符串的时分秒转成秒
+     * @param {String} time 时分秒字符串
+     * @returns {number}总秒
+     */
+    getTimeTotalSeconds: function (time) {
+        const demoTime = Util.splitTimeHMS(time);
+        if (demoTime.h === undefined) {//表示时长没有时
+            if (demoTime.m === 0) {//时长低于60秒
+                return demoTime.s;
+            }
+            return demoTime.m * 60 + demoTime.s;//求出剩下的分和秒的总秒
+        }
+        if (demoTime.h === 0) {//说明时长仅仅只有60分钟以内
+            if (demoTime.m === 0) {//时长低于60秒
+                return demoTime.s;
+            }
+            return demoTime.m * 60 + demoTime.s;//求出剩下的分和秒的总秒
+        }
+        //一小时有60分钟，一分钟有60秒，所以，
+        return demoTime.h * 60 * 60 + demoTime.s;
+    },
+    /**
+     * 将秒格式化转成时分秒字符串
+     * @param {number}time
+     * @return {string}
+     */
+    formateTime: function (time) {
+        const h = parseInt(time / 3600)
+        const minute = parseInt(time / 60 % 60)
+        const second = Math.ceil(time % 60)
+        const hours = h < 10 ? '0' + h : h
+        const formatSecond = second > 59 ? 59 : second
+        return `${hours > 0 ? `${hours}:` : ''}${minute < 10 ? '0' + minute : minute}:${formatSecond < 10 ? '0' + formatSecond : formatSecond}`
+    },
+    /**
+     * 时间戳转换为时间
+     * @param {number}timestamp
+     * @return {string}
+     */
+    timestampToTime: function (timestamp) {
+        timestamp = timestamp ? timestamp : null;
+        if ((timestamp + "").length === 10) {
+            timestamp *= 1000;
+        }
+        let date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        let Y = date.getFullYear() + '-';
+        let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+        let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+        let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+        let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+        return Y + M + D + h + m + s;
+    },
+    /**
+     * 转换字符串带万播放量或者弹幕量为数字
+     * @param {String}str
+     * @returns {number}
+     */
+    changeFormat: function (str) {
+        if (str = "".includes("万")) {
+            str = str.replace("万", "");
+            if (str.includes(".")) {
+                str = str.replace(".", "");
+                return parseInt(str + "000");//已知b站视频的播放量或者弹幕量的播放量达到万以上时如果有小数点必然是一个数的，比如10.5万
+            }
+            return parseInt(str + "0000");//没有小数点却带有万字的情况下，直接在后面+四个零
+        }//数字在1万以下的值
+        return parseInt(str);
+    },
+    /**
+     * 将视频播放量和弹幕量格式化输出
+     * 不超出4位数的按原数字返回字符串
+     * 反之截取只保留万返回字符串
+     * @param {string|number}strNumber
+     * @returns {string}
+     */
+    getNumberFormat: function (strNumber) {
+        strNumber += "";
+        const length = strNumber.length;
+        if (length <= 4) {
+            return strNumber;
+        }
+        if (length === 5) {
+            const start = strNumber.substring(0, 1);
+            const end = strNumber.substring(1, 2);
+            return start + "." + end + "万";
+        }
+        const start = strNumber.substring(0, length - 4);
+        const end = strNumber.substring(length - 3, 4);
+        return start + "." + end + "万";
+    },
+    /**
+     * 获取当前网页的url
+     * @returns {string}
+     */
+    getWindowUrl: function () {
+        return window.location.href;
+    },
+    /**
+     * 封装好的定时器检测元素，检测到将删除对应元素，ID方式
+     * @param {String}idName
+     * @param {number}time
+     * @param {String}tip
+     */
+    circulateID: function (idName, time, tip) {
+        const interval = setInterval(() => {
+            const elementById = document.getElementById(idName);
+            if (elementById) {
+                elementById.remove();
+                clearInterval(interval);
+                Print.ln(tip);
+            }
+        }, time);
+    },
+    /**
+     * 封装好的定时器检测元素，检测到将删除对应元素，ID方式并且需要执行多次
+     * @param {String}elementStr
+     * @param {number}index
+     * @param {number}time
+     * @param {String}tip
+     */
+    circulateIDs: function (elementStr, index, time, tip) {
+        let tempIndex = 0;
+        const interval = setInterval(() => {
+            const byElement = document.getElementById(elementStr);
+            if (byElement) {
+                byElement.remove();
+                Print.ln(tip);
+            }
+            if (++tempIndex === index) {
+                clearInterval(interval);
+            }
+        }, time);
+    },
+    //设置元素可自由拖动拖动
+    suspensionBall: function (dragId, func) {
+        let startEvt, moveEvt, endEvt;
+        // 判断是否支持触摸事件
+        if ("ontouchstart" in window) {
+            startEvt = "touchstart";
+            moveEvt = "touchmove";
+            endEvt = "touchend";
+        } else {
+            startEvt = "mousedown";
+            moveEvt = "mousemove";
+            endEvt = "mouseup";
+        }
+        // 获取元素
+
+        dragId.style.position = "fixed";
+        dragId.style.cursor = "move";
+        // 标记是拖曳还是点击
+        let isClick = true;
+        let disX, disY, left, top, starX, starY;
+
+        dragId.addEventListener(startEvt, function (e) {
+            // 阻止页面的滚动，缩放
+            e.preventDefault();
+            // 兼容IE浏览器
+            e = e || window.event;
+            isClick = true;
+            // 手指按下时的坐标
+            starX = e.touches ? e.touches[0].clientX : e.clientX;
+            starY = e.touches ? e.touches[0].clientY : e.clientY;
+            // 手指相对于拖动元素左上角的位置
+            disX = starX - dragId.offsetLeft;
+            disY = starY - dragId.offsetTop;
+            // 按下之后才监听后续事件
+            document.addEventListener(moveEvt, moveFun);
+            document.addEventListener(endEvt, endFun);
+        });
+
+        function moveFun(e) {
+            // 兼容IE浏览器
+            e = e || window.event;
+            // 防止触摸不灵敏，拖动距离大于20像素就认为不是点击，小于20就认为是点击跳转
+            if (
+                Math.abs(starX - (e.touches ? e.touches[0].clientX : e.clientX)) >
+                20 ||
+                Math.abs(starY - (e.touches ? e.touches[0].clientY : e.clientY)) > 20
+            ) {
+                isClick = false;
+            }
+            left = (e.touches ? e.touches[0].clientX : e.clientX) - disX;
+            top = (e.touches ? e.touches[0].clientY : e.clientY) - disY;
+            // 限制拖拽的X范围，不能拖出屏幕
+            if (left < 0) {
+                left = 0;
+            } else if (
+                left >
+                document.documentElement.clientWidth - dragId.offsetWidth
+            ) {
+                left = document.documentElement.clientWidth - dragId.offsetWidth;
+            }
+            // 限制拖拽的Y范围，不能拖出屏幕
+            if (top < 0) {
+                top = 0;
+            } else if (
+                top >
+                document.documentElement.clientHeight - dragId.offsetHeight
+            ) {
+                top = document.documentElement.clientHeight - dragId.offsetHeight;
+            }
+            dragId.style.left = left + "px";
+            dragId.style.top = top + "px";
+        }
+
+        function endFun() {
+            document.removeEventListener(moveEvt, moveFun);
+            document.removeEventListener(endEvt, endFun);
+            // 点击
+            if (func === undefined) {
+                return;
+            }
+            if (isClick) {
+                func();
+            }
+        }
+    },
+    randomNum: function (minNum, maxNum) { //生成从minNum到maxNum的随机数
+        return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+    },
+    /**
+     * 封装好的定时器检测元素，检测到将删除对应元素，class方式
+     * @param elementStr
+     * @param time
+     * @param {String}tip
+     */
+    circulateClassName: function (elementStr, time, tip) {
+        const interval = setInterval(() => {
+            const byElement = document.getElementsByClassName(elementStr)[0];
+            if (byElement) {
+                byElement.remove();
+                clearInterval(interval);
+                Print.ln(tip);
+            }
+        }, time);
+    },
+    /**
+     * 封装好的定时器检测元素，检测到将删除对应元素，class方式并且需要执行多次
+     * @param {String}elementStr
+     * @param {number}elementIndex
+     * @param {number}index
+     * @param {number}time
+     * @param {String}tip
+     */
+    circulateClassNames: function (elementStr, elementIndex, index, time, tip) {
+        let tempIndex = 0;
+        const interval = setInterval(() => {
+            const byElement = document.getElementsByClassName(elementStr)[elementIndex];
+            if (byElement) {
+                byElement.remove();
+                Print.ln(tip);
+            }
+            if (++tempIndex === index) {
+                clearInterval(interval);
+            }
+        }, time);
+    },
+    /**
+     * 返回当前时间
+     * @returns {String}
+     */
+    toTimeString: function () {
+        return new Date().toLocaleString();
+    },
+    printElement: function (id, element) {
+        $(id).prepend(element);
+    },
+    //获取格式化规则的内容
+    getRuleFormatStr: function () {
+        //温馨提示每个{}对象最后一个不可以有,符号
+        return `{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
+    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
+    "标题黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrTitleKeyCanonical())},
+    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(Util.getData("commentOnKeyArr"))},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
+    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getContentColumnKeyArr())},
+    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())}}`;
+    },
+    /**
+     * 设置页面播放器的播放速度
+     * @param {Number|String} index
+     */
+    setVideoBackSpeed: function (index) {
+        const videoTag = $("video");
+        if (videoTag.length === 0) {
+            return;
+        }
+        try {
+            for (const v of videoTag) {
+                v.playbackRate = index;
+            }
+        } catch (error) {
+            console.log("出现错误，当前页面疑似没有播放器或者其他问题=" + error);
+        }
+    },
+    /**
+     *
+     * @param {String}xy x轴还是Y轴
+     * @param {String|Number}index
+     */
+    setVideoRotationAngle: function (xy, index) {
+        const videoV = $("video");
+        if (videoV === null) {
+            return false;
+        }
+        if (xy.toUpperCase() === "Y") {
+            videoV.css("transform", "rotateY(" + index + "deg)");
+            return true;
+        }
+        videoV.css("transform", "rotateX(" + index + "deg)");
+        return true;
+    },
+
+    /**
+     * 中心旋转视频画面
+     * @param {String|number}index 角度
+     * @return {boolean}
+     */
+    setVideoCenterRotation: function (index) {
+        const videoV = $("video");
+        if (videoV === null) {
+            return false;
+        }
+        videoV.css("transform", "rotate(" + index + "deg)");
+        return true;
+    },
+    /**
+     * @param {string|number}r
+     * @param {string|number}g
+     * @param {string|number}b
+     * @param {string|number}a 透明度，0到1，越小越透明
+     * @return {string}
+     */
+    getRGBA: function (r, g, b, a) {
+        return `rgba(${r},${g}, ${b}, ${a})`;
+    },
+    /**
+     * 复制单行内容到粘贴板
+     * content : 需要复制的内容
+     * message : 复制完后的提示，不传则默认提示"复制成功"
+     */
+    copyToClip: function (content, message) {
+        const aux = document.createElement("input");
+        aux.setAttribute("value", content);
+        document.body.appendChild(aux);
+        aux.select();
+        document.execCommand("copy");
+        document.body.removeChild(aux);
+        if (message == null) {
+            alert("复制成功");
+        } else {
+            alert(message);
+        }
+    },
+    /**
+     * 更新悬浮按钮的坐标
+     * @param e 事件源
+     */
+    updateLocation: function (e) {
+        const x = e.clientX;
+        const y = e.clientY;
+        //获取当前鼠标悬停的坐标轴
+        $("#suspensionXY").text(`X:${x} Y:${y}`);
+        if (!($("#quickLevitationShield").is(':checked'))) {
+            return;
+        }
+        const suspensionDiv = $("#suspensionDiv");
+        suspensionDiv.css("left", x + "px");
+        suspensionDiv.css("top", y + "px");
+    },
+    dShielPanel: function () {
+
+    },
+    /**
+     * 获取链接的域名
+     * @param url 链接
+     * @return {null|string}
+     */
+    getRealmName: function (url) {
+        try {
+            const domain = url.split("/");
+            if (domain[2]) {
+                return domain[2];
+            } else {
+                return null;
+            }
+        } catch (e) {
+            return null;
+        }
+    },
+    /**
+     * 显示屏蔽面板
+     * @param e 事件源
+     * @param name 用户名
+     * @param uid uid
+     * @param title 标题
+     */
+    showSDPanel: function (e, name, uid, title) {
+        const newVar = Util.getData("isDShielPanel");
+        if (newVar) {
+            return;
+        }
+        if ($("#fixedPanelValueCheckbox").is(':checked')) {
+            return;
+        }
+        $("#nameSuspensionDiv").text(name);
+        let uidA = $("#uidSuspensionDiv");
+        uid = Util.getSubUid(uid);
+        uidA.text(uid);
+        uidA.attr("href", `https://space.bilibili.com/${uid}`);
+        if (title !== undefined || title !== null) {
+            $("#suspensionTitle").text(title);
+        }
+        this.updateLocation(e);
+        $("#suspensionDiv").css("display", "inline-block");
+
+
+    },
+    /**
+     * 对UID后面带有其他符号的字符截取掉并保留UID返回
+     * @param {string}uidStr
+     * @return {number}
+     */
+    getSubUid: function (uidStr) {
+        uidStr = uidStr + "";
+        const indexOf = uidStr.indexOf("?");
+        const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
+        return parseInt(uid);
+    },
+    /**
+     * 截取网页的BV号
+     * @param url
+     * @return {null|string}
+     */
+    getUrlBVID: function (url) {
+        const arr = url.split("/");
+        if (arr.length <= 0) {
+            return null;
+        }
+        const bvid = arr[4];
+        if (bvid === undefined) {
+            return null;
+        }
+        if (!bvid.startsWith("BV")) {
+            return null;
+        }
+        return bvid;
+    },
+    /**
+     * 截取网页中的Url直播间的ID
+     * @param {string}url
+     * @returns {string|null}
+     */
+    getUrlLiveID: function (url) {
+        let id;
+        try {
+            url = url + "".split("/")[3];
+            id = url.substring(0, url.indexOf("?"));
+        } catch (e) {
+            return null;
+        }
+        if (isNaN(id)) {
+            return null;
+        }
+        return id;
+    },
+    /**
+     * 判断指定jq网页元素对象是否有某个事件
+     * @param element jq网页元素对象
+     * @param {string} eventName 事件名
+     * @returns {boolean}
+     */
+    isEventJq: function (element, eventName) {
+        const tempData = $._data(element[0], "events");
+        if (tempData === undefined) {
+            return false;
+        }
+        return Object.keys(tempData).includes(eventName);
+    },
+    openWindow(url) {
+        window.open(url, 'target', '');
+    },
+    /**
+     获取数组中所有对象的不同键集合
+     @param {Object[]} arr - 包含对象的数组
+     @return {string[]} - 包含不同键的数组 */
+    getDistinctKeys: function (arr) {
+        let keysSet = new Set();
+        arr.forEach(obj => {
+            Object.keys(obj).forEach(key => keysSet.add(key));
+        });
+        return [...keysSet];
+    },
+    /**
+     * 内容导出为文件
+     * @param {String}content 内容
+     * @param {String}fileName 文件名
+     */
+    fileDownload: function (content, fileName) {
+        // 获取导出文件内容
+        // 创建隐藏的下载文件链接
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', fileName);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        // 手动触发下载
+        element.click();
+        // 清理dom
+        document.body.removeChild(element);
+    },
+    /**
+     * bv号与av号互转
+     * 使用之前请初始化init先，如下
+     * 使用例子
+     * BilibiliEncoder.init();//先初始化
+     * console.log(BilibiliEncoder.dec('BV1ms4y1e7B8'));//bv转av
+     * console.log(BilibiliEncoder.enc(170001));//av转bv
+     */
+    BilibiliEncoder: {
+        table: "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF",
+        tr: {},
+        s: [11, 10, 3, 8, 4, 6],
+        xor: 177451812,
+        add: 8728348608,
+        init: function () {//初始化
+            for (let i = 0; i < 58; i++) {
+                this.tr[this.table[i]] = i;
+            }
+        },
+        dec: function (x) {//bv转av
+            let r = 0;
+            for (let i = 0; i < 6; i++) {
+                r += this.tr[x[this.s[i]]] * Math.pow(58, i);
+            }
+            return (r - this.add) ^ this.xor;
+        },
+        enc: function (x) {//av转bv
+            x = (x ^ this.xor) + this.add;
+            const r = "BV1  4 1 7  ".split("");
+            for (let i = 0; i < 6; i++) {
+                r[this.s[i]] = this.table[Math.floor(x / Math.pow(58, i)) % 58];
+            }
+            return r.join("");
+        }
+    },
+    openWindowWriteContent: function (content) {//打开一个标签页并写入内容至页面
+        try {
+            const newWindow = window.open();
+            newWindow.document.write(content);
+        } catch (e) {
+            alert("出现错误！用户必须将浏览器设置为允许弹出窗口才能打开新窗口！");
+        }
+    }
+}
+const HttpUtil = {
+    httpRequest: function (method, url, headers, resolve, reject) {
+        let tempHraders = {
+            "User-Agent": navigator.userAgent
+        };
+        if (headers !== null || headers !== undefined) {
+            tempHraders = Object.assign({}, tempHraders, headers)
+        }
+        Util.httpRequest({
+            method: method,
+            url: url,
+            headers: tempHraders,
+            onload: resolve,
+            onerror: reject
+        });
+    },
+    httpRequestPost: function (url, data, headers, resolve, reject) {
+        let temp = {
+            "Content-Type": "application/json"
+        };
+        if (headers !== null || headers !== undefined) {
+            temp = headers;
+        }
+        Util.httpRequest({
+            method: "POST",
+            url: url,
+            headers: temp,
+            data: JSON.stringify(data),
+            onload: resolve,
+            onerror: reject
+        });
+
+    }, post: function (url, data, resolve, reject) {
+        this.httpRequestPost(url, data, null, resolve, reject);
+    },
+    /**
+     *封装get请求
+     * @param {string}url 请求URL
+     * @param {function}resolve 相应成功
+     * @param {function}reject 相应失败
+     */
+    get: function (url, resolve, reject) {
+        this.httpRequest("get", url, {
+            "User-Agent": navigator.userAgent,
+        }, resolve, reject);
+    },
+    /**
+     *携带cookioie发起get请求
+     * @param url
+     * @param {string}cookie
+     * @param resolve
+     * @param reject
+     */
+    getCookie: function (url, cookie, resolve, reject) {
+        this.httpRequest("get", url, {
+            "User-Agent": navigator.userAgent,
+            "cookie": cookie
+        }, resolve, reject);
+    },
+    /**
+     * 发送请求获取视频的基本信息
+     * @param {string|number}bvOrAv
+     * @param {function}resolve
+     * @param {function}reject
+     */
+    getVideoInfo: function (bvOrAv, resolve, reject) {
+        let url = "https://api.bilibili.com/x/player/pagelist?";
+        if (bvOrAv + "".startsWith("BV")) {
+            url = url + "bvid=" + bvOrAv;//需要带上BV号
+        } else {
+            url = url + "aid=" + bvOrAv;//不需要带上AV号
+        }
+        this.get(url, resolve, reject);
+    },
+    /**
+     * 发送请求获取直播间基本信息
+     * @param id 直播间房间号
+     * @param resolve
+     * @param reject
+     */
+    getLiveInfo: function (id, resolve, reject) {
+        this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
+    },
+    /**
+     * 获取用户关注的用户直播列表
+     * @param cookie
+     * @param page 页数，每页最多29个
+     * @param resolve
+     * @param reject
+     */
+    getUsersFollowTheLiveList: function (cookie, page, resolve, reject) {
+        this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
+    },
+    /**
+     * 获取指定分区下的用户直播列表
+     * @param parent_id 父级分区
+     * @param id 子级分区
+     * @param page 页数
+     * @param sort 排序-如综合或者最新，最新live_time 为空着综合
+     */
+    getLiveList: function (parent_id, id, page, sort, resolve, reject) {
+        //https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=3&area_id=0&sort_type=sort_type_121&page=3
+        this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
+    }
+};
+const layout = {
+    css: {
+        home: function () {
+            Util.addStyle(`
+            #home_layout{
+                background: ${Home.getBackgroundStr()};
+                margin: 0px;
+                height: 100%;
+                width: 100%;
+                max-height: 100%;
+                position: fixed;
+                z-index: 2023;
+                overflow-y: auto;
+                border: 3px solid green;
+            }
+            
+     /* 隐藏标签布局，除了“active”的标签布局 */
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+    ul {
+      /* 隐藏ul标签的默认符号 */
+      list-style: none;
+    }
+             /* 悬浮屏蔽布局 */
+             #suspensionDiv{
+              position: fixed;
+                display: none;
+                z-index: 2024;
+                background: rgb(149, 156, 135);
+                overflow-y: auto;
+                height: 30%;
+                width: 10%;
+                top: 70%;
+                left: 90%;
+                 border: 3px solid green;
+             }
+             
+             #suspensionDiv p {
+  margin-top: 10px;
+}
+#suspensionDiv button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+}
+#suspensionDiv button:hover {
+  background-color: #3E8E41;
+}
+             
+             /* 悬浮屏蔽布局 */
+              #sort_typeSelect{
+               display: none;
+               }
+          #mybut{
+        position: fixed;
+        z-index: 2024;
+        width: 50px;
+        height:50px;
+        left: 96%;
+        bottom: 85%;
+        background: rgb(67, 67, 124);
+        color: white;
+        border: none;
+        border-radius: 50%;
+    }
+            `);
+        }
+    },
+    getPanelSetsTheLayout: function () {//面板设置
+        return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
+      <div>
+        <span>背景透明度</span>
+        <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
+        <span id="backgroundPelluciditySpan">1</span>
+      </div>
+      <div>
+        <span>高度</span>
+        <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
+        <span id="heightSpan">100%</span>
+      </div>
+      <div>
+        <span>宽度</span>
+        <input id="widthRange" type="range" value="100" min="20" max="100" step="0.1">
+        <span id="widthSpan">90%</span>
+      </div>
+    </div>
+    <h1>快捷悬浮面板</h1>
+    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
+    <h1>悬浮屏蔽筛选列表面板</h1>
+        <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
+    },
+    getRuleCRUDLayout: function () {
+        return `<div id="tableBody">
+        <select id="singleDoubleModel">
+          <option value="one">单个</option>
+          <option value="batch">批量</option>
+        </select>
+        <select id="model">
+          <option value="userNameArr">用户名黑名单模式(精确匹配)</option>
+          <option value="userNameKeyArr">用户名黑名单模式(模糊匹配)</option>
+          <option value="userUIDArr">用户uid黑名单模式(精确匹配)</option>
+          <option value="userWhiteUIDArr">用户白名单模式(精确匹配)</option>
+          <option value="titleKeyArr">标题黑名单模式(模糊匹配)</option>
+          <option value="titleKeyCanonicalArr">标题黑名单模式(正则匹配)</option>
+          <option value="commentOnKeyArr">评论关键词黑名单模式(模糊匹配)</option>
+          <option value="contentOnKeyCanonicalArr">评论关键词黑名单模式(正则匹配)</option>
+          <option value="fanCardArr">粉丝牌黑名单模式(精确匹配)</option>
+          <option value="contentColumnKeyArr">专栏关键词内容黑名单模式(模糊匹配)</option>
+          <option value="dynamicArr">动态关键词内容黑名单模式(模糊匹配)</option>
+        </select>
+        <textarea id="inputTextAreaModel" style="resize: none; width: 40%; height: 100px; display: none"></textarea>
+        <div>
+          <button id="butadd">增加</button>
+          <button id="butaddAll" style="display: none">批量增加</button>
+          <button id="butdel">删除</button>
+          <button id="butdelAll" style="display: none">全部删除</button>
+          <button id="butSet">修改</button>
+          <button id="butFind">查询</button>
+          <button id="printRuleBut">打印规则信息</button>
+        </div>
+      </div>
+    <details>
+      <summary>其他</summary> 
+      <h4 style="color: red">注意下面为0则不生效</h4>
+      <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
+      <select id="selectVideo">
+        <option value="filterSMin">时长最小值(单位秒)</option>
+        <option value="filterSMax">时长最大值(单位秒)</option>
+        <option value="broadcastMin">播放量最小值</option>
+        <option value="broadcastMax">播放量最大值</option>
+        <option value="barrageQuantityMin">弹幕量最小值</option>
+        <option value="barrageQuantityMax">弹幕量最大值</option>
+      </select>
+      <button id="butSelectVideo">确定</button>
+     </details>`;
+    },
+    getHomePageLayout: function () {
+        return ` <details open>
+      <summary>首页</summary>
+      <h3>首页推荐视频</h3>
+      <span>指定推送</span>
+      <input type="checkbox">
+      <select id="pushTypeSelect" style="display: block">
+        <option value="分区">分区</option>
+        <option value="频道">频道</option>
+      </select>
+       <select id="sort_typeSelect">
+        <option value="hot">近期热门</option>
+        <option value="view">播放最多（近30天投稿）</option>
+        <option value="new">最新投稿</option>
+      </select>
+      <select id="video_zoneSelect">
+        <option value="1">下拉选择</option>
+      </select>
+      <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;padding-right: 2%;">
+      <input type="checkbox" id="isIdCheckbox">
+      <span>id</span>
+      <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
+      <button id="okButton">确定</button>
+      </div>
+      </details>`;
+    },
+    getVideo_params_layout: function () {
+        return `<div>
+                <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
+                <div>
+                  <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
+                </div>
+                <h3>视频播放速度</h3>
+              拖动更改页面视频播放速度
+                <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+                <span id="playbackSpeedText">1.0x</span>
+                <button id="preservePlaySpeed">保存</button>
+                <div>固定视频播放速度值
+                  <select id="playbackSpeedModel">
+                  <option value="1">1.0x</option>
+                  <option value="0.25">0.25x</option>
+                  <option value="0.5">0.5x</option>
+                  <option value="0.75">0.75x</option>
+                  <option value="0.9">0.9x</option>
+                  <option value="1.25">1.25x</option>
+                  <option value="1.35">1.35x</option>
+                  <option value="1.5">1.5x</option>
+                  <option value="2">2x</option>
+                </select>
+                <button id="preservePlaybackSpeedModel">保存</button>
+              </div>
+              <hr>
+              <div>
+              </div>
+              </div>
+              <h3>播放画面翻转</h3>
+             <button id="flipHorizontal">水平翻转</button>
+             <button id="flipVertical">垂直翻转</button>
+             <div>
+              自定义角度
+              <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
+             </div>
+             <div style="display: flex;">
+             <input type="checkbox" id="delVideoCommentSectionsCheackBox">移除视频播放页底下的评论区
+</div>
+`;
+    },
+    getRuleInfoLayout: function () {
+        return `<div>
+      <p>用户名黑名单模式(精确匹配)个数:
+        <span id="textUserName" style="color: yellow;"></span>个
+      </p>
+      <p>用户名黑名单模式(模糊匹配)个数:
+        <span id="textUserNameKey" style="color: yellow;"></span>个
+      </p>
+      <p>用户uid黑名单模式(精确匹配)个数:
+        <span id="textUserUID" style="color: yellow;"></span>个
+      </p>
+      <p>用户白名单模式(精确匹配)个数:
+        <span id="textUserBName" style="color: yellow;"></span>个
+      </p>
+      <p>标题黑名单模式(模糊匹配)个数:
+        <span id="textUserTitle" style="color: yellow;"></span>个
+      </p>
+      <p>标题黑名单模式(正则匹配)个数:
+        <span id="textUserTitleCanonical" style="color: yellow;"></span>个
+      </p>
+      <p>评论关键词黑名单模式(模糊匹配)个数:
+        <span id="textContentOn" style="color: yellow;"></span>个
+      </p>
+      <p>评论关键词黑名单模式(正则匹配)个数:
+        <span id="textContentOnCanonical" style="color: yellow;"></span>个
+      </p>
+      <p>粉丝牌黑名单模式(精确匹配)个数:
+        <span id="textFanCard" style="color: yellow;"></span>个
+      </p>
+      <p>专栏关键词内容黑名单模式(模糊匹配)个数:
+        <span id="textColumn" style="color: yellow;"></span>个
+      </p>
+      <p>动态关键词内容黑名单模式(模糊匹配)个数：
+       <span id="textDynamicArr" style="color: yellow;"></span>个
+      </p>
+    </div>
+    <div>
+    <h1>规则导入导出</h1>
+      <div>
+  <select id="outRuleSelect">
+  <option>全部规则到文件</option>
+  <option>全部规则到剪贴板</option>
+  <option>全部UID规则到文件</option>
+  <option>b站弹幕屏蔽规则</option>
+  <option>全部规则到云端账号</option>
+  <option>全部UID规则到云端api</option>
+</select>
+<button id="outExport">导出</button>
+</div>
+<div>
+  <select id="inputRuleSelect">
+  <option value="">从云端账号导入覆盖本地规则</option>
+  <option value="">从下面编辑框导入全部规则</option>
+  <option value="">从下面编辑框合并导入UID规则</option>
+</select>
+<button id="inputExport">导入</button>
+</div>
+    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
+</div>
+`;
+    },
+    getOutputInfoLayout: function () {
+        return `<div>
+      <button id="butClearMessage">清空信息</button>
+      <input type="checkbox" checked="checked">
+      <span>二次确认</span>
+    </div>
+    <div id="outputInfo">
+    </div>`;
+    },
+    getOtherLayout: function () {
+        return `<div>
+      <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
+    </div>
+    <details>
+      <summary>快捷键</summary>
+      <div>
+        <h1>快捷键</h1>
+        <p> 显示隐藏面板 快捷键\`</p>
+        <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
+        <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
+        <p>隐藏快捷悬浮屏蔽面板 快捷键3</p>
+      </div>
+    </details>
+    <hr>
+    <details>
+      <summary>b站SESSDATA</summary>
+      <p>该数据一些b站api需要用到，一般情况下不用设置，以下的设置和读取均是需要用户自行添加b站对应的SESSDATA值，读取时候也是读取用户自己添加进去的SESSDATA值，脚本本身不获取b站登录的SESSDATA</p>
+      <P>提示：为空字符串则取消移除SESSDATA，不可带有空格</P>
+      <div style="display: flex; justify-content: space-between;" id="sgSessdata">
+        <button title="为空字符串则取消">设置SESSDATA</button>
+        <button>读取SESSDATA</button>
+      </div>
+      <div style=" display: flex;justify-content: space-between;" id="bili_jctDiv">
+        <button>设置bili_jct</button>
+        <button>设置b站登录的bili_jct</button>
+        <button>读取b站登录的bili_jct</button>
+        <button>读取bili_jct</button>
+      </div>
+    </details>
+    <div style="display: flex">
+    <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
+</div>
+    <hr>
+    <div>
+      <h1> 反馈问题</h1>
+      <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
+      <p>本脚本gf反馈页<span>
+          <a href="https://greasyfork.org/zh-CN/scripts/461382-b%E7%AB%99%E5%B1%8F%E8%94%BD%E5%A2%9E%E5%BC%BA%E5%99%A8/feedback" target="_blank">点我进行传送！</a>
+        </span>
+      </p>
+    </div>`;
+    },
+    getSuspensionDiv: function () {
+        return `<!-- 悬浮屏蔽布局 -->
+      <div id="suspensionDiv">坐标:
+        <span id="suspensionXY">xy</span>
+        <div>
+          <span>按钮跟随鼠标</span>
+          <input id="quickLevitationShield" type="checkbox">
+        </div>
+       <div>
+       <span>固定面板值</span>
+       <input id="fixedPanelValueCheckbox" type="checkbox">
+       </div>
+        <p>
+          标题:
+          <span id="suspensionTitle"></span>
+        </p>
+        <p>
+          用户名：
+         <span id="nameSuspensionDiv"></span>
+        </p>
+        <p>
+          用户UID：
+          <a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a>
+        </p>
+        <button id="butShieldName">add屏蔽用户名</button>
+        <button id="butShieldUid">add屏蔽用户名UID</button>
+        <button id="findUserInfo">查询基本信息</button>
+        <button id="getVideoDanMueBut" style="display: none">获取视频弹幕</button>
+        <button id="getVideoCommentArea" style="display: none" title="获取评论区目前页面可见得内容">获取评论区列表内容</button>
+        <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
+        <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
+      </div>
+     <!-- 悬浮屏蔽按钮 -->`;
+    },
+    getFilter_queue: function () {//个人主页悬浮屏蔽按钮
+        return $(`<div style="position: fixed;z-index: 2022;  top: 25%; left: 4%; width: 50px; height: 50px; border-radius: 25px; background-color: #FFA500; color: #FFF; font-size: 20px; text-align: center; line-height: 50px;">屏蔽</div>
+`);
+    },
+    getDonateLayout: function () {//捐赠页面
+        return $(`
+   <div style="border: 3px solid #000;">
+            <div style="display: flex;align-items: center;">
+                <h2>零钱赞助</h2>
+                <ul>
+                    <li>1元不嫌少，10元不嫌多哦！感谢支持！</li>
+                    <li>生活不易，作者叹息</li>
+                    <li>您的支持是我最大的更新动力</li>
+                </ul>
+            </div>
+            <hr>
+        <div style="display: flex;justify-content: center;">
+            <div>
+                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeZFB.png" alt="支付宝打赏支持" style="max-height: 500px;">
+                <span style="display: flex;justify-content: center;">支付宝赞助</span>
+            </div>
+            <div>
+                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeWX.png" alt="微信打赏支持" style="max-height: 500px;">
+                <span style="display: flex;justify-content: center;">微信赞助</span>
+            </div>
+                <div>
+                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png" alt="QQ打赏支持" style="max-height: 500px;">
+                <span style="display: flex;justify-content: center;">QQ赞助</span>
+            </div>
+        </div>
+        <hr>
+        <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>
+    </div>
+`);
+    },
+    ruleCenter: {
+        getRuleCenterLayout: function () {//规则中心
+            return $(`<ul style="margin: 0;padding-left: 0">
+</ul>`);
+        }
+    },
+    getLogin: function () {//登录账号界面
+        return $(`<div style="display: flex;flex-direction: column;align-items: center;">
+    <h1>登录账号</h1>
+    <input type="text" placeholder="用户名" id="userNameInput">
+    <input type="text" placeholder="密码" id="userPasswordInput">
+    <div>
+        <button>
+            <a href="https://vip.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+        </button>
+        <button id="loginBut">登录</button>
+    </div>
+</div>`);
+    }, loading: {
+        home: function () {
+            const bodyJQE = $("body");
+            bodyJQE.prepend(`
+      <div id="home_layout" style="display: none">
+        <!-- 标签栏 -->
+  <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
+    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
+    <li><button value="panelSetsTheLayout">面板设置</button></li>
+    <li><button value="ruleCRUDLayout">规则增删改查</button></li>
+    <li><button value="homePageLayout">首页</button></li>
+    <li><button value="video_params_layout">视频参数</button></li>
+    <li><button value="liveLayout">直播列表</button></li>
+    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
+    <li><button value="outputInfoLayout">输出信息</button></li>
+    <li><button value="otherLayout">其他</button></li>
+    <li><button value="donateLayout">支持打赏作者</button></li>
+    <li><button value="ruleCenterLayout">规则中心</button></li>
+    <li><button value="accountCenterLayout">账户中心</button></li>
+  </ul>
+  <!-- 标签布局 -->
+  <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
+  <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
+  <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
+  <div class="tab" id="ruleInfoLayout"></div><!-- 规则信息布局 -->
+  <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
+  <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
+  <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
+  <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
+  <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
+  <div class="tab" id="ruleCenterLayout"><!-- 规则中心布局 --></div>
+  <div class="tab" id="accountCenterLayout"><!-- 账户中心布局 --></div>
+      </div>
+<!-- 分割home_layout -->
+    `);
+            $("#panelSetsTheLayout").append(layout.getPanelSetsTheLayout());
+            $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
+            $("#homePageLayout").append(layout.getHomePageLayout());
+            $("#video_params_layout").append(layout.getVideo_params_layout());
+            $("#ruleInfoLayout").append(layout.getRuleInfoLayout());
+            $("#outputInfoLayout").append(layout.getOutputInfoLayout());
+            $("#otherLayout").append(layout.getOtherLayout());
+            $("#donateLayout").append(layout.getDonateLayout());
+            $("#ruleCenterLayout").append(layout.ruleCenter.getRuleCenterLayout());
+            AccountCenter.info();
+            bodyJQE.append(layout.getSuspensionDiv());
+        }
+    }
+}
+const LocalData = {
+    getSESSDATA: function () {
+        const data = Util.getData("SESSDATA");
+        if (data === undefined || data === null || data === "") {
+            return null;
+        }
+        return "SESSDATA=" + data;
+    },
+    setSESSDATA: function (key) {
+        Util.setData("SESSDATA", key);
+    },
+    getWebBili_jct: function () {
+        const data = Util.getCookieList()["bili_jct"];
+        if (data === undefined) {
+            return null;
+        }
+        return data;
+    },
+    getBili_jct: function () {
+        const data = Util.getData("bili_jct");
+        if (data === undefined || data === null === "") {
+            return null;
+        }
+        return data;
+    },
+    setBili_jct: function (key) {
+        Util.setData("bili_jct", key);
+    },
+    temp: function (key) {
+        const data = Util.getData(key);
+        if (data === undefined || data === null) {
+            return [];
+        }
+        return data;
+    },
+    getArrUID: function () {
+        return this.temp("userUIDArr");
+    },
+    setArrUID: function (key) {
+        Util.setData("userUIDArr", key);
+    },
+    getArrWhiteUID: function () {
+        return this.temp("userWhiteUIDArr");
+    },
+    setArrWhiteUID: function (key) {
+        Util.setData("userWhiteUIDArr", key);
+    },
+    getArrName: function () {
+        return this.temp("userNameArr");
+    },
+    setArrName: function (key) {
+        Util.setData("userNameArr", key);
+    },
+    getArrNameKey: function () {
+        return this.temp("userNameKeyArr");
+    },
+    setArrNameKey: function (key) {
+        Util.setData("userNameKeyArr", key);
+    },
+    getArrTitle: function () {
+        return this.temp("titleKeyArr");
+    },
+    setArrTitle: function (key) {
+        Util.setData("titleKeyArr", key);
+    }, getArrTitleKeyCanonical: function () {
+        return this.temp("titleKeyCanonicalArr");
+    },
+    setArrTitleKeyCanonical: function (key) {
+        Util.setData("titleKeyCanonicalArr", key);
+    },//获取评论关键词黑名单模式(正则匹配)
+    getArrContentOnKeyCanonicalArr: function () {
+        return this.temp("contentOnKeyCanonicalArr");
+    },//设置评论关键词黑名单模式(正则匹配)
+    setArrContentOnKeyCanonicalArr: function (key) {
+        Util.setData("contentOnKeyCanonicalArr", key);
+    },//获取动态页屏蔽项目规则--模糊匹配
+    getDynamicArr: function () {
+        return this.temp("dynamicArr");
+    }, //设置动态页屏蔽项目规则-模糊匹配
+    setDynamicArr: function (key) {
+        Util.setData("dynamicArr", key);
+    }, //粉丝牌
+    getFanCardArr: function () {
+        return this.temp("fanCardArr");
+    },//粉丝牌
+    setFanCardArr: function (key) {
+        Util.setData("fanCardArr", key);
+    },//专栏关键词内容黑名单模式(模糊匹配)
+    getContentColumnKeyArr: function () {
+        return this.temp("contentColumnKeyArr");
+    },//专栏关键词内容黑名单模式(模糊匹配)
+    setContentColumnKeyArr: function (key) {
+        Util.setData("contentColumnKeyArr", key);
+    },
+    getVideo_zone: function () {
+        const data = this.temp("video_zone");
+        if (data === undefined || data === null) {
+            return 1;
+        }
+        return parseInt(data);
+    },
+    setVideo_zone: function (key) {
+        Util.setData("video_zone", key);
+    },//获取已观看的视频数组
+    getWatchedArr: function () {
+        return this.temp("watchedArr");
+    },//设置已观看的视频
+    setWatchedArr: function (key) {
+        Util.setData("watchedArr", key);
+    },
+    getDelVideoCommentSections: function () {//是否移除评论区布局
+        const data = Util.getData("isCommentArea");
+        return data === true;
+
+    },
+    setDelVideoCommentSections: function (key) {//是否移除评论区布局
+        Util.setData("isCommentArea", key === true ? true : false);
+    },
+    setPrivacyMode: function (key) {
+        Util.setData("isPrivacyMode", key === true);
+    },
+    getPrivacyMode: function () {//隐私模式
+        return Util.getData("isPrivacyMode") === true;
+    },
+    getVideoInt: function (rule) {
+        const data = Util.getData(rule);
+        if (data === undefined || data === null) {
+            return 0;
+        }
+        return parseInt(data);
+    },
+    video: {
+        getFilterSMin: function () {//获取限制时长最小值
+            return LocalData.getVideoInt("filterSMin");
+        },
+        getfilterSMax: function () {//获取时长最大值，为0则不生效
+            return LocalData.getVideoInt("filterSMax");
+        },
+        getBroadcastMin: function () {//获取播放量最大值，为0则不生效
+            return LocalData.getVideoInt("broadcastMin");
+        },
+        getBroadcastMax: function () {//获取播放量最大值，为0则不生效
+            return LocalData.getVideoInt("broadcastMax");
+        },
+        getBarrageQuantityMin: function () {//获取弹幕量最小值，为0则不生效
+            return LocalData.getVideoInt("barrageQuantityMin");
+        },
+        getBarrageQuantityMax: function () {//设置弹幕量最大值，为0则不生效
+            return LocalData.getVideoInt("barrageQuantityMax");
+        }
+    },
+    AccountCenter: {
+        getInfo: function () {//读取本地账户信息
+            const data = Util.getData("AccountCenterInfo");
+            if (data === undefined || data === null) {
+                return {};
+            }
+            return data;
+        }, setInfo: function (key) {//设置本地账户信息
+            Util.setData("AccountCenterInfo", key);
+        }
+    }
+}
+
+function perf_observer() {
+    const entries = performance.getEntriesByType('resource');
+    const windowUrl = Util.getWindowUrl();
+    for (let entry of entries) {
+        const url = entry.name;
+        const initiatorType = entry.initiatorType;
+        if (initiatorType === "img" || initiatorType === "css" || initiatorType === "link" || initiatorType === "beacon") {
+            continue;
+        }
+        //只要json类的
+        if (url.includes("api.bilibili.com/x/web-interface/web/channel") && windowUrl.includes("www.bilibili.com/v/channel")) {
+            //针对于频道界面的综合视频和频道界面的精选视频
+            frequencyChannel.videoRules();
+            frequencyChannel.listRules();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/v2/reply/main?csrf=") || url.includes("api.bilibili.com/x/v2/reply/reply?csrf=")) {
+            /**
+             * 视频播放页和www.bilibili.com/opus动态页下的评论
+             * 需要注意的是，www.bilibili.com/opus这地址，可以从动态页中的，直接点击动态内容跳转的地址
+             */
+            if (windowUrl.includes("https://www.bilibili.com/video") && LocalData.getDelVideoCommentSections()) {
+                return;
+            }
+            const list = document.querySelectorAll(".reply-list>.reply-item");
+            for (let v of list) {//针对于评论区
+                const usercontentWarp = v.querySelector(".content-warp");
+                const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
+                const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
+                if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
+                    Qmsg.success("屏蔽了言论！！");
+                    continue;
+                }
+                const jqE = $(usercontentWarp);
+                if (!Util.isEventJq(jqE, "mouseover")) {
+                    jqE.mouseenter((e) => {
+                        const domElement = e.delegateTarget;//dom对象
+                        const data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
+                        Util.showSDPanel(e, data.name, data.uid);
+                    });
+                }
+                if (subReplyList.length === 0) {
+                    continue;
+                }
+                for (let j of subReplyList) {
+                    const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
+                    if (startPrintShieldNameOrUIDOrContent(j, data.name, data.uid, data.content)) {
+                        Qmsg.success("屏蔽了言论！！");
+                        continue;
+                    }
+                    const jqE = $(j);
+                    if (Util.isEventJq(jqE, "mouseover")) {
+                        continue;
+                    }
+                    jqE.mouseenter((e) => {
+                        const domElement = e.delegateTarget;//dom对象
+                        const data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
+                        Util.showSDPanel(e, data.name, data.uid);
+                    });
+                }
+            }
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/msgfeed/reply?platform=") || url.includes("api.bilibili.com/x/msgfeed/reply?id=")) {//第一次加载对应json信息和后续添加的json信息
+            message.delMessageReply();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/article/metas?ids=")) {//搜索专栏
+            search.searchColumn();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
+            message.delMessageAT();
+            continue;
+        }
+        //后面一个条件限制为仅仅是专栏页面的该api，消息中心的api疑似也是这个，后续在测试看下
+        if (url.includes("api.bilibili.com/x/v2/reply/main?callback=jQuery") || url.includes("api.bilibili.com/x/v2/reply/reply?callback=jQuery")) {
+            if (windowUrl.includes("www.bilibili.com/read")) {
+                delDReplay();
+                continue;
+            }
+            if (windowUrl.includes("t.bilibili.com")) {
+                console.log("接收到了动态的评论区api")
+                delDReplay();
+                continue;
+            }
+            if (windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题界面的楼层评论
+                console.log("话题界面的api")
+            }
+            if (windowUrl.search("space.bilibili.com/.*dynamic") !== -1) {
+                delDReplay();
+            }
+        }
+        if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
+            subjectOfATalk.deltopIC();
+            continue;
+        }
+        if (url.includes("api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web")) {//直播间列表，目前依旧还有点小问题，暂时不考虑维护了，后面再考虑
+            Live.liveDel.delLiveRoom();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/popular")
+            || url.includes("api.bilibili.com/x/copyright-music-publicity/toplist/music_list?csrf=")
+            && windowUrl.includes("www.bilibili.com/v/popular")) {//热门
+            greatDemand.delVideo();
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
+            console.log("检测到首页分区类的api")
+            Home.startShieldMainVideo(".bili-video-card");
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/ranking/region?")) {//首页分区排行榜
+            for (let v of document.querySelectorAll(".bili-rank-list-video__list.video-rank-list")) {//遍历每个排行榜
+                for (let q of v.querySelectorAll("li[class='bili-rank-list-video__item']")) {//遍历某个排行榜中的项目
+                    const title = q.querySelector("[title]").textContent;
+                    const isTitle = Shield.arrContent(LocalData.getArrTitle(), title);
+                    if (isTitle != null) {
+                        Print.ln(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
+                        q.remove();
+                        continue;
+                    }
+                    const isTitleCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
+                    if (isTitleCanonical != null) {
+                        Print.ln(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
+                        q.remove();
+                    }
+                }
+            }
+            continue;
+        }
+        if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?")) {//搜索界面
+            if (windowUrl.includes("search.bilibili.com/video") || windowUrl.includes("search.bilibili.com/all")) {
+                search.searchRules($(".video-list").children());
+                continue;
+            }
+            Qmsg.info("检测到搜索的接口");
+            //search.searchRules();
+        }
+    }
+    performance.clearResourceTimings();//清除资源时间
+}
+
+/**
+ *
+ * @param userName
+ * @param userPassword
+ * @param {boolean}shareBool 共享状态
+ * @param {boolean}anonymityBool 匿名状态
+ */
+function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
+    const loading = Qmsg.loading("请稍等...");
+    $.ajax({
+        type: "POST",
+        url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+        data: {
+            model: "setShare",
+            userName: userName,
+            userPassword: userPassword,
+            postData: shareBool,
+            anonymity: anonymityBool
+        },
+        dataType: "json",
+        success: function (data) {
+            loading.close();
+            const message = data["message"];
+            if (data["code"] !== 1) {
+                Qmsg.error(message);
+                return;
+            }
+            $("#ruleSharingDiv>span").text(shareBool);
+            const getInfo = LocalData.AccountCenter.getInfo();
+            if (Object.keys(getInfo).length === 0) {
+                Qmsg.error("更新本地账户信息错误！");
+                return;
+            }
+            getInfo["share"] = shareBool;
+            LocalData.AccountCenter.setInfo(getInfo);
+            Qmsg.success(message);
+        }, error: function (xhr, status, error) { //请求失败的回调函数
+            loading.close();
+            console.log(error);
+            console.log(status);
+        }
+    });
+}
+
+const AccountCenter = {//账号中心
+    info: function () {//加载配置信息
+        const getInfo = LocalData.AccountCenter.getInfo();
+        if (getInfo === {} || Object.keys(getInfo).length === 0) {
+            this.login();
+            return;
+        }
+        this.haveLanded();
+    },
+    login: function () {//未登录
+        $("#accountCenterLayout").append(layout.getLogin());
+        $("#loginBut").click(() => {
+            const captcha = Util.randomNum(1000, 9999);
+            const s = prompt("请输入验证码\n" + captcha);
+            if (s === null) {
+                return;
+            }
+            if (s !== (captcha + "")) {
+                alert("验证码错误！");
+                return;
+            }
+            const userName = $("#userNameInput").val();
+            const userPass = $("#userPasswordInput").val();
+            if (userName === "" || userName.includes(" ") || userPass === "" || userPass.includes(" ")) {
+                alert("请正常填写账号信息！");
+                return;
+            }
+            if (userPass.length < 6) {
+                alert("密码长度需要大于或登录6位");
+                return;
+            }
+            const loading = Qmsg.loading("正在登录中...");
+            HttpUtil.get(`https://vip.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`, (res) => {
+                loading.close();
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 1) {
+                    Qmsg.error(message);
+                    return;
+                }
+                const ruleData = body["ruleData"];
+                LocalData.AccountCenter.setInfo(body["userInfo"]);
+                Qmsg.success("登录成功！");
+                $("#accountCenterLayout>*").remove();
+                this.haveLanded();
+            }, (err) => {
+                loading.close();
+                console.log(err)
+            });
+
+        });
+    },
+    haveLanded: function () {//已登录
+        $("#accountCenterLayout").append(`<div>
+    <h1>个人信息</h1>
+    <div style="display: flex">
+        <img src="https://hangexi.gitee.io/datafile/img/defaultAvatar.png"
+             style="border-radius: 50%; height: 100px;">
+        <div style="display: flex;align-items: flex-start;padding-left: 10px;flex-direction: column;justify-content: center;">
+            <div>
+                <span>用户名：</span><span id="userNameSpan">我是用户名占位符</span>
+            </div>
+            <div>
+            <span>注册时间：</span><span id="asideuserAddTimeSpan">我是注册时间占位符</span>
+            </div>
+            <div id="ruleSharingDiv">
+           规则共享状态：<span>我是规则共享状态占位符</span>
+            <button value="public">公开我的规则</button>
+            <button value="notPublic">不公开我的规则</button>
+            <input type="checkbox" id="isAnonymityCheckbox"><span title="选中为匿名公布，反之不匿名公布，每次提交会覆盖上一次的匿名状态">是否匿名公布(鼠标悬停我提示信息)</span> 
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div style="display: flex;justify-content: center;">
+     <button>
+     <a href="https://vip.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+     </button>
+        <button id="exitSignBut">退出登录</button>
+    </div>
+</div>`);
+        const getInfo = LocalData.AccountCenter.getInfo();
+        const infoName = getInfo["userName"];
+        const infoAddTime = getInfo["addTime"];
+        const share = getInfo["share"] === true;
+        $("#userNameSpan").text(infoName);
+        $("#asideuserAddTimeSpan").text(Util.timestampToTime(infoAddTime));
+        $("#ruleSharingDiv>span:eq(0)").text(share);
+        $("#exitSignBut").click(() => {
+            if (!confirm("您确定要退出登录吗")) {
+                return;
+            }
+            LocalData.AccountCenter.setInfo({});
+            Qmsg.success("已退出登录！");
+            $("#accountCenterLayout>*").remove();
+            this.login();
+        });
+        $("#ruleSharingDiv>button[value='public']").click(() => {
+            const isAnonymity = $('#isAnonymityCheckbox').prop('checked');
+            if (!confirm("确定要公开自己的规则吗？\n匿名状态=" + isAnonymity)) {
+                return;
+            }
+            ruleSharingSet(infoName, getInfo["userPassword"], true, isAnonymity);
+        });
+        $("#ruleSharingDiv>button[value='notPublic']").click(() => {
+            if (!confirm("确定不公开自己的规则吗？")) {
+                return;
+            }
+            ruleSharingSet(infoName, getInfo["userPassword"], false, false);
+        });
+    }
+}
+/**
+ * 频道
+ */
+const frequencyChannel = {//频道
+    data: {
+        //需要给出个初始值，之后可以迭代生成，如果为空字符串则为从顶部内容获取
+        offsetData: {
+            //k是频道id，v是当时加载的坐标
+        },
+        channel_idList: JSON.parse(`{"32154017":"铃芽之旅","28612663":"绝望主夫","26649160":"OPPO Reno系列","26598150":"万里归途","26493662":"红发歌姬","25712509":"分手的决心","24991047":"穿靴子的猫2","24837361":"尘白禁区","24797875":"吴海嫄","24709355":"保你平安","24622360":"张圭珍","24234843":"瞬息全宇宙","24142652":"荣耀Magic4","24011272":"华硕天选3","23903809":"隐入尘烟","23784795":"哥，你好","23472254":"OPPO Find X5","23128970":"OPPOFindN","23111206":"坏蛋联盟","23069590":"长空之王","23012765":"惠普暗影精灵8","22692325":"特级英雄黄继光","22405153":"舞千年","22360063":"宇宙探索编辑部","21910538":"OPPO Reno8","21813182":"重启之深渊疑冢","21744669":"崩坏：星穹铁道","21716895":"NMIXX","21532737":"SULLYOON","21296875":"一加9RT","21035961":"JINNI","20994127":"iPad Air 5","20834278":"IXFORM","20539337":"惠普暗影精灵7","20473564":"华为MatePad11","20321738":"这个杀手不太冷静","20307965":"红米K50","20223881":"突如其来的假期","19943077":"红米note系列","19745832":"90婚介所","19730584":"ROG幻16","19497246":"INTO1","19435281":"荣耀50","19364474":"海的尽头是草原","19355660":"我的音乐你听吗","19343572":"三星S22","19314402":"iPhone 13 Pro Max","19273662":"小米平板5Pro","19260443":"黑白魔女库伊拉","19191975":"联想R9000P","19173782":"边缘行者","18980818":"真我GT Neo","18881813":"我和我的父辈","18800082":"戴尔G15","18781771":"OPPO Find系列","18713957":"夏日友晴天","18702977":"新神榜杨戬","18637623":"段星星","18461688":"iQOONeo5","18385266":"孙滢皓","18291899":"iPad Pro 2021","18131330":"华硕天选2","18096401":"蛋仔派对","18063440":"尹浩宇","18038215":"拜年纪","17742752":"少女前线：云图计划","17703835":"魔法满屋","17701752":"赞多","17681251":"世间有她","17532495":"乃琳Queen","17532493":"向晚大魔王","17532492":"珈乐Carol","17532491":"贝拉kira","17532487":"嘉然今天吃什么","17495108":"爱很美味","17326659":"丁真","17309798":"RTX3050","17291794":"时光代理人","17118359":"aespa","16920302":"到了30岁还是处男，似乎会变成魔法师","16915022":"尼康Z9","16815381":"雄狮少年","16760361":"恐鬼症","16569298":"刘彰","16565023":"萨勒芬妮","16517835":"全员恶玉","16371649":"女王的棋局","16286545":"黎明觉醒:生机","16230013":"黑神话悟空","16215530":"花束般的恋爱","16206465":"松下S5","16051534":"金刚川","16048272":"外太空的莫扎特","15864005":"歪嘴战神","15843383":"凡尔赛文学","15775524":"必剪创作","15545355":"硬糖少女303","15485817":"超猎都市","15396883":"尼康Z5","15303231":"红米K40","14971139":"THE9","14930011":"iPhone 13 Pro","14889376":"张嘉元","14763345":"华为P50","14684850":"Helltaker","14644759":"糖豆人","14586712":"佳能R6","14478476":"刺客信条：英灵殿","14447810":"小米12","14377864":"说唱新世代","14350779":"唇泥","14206339":"三国志幻想大陆","14137182":"大威天龙","14006162":"黑人抬棺","13899485":"黄绿合战5th-绿队应援","13898921":"淡黄的长裙，蓬松的头发","13882551":"黄绿合战5th-黄队应援","13771460":"华硕天选","13650742":"心灵奇旅","13565555":"郑乃馨","13497041":"VALORANT","13374029":"网抑云","13256029":"罗一舟","13227355":"小米平板5","13128843":"富士XT4","12966836":"新型冠状病毒肺炎","12908731":"小麻薯","12900282":"诸葛大力","12839538":"ROG幻14","12798880":"松下GH6","12779915":"风犬少年的天空","12769132":"B站跨年晚会","12620189":"异度侵入","12615391":"国王排名","12614370":"永劫无间","12494013":"白神遥Haruka","12364750":"LPL全明星","12361985":"独行月球","12291142":"荣耀Magic系列","12247979":"港诡实录","12244365":"禁止套娃","12238584":"哈利波特魔法觉醒","12193316":"我和你荡秋千","12101103":"绯赤艾莉欧","12095773":"危机合约","12075986":"明月照我心","12058043":"不止不休","12050439":"时代少年团","11956030":"钢铁洪流进行曲","11932853":"高卿尘","11874831":"大田后生仔","11847238":"动物狂想曲","11844018":"红晓音Akane","11817907":"三国志·战略版","11782259":"健身环大冒险","11744330":"DRX","11545680":"窝窝头一块钱四个","11485295":"周柯宇","11364186":"剑与远征","11312447":"动感视频","11302041":"妄想破绽","11264602":"乔碧萝","11154180":"野狼disco","10959020":"韩美娟","10876266":"云顶之弈","10866186":"BANG DREAM","10795681":"R1SE","10792874":"联想Y7000P","10776794":"重生细胞","10703999":"漫威超级战争","10693945":"绿豆传","10665758":"雨女无瓜","10661492":"解神者","10654559":"鲨鱼夹","10639865":"阴阳师妖怪屋","10615728":"人类迷惑行为","10558065":"艾因Eine","10462022":"美食纪","10404390":"德鲁纳酒店","10341766":"部落与弯刀","10294120":"和平精英","10258098":"UNINE","10206956":"赵让","10168179":"悬崖之上","10137307":"华为P40","10074413":"AB6IX","10026108":"Phigros","9997553":"iPhone13","9990565":"神楽七奈","9972781":"Among Us","9964268":"我们离婚了","9963814":"iPhone 12","9962627":"有娜","9957165":"彩领","9955064":"双生视界","9942751":"坎公骑冠剑","9926699":"宝可梦剑盾","9881291":"阴阳师：百闻牌","9799759":"马里奥制造2","9751395":"正念冥想","9741441":"流浪地球2","9734740":"APEX英雄","9681631":"李佳琦","9677800":"轮到你了","9601977":"助眠音乐","9572398":"哪吒之魔童降世","9229031":"自走棋","9226744":"刀塔自走棋","9183946":"人潮汹涌","9175940":"威神V","9175551":"疾速追杀4","9167687":"犬山玉姬","9139179":"李彩演","9119431":"影音设备","9086461":"隐形守护者","9061851":"龙族幻想","9057499":"金采源","9045711":"阿梓从小就很可爱","9034851":"乐评盘点","9010971":"元龙","9003961":"姚昱辰","9002442":"李振宁","8980226":"穿戴甲","8975578":"天外世界","8967933":"因为太怕痛就全点防御力了","8890222":"巴斯克蛋糕","8877740":"一条小团团","8861115":"奥比岛手游","8775876":"谢可寅","8751822":"hololive","8731911":"蔡程昱","8717390":"高天鹤","8703278":"余宇涵","8646504":"机动战姬：聚变","8623556":"五等分的新娘","8607584":"崔叡娜","8593145":"荣耀手表","8583026":"天使降临到我身边","8517908":"K/DA","8509591":"毒液2","8505910":"礼志","8491410":"神探大战","8486440":"黑袍纠察队","8477796":"朱志鑫","8404892":"包桑","8402119":"战斗吧歌姬","8359677":"白蛇缘起","8314661":"刘扬扬","8249031":"DWG","8228054":"湊あくあ","8227542":"蚁人3","8203176":"索尼A7M4","8190619":"童禹坤","8187638":"陈天润","8186374":"张极","8164028":"mur猫","8129516":"建厚","8122256":"苏新皓","8122205":"穆祉丞","8069134":"2019拜年祭","8010631":"魅族18","7990197":"对王之王","7984793":"妻子的味道","7945544":"原神","7936717":"唐九洲","7917965":"炎炎消防队","7897308":"大王不高兴","7873955":"我的起源","7850505":"任敏","7784727":"肖宇梁","7761795":"本间向日葵","7751160":"黄冠亨","7744030":"肖俊","7740510":"鬼畜剧场","7709426":"苹果MacBook","7703005":"假面骑士时王","7700690":"战双帕弥什","7699988":"搞笑挑战","7662506":"曺柔理","7660345":"赵小棠","7646054":"金子涵","7619886":"宿伞之魂","7614030":"太吾绘卷","7589109":"翟潇闻","7562902":"神楽めあ","7556105":"沙雕新闻","7549675":"许愿神龙","7528653":"火箭少女101","7520997":"潘大帅","7515820":"沙雕动画","7497510":"金珉周","7475190":"刘宇宁","7473181":"MUSEDASH","7458282":"公主连结","7452435":"乐言","7445930":"假面骑士zio","7439509":"雷神4","7433905":"赤井心","7433507":"雀魂","7424663":"仁王2","7417100":"只狼","7416210":"对马岛之魂","7416144":"留真","7414788":"夏色祭","7407694":"忍者必须死3","7401538":"人生大事","7360534":"CFHD","7355391":"白上吹雪","7335684":"韩商言","7322971":"姜惠元","7315974":"NBA2K19","7308895":"徐穗珍","7295336":"元歌","7268790":"宋继扬","7241942":"张元英","7235148":"李彩燕","7144106":"宋制汉服","7133808":"GIAO哥","7131448":"小可学妹","7116756":"沙雕广告","7076806":"水果吃法","7076332":"范闲","7054552":"云视听小电视","7040396":"好莱坞往事","7011428":"总之就是非常可爱","6976876":"奈布","6973898":"使命召唤手游","6969906":"罗布奥特曼","6955654":"王牌战士","6947904":"叶舒华","6945542":"(G)I-DLE","6865534":"约战：精灵再临","6855974":"侏罗纪世界3","6844730":"段奥娟","6826050":"NINEPERCENT","6815716":"起泡胶","6778342":"闪耀暖暖","6775630":"猫宫日向","6773882":"一起来捉妖","6627240":"周诗雨","6624022":"有线耳机","6622258":"沙雕图","6621182":"少年的你","6617838":"SKY光遇","6579446":"傅菁","6572048":"租借女友","6530230":"特鲁索娃","6512894":"火影忍者秋风","6497596":"咒术回战","6471826":"赵美延","6465118":"乃万","6438848":"宋雨琦","6400036":"面筋哥","6396980":"扬名立万","6385102":"狂野飙车9","6377252":"佳能M50","6372852":"改革春风吹满地","6344342":"拆盲盒","6344192":"节奏光剑","6340008":"丁禹兮","6339084":"5G手机","6243646":"哥斯拉大战金刚","6205506":"安宥真","6159224":"小众香水","6140096":"非自然死亡","6100642":"姚琛","6090816":"施柏宇","6054582":"冬泳怪鸽","6046582":"柠檬鸡爪","6029204":"pr转场","6017226":"言冰云","6012204":"明星舞蹈","5994176":"乐华七子","5946444":"王琳凯","5903376":"木子洋","5858250":"虎皮鸡爪","5844584":"全面战争：三国","5831238":"Cytus II","5826120":"Rich Brian","5822794":"陈立农","5817842":"林彦俊","5817586":"王怡人","5809396":"四小天盒","5790520":"椰子鸡汤","5788774":"林雨申","5776586":"权恩菲","5727642":"校园vlog","5685176":"中国机长","5681110":"动物森友会","5674016":"时乃空","5673848":"毕雯珺","5648988":"邓佳鑫","5638580":"丁泽仁","5626748":"黄新淳","5617802":"他人即地狱","5513956":"律化娜","5502986":"灵魂能力6","5500126":"FGO街机","5498808":"呆妹儿小霸王","5478148":"杀戮尖塔","5476512":"范丞丞","5418114":"裤子推荐","5417240":"PRODUCE48","5405434":"军运会","5398202":"王子异","5390284":"亿万僵尸","5388752":"无限法则","5368254":"李泽言","5327740":"失控玩家","5303604":"致我们暖暖的小时光","5268164":"和班尼特福迪一起攻克难关","5262544":"早稻叽","5147396":"豫章书院","5095854":"催眠麦克风","5080738":"伯远","5053314":"理科综合","5045872":"Queendom","5035590":"金昇玟","5035588":"梁精寅","5028520":"黄铉辰","5023002":"方灿","5022520":"徐彰彬","5021650":"智勋","5016258":"韩知城","5012736":"平凡英雄","4970994":"沙雕游戏","4922634":"张颜齐","4887644":"寄明月","4866254":"公孙离","4854888":"战斗天赋解析系统","4844668":"洪世贤","4820530":"重装战姬","4813036":"非人学园","4798332":"Stray Kids","4792148":"截断式眼妆","4790540":"鸡蛋做法","4785500":"王冰冰","4743152":"刘隽","4730180":"紫菜蛋花汤","4730016":"病名为爱","4727322":"决战平安京","4687696":"希林娜依高","4671660":"快速入睡","4668516":"八方旅人","4618594":"八佰","4610466":"明日方舟","4585786":"脆皮五花肉","4527048":"钢铁意志","4478110":"BOYSTORY","4434646":"灵笼","4429874":"虚拟UP主","4425434":"毒舌律师","4302942":"抖肩舞","4235094":"仝卓","4233904":"金在奂","4231380":"罗浮生","4200922":"医学专业","4200866":"百香果茶","4083902":"旭凤","4083900":"锦觅","4083898":"润玉","4054560":"头号玩家","4005150":"紫宁","3957654":"创造与魔法","3956954":"假面骑士BUILD","3955656":"显示器支架","3948192":"周棋洛","3948190":"许墨","3927278":"拖米","3926626":"人生一串","3896988":"黄旼炫","3873106":"恋与制作人","3853450":"朱星杰","3847232":"刘端端","3823788":"你要跳舞吗","3792166":"刘耀文","3789156":"惠普暗影精灵","3787668":"周震南","3774218":"回廊亭","3768654":"Havana","3740404":"WANNAONE","3737600":"异灵术","3733536":"阿冷","3724824":"毛不易","3722108":"邕圣祐","3691312":"王鹤棣","3687316":"仙某某","3683252":"荒野乱斗","3669046":"百里玄策","3658400":"怪物猎人世界","3653542":"胡一天","3623232":"华为P系列","3607931":"键盘轴","3605758":"4K显示器","3591145":"捷德奥特曼","3584781":"交换人生","3570562":"洗脸巾","3570424":"仙王的日常生活","3567139":"盾之勇者成名录","3566718":"蒜蓉小龙虾","3550779":"第五人格","3532062":"一梦江湖","3528773":"JDG","3521284":"桃源恋歌","3519626":"金廷祐","3519133":"汉服推荐","3509868":"农学","3503159":"宝石之国","3495562":"NBA2K18","3491296":"百里守约","3491241":"张泽禹","3485924":"爱情神话","3473118":"法考","3467981":"楚留香手游","3467541":"天才枪手","3466323":"李权哲","3463206":"致我们单纯的小美好","3462905":"少女歌剧","3462699":"图拉夫","3460928":"李旻浩","3457223":"永远的七日之都","3451649":"裴珍映","3451253":"朴志训","3443356":"陆柯燃","3442446":"姜丹尼尔","3441282":"阿轲","3438063":"QGhappy","3437846":"本特利","3433921":"朴佑镇","3426520":"左航","3420833":"敢达争锋对决","3418579":"尹智圣","3417915":"尤长靖","3414029":"徐正溪","3404908":"千层套路","3400804":"刘宇","3392467":"河成云","3376057":"黄旭熙","3373630":"复仇者联盟4","3365006":"达康书记","3349682":"何洛洛","3349680":"孙亦航","3349658":"易安音乐社","3346000":"命运2","3342542":"香蜜沉沉烬如霜","3335365":"Minnie","3327666":"鞋子推荐","3327368":"秦霄贤","3320110":"柳会胜","3310624":"7SENSES","3307585":"史诗战争模拟器","3303821":"寻梦环游记","3301050":"骆歆","3299496":"李大辉","3296688":"阴阳怪气","3294748":"朱正廷","3287269":"黄明昊","3287181":"赖冠霖","3267800":"深海迷航","3240712":"杨超越","3233847":"元气骑士","3232987":"A.I.Channel","3232159":"使命召唤14","3222257":"芒种","3213005":"唐制汉服","3206041":"明日战记","3196073":"华为平板","3192224":"末日铁拳","3185248":"Bin","3178287":"你的婚礼","3176401":"尚九熙","3173885":"林墨","3166607":"折叠屏手机","3149869":"李诞","3114739":"跳舞的线","3107685":"鬼灭之刃","3106811":"陈星旭","3103832":"约定的梦幻岛","3088294":"奥利给","3084968":"第一炉香","3082148":"杨芸晴","3053790":"Tian","3053588":"烤面筋","3049131":"金韶情","3047615":"迪玛希","3046801":"守岛人","3042908":"是，首相","3041514":"奶块","3038799":"兽娘动物园","3035050":"PRISTIN","3033823":"雾山五行","3032493":"刺客伍六七","3023780":"桌游棋牌","3019069":"炖排骨","3013173":"Letme","2999678":"大唐荣耀","2996689":"双镜","2995383":"22/7","2993242":"王慧侦","2990460":"惊雷","2988407":"梁世灿","2983903":"阿云嘎","2980540":"符华","2960639":"王奕","2957633":"JIWOO","2949428":"焰灵姬","2940555":"宿舍好物","2936731":"KARD","2936428":"大话西游游戏","2935179":"五条人","2922647":"面包做法","2915763":"中国式家长","2914344":"百妖谱","2908447":"碧蓝航线","2907234":"运动裤","2904309":"张新成","2901885":"最后生还者2","2894465":"周六野","2890529":"知否知否","2852414":"索尼Xperia系列","2841289":"游戏王：决斗链接","2840132":"李寿根","2823919":"苹果平板","2804942":"郑云龙","2803954":"赖美云","2803738":"文科综合","2801146":"孤存","2795142":"红烧猪蹄","2790530":"浓缩咖啡","2784499":"雷狮","2772390":"萧平旌","2765046":"陈钰琪","2758126":"吊带裙","2757061":"3dmax建模","2756323":"虞书欣","2746180":"Karsa","2744306":"梁靖康","2719650":"野钓","2718281":"the shy","2713856":"炫神","2700267":"食物语","2699874":"陈卓璇","2690426":"英雄联盟手游","2676001":"手办模玩","2674764":"李天泽","2672508":"袁一琦","2659029":"PPAP","2658411":"无线鼠标","2656362":"ONER","2647282":"陈飞宇","2644907":"KPL","2633912":"李子璇","2624426":"中国乒乓","2623729":"犬王","2622126":"脸红的思春期","2621800":"赵露思","2618715":"J.Fla","2612346":"Knight","2610734":"微胖穿搭","2609655":"李楷灿","2600739":"鱼的做法","2597902":"airpods","2588258":"半身裙","2582371":"卤面","2579034":"Krist","2579030":"Singto","2573761":"Felix","2569359":"MacBook Pro","2568232":"X玖少年团","2561575":"龚俊","2561468":"excel","2559972":"防晒衣","2556751":"小猪佩奇","2553825":"电视剧解说","2553696":"橘猫","2547812":"罗渽民","2547811":"朴志晟","2547810":"黄仁俊","2547809":"李帝努","2544632":"天官赐福","2538993":"Rookie","2538125":"shroud","2537364":"SF9","2533863":"李子柒","2532831":"N.Flying","2529888":"Doinb","2529416":"开学穿搭","2527991":"switch","2526877":"芒果冰","2525720":"NCT DREAM","2525559":"Beyonce","2520684":"freestyle","2517524":"ps教程","2515404":"查杰","2514240":"Taylor Swift","2513408":"iwanna","2513004":"procreate","2512541":"iPhone","2511718":"Ariana Grande","2511282":"vlog","2510920":"夏季穿搭","2510804":"孟美岐","2510690":"iKON","2502324":"汉服配饰","2502136":"sans","2498756":"Fate","2496782":"Red Velvet","2495417":"冰淇淋制作","2494311":"吴宣仪","2494280":"Duang","2492412":"Rihanna","2491596":"Korea相关","2489706":"YERI","2487027":"竹鼠","2486527":"lolita","2486427":"SHINee","2485620":"张九龄","2485583":"阿凡达2","2485137":"姜Gary","2484328":"Aimer","2483415":"Re：从零开始的异世界生活","2482768":"蒜香排骨","2482673":"NCT127","2482344":"JENNIE","2479909":"嘉德罗斯","2433660":"这么多年","2403573":"男生穿搭","2337661":"富士相机","2287121":"清蒸鱼","2271078":"包包推荐","2255402":"佳能相机","2214961":"华语现场","2210094":"战狼2","2190062":"MOMOLAND","2187258":"战舰联盟","2126326":"建军大业","2108450":"全面战争模拟器","2098656":"人类一败涂地","2073345":"客制化键盘","2012954":"沈巍","2012952":"赵云澜","1853276":"水果茶","1853158":"烤茄子","1851001":"朱广权","1805799":"PENTAGON","1802787":"排骨汤","1775550":"刘学义","1771846":"喻言","1768384":"高考政治","1767238":"一起同过窗","1765149":"刘些宁","1760362":"连淮伟","1759671":"夏日饮品","1756757":"李一桐","1755728":"冥想音乐","1751888":"侯明昊","1751795":"张铭恩","1749296":"BLACKPINK","1740982":"熊梓淇","1737239":"死亡搁浅","1734103":"人间世","1732829":"SofM","1731930":"看门狗2","1728359":"国风音乐","1727225":"茨木童子","1722232":"金路云","1718137":"余小C","1708821":"黄绿合战","1706779":"高考历史","1698817":"荷兰弟","1696501":"精灵宝可梦日月","1693136":"3DMAX教程","1690944":"战地1","1688874":"白灼虾","1685027":"齐木楠雄的灾难","1684958":"奥尔加","1684679":"一人之下","1682183":"黄恩妃","1681663":"金在德","1679326":"欧布奥特曼","1677610":"德丽莎","1677467":"漂发","1677308":"马冬梅","1674133":"金请夏","1673963":"全昭弥","1673845":"极乐净土","1671408":"蕾姆","1669303":"金光瑶","1669085":"内双眼妆","1669084":"单眼皮眼妆","1667658":"姜东昊","1666331":"舞法天女","1666216":"减脂餐","1665976":"粉霜","1664750":"吴谨言","1663773":"BEJ48","1663337":"还是觉得你最好","1662923":"小林家的龙女仆","1661887":"MLXG","1660794":"华硕ROG","1660558":"猫和老鼠手游","1658728":"姜昇润","1658727":"李昇勋","1657069":"王九龙","1656926":"周九良","1650732":"雄兵连","1650232":"小米手表","1647661":"钱锟","1646669":"文泰一","1646668":"郑在玹","1645475":"徐梦洁","1645154":"DIY染发","1643561":"GNZ48","1640990":"李泰容","1639589":"NCT U","1639194":"I.O.I","1637921":"江澄","1637397":"王者荣耀花木兰","1634877":"金宇硕","1631094":"全昭妍","1624519":"徐英浩","1623014":"游戏显示器","1621455":"具晙会","1621360":"孔雪儿","1621267":"刘雨昕","1621198":"魏无羡","1621194":"蓝忘机","1620256":"崩坏3","1619372":"薛洋","1615603":"晓星尘","1615209":"ROOMTOUR","1614795":"金世正","1614756":"耳饰","1612939":"雪娥","1605755":"恩熙","1604272":"刺客列传","1599602":"配饰","1597831":"宋旻浩","1597173":"李兰迪","1594382":"清洁面膜","1593182":"洁面","1590425":"马嘉祺","1589079":"李昇基","1588309":"星露谷物语","1583639":"便携显示器","1583317":"程潇","1581262":"孤岛惊魂5","1581005":"青云志","1579263":"三国志14","1577361":"王晰","1573317":"正道的光","1566710":"宋亚轩","1565324":"眼妆教程","1564714":"火鸡面","1564410":"唇釉","1562795":"高瀚宇","1562513":"格瑞","1558469":"男生发型","1557554":"上海迪士尼","1555709":"高考语文","1550817":"天鹅臂","1548279":"盗贼之海","1546934":"骨传导耳机","1546292":"李马克","1545392":"杨九郎","1545325":"何九华","1545256":"周洁琼","1544288":"董思成","1543807":"苞娜","1542724":"张真源","1542723":"严浩翔","1539089":"DC电影","1538830":"贝果","1538786":"滚动的天空","1534556":"气垫粉底","1527914":"紫罗兰永恒花园","1527593":"车银优","1527081":"蹦迪","1525327":"皇室战争","1523841":"邢菲","1523046":"高考地理","1521388":"无线键盘","1519748":"贺峻霖","1518432":"EXCEL教程","1518250":"NCT","1506015":"起床战争","1500251":"蒸汽波","1499499":"曾舜晞","1498706":"东北大鹌鹑","1497944":"彭昱畅","1489415":"植物大战僵尸1","1487092":"X特遣队","1486920":"宇宙少女","1483890":"逃离塔科夫","1483761":"动物派对","1482612":"孟鹤堂","1481907":"PRODUCE101","1478561":"高考英语","1477109":"男士香水","1472657":"金秦禹","1470872":"本田仁美","1469519":"探店","1469000":"神奇动物在哪里","1468896":"宋威龙","1468687":"段艺璇","1466243":"你的名字","1464743":"袁冰妍","1463475":"增肌","1462727":"包菜","1461066":"EVERGLOW","1456591":"SING女团","1456318":"鲁班七号","1456296":"夏之光","1456064":"彭楚粤","1456063":"郭子凡","1455428":"黑暗欺骗","1452715":"越界","1452208":"伍嘉成","1452021":"明制汉服","1451673":"焉栩嘉","1451590":"2K显示器","1450880":"肖战","1449446":"高考生物","1447910":"费沁源","1446710":"谷嘉诚","1445512":"疯狂动物城","1443813":"徐慧潾","1439702":"美股","1437806":"王大娘","1434903":"黄景瑜","1434902":"许魏洲","1432618":"爱宠大机密","1431684":"咖啡制作","1430280":"茶杯头","1430120":"韩国美妆","1427060":"燃烧吧少年","1426033":"我家大师兄脑子有坑","1423903":"金高银","1422623":"土豆炖牛肉","1422260":"刘飞儿","1418350":"楚乔传","1414022":"新宝岛","1413410":"尼尔机械纪元","1412402":"底特律变人","1410830":"穿越火线手游","1410225":"唇妆","1410028":"ITZY","1404375":"王者荣耀","1403904":"朴志效","1402093":"平井桃","1402092":"凑崎纱夏","1399750":"名井南","1396950":"影之诗","1396864":"金容仙","1395461":"荒野行动","1394554":"英国留学","1393143":"传说之下","1389366":"白噪音","1385136":"麦克雷","1382944":"沈月","1375873":"军师联盟","1371681":"汉服发型","1370737":"法学","1361639":"铁血的奥尔芬斯","1360622":"金道英","1359657":"拳皇14","1353160":"联想拯救者","1353146":"戳爷","1352963":"华莎","1352961":"辉人","1350313":"刘也","1346695":"赵今麦","1344205":"姜成勋","1343714":"宋昕冉","1342449":"明诚","1340644":"熊叔实验室","1339688":"蔡徐坤","1339014":"骨傲天","1338842":"博人传","1337755":"嗨氏","1335015":"宋民国","1333288":"玟星","1332502":"小黄人大眼萌","1330216":"防晒霜","1328031":"欅坂46","1327158":"天海祐希","1323937":"李圣经","1323100":"AQOURS","1322743":"汤面","1318588":"酱油炒饭","1318032":"金艺琳","1317766":"入耳式耳机","1316400":"天行九歌","1308325":"孙彩瑛","1308100":"林娜琏","1308099":"俞定延","1307556":"鸡蛋羹","1302892":"鬼畜大赏","1301876":"唇蜜","1298731":"大理寺日志","1297229":"沈梦瑶","1293757":"小米粥","1293264":"哪吒","1291155":"造梦西游3","1288454":"火影忍者手游","1288297":"超级马里奥制造","1288280":"佘诗曼","1285747":"丁恩妃","1285745":"崔俞娜","1285744":"金艺源","1285676":"周子瑜","1281706":"女流66","1278695":"夏洛特烦恼","1274965":"徐明浩","1273356":"洪知秀","1273120":"朴正花","1271438":"全圆佑","1271393":"荒原","1269344":"郑艺琳","1269250":"文俊辉","1267729":"权顺荣","1267478":"普拉提","1266597":"荣耀战魂","1266451":"夫胜宽","1264176":"金珉奎","1263686":"金鸡奖","1262982":"崔胜澈","1260792":"垫底辣妹","1260083":"冯建宇","1259589":"柠檬茶","1258411":"星动亚洲","1256831":"尹净汉","1256812":"李知勋","1255892":"龙马精神","1254904":"美丽芭蕾","1254839":"球球大作战","1254774":"申东熙","1252194":"虾滑","1248461":"BDF","1239469":"四海","1237033":"王大陆","1236718":"摩卡","1236676":"朱婷","1236089":"宫崎英高","1234724":"哪吒传奇","1234670":"游戏鼠标","1234235":"影视解说","1234161":"冲出地球","1233929":"染发","1230927":"埃罗芒阿老师","1228022":"少女前线","1227044":"牛角包","1224627":"黑暗之魂3","1224378":"陈瑶","1224377":"韩东君","1221797":"全景视频","1221581":"互动视频","1221579":"许率智","1218245":"金宰铉","1218243":"车勋","1218242":"李承协","1217733":"购物分享","1216888":"杨冰怡","1216464":"马东","1213072":"山泥若","1205111":"方舟生存进化","1204185":"昆特牌","1200789":"全昭旻","1199791":"韦神","1199590":"黄焖鸡","1197062":"MONSTA X","1196089":"奇迹暖暖","1187005":"布洛妮娅","1180937":"Are you OK","1178961":"TWICE","1178061":"凉鞋","1174481":"是在下输了","1173898":"寅子","1172858":"最好的我们","1171742":"非正式会谈","1170904":"印度美食","1169259":"邓伦","1166589":"侠客风云传","1162495":"表志勋","1161117":"电影解说","1152599":"高考物理","1151729":"百褶裙","1147004":"参鸡汤","1142567":"高考化学","1139735":"穿搭","1139423":"街头美食","1138380":"郑合惠子","1137082":"莫吉托","1132582":"阿水","1130307":"偶像梦幻祭","1130210":"朴草娥","1130206":"周二珂","1128093":"种草","1124980":"普通DISCO","1124484":"中本悠太","1121730":"油焖大虾","1112287":"都市天际线","1111341":"发型教程","1106005":"金硕珍","1106004":"闵玧其","1103589":"电脑配置","1103381":"张昕","1102712":"申惠晶","1099778":"彩虹社","1099151":"如果声音不记得","1097738":"宋家三胞胎","1094330":"宫脇咲良","1093613":"张云雷","1092695":"华为手表","1090508":"教育学","1090382":"手帐","1089748":"金雪炫","1087556":"日本豆腐","1087534":"白鹿","1082258":"张大仙","1081956":"郑号锡","1081955":"朴智旻","1081940":"金南俊","1080328":"偶像运动会","1074753":"大龙虾","1074231":"如懿传","1067350":"血小板","1066492":"德云色","1065905":"朴叙俊","1058463":"迷你厨房","1057045":"李晟敏","1056021":"麻辣小龙虾","1054498":"SEULGI","1050978":"申智珉","1050648":"韩语学习","1048177":"宋轶","1044947":"粉底","1044946":"底妆","1044288":"牵丝戏","1040180":"豆腐汤","1040026":"三日月宗近","1039059":"鹤丸国永","1038521":"收纳","1035275":"张天爱","1034765":"编发","1032214":"王博文","1029373":"张水院","1029372":"水晶男孩","1021498":"大圣归来","1020403":"周雨彤","1020279":"朴宝剑","1020034":"GFRIEND","1019881":"张予曦","1018272":"星际战甲","1017641":"刀剑乱舞","1014344":"罗云熙","1014045":"钵仔糕","1011490":"马甲线","1005496":"刘敏涛","1005465":"你好世界","1004975":"LCK","1001997":"白宇","999385":"影视杂谈","994518":"垃圾佬","994090":"FGO","988556":"干物妹小埋","987582":"张雨鑫","987568":"王司徒","986177":"宝塚","984842":"神超","983293":"连城璧","979033":"朴素妍","977612":"陆婷","975288":"街霸5","973929":"丁程鑫","970789":"拍照手机","970732":"可塑性记忆","966586":"李洪基","964575":"曹承衍","964574":"李汶翰","951674":"琪亚娜","950841":"约瑟夫","949470":"吴夏荣","949469":"金南珠","948239":"空洞骑士","947331":"周依然","943873":"侏罗纪世界","943131":"孙芮","942929":"崔珉起","937793":"许杨玉琢","935320":"迷你世界","934788":"卡戴珊","930932":"LOVELYZ","930635":"朱一龙","928449":"ZICO","926988":"守望先锋","921323":"古风舞","918398":"李现","917992":"赵粤","917244":"空气炸锅","915594":"惊奇队长","914587":"复仇者联盟3","912869":"洪真英","912494":"任嘉伦","911336":"李居丽","911249":"王迅","911124":"敖子逸","908970":"HANI","906753":"郑业成","904950":"波澜哥","903111":"全宝蓝","902875":"减肥餐","902804":"美国留学","902725":"冯提莫","902215":"王一博","902214":"UNIQ","902193":"仿妆","900798":"无主之地3","898995":"金多贤","898091":"彩虹六号围攻","891482":"FPX","887323":"刘诗雯","884531":"孤影","882598":"影视混剪","880337":"烤猪蹄","880335":"卤猪蹄","879358":"杀手2","879244":"万丽娜","879243":"冯薪朵","878348":"OVERLORD","873733":"韩非","873562":"油豆腐","872789":"疾速追杀","868709":"一个人的武林","866683":"郑粲右","863753":"血源诅咒","861311":"PR教程","856481":"林一","848567":"咸恩静","847845":"穿普拉达的女王","840887":"露营","840219":"金孝渊","840218":"黄美英","840163":"张若昀","839005":"MAMAMOO","838789":"学习方法","837899":"金韩彬","837378":"古董局中局","833300":"宋尹亨","832569":"美妆","831374":"金振焕","825482":"面膜","823256":"荒野大镖客2","822462":"粉底液","822420":"金所炫","821151":"张钧甯","820876":"游戏手机","820148":"朴秀荣","819952":"玩具熊的五夜后宫","819719":"尹正","819718":"成毅","819467":"古剑奇谭游戏","817374":"芜湖大司马","814910":"炸鸡腿","811810":"声优广播","808938":"慕斯蛋糕","805733":"红烧鱼","802163":"野生技术协会","796840":"金泰亨","796838":"田柾国","795012":"烤土豆","794862":"马思唯","794385":"李顺圭","793071":"源氏","791829":"4AM","789870":"NUEST","788691":"俄剧","784170":"一周的偶像","783535":"严斌","780558":"金钟铉","780447":"周淑怡","779262":"午餐肉","778339":"于朦胧","777092":"LINUSTECHTIPS","773822":"白敬亭","772031":"鸡胸肉","766151":"片寄凉太","762312":"张彬彬","760121":"自杀小队","759049":"李栋旭","756847":"手抓饼","753867":"季肖冰","752983":"南柱赫","752249":"张碧晨","751970":"周深","750669":"苹果手表","749860":"夏至未至","748338":"老师好","748238":"碧蓝幻想","737629":"于晓光","737461":"金珉锡","736573":"扫地机器人","735503":"李泰民","732271":"焖饭","725992":"吴倩","720912":"林在范","719063":"月圆之夜","716691":"堡垒之夜","715800":"防晒","714393":"门锁","713926":"搜救","712595":"坦克世界闪电战","706486":"动漫资讯","703941":"李荣浩","700392":"崔荣宰","700391":"朴珍荣","700389":"段宜恩","700388":"金有谦","700387":"王嘉尔","696751":"古力娜扎","693473":"安图恩","692758":"水煮鱼","690640":"魏大勋","689147":"王境泽","686151":"皮蛋瘦肉粥","684608":"金厉旭","683752":"球鞋","682032":"择天记","678144":"JUNGKOOK","676424":"马里奥制造","675872":"小松菜奈","673903":"宝蓝","672893":"李永","671689":"民宿","671156":"我只喜欢你","663765":"姜虎东","661600":"宋祖儿","660189":"美食侦探","659917":"忍者必须死","656109":"女人我最大","655995":"李承鄞","653892":"刘昊然","651301":"李斯丹妮","649117":"家居","645936":"口红","645812":"漫威电影","644870":"小米平板","641414":"斋藤飞鸟","641033":"国内综艺","637832":"自驾游","634695":"哥谭","634219":"朴春","630567":"房车","629601":"刘国梁","629081":"金晨","625249":"水濑祈","625117":"田径","623790":"美甲","621640":"生死狙击","620958":"可乐鸡翅","620762":"乐童音乐家","617079":"任豪","615664":"谭松韵","615194":"尹普美","615193":"朴初珑","615192":"孙娜恩","613680":"朴孝敏","613025":"卡布奇诺","612671":"金唱片","612086":"护肤","612073":"李多喜","610195":"H1Z1","605361":"数据可视化","604596":"真三国无双8","603338":"汽车评测","603074":"宠物医院","602557":"英语口语","602418":"杀戮天使","601839":"奥拉星","600160":"无限火力","600144":"EDG","599663":"请问您今天要来点兔子吗","599064":"东京奥运会","598696":"米卡","598440":"咒","598357":"日常妆","597654":"辣子鸡","596132":"梅根","595451":"韩国美食","592857":"秦俊杰","592627":"上官婉儿","591125":"金圣圭","590630":"四月是你的谎言","590624":"路人女主的养成方法","589268":"关晓彤","588111":"徐海乔","586269":"欧阳娜娜","581189":"VIXX","579454":"RNG","579165":"丸子头","578683":"梅长苏","578320":"黄婷婷","578222":"麻薯","577900":"张峻豪","577535":"5G","576152":"明凯","575706":"美式咖啡","574887":"BTOB","574006":"西卡","573045":"葱油饼","572556":"洞主","571888":"眼影","571533":"澳门风云","570860":"调酒","570258":"矢吹奈子","570166":"许凯","569515":"高马尾","567623":"宣美","566210":"拌面","565581":"涛妹","565481":"篮球鞋","564757":"钟辰乐","564621":"金钟大","563816":"无线耳机","563711":"腊肠","563196":"黑店百地","562579":"气象","562511":"魔女2","559363":"头戴式耳机","556840":"朴智妍","553693":"APINK","553302":"一年生","552737":"门徒","544762":"樊振东","544761":"丁宁","544672":"光盘行动","543181":"汽车模型","540875":"一周的朋友","540461":"伊野尾慧","539854":"沉睡魔咒","536516":"林秀香","536400":"橘右京","536395":"防弹少年团","535925":"JYP","535923":"BAMBAM","535922":"GOT7","535884":"华尔街之狼","535650":"王鸥","535299":"辛德勒的名单","534014":"几何冲刺","532013":"金材昱","531208":"大侠卢小鱼","530918":"动漫杂谈","529643":"无心","528969":"宣璐","526460":"秋瓷炫","526392":"PS5","525659":"鱼香肉丝","521731":"知否知否应是绿肥红瘦","521337":"电竞赛事","520050":"沫子","520000":"瑞克和莫蒂","519896":"化妆品","519316":"武磊","518596":"檀健次","516500":"秀场","515827":"易嘉爱","515826":"李艺彤","515169":"殷志源","515117":"星际穿越","514412":"崩坏学园2","513708":"超神学院","513171":"黄轩","512372":"摄影教程","510520":"土豆丝","510215":"一步之遥","510021":"岳岳","506528":"成果","504679":"时装周","504597":"环球旅行","504355":"螺蛳粉","502706":"烤串","501905":"小虎","500019":"奥奇传说","499816":"彩妆","498800":"生田绘梨花","497398":"辐射4","497221":"鬼畜调教","496473":"凉面","495416":"天谕","493569":"赏金术士","492464":"马龙","492395":"扫黑行动","491845":"窦骁","490990":"桥本环奈","490923":"花样年华","490608":"试吃","489375":"陆星材","488659":"糖醋排骨","487255":"理财","486385":"徐贤","486085":"酸菜鱼","484358":"池昌旭","482921":"曺圭贤","482902":"吴昕","482275":"刘涛","481901":"王耀庆","481489":"扬州炒饭","480470":"徐子轩","480264":"煲汤","479818":"AOA","479227":"靳东","476829":"风暴英雄","476115":"金希澈","475516":"拿铁","474681":"眼妆","474020":"西野七濑","472990":"明日之后","471583":"朴炯植","471091":"手链","470877":"倪妮","470666":"鞠婧祎","470665":"林思意","469388":"孔刘","469196":"力丸","467082":"BML","462608":"断桥","460348":"粉饼","460090":"张子枫","459007":"EDM","458852":"微微一笑很倾城","457916":"造梦西游","457385":"电子产品","454809":"甜品","453608":"连衣裙","452343":"温流","451792":"中国舞","451654":"安崎","450716":"土豆饼","449518":"都暻秀","448718":"戚风蛋糕","448443":"烤箱","446907":"埼玉","446505":"雷佳音","445152":"FAKER","444760":"赛博朋克2077","443303":"野外生存","442514":"李沁","438585":"洼田正孝","435985":"刘宪华","435569":"IRENE","435407":"金钟仁","435406":"金俊勉","435405":"吴世勋","435404":"边伯贤","435403":"朴灿烈","433844":"全境封锁","433824":"模拟人生4","431937":"郑恩地","428970":"蛋糕制作","428529":"消逝的光芒","426077":"新奥特曼","425410":"银河护卫队","424714":"新警察故事","424331":"灵能百分百","423627":"机箱","423036":"曾卓君","420821":"孔孝真","417852":"电饭煲","416482":"郭京飞","416376":"迪丽热巴","416375":"高伟光","415431":"索尼相机","414968":"文豪野犬","413678":"装机","409944":"流放之路","409754":"白石麻衣","405162":"背带裤","404647":"小李子","404504":"战地5","404044":"七日杀","400668":"华晨宇","397891":"助眠","397672":"松饼","397670":"一人食","397404":"男刀","395596":"旅拍","394549":"红烧排骨","394538":"吃鸡","392845":"民族舞","391556":"金木研","390737":"金智媛","390219":"猪蹄","389537":"西葫芦","389510":"处处吻","389490":"虾","389440":"租房","385801":"娱乐百分百","385333":"吐司","384852":"酸梅汤","384798":"王雷","384363":"武状元苏乞儿","383910":"超轻粘土","383680":"金明洙","380426":"德牧","380387":"拆弹专家","379680":"黄少天","378659":"荔枝","378278":"林允儿","378048":"伪装者","377209":"食戟之灵","377088":"八重樱","376775":"起风了","374686":"龙俊亨","374620":"玉泽演","372889":"强仁","372799":"考研","372675":"燕小六","372423":"许昕","372420":"张继科","371512":"崔秀英","370017":"粥","369699":"赶海","369641":"神偷奶爸","369126":"部落冲突","367456":"WINNER","366980":"巧克力蛋糕","366532":"最终幻想15","365736":"巫师3","365677":"泰坦陨落","364848":"仁王","363113":"吕珍九","361796":"植物大战僵尸2","360877":"沈昌珉","360876":"郑允浩","360005":"英语学习","356796":"游戏人生","356262":"萌娃","353057":"智能手表","351678":"键帽","350360":"橡皮章","349128":"欧洲卡车模拟2","349001":"鬼鬼吴映洁","348953":"茅子俊","347055":"路人王","345363":"西西里的美丽传说","341391":"朴宰范","341369":"拉丁舞","340020":"盲女","338050":"时崎狂三","337310":"AE教程","335752":"PS教程","334910":"金秀贤","334517":"恶灵附身","333943":"天涯明月刀OL","333528":"野良神","332847":"荞麦面","332531":"最后生还者","332416":"姿态","331863":"利威尔","329830":"黑暗之魂2","329261":"王子变青蛙","328981":"日本留学","328122":"姜大声","325309":"境界的彼方","324091":"洗碗机","323144":"意大利面","322961":"金俊秀","322960":"崔始源","322239":"新科娘","322082":"歪果仁","321905":"中华田园犬","321258":"恶之花","320487":"三明治","318756":"炉石传说","318664":"金泰妍","318570":"影视剪辑","318397":"万茜","318078":"张晋","317896":"小龙虾","317609":"沙海","316679":"吴秀波","315748":"手撕鸡","315352":"LPL","313718":"服饰","313458":"郑秀晶","313457":"郑秀妍","312534":"焦俊艳","312200":"崔胜铉","311144":"烤肠","310775":"赵丽颖","309568":"排骨","309518":"隐形人","309290":"魔术教学","308052":"革命机VALVRAVE","306663":"星际公民","306139":"王子文","306138":"周冬雨","306137":"杨颖","305918":"尼坤","305155":"雅思","304696":"新蝙蝠侠","304169":"珠宝","304105":"叶修","302709":"言叶之庭","300744":"纸人","300697":"艺声","299685":"游戏本","299641":"虎神","299611":"张良","298482":"戴萌","298303":"贾玲","298164":"穷游","297206":"吴哲晗","296818":"黄旭东","296288":"我要我们在一起","296203":"钱蓓婷","296112":"马丽","296111":"沈腾","294354":"莫寒","294275":"张语格","291921":"一剪梅","290291":"冥想","290069":"爵士舞","289460":"梅菜扣肉","289315":"川菜","289033":"鸡汤","288405":"剑雨","287870":"蒋欣","287380":"李准基","286910":"韩信","286512":"主持人大赛","286464":"九九八十一","285109":"上海地铁","285044":"女神异闻录5","284724":"刘畊宏","284682":"七大罪","284496":"赵磊","282866":"郑亨敦","282453":"人类观察","282435":"作画MAD","281878":"EXID","281864":"乔杉","281638":"许佳琪","280531":"节奏大师","279840":"李胜贤","279790":"孔肖吟","279760":"英语六级","276236":"薛之谦","275992":"坠落","274802":"PDD","274013":"IZONE","272235":"秦岚","268705":"排球少年","266892":"英语四级","266190":"鱿鱼","266119":"李健","265488":"剑宗","264846":"日本旅游","264440":"崩坏学园","264301":"罗宋汤","264029":"红烧肉","263089":"游戏集锦","261355":"化妆教程","261233":"JK制服","260652":"饥荒","259991":"GEN","257412":"帕梅拉","257162":"文彩元","257161":"宋仲基","256731":"瘟疫公司","256508":"井柏然","256276":"番茄炒蛋","255784":"陈晓","255603":"少年派","255087":"劫","254615":"金智秀","254068":"约会大作战","254027":"英魂之刃","253801":"古装剧","253448":"RWBY","252406":"陈伟霆","252274":"捡垃圾","252081":"吕秀才","251928":"菠萝赛东","251843":"布偶猫","251059":"双十一","250444":"狮子狗","250067":"影流之主","249842":"文明6","248948":"DIA","248805":"断网","248004":"秦昊","248003":"马思纯","243120":"重庆话","242903":"项链","242864":"300英雄","241712":"新裤子","241699":"安宰贤","241337":"利特","240874":"西兰花","240347":"玛格丽特","239855":"厨艺","238261":"狼人杀","237069":"古风翻唱","236831":"音游","236568":"西甲","236135":"陈赫","236068":"紧急救援","235021":"麻辣鸡","233677":"李光洙","233619":"魏晨","233344":"欢乐斗地主","233111":"冰雪奇缘","233003":"金泫雅","232159":"满江红","230405":"G2","230186":"李惠利","229190":"村上信五","229073":"狄仁杰","228455":"肖申克的救赎","227424":"文森特","226146":"烹饪","225507":"权志龙","224773":"重装上阵","224415":"灭霸","223653":"李东海","223615":"安田章大","223047":"老陈","221917":"有冈大贵","220476":"李易峰","220450":"山崎贤人","220187":"奢侈品","219887":"崔雪莉","219886":"崔珉豪","218956":"张怡宁","218836":"英语语法","218245":"烘焙","218167":"弱音HAKU","217923":"吉良吉影","217699":"薮宏太","216971":"李宗伟","216914":"BAE","216283":"谭晶","216260":"军事科技","215841":"我们结婚了","215500":"尹斗俊","215499":"李赫宰","214414":"小水","214370":"乐正龙牙","214233":"奇异博士","214030":"张艺兴","213040":"环太平洋","212821":"孙杨","212661":"王俊凯","212660":"王源","212197":"战争雷霆","211065":"热带鱼","210946":"腾格尔","210691":"流浪地球","210501":"张含韵","210351":"鸡爪","209672":"流星花园","207892":"虚拟歌手","207781":"篮球教学","206950":"张雨绮","206943":"4K","206466":"高以翔","206465":"陈乔恩","206464":"张翰","206405":"七朵组合","206371":"MSI","206115":"舞力全开","205756":"SISTAR","205372":"木工","204909":"芽衣","204682":"环境音","204442":"唇膏","203752":"德州扑克","203360":"赵又廷","202470":"流水","201841":"张娜拉","201609":"GAI","201481":"乐正绫","201462":"机械键盘","200691":"烤鱼","199397":"口水鸡","198975":"上坂堇","198482":"姬子","198427":"宋小宝","197990":"郭麒麟","197897":"丸山隆平","197035":"天涯明月刀","196296":"吴磊","195492":"信条","194934":"YG","194342":"权侑莉","194288":"英雄连2","192335":"杨戬","191549":"傅红雪","191239":"吴青峰","191238":"黄子韬","191033":"鹿晗","191032":"EXO","190723":"麻辣烫","189985":"福原爱","189223":"杨蓉","189215":"无敌破坏王","189181":"我的青春恋爱物语果然有问题","188464":"看门狗","188042":"NBA2K","187787":"亚索","187095":"德莱文","186562":"乔振宇","186559":"舒畅","186426":"杨紫","185237":"宇智波鼬","185233":"FNC","185181":"美瞳","184905":"虾仁","184527":"莴笋","182801":"游戏王YGOCORE","182316":"诺克萨斯之手","181133":"裴秀智","180653":"赵敏","180212":"东永裴","180184":"刘星","179850":"周笔畅","179812":"张扬","179187":"刘仁娜","179103":"泰剧","179080":"唐嫣","178862":"星海","178172":"阿信","176807":"MAMA","175905":"卡莲","175335":"洋葱","175174":"黑镜","174458":"武则天","174045":"拜仁","173262":"杰尼斯","172837":"斗破苍穹","172195":"花粥","171796":"王凯","171662":"SNH48","171505":"GENERATIONS","171332":"郭芙蓉","171290":"古琴","170997":"北京奥运会","170646":"戏曲","170377":"撒贝宁","169523":"医学","169485":"以撒的结合","168822":"T-ARA","168516":"白冰","167015":"凹凸世界","166738":"热血无赖","166550":"托福","166338":"边江","165956":"SN","165546":"锐雯","165210":"广场舞","165014":"地理","164146":"桐人","163736":"BOBBY","163369":"黄龄","163192":"黑豹2","161860":"梁逸峰","161375":"夺冠","161357":"装修","161247":"古典舞","161137":"枪神纪","160442":"朴有天","160298":"跨年演唱会","160097":"刀妹","159571":"韩舞","159190":"张智尧","159059":"CLC","158255":"玄彬","158202":"陈星汉","158189":"冰菓","157951":"抖森","157930":"有吉弘行","157821":"天生一对","157146":"白金DISCO","157087":"舞蹈教学","156230":"牛排","155880":"笑笑","153954":"杨洋","153951":"林黛玉","152882":"明道","152673":"王师傅","152655":"沙盒游戏","152330":"妲己","151950":"米津玄师","151642":"SKT","151542":"TF家族","151521":"贾宝玉","151514":"博德之门","150694":"张鹤伦","150416":"空中浩劫","150342":"低俗小说","149838":"HKT48","149532":"戚薇","149531":"大张伟","149330":"卢克","149066":"S.H.E","149065":"郑元畅","148937":"电棍","148898":"林更新","148760":"董卿","148556":"那年那兔那些事儿","148414":"牛仔裤","148242":"内存条","148171":"鸡蛋饼","148123":"编舞","147600":"佟湘玉","147289":"韩雪","147058":"伊芙琳","147026":"双肩包","147016":"无人机","146730":"乃木坂46","146628":"泰国电影","146059":"牛肉","145883":"模型制作","145808":"微单","145696":"鸟鸣","145656":"金毛","145436":"TXT","144956":"魔术揭秘","144654":"JYJ","144292":"四川话","143893":"章子怡","143751":"手机评测","143665":"孤独的美食家","142904":"艾伦秀","142726":"恶作剧之吻","142339":"知念侑李","141870":"宋茜","141407":"巴菲特","140992":"变形计","140503":"杨丞琳","140364":"年度盘点","139012":"自然科学","138600":"漫威","137793":"张韶涵","135668":"啦啦啦德玛西亚","135212":"街球","134721":"宇智波斑","133641":"黄磊","133622":"高木雄也","133353":"金陵十三钗","133257":"生物","130863":"天津话","130159":"姚晨","129697":"SUPER JUNIOR","129641":"言和","128786":"泠鸢YOUSA","127846":"罗翔","127837":"刃牙","127279":"火力少年王","126954":"插画","125578":"翼装飞行","124649":"狼群","124135":"洛克王国","123465":"KPOP","123146":"S10","119973":"包包","119702":"江华","119640":"速度与激情","119392":"深海","118386":"まふまふ","116606":"阿卡丽","116535":"匪我思存","116480":"张召忠","116364":"泡面","116267":"卡牌游戏","116059":"韩庚","116044":"围攻","116013":"王大锤","115092":"编曲","114612":"黑子的篮球","114604":"金光布袋戏","114088":"户外","113512":"黄圣依","113431":"黎姿","113054":"BJD","112832":"草薙京","112758":"雨声","112139":"尤克里里","111865":"电子音乐","111817":"韩语","111405":"巡音LUKA","111377":"影评","111037":"宫本武藏","110784":"李佳薇","110511":"开箱","110347":"张一山","110331":"无名","109721":"蔡少芬","109540":"日语学习","109161":"松冈祯丞","108939":"荒岛求生","108907":"手表","108744":"白色相簿2","108296":"孙俪","107974":"大鹏","107840":"忠犬八公","107839":"杀死比尔","107783":"潘粤明","107717":"杀破狼","107668":"TEN","106299":"GOPRO","105794":"小马宝莉","105768":"宋智孝","105765":"池石镇","105764":"刘在石","105763":"金钟国","105669":"全智贤","105286":"国家宝藏","105130":"自我介绍","105019":"杨梅","104929":"搞笑一家人","104812":"高达EXVS","104537":"PS4","104427":"薇恩","104037":"海鲜","103817":"摩尔庄园","103594":"董洁","103593":"张嘉译","103406":"书法","103076":"彭于晏","103074":"杀生丸","102935":"索隆","102841":"宁静","102666":"齐舞","102361":"盲僧","102317":"李佳航","101694":"破坏之王","101392":"贾斯汀比伯","101365":"使命召唤OL","101333":"烤鸡翅","101287":"拳皇98","101263":"英语听力","100925":"鸡肉","100759":"战斗法师","100475":"田馥甄","100163":"豪车","99842":"CS:GO","99697":"朴敏英","99344":"利物浦","99264":"飞盘","98890":"C4D","98842":"灾难","98414":"派大星","98053":"2NE1","98016":"古川雄辉","97613":"林心如","97199":"战舰世界","96579":"爸爸去哪儿","96514":"娄艺潇","96498":"锅包肉","96308":"陆军","96197":"QQ飞车","96107":"巴萨","96007":"小枫","95691":"巴啦啦小魔仙","95670":"终极三国","95153":"运动鞋","95071":"伊莉雅","94982":"经济","94971":"手指舞","94571":"我是大哥大","94460":"雷军","94375":"小黄人","94365":"土豆泥","94337":"家常菜","94281":"灰太狼","94247":"帆布鞋","93250":"金星","93217":"王思聪","92708":"吴尊","91251":"潮流","90804":"芹菜","90439":"游戏攻略","89976":"高桥南","89808":"礼物","89694":"金在中","89358":"生化危机6","89203":"林依晨","87922":"泰国广告","87677":"韩红","87376":"胡夏","87121":"吉他弹唱","86917":"鲸鱼","86845":"杨幂","86776":"室内设计","86573":"逆战","85689":"日文翻唱","85651":"街机游戏","85317":"张智霖","85149":"宋慧乔","85111":"裙子","84875":"张伟","84657":"象棋","83553":"八乙女光","83550":"小嶋阳菜","83294":"山田凉介","83104":"一美","82945":"诺贝尔奖","82518":"X1","82141":"汪东城","81867":"韩国电影","81618":"航天","81372":"YYF","81265":"日本综艺","81222":"SEVENTEEN","80946":"罪恶王冠","80914":"美女与野兽","80600":"刘备","80446":"风云雄霸天下","80372":"滑雪","80371":"陈坤","80309":"炎亚纶","80129":"3DMAX","79809":"石原里美","79795":"朴宝英","79484":"贺来贤人","79402":"黑手党","79245":"喜剧片","79034":"素描","78992":"喜剧之王","78868":"终结者2","78711":"张靓颖","78484":"李敏镐","78415":"面条","78160":"西线无战事","77733":"章鱼哥","77680":"冯绍峰","77679":"黄渤","77557":"李晨","77556":"张译","77401":"夜宵","77388":"旭旭宝宝","77083":"阿杰","76626":"动物之森","76615":"F(X)","76435":"番茄","75847":"林丹","75803":"蔡康永","75002":"生化危机7","74927":"贞德","74605":"爱丽丝梦游仙境","74529":"菜单","73621":"朴树","73516":"寿司","73475":"孤岛惊魂","73404":"杏仁豆腐","73139":"武装突袭3","72926":"吕子乔","72672":"UZI","72303":"游泳","72140":"饮料","72138":"原创歌曲","71898":"焦恩俊","71897":"刘烨","71875":"汪峰","71686":"WENDY","71602":"张杰","71273":"相叶雅纪","71221":"煎蛋","71175":"白展堂","71124":"孙尚香","70720":"吉尔伽美什","70718":"横山裕","70561":"陈道明","70024":"泰拉瑞亚","69943":"六小龄童","69811":"邓紫棋","69736":"赵雅芝","69434":"钉钉","68637":"苏有朋","68539":"林志颖","68393":"赛文奥特曼","68321":"毕业季","68270":"香水","68112":"张家辉","68042":"2PM","67482":"监狱风云","67201":"BEAST","66872":"黑金","66849":"财经","66834":"关8","66611":"情侣","66594":"高晓松","66209":"现代舞","66188":"汪苏泷","64842":"安以轩","64475":"辩论","64457":"蓝拳","64397":"微电影","64343":"威廉","64254":"古筝","64207":"黎明","64022":"张震","63887":"许嵩","63715":"吴彦祖","63711":"巴比伦","63265":"黑道圣徒","63185":"复仇者联盟","63096":"恐龙","63073":"经济学","63019":"暮光之城","63017":"魔戒","63002":"天策","62939":"郑伊健","62937":"郭富城","62411":"德甲","62330":"英超","61963":"管理学","61575":"柯基","61512":"景甜","61511":"孙红雷","61382":"大仓忠义","61300":"警察故事","61044":"卸妆","61021":"东方神起","60730":"陈豪","60624":"高铁","60513":"未闻花名","60399":"小龙女","60323":"少女与战车","60181":"逃学威龙","59990":"刺猬索尼克","59930":"凉粉","59920":"赌圣","59861":"莫文蔚","59846":"农村","59624":"LOLITA FASHION","59535":"张柏芝","59534":"谢霆锋","59457":"茅野爱衣","59337":"红色警戒2","59062":"赌侠","58615":"邓超","58562":"西游降魔篇","58512":"海上钢琴师","58495":"诛仙","58261":"特斯拉","58230":"围棋","58228":"郑容和","58226":"朴信惠","58218":"公路车","57834":"航母","57684":"镇魂街","57448":"弹丸论破","57220":"印度电影","57156":"POPPING","56738":"雷欧奥特曼","56723":"八神","56504":"范伟","56408":"内马尔","56406":"小吃","55920":"钟汉良","55739":"唐伯虎点秋香","55152":"大S","55079":"小S","55054":"周迅","54904":"胡一菲","54593":"爱杀宝贝","54574":"GARY","54532":"张敬轩","54206":"单反","54046":"九品芝麻官","53885":"维吉尔","53873":"相机","53731":"李宇春","53667":"山地车","53580":"印度歌舞","53473":"搞笑配音","53445":"大野智","53206":"羽毛球","53105":"小叮当","53056":"韩剧","52718":"延时摄影","52314":"孔侑","52179":"纪实","52126":"王心凌","51540":"大乔","51532":"沙溢","51447":"狮子","51330":"诸葛亮","50944":"哈尔的移动城堡","50787":"凡人修仙传","50654":"李孝利","50614":"UFC","50488":"佐藤健","50345":"艾薇儿","50331":"战神4","50158":"彩虹六号","49874":"想见你","49741":"奥运会","49478":"IU","49439":"投影仪","49422":"TED","49079":"牧场物语","49009":"李云龙","49008":"亮剑","48961":"饺子","48934":"梅艳芳","48590":"上古卷轴5","48485":"千与千寻","48326":"二宫和也","48271":"吴京","48233":"海豹","48206":"橙子","47996":"冷知识","47988":"我的世界","47896":"斗地主","47863":"杨迪","47708":"高跟鞋","47637":"豪宅","47481":"职场","47404":"沙拉","47282":"日本料理","47079":"欧冠","47034":"DOTA2","46977":"下午茶","46929":"斯诺克","46723":"梁朝伟","46722":"张曼玉","46419":"侏罗纪公园","46188":"梁家辉","46183":"人工智能","46133":"冰淇淋","46126":"股票","46123":"周慧敏","45996":"机动战士高达00","45968":"星尘","45945":"菊次郎的夏天","45614":"金刚","45576":"吴奇隆","45566":"马天宇","45565":"霍建华","45564":"刘诗诗","45490":"大鱼海棠","45081":"伊藤润二","45077":"CL","44665":"武装突袭","44392":"ROSE","44381":"菅田将晖","44220":"折纸","44171":"刘慈欣","44129":"香取慎吾","44128":"中居正广","43766":"圣歌","43693":"驯龙高手","43303":"歌剧","42949":"欢乐颂","42739":"谢娜","42738":"何炅","42390":"黑暗之魂","42361":"陈小春","42348":"半泽直树","42279":"李克勤","42253":"短裤","42208":"维多利亚的秘密","42015":"排球","41928":"曾小贤","41917":"心理学","41861":"哥斯拉","41752":"王小明","41593":"咖啡","41573":"PSV","41194":"金庸","41103":"体育","40872":"手风琴","40855":"潘玮柏","40787":"VR","40737":"人文","40649":"镜音RIN","40374":"恶魔之魂","40323":"袁咏仪","40298":"长野博","40082":"HAHA","39999":"下山","39704":"IG","39591":"波风水门","39326":"羽生结弦","39295":"短裙","39164":"鸡蛋","39118":"鬼畜全明星","39107":"金融","39062":"鼠标","38731":"三体","38714":"传送门","38360":"BLG","38329":"奶茶","38199":"德语","38138":"锦户亮","37887":"孙策","37800":"岚","37660":"三森铃子","37558":"稻垣吾郎","37557":"SMAP","37497":"INFINITE","37364":"刘亦菲","37254":"阿甘正传","37242":"健康","37127":"芭蕾","36893":"早餐","36877":"LOVE LIVE!","36477":"堂本光一","36292":"太宰治","35859":"胡歌","35826":"让子弹飞","35807":"梦幻西游","35730":"周润发","35602":"葛优","35575":"坦克世界","35505":"甜点","35504":"蛋糕","35272":"姜文","35258":"木吉他","34631":"坎巴拉太空计划","34321":"黑科技","34155":"东方栀子","33963":"WE","33862":"王菲","33818":"TOKIO","33730":"法语","33623":"楚留香","33467":"逆水寒","33450":"独立游戏","33360":"林俊杰","33072":"航空","33034":"松本润","32944":"蹦极","32881":"超级战队","32813":"吴宗宪","32811":"赵本山","32788":"中岛裕翔","32767":"古典音乐","32613":"面试","32586":"水浒传","32517":"李玉刚","32461":"徐峥","32454":"汉服","32318":"邓萃雯","32301":"王力宏","32284":"惊声尖笑","31878":"翻跳","31864":"公开课","31861":"枪声音乐","31806":"刘醒","31762":"罗永浩","31093":"悠悠球","30951":"东北话","30815":"蚁人","30580":"长泽雅美","30550":"眉毛","30508":"梦幻模拟战","30239":"柴犬","30124":"赛罗奥特曼","29871":"黑亚当","29788":"教父","29722":"剑灵","29671":"尔康","29668":"空军","29661":"阿卡贝拉","29622":"功夫熊猫","29603":"刀剑神域","29597":"工藤新一","29415":"二次元鬼畜","29276":"汉堡","29138":"烧烤","29105":"水彩","29044":"美国队长","28784":"编程","28759":"BEATBOX","28683":"文明","28668":"美国电影","28631":"张卫健","28628":"吴孟达","28555":"OMG","28421":"刘德华","28321":"范冰冰","28195":"黑寡妇","28096":"甄子丹","28074":"魔法少女小圆","27955":"曼联","27866":"C罗","27398":"马化腾","27269":"山田孝之","27268":"小栗旬","27217":"梁非凡","27022":"死侍","27021":"绿巨人","26977":"洗面奶","26909":"王祖贤","26856":"镜音LEN","26583":"拳击","26582":"洛基","26517":"动画短片","26516":"奥斯卡","26390":"林青霞","26277":"全职猎人","26251":"盖聂","26249":"樱井翔","26180":"人力VOCALOID","26038":"暗黑破坏神","25955":"骑马与砍杀","25898":"跑车","25885":"陈奕迅","25758":"暗黑破坏神3","25560":"轩辕剑","25483":"GMV","25450":"摄影","25395":"国家地理","25376":"魔兽争霸3","25337":"黑豹","25327":"三笠","24935":"火柴人","24908":"卫宫士郎","24870":"蛋炒饭","24789":"英剧","24762":"阿拉斯加","24467":"岳云鹏","24386":"康熙来了","24304":"战斗机","24236":"跳水","23995":"航拍","23901":"互联网","23877":"风之谷","23661":"小罗伯特唐尼","23605":"汉尼拔","23580":"贝吉塔","23430":"霸王别姬","23369":"LGD","23331":"粽子","23306":"炸鸡","23208":"平板电脑","23182":"武汉","23002":"柏木由纪","22984":"三浦春马","22919":"大熊猫","22657":"罗志祥","22654":"小说","22551":"漫展","22534":"ADC","22525":"这个杀手不太冷","22338":"BW","22317":"乌龟","22269":"瑜伽","21873":"泰拳","21854":"SUV","21646":"指弹吉他","21609":"饼","21534":"闪电侠","21382":"如龙","21337":"月饼","21325":"美人鱼","21297":"嘻哈","21295":"鬼步舞","21216":"显示器","21187":"剑网3","21079":"土豆","20986":"蛋挞","20805":"减肥","20804":"跑步","20795":"神奇女侠","20744":"日麻","20736":"EXCEL","20706":"赛尔号","20684":"五月天","20495":"滑板","20479":"笛子","20459":"鬼泣5","20439":"萨摩耶","20327":"射击游戏","20215":"美食","20098":"冲浪","20057":"魔兽争霸","20042":"昆虫","20002":"TRPG","19956":"包子","19890":"游戏解说","19877":"美军","19860":"郭敬明","19794":"黄晓明","19703":"零食","19539":"灰原哀","19382":"披萨","19258":"阿森纳","19047":"李连杰","19042":"台风","18970":"和珅","18969":"纪晓岚","18966":"张国立","18902":"跑团","18879":"小王子","18874":"跑跑卡丁车","18755":"硬盘","18669":"陈汉典","18537":"DRAMA","18505":"最终幻想7","18447":"鲨鱼","18423":"摩托车","18330":"卫庄","18277":"曹操","18086":"棒球","18056":"面包","17941":"恐怖游戏","17940":"红蝶","17739":"布丁","17690":"黄子华","17683":"单机游戏","17625":"悲惨世界","17539":"摔角","17418":"贝斯","17390":"行尸走肉","17365":"NASA","17332":"马云","17299":"谢耳朵","17246":"魔方","17231":"神秘海域","17098":"剑道","17034":"欧美音乐","17013":"霍比特人","16992":"盗梦空间","16807":"龟梨和也","16724":"穿越火线","16599":"馒头","16474":"红白歌会","16332":"冷兵器","16262":"口琴","16097":"乒乓球","16093":"军训","15958":"哈士奇","15942":"史莱姆","15846":"鸡翅","15845":"清唱","15808":"李钟硕","15751":"黄瓜","15746":"少女时代","15491":"鸣人","15478":"头文字D","15414":"台球","15342":"天文","15296":"英文翻唱","15265":"架子鼓","15227":"中岛美嘉","15204":"孙悟空","15187":"TFBOYS","15186":"易烊千玺","14958":"导弹","14932":"程序员","14913":"拳皇97","14898":"TES","14826":"琵琶","14704":"乐器","14583":"佐助","14469":"木村拓哉","14426":"电音","14379":"PR","14117":"贾静雯","14107":"新垣结衣","14080":"加勒比海盗","13996":"不知火舞","13896":"发型","13893":"交响乐","13881":"超级英雄","13879":"X战警","13878":"金刚狼","13848":"小品","13784":"迪迦奥特曼","13760":"汽车","13715":"STEAM","13683":"民谣","13584":"地狱少女","13509":"文学","13490":"定格动画","13450":"科幻片","13370":"机械舞","13267":"RADWIMPS","13175":"化妆","13098":"万智牌","13004":"国产凌凌漆","12988":"动物世界","12882":"跑酷","12843":"魔女","12837":"擎天柱","12816":"于谦","12784":"开口跪","12732":"猫头鹰","12675":"皇马","12644":"猪肉","12625":"小游戏","12407":"张超","12341":"UFO","12157":"BIGBANG","12134":"炒饭","12097":"回魂夜","12078":"陈冠希","11936":"恐怖片","11920":"三国志","11824":"网球王子","11715":"马拉多纳","11687":"综艺","11684":"LISA","11666":"战锤40K","11564":"铠甲勇士","11559":"音乐剧","11526":"樱井孝宏","11434":"黄家驹","11387":"喜羊羊","11376":"公益","11291":"最终幻想14","11265":"手工","11259":"民乐","11212":"玩具","11208":"堂本刚","11142":"寂静岭","11109":"FIFA","11100":"荒野求生","10710":"黑暗料理","10699":"ARASHI","10657":"泰坦尼克号","10613":"跳舞机","10427":"歌姬计划","10387":"TVB","10384":"真三国无双","10325":"战神","10282":"容嬷嬷","10216":"中村悠一","10071":"植物大战僵尸","9969":"板绘","9962":"巨石强森","9955":"汪星人","9924":"怪盗基德","9920":"老虎","9887":"战锤","9826":"鬼泣4","9783":"迈克尔杰克逊","9711":"胡萝卜","9683":"关羽","9605":"幽灵公主","9600":"星座","9533":"冰箱","9505":"毛利兰","9500":"宅舞","9476":"鲁邦三世","9458":"高考数学","9435":"蜘蛛侠","9374":"HIPHOP","9366":"新番介绍","9264":"宇宙","9222":"英雄联盟","9177":"PHOTOSHOP","9145":"企鹅","8964":"哈利波特","8947":"贝爷","8892":"郭德纲","8881":"名侦探柯南","8876":"极限运动","8859":"考试","8816":"英语","8785":"钢铁侠","8740":"高考","8734":"耳机","8729":"极品飞车","8669":"麻婆豆腐","8564":"洛天依","8562":"中国风","8522":"布袋戏","8470":"狙击手","8422":"生化危机2","8401":"婚礼","8316":"飞机","8314":"指原莉乃","8259":"光之美少女","8227":"古风","8172":"健身操","8142":"激战2","8099":"SNL","8043":"中文翻唱","7993":"摇滚","7991":"张国荣","7976":"古墓丽影","7950":"成龙","7949":"三国杀","7944":"铃村健一","7849":"解放军","7782":"三国演义","7781":"新三国","7712":"白客","7678":"龙之谷","7634":"求生之路","7620":"豆腐","7583":"陈浩民","7501":"吴邪","7500":"张起灵","7457":"宫野真守","7384":"樱桃小丸子","7258":"街霸","7257":"中岛美雪","7205":"黑执事","7172":"吕布","7161":"妖精的尾巴","7158":"JOY","7114":"乐队","7074":"小提琴","7062":"精灵宝可梦","7029":"GMOD","7007":"手机","6947":"吱星人","6943":"萌宠","6942":"吃货","6888":"上古卷轴","6728":"超越","6694":"鹦鹉","6609":"舞台剧","6603":"求生之路2","6578":"计算机","6572":"旅游","6466":"阅兵","6453":"RPG","6446":"苏打绿","6348":"水果","6346":"原曲不使用","6332":"黑塔利亚","6225":"一方通行","6213":"显卡","6212":"CPU","6107":"李小龙","6106":"街头霸王","6088":"龙族","6052":"世界奇妙物语","6048":"乐高","6035":"蔡依林","6033":"堺雅人","6028":"模拟人生","6019":"洗衣机","5963":"火锅","5911":"福山润","5909":"诹访部顺一","5892":"生田斗真","5882":"死亡空间","5858":"命运石之门","5794":"美国","5784":"功夫","5783":"相声","5781":"刺客信条","5722":"千本樱","5663":"狮子王","5633":"鬼泣","5632":"电台","5597":"芒果","5590":"法律","5574":"街舞","5563":"国庆","5558":"死神","5555":"山下智久","5540":"正义联盟","5461":"路飞","5417":"科普","5401":"合金装备","5374":"虐杀原形","5341":"眼镜","5312":"机动战士高达SEED","5282":"卡卡西","5251":"科幻","5249":"神谷浩史","5220":"塞尔达传说","5216":"そらる","5195":"京剧","5192":"误解向","5152":"机械","5108":"魔卡少女樱","5069":"兔子","5033":"DNF","5023":"育碧","4968":"生化危机3","4958":"宝莲灯","4916":"黑客帝国","4890":"OST","4835":"荒野大镖客","4772":"费玉清","4759":"钉宫理惠","4747":"生化危机4","4672":"JOJO的奇妙冒险","4585":"坂田银时","4577":"OSU","4486":"泰罗奥特曼","4346":"脱口秀","4344":"健身","4306":"犬夜叉","4296":"宫崎骏","4274":"龙与虎","4248":"钓鱼","4200":"张学友","4199":"浪客剑心","4198":"海贼王","4187":"克苏鲁","4083":"花样滑冰","4072":"龙猫","4053":"博丽灵梦","4052":"梅西","3988":"武器","3986":"艾尔之光","3985":"EVE","3982":"LIA","3981":"恶魔城","3973":"泽野弘之","3965":"机动战士高达UC","3875":"逆转裁判","3828":"貂蝉","3737":"悠木碧","3620":"DIY","3569":"春晚","3553":"广播剧","3531":"星际争霸2","3504":"英国","3502":"空之境界","3492":"方言","3344":"家庭教师","3238":"GTA","3220":"上海话","3189":"俄罗斯","3185":"吉他","3151":"配音","3138":"勇者斗恶龙","3125":"南条爱乃","3086":"日语","3079":"警察","3023":"超级玛丽","3006":"模型","2999":"赛车","2968":"周杰伦","2953":"光环","2947":"特摄","2904":"GUMI","2902":"幽灵","2894":"阴阳师","2874":"JAZZ","2870":"铁血战士","2869":"异形","2861":"新海诚","2825":"DC","2810":"星球大战","2800":"绘画","2739":"演讲","2696":"反恐精英","2633":"印度","2630":"钢琴","2600":"大岛优子","2599":"渡边麻友","2598":"前田敦子","2592":"AKB48","2531":"SAI","2496":"铃木达央","2453":"IPAD","2383":"暴雪","2359":"水树奈奈","2355":"恋爱循环","2349":"游戏王","2337":"太鼓达人","2332":"杉田智和","2296":"魔兽世界","2259":"秒速五厘米","2231":"ASTRO","2199":"王宝强","2069":"假面骑士","2052":"西瓜","2027":"某科学的超电磁炮","1988":"方便面","1961":"灌篮高手","1951":"DOTA","1938":"国足","1885":"小野大辅","1833":"搞笑","1758":"漫才","1730":"粤语","1726":"轻音少女","1669":"萝卜","1654":"战地","1645":"声优","1630":"KAITO","1616":"螃蟹","1599":"红白机","1562":"喵星人","1555":"同人游戏","1552":"现代战争","1547":"便当","1546":"上条当麻","1541":"英雄","1520":"二胡","1476":"SABER","1462":"半条命","1429":"久石让","1426":"天空之城","1405":"阿凡达","1364":"科学","1356":"金坷垃","1339":"电脑","1338":"笔记本","1329":"十六夜咲夜","1311":"茄子","1281":"DJ","1257":"最终幻想","1246":"无主之地","1238":"魂斗罗","1210":"手绘","1172":"都市传说","1149":"花泽香菜","1141":"羊驼","1134":"KEY","1126":"MMD","1110":"冒险岛","1087":"使命召唤","1068":"柯南","1022":"蜡笔小新","1009":"任天堂","994":"新世纪福音战士","980":"高达","963":"奥特曼","959":"葛平","949":"仙剑奇侠传","930":"FC","882":"哆啦A梦","869":"我爱你","860":"日本","857":"短片","853":"蝙蝠侠","804":"LILY","803":"生化危机","788":"火星","776":"俄语","718":"魔法禁书目录","702":"蘑菇","678":"御坂美琴","674":"合金弹头","627":"同人音乐","610":"皮卡丘","608":"手书","597":"雾雨魔理沙","596":"上海","589":"哲学","584":"足球","564":"机器人","548":"泰语","547":"泰国","529":"说唱","516":"初音未来","513":"灰姑娘","483":"怪物猎人","442":"马里奥","436":"命令与征服","434":"键盘","426":"凉宫春日","416":"叶问","404":"CLANNAD","403":"红色警戒3","398":"周星驰","396":"麻将","391":"AMV","386":"翻唱","379":"古天乐","373":"演奏","372":"电吉他","368":"技术宅","366":"拳皇","364":"格斗","363":"MUGEN","342":"XBOX","341":"PS3","310":"德国","290":"VOCALOID","281":"MAD","254":"变形金刚","246":"RAP","232":"红色警戒","221":"历史","167":"猫和老鼠","166":"东方","133":"雷神","116":"韩国","112":"星际争霸","88":"COSPLAY","77":"偶像大师","68":"鬼畜","21":"万恶之源"}`)
+    },
+    //设置当前频道的id
+    setChannel_id: function (id) {
+        Util.setData("channel_id", parseInt(id));
+    },
+    //获取当前频道的id
+    getChannel_id: function () {
+        const data = Util.getData("channel_id");
+        if (data === undefined || data == null) {
+            return 17941;//默认返回恐怖游戏的频道
+        }
+        return parseInt(data);
+    },
+    //设置频道推送的类型，热门还是以播放量亦或者最新
+    setSort_type: function (typeStr) {
+        Util.setData("sort_type", typeStr);
+    },
+    //获取频道推送的类型，热门还是以播放量亦或者最新
+    getSort_type: function () {
+        const data = Util.getData("sort_type");
+        return data === undefined || data === null ? "hot" : data;//默认返回热门
+    },
+    /**
+     *
+     * @param id 频道id
+     * @param typeStr 频道对应的排序类型
+     * @param s 具体的内容
+     */
+    setOffset: function (id, typeStr, s) {
+        if (this.data.offsetData[id] === undefined) {
+            this.data.offsetData[id] = {};
+        }
+        this.data.offsetData[id][typeStr] = s;
+    },
+    /**
+     * 偏移量
+     * @param id 频道id
+     * @param typeStr 频道对应的排序类型
+     * @return {string|}
+     */
+    getOffset: function (id, typeStr) {
+        const data = this.data.offsetData[id];
+        if (data === undefined || data === null) {
+            return "";
+        }
+        const tempData = data[typeStr];
+        if (tempData === undefined || tempData === null) {
+            return "";
+        }
+        return data[typeStr];
+    },
+    // 频道排行榜规则
+    listRules: function () {
+        let list = document.getElementsByClassName("rank-video-card");
+        if (list.length !== 0 && frequencyChannel.startExtracted(list)) {
+            Qmsg.info("屏蔽了视频！！");
+            console.log("已检测到频道综合的排行榜")
+        }
+    },
+    /**
+     * 频道精选视频等其他视频规则
+     * 已针对个别情况没有删除对应元素，做了个循环处理
+     */
+    videoRules: function () {
+        while (true) {
+            const list = document.getElementsByClassName("video-card");
+            const tempLength = list.length;
+            if (tempLength === 0) {
+                break;
+            }
+            if (frequencyChannel.startExtracted(list)) {
+                Qmsg.info("屏蔽了视频！！");
+            }
+            if (list.length === tempLength) {
+                //Print.ln("页面元素没有变化了，故退出循环")
+                break;
+            }
+        }
+    },
+    //展开频道爬排行榜中的展开
+    delDevelop: function () {
+        const interval = setInterval(() => {
+            const toggleClass = document.getElementsByClassName("toggle")[0];
+            try {
+                const str = toggleClass.textContent.trim();
+                if (str !== "收起") {//控制每次收缩时自动点击，使其展开列表
+                    toggleClass.click();
+                    toggleClass.remove();
+                    clearInterval(interval);
+                    this.data.develop = true;
+                    Print.ln("已点击展开列表并移除收起按钮")
+                }
+            } catch (e) {
+                clearInterval(interval);
+            }
+        }, 50);
+    },
+    /**
+     * 频道
+     * 隐藏对应元素的视频
+     * @param vdoc 视频列表
+     * @returns {boolean}
+     */
+    startExtracted: function (vdoc) {
+        let temp = false;
+        try {
+            for (let element of vdoc) {
+                element.onmouseenter = (e) => {
+                    const element = e.srcElement;
+                    const data = frequencyChannel.getVideoRules(element);
+                    Util.showSDPanel(e, data.upName, data.uid);
+                };
+                element.style.margin = "0px 5px 0px 0px";//设置元素边距
+                const data = frequencyChannel.getVideoRules(element);
+                temp = shieldVideo_userName_uid_title(element, data.upName, data.uid, data.title, data.videohref, data.videoTime, data.playbackVolume);
+            }
+        } catch (e) {
+            return temp;
+        }
+        return temp;
+    },
+    cssStyle: {
+        tempVar: {
+            //是否执行了调整页面边距
+            backGaugeBool: false,
+        },
+        backGauge: function () {
+            if (this.tempVar.backGaugeBool) {
+                return;
+            }
+            this.tempVar.backGaugeBool = true;
+            document.getElementsByClassName("detail-panels")[0].style.width = "auto";//调整其页面左右边距
+            Print.ln("已调整频道界面的左右边距")
+        }
+    },
+    getVideoRules: function (element) {//获取频道界面单个的视频信息
+        const videoInfo = element.getElementsByClassName("video-name")[0];
+        //空间地址
+        const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
+        const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
+        const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
+        return {
+            //用户名
+            upName: element.getElementsByClassName("up-name__text")[0].textContent,
+            //视频标题
+            title: videoInfo.textContent.trim(),
+            //视频地址
+            videohref: "https:" + videoInfo.getAttribute("href"),
+            //视频时长
+            videoTime: element.getElementsByClassName("play-duraiton")[0].textContent,
+            //空间地址
+            upSpatialAddress: upSpatialAddress,
+            //UID
+            uid: Util.getSubUid(lastIndexOf),
+            //播放量
+            playbackVolume: topInfo[0].textContent.trim(),
+            //弹幕量
+            barrageQuantity: topInfo[1].textContent.trim()
+        };
+    }
+}
+//直播
+const Live = {
+    shield: function (list) {
+        for (let v of list) {
+            const userName = v.getAttribute("data-uname");
+            const uid = v.getAttribute("data-uid");
+            const content = v.getAttribute("data-danmaku");
+            let fansMeda = "这是个个性粉丝牌子";
+            try {
+                fansMeda = v.querySelector(".fans-medal-content").text;
+            } catch (e) {
+            }
+            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+                Qmsg.info("屏蔽了言论！！");
+                continue;
+            }
+            if (Remove.fanCard(v, fansMeda)) {
+                Print.ln("已通过粉丝牌【" + fansMeda + "】屏蔽用户【" + userName + "】 言论=" + content);
+                continue;
+            }
+            const jqE = $(v);
+            if (Util.isEventJq(jqE, "mouseover")) {
+                continue;
+            }
+            jqE.mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const name = domElement.getAttribute("data-uname");
+                const uid = domElement.getAttribute("data-uid");
+                Util.showSDPanel(e, name, uid);
+            });
+        }
+    },
+    //直播间
+    liveDel: {
+        //针对于直播间顶部的屏蔽处理
+        topElement: function () {
+            if (Rule.liveData.topElement) {
+                try {
+                    document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")[0].remove();
+                    Print.ln("已移除直播间顶部的信息（包括顶部标题栏）")
+                } catch (e) {
+                    Print.ln("已移除直播间顶部的信息（包括顶部标题栏）-出错")
+                }
+                return;
+            }
+            if (Rule.liveData.topLeftBar.length !== 0) {
+                for (const element of Rule.liveData.topLeftBar) {
+                    try {
+                        document.getElementsByClassName(element)[0].remove();
+                        Print.ln("已移除该项目=" + element)
+                    } catch (e) {
+                        Print.ln("不存在该项目！=" + element)
+                    }
+                }
+            }
+            if (Rule.liveData.topLeftLogo) {
+                document.getElementsByClassName("entry_logo")[0].remove();
+                Print.ln("已移除左上角的b站直播logo信息")
+            }
+            if (Rule.liveData.topLeftHomeTitle) {
+                document.getElementsByClassName("entry-title")[0].remove();
+                Print.ln("已移除左上角的首页项目")
+            }
+        },
+        //针对直播间播放器头部的用户信息，举例子，，某某用户直播，就会显示器的信息和直播标题等
+        hreadElement: function () {
+            const liveData = Rule.liveData;
+            if (liveData.isheadInfoVm) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementById("head-info-vm").remove()
+                        clearInterval(interval);
+                        Print.ln("已移除直播间头部的用户信息");
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+        },
+        bottomElement: function () {//针对于直播间底部的屏蔽处理
+            document.getElementById("link-footer-vm").remove();
+            Print.ln("已移除底部的页脚信息")
+            if (Rule.liveData.bottomElement) {
+                document.getElementById("sections-vm").remove();
+                Print.ln("已移除直播间底部的全部信息")
+                return;
+            }
+            if (Rule.liveData.bottomIntroduction) {
+                document.getElementsByClassName("section-block f-clear z-section-blocks")[0].getElementsByClassName("left-container")[0].remove();
+                Print.ln("已移除直播间底部的的简介和主播荣誉")
+            } else {
+                if (Rule.liveData.liveFeed) {
+                    const interval = setInterval(() => {
+                        try {
+                            document.getElementsByClassName("room-feed")[0].remove();
+                            clearInterval(interval)
+                            Print.ln("已移除页面底部动态部分")
+                        } catch (e) {
+                        }
+                    }, 2500);
+                }
+            }
+            if (Rule.liveData.container) {
+                document.getElementsByClassName("right-container")[0].remove();
+                Print.ln("已移除直播间的主播公告")
+            }
+        },
+        //礼物栏的布局处理
+        delGiftBar: function () {
+            if (Rule.liveData.delGiftLayout) {
+                Util.circulateIDs("gift-control-vm", 5, 1500, "已移除礼物栏")
+                return;
+            }
+            if (Rule.liveData.isEmbark) {
+                const temp = setInterval(() => {
+                    const tempClass = document.getElementsByClassName("m-guard-ent gift-section guard-ent")[0];
+                    if (tempClass) {
+                        tempClass.remove();
+                        clearInterval(temp);
+                        Print.ln("移除立即上舰")
+                    }
+                }, 2000);
+            }
+            if (Rule.liveData.isGift) {
+                const temp = setInterval(() => {
+                    const element = document.getElementsByClassName("gift-presets p-relative t-right")[0];
+                    if (element) {
+                        element.remove();
+                        clearInterval(temp);
+                        Print.ln("移除礼物栏的的礼物部分")
+                    }
+                }, 2000);
+            }
+            if (Rule.liveData.isEmbark && Rule.liveData.isGift) {//如果立即上舰和礼物栏的部分礼物移除了就对其位置调整
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementById("gift-control-vm").style.height = "auto";
+                        document.getElementsByClassName("gift-control-panel f-clear b-box p-relative")[0].style.height = "40px";
+                        clearInterval(interval);
+                    } catch (e) {
+                    }
+                }, 1500);
+            }
+        },
+        //移除右侧的聊天布局
+        delRightChatLayout: function () {
+            const liveData = Rule.liveData;
+            if (liveData.isRightChatLayout) {
+                const interval = setInterval(() => {
+                    const id = document.getElementById("aside-area-vm");
+                    if (id) {
+                        id.remove();
+                        clearInterval(interval);
+                        Print.ln("移除直播间右侧的聊天布局")
+                        document.getElementsByClassName("player-ctnr")[0].style.width = "100%";//移除完之后调整其布局位置
+                    }
+                }, 2000);
+                return;
+            }
+            if (liveData.isChatHistoryPanel) {
+                const interval = setInterval(() => {
+                    const tempClass = document.getElementsByClassName("chat-history-panel")[0];
+                    if (tempClass) {
+                        tempClass.remove();
+                        clearInterval(interval);
+                        Print.ln("已移除直播间右侧的聊天内容");
+                        document.getElementById("aside-area-vm").style.height = "0px";//移除之后调整下布局
+                    }
+                }, 2000);
+                return;
+            }
+            if (liveData.isSystemRedTip) {
+                const interval = setInterval(() => {//移除右侧的聊天布局系统提示
+                    const tempE = document.getElementsByClassName("chat-item  convention-msg border-box")[0];
+                    if (tempE) {
+                        tempE.remove();
+                        clearInterval(interval);
+                        Print.ln("已移除聊天布局的系统提示")
+                    }
+                }, 2000);
+            }
+            if (liveData.isEnterLiveRoomTip) {
+                const interval = setInterval(() => {//移除右侧聊天内容中的用户进入房间提示
+                    try {
+                        document.getElementById("brush-prompt").remove();
+                        clearInterval(interval);
+                        Print.ln("移除右侧聊天内容中的用户进入房间提示")
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+        },
+        delOtherE: function () {
+            const liveData = Rule.liveData;
+            if (liveData.is233Ma) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementById("my-dear-haruna-vm").remove();
+                        clearInterval(interval);
+                        Print.ln("已移除2333娘")
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+            if (liveData.isRightSuspenBotton) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("side-bar-cntr")[0].remove();
+                        Print.ln("已移除右侧悬浮靠边按钮-如实验-关注")
+                        clearInterval(interval);
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+            if (liveData.isLiveRoomWatermark) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("web-player-icon-roomStatus")[0].remove();//移除播放器左上角的哔哩哔哩直播水印
+                        clearInterval(interval);
+                        Print.ln("已移除直播水印")
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+            if (liveData.isShoppingCartTip) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("shop-popover")[0].remove();//是否移除提示购物车
+                        clearInterval(interval);
+                        Print.ln("已移除提示购物车")
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+            if (liveData.isShoppingCart) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("ecommerce-entry gift-left-part")[0].remove();//是否移除购物车
+                        clearInterval(interval);
+                        Print.ln("已移除购物车")
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+            if (liveData.isDelbackground) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("room-bg webp p-fixed")[0].remove(); //移除直播背景图
+                        clearInterval(interval);
+                        Print.ln("已移除直播背景图")
+                    } catch (e) {
+                    }
+                }, 2000);
+            }
+            const interval01 = setInterval(() => {
+                try {
+                    document.getElementsByClassName("web-player-icon-feedback")[0].remove();//移除播放器右上角的问号图标
+                    clearInterval(interval01);
+                } catch (e) {
+                }
+            }, 2000);
+        },
+        delLiveRoom: function () {//过滤直播间列表，该功能目前尚未完善，暂时用着先
+            const list = document.getElementsByClassName("index_3Uym8ODI");
+            for (let v of list) {
+                const title = v.getElementsByClassName("Item_2GEmdhg6")[0].textContent.trim();
+                const type = v.getElementsByClassName("Item_SI0N7ecx")[0].textContent;//分区类型
+                const name = v.getElementsByClassName("Item_QAOnosoB")[0].textContent.trim();
+                const index = v.getElementsByClassName("Item_3Iz_3buh")[0].textContent.trim();//直播间人气
+                if (Rule.liveData.classify.includes(type)) {
+                    v.remove();
+                    Print.ln("已屏蔽直播分类为=" + type + " 的直播间 用户名=" + name + " 房间标题=" + title + " 人气=" + index)
+                    continue;
+                }
+                if (Remove.name(v, name)) {
+                    Print.ln("已通过用户名=" + name + " 屏蔽直播间 直播分类=" + type + " 房间标题=" + title + " 人气=" + index)
+                    continue;
+                }
+                const nameKey = Remove.nameKey(v, name);
+                if (nameKey != null) {
+                    Print.ln("用户名=" + name + " 包含了=屏蔽词=" + nameKey + " 故屏蔽该直播间 分类=" + type + " 房间标题=" + title + " 人气=" + index)
+                    continue;
+                }
+                if (Remove.titleKey(v, title)) {
+                    Print.ln("已通过直播间标题=【" + title + "】屏蔽该房间 用户名=" + name + " 分类=" + type + " 人气=" + index);
+                }
+            }
+        }
+    }
+};
+//动态
+const Trends = {
+    data: {
+        /**
+         * 关注用户直播列表页数
+         */
+        concernPage: 1,
+        /**
+         * 关注用户直播-是否获取完列表item
+         */
+        concernBool: false,
+
+        partition: {},
+        /**
+         * 分区列表页数
+         */
+        getPartitionPage: function (key) {
+            const data = this.partition[key + "Page"];
+            if (data == undefined || data == null) {
+                return 1;
+            }
+            return data;
+        },
+        /**
+         * 分区列表页数
+         */
+        setPartitionPage: function (key, value) {
+            this.partition[key + "Page"] = value;
+        },
+        /**
+         * 分区用户直播-是否获取完列表item
+         */
+        setPartitionBool: function (key, value) {
+            this.partition[key + "Bool"] = value;
+        }, /**
+         * 分区用户直播-是否获取完列表item
+         */
+        getPartitionBool: function (key) {
+            const data = this.partition[key + "Bool"];
+            if (data == undefined || data == null || data === false) {
+                return false;
+            }
+            return true;
+        },
+        partitionPage: 1,
+        partitionBool: false,
+        partitionEndTypeLiveName: ""
+
+    }, topCssDisply: {
+        //针对于整体布局的细调整
+        body: function () {
+            const sessdata = LocalData.getSESSDATA();
+            const interval = setInterval(() => {
+                try {
+                    document.querySelector(".bili-dyn-home--member").style.justifyContent = 'space-between';
+                    document.querySelector(".bili-dyn-my-info").style.display = "none";//移除左侧中的个人基础面板信息
+                    if (sessdata !== null) {
+                        const leftLiveLay = document.querySelector(".left");
+                        if (leftLiveLay.length === 0) {
+                            return;
+                        }
+                        leftLiveLay.style.display = "none";//当用户已经设置了sessdata值时，隐藏右侧的直播列表
+                        document.querySelector("main").style.width = "84%";
+                    } else {
+                        document.querySelector("main").style.width = "70%";
+                    }
+                    Print.ln("已调整动态界面布局");
+                    clearInterval(interval)
+                } catch (e) {
+                }
+            });
+            const interval02 = setInterval(() => {
+                const e = document.querySelectorAll(".bili-dyn-sidebar>*:nth-child(-n+2)");
+                if (e.length === 0) {
+                    return;
+                }
+                clearInterval(interval02);
+                e.forEach((value, key) => {
+                    value.remove();
+                });
+                console.log("已尝试移除个别多余的悬浮按钮");
+            }, 500);
+        },
+        //针对顶部的处理
+        topTar: function () {
+            const trends = Rule.trendsData;
+            if (trends.isTop) {
+                const interval = setInterval(() => {
+                        try {
+                            document.getElementById("bili-header-container").remove();//移除顶部栏
+                            clearInterval(interval);
+                        } catch (e) {
+                        }
+                    }
+                );
+            }
+        },
+        rightLayout: function () {
+            const trendsData = Rule.trendsData;
+            if (trendsData.isRightLayout) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
+                        document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
+                        clearInterval(interval);
+                        Print.ln("已移除右侧布局并调整中间动态容器布局宽度")
+                    } catch (e) {
+                    }
+                }, 1000);
+                return;
+            }
+            if (trendsData.isBiliDynBanner) {
+                const interval = setInterval(() => {
+                    try {
+                        document.getElementsByClassName("bili-dyn-banner")[0].style.display = "none";
+                        Print.ln("已移除公告栏布局")
+                        clearInterval(interval)
+                    } catch (e) {
+                    }
+                });
+            }
+            //移除话题上面的广告
+            const interval01 = setInterval(() => {
+                const bili_dyn_ads = $(".bili-dyn-ads");
+                if (bili_dyn_ads.length === 0) {
+                    return;
+                }
+                clearInterval(interval01);
+                bili_dyn_ads.remove();
+                console.log("已移除话题上面的广告");
+            }, 1000);
+
+
+        }
+    }, layoutCss: {
+        items: function () {//调整动态列表的布局方式为类似网格
+            Util.addStyle(`
+            .bili-dyn-list__items{
+           column-count: 2;
+            }
+            .bili-dyn-list__items>*{
+            page-break-inside: avoid;
+            }
+            `);
+        }
+    },
+    getVideoCommentAreaOrTrendsLandlord: function (v) {//获取动态页面-评论区信息-单个元素信息-楼主
+        return {
+            name: v.querySelector(".user-name").textContent,
+            uid: v.querySelector(".user-name").getAttribute("data-user-id"),
+            content: v.querySelector(".reply-content").parentNode.textContent,
+            info: v.querySelector(".user-info")
+        }
+    },
+    getVideoCommentAreaOrTrendsStorey: function (j) {//获取动态页面-评论区信息-单个元素信息-楼层
+        return {
+            name: j.querySelector(".sub-user-name").textContent,
+            uid: j.querySelector(".sub-user-name").getAttribute("data-user-id"),
+            content: j.querySelector(".reply-content").textContent
+        }
+    },
+    shrieDynamicItems: function (list) {//屏蔽动态页动态项目
+        for (let v of list) {
+            let tempE = v.querySelector(".bili-rich-text");
+            if (tempE === null || tempE.length === 0) {//没有说明是其他的类型动态，如投稿了视频且没有评论显示
+                continue;
+            }
+            const tempContent = tempE.textContent;
+            const contentKey = Shield.arrContent(LocalData.getDynamicArr(), tempContent);
+            if (contentKey == null) {
+                continue;
+            }
+            v.remove();
+            const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
+            Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+            Print.ln(tempInfo);
+        }
+    }
+};
+
+function bilibili(href) {
+    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
+        console.log("进入了首页");
+
+        function ergodicList(list) { //针对频道api中的数据遍历处理并添加进去网页元素
+            for (const v of list) {
+                const av = v["id"];//视频av号
+                const title = v["name"];//标题
+                const cover = v["cover"];//封面
+                const view_count = v["view_count"];//播放量
+                const like_count = v["like_count"];//点赞量
+                const danmaku = v["danmaku"];//弹幕量
+                const duration = v["duration"];//时长【格式化之后的时分秒】
+                const author_name = v["author_name"];//用户名
+                const author_id = v["author_id"];//用户UID
+                const bvid = v["bvid"];//视频bv号
+                if (tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover)) {
+                    Qmsg.info("过滤了视频！！");
+                }
+            }
+        };
+
+        function loadingVideoZE() { //加载频道视频数据
+            const tempChannelId = frequencyChannel.getChannel_id();
+            const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
+            const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
+            const loading = Qmsg.loading("正在加载数据！");
+            HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
+                const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
+                if (body["code"] !== 0) {
+                    alert("未获取到频道视频数据");
+                    loading.close();
+                    return;
+                }
+                const bodyList = body["data"]["list"];
+                $(".container.is-version8").html("");
+                if (tempOffset === "" && tempSortType === "hot") {
+                    ergodicList(bodyList[0]["items"]);
+                    ergodicList(bodyList.slice(1));
+                } else {
+                    ergodicList(bodyList);
+                }
+                frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
+                loading.close();
+            });
+        };
+
+        /**
+         * @param uid uid
+         * @param videoTitle 标题
+         * @param userName 用户名
+         * @param bvid by号
+         * @param duration  视频时长
+         * @param ctimeStr 发布时间
+         * @param view 播放量
+         * @param danmaku 弹幕量
+         * @param pic 封面
+         */
+        function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
+            if (Shield.arrKey(LocalData.getArrUID(), uid)) {
+                Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
+                return true;
+            }
+            const isNameKey = Shield.arrContent(LocalData.getArrNameKey(), userName);
+            if (isNameKey != null) {
+                Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
+                return true;
+            }
+            const isTitleKey = Shield.arrContent(LocalData.getArrTitle(), videoTitle);
+            if (isTitleKey != null) {
+                Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
+                return true;
+            }
+            const isTitleKeyCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
+            if (isTitleKeyCanonical != null) {
+                Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
+                return true;
+            }
+            $(".container.is-version8").append(
+                addElement.homeVideoE.getHtmlStr(
+                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
+                    Util.getNumberFormat(view), Util.getNumberFormat(danmaku))
+            );
+            $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
+                const userInfo = domElement.querySelector(".bili-video-card__info--owner");
+                const userHref = userInfo.href;
+                const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
+                Util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
+            });
+        }
+
+        function loadingVideoE(ps) {//加载分区视频数据
+            const loading = Qmsg.loading("正在加载数据！");
+            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`, function (res) {
+                const bodyJson = JSON.parse(res.responseText);
+                if (bodyJson["code"] !== 0) {
+                    alert("未获取到视频数据！");
+                    loading.close();
+                    return;
+                }
+                const archives = bodyJson["data"]["archives"];
+                $(".container.is-version8").html("");
+                for (const v of archives) {
+                    const picUil = v["pic"];
+                    const videoTitle = v["title"];
+                    let bvid = v["bvid"];
+                    const uid = v["owner"]["mid"];
+                    const name = v["owner"]["name"];
+                    const view = v["stat"]["view"];//播放量
+                    const danmaku = v["stat"]["danmaku"];//弹幕量
+                    const aid = v["stat"]["aid"];//av号
+                    const cid = v["cid"];
+                    const ctime = v["ctime"];//视频审核时间时间戳
+                    const pubdate = v["pubdate"];//视频上传时间时间戳
+                    const ctimeStr = Util.timestampToTime(ctime * 1000);//发布时间
+                    const duration = v["duration"];//视频时长秒，专区-存数字时间
+                    const bvidSub = bvid.substring(0, bvid.indexOf("?"));
+                    bvid = (bvidSub === "" ? bvid : bvidSub);
+                    if (tempFunc(uid, videoTitle, name, bvid, Util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
+                        Qmsg.info("过滤了视频！！");
+                    }
+                }
+                loading.close();
+            });
+        }
+
+        const interval01 = setInterval(() => {
+            const recommended = $(".recommended-container_floor-aside");
+            if (recommended.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            recommended.prepend(`<div style="display: flex; flex-direction: row-reverse">
+<button class="primary-btn roll-btn" id="replaceItBut" style="  height: 38px;position: fixed;    z-index: 100; background-color: #17181A; "><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""><path d="M8.624933333333333 13.666666666666666C8.624933333333333 14.011849999999999 8.345125 14.291666666666666 7.999933333333333 14.291666666666666C4.525166666666666 14.291666666666666 1.7082933333333332 11.474791666666665 1.7082933333333332 8C1.7082933333333332 6.013308333333333 2.629825 4.2414233333333335 4.066321666666667 3.089385C4.335603333333333 2.8734283333333335 4.728959999999999 2.9166533333333335 4.944915 3.1859349999999997C5.160871666666666 3.4552099999999997 5.1176466666666665 3.848573333333333 4.848366666666666 4.0645283333333335C3.694975 4.98953 2.9582933333333328 6.40852 2.9582933333333328 8C2.9582933333333328 10.784416666666667 5.215528333333333 13.041666666666666 7.999933333333333 13.041666666666666C8.345125 13.041666666666666 8.624933333333333 13.321483333333333 8.624933333333333 13.666666666666666zM11.060475 12.810558333333333C10.844225000000002 12.541558333333331 10.887033333333335 12.148125 11.156041666666667 11.931875C12.306858333333333 11.006775 13.041599999999999 9.589424999999999 13.041599999999999 8C13.041599999999999 5.215561666666666 10.784408333333332 2.958333333333333 7.999933333333333 2.958333333333333C7.6548083333333325 2.958333333333333 7.374933333333333 2.6785083333333333 7.374933333333333 2.333333333333333C7.374933333333333 1.9881533333333332 7.6548083333333325 1.7083333333333333 7.999933333333333 1.7083333333333333C11.474725000000001 1.7083333333333333 14.291599999999999 4.525206666666667 14.291599999999999 8C14.291599999999999 9.984108333333333 13.372483333333332 11.753958333333332 11.939225 12.906125C11.670166666666663 13.122375 11.276725 13.079625 11.060475 12.810558333333333z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M1.375 3.4130866666666666C1.375 3.0679066666666666 1.654825 2.7880866666666666 2 2.7880866666666666L4.333333333333333 2.7880866666666666C4.862608333333333 2.7880866666666666 5.291666666666666 3.2171449999999995 5.291666666666666 3.7464199999999996L5.291666666666666 6.079753333333334C5.291666666666666 6.424928333333334 5.011841666666666 6.704736666666666 4.666666666666666 6.704736666666666C4.321491666666667 6.704736666666666 4.041666666666666 6.424928333333334 4.041666666666666 6.079753333333334L4.041666666666666 4.038086666666667L2 4.038086666666667C1.654825 4.038086666666667 1.375 3.7582616666666664 1.375 3.4130866666666666z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M14.625 12.5864C14.625 12.931591666666666 14.345183333333333 13.2114 14 13.2114L11.666666666666666 13.2114C11.137408333333335 13.2114 10.708333333333332 12.782383333333332 10.708333333333332 12.253066666666665L10.708333333333332 9.919733333333333C10.708333333333332 9.574608333333334 10.98815 9.294733333333333 11.333333333333332 9.294733333333333C11.678516666666667 9.294733333333333 11.958333333333332 9.574608333333334 11.958333333333332 9.919733333333333L11.958333333333332 11.9614L14 11.9614C14.345183333333333 11.9614 14.625 12.241275000000002 14.625 12.5864z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path></svg>
+<span>换一换</span></button>
+</div>`);
+            $("#replaceItBut").click(() => {
+                const temp = Home.getPushType();
+                if (Home.videoIndex <= 50 && temp === "分区") {
+                    Home.videoIndex += 10;
+                }
+                if (temp === "分区") {
+                    loadingVideoE(Home.videoIndex);
+                } else {
+                    loadingVideoZE();
+                }
+            });
+        }, 1000);
+
+        const interval02 = setInterval(() => {
+            const homeGrid = $(".container.is-version8");
+            if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            homeGrid.html("");//先清空该标签的内容
+            if (Home.getPushType() === "分区") {
+                loadingVideoE(25);
+            } else {
+                loadingVideoZE();
+            }
+            // //首页
+            Home.stypeBody();
+            document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
+            setTimeout(() => {
+                $(".feed-roll-btn").remove();//移除换一换
+                console.log("移除换一换");
+            }, 1500);
+        }, 100);
+        return;
+    }
+    if (href.includes("www.bilibili.com/v/popular")) {//热门
+        greatDemand.delVideo();
+        try {
+            document.getElementsByClassName("international-footer")[0].remove();
+        } catch (e) {
+            console.log("屏蔽热门底部元素出错！" + e);
+        }
+        return;
+    }
+    if (href.includes("www.bilibili.com/v/")) {//通过URL变动执行屏蔽首页分区视频
+        Home.startShieldMainVideo(".bili-video-card");
+        Home.homePrefecture();
+        return;
+    }
+
+    if (href.includes("space.bilibili.com/[0-9]+/dynamic") !== -1) {
+        const interval01 = setInterval(() => {
+            const tempE = $(".bili-dyn-list__items");
+            if (tempE.length === 0) {
+                return;
+            }
+            const list = tempE.children();
+            if (list.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            Trends.shrieDynamicItems(list);
+            if (Util.isEventJq(tempE, "DOMNodeInserted")) {
+                clearInterval(interval01);
+                return;
+            }
+            tempE.bind("DOMNodeInserted", () => {
+                Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
+            });
+        }, 1000);
+    }
+}
+
+/**
+ *
+ * 首次加载时只会加载一次
+ * @param {string}href
+ * @param {string}windowsTitle
+ */
+function bilibiliOne(href, windowsTitle) {
+    const interval01 = setInterval(() => {
+        const nav_search_input = $(".nav-search-input,.search-input-el");
+        if (nav_search_input.length === 0) {
+            return;
+        }
+        clearInterval(interval01);
+        nav_search_input.click(() => {
+            console.log("点击了");
+            const interval01 = setInterval(() => {
+                const list = document.querySelectorAll(".trendings-double .trending-item");
+                if (list.length === 0) {
+                    return;
+                }
+                clearInterval(interval01);
+                list.forEach((value, key, parent) => {
+                    const content = value.querySelector(".trending-text").textContent;
+                    const titleKey = Remove.titleKey(value, content);
+                    if (titleKey !== null) {
+                        const info = `已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`;
+                        Qmsg.info(info);
+                        Print.ln(info);
+                        return;
+                    }
+                    const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
+                    if (titleKeyCanonical !== null) {
+                        const info = `已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`;
+                        Qmsg.info(info);
+                        Print.ln(info);
+                        return;
+                    }
+                    const contentKey = Remove.contentKey(value, content);
+                    if (contentKey !== null) {
+                        const info = `已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`;
+                        Qmsg.info(info);
+                        Print.ln(info);
+                    }
+                });
+                // nav_search_input.unbind();//删除该元素的所有jq添加的事件
+            }, 50);
+        });
+    }, 1000);
+    if (LocalData.getPrivacyMode()) {
+        const interval02 = setInterval(() => {
+            const tempE01 = document.querySelector(".right-entry") || document.querySelector(".nav-user-center");
+            if (tempE01 === null) {
+                return;
+            }
+            tempE01.style.visibility = "hidden";//隐藏元素继续占位
+        }, 1100);
+    }
+
+    function tempFunc(css) {
+        let tempIndex = 0;
+        const interval = setInterval(() => {
+            const leftEntryItems = document.querySelectorAll(css);
+            if (leftEntryItems.length === 0) {
+                return;
+            }
+            leftEntryItems.forEach((value) => {
+                const title = value.textContent;
+                switch (title) {
+                    case "首页":
+                    case "直播":
+                    case "番剧":
+                    case "主站":
+                        break;
+                    default:
+                        value.remove();
+                }
+            });
+            if (++tempIndex >= 10) {
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+
+    if (href.includes("www.bilibili.com/v/channel")) {
+        tempFunc(".nav-link-ul");
+    } else {
+        tempFunc(".left-entry>*");
+    }
+    if (href.includes("space.bilibili.com/")) {//个人主页
+        const hrefUID = Util.getSubUid(href.split("/")[3]);
+        if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
+            setTimeout(() => {
+                alert("当前用户时是黑名单！UID=" + hrefUID)
+            }, 4500);
+            return;
+        }
+        const temp = layout.getFilter_queue();
+        $("body").append(temp);
+        temp.click(() => {
+            butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
+        });
+        return;
+    }
+    if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
+        subjectOfATalk.deltopIC();
+        return;
+    }
+    if (href.includes("www.bilibili.com/video")) {
+        $("#getVideoDanMueBut").css("display", "inline");
+        $("#getVideoCommentArea").css("display", "inline");
+        return;
+    }
+    if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
+        console.log("进入直播首页了");
+        const interval01 = setInterval(() => {
+            const videoElement = document.getElementsByTagName("video")[0];
+            if (videoElement) {
+                videoElement.pause();//暂停视频
+                //删除直播首页顶部无用直播间（包括占用大屏幕的，还其右侧的直播间列表）
+                const bigPlayerClass = document.getElementsByClassName("player-area-ctnr border-box p-relative t-center")[0];
+                if (bigPlayerClass) {
+                    bigPlayerClass.remove();
+                    clearInterval(interval01);
+                }
+            }
+            const interval02 = setInterval(() => {
+                const classNameElement = document.getElementsByClassName("link-footer-ctnr")[0];
+                if (classNameElement) {
+                    classNameElement.remove();
+                    Print.ln("已移除页脚信息")
+                    clearInterval(interval02);
+                }
+            }, 2000);
+            if (Rule.liveData.rightSuspendButton) {
+                const interval = setInterval(() => {
+                    const classNameElement = document.getElementsByClassName("live-sidebar-ctnr a-move-in-left ts-dot-4")[0];
+                    if (classNameElement) {
+                        clearInterval(interval);
+                        classNameElement.remove();
+                        Print.ln("已移除直播首页右侧的悬浮按钮");
+                    }
+                }, 2000);
+            }
+
+        }, 800);
+        return;
+    }
+    if (href.includes("//live.bilibili.com/") && windowsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
+        console.log("当前界面疑似是直播间");
+        $("#getLiveHighEnergyListBut").css("display", "inline");//显示获取高能用户列表按钮
+        $("#getLiveDisplayableBarrageListBut").css("display", "inline");//显示获取当前可显示的弹幕列表
+        Live.liveDel.topElement();
+        Live.liveDel.hreadElement();
+        Live.liveDel.bottomElement();
+        Live.liveDel.delGiftBar();
+        Live.liveDel.delRightChatLayout();
+        Live.liveDel.delOtherE();
+        const interval01 = setInterval(() => {
+            const chat_items = $("#chat-items");
+            if (chat_items.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+
+            chat_items.bind("DOMNodeInserted", () => {
+                const list = $("#chat-items").children();
+                if (list.length === 0) {
+                    return;
+                }
+                if (list.length >= 100) {
+                    for (let i = 0; i < 50; i++) {
+                        list[i].remove();
+                    }
+                    Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
+                    return;
+                }
+                Live.shield(list);
+            });
+            console.log("定义了监听器!");
+        }, 1000);
+        return;
+    }
+
+
+    if (href.includes("t.bilibili.com") && windowsTitle === "动态首页-哔哩哔哩") {
+        console.log("动态页面")
+        const interval01 = setInterval(() => {
+            const login = $(".bili-dyn-login-register");
+            if (login.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            login.remove();
+            console.log("已移除动态页面中的提示登录");
+        }, 1000);
+        //.bili-dyn-ads
+        Trends.topCssDisply.body();
+        Trends.topCssDisply.topTar();
+        Trends.topCssDisply.rightLayout();
+
+        // trends.layoutCss.items();
+
+        function followListLive() {
+            const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
+            HttpUtil.getUsersFollowTheLiveList(sessdata, Trends.data.concernPage++, (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    const info = "获取当前用户正在直播的用户错误！" + message;
+                    Qmsg.error(info);
+                    console.log(info);
+                    return;
+                }
+                /**
+                 *
+                 * @type {Array}
+                 */
+                const list = body["data"]["list"];
+                if (list === undefined || list === null || list.length === 0) {
+                    const info = "未获取到当前用户关注的直播用户列表信息";
+                    Qmsg.info(info);
+                    console.log(info);
+                    return;
+                }
+                for (let v of list) {
+                    /**
+                     *直播状态
+                     * 0：未开播
+                     * 1：直播中
+                     * 2：轮播中
+                     */
+                    const live_status = v["live_status"];
+                    if (live_status === 0) {
+                        Trends.data.concernBool = true;
+                        break;
+                    }
+                    if (live_status !== 1) {
+                        continue;
+                    }
+                    const roomid = v["roomid"];
+                    const uid = v["uid"];
+                    const uname = v["uname"];
+                    const title = v["title"];
+                    const face = v["face"];
+                    const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
+                    tempE.append(liveItem);
+                }
+                const tempIndex = tempE.children().length;
+                if (tempIndex === 0) {
+                    Qmsg.info("未获取到关注中正在直播的用户");
+                    return;
+                }
+                if (!Trends.data.concernBool) {
+                    followListLive();
+                    return;
+                }
+                $("#liveLayout .bili-dyn-live-users__title>span:eq(0)").text(`${tempIndex}`);
+                Qmsg.success(`已获取到${tempIndex}个直播间`);
+            }, (err) => {
+                Qmsg.error("出现错误");
+                Qmsg.error(err);
+            });
+        }
+
+        const liveLayout = $("#liveLayout");
+        liveLayout.append(HtmlStr.getLiveList("关注列表在中正在直播的用户-"));
+        liveLayout.append(`<hr>`);
+        const okBut = $(`<button>确定</button>`);
+        const openBut = $(`<button>打开页面</button>`);
+        const findBut = $(`<button>查询</button>`);
+        const select_parent_name = $(`<select></select>`);
+        const select_name = $(`<select></select>`);
+        const jsonArr = JSON.parse(`{"手游":[{"parent_name":"手游","parent_id":3,"name":"全部","id":0},{"parent_name":"手游","parent_id":3,"name":"原神","id":321},{"parent_name":"手游","parent_id":3,"name":"欢乐斗地主","id":719},{"parent_name":"手游","parent_id":3,"name":"DNF手游","id":343},{"parent_name":"手游","parent_id":3,"name":"新游评测","id":274},{"parent_name":"手游","parent_id":3,"name":"黎明觉醒：生机","id":479},{"parent_name":"手游","parent_id":3,"name":"宝可梦大集结","id":493},{"parent_name":"手游","parent_id":3,"name":"幻塔","id":550},{"parent_name":"手游","parent_id":3,"name":"三国志战棋版","id":756},{"parent_name":"手游","parent_id":3,"name":"明日之后","id":189},{"parent_name":"手游","parent_id":3,"name":"百闻牌","id":286},{"parent_name":"手游","parent_id":3,"name":"阴阳师","id":36},{"parent_name":"手游","parent_id":3,"name":"第五人格","id":163},{"parent_name":"手游","parent_id":3,"name":"战双帕弥什","id":293},{"parent_name":"手游","parent_id":3,"name":"FIFA足球世界","id":641},{"parent_name":"手游","parent_id":3,"name":"跃迁旅人","id":717},{"parent_name":"手游","parent_id":3,"name":"空之要塞：启航","id":718},{"parent_name":"手游","parent_id":3,"name":"火影忍者手游","id":292},{"parent_name":"手游","parent_id":3,"name":"Fate/GO","id":37},{"parent_name":"手游","parent_id":3,"name":"CF手游","id":333},{"parent_name":"手游","parent_id":3,"name":"游戏王","id":303},{"parent_name":"手游","parent_id":3,"name":"重返未来：1999 ","id":761},{"parent_name":"手游","parent_id":3,"name":"哈利波特：魔法觉醒 ","id":474},{"parent_name":"手游","parent_id":3,"name":"玛娜希斯回响","id":644},{"parent_name":"手游","parent_id":3,"name":" 东方归言录","id":538},{"parent_name":"手游","parent_id":3,"name":"无期迷途","id":675},{"parent_name":"手游","parent_id":3,"name":"光遇","id":687},{"parent_name":"手游","parent_id":3,"name":"少女前线：云图计划","id":525},{"parent_name":"手游","parent_id":3,"name":"黑色沙漠手游","id":615},{"parent_name":"手游","parent_id":3,"name":"雀姬","id":214},{"parent_name":"手游","parent_id":3,"name":"时空猎人3","id":643},{"parent_name":"手游","parent_id":3,"name":"明日方舟","id":255},{"parent_name":"手游","parent_id":3,"name":"猫咪公寓2","id":736},{"parent_name":"手游","parent_id":3,"name":"QQ飞车手游","id":154},{"parent_name":"手游","parent_id":3,"name":"古魂","id":759},{"parent_name":"手游","parent_id":3,"name":"航海王热血航线","id":504},{"parent_name":"手游","parent_id":3,"name":"和平精英","id":256},{"parent_name":"手游","parent_id":3,"name":"暗黑破坏神：不朽","id":492},{"parent_name":"手游","parent_id":3,"name":"蛋仔派对","id":571},{"parent_name":"手游","parent_id":3,"name":"JJ斗地主","id":724},{"parent_name":"手游","parent_id":3,"name":"香肠派对","id":689},{"parent_name":"手游","parent_id":3,"name":"跑跑卡丁车手游","id":265},{"parent_name":"手游","parent_id":3,"name":"梦幻模拟战","id":178},{"parent_name":"手游","parent_id":3,"name":"APEX手游","id":506},{"parent_name":"手游","parent_id":3,"name":"综合棋牌","id":354},{"parent_name":"手游","parent_id":3,"name":"以闪亮之名","id":755},{"parent_name":"手游","parent_id":3,"name":"恋爱养成游戏","id":576},{"parent_name":"手游","parent_id":3,"name":"漫威超级战争","id":478},{"parent_name":"手游","parent_id":3,"name":"暗区突围","id":502},{"parent_name":"手游","parent_id":3,"name":"狼人杀","id":41},{"parent_name":"手游","parent_id":3,"name":"盾之勇者成名录：浪潮","id":704},{"parent_name":"手游","parent_id":3,"name":"荒野乱斗","id":469},{"parent_name":"手游","parent_id":3,"name":"猫和老鼠手游","id":269},{"parent_name":"手游","parent_id":3,"name":"LOL手游","id":395},{"parent_name":"手游","parent_id":3,"name":"战火勋章","id":765},{"parent_name":"手游","parent_id":3,"name":"深空之眼","id":598},{"parent_name":"手游","parent_id":3,"name":"碧蓝航线","id":113},{"parent_name":"手游","parent_id":3,"name":"坎公骑冠剑","id":442},{"parent_name":"手游","parent_id":3,"name":"摩尔庄园手游","id":464},{"parent_name":"手游","parent_id":3,"name":"非人学园","id":212},{"parent_name":"手游","parent_id":3,"name":"崩坏3","id":40},{"parent_name":"手游","parent_id":3,"name":"天地劫：幽城再临","id":448},{"parent_name":"手游","parent_id":3,"name":"弹弹堂","id":734},{"parent_name":"手游","parent_id":3,"name":"300大作战","id":688},{"parent_name":"手游","parent_id":3,"name":"解密游戏","id":42},{"parent_name":"手游","parent_id":3,"name":"使命召唤手游","id":386},{"parent_name":"手游","parent_id":3,"name":"猫之城","id":645},{"parent_name":"手游","parent_id":3,"name":"长安幻想","id":738},{"parent_name":"手游","parent_id":3,"name":"少女前线","id":39},{"parent_name":"手游","parent_id":3,"name":"游戏王：决斗链接","id":407},{"parent_name":"手游","parent_id":3,"name":"梦幻西游手游","id":342},{"parent_name":"手游","parent_id":3,"name":"其他手游","id":98},{"parent_name":"手游","parent_id":3,"name":"决战！平安京","id":140},{"parent_name":"手游","parent_id":3,"name":"三国杀移动版","id":352},{"parent_name":"手游","parent_id":3,"name":"影之诗","id":156},{"parent_name":"手游","parent_id":3,"name":"公主连结Re:Dive","id":330},{"parent_name":"手游","parent_id":3,"name":"王者荣耀","id":35},{"parent_name":"手游","parent_id":3,"name":"忍者必须死3","id":203},{"parent_name":"手游","parent_id":3,"name":"BanG Dream","id":258},{"parent_name":"手游","parent_id":3,"name":"休闲小游戏","id":679},{"parent_name":"手游","parent_id":3,"name":"金铲铲之战","id":514},{"parent_name":"手游","parent_id":3,"name":"环形战争","id":725},{"parent_name":"手游","parent_id":3,"name":"天涯明月刀手游","id":389},{"parent_name":"手游","parent_id":3,"name":"漫威对决","id":511},{"parent_name":"手游","parent_id":3,"name":"奥比岛手游","id":661},{"parent_name":"手游","parent_id":3,"name":"奇点时代","id":762},{"parent_name":"手游","parent_id":3,"name":"部落冲突:皇室战争","id":50},{"parent_name":"手游","parent_id":3,"name":"重返帝国","id":613},{"parent_name":"手游","parent_id":3,"name":"小动物之星","id":473}],"赛事":[{"parent_name":"赛事","parent_id":13,"name":"全部","id":0},{"parent_name":"赛事","parent_id":13,"name":"体育赛事","id":562},{"parent_name":"赛事","parent_id":13,"name":"游戏赛事","id":561},{"parent_name":"赛事","parent_id":13,"name":"赛事综合","id":563}],"生活":[{"parent_name":"生活","parent_id":10,"name":"全部","id":0},{"parent_name":"生活","parent_id":10,"name":"手工绘画","id":627},{"parent_name":"生活","parent_id":10,"name":"时尚","id":378},{"parent_name":"生活","parent_id":10,"name":"影音馆","id":33},{"parent_name":"生活","parent_id":10,"name":"生活分享","id":646},{"parent_name":"生活","parent_id":10,"name":"萌宠","id":369},{"parent_name":"生活","parent_id":10,"name":"美食","id":367},{"parent_name":"生活","parent_id":10,"name":"搞笑","id":624},{"parent_name":"生活","parent_id":10,"name":"运动","id":628}],"娱乐":[{"parent_name":"娱乐","parent_id":1,"name":"全部","id":0},{"parent_name":"娱乐","parent_id":1,"name":"视频唱见","id":21},{"parent_name":"娱乐","parent_id":1,"name":"户外","id":123},{"parent_name":"娱乐","parent_id":1,"name":"萌宅领域","id":530},{"parent_name":"娱乐","parent_id":1,"name":"情感","id":706},{"parent_name":"娱乐","parent_id":1,"name":"视频聊天","id":145},{"parent_name":"娱乐","parent_id":1,"name":"日常","id":399},{"parent_name":"娱乐","parent_id":1,"name":"聊天室","id":740},{"parent_name":"娱乐","parent_id":1,"name":"舞见","id":207}],"电台":[{"parent_name":"电台","parent_id":5,"name":"全部","id":0},{"parent_name":"电台","parent_id":5,"name":"配音","id":193},{"parent_name":"电台","parent_id":5,"name":"唱见电台","id":190},{"parent_name":"电台","parent_id":5,"name":"聊天电台","id":192}],"网游":[{"parent_name":"网游","parent_id":2,"name":"全部","id":0},{"parent_name":"网游","parent_id":2,"name":"诛仙世界","id":654},{"parent_name":"网游","parent_id":2,"name":"街头篮球","id":649},{"parent_name":"网游","parent_id":2,"name":"洛克王国","id":669},{"parent_name":"网游","parent_id":2,"name":"剑灵","id":505},{"parent_name":"网游","parent_id":2,"name":"堡垒之夜","id":164},{"parent_name":"网游","parent_id":2,"name":"枪神纪","id":251},{"parent_name":"网游","parent_id":2,"name":"逃离塔科夫","id":252},{"parent_name":"网游","parent_id":2,"name":"吃鸡行动","id":80},{"parent_name":"网游","parent_id":2,"name":"坦克世界","id":115},{"parent_name":"网游","parent_id":2,"name":"VRChat","id":656},{"parent_name":"网游","parent_id":2,"name":"新游前瞻","id":298},{"parent_name":"网游","parent_id":2,"name":"星际战甲","id":249},{"parent_name":"网游","parent_id":2,"name":"战争雷霆","id":316},{"parent_name":"网游","parent_id":2,"name":"英雄联盟","id":86},{"parent_name":"网游","parent_id":2,"name":"超击突破","id":680},{"parent_name":"网游","parent_id":2,"name":"其他网游","id":107},{"parent_name":"网游","parent_id":2,"name":"创世战车","id":705},{"parent_name":"网游","parent_id":2,"name":"最终幻想14","id":102},{"parent_name":"网游","parent_id":2,"name":"跑跑卡丁车","id":664},{"parent_name":"网游","parent_id":2,"name":"梦三国","id":710},{"parent_name":"网游","parent_id":2,"name":"古剑奇谭OL","id":173},{"parent_name":"网游","parent_id":2,"name":"永恒轮回","id":459},{"parent_name":"网游","parent_id":2,"name":"激战2","id":607},{"parent_name":"网游","parent_id":2,"name":"奇迹MU","id":683},{"parent_name":"网游","parent_id":2,"name":"怀旧网游","id":288},{"parent_name":"网游","parent_id":2,"name":"APEX英雄","id":240},{"parent_name":"网游","parent_id":2,"name":"FIFA ONLINE 4","id":388},{"parent_name":"网游","parent_id":2,"name":"使命召唤:战区","id":318},{"parent_name":"网游","parent_id":2,"name":"反恐精英Online","id":629},{"parent_name":"网游","parent_id":2,"name":"阿尔比恩","id":639},{"parent_name":"网游","parent_id":2,"name":"星际争霸2","id":93},{"parent_name":"网游","parent_id":2,"name":"星际公民","id":658},{"parent_name":"网游","parent_id":2,"name":"CS:GO","id":89},{"parent_name":"网游","parent_id":2,"name":"天涯明月刀","id":596},{"parent_name":"网游","parent_id":2,"name":"炉石传说","id":91},{"parent_name":"网游","parent_id":2,"name":"生死狙击2","id":575},{"parent_name":"网游","parent_id":2,"name":"彩虹岛","id":686},{"parent_name":"网游","parent_id":2,"name":"武装突袭","id":634},{"parent_name":"网游","parent_id":2,"name":"魔兽争霸3","id":181},{"parent_name":"网游","parent_id":2,"name":"问道","id":670},{"parent_name":"网游","parent_id":2,"name":"剑网3","id":82},{"parent_name":"网游","parent_id":2,"name":"造梦西游","id":668},{"parent_name":"网游","parent_id":2,"name":"NBA2KOL2","id":581},{"parent_name":"网游","parent_id":2,"name":"星战前夜：晨曦","id":331},{"parent_name":"网游","parent_id":2,"name":"英魂之刃","id":690},{"parent_name":"网游","parent_id":2,"name":"永恒之塔","id":684},{"parent_name":"网游","parent_id":2,"name":"艾尔之光","id":651},{"parent_name":"网游","parent_id":2,"name":"大话西游","id":652},{"parent_name":"网游","parent_id":2,"name":"洛奇","id":663},{"parent_name":"网游","parent_id":2,"name":"风暴英雄","id":114},{"parent_name":"网游","parent_id":2,"name":"新天龙八部","id":653},{"parent_name":"网游","parent_id":2,"name":"骑士精神2","id":650},{"parent_name":"网游","parent_id":2,"name":"赛尔号","id":667},{"parent_name":"网游","parent_id":2,"name":"300英雄","id":84},{"parent_name":"网游","parent_id":2,"name":"封印者","id":300},{"parent_name":"网游","parent_id":2,"name":"新世界","id":544},{"parent_name":"网游","parent_id":2,"name":"战争与抉择","id":729},{"parent_name":"网游","parent_id":2,"name":"人间地狱","id":677},{"parent_name":"网游","parent_id":2,"name":"剑网3缘起","id":499},{"parent_name":"网游","parent_id":2,"name":"魔兽世界","id":83},{"parent_name":"网游","parent_id":2,"name":"泡泡堂","id":737},{"parent_name":"网游","parent_id":2,"name":"战舰世界","id":248},{"parent_name":"网游","parent_id":2,"name":"Squad战术小队","id":659},{"parent_name":"网游","parent_id":2,"name":"逆战","id":487},{"parent_name":"网游","parent_id":2,"name":"QQ飞车","id":610},{"parent_name":"网游","parent_id":2,"name":"穿越火线","id":88},{"parent_name":"网游","parent_id":2,"name":"洛奇英雄传","id":599},{"parent_name":"网游","parent_id":2,"name":"超激斗梦境","id":519},{"parent_name":"网游","parent_id":2,"name":"龙之谷","id":112},{"parent_name":"网游","parent_id":2,"name":"无畏契约","id":329},{"parent_name":"网游","parent_id":2,"name":"传奇","id":695},{"parent_name":"网游","parent_id":2,"name":"冒险岛","id":574},{"parent_name":"网游","parent_id":2,"name":"猎杀对决","id":600},{"parent_name":"网游","parent_id":2,"name":"流放之路","id":551},{"parent_name":"网游","parent_id":2,"name":"命运方舟","id":590},{"parent_name":"网游","parent_id":2,"name":"综合射击","id":601},{"parent_name":"网游","parent_id":2,"name":"黑色沙漠","id":632},{"parent_name":"网游","parent_id":2,"name":"刀塔自走棋","id":239},{"parent_name":"网游","parent_id":2,"name":"DNF","id":78},{"parent_name":"网游","parent_id":2,"name":"战意","id":383},{"parent_name":"网游","parent_id":2,"name":"守望先锋","id":87},{"parent_name":"网游","parent_id":2,"name":"DOTA2","id":92},{"parent_name":"网游","parent_id":2,"name":"FPS沙盒","id":633},{"parent_name":"网游","parent_id":2,"name":"风暴奇侠","id":648},{"parent_name":"网游","parent_id":2,"name":"幻想全明星","id":176},{"parent_name":"网游","parent_id":2,"name":"铁甲雄兵","id":691},{"parent_name":"网游","parent_id":2,"name":"三国杀","id":81},{"parent_name":"网游","parent_id":2,"name":"永劫无间","id":666},{"parent_name":"网游","parent_id":2,"name":"CFHD ","id":472},{"parent_name":"网游","parent_id":2,"name":"QQ三国","id":685},{"parent_name":"网游","parent_id":2,"name":"装甲战争","id":642}],"虚拟主播":[{"parent_name":"虚拟主播","parent_id":9,"name":"全部","id":0},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟Singer","id":744},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟Gamer","id":745},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟声优","id":746},{"parent_name":"虚拟主播","parent_id":9,"name":"TopStar","id":743},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟日常","id":371}],"单机游戏":[{"parent_name":"单机游戏","parent_id":6,"name":"全部","id":0},{"parent_name":"单机游戏","parent_id":6,"name":"原子之心","id":750},{"parent_name":"单机游戏","parent_id":6,"name":"以撒","id":219},{"parent_name":"单机游戏","parent_id":6,"name":"荒野大镖客2","id":226},{"parent_name":"单机游戏","parent_id":6,"name":"双人成行","id":446},{"parent_name":"单机游戏","parent_id":6,"name":"刺客信条","id":227},{"parent_name":"单机游戏","parent_id":6,"name":"霍格沃茨之遗","id":747},{"parent_name":"单机游戏","parent_id":6,"name":"狂野之心","id":748},{"parent_name":"单机游戏","parent_id":6,"name":"独立游戏","id":283},{"parent_name":"单机游戏","parent_id":6,"name":"怀旧游戏","id":237},{"parent_name":"单机游戏","parent_id":6,"name":"格斗游戏","id":433},{"parent_name":"单机游戏","parent_id":6,"name":"胡闹厨房","id":507},{"parent_name":"单机游戏","parent_id":6,"name":"怪物猎人","id":578},{"parent_name":"单机游戏","parent_id":6,"name":"重生细胞","id":426},{"parent_name":"单机游戏","parent_id":6,"name":"盗贼之海","id":341},{"parent_name":"单机游戏","parent_id":6,"name":"暖雪","id":582},{"parent_name":"单机游戏","parent_id":6,"name":"NBA2K","id":362},{"parent_name":"单机游戏","parent_id":6,"name":"消逝的光芒2","id":586},{"parent_name":"单机游戏","parent_id":6,"name":"恋爱模拟游戏","id":592},{"parent_name":"单机游戏","parent_id":6,"name":"饥荒","id":218},{"parent_name":"单机游戏","parent_id":6,"name":"策略游戏","id":570},{"parent_name":"单机游戏","parent_id":6,"name":"卧龙：苍天陨落","id":700},{"parent_name":"单机游戏","parent_id":6,"name":"全面坦克战略官","id":758},{"parent_name":"单机游戏","parent_id":6,"name":"弹幕互动玩法","id":460},{"parent_name":"单机游戏","parent_id":6,"name":"暗黑破坏神","id":535},{"parent_name":"单机游戏","parent_id":6,"name":"全境封锁2","id":243},{"parent_name":"单机游戏","parent_id":6,"name":"禁闭求生","id":707},{"parent_name":"单机游戏","parent_id":6,"name":"帝国时代4","id":548},{"parent_name":"单机游戏","parent_id":6,"name":"边境","id":763},{"parent_name":"单机游戏","parent_id":6,"name":"战神","id":579},{"parent_name":"单机游戏","parent_id":6,"name":"全面战争：战锤3","id":594},{"parent_name":"单机游戏","parent_id":6,"name":"无主之地3","id":273},{"parent_name":"单机游戏","parent_id":6,"name":"辐射76","id":220},{"parent_name":"单机游戏","parent_id":6,"name":"红色警戒2","id":693},{"parent_name":"单机游戏","parent_id":6,"name":"不羁联盟","id":764},{"parent_name":"单机游戏","parent_id":6,"name":"糖豆人","id":357},{"parent_name":"单机游戏","parent_id":6,"name":"霓虹序列","id":766},{"parent_name":"单机游戏","parent_id":6,"name":"战锤40K:暗潮","id":723},{"parent_name":"单机游戏","parent_id":6,"name":"Dread Hunger","id":591},{"parent_name":"单机游戏","parent_id":6,"name":"森林之子","id":751},{"parent_name":"单机游戏","parent_id":6,"name":"聚会游戏","id":636},{"parent_name":"单机游戏","parent_id":6,"name":"生化危机","id":721},{"parent_name":"单机游戏","parent_id":6,"name":"方舟","id":295},{"parent_name":"单机游戏","parent_id":6,"name":"艾尔登法环","id":555},{"parent_name":"单机游戏","parent_id":6,"name":"歧路旅人2","id":752},{"parent_name":"单机游戏","parent_id":6,"name":"Roblox","id":753},{"parent_name":"单机游戏","parent_id":6,"name":"只狼","id":245},{"parent_name":"单机游戏","parent_id":6,"name":"风帆纪元","id":739},{"parent_name":"单机游戏","parent_id":6,"name":"其他单机","id":235},{"parent_name":"单机游戏","parent_id":6,"name":"游戏速通","id":678},{"parent_name":"单机游戏","parent_id":6,"name":"恐怖游戏","id":276},{"parent_name":"单机游戏","parent_id":6,"name":"恐鬼症","id":387},{"parent_name":"单机游戏","parent_id":6,"name":"使命召唤19","id":282},{"parent_name":"单机游戏","parent_id":6,"name":"我的世界","id":216},{"parent_name":"单机游戏","parent_id":6,"name":"仁王2","id":313},{"parent_name":"单机游戏","parent_id":6,"name":"THE FINALS","id":754},{"parent_name":"单机游戏","parent_id":6,"name":"FORZA 极限竞速","id":302},{"parent_name":"单机游戏","parent_id":6,"name":"全面战争","id":257},{"parent_name":"单机游戏","parent_id":6,"name":"塞尔达传说","id":308},{"parent_name":"单机游戏","parent_id":6,"name":"鬼泣5","id":244},{"parent_name":"单机游戏","parent_id":6,"name":"法外枭雄:滚石城","id":757},{"parent_name":"单机游戏","parent_id":6,"name":"SIFU","id":587},{"parent_name":"单机游戏","parent_id":6,"name":"FIFA23","id":708},{"parent_name":"单机游戏","parent_id":6,"name":"命运2","id":277},{"parent_name":"单机游戏","parent_id":6,"name":"精灵宝可梦","id":228},{"parent_name":"单机游戏","parent_id":6,"name":"文字游戏","id":583},{"parent_name":"单机游戏","parent_id":6,"name":"主机游戏","id":236},{"parent_name":"单机游戏","parent_id":6,"name":"植物大战僵尸","id":309},{"parent_name":"单机游戏","parent_id":6,"name":"人类一败涂地","id":270},{"parent_name":"单机游戏","parent_id":6,"name":"战地风云","id":597},{"parent_name":"单机游戏","parent_id":6,"name":"骑马与砍杀","id":326},{"parent_name":"单机游戏","parent_id":6,"name":"泰拉瑞亚","id":593},{"parent_name":"单机游戏","parent_id":6,"name":"体育游戏","id":500},{"parent_name":"单机游戏","parent_id":6,"name":"宝可梦集换式卡牌游戏","id":720},{"parent_name":"单机游戏","parent_id":6,"name":"斯普拉遁3","id":694},{"parent_name":"单机游戏","parent_id":6,"name":"枪火重生","id":364}],"知识":[{"parent_name":"知识","parent_id":11,"name":"全部","id":0},{"parent_name":"知识","parent_id":11,"name":"科学科普","id":701},{"parent_name":"知识","parent_id":11,"name":"社科法律心理","id":376},{"parent_name":"知识","parent_id":11,"name":"职场·技能","id":377},{"parent_name":"知识","parent_id":11,"name":"科技","id":375},{"parent_name":"知识","parent_id":11,"name":"人文历史","id":702},{"parent_name":"知识","parent_id":11,"name":"校园学习","id":372}]}`);
+        const parent_nameArr = Object.keys(jsonArr);
+        for (let v of jsonArr["手游"]) {
+            const id = v["id"];
+            const name = v["name"];
+            select_name.append(`<option value="${id}">${name}</option>`);
+        }
+        const map = new Map();
+        for (let v of parent_nameArr) {
+            const id = jsonArr[v][0]["parent_id"];
+            const name = jsonArr[v][0]["parent_name"];
+            map.set(id, name);
+        }
+
+        map.forEach((value, key, map) => {
+            select_parent_name.append($(`<option value=${key}>${value}</option>`));
+        });
+
+        /**
+         * @param {number|string}key 父级分区id
+         */
+        function flushedSelectFun(key) {
+            const tempVar = map.get(parseInt(key));
+            select_name.children().remove();
+            for (let v of jsonArr[tempVar]) {
+                const id = v["id"];
+                const name = v["name"];
+                select_name.append(`<option value="${id}">${name}</option>`);
+            }
+        }
+
+        select_parent_name.change(() => {
+            flushedSelectFun(select_parent_name.val());
+        });
+        okBut.click(() => {
+            const select_parent_ID = select_parent_name.val();
+            const select_name_ID = select_name.val();
+            const select_nameText = select_name.find("option:selected").text();
+            const loading = Qmsg.loading(`正在获取${select_nameText}分区直播列表信息`);
+            const liveListChildren = liveList.children(".bili-dyn-live-users__body").children();
+            if (liveListChildren.length !== 0) {
+                liveListChildren.remove();
+            }
+            tempFunc(select_parent_ID, select_name_ID, loading);
+        });
+        findBut.click(() => {
+            const content = prompt("请输入你要查询的子分区");
+            if (content == null) {
+                return;
+            }
+            if (content === "") {
+                Qmsg.error("请正确输入你的内容");
+                return;
+            }
+            for (let v of parent_nameArr) {
+                for (let j of jsonArr[v]) {
+                    const parent_name = j["parent_name"];
+                    const parent_id = j["parent_id"];
+                    const name = j["name"];
+                    const id = j["id"];
+                    if (!name.includes(content)) {
+                        continue;
+                    }
+                    select_parent_name.val(parent_id);
+                    flushedSelectFun(parent_id);
+                    select_name.val(id);
+                    Qmsg.success(`已找到${parent_name}的${name}`);
+                    console.log(parent_name, parent_id, name, id)
+                    return;
+                }
+            }
+            Qmsg.error(`未找到${content}分区的信息`);
+        });
+        openBut.click(() => {
+            const select_parent_ID = select_parent_name.val();
+            const select_name_ID = select_name.val();
+            Util.openWindow(`https://live.bilibili.com/p/eden/area-tags?areaId=${select_name_ID}&parentAreaId=${select_parent_ID}`);
+        });
+
+        liveLayout.append(select_parent_name);
+        liveLayout.append(select_name);
+        liveLayout.append(okBut);
+        liveLayout.append(findBut);
+        liveLayout.append(openBut);
+        const liveList = HtmlStr.getLiveList("直播分区-");
+        liveLayout.append(liveList);
+        const flushBut = $(`<div style="display: flex;justify-content: center;">
+<div style="display: none">
+<button>加载更多</button>
+</div>
+</div>`);
+        liveLayout.append(flushBut);
+        liveLayout.append(`<hr>`);
+        const sessdata = LocalData.getSESSDATA();
+        if (sessdata !== null) {
+            Qmsg.success("用户配置了sessdata");
+            followListLive();
+        }
+
+        flushBut.click(() => {
+            const select_parent_ID = select_parent_name.val();
+            const select_name_ID = select_name.val();
+            const select_nameText = select_name.find("option:selected").text();
+            const loading = Qmsg.loading(`正在获取${select_nameText}分区直播列表信息`);
+            tempFunc(select_parent_ID, select_name_ID, loading);
+        });
+
+        function tempFunc(parent_id, id, qmLoading) {
+            const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(1)");
+            if (tempE.length === 0) {
+                Qmsg.error("布局异常");
+                qmLoading.close();
+                return;
+            }
+            let partitionPage = Trends.data.getPartitionPage(id);
+            HttpUtil.getLiveList(parent_id, id, partitionPage, "", (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    const info = "获取直播分区信息错误！" + message;
+                    Qmsg.error(info);
+                    console.log(info);
+                    qmLoading.close();
+                    return;
+                }
+                const list = body["data"]["list"];
+                if (list.length === 0) {
+                    Trends.data.setPartitionBool(id, true);
+                    qmLoading.close();
+                    Qmsg.success(`累计获取到${Trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
+                    flushBut.find("div").hide();
+                    return;
+                }
+                for (let v of list) {
+                    const roomid = v["roomid"];
+                    const title = v["title"];
+                    const uname = v["uname"];
+                    const uid = v["uid"];
+                    if (Shield.arrKey(LocalData.getArrUID(), uid)) {
+                        const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
+                        Print.ln(tempInfo);
+                        Qmsg.success(tempInfo);
+                        continue;
+                    }
+                    const face = v["face"];
+                    const cover = v["cover"];//封面
+                    const system_cover = v["system_cover"];//关键帧
+                    const parent_name = v["parent_name"];//父级分区
+                    const area_name = v["area_name"];//子级分区
+                    Trends.data.partitionEndTypeLiveName = `${parent_name}-${area_name}`;
+                    const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
+                    tempE.append(liveItem);
+                }
+                qmLoading.close();
+                const tempIndex = tempE.children().length;
+                if (tempIndex === 0) {
+                    Qmsg.info("未获取到指定分区正在直播的用户");
+                    flushBut.find("div").hide();
+                    qmLoading.close();
+                    return;
+                }
+                $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
+                Qmsg.success(`本轮已获取到${Trends.data.partitionEndTypeLiveName}分区的${list.length}个直播间`);
+                if (list.length < 20) {
+                    flushBut.find("div").hide();
+                } else {
+                    flushBut.find("div").show();
+                    Trends.data.setPartitionPage(id, ++partitionPage);
+                }
+            }, (err) => {
+                Qmsg.error("错误信息" + err);
+                qmLoading.close();
+            });
+        };
+
+        function tempLoadIng() {
+            const interval01 = setInterval(() => {
+                const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
+                if (tempList.length === 0) {
+                    return;
+                }
+                clearInterval(interval01);
+                Trends.shrieDynamicItems(tempList);
+                Trends.layoutCss.items();
+            }, 1000);
+            const tempE01 = $(".bili-dyn-list__items");
+            if (Util.isEventJq(tempE01, "DOMNodeInserted")) {
+                return;
+            }
+            tempE01.bind("DOMNodeInserted", () => {
+                Trends.shrieDynamicItems(tempE01.children());
+            });
+        }
+
+        tempLoadIng();
+        const interval02 = setInterval(() => {
+            const tempE = $(".bili-dyn-up-list__content");
+            if (tempE.length === 0) {
+                return;
+            }
+            const list = tempE.children();
+            if (list === null || list.length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            list.click(() => {
+                tempLoadIng();
+            });
+        }, 1000);
+    }
+    if (href.includes("search.bilibili.com")) {
+        $("#biliMainFooter").remove();
+        console.log("已清空底部信息");
+        $(".side-buttons.flex_col_end p_absolute").remove();
+        console.log("已移除bilibili右侧悬浮按钮");
+        return;
+    }
+    if (href.includes("www.bilibili.com/v/channel")) {
+        const interval01 = setInterval(() => {
+            const nav_link_ulMini = $(".nav-link-ul.mini");
+            if (nav_link_ulMini.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            const item = $(".nav-link-item:contains('下载'),.nav-link-item:contains('赛事'),.nav-link-item:contains('漫画'),.nav-link-item:contains('会员购')");
+            console.log(item);
+            item.remove();
+            $(".navbar_logo").remove();//移除左上角的bilibili的LOGO
+            console.log("已移除坐上顶栏部分项目");
+        }, 1000);
+        return;
+    }
+    if (href.includes("www.bilibili.com/v")) {//首页分区页,该判断要低于频道等其他页面，主要是因为地址有相似的地方
+        let size = -1;
+        setInterval(() => {
+            const tempSize = document.querySelectorAll(".bili-video-card");
+            if (tempSize.length === size) {
+                return;
+            }
+            size = tempSize.length;
+            Home.startShieldMainVideo(".bili-video-card");
+        }, 1000);
+        return;
+    }
+    if ((href.includes("www.bilibili.com") && windowsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windowsTitle === "动态首页-哔哩哔哩")) {
+        const interval01 = setInterval(() => {
+            const login = $(".lt-col>.login-tip:contains('立即登录')");
+            if (login.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            login.remove();
+            console.log("已移除页面右下角的提示登录");
+        }, 1000);
+        const interval02 = setInterval(() => {
+            const login = $(".login-panel-popover");
+            if (login.length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            login.remove();
+            console.log("已移除页面的提示登录信息");
+        }, 1000);
+    }
+}
+
+/**
+ * 根据网页url指定不同的逻辑
+ * @param href{String} url链接
+ */
+function ruleList(href) {
+    if (href.includes("live.bilibili.com/p/eden/area-tags")) {
+        console.log("直播专区")
+        Live.liveDel.delLiveRoom();
+        return;
+    }
+    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
+        const videoData = Rule.videoData;
+        const interval = setInterval(() => {
+            try {
+                const videoElement = document.getElementsByTagName("video")[0];
+                if (videoElement === undefined) {
+                    return;
+                }
+                clearInterval(interval);
+                const autoPlay = Util.getData("autoPlay");
+                if (autoPlay === true) {
+                    const intervalAutoPlay = setInterval(() => {
+                        const au = $("input[aria-label='自动开播']");
+                        if (au.length === 0) {
+                            return;
+                        }
+                        videoElement.pause();
+                        if (au.is(":checked")) {
+                            au.attr("checked", false);
+                            console.log(au.is(":checked"));
+                        } else {
+                            clearInterval(intervalAutoPlay);
+                            console.log("退出intervalAutoPlay")
+                            console.log("已自动暂定视频播放");
+                        }
+                    }, 800);
+                }
+
+                function setVideoSpeedInfo() {
+                    const data = Util.getData("playbackSpeed");
+                    if (data === undefined) {
+                        return;
+                    }
+                    if (data === 0 || data < 0.1) {
+                        return;
+                    }
+                    //播放视频速度
+                    videoElement.playbackRate = data;
+                    Print.ln("已设置播放器的速度=" + data);
+                }
+
+                setVideoSpeedInfo();
+                videoElement.addEventListener('ended', () => {//播放器结束之后事件
+                    Print.ln("播放结束");
+                    if (videoData.isVideoEndRecommend) {
+                        Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
+                    }
+                }, false);
+            } catch (e) {
+            }
+        }, 1000);
+        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
+            const interval = setInterval(() => {
+                const list = document.querySelectorAll(".video-page-card-small");
+                if (list.length === 0) {
+                    return;
+                }
+                videoFun.rightVideo();
+                console.log("检测到右侧视频列表中符合条件");
+                clearInterval(interval)
+
+            }, 2000);
+        }
+        videoFun.delRightE();
+        videoFun.delBottonE();
+        videoFun.rightSuspendButton();
+
+        const interval01 = setInterval(() => {
+            const upInfo = document.querySelector(".up-detail-top");
+            if (upInfo.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            $(upInfo).mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const adHref = domElement.href;
+                Util.showSDPanel(e, domElement.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
+            });
+        }, 2000);
+        return;
+    }
+    if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
+        const interval = setInterval(() => {
+            const list = $(".video-list").children();
+            const tempListLength = list.length;
+            if (list.length === 0) {
+                return;
+            }
+            if (list[0].textContent === "") {
+                return;
+            }
+            search.searchRules(list);
+            if (tempListLength === list.length) {
+                clearInterval(interval);
+                //Print.ln("页面元素没有变化，故退出循环")
+            }
+        }, 10);
+        return;
+    }
+    if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
+        message.delMessageAT();
+        return;
+    }
+    if (href.includes("message.bilibili.com/#/reply") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
+        message.delMessageReply();
+        return;
+    }
+    if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
+        frequencyChannel.videoRules();
+        frequencyChannel.delDevelop();
+        frequencyChannel.cssStyle.backGauge();
+
+    }
+}
+
+function github(href) {
+    setInterval(() => {//github站内所有的链接都从新的标签页打开，而不从当前页面打开
+        $("a").attr("target", "_blank");
+    }, 1000);
+}
+
+//主入口
 const Rule = {
     ruleLength: function () {
         function setText(arr, id) {
