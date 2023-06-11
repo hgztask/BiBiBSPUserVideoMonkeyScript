@@ -124,7 +124,7 @@ const layout = {
           <button id="butdelAll" style="display: none">全部删除</button>
           <button id="butSet">修改</button>
           <button id="butFind">查询</button>
-          <button id="printRuleBut">打印规则信息</button>
+          <button id="lookRuleContentBut">查看本地规则内容</button>
         </div>
       </div>
     <details>
