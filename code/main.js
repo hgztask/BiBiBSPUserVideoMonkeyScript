@@ -2172,9 +2172,7 @@ function loadChannel() {//加载下拉框中的频道信息
         butLayEvent.butFindKey(typeVal, content);
     });
 
-    $("#printRuleBut").click(() => {
-        Print.ln(Util.getRuleFormatStr());
-    });
+    $("#lookRuleContentBut").click(() => Util.openWindowWriteContent(Util.getRuleFormatStr()));
 
     $("#sgSessdata>button:eq(0)").click(() => {
         const content = prompt("请输入要保存的SESSDATA值");
