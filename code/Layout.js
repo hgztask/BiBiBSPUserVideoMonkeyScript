@@ -311,7 +311,11 @@ const layout = {
     </details>
     <div style="display: flex">
     <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
-</div>
+    </div>
+    <div>
+    <button  value="bvBut">bv号转av号</button>
+    <button  value="avBut">av号转bv号</button>
+    </div>
     <hr>
     <div>
       <h1> 反馈问题</h1>
