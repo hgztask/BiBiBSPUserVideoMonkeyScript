@@ -2174,6 +2174,45 @@ function loadChannel() {//加载下拉框中的频道信息
 
     $("#lookRuleContentBut").click(() => Util.openWindowWriteContent(Util.getRuleFormatStr()));
 
+    const bilibiliEncoder = Util.BilibiliEncoder;
+    bilibiliEncoder.init();
+    $("#otherLayout div>button[value='bvBut']").click(() => {
+        const content = prompt("bv转av号");
+        if (content === null) {
+            return;
+        }
+        if (content.length <= 5) {
+            alert("请正确填写内容！");
+            return;
+        }
+        const dec = bilibiliEncoder.dec(content);
+        if (isNaN(dec)) {
+            alert("结果错误！");
+            return;
+        }
+        alert("av" + dec);
+    });
+
+    $("#otherLayout div>button[value='avBut']").click(() => {
+        let content = prompt("av转bv号");
+        if (content === null) {
+            return;
+        }
+        if (content.startsWith("av") || content.startsWith("AV")) {
+            content = content.substring(2, content.length);
+        }
+        if (content.length < 1 || (isNaN(content))) {
+            alert("请正确填写内容！");
+            return;
+        }
+        const dec = bilibiliEncoder.enc(content);
+        if (!dec.startsWith("BV")) {
+            alert("结果错误！");
+            return;
+        }
+        alert(dec);
+    });
+
     $("#sgSessdata>button:eq(0)").click(() => {
         const content = prompt("请输入要保存的SESSDATA值");
         if (content === null) {
