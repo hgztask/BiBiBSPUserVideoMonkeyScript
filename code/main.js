@@ -2466,7 +2466,7 @@ function loadChannel() {//加载下拉框中的频道信息
                     }
                 });
                 break;
-            case "全部规则":
+            case "从下面编辑框导入全部规则":
                 if (content === "" || content === " ") {
                     alert("请填写正确的规则样式！");
                     return;
@@ -2484,7 +2484,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 }
                 rulesAreImportedLocally(jsonRule);
                 break;
-            case "确定合并导入UID规则":
+            case "从下面编辑框合并导入UID规则":
                 let uidList;
                 try {
                     uidList = JSON.parse(content)
@@ -2532,6 +2532,9 @@ function loadChannel() {//加载下拉框中的频道信息
                 break;
             case "本地b站弹幕屏蔽规则":
                 alert("暂时未写")
+                break;
+            default:
+                alert(`出现超出的条件！selectedText=${selectedText}`);
                 break;
         }
     });
