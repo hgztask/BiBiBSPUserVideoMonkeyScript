@@ -316,8 +316,9 @@ const Shield = {
             return null;
         }
         try {
+            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
             for (let str of arr) {
-                if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
+                if (lowerCase.includes(str)) {
                     return str;
                 }
             }
@@ -338,8 +339,9 @@ const Shield = {
             return null;
         }
         try {
+            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
             for (let str of arr) {
-                if (content.search(str) === -1) {
+                if (lowerCase.search(str) === -1) {
                     continue;
                 }
                 return str;
