@@ -62,29 +62,30 @@ const LocalData = {
     },
     setArrTitle: function (key) {
         Util.setData("titleKeyArr", key);
-    }, getArrTitleKeyCanonical: function () {
+    },
+    getArrTitleKeyCanonical: function () {//标题黑名单模式(正则匹配)
         return this.temp("titleKeyCanonicalArr");
     },
-    setArrTitleKeyCanonical: function (key) {
+    setArrTitleKeyCanonical: function (key) {//标题黑名单模式(正则匹配)
         Util.setData("titleKeyCanonicalArr", key);
-    },//获取评论关键词黑名单模式(正则匹配)
-    getArrContentOnKeyCanonicalArr: function () {
+    },
+    getArrContentOnKeyCanonicalArr: function () {//获取评论关键词黑名单模式(正则匹配)
         return this.temp("contentOnKeyCanonicalArr");
-    },//设置评论关键词黑名单模式(正则匹配)
-    setArrContentOnKeyCanonicalArr: function (key) {
+    },
+    setArrContentOnKeyCanonicalArr: function (key) {//设置评论关键词黑名单模式(正则匹配)
         Util.setData("contentOnKeyCanonicalArr", key);
-    },//获取动态页屏蔽项目规则--模糊匹配
-    getDynamicArr: function () {
+    },
+    getDynamicArr: function () {//获取动态页屏蔽项目规则--模糊匹配
         return this.temp("dynamicArr");
-    }, //设置动态页屏蔽项目规则-模糊匹配
-    setDynamicArr: function (key) {
+    },
+    setDynamicArr: function (key) {//设置动态页屏蔽项目规则-模糊匹配
         Util.setData("dynamicArr", key);
-    },//获取动态页屏蔽项目规则--正则匹配
-    getDynamicCanonicalArr: function () {
-        return this.temp("dynamicArr");
-    }, //设置动态页屏蔽项目规则-正则匹配
-    setDynamicCanonicalArr: function (key) {
-        Util.setData("dynamicArr", key);
+    },
+    getDynamicCanonicalArr: function () {//获取动态页屏蔽项目规则--正则匹配
+        return this.temp("dynamicCanonicalArr");
+    },
+    setDynamicCanonicalArr: function (key) {//设置动态页屏蔽项目规则-正则匹配
+        Util.setData("dynamicCanonicalArr", key);
     },//粉丝牌
     getFanCardArr: function () {
         return this.temp("fanCardArr");
