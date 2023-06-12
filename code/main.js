@@ -1,23 +1,19 @@
 //主入口
 const Rule = {
     ruleLength: function () {
-        function setText(arr, id) {
-            if (arr !== undefined && arr !== null) {
-                $(id).text(arr.length);
-            }
-        }
-
-        setText(LocalData.getArrName(), "#textUserName");
-        setText(LocalData.getArrNameKey(), "#textUserNameKey");
-        setText(LocalData.getArrUID(), "#textUserUID");
-        setText(LocalData.getArrWhiteUID(), "#textUserBName");
-        setText(LocalData.getArrTitle(), "#textUserTitle");
-        setText(LocalData.getArrTitleKeyCanonical(), "#textUserTitleCanonical");
-        setText(Util.getData("commentOnKeyArr"), "#textContentOn");
-        setText(LocalData.getArrContentOnKeyCanonicalArr(), "#textContentOnCanonical");
-        setText(LocalData.getFanCardArr(), "#textFanCard");
-        setText(LocalData.getContentColumnKeyArr(), "#textColumn");
-        setText(LocalData.getDynamicArr(), "#textDynamicArr");
+        const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
+        $textRuleInfoDiv.children().remove();
+        const ruleJson = JSON.parse(Util.getRuleFormatStr());
+        Object.keys(ruleJson).forEach(value => {
+            $textRuleInfoDiv.append(`<p>${value}个数:
+        <span>${ruleJson[value].length}</span>个
+      </p>`);
+        });
+        Util.addStyle(`
+#textRuleInfoDiv>div>p>span{
+color: yellow;
+}
+`);
     },
     showInfo: function () {
         const isDShielPanel = Util.getData("isDShielPanel");
@@ -2419,6 +2415,8 @@ function loadChannel() {//加载下拉框中的频道信息
         LocalData.setContentColumnKeyArr(list)
         list = ruleRes["动态关键词内容黑名单模式(模糊匹配)"];
         LocalData.setDynamicArr(list);
+        list = ruleRes["动态关键词内容黑名单模式(正则匹配)"];
+        LocalData.setDynamicCanonicalArr(list);
         Rule.ruleLength();
         alert("已导入");
     }

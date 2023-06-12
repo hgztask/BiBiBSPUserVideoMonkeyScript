@@ -154,41 +154,9 @@ border: 0.5px solid green;
      <li>如需要备份自己的规则可以考虑在当前选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
      </ol>
      </div>
-     <div>
+     <div id="textRuleInfoDiv">
      <h2>规则信息</h2>
-      <p>用户名黑名单模式(精确匹配)个数:
-        <span id="textUserName" style="color: yellow;"></span>个
-      </p>
-      <p>用户名黑名单模式(模糊匹配)个数:
-        <span id="textUserNameKey" style="color: yellow;"></span>个
-      </p>
-      <p>用户uid黑名单模式(精确匹配)个数:
-        <span id="textUserUID" style="color: yellow;"></span>个
-      </p>
-      <p>用户白名单模式(精确匹配)个数:
-        <span id="textUserBName" style="color: yellow;"></span>个
-      </p>
-      <p>标题黑名单模式(模糊匹配)个数:
-        <span id="textUserTitle" style="color: yellow;"></span>个
-      </p>
-      <p>标题黑名单模式(正则匹配)个数:
-        <span id="textUserTitleCanonical" style="color: yellow;"></span>个
-      </p>
-      <p>评论关键词黑名单模式(模糊匹配)个数:
-        <span id="textContentOn" style="color: yellow;"></span>个
-      </p>
-      <p>评论关键词黑名单模式(正则匹配)个数:
-        <span id="textContentOnCanonical" style="color: yellow;"></span>个
-      </p>
-      <p>粉丝牌黑名单模式(精确匹配)个数:
-        <span id="textFanCard" style="color: yellow;"></span>个
-      </p>
-      <p>专栏关键词内容黑名单模式(模糊匹配)个数:
-        <span id="textColumn" style="color: yellow;"></span>个
-      </p>
-      <p>动态关键词内容黑名单模式(模糊匹配)个数：
-       <span id="textDynamicArr" style="color: yellow;"></span>个
-      </p>
+     <div></div>
     </div>
     <div>
     <h2>规则导入导出</h2>
