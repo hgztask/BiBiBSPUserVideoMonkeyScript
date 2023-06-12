@@ -633,5 +633,13 @@ const Util = {
         } catch (e) {
             alert("出现错误！用户必须将浏览器设置为允许弹出窗口才能打开新窗口！");
         }
+    },
+    /**
+     * 去除字符串中所有空格
+     * @param {string}ele
+     * @returns {string}
+     */
+    strTrimAll: function (ele) {
+        return ele.split(/[\t\r\f\n\s]*/g).join("");
     }
 }
