@@ -79,7 +79,13 @@ const LocalData = {
     }, //设置动态页屏蔽项目规则-模糊匹配
     setDynamicArr: function (key) {
         Util.setData("dynamicArr", key);
-    }, //粉丝牌
+    },//获取动态页屏蔽项目规则--正则匹配
+    getDynamicCanonicalArr: function () {
+        return this.temp("dynamicArr");
+    }, //设置动态页屏蔽项目规则-正则匹配
+    setDynamicCanonicalArr: function (key) {
+        Util.setData("dynamicArr", key);
+    },//粉丝牌
     getFanCardArr: function () {
         return this.temp("fanCardArr");
     },//粉丝牌

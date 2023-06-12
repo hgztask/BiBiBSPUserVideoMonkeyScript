@@ -167,13 +167,20 @@ const Trends = {
             }
             const tempContent = tempE.textContent;
             const contentKey = Shield.arrContent(LocalData.getDynamicArr(), tempContent);
-            if (contentKey == null) {
+            if (contentKey !== null) {
+                const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
+                v.remove();
+                Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+                Print.ln(tempInfo);
                 continue;
             }
-            v.remove();
-            const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
-            Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
-            Print.ln(tempInfo);
+            const arrContentCanonical = Shield.arrContentCanonical(LocalData.getDynamicCanonicalArr(), tempContent);
+            if (arrContentCanonical != null) {
+                const tempInfo = `已通过动态正则关键词【${arrContentCanonical}】屏蔽了动态【${tempContent}】`;
+                v.remove();
+                Qmsg.success(`已通过动态正则关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+                Print.ln(tempInfo);
+            }
         }
     }
 };
