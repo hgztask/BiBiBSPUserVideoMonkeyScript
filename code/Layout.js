@@ -140,7 +140,16 @@ const layout = {
         <option value="barrageQuantityMax">弹幕量最大值</option>
       </select>
       <button id="butSelectVideo">确定</button>
-     </details>`;
+     </details>
+     <h2>使用说明</h2>
+     <ol>
+     <li>
+     <pre style="white-space: pre-wrap">脚本中会对要匹配的内容进行去除空格和转成小写，比如有个内容是【不 要  笑   挑  战  ChallEnGE】，会被识别称为【不要笑挑战challenge】</pre>
+     </li>
+     <li>在上述一点的情况下，模糊匹配和正则匹配的方式时不用考虑要匹配的内容中大写问题</li>
+     <li>如需要备份自己的规则可以考虑在面板中的【规则信息与导出导入】一选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
+     </ol>
+`;
     },
     getHomePageLayout: function () {
         return ` <details open>
@@ -254,7 +263,6 @@ const layout = {
   <option>全部UID规则到文件</option>
   <option>b站弹幕屏蔽规则</option>
   <option>全部规则到云端账号</option>
-  <option>全部UID规则到云端api</option>
 </select>
 <button id="outExport">导出</button>
 </div>
