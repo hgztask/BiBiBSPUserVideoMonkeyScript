@@ -2,75 +2,74 @@ const layout = {
     css: {
         home: function () {
             Util.addStyle(`
-            #home_layout{
-                background: ${Home.getBackgroundStr()};
-                margin: 0px;
-                height: 100%;
-                width: 100%;
-                max-height: 100%;
-                position: fixed;
-                z-index: 2023;
-                overflow-y: auto;
-                border: 3px solid green;
-            }
-            
-     /* 隐藏标签布局，除了“active”的标签布局 */
-    .tab {
-      display: none;
-    }
-
-    .tab.active {
-      display: block;
-    }
-    ul {
-      /* 隐藏ul标签的默认符号 */
-      list-style: none;
-    }
-             /* 悬浮屏蔽布局 */
-             #suspensionDiv{
-              position: fixed;
-                display: none;
-                z-index: 2024;
-                background: rgb(149, 156, 135);
-                overflow-y: auto;
-                height: 30%;
-                width: 10%;
-                top: 70%;
-                left: 90%;
-                 border: 3px solid green;
-             }
-             
-             #suspensionDiv p {
-  margin-top: 10px;
+#home_layout {
+    background: ${Home.getBackgroundStr()};
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+    position: fixed;
+    z-index: 2023;
+    overflow-y: auto;
+    border: 3px solid green;
+}
+/* 隐藏标签布局，除了“active”的标签布局 */
+.tab {
+    display: none;
+}
+.tab.active {
+    display: block;
+}
+ul {
+    /* 隐藏ul标签的默认符号 */
+    list-style: none;
+}
+/* 悬浮屏蔽布局 */
+#suspensionDiv {
+    position: fixed;
+    display: none;
+    z-index: 2024;
+    background: rgb(149, 156, 135);
+    overflow-y: auto;
+    height: 30%;
+    width: 10%;
+    top: 70%;
+    left: 90%;
+    border: 3px solid green;
+}
+#suspensionDiv p {
+    margin-top: 10px;
 }
 #suspensionDiv button {
-  margin-top: 10px;
-  padding: 5px 10px;
-  border: none;
-  background-color: #4CAF50;
-  color: #fff;
-  cursor: pointer;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
 }
 #suspensionDiv button:hover {
-  background-color: #3E8E41;
+    background-color: #3E8E41;
 }
-             
-             /* 悬浮屏蔽布局 */
-              #sort_typeSelect{
-               display: none;
-               }
-          #mybut{
-        position: fixed;
-        z-index: 2024;
-        width: 50px;
-        height:50px;
-        left: 96%;
-        bottom: 85%;
-        background: rgb(67, 67, 124);
-        color: white;
-        border: none;
-        border-radius: 50%;
-    }
+/* 悬浮屏蔽布局 */
+#sort_typeSelect {
+    display: none;
+}
+#mybut {
+    position: fixed;
+    z-index: 2024;
+    width: 50px;
+    height: 50px;
+    left: 96%;
+    bottom: 85%;
+    background: rgb(67, 67, 124);
+    color: white;
+    border: none;
+    border-radius: 50%;
+}
+#ruleCRUDLayout>div>div{
+border: 0.5px solid green;
+}
             `);
         }
     },
@@ -98,7 +97,11 @@ const layout = {
         <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
     },
     getRuleCRUDLayout: function () {
-        return `<div id="tableBody">
+        return `
+<div style="display: flex;flex-wrap: wrap;">
+<div>
+<div>
+<h2>规则增删改查</h2>
         <select id="singleDoubleModel">
           <option value="one">单个</option>
           <option value="batch">批量</option>
@@ -147,8 +150,69 @@ const layout = {
      <pre style="white-space: pre-wrap">脚本中会对要匹配的内容进行去除空格和转成小写，比如有个内容是【不 要  笑   挑  战  ChallEnGE】，会被识别称为【不要笑挑战challenge】</pre>
      </li>
      <li>在上述一点的情况下，模糊匹配和正则匹配的方式时不用考虑要匹配的内容中大写问题</li>
-     <li>如需要备份自己的规则可以考虑在面板中的【规则信息与导出导入】一选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
+     <li>如果用户要添加自己的正则匹配相关的规则时，建议先去该网址进行测试再添加，避免浪费时间【<a href="https://c.runoob.com/front-end/854/" target="_blank" title="正则表达式在线测试 | 菜鸟工具">https://c.runoob.com/front-end/854/正则表达式在线测试|菜鸟工具</a>】</li>
+     <li>如需要备份自己的规则可以考虑在当前选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
      </ol>
+     </div>
+     <div>
+     <h2>规则信息</h2>
+      <p>用户名黑名单模式(精确匹配)个数:
+        <span id="textUserName" style="color: yellow;"></span>个
+      </p>
+      <p>用户名黑名单模式(模糊匹配)个数:
+        <span id="textUserNameKey" style="color: yellow;"></span>个
+      </p>
+      <p>用户uid黑名单模式(精确匹配)个数:
+        <span id="textUserUID" style="color: yellow;"></span>个
+      </p>
+      <p>用户白名单模式(精确匹配)个数:
+        <span id="textUserBName" style="color: yellow;"></span>个
+      </p>
+      <p>标题黑名单模式(模糊匹配)个数:
+        <span id="textUserTitle" style="color: yellow;"></span>个
+      </p>
+      <p>标题黑名单模式(正则匹配)个数:
+        <span id="textUserTitleCanonical" style="color: yellow;"></span>个
+      </p>
+      <p>评论关键词黑名单模式(模糊匹配)个数:
+        <span id="textContentOn" style="color: yellow;"></span>个
+      </p>
+      <p>评论关键词黑名单模式(正则匹配)个数:
+        <span id="textContentOnCanonical" style="color: yellow;"></span>个
+      </p>
+      <p>粉丝牌黑名单模式(精确匹配)个数:
+        <span id="textFanCard" style="color: yellow;"></span>个
+      </p>
+      <p>专栏关键词内容黑名单模式(模糊匹配)个数:
+        <span id="textColumn" style="color: yellow;"></span>个
+      </p>
+      <p>动态关键词内容黑名单模式(模糊匹配)个数：
+       <span id="textDynamicArr" style="color: yellow;"></span>个
+      </p>
+    </div>
+    <div>
+    <h2>规则导入导出</h2>
+      <div>
+  <select id="outRuleSelect">
+  <option>全部规则到文件</option>
+  <option>全部规则到剪贴板</option>
+  <option>全部UID规则到文件</option>
+  <option>b站弹幕屏蔽规则</option>
+  <option>全部规则到云端账号</option>
+</select>
+<button id="outExport">导出</button>
+</div>
+<div>
+  <select id="inputRuleSelect">
+  <option value="">从云端账号导入覆盖本地规则</option>
+  <option value="">从下面编辑框导入全部规则</option>
+  <option value="">从下面编辑框合并导入UID规则</option>
+</select>
+<button id="inputExport">导入</button>
+</div>
+    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
+    </div>
+    </div>
 `;
     },
     getHomePageLayout: function () {
@@ -215,66 +279,6 @@ const layout = {
              </div>
              <div style="display: flex;">
              <input type="checkbox" id="delVideoCommentSectionsCheackBox">移除视频播放页底下的评论区
-</div>
-`;
-    },
-    getRuleInfoLayout: function () {
-        return `<div>
-      <p>用户名黑名单模式(精确匹配)个数:
-        <span id="textUserName" style="color: yellow;"></span>个
-      </p>
-      <p>用户名黑名单模式(模糊匹配)个数:
-        <span id="textUserNameKey" style="color: yellow;"></span>个
-      </p>
-      <p>用户uid黑名单模式(精确匹配)个数:
-        <span id="textUserUID" style="color: yellow;"></span>个
-      </p>
-      <p>用户白名单模式(精确匹配)个数:
-        <span id="textUserBName" style="color: yellow;"></span>个
-      </p>
-      <p>标题黑名单模式(模糊匹配)个数:
-        <span id="textUserTitle" style="color: yellow;"></span>个
-      </p>
-      <p>标题黑名单模式(正则匹配)个数:
-        <span id="textUserTitleCanonical" style="color: yellow;"></span>个
-      </p>
-      <p>评论关键词黑名单模式(模糊匹配)个数:
-        <span id="textContentOn" style="color: yellow;"></span>个
-      </p>
-      <p>评论关键词黑名单模式(正则匹配)个数:
-        <span id="textContentOnCanonical" style="color: yellow;"></span>个
-      </p>
-      <p>粉丝牌黑名单模式(精确匹配)个数:
-        <span id="textFanCard" style="color: yellow;"></span>个
-      </p>
-      <p>专栏关键词内容黑名单模式(模糊匹配)个数:
-        <span id="textColumn" style="color: yellow;"></span>个
-      </p>
-      <p>动态关键词内容黑名单模式(模糊匹配)个数：
-       <span id="textDynamicArr" style="color: yellow;"></span>个
-      </p>
-    </div>
-    <div>
-    <h1>规则导入导出</h1>
-      <div>
-  <select id="outRuleSelect">
-  <option>全部规则到文件</option>
-  <option>全部规则到剪贴板</option>
-  <option>全部UID规则到文件</option>
-  <option>b站弹幕屏蔽规则</option>
-  <option>全部规则到云端账号</option>
-</select>
-<button id="outExport">导出</button>
-</div>
-<div>
-  <select id="inputRuleSelect">
-  <option value="">从云端账号导入覆盖本地规则</option>
-  <option value="">从下面编辑框导入全部规则</option>
-  <option value="">从下面编辑框合并导入UID规则</option>
-</select>
-<button id="inputExport">导入</button>
-</div>
-    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
 </div>
 `;
     },
@@ -430,11 +434,10 @@ const layout = {
   <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
     <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
     <li><button value="panelSetsTheLayout">面板设置</button></li>
-    <li><button value="ruleCRUDLayout">规则增删改查</button></li>
+    <li><button value="ruleCRUDLayout">规则增删改查-信息-备份与恢复(导出与导入)</button></li>
     <li><button value="homePageLayout">首页</button></li>
     <li><button value="video_params_layout">视频参数</button></li>
     <li><button value="liveLayout">直播列表</button></li>
-    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
     <li><button value="outputInfoLayout">输出信息</button></li>
     <li><button value="otherLayout">其他</button></li>
     <li><button value="donateLayout">支持打赏作者</button></li>
@@ -445,7 +448,6 @@ const layout = {
   <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
   <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
-  <div class="tab" id="ruleInfoLayout"></div><!-- 规则信息布局 -->
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
   <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
   <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
@@ -460,7 +462,6 @@ const layout = {
             $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
             $("#homePageLayout").append(layout.getHomePageLayout());
             $("#video_params_layout").append(layout.getVideo_params_layout());
-            $("#ruleInfoLayout").append(layout.getRuleInfoLayout());
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
             $("#donateLayout").append(layout.getDonateLayout());
