@@ -318,18 +318,16 @@ border: 0.5px solid green;
        <span>固定面板值</span>
        <input id="fixedPanelValueCheckbox" type="checkbox">
        </div>
-        <p>
-          标题:
-          <span id="suspensionTitle"></span>
-        </p>
-        <p>
-          用户名：
-         <span id="nameSuspensionDiv"></span>
-        </p>
-        <p>
-          用户UID：
-          <a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a>
-        </p>
+        <p>用户名：<span id="nameSuspensionDiv"></span></p>
+        <div>
+        <details style="display: none">
+        <summary>视频信息</summary>
+        <p>标题:<span class="title"></span></p>
+        <p>视频BV号:<span class="bv"></span></p>
+        <p>视频AV号:<span class="av"></span></p>
+</details>
+        </div>
+        <p>用户UID：<a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a></p>
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>

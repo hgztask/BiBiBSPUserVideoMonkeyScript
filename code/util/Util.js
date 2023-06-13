@@ -476,8 +476,10 @@ const Util = {
      * @param name 用户名
      * @param uid uid
      * @param title 标题
+     * @param bv
+     * @param av
      */
-    showSDPanel: function (e, name, uid, title) {
+    showSDPanel: function (e, name, uid, title = null, bv = null, av = null) {
         const newVar = Util.getData("isDShielPanel");
         if (newVar) {
             return;
@@ -490,8 +492,12 @@ const Util = {
         uid = Util.getSubUid(uid);
         uidA.text(uid);
         uidA.attr("href", `https://space.bilibili.com/${uid}`);
-        if (title !== undefined || title !== null) {
-            $("#suspensionTitle").text(title);
+        if (title !== null) {
+            $("#suspensionDiv details").show();
+            $("#suspensionDiv .title").text(title);
+            $("#suspensionDiv .bv").text(bv);
+            $("#suspensionDiv .av").text(av);
+
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
