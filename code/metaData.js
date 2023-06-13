@@ -28,6 +28,7 @@
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
 // @match        *://github.com/*
+// @match        http://gbtgame.ysepan.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
