@@ -297,6 +297,14 @@ border: 0.5px solid green;
     <button  value="avBut">av号转bv号</button>
     </div>
     <hr>
+    <hr>
+    <div>
+    <details id="GBTLSGameDetails">
+    <summary>GBT乐赏游戏空间</summary>
+    <button value="open">前往GBT乐赏游戏空间地址</button>
+    <button value="getRes">获取其页面资源</button>
+</details>
+</div>
     <div>
       <h1> 反馈问题</h1>
       <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
