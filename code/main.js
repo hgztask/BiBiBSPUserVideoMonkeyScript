@@ -1624,9 +1624,7 @@ function loadChannel() {//加载下拉框中的频道信息
                     const ruleRes = dataList[index]["rule"]["ruleRes"];
                     let centerIndexE = [];
                     for (let key in ruleRes) {
-                        centerIndexE.push(`<div>
-                    <span>${key}：</span><span>${ruleRes[key].length}</span>个
-                </div>`);
+                        centerIndexE.push(`<div>${key}：<span >${ruleRes[key].length}</span>个</div>`);
                     }
                     const item = `<li value="${index}">
             <div>
@@ -1655,6 +1653,9 @@ function loadChannel() {//加载下拉框中的频道信息
         align-items: center;
         border: 1px solid rgb(0, 217, 0);
     }
+    #ruleCenterLayout>ul>li>div:nth-child(2) span{
+    color: rgb(255, 255, 26);
+   }
                     `);
                 $ruleCenterLayoutUl.on("click", "button", (e) => {
                     const target = e.target;
@@ -1684,6 +1685,7 @@ function loadChannel() {//加载下拉框中的频道信息
                             break;
                     }
                 });
+
             }, error: function (xhr, status, error) { //请求失败的回调函数
                 loading.close();
                 console.log(error, status);
