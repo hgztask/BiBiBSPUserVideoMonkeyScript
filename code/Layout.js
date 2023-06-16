@@ -302,7 +302,9 @@ border: 0.5px solid green;
     <details id="GBTLSGameDetails">
     <summary>GBT乐赏游戏空间</summary>
     <button value="open">前往GBT乐赏游戏空间地址</button>
-    <button value="getRes">获取其页面资源</button>
+    <button value="getPageDataInfo">初始化页面资源信息</button>
+    <button value="getData">获取页面资源</button>
+    <button value="getFildKeys">获取指定key的项目</button>
 </details>
 </div>
     <div>

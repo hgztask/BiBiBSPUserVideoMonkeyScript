@@ -2648,56 +2648,19 @@ function loadChannel() {//加载下拉框中的频道信息
         Util.openWindow("http://gbtgame.ysepan.com/");
     });
 
-    $("#GBTLSGameDetails>button[value='getRes']").click(() => {
-        if (!Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
-            alert("当前网站不是GBT乐赏游戏空间");
+    $("#GBTLSGameDetails>button[value='getPageDataInfo']").click(() => GBTGame.init());
+    $("#GBTLSGameDetails>button[value='getData']").click(() => GBTGame.getData());
+    $("#GBTLSGameDetails>button[value='getFildKeys']").click(() => {
+        const key = prompt("请输入您要搜索的内容");
+        if (key === null) {
             return;
         }
-        const loading = Qmsg.loading("正在获取中，请不要对当前网页进行其他操作！");
-        const arrList = document.querySelectorAll("#menuList>*");
-        const tempArrList = {};
-        let chickTempIndex = 0;
-        const interval = setInterval(() => {
-            if (arrList.length <= chickTempIndex) {
-                loading.close();
-                clearInterval(interval);
-                alert("已点击完成！");
-                console.log(tempArrList);
-                console.log(JSON.stringify(tempArrList));
-                Print.ln(JSON.stringify(tempArrList));
-                return;
-            }
-            const tempE = arrList[chickTempIndex++];
-            // const itemTypeText = tempE.querySelector("label").textContent;
-            // if (!(itemTypeText === "游戏列表")) {
-            //     return;
-            // }
-            const a = tempE.querySelector("a");
-            const filesTime = a.text;
-            a.click();
-            const info = `已点击${filesTime}`;
-            console.log(info);
-            Qmsg.success(info);
-            const p = new Promise((resolve) => {
-                const interval01 = setInterval(() => {
-                    let menuItem = tempE.querySelectorAll(".menu>*:not(.lxts)");
-                    if (menuItem.length <= 1) {
-                        return;
-                    }
-                    clearInterval(interval01);
-                    resolve(menuItem);
-                }, 15);
-            });
-            p.then((data) => {
-                data.forEach((value) => {
-                    const tempE = value.querySelector("a");
-                    const title = tempE.text;
-                    tempArrList[title] = tempE.getAttribute("href");
-                });
-            });
-        }, 1000);
+        if (key.includes(" ") || key === "") {
+            alert("请正确填写您要搜索的内容！");
+            return;
+        }
+        GBTGame.find(key);
     });
-
 
     ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
