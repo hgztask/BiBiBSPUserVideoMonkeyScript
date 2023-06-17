@@ -168,7 +168,7 @@ const LocalData = {
         }
     },
     getIsMainVideoList: function () {//获取是否使用脚本自带的针对于首页的处理效果状态值
-        const data = Util.getLocalData("IsMainVideoList");
+        const data = Util.getData("isMainVideoList");
         if (data === null) {
             return false;
         }
@@ -176,6 +176,6 @@ const LocalData = {
 
     },
     setIsMainVideoList: function (bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
-        Util.setLocalData("IsMainVideoList", Util.isBoolean(bool));
+        Util.setData("isMainVideoList", Util.isBoolean(bool));
     },
 }
