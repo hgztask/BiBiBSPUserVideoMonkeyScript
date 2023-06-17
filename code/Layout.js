@@ -188,7 +188,7 @@ border: 0.5px solid green;
       <summary>首页</summary>
       <h3>首页推荐视频</h3>
       <span>指定推送</span>
-      <input type="checkbox">
+      <input type="checkbox" id="isMainVideoListCheckbox">
       <select id="pushTypeSelect" style="display: block">
         <option value="分区">分区</option>
         <option value="频道">频道</option>

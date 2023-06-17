@@ -166,5 +166,16 @@ const LocalData = {
         }, setInfo: function (key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
         }
-    }
+    },
+    getIsMainVideoList: function () {//获取是否使用脚本自带的针对于首页的处理效果状态值
+        const data = Util.getLocalData("IsMainVideoList");
+        if (data === null) {
+            return false;
+        }
+        return Util.isBoolean(data);
+
+    },
+    setIsMainVideoList: function (bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
+        Util.setLocalData("IsMainVideoList", Util.isBoolean(bool));
+    },
 }

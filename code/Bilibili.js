@@ -1,6 +1,9 @@
 function bilibili(href) {
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+        if (!LocalData.getIsMainVideoList()) {
+            return;
+        }
 
         function ergodicList(list) { //针对频道api中的数据遍历处理并添加进去网页元素
             for (const v of list) {

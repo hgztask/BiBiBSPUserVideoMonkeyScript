@@ -50,6 +50,7 @@ color: yellow;
         }
         $("#delVideoCommentSectionsCheackBox").prop('checked', LocalData.getDelVideoCommentSections());//设置
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
+        $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
     },
     //视频参数
     videoData: {
@@ -2661,6 +2662,9 @@ function loadChannel() {//加载下拉框中的频道信息
         }
         GBTGame.find(key);
     });
+
+    const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
+    $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
 
     ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
