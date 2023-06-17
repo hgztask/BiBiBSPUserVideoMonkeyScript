@@ -653,5 +653,9 @@ const Util = {
      */
     strTrimAll: function (ele) {
         return ele.split(/[\t\r\f\n\s]*/g).join("");
+    },
+    isBoolean: function (str) {
+        const bool = Boolean(str);
+        return bool === true;
     }
 }
