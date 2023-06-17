@@ -89,6 +89,19 @@ function bilibiliOne(href, windowsTitle) {
 
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+
+        const interval03 = setInterval(() => {
+            const $recommended = $(".recommended-swipe.grid-anchor");
+            if ($recommended.maxLength === 0) {
+                return;
+            }
+            clearInterval(interval03);
+            console.log($recommended);
+            $recommended.remove();
+            console.log("已移除首页轮播图");
+            Qmsg.success("已移除首页轮播图");
+        }, 1000);
+
         if (!LocalData.getIsMainVideoList()) {
             return;
         }
