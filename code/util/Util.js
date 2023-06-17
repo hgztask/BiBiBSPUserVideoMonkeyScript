@@ -14,6 +14,12 @@ const Util = {
     delData: function (key) {
         GM_deleteValue(key);
     },
+    setLocalData: function (key, data) {
+        window.localStorage.setItem(key, data);
+    },
+    getLocalData: function (key) {//如果 key 所对应的值不存在，它将返回 null，否则返回存储的对应键值 key 的字符串值。
+        return window.localStorage.getItem(key);
+    },
     //添加样式
     addStyle: function (cssStyleStr) {
         GM_addStyle(cssStyleStr);
