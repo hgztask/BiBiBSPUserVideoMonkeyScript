@@ -675,7 +675,7 @@ left: 0;  bottom: 0;">
             </div>
         </div>
         <hr>
-        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto;">
+        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto auto auto;">
         <!--列表中的项目-->
         </div>
     </div>`);
