@@ -195,19 +195,23 @@ const Home = {
      * @param {String} str 首页视频元素
      */
     startShieldMainVideo: function (str) {
-        const interval = setInterval(() => {
-            let list = document.querySelectorAll(str);
-            if (list.length === 0) {
-                return;
-            }
-            while (true) {
-                const tempLength = list.length;
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                let list = document.querySelectorAll(str);
+                if (list.length === 0) {
+                    return;
+                }
+                $(".floor-single-card").remove();
+                $(".bili-live-card").remove();
+                clearInterval(interval);
                 for (let v of list) {
-                    let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
+                    let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
                     try {
                         videoInfo = v.querySelector(".bili-video-card__info--right");
+                        const titleInfo = videoInfo.querySelector(".bili-video-card__info--tit");
                         //视频标题
-                        title = videoInfo.querySelector(".bili-video-card__info--tit").getAttribute("title");
+                        title = titleInfo.getAttribute("title");
+                        videoAddress = titleInfo.getAttribute("href");
                         //用户名
                         upName = videoInfo.querySelector(".bili-video-card__info--author").getAttribute("title");
                         //用户空间地址
@@ -217,19 +221,16 @@ const Home = {
                         playbackVolume = topInfo[0].textContent;
                     } catch (e) {
                         v.remove();
-                        Qmsg.info("清理异常元素");
-                        // console.log("获取元素中，获取失败，下一行是该值的html");
-                        // console.log(v)
+                        console.log("清理异常元素");
                         continue;
                     }
-                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-                    if (isNaN(id)) {
+                    let uid = Util.getSubWebUrlUid(upSpatialAddress);
+                    if (uid === null) {
                         v.remove();
-                        Qmsg.info("清理非正常视频样式");
+                        console.log("清理非正常视频样式");
                         continue;
                     }
-                    if (shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume)) {
-                        Qmsg.info("屏蔽视频！");
+                    if (shieldVideo_userName_uid_title(v, upName, parseInt(uid), title, videoAddress, videoTime, playbackVolume)) {
                         continue;
                     }
                     const jqE = $(v);
@@ -239,21 +240,19 @@ const Home = {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
                         const info = domElement.querySelector(".bili-video-card__info--right");
-                        const videoTitle = info.querySelectorAll("[title]")[0].textContent;
-                        const userName = info.querySelectorAll("[title]")[1].textContent;
-                        let href = info.querySelector(".bili-video-card__info--owner").href;
-                        href = href.substring(href.lastIndexOf("/") + 1);
-                        Util.showSDPanel(e, userName, href, videoTitle);
+                        const title = info.querySelector(".bili-video-card__info--tit").getAttribute("title");
+                        const videoAddress = info.querySelector(".bili-video-card__info--tit>a").getAttribute("href");
+                        const name = info.querySelector(".bili-video-card__info--author").textContent;
+                        const href = info.querySelector(".bili-video-card__info--owner").href;
+                        const uid = Util.getSubWebUrlUid(href);
+                        const bv = Util.getSubWebUrlBV(videoAddress);
+                        Util.showSDPanel(e, name, uid, title, bv);
                     });
                 }
-                list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
-                if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
-                    continue;
-                }
-                clearInterval(interval);
-                return;
-            }
-        }, 1000);
+                resolve(true);
+            }, 250);
+        });
+
     },
     hideDisplayHomeLaylout: function () {//隐藏显示面板
         const home_layout = document.getElementById("home_layout");
@@ -1453,8 +1452,7 @@ const search = {//搜索
                 }
                 const videoTime = v.querySelector(".bili-video-card__stats__duration").textContent;//视频的时间
                 const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
-                let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
-                if (shieldVideo_userName_uid_title(v, name, id, title, null, videoTime, topInfo[0].textContent)) {
+                if (shieldVideo_userName_uid_title(v, name, Util.getSubWebUrlUid(upSpatialAddress), title, null, videoTime, topInfo[0].textContent)) {
                     Qmsg.info("屏蔽了视频！！");
                     continue;
                 }
@@ -1586,6 +1584,8 @@ function loadChannel() {//加载下拉框中的频道信息
     layout.loading.home();
     $("body").prepend('<button id="mybut">按钮</button>');
     layout.css.home();
+
+    Util.BilibiliEncoder.init();
 
     $("#tabUl>li>button").click((e) => {
         const domElement = e.delegateTarget;//dom对象
@@ -2176,7 +2176,6 @@ function loadChannel() {//加载下拉框中的频道信息
     $("#lookRuleContentBut").click(() => Util.openWindowWriteContent(Util.getRuleFormatStr()));
 
     const bilibiliEncoder = Util.BilibiliEncoder;
-    bilibiliEncoder.init();
     $("#otherLayout div>button[value='bvBut']").click(() => {
         const content = prompt("bv转av号");
         if (content === null) {
