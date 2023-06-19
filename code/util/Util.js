@@ -482,10 +482,9 @@ const Util = {
      * @param name 用户名
      * @param uid uid
      * @param title 标题
-     * @param bv
-     * @param av
+     * @param bv bv号
      */
-    showSDPanel: function (e, name, uid, title = null, bv = null, av = null) {
+    showSDPanel: function (e, name, uid, title = null, bv = null) {
         const newVar = Util.getData("isDShielPanel");
         if (newVar) {
             return;
@@ -502,7 +501,7 @@ const Util = {
             $("#suspensionDiv details").show();
             $("#suspensionDiv .title").text(title);
             $("#suspensionDiv .bv").text(bv);
-            $("#suspensionDiv .av").text(av);
+            $("#suspensionDiv .av").text(Util.BilibiliEncoder.dec(bv));
 
         }
         this.updateLocation(e);
@@ -520,6 +519,25 @@ const Util = {
         const indexOf = uidStr.indexOf("?");
         const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
         return parseInt(uid);
+    },
+    subLastIndexStr: {
+        tempFuc: function (str) {
+            return str.substring(str.lastIndexOf("/") + 1);
+        }
+    },
+    getSubWebUrlUid: function (uidAndes) {//获取url中的uid
+        const sub = this.subLastIndexStr.tempFuc(uidAndes);
+        if (isNaN(sub)) {
+            return null;
+        }
+        return sub;
+    },
+    getSubWebUrlBV: function (address) {//截取地址中的bv号
+        const match = address.match(/\/video\/(.*?)[?\/]/);
+        if (match !== null) {
+            return match;
+        }
+        return this.subLastIndexStr.tempFuc(address);
     },
     /**
      * 截取网页的BV号
