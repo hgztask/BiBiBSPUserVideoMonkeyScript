@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.52
+// @version      1.1.53
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -28,6 +28,7 @@
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
 // @match        *://github.com/*
+// @match        http://gbtgame.ysepan.com/*
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
@@ -55,6 +56,12 @@ const Util = {
     //删除数据
     delData: function (key) {
         GM_deleteValue(key);
+    },
+    setLocalData: function (key, data) {
+        window.localStorage.setItem(key, data);
+    },
+    getLocalData: function (key) {//如果 key 所对应的值不存在，它将返回 null，否则返回存储的对应键值 key 的字符串值。
+        return window.localStorage.getItem(key);
     },
     //添加样式
     addStyle: function (cssStyleStr) {
@@ -393,12 +400,12 @@ const Util = {
     //获取格式化规则的内容
     getRuleFormatStr: function () {
         //温馨提示每个{}对象最后一个不可以有,符号
-        return `{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
+        return Util.strTrimAll(`{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
     "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
     "标题黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrTitleKeyCanonical())},
     "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(Util.getData("commentOnKeyArr"))},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
     "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getContentColumnKeyArr())},
-    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())}}`;
+    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())},"动态关键词内容黑名单模式(正则匹配)":${JSON.stringify(LocalData.getDynamicCanonicalArr())}}`);
     },
     /**
      * 设置页面播放器的播放速度
@@ -518,8 +525,9 @@ const Util = {
      * @param name 用户名
      * @param uid uid
      * @param title 标题
+     * @param bv bv号
      */
-    showSDPanel: function (e, name, uid, title) {
+    showSDPanel: function (e, name, uid, title = null, bv = null) {
         const newVar = Util.getData("isDShielPanel");
         if (newVar) {
             return;
@@ -532,8 +540,12 @@ const Util = {
         uid = Util.getSubUid(uid);
         uidA.text(uid);
         uidA.attr("href", `https://space.bilibili.com/${uid}`);
-        if (title !== undefined || title !== null) {
-            $("#suspensionTitle").text(title);
+        if (title !== null) {
+            $("#suspensionDiv details").show();
+            $("#suspensionDiv .title").text(title);
+            $("#suspensionDiv .bv").text(bv);
+            $("#suspensionDiv .av").text(Util.BilibiliEncoder.dec(bv));
+
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
@@ -550,6 +562,25 @@ const Util = {
         const indexOf = uidStr.indexOf("?");
         const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
         return parseInt(uid);
+    },
+    subLastIndexStr: {
+        tempFuc: function (str) {
+            return str.substring(str.lastIndexOf("/") + 1);
+        }
+    },
+    getSubWebUrlUid: function (uidAndes) {//获取url中的uid
+        const sub = this.subLastIndexStr.tempFuc(uidAndes);
+        if (isNaN(sub)) {
+            return null;
+        }
+        return sub;
+    },
+    getSubWebUrlBV: function (address) {//截取地址中的bv号
+        const match = address.match(/\/video\/(.*?)[?\/]/);
+        if (match !== null) {
+            return match;
+        }
+        return this.subLastIndexStr.tempFuc(address);
     },
     /**
      * 截取网页的BV号
@@ -675,6 +706,18 @@ const Util = {
         } catch (e) {
             alert("出现错误！用户必须将浏览器设置为允许弹出窗口才能打开新窗口！");
         }
+    },
+    /**
+     * 去除字符串中所有空格
+     * @param {string}ele
+     * @returns {string}
+     */
+    strTrimAll: function (ele) {
+        return ele.split(/[\t\r\f\n\s]*/g).join("");
+    },
+    isBoolean: function (str) {
+        const bool = Boolean(str);
+        return bool === true;
     }
 }
 const HttpUtil = {
@@ -786,75 +829,74 @@ const layout = {
     css: {
         home: function () {
             Util.addStyle(`
-            #home_layout{
-                background: ${Home.getBackgroundStr()};
-                margin: 0px;
-                height: 100%;
-                width: 100%;
-                max-height: 100%;
-                position: fixed;
-                z-index: 2023;
-                overflow-y: auto;
-                border: 3px solid green;
-            }
-            
-     /* 隐藏标签布局，除了“active”的标签布局 */
-    .tab {
-      display: none;
-    }
-
-    .tab.active {
-      display: block;
-    }
-    ul {
-      /* 隐藏ul标签的默认符号 */
-      list-style: none;
-    }
-             /* 悬浮屏蔽布局 */
-             #suspensionDiv{
-              position: fixed;
-                display: none;
-                z-index: 2024;
-                background: rgb(149, 156, 135);
-                overflow-y: auto;
-                height: 30%;
-                width: 10%;
-                top: 70%;
-                left: 90%;
-                 border: 3px solid green;
-             }
-             
-             #suspensionDiv p {
-  margin-top: 10px;
+#home_layout {
+    background: ${Home.getBackgroundStr()};
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+    position: fixed;
+    z-index: 2023;
+    overflow-y: auto;
+    border: 3px solid green;
+}
+/* 隐藏标签布局，除了“active”的标签布局 */
+.tab {
+    display: none;
+}
+.tab.active {
+    display: block;
+}
+ul {
+    /* 隐藏ul标签的默认符号 */
+    list-style: none;
+}
+/* 悬浮屏蔽布局 */
+#suspensionDiv {
+    position: fixed;
+    display: none;
+    z-index: 2024;
+    background: rgb(149, 156, 135);
+    overflow-y: auto;
+    height: 30%;
+    width: 10%;
+    top: 70%;
+    left: 90%;
+    border: 3px solid green;
+}
+#suspensionDiv p {
+    margin-top: 10px;
 }
 #suspensionDiv button {
-  margin-top: 10px;
-  padding: 5px 10px;
-  border: none;
-  background-color: #4CAF50;
-  color: #fff;
-  cursor: pointer;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;
 }
 #suspensionDiv button:hover {
-  background-color: #3E8E41;
+    background-color: #3E8E41;
 }
-             
-             /* 悬浮屏蔽布局 */
-              #sort_typeSelect{
-               display: none;
-               }
-          #mybut{
-        position: fixed;
-        z-index: 2024;
-        width: 50px;
-        height:50px;
-        left: 96%;
-        bottom: 85%;
-        background: rgb(67, 67, 124);
-        color: white;
-        border: none;
-        border-radius: 50%;
-    }
+/* 悬浮屏蔽布局 */
+#sort_typeSelect {
+    display: none;
+}
+#mybut {
+    position: fixed;
+    z-index: 2024;
+    width: 50px;
+    height: 50px;
+    left: 96%;
+    bottom: 85%;
+    background: rgb(67, 67, 124);
+    color: white;
+    border: none;
+    border-radius: 50%;
+}
+#ruleCRUDLayout>div>div{
+border: 0.5px solid green;
+}
             `);
         }
     },
@@ -882,7 +924,11 @@ const layout = {
         <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
     },
     getRuleCRUDLayout: function () {
-        return `<div id="tableBody">
+        return `
+<div style="display: flex;flex-wrap: wrap;">
+<div>
+<div>
+<h2>规则增删改查</h2>
         <select id="singleDoubleModel">
           <option value="one">单个</option>
           <option value="batch">批量</option>
@@ -908,7 +954,7 @@ const layout = {
           <button id="butdelAll" style="display: none">全部删除</button>
           <button id="butSet">修改</button>
           <button id="butFind">查询</button>
-          <button id="printRuleBut">打印规则信息</button>
+          <button id="lookRuleContentBut">查看本地规则内容</button>
         </div>
       </div>
     <details>
@@ -924,14 +970,52 @@ const layout = {
         <option value="barrageQuantityMax">弹幕量最大值</option>
       </select>
       <button id="butSelectVideo">确定</button>
-     </details>`;
+     </details>
+     <h2>使用说明</h2>
+     <ol>
+     <li>
+     <pre style="white-space: pre-wrap">脚本中会对要匹配的内容进行去除空格和转成小写，比如有个内容是【不 要  笑   挑  战  ChallEnGE】，会被识别称为【不要笑挑战challenge】</pre>
+     </li>
+     <li>在上述一点的情况下，模糊匹配和正则匹配的方式时不用考虑要匹配的内容中大写问题</li>
+     <li>如果用户要添加自己的正则匹配相关的规则时，建议先去该网址进行测试再添加，避免浪费时间【<a href="https://c.runoob.com/front-end/854/" target="_blank" title="正则表达式在线测试 | 菜鸟工具">https://c.runoob.com/front-end/854/正则表达式在线测试|菜鸟工具</a>】</li>
+     <li>如需要备份自己的规则可以考虑在当前选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
+     </ol>
+     </div>
+     <div id="textRuleInfoDiv">
+     <h2>规则信息</h2>
+     <div></div>
+    </div>
+    <div>
+    <h2>规则导入导出</h2>
+      <div>
+  <select id="outRuleSelect">
+  <option>全部规则到文件</option>
+  <option>全部规则到剪贴板</option>
+  <option>全部UID规则到文件</option>
+  <option>b站弹幕屏蔽规则</option>
+  <option>全部规则到云端账号</option>
+</select>
+<button id="outExport">导出</button>
+</div>
+<div>
+  <select id="inputRuleSelect">
+  <option value="">从云端账号导入覆盖本地规则</option>
+  <option value="">从下面编辑框导入全部规则</option>
+  <option value="">从下面编辑框合并导入UID规则</option>
+</select>
+<button id="inputExport">导入</button>
+</div>
+    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
+    </div>
+    </div>
+`;
     },
     getHomePageLayout: function () {
         return ` <details open>
       <summary>首页</summary>
       <h3>首页推荐视频</h3>
       <span>指定推送</span>
-      <input type="checkbox">
+      <input type="checkbox" id="isMainVideoListCheckbox">
       <select id="pushTypeSelect" style="display: block">
         <option value="分区">分区</option>
         <option value="频道">频道</option>
@@ -993,67 +1077,6 @@ const layout = {
 </div>
 `;
     },
-    getRuleInfoLayout: function () {
-        return `<div>
-      <p>用户名黑名单模式(精确匹配)个数:
-        <span id="textUserName" style="color: yellow;"></span>个
-      </p>
-      <p>用户名黑名单模式(模糊匹配)个数:
-        <span id="textUserNameKey" style="color: yellow;"></span>个
-      </p>
-      <p>用户uid黑名单模式(精确匹配)个数:
-        <span id="textUserUID" style="color: yellow;"></span>个
-      </p>
-      <p>用户白名单模式(精确匹配)个数:
-        <span id="textUserBName" style="color: yellow;"></span>个
-      </p>
-      <p>标题黑名单模式(模糊匹配)个数:
-        <span id="textUserTitle" style="color: yellow;"></span>个
-      </p>
-      <p>标题黑名单模式(正则匹配)个数:
-        <span id="textUserTitleCanonical" style="color: yellow;"></span>个
-      </p>
-      <p>评论关键词黑名单模式(模糊匹配)个数:
-        <span id="textContentOn" style="color: yellow;"></span>个
-      </p>
-      <p>评论关键词黑名单模式(正则匹配)个数:
-        <span id="textContentOnCanonical" style="color: yellow;"></span>个
-      </p>
-      <p>粉丝牌黑名单模式(精确匹配)个数:
-        <span id="textFanCard" style="color: yellow;"></span>个
-      </p>
-      <p>专栏关键词内容黑名单模式(模糊匹配)个数:
-        <span id="textColumn" style="color: yellow;"></span>个
-      </p>
-      <p>动态关键词内容黑名单模式(模糊匹配)个数：
-       <span id="textDynamicArr" style="color: yellow;"></span>个
-      </p>
-    </div>
-    <div>
-    <h1>规则导入导出</h1>
-      <div>
-  <select id="outRuleSelect">
-  <option>全部规则到文件</option>
-  <option>全部规则到剪贴板</option>
-  <option>全部UID规则到文件</option>
-  <option>b站弹幕屏蔽规则</option>
-  <option>全部规则到云端账号</option>
-  <option>全部UID规则到云端api</option>
-</select>
-<button id="outExport">导出</button>
-</div>
-<div>
-  <select id="inputRuleSelect">
-  <option value="">从云端账号导入覆盖本地规则</option>
-  <option value="">从下面编辑框导入全部规则</option>
-  <option value="">从下面编辑框合并导入UID规则</option>
-</select>
-<button id="inputExport">导入</button>
-</div>
-    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
-</div>
-`;
-    },
     getOutputInfoLayout: function () {
         return `<div>
       <button id="butClearMessage">清空信息</button>
@@ -1095,8 +1118,22 @@ const layout = {
     </details>
     <div style="display: flex">
     <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
-</div>
+    </div>
+    <div>
+    <button  value="bvBut">bv号转av号</button>
+    <button  value="avBut">av号转bv号</button>
+    </div>
     <hr>
+    <hr>
+    <div>
+    <details id="GBTLSGameDetails">
+    <summary>GBT乐赏游戏空间</summary>
+    <button value="open">前往GBT乐赏游戏空间地址</button>
+    <button value="getPageDataInfo">初始化页面资源信息</button>
+    <button value="getData">获取页面资源</button>
+    <button value="getFildKeys">获取指定key的项目</button>
+</details>
+</div>
     <div>
       <h1> 反馈问题</h1>
       <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
@@ -1118,18 +1155,16 @@ const layout = {
        <span>固定面板值</span>
        <input id="fixedPanelValueCheckbox" type="checkbox">
        </div>
-        <p>
-          标题:
-          <span id="suspensionTitle"></span>
-        </p>
-        <p>
-          用户名：
-         <span id="nameSuspensionDiv"></span>
-        </p>
-        <p>
-          用户UID：
-          <a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a>
-        </p>
+        <p>用户名：<span id="nameSuspensionDiv"></span></p>
+        <div>
+        <details style="display: none">
+        <summary>视频信息</summary>
+        <p>标题:<span class="title"></span></p>
+        <p>视频BV号:<span class="bv"></span></p>
+        <p>视频AV号:<span class="av"></span></p>
+</details>
+        </div>
+        <p>用户UID：<a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a></p>
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
@@ -1202,11 +1237,10 @@ const layout = {
   <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
     <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
     <li><button value="panelSetsTheLayout">面板设置</button></li>
-    <li><button value="ruleCRUDLayout">规则增删改查</button></li>
+    <li><button value="ruleCRUDLayout">规则增删改查-信息-备份与恢复(导出与导入)</button></li>
     <li><button value="homePageLayout">首页</button></li>
     <li><button value="video_params_layout">视频参数</button></li>
     <li><button value="liveLayout">直播列表</button></li>
-    <li><button value="ruleInfoLayout">规则信息与导出导入</button></li>
     <li><button value="outputInfoLayout">输出信息</button></li>
     <li><button value="otherLayout">其他</button></li>
     <li><button value="donateLayout">支持打赏作者</button></li>
@@ -1217,7 +1251,6 @@ const layout = {
   <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
   <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
-  <div class="tab" id="ruleInfoLayout"></div><!-- 规则信息布局 -->
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
   <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
   <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
@@ -1232,7 +1265,6 @@ const layout = {
             $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
             $("#homePageLayout").append(layout.getHomePageLayout());
             $("#video_params_layout").append(layout.getVideo_params_layout());
-            $("#ruleInfoLayout").append(layout.getRuleInfoLayout());
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
             $("#donateLayout").append(layout.getDonateLayout());
@@ -1306,24 +1338,31 @@ const LocalData = {
     },
     setArrTitle: function (key) {
         Util.setData("titleKeyArr", key);
-    }, getArrTitleKeyCanonical: function () {
+    },
+    getArrTitleKeyCanonical: function () {//标题黑名单模式(正则匹配)
         return this.temp("titleKeyCanonicalArr");
     },
-    setArrTitleKeyCanonical: function (key) {
+    setArrTitleKeyCanonical: function (key) {//标题黑名单模式(正则匹配)
         Util.setData("titleKeyCanonicalArr", key);
-    },//获取评论关键词黑名单模式(正则匹配)
-    getArrContentOnKeyCanonicalArr: function () {
+    },
+    getArrContentOnKeyCanonicalArr: function () {//获取评论关键词黑名单模式(正则匹配)
         return this.temp("contentOnKeyCanonicalArr");
-    },//设置评论关键词黑名单模式(正则匹配)
-    setArrContentOnKeyCanonicalArr: function (key) {
+    },
+    setArrContentOnKeyCanonicalArr: function (key) {//设置评论关键词黑名单模式(正则匹配)
         Util.setData("contentOnKeyCanonicalArr", key);
-    },//获取动态页屏蔽项目规则--模糊匹配
-    getDynamicArr: function () {
+    },
+    getDynamicArr: function () {//获取动态页屏蔽项目规则--模糊匹配
         return this.temp("dynamicArr");
-    }, //设置动态页屏蔽项目规则-模糊匹配
-    setDynamicArr: function (key) {
+    },
+    setDynamicArr: function (key) {//设置动态页屏蔽项目规则-模糊匹配
         Util.setData("dynamicArr", key);
-    }, //粉丝牌
+    },
+    getDynamicCanonicalArr: function () {//获取动态页屏蔽项目规则--正则匹配
+        return this.temp("dynamicCanonicalArr");
+    },
+    setDynamicCanonicalArr: function (key) {//设置动态页屏蔽项目规则-正则匹配
+        Util.setData("dynamicCanonicalArr", key);
+    },//粉丝牌
     getFanCardArr: function () {
         return this.temp("fanCardArr");
     },//粉丝牌
@@ -1403,9 +1442,19 @@ const LocalData = {
         }, setInfo: function (key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
         }
-    }
-}
+    },
+    getIsMainVideoList: function () {//获取是否使用脚本自带的针对于首页的处理效果状态值
+        const data = Util.getData("isMainVideoList");
+        if (data === null) {
+            return false;
+        }
+        return Util.isBoolean(data);
 
+    },
+    setIsMainVideoList: function (bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
+        Util.setData("isMainVideoList", Util.isBoolean(bool));
+    },
+}
 function perf_observer() {
     const entries = performance.getEntriesByType('resource');
     const windowUrl = Util.getWindowUrl();
@@ -1544,11 +1593,17 @@ function perf_observer() {
             }
             Qmsg.info("检测到搜索的接口");
             //search.searchRules();
+            continue;
         }
+        if (url.includes("https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?web_location")) {//首页换一换
+            Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
+                Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
+            });
+        }
+
     }
     performance.clearResourceTimings();//清除资源时间
 }
-
 /**
  *
  * @param userName
@@ -2335,190 +2390,25 @@ const Trends = {
             }
             const tempContent = tempE.textContent;
             const contentKey = Shield.arrContent(LocalData.getDynamicArr(), tempContent);
-            if (contentKey == null) {
+            if (contentKey !== null) {
+                const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
+                v.remove();
+                Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+                Print.ln(tempInfo);
                 continue;
             }
-            v.remove();
-            const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
-            Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
-            Print.ln(tempInfo);
+            const arrContentCanonical = Shield.arrContentCanonical(LocalData.getDynamicCanonicalArr(), tempContent);
+            if (arrContentCanonical != null) {
+                const tempInfo = `已通过动态正则关键词【${arrContentCanonical}】屏蔽了动态【${tempContent}】`;
+                v.remove();
+                Qmsg.success(`已通过动态正则关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+                Print.ln(tempInfo);
+            }
         }
     }
 };
 
 function bilibili(href) {
-    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
-        console.log("进入了首页");
-
-        function ergodicList(list) { //针对频道api中的数据遍历处理并添加进去网页元素
-            for (const v of list) {
-                const av = v["id"];//视频av号
-                const title = v["name"];//标题
-                const cover = v["cover"];//封面
-                const view_count = v["view_count"];//播放量
-                const like_count = v["like_count"];//点赞量
-                const danmaku = v["danmaku"];//弹幕量
-                const duration = v["duration"];//时长【格式化之后的时分秒】
-                const author_name = v["author_name"];//用户名
-                const author_id = v["author_id"];//用户UID
-                const bvid = v["bvid"];//视频bv号
-                if (tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover)) {
-                    Qmsg.info("过滤了视频！！");
-                }
-            }
-        };
-
-        function loadingVideoZE() { //加载频道视频数据
-            const tempChannelId = frequencyChannel.getChannel_id();
-            const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
-            const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
-            const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
-                const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
-                if (body["code"] !== 0) {
-                    alert("未获取到频道视频数据");
-                    loading.close();
-                    return;
-                }
-                const bodyList = body["data"]["list"];
-                $(".container.is-version8").html("");
-                if (tempOffset === "" && tempSortType === "hot") {
-                    ergodicList(bodyList[0]["items"]);
-                    ergodicList(bodyList.slice(1));
-                } else {
-                    ergodicList(bodyList);
-                }
-                frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
-                loading.close();
-            });
-        };
-
-        /**
-         * @param uid uid
-         * @param videoTitle 标题
-         * @param userName 用户名
-         * @param bvid by号
-         * @param duration  视频时长
-         * @param ctimeStr 发布时间
-         * @param view 播放量
-         * @param danmaku 弹幕量
-         * @param pic 封面
-         */
-        function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
-            if (Shield.arrKey(LocalData.getArrUID(), uid)) {
-                Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
-                return true;
-            }
-            const isNameKey = Shield.arrContent(LocalData.getArrNameKey(), userName);
-            if (isNameKey != null) {
-                Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
-                return true;
-            }
-            const isTitleKey = Shield.arrContent(LocalData.getArrTitle(), videoTitle);
-            if (isTitleKey != null) {
-                Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
-                return true;
-            }
-            const isTitleKeyCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
-            if (isTitleKeyCanonical != null) {
-                Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
-                return true;
-            }
-            $(".container.is-version8").append(
-                addElement.homeVideoE.getHtmlStr(
-                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
-                    Util.getNumberFormat(view), Util.getNumberFormat(danmaku))
-            );
-            $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
-                const domElement = e.delegateTarget;//dom对象
-                const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
-                const userInfo = domElement.querySelector(".bili-video-card__info--owner");
-                const userHref = userInfo.href;
-                const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
-                Util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
-            });
-        }
-
-        function loadingVideoE(ps) {//加载分区视频数据
-            const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`, function (res) {
-                const bodyJson = JSON.parse(res.responseText);
-                if (bodyJson["code"] !== 0) {
-                    alert("未获取到视频数据！");
-                    loading.close();
-                    return;
-                }
-                const archives = bodyJson["data"]["archives"];
-                $(".container.is-version8").html("");
-                for (const v of archives) {
-                    const picUil = v["pic"];
-                    const videoTitle = v["title"];
-                    let bvid = v["bvid"];
-                    const uid = v["owner"]["mid"];
-                    const name = v["owner"]["name"];
-                    const view = v["stat"]["view"];//播放量
-                    const danmaku = v["stat"]["danmaku"];//弹幕量
-                    const aid = v["stat"]["aid"];//av号
-                    const cid = v["cid"];
-                    const ctime = v["ctime"];//视频审核时间时间戳
-                    const pubdate = v["pubdate"];//视频上传时间时间戳
-                    const ctimeStr = Util.timestampToTime(ctime * 1000);//发布时间
-                    const duration = v["duration"];//视频时长秒，专区-存数字时间
-                    const bvidSub = bvid.substring(0, bvid.indexOf("?"));
-                    bvid = (bvidSub === "" ? bvid : bvidSub);
-                    if (tempFunc(uid, videoTitle, name, bvid, Util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
-                        Qmsg.info("过滤了视频！！");
-                    }
-                }
-                loading.close();
-            });
-        }
-
-        const interval01 = setInterval(() => {
-            const recommended = $(".recommended-container_floor-aside");
-            if (recommended.length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            recommended.prepend(`<div style="display: flex; flex-direction: row-reverse">
-<button class="primary-btn roll-btn" id="replaceItBut" style="  height: 38px;position: fixed;    z-index: 100; background-color: #17181A; "><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""><path d="M8.624933333333333 13.666666666666666C8.624933333333333 14.011849999999999 8.345125 14.291666666666666 7.999933333333333 14.291666666666666C4.525166666666666 14.291666666666666 1.7082933333333332 11.474791666666665 1.7082933333333332 8C1.7082933333333332 6.013308333333333 2.629825 4.2414233333333335 4.066321666666667 3.089385C4.335603333333333 2.8734283333333335 4.728959999999999 2.9166533333333335 4.944915 3.1859349999999997C5.160871666666666 3.4552099999999997 5.1176466666666665 3.848573333333333 4.848366666666666 4.0645283333333335C3.694975 4.98953 2.9582933333333328 6.40852 2.9582933333333328 8C2.9582933333333328 10.784416666666667 5.215528333333333 13.041666666666666 7.999933333333333 13.041666666666666C8.345125 13.041666666666666 8.624933333333333 13.321483333333333 8.624933333333333 13.666666666666666zM11.060475 12.810558333333333C10.844225000000002 12.541558333333331 10.887033333333335 12.148125 11.156041666666667 11.931875C12.306858333333333 11.006775 13.041599999999999 9.589424999999999 13.041599999999999 8C13.041599999999999 5.215561666666666 10.784408333333332 2.958333333333333 7.999933333333333 2.958333333333333C7.6548083333333325 2.958333333333333 7.374933333333333 2.6785083333333333 7.374933333333333 2.333333333333333C7.374933333333333 1.9881533333333332 7.6548083333333325 1.7083333333333333 7.999933333333333 1.7083333333333333C11.474725000000001 1.7083333333333333 14.291599999999999 4.525206666666667 14.291599999999999 8C14.291599999999999 9.984108333333333 13.372483333333332 11.753958333333332 11.939225 12.906125C11.670166666666663 13.122375 11.276725 13.079625 11.060475 12.810558333333333z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M1.375 3.4130866666666666C1.375 3.0679066666666666 1.654825 2.7880866666666666 2 2.7880866666666666L4.333333333333333 2.7880866666666666C4.862608333333333 2.7880866666666666 5.291666666666666 3.2171449999999995 5.291666666666666 3.7464199999999996L5.291666666666666 6.079753333333334C5.291666666666666 6.424928333333334 5.011841666666666 6.704736666666666 4.666666666666666 6.704736666666666C4.321491666666667 6.704736666666666 4.041666666666666 6.424928333333334 4.041666666666666 6.079753333333334L4.041666666666666 4.038086666666667L2 4.038086666666667C1.654825 4.038086666666667 1.375 3.7582616666666664 1.375 3.4130866666666666z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M14.625 12.5864C14.625 12.931591666666666 14.345183333333333 13.2114 14 13.2114L11.666666666666666 13.2114C11.137408333333335 13.2114 10.708333333333332 12.782383333333332 10.708333333333332 12.253066666666665L10.708333333333332 9.919733333333333C10.708333333333332 9.574608333333334 10.98815 9.294733333333333 11.333333333333332 9.294733333333333C11.678516666666667 9.294733333333333 11.958333333333332 9.574608333333334 11.958333333333332 9.919733333333333L11.958333333333332 11.9614L14 11.9614C14.345183333333333 11.9614 14.625 12.241275000000002 14.625 12.5864z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path></svg>
-<span>换一换</span></button>
-</div>`);
-            $("#replaceItBut").click(() => {
-                const temp = Home.getPushType();
-                if (Home.videoIndex <= 50 && temp === "分区") {
-                    Home.videoIndex += 10;
-                }
-                if (temp === "分区") {
-                    loadingVideoE(Home.videoIndex);
-                } else {
-                    loadingVideoZE();
-                }
-            });
-        }, 1000);
-
-        const interval02 = setInterval(() => {
-            const homeGrid = $(".container.is-version8");
-            if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) {
-                return;
-            }
-            clearInterval(interval02);
-            homeGrid.html("");//先清空该标签的内容
-            if (Home.getPushType() === "分区") {
-                loadingVideoE(25);
-            } else {
-                loadingVideoZE();
-            }
-            // //首页
-            Home.stypeBody();
-            document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
-            setTimeout(() => {
-                $(".feed-roll-btn").remove();//移除换一换
-                console.log("移除换一换");
-            }, 1500);
-        }, 100);
-        return;
-    }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         greatDemand.delVideo();
         try {
@@ -2533,7 +2423,6 @@ function bilibili(href) {
         Home.homePrefecture();
         return;
     }
-
     if (href.includes("space.bilibili.com/[0-9]+/dynamic") !== -1) {
         const interval01 = setInterval(() => {
             const tempE = $(".bili-dyn-list__items");
@@ -2645,6 +2534,188 @@ function bilibiliOne(href, windowsTitle) {
     } else {
         tempFunc(".left-entry>*");
     }
+
+    if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
+        console.log("进入了首页");
+        if (!LocalData.getIsMainVideoList()) {
+            Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
+                Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
+            }); //换一换
+
+            return;
+        }
+
+        function ergodicList(list) { //针对频道api中的数据遍历处理并添加进去网页元素
+            for (const v of list) {
+                const av = v["id"];//视频av号
+                const title = v["name"];//标题
+                const cover = v["cover"];//封面
+                const view_count = v["view_count"];//播放量
+                const like_count = v["like_count"];//点赞量
+                const danmaku = v["danmaku"];//弹幕量
+                const duration = v["duration"];//时长【格式化之后的时分秒】
+                const author_name = v["author_name"];//用户名
+                const author_id = v["author_id"];//用户UID
+                const bvid = v["bvid"];//视频bv号
+                if (tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover)) {
+                    Qmsg.info("过滤了视频！！");
+                }
+            }
+        };
+
+        function loadingVideoZE() { //加载频道视频数据
+            const tempChannelId = frequencyChannel.getChannel_id();
+            const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
+            const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
+            const loading = Qmsg.loading("正在加载数据！");
+            HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
+                const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
+                if (body["code"] !== 0) {
+                    alert("未获取到频道视频数据");
+                    loading.close();
+                    return;
+                }
+                const bodyList = body["data"]["list"];
+                $(".container.is-version8").html("");
+                if (tempOffset === "" && tempSortType === "hot") {
+                    ergodicList(bodyList[0]["items"]);
+                    ergodicList(bodyList.slice(1));
+                } else {
+                    ergodicList(bodyList);
+                }
+                frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
+                loading.close();
+            });
+        };
+
+        /**
+         * @param uid uid
+         * @param videoTitle 标题
+         * @param userName 用户名
+         * @param bvid by号
+         * @param duration  视频时长
+         * @param ctimeStr 发布时间
+         * @param view 播放量
+         * @param danmaku 弹幕量
+         * @param pic 封面
+         */
+        function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
+            if (Shield.arrKey(LocalData.getArrUID(), uid)) {
+                Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
+                return true;
+            }
+            const isNameKey = Shield.arrContent(LocalData.getArrNameKey(), userName);
+            if (isNameKey != null) {
+                Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
+                return true;
+            }
+            const isTitleKey = Shield.arrContent(LocalData.getArrTitle(), videoTitle);
+            if (isTitleKey != null) {
+                Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
+                return true;
+            }
+            const isTitleKeyCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
+            if (isTitleKeyCanonical != null) {
+                Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
+                return true;
+            }
+            $(".container.is-version8").append(
+                addElement.homeVideoE.getHtmlStr(
+                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
+                    Util.getNumberFormat(view), Util.getNumberFormat(danmaku))
+            );
+            $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
+                const userInfo = domElement.querySelector(".bili-video-card__info--owner");
+                const userHref = userInfo.href;
+                const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
+                Util.showSDPanel(e, uerName, Util.getSubWebUrlUid(userHref), title);
+
+            });
+        }
+
+        function loadingVideoE(ps) {//加载分区视频数据
+            const loading = Qmsg.loading("正在加载数据！");
+            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`, function (res) {
+                const bodyJson = JSON.parse(res.responseText);
+                if (bodyJson["code"] !== 0) {
+                    alert("未获取到视频数据！");
+                    loading.close();
+                    return;
+                }
+                const archives = bodyJson["data"]["archives"];
+                $(".container.is-version8").html("");
+                for (const v of archives) {
+                    const picUil = v["pic"];
+                    const videoTitle = v["title"];
+                    let bvid = v["bvid"];
+                    const uid = v["owner"]["mid"];
+                    const name = v["owner"]["name"];
+                    const view = v["stat"]["view"];//播放量
+                    const danmaku = v["stat"]["danmaku"];//弹幕量
+                    const aid = v["stat"]["aid"];//av号
+                    const cid = v["cid"];
+                    const ctime = v["ctime"];//视频审核时间时间戳
+                    const pubdate = v["pubdate"];//视频上传时间时间戳
+                    const ctimeStr = Util.timestampToTime(ctime * 1000);//发布时间
+                    const duration = v["duration"];//视频时长秒，专区-存数字时间
+                    const bvidSub = bvid.substring(0, bvid.indexOf("?"));
+                    bvid = (bvidSub === "" ? bvid : bvidSub);
+                    if (tempFunc(uid, videoTitle, name, bvid, Util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
+                        Qmsg.info("过滤了视频！！");
+                    }
+                }
+                loading.close();
+            });
+        }
+
+        const interval01 = setInterval(() => {
+            const recommended = $(".recommended-container_floor-aside");
+            if (recommended.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            recommended.prepend(`<div style="display: flex; flex-direction: row-reverse">
+<button class="primary-btn roll-btn" id="replaceItBut" style="  height: 38px;position: fixed;    z-index: 100; background-color: #17181A; "><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""><path d="M8.624933333333333 13.666666666666666C8.624933333333333 14.011849999999999 8.345125 14.291666666666666 7.999933333333333 14.291666666666666C4.525166666666666 14.291666666666666 1.7082933333333332 11.474791666666665 1.7082933333333332 8C1.7082933333333332 6.013308333333333 2.629825 4.2414233333333335 4.066321666666667 3.089385C4.335603333333333 2.8734283333333335 4.728959999999999 2.9166533333333335 4.944915 3.1859349999999997C5.160871666666666 3.4552099999999997 5.1176466666666665 3.848573333333333 4.848366666666666 4.0645283333333335C3.694975 4.98953 2.9582933333333328 6.40852 2.9582933333333328 8C2.9582933333333328 10.784416666666667 5.215528333333333 13.041666666666666 7.999933333333333 13.041666666666666C8.345125 13.041666666666666 8.624933333333333 13.321483333333333 8.624933333333333 13.666666666666666zM11.060475 12.810558333333333C10.844225000000002 12.541558333333331 10.887033333333335 12.148125 11.156041666666667 11.931875C12.306858333333333 11.006775 13.041599999999999 9.589424999999999 13.041599999999999 8C13.041599999999999 5.215561666666666 10.784408333333332 2.958333333333333 7.999933333333333 2.958333333333333C7.6548083333333325 2.958333333333333 7.374933333333333 2.6785083333333333 7.374933333333333 2.333333333333333C7.374933333333333 1.9881533333333332 7.6548083333333325 1.7083333333333333 7.999933333333333 1.7083333333333333C11.474725000000001 1.7083333333333333 14.291599999999999 4.525206666666667 14.291599999999999 8C14.291599999999999 9.984108333333333 13.372483333333332 11.753958333333332 11.939225 12.906125C11.670166666666663 13.122375 11.276725 13.079625 11.060475 12.810558333333333z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M1.375 3.4130866666666666C1.375 3.0679066666666666 1.654825 2.7880866666666666 2 2.7880866666666666L4.333333333333333 2.7880866666666666C4.862608333333333 2.7880866666666666 5.291666666666666 3.2171449999999995 5.291666666666666 3.7464199999999996L5.291666666666666 6.079753333333334C5.291666666666666 6.424928333333334 5.011841666666666 6.704736666666666 4.666666666666666 6.704736666666666C4.321491666666667 6.704736666666666 4.041666666666666 6.424928333333334 4.041666666666666 6.079753333333334L4.041666666666666 4.038086666666667L2 4.038086666666667C1.654825 4.038086666666667 1.375 3.7582616666666664 1.375 3.4130866666666666z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M14.625 12.5864C14.625 12.931591666666666 14.345183333333333 13.2114 14 13.2114L11.666666666666666 13.2114C11.137408333333335 13.2114 10.708333333333332 12.782383333333332 10.708333333333332 12.253066666666665L10.708333333333332 9.919733333333333C10.708333333333332 9.574608333333334 10.98815 9.294733333333333 11.333333333333332 9.294733333333333C11.678516666666667 9.294733333333333 11.958333333333332 9.574608333333334 11.958333333333332 9.919733333333333L11.958333333333332 11.9614L14 11.9614C14.345183333333333 11.9614 14.625 12.241275000000002 14.625 12.5864z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path></svg>
+<span>换一换</span></button>
+</div>`);
+            $("#replaceItBut").click(() => {
+                const temp = Home.getPushType();
+                if (Home.videoIndex <= 50 && temp === "分区") {
+                    Home.videoIndex += 10;
+                }
+                if (temp === "分区") {
+                    loadingVideoE(Home.videoIndex);
+                } else {
+                    loadingVideoZE();
+                }
+            });
+        }, 1000);
+
+        const interval02 = setInterval(() => {
+            const homeGrid = $(".container.is-version8");
+            if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            homeGrid.html("");//先清空该标签的内容
+            if (Home.getPushType() === "分区") {
+                loadingVideoE(25);
+            } else {
+                loadingVideoZE();
+            }
+            // //首页
+            Home.stypeBody();
+            document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
+            setTimeout(() => {
+                $(".feed-roll-btn").remove();//移除换一换
+                console.log("移除换一换");
+            }, 1500);
+        }, 100);
+        return;
+    }
+
     if (href.includes("space.bilibili.com/")) {//个人主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
         if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
@@ -3096,7 +3167,6 @@ function bilibiliOne(href, windowsTitle) {
         }, 1000);
     }
 }
-
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -3183,7 +3253,7 @@ function ruleList(href) {
             $(upInfo).mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const adHref = domElement.href;
-                Util.showSDPanel(e, domElement.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
+                Util.showSDPanel(e, domElement.text.trim(), Util.getSubWebUrlUid(adHref));
             });
         }, 2000);
         return;
@@ -3221,33 +3291,125 @@ function ruleList(href) {
 
     }
 }
-
 function github(href) {
     setInterval(() => {//github站内所有的链接都从新的标签页打开，而不从当前页面打开
         $("a").attr("target", "_blank");
     }, 1000);
 }
 
+const GBTGame = {
+    data: {
+        tempArrList: {}
+    },
+    init: function () {//初始化页面资源信息，用于获取资源操作
+        if (!Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
+            alert("当前网站不是GBT乐赏游戏空间");
+            return;
+        }
+        const loading = Qmsg.loading("正在获取中，请不要对当前网页进行其他操作！");
+        const arrList = document.querySelectorAll("#menuList>*");
+        let chickTempIndex = 0;
+        this.data.tempArrList = {};
+        const interval = setInterval(() => {
+            if (arrList.length <= chickTempIndex) {
+                loading.close();
+                clearInterval(interval);
+                alert("已点击完成！");
+                return;
+            }
+            const tempE = arrList[chickTempIndex++];
+            const a = tempE.querySelector("a");
+            const filesTime = a.text;
+            a.click();
+            const info = `已点击${filesTime}`;
+            Qmsg.success(info);
+            const p = new Promise((resolve) => {
+                const interval01 = setInterval(() => {
+                    let menuItem = tempE.querySelectorAll(".menu>*:not(.lxts)");
+                    if (menuItem.length <= 1) {
+                        return;
+                    }
+                    clearInterval(interval01);
+                    resolve(menuItem);
+                }, 15);
+            });
+            p.then((data) => {
+                data.forEach((value) => {
+                    const tempE = value.querySelector("a");
+                    const title = tempE.text;
+                    this.data.tempArrList[title] = tempE.getAttribute("href");
+                });
+            });
+        }, 1000);
+
+    },
+    find: function (key) {
+        const tempArrList = this.data.tempArrList;
+        const keys = Object.keys(tempArrList);
+        if (keys.length === 0) {
+            const info = "请先获取页面所有游戏资源先！";
+            Qmsg.error(info);
+            alert(info);
+            return;
+        }
+        const newArray = {};
+        keys.forEach(value => {
+            if (!value.includes(key)) {
+                return;
+            }
+            newArray[value] = tempArrList[value];
+        });
+        const filter = Object.keys(newArray);
+        if (filter.length === 0) {
+            const info = "并未搜索到您想要的资源，key=" + key;
+            Print.ln(info);
+            Qmsg.info(info);
+            alert(info);
+            return;
+        }
+        const info = `已找到了${filter.length}个资源，并输出到控制台上！`;
+        alert(info);
+        Print.ln(info);
+        Qmsg.success(info);
+        console.log(info);
+        console.log(newArray);
+        console.log(JSON.stringify(newArray));
+    },
+    getData: function () {
+        const tempArrList = this.data.tempArrList;
+        const keys = Object.keys(tempArrList);
+        if (keys.length === 0) {
+            const info = "请先获取页面所有游戏资源先！";
+            alert(info);
+            Qmsg.error(info);
+            return;
+        }
+        const info = `已获取到${keys.length}个资源，并将其打印在控制台和输出面板上！`;
+        const strJson = JSON.stringify(tempArrList);
+        Print.ln(info);
+        Print.ln(strJson);
+        console.log(info);
+        console.log(tempArrList);
+        console.log(strJson);
+    }
+}
+
 //主入口
 const Rule = {
     ruleLength: function () {
-        function setText(arr, id) {
-            if (arr !== undefined && arr !== null) {
-                $(id).text(arr.length);
-            }
-        }
-
-        setText(LocalData.getArrName(), "#textUserName");
-        setText(LocalData.getArrNameKey(), "#textUserNameKey");
-        setText(LocalData.getArrUID(), "#textUserUID");
-        setText(LocalData.getArrWhiteUID(), "#textUserBName");
-        setText(LocalData.getArrTitle(), "#textUserTitle");
-        setText(LocalData.getArrTitleKeyCanonical(), "#textUserTitleCanonical");
-        setText(Util.getData("commentOnKeyArr"), "#textContentOn");
-        setText(LocalData.getArrContentOnKeyCanonicalArr(), "#textContentOnCanonical");
-        setText(LocalData.getFanCardArr(), "#textFanCard");
-        setText(LocalData.getContentColumnKeyArr(), "#textColumn");
-        setText(LocalData.getDynamicArr(), "#textDynamicArr");
+        const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
+        $textRuleInfoDiv.children().remove();
+        const ruleJson = JSON.parse(Util.getRuleFormatStr());
+        Object.keys(ruleJson).forEach(value => {
+            $textRuleInfoDiv.append(`<p>${value}个数:
+        <span>${ruleJson[value].length}</span>个
+      </p>`);
+        });
+        Util.addStyle(`
+#textRuleInfoDiv>div>p>span{
+color: yellow;
+}
+`);
     },
     showInfo: function () {
         const isDShielPanel = Util.getData("isDShielPanel");
@@ -3284,6 +3446,7 @@ const Rule = {
         }
         $("#delVideoCommentSectionsCheackBox").prop('checked', LocalData.getDelVideoCommentSections());//设置
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
+        $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
     },
     //视频参数
     videoData: {
@@ -3428,19 +3591,23 @@ const Home = {
      * @param {String} str 首页视频元素
      */
     startShieldMainVideo: function (str) {
-        const interval = setInterval(() => {
-            let list = document.querySelectorAll(str);
-            if (list.length === 0) {
-                return;
-            }
-            while (true) {
-                const tempLength = list.length;
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                let list = document.querySelectorAll(str);
+                if (list.length === 0) {
+                    return;
+                }
+                $(".floor-single-card").remove();
+                $(".bili-live-card").remove();
+                clearInterval(interval);
                 for (let v of list) {
-                    let videoInfo, title, upName, upSpatialAddress, videoTime, playbackVolume;//可以一排定义
+                    let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
                     try {
                         videoInfo = v.querySelector(".bili-video-card__info--right");
+                        const titleInfo = videoInfo.querySelector(".bili-video-card__info--tit");
                         //视频标题
-                        title = videoInfo.querySelector(".bili-video-card__info--tit").getAttribute("title");
+                        title = titleInfo.getAttribute("title");
+                        videoAddress = titleInfo.getAttribute("href");
                         //用户名
                         upName = videoInfo.querySelector(".bili-video-card__info--author").getAttribute("title");
                         //用户空间地址
@@ -3450,19 +3617,16 @@ const Home = {
                         playbackVolume = topInfo[0].textContent;
                     } catch (e) {
                         v.remove();
-                        Qmsg.info("清理异常元素");
-                        // console.log("获取元素中，获取失败，下一行是该值的html");
-                        // console.log(v)
+                        console.log("清理异常元素");
                         continue;
                     }
-                    let id = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
-                    if (isNaN(id)) {
+                    let uid = Util.getSubWebUrlUid(upSpatialAddress);
+                    if (uid === null) {
                         v.remove();
-                        Qmsg.info("清理非正常视频样式");
+                        console.log("清理非正常视频样式");
                         continue;
                     }
-                    if (shieldVideo_userName_uid_title(v, upName, id, title, null, videoTime, playbackVolume)) {
-                        Qmsg.info("屏蔽视频！");
+                    if (shieldVideo_userName_uid_title(v, upName, parseInt(uid), title, videoAddress, videoTime, playbackVolume)) {
                         continue;
                     }
                     const jqE = $(v);
@@ -3472,21 +3636,19 @@ const Home = {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;//dom对象
                         const info = domElement.querySelector(".bili-video-card__info--right");
-                        const videoTitle = info.querySelectorAll("[title]")[0].textContent;
-                        const userName = info.querySelectorAll("[title]")[1].textContent;
-                        let href = info.querySelector(".bili-video-card__info--owner").href;
-                        href = href.substring(href.lastIndexOf("/") + 1);
-                        Util.showSDPanel(e, userName, href, videoTitle);
+                        const title = info.querySelector(".bili-video-card__info--tit").getAttribute("title");
+                        const videoAddress = info.querySelector(".bili-video-card__info--tit>a").getAttribute("href");
+                        const name = info.querySelector(".bili-video-card__info--author").textContent;
+                        const href = info.querySelector(".bili-video-card__info--owner").href;
+                        const uid = Util.getSubWebUrlUid(href);
+                        const bv = Util.getSubWebUrlBV(videoAddress);
+                        Util.showSDPanel(e, name, uid, title, bv);
                     });
                 }
-                list = document.getElementsByClassName(str);//删除完对应元素之后再检测一次，如果没有了就结束循环并结束定时器
-                if (list.length !== tempLength) {//如果执行完之后关键元素长度还是没有变化，说明不需要在执行了
-                    continue;
-                }
-                clearInterval(interval);
-                return;
-            }
-        }, 1000);
+                resolve(true);
+            }, 250);
+        });
+
     },
     hideDisplayHomeLaylout: function () {//隐藏显示面板
         const home_layout = document.getElementById("home_layout");
@@ -3546,8 +3708,9 @@ const Shield = {
             return null;
         }
         try {
+            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
             for (let str of arr) {
-                if (content.toLowerCase().includes(str)) {//将内容中的字母转成小写进行比较
+                if (lowerCase.includes(str)) {
                     return str;
                 }
             }
@@ -3568,8 +3731,9 @@ const Shield = {
             return null;
         }
         try {
+            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
             for (let str of arr) {
-                if (content.search(str) === -1) {
+                if (lowerCase.search(str) === -1) {
                     continue;
                 }
                 return str;
@@ -3906,7 +4070,7 @@ left: 0;  bottom: 0;">
             </div>
         </div>
         <hr>
-        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto;">
+        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto auto auto;">
         <!--列表中的项目-->
         </div>
     </div>`);
@@ -4684,8 +4848,7 @@ const search = {//搜索
                 }
                 const videoTime = v.querySelector(".bili-video-card__stats__duration").textContent;//视频的时间
                 const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
-                let id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
-                if (shieldVideo_userName_uid_title(v, name, id, title, null, videoTime, topInfo[0].textContent)) {
+                if (shieldVideo_userName_uid_title(v, name, Util.getSubWebUrlUid(upSpatialAddress), title, null, videoTime, topInfo[0].textContent)) {
                     Qmsg.info("屏蔽了视频！！");
                     continue;
                 }
@@ -4818,6 +4981,8 @@ function loadChannel() {//加载下拉框中的频道信息
     $("body").prepend('<button id="mybut">按钮</button>');
     layout.css.home();
 
+    Util.BilibiliEncoder.init();
+
     $("#tabUl>li>button").click((e) => {
         const domElement = e.delegateTarget;//dom对象
         document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
@@ -4856,9 +5021,7 @@ function loadChannel() {//加载下拉框中的频道信息
                     const ruleRes = dataList[index]["rule"]["ruleRes"];
                     let centerIndexE = [];
                     for (let key in ruleRes) {
-                        centerIndexE.push(`<div>
-                    <span>${key}：</span><span>${ruleRes[key].length}</span>个
-                </div>`);
+                        centerIndexE.push(`<div>${key}：<span >${ruleRes[key].length}</span>个</div>`);
                     }
                     const item = `<li value="${index}">
             <div>
@@ -4887,6 +5050,9 @@ function loadChannel() {//加载下拉框中的频道信息
         align-items: center;
         border: 1px solid rgb(0, 217, 0);
     }
+    #ruleCenterLayout>ul>li>div:nth-child(2) span{
+    color: rgb(255, 255, 26);
+   }
                     `);
                 $ruleCenterLayoutUl.on("click", "button", (e) => {
                     const target = e.target;
@@ -4916,6 +5082,7 @@ function loadChannel() {//加载下拉框中的频道信息
                             break;
                     }
                 });
+
             }, error: function (xhr, status, error) { //请求失败的回调函数
                 loading.close();
                 console.log(error, status);
@@ -5402,8 +5569,44 @@ function loadChannel() {//加载下拉框中的频道信息
         butLayEvent.butFindKey(typeVal, content);
     });
 
-    $("#printRuleBut").click(() => {
-        Print.ln(Util.getRuleFormatStr());
+    $("#lookRuleContentBut").click(() => Util.openWindowWriteContent(Util.getRuleFormatStr()));
+
+    const bilibiliEncoder = Util.BilibiliEncoder;
+    $("#otherLayout div>button[value='bvBut']").click(() => {
+        const content = prompt("bv转av号");
+        if (content === null) {
+            return;
+        }
+        if (content.length <= 5) {
+            alert("请正确填写内容！");
+            return;
+        }
+        const dec = bilibiliEncoder.dec(content);
+        if (isNaN(dec)) {
+            alert("结果错误！");
+            return;
+        }
+        alert("av" + dec);
+    });
+
+    $("#otherLayout div>button[value='avBut']").click(() => {
+        let content = prompt("av转bv号");
+        if (content === null) {
+            return;
+        }
+        if (content.startsWith("av") || content.startsWith("AV")) {
+            content = content.substring(2, content.length);
+        }
+        if (content.length < 1 || (isNaN(content))) {
+            alert("请正确填写内容！");
+            return;
+        }
+        const dec = bilibiliEncoder.enc(content);
+        if (!dec.startsWith("BV")) {
+            alert("结果错误！");
+            return;
+        }
+        alert(dec);
     });
 
     $("#sgSessdata>button:eq(0)").click(() => {
@@ -5610,6 +5813,8 @@ function loadChannel() {//加载下拉框中的频道信息
         LocalData.setContentColumnKeyArr(list)
         list = ruleRes["动态关键词内容黑名单模式(模糊匹配)"];
         LocalData.setDynamicArr(list);
+        list = ruleRes["动态关键词内容黑名单模式(正则匹配)"];
+        LocalData.setDynamicCanonicalArr(list);
         Rule.ruleLength();
         alert("已导入");
     }
@@ -5657,7 +5862,7 @@ function loadChannel() {//加载下拉框中的频道信息
                     }
                 });
                 break;
-            case "全部规则":
+            case "从下面编辑框导入全部规则":
                 if (content === "" || content === " ") {
                     alert("请填写正确的规则样式！");
                     return;
@@ -5675,7 +5880,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 }
                 rulesAreImportedLocally(jsonRule);
                 break;
-            case "确定合并导入UID规则":
+            case "从下面编辑框合并导入UID规则":
                 let uidList;
                 try {
                     uidList = JSON.parse(content)
@@ -5723,6 +5928,9 @@ function loadChannel() {//加载下拉框中的频道信息
                 break;
             case "本地b站弹幕屏蔽规则":
                 alert("暂时未写")
+                break;
+            default:
+                alert(`出现超出的条件！selectedText=${selectedText}`);
                 break;
         }
     });
@@ -5827,6 +6035,32 @@ function loadChannel() {//加载下拉框中的频道信息
         }
     });
 
+
+    $("#GBTLSGameDetails>button[value='open']").click(() => {
+        if (Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
+            alert("当前网站就是GBT乐赏游戏空间");
+            return;
+        }
+        Util.openWindow("http://gbtgame.ysepan.com/");
+    });
+
+    $("#GBTLSGameDetails>button[value='getPageDataInfo']").click(() => GBTGame.init());
+    $("#GBTLSGameDetails>button[value='getData']").click(() => GBTGame.getData());
+    $("#GBTLSGameDetails>button[value='getFildKeys']").click(() => {
+        const key = prompt("请输入您要搜索的内容");
+        if (key === null) {
+            return;
+        }
+        if (key.includes(" ") || key === "") {
+            alert("请正确填写您要搜索的内容！");
+            return;
+        }
+        GBTGame.find(key);
+    });
+
+    const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
+    $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
+
     ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
@@ -5837,7 +6071,6 @@ function loadChannel() {//加载下拉框中的频道信息
         console.log("页面url发生变化了，原=" + href + " 现=" + tempUrl);
         href = tempUrl;//更新url
         ruleList(href);//网页url发生变化时执行
-        bilibili(href);
     }, 1000);
 
     if (href.includes("bilibili.com")) {
