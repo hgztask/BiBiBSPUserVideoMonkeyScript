@@ -66,7 +66,7 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/article/metas?ids=")) {//搜索专栏
-           search.searchColumn();
+            search.searchColumn();
             continue;
         }
         if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
@@ -136,7 +136,14 @@ function perf_observer() {
             }
             Qmsg.info("检测到搜索的接口");
             //search.searchRules();
+            continue;
         }
+        if (url.includes("https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?web_location")) {//首页换一换
+            Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
+                Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
+            });
+        }
+
     }
     performance.clearResourceTimings();//清除资源时间
 }
