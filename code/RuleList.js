@@ -84,7 +84,7 @@ function ruleList(href) {
             $(upInfo).mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const adHref = domElement.href;
-                Util.showSDPanel(e, domElement.text.trim(), adHref.substring(adHref.lastIndexOf("/") + 1));
+                Util.showSDPanel(e, domElement.text.trim(), Util.getSubWebUrlUid(adHref));
             });
         }, 2000);
         return;
