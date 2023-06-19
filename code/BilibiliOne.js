@@ -89,20 +89,11 @@ function bilibiliOne(href, windowsTitle) {
 
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
-
-        const interval03 = setInterval(() => {
-            const $recommended = $(".recommended-swipe.grid-anchor");
-            if ($recommended.maxLength === 0) {
-                return;
-            }
-            clearInterval(interval03);
-            console.log($recommended);
-            $recommended.remove();
-            console.log("已移除首页轮播图");
-            Qmsg.success("已移除首页轮播图");
-        }, 1000);
-
         if (!LocalData.getIsMainVideoList()) {
+            Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
+                Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
+            }); //换一换
+
             return;
         }
 
@@ -191,7 +182,8 @@ function bilibiliOne(href, windowsTitle) {
                 const userInfo = domElement.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;
                 const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
-                Util.showSDPanel(e, uerName, userHref.substring(userHref.lastIndexOf("/") + 1), title);
+                Util.showSDPanel(e, uerName, Util.getSubWebUrlUid(userHref), title);
+
             });
         }
 
