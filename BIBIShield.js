@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.53
+// @version      1.1.54
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -403,7 +403,7 @@ const Util = {
         return Util.strTrimAll(`{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
     "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
     "标题黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrTitleKeyCanonical())},
-    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(Util.getData("commentOnKeyArr"))},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
+    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getCommentOnKeyArr())},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
     "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getContentColumnKeyArr())},
     "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())},"动态关键词内容黑名单模式(正则匹配)":${JSON.stringify(LocalData.getDynamicCanonicalArr())}}`);
     },
@@ -1347,6 +1347,12 @@ const LocalData = {
     },
     getArrContentOnKeyCanonicalArr: function () {//获取评论关键词黑名单模式(正则匹配)
         return this.temp("contentOnKeyCanonicalArr");
+    },
+    getCommentOnKeyArr: function () {//获取评论关键词黑名单模式(模糊匹配)
+        return this.temp("commentOnKeyArr");
+    },
+    setCommentOnKeyArr: function (data) {//设置评论关键词黑名单模式(模糊匹配)
+        return Util.setData("commentOnKeyArr", data);
     },
     setArrContentOnKeyCanonicalArr: function (key) {//设置评论关键词黑名单模式(正则匹配)
         Util.setData("contentOnKeyCanonicalArr", key);
@@ -2407,7 +2413,6 @@ const Trends = {
         }
     }
 };
-
 function bilibili(href) {
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         greatDemand.delVideo();
@@ -2445,7 +2450,6 @@ function bilibili(href) {
         }, 1000);
     }
 }
-
 /**
  *
  * 首次加载时只会加载一次
@@ -3296,7 +3300,6 @@ function github(href) {
         $("a").attr("target", "_blank");
     }, 1000);
 }
-
 const GBTGame = {
     data: {
         tempArrList: {}
@@ -3830,7 +3833,7 @@ const Remove = {
      * @returns {String|null}
      */
     contentKey: function (element, content) {
-        const shieldArrContent = Shield.arrContent(Util.getData("commentOnKeyArr"), content);
+        const shieldArrContent = Shield.arrContent(LocalData.getCommentOnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -5804,7 +5807,7 @@ function loadChannel() {//加载下拉框中的频道信息
         list = ruleRes["标题黑名单模式(正则匹配)"];
         LocalData.setArrTitleKeyCanonical(list);
         list = ruleRes["评论关键词黑名单模式(模糊匹配)"];
-        Util.setData("commentOnKeyArr", list);
+        LocalData.setCommentOnKeyArr(list);
         list = ruleRes["评论关键词黑名单模式(正则匹配)"];
         LocalData.setArrContentOnKeyCanonicalArr(list);
         list = ruleRes["粉丝牌黑名单模式(精确匹配)"];
