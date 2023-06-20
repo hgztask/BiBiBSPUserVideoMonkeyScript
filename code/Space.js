@@ -41,9 +41,13 @@ const Space = {
                         desc = desc.getAttribute("title");
                     }
                     userInfo["desc"] = desc;
-                    userInfo["address"] = userAddress;
+                    const uid = /space\.bilibili\.com\/(\d+?)\//.exec(userAddress);
+                    if (uid && uid[1]) {
+                        userInfo["uid"] = uid[1];
+                    } else {
+                        userInfo["uid"] = userAddress;
+                    }
                     userInfo["fansActionType"] = fansActionText;
-                    userInfo["e"] = value;
                     userinfoList.push(userInfo);
                 });
                 resolve(userinfoList);

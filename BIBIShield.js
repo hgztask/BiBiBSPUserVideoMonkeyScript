@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.55
+// @version      1.1.56
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2476,9 +2476,13 @@ const Space = {
                         desc = desc.getAttribute("title");
                     }
                     userInfo["desc"] = desc;
-                    userInfo["address"] = userAddress;
+                    const uid = /space\.bilibili\.com\/(\d+?)\//.exec(userAddress);
+                    if (uid && uid[1]) {
+                        userInfo["uid"] = uid[1];
+                    } else {
+                        userInfo["uid"] = userAddress;
+                    }
                     userInfo["fansActionType"] = fansActionText;
-                    userInfo["e"] = value;
                     userinfoList.push(userInfo);
                 });
                 resolve(userinfoList);
@@ -2523,7 +2527,6 @@ const Space = {
         });
     }
 }
-
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
