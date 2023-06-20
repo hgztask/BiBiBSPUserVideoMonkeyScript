@@ -72,6 +72,12 @@ const LocalData = {
     getArrContentOnKeyCanonicalArr: function () {//获取评论关键词黑名单模式(正则匹配)
         return this.temp("contentOnKeyCanonicalArr");
     },
+    getCommentOnKeyArr: function () {//获取评论关键词黑名单模式(模糊匹配)
+        return this.temp("commentOnKeyArr");
+    },
+    setCommentOnKeyArr: function (data) {//设置评论关键词黑名单模式(模糊匹配)
+        return Util.setData("commentOnKeyArr", data);
+    },
     setArrContentOnKeyCanonicalArr: function (key) {//设置评论关键词黑名单模式(正则匹配)
         Util.setData("contentOnKeyCanonicalArr", key);
     },
