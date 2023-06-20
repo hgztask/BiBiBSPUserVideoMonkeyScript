@@ -73,6 +73,30 @@ border: 0.5px solid green;
             `);
         }
     },
+    panel: {
+        /**
+         * 悬浮球
+         * @param text 显示内容
+         * @param top
+         * @param left
+         * @param width
+         * @param height
+         * @param border_radius
+         * @returns {*|jQuery|HTMLElement}
+         */
+        getHoverball: function (text, top, left, width, height, border_radius) {
+            return $(`<div
+style="position: fixed;z-index: 2022;  top: ${top}; left: ${left}; width: ${width}; height: ${height}; border-radius:${border_radius}; background-color: #FFA500; color: #FFF; font-size: 20px; display: flex;align-items: center;justify-content: center;">
+<button style="background-color: transparent;border: none;">${text}</button>
+</div>`);
+        },
+        getFilter_queue: function () {//个人主页悬浮屏蔽按钮
+            return this.getHoverball("屏蔽", "15%", "4%", "50px", "50px", "25px");
+        },
+        getFollowersOrWatchlists: function () {
+            return this.getHoverball("获取xxx列表", "22%", "4%", "50px", "100px", "15px");
+        }
+    },
     getPanelSetsTheLayout: function () {//面板设置
         return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
       <div>
@@ -347,10 +371,6 @@ border: 0.5px solid green;
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
-    },
-    getFilter_queue: function () {//个人主页悬浮屏蔽按钮
-        return $(`<div style="position: fixed;z-index: 2022;  top: 25%; left: 4%; width: 50px; height: 50px; border-radius: 25px; background-color: #FFA500; color: #FFF; font-size: 20px; text-align: center; line-height: 50px;">屏蔽</div>
-`);
     },
     getDonateLayout: function () {//捐赠页面
         return $(`
