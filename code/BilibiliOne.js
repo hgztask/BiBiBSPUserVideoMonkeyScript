@@ -276,13 +276,52 @@ function bilibiliOne(href, windowsTitle) {
             }, 4500);
             return;
         }
-        const temp = layout.getFilter_queue();
-        $("body").append(temp);
-        temp.click(() => {
+        const filterQueue = layout.panel.getFilter_queue();
+        const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
+        const $body = $("body");
+        $body.append(filterQueue);
+        $body.append(getFollowersOrWatchlists);
+        getFollowersOrWatchlists.attr("id", "getFollowersOrWatchlists");
+        filterQueue.click(() => {
             butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
+        });
+        if (Space.isSpaceFollowOrFollow(href) === null) {
+            getFollowersOrWatchlists.hide();
+        }
+        getFollowersOrWatchlists.click(() => {
+            if (Space.isFetchingFollowersOrWatchlists) {
+                Qmsg.error("请等待获取完！");
+                return;
+            }
+            Space.isFetchingFollowersOrWatchlists = true;
+            let loading, fileName;
+            const type = Space.isSpaceFollowOrFollow(Util.getWindowUrl());
+            switch (type) {
+                case "follow"://关注数
+                    loading = Qmsg.loading("正在获取关注列表数据中，请不要轻易动当前页面内容");
+                    fileName = "用户关注列表.json";
+                    break;
+                case "fans"://粉丝
+                    loading = Qmsg.loading("正在获取粉丝列表数据中，请不要轻易动当前页面内容");
+                    fileName = "用户粉丝列表.json";
+                    break;
+                default:
+                    alert("出现意外的参数！" + type);
+                    Space.isFetchingFollowersOrWatchlists = false;
+                    return;
+            }
+            Space.extracted(loading).then(dataList => {
+                const info = "最终结果个数：" + dataList.length;
+                Qmsg.success(info);
+                console.log(info);
+                console.log(dataList);
+                Util.fileDownload(JSON.stringify(dataList), fileName);
+                Space.isFetchingFollowersOrWatchlists = false;
+            });
         });
         return;
     }
+
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         subjectOfATalk.deltopIC();
         return;

@@ -2665,7 +2665,6 @@ function loadChannel() {//加载下拉框中的频道信息
     const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
     $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
 
-    ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
         const tempUrl = Util.getWindowUrl();
@@ -2674,12 +2673,12 @@ function loadChannel() {//加载下拉框中的频道信息
         }//有变化就执行对应事件
         console.log("页面url发生变化了，原=" + href + " 现=" + tempUrl);
         href = tempUrl;//更新url
-        ruleList(href);//网页url发生变化时执行
+        bilibili(href);//网页url发生变化时执行
     }, 1000);
 
     if (href.includes("bilibili.com")) {
-        bilibili(href);
         bilibiliOne(href, document.title);
+        bilibili(href);
         startMonitorTheNetwork();
     }
 })
