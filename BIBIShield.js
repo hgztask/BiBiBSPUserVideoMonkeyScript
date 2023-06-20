@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.54
+// @version      1.1.55
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -900,6 +900,30 @@ border: 0.5px solid green;
             `);
         }
     },
+    panel: {
+        /**
+         * 悬浮球
+         * @param text 显示内容
+         * @param top
+         * @param left
+         * @param width
+         * @param height
+         * @param border_radius
+         * @returns {*|jQuery|HTMLElement}
+         */
+        getHoverball: function (text, top, left, width, height, border_radius) {
+            return $(`<div
+style="position: fixed;z-index: 2022;  top: ${top}; left: ${left}; width: ${width}; height: ${height}; border-radius:${border_radius}; background-color: #FFA500; color: #FFF; font-size: 20px; display: flex;align-items: center;justify-content: center;">
+<button style="background-color: transparent;border: none;">${text}</button>
+</div>`);
+        },
+        getFilter_queue: function () {//个人主页悬浮屏蔽按钮
+            return this.getHoverball("屏蔽", "15%", "4%", "50px", "50px", "25px");
+        },
+        getFollowersOrWatchlists: function () {
+            return this.getHoverball("获取xxx列表", "22%", "4%", "50px", "100px", "15px");
+        }
+    },
     getPanelSetsTheLayout: function () {//面板设置
         return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
       <div>
@@ -1174,10 +1198,6 @@ border: 0.5px solid green;
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
-    },
-    getFilter_queue: function () {//个人主页悬浮屏蔽按钮
-        return $(`<div style="position: fixed;z-index: 2022;  top: 25%; left: 4%; width: 50px; height: 50px; border-radius: 25px; background-color: #FFA500; color: #FFF; font-size: 20px; text-align: center; line-height: 50px;">屏蔽</div>
-`);
     },
     getDonateLayout: function () {//捐赠页面
         return $(`
@@ -2413,7 +2433,220 @@ const Trends = {
         }
     }
 };
+const Space = {
+    isFetchingFollowersOrWatchlists: false,//是否正在获取粉丝或关注列表
+    isSpaceFollowOrFollow: function (url) {//判断url最后的地址是否是关注或粉丝参数
+        let type;
+        const match = /\/fans\/(.*?)\?/.exec(url);
+        const split = url.split("/");
+        if (match && match[1]) {
+            type = match[1];
+        } else {
+            type = split[split.length - 1];
+        }
+        switch (type) {
+            case "follow"://关注数
+            case "fans"://粉丝
+                return type;
+            default:
+                return null;
+        }
+    },
+    getRealtIonList: function () {
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                const list = document.querySelectorAll("ul[class='relation-list']>*"); //获取每个项目
+                if (list.length === 0) {
+                    reject(null);
+                    return;
+                }
+                clearInterval(interval);
+                const userinfoList = [];
+                list.forEach(value => {
+                    const userInfo = {};
+                    const userInfoContent = value.querySelector(".content");
+                    const userAddress = userInfoContent.querySelector("a").getAttribute("href");
+                    const name = userInfoContent.querySelector("a>.fans-name").textContent;
+                    let desc = userInfoContent.querySelector(".desc");//个人简介
+                    const fansActionText = userInfoContent.querySelector(".fans-action-text").textContent;//关注状态，如已关注，互关
+                    const userImg = value.querySelector(".cover-container .bili-avatar>img").getAttribute("src");//头像
+                    userInfo["name"] = name;
+                    userInfo["img"] = userImg;
+                    if (desc !== null) {
+                        desc = desc.getAttribute("title");
+                    }
+                    userInfo["desc"] = desc;
+                    userInfo["address"] = userAddress;
+                    userInfo["fansActionType"] = fansActionText;
+                    userInfo["e"] = value;
+                    userinfoList.push(userInfo);
+                });
+                resolve(userinfoList);
+            }, 1000);
+        });
+    }
+    ,
+    extracted: function (loading) {
+        return new Promise(resolve => {
+            let dataList = [];
+
+            function whileFunc() {
+                Space.getRealtIonList().then(value => {
+                    const currentInfo = `当前列表获取个数：${value.length}`;
+                    Qmsg.success(currentInfo);
+                    console.log(currentInfo);
+                    const next = $(".be-pager-next");
+                    dataList = dataList.concat(value);
+                    Qmsg.success(`总列表个数：${dataList.length}`);
+                    if (next.is(':hidden')) {//判断是否已经隐藏了下一页，隐藏说明没有下一页的关注列了，到头了，反之还有
+                        loading.close();
+                        resolve(dataList);
+                        return;
+                    }
+                    next.click();
+                    console.log("点击下一页");
+                    Qmsg.info("点击下一页");
+                    setTimeout(() => {
+                        whileFunc();
+                    }, 1000);
+                }).catch(() => {
+                    loading.close();
+                    if (dataList.length === 0) {
+                        Qmsg.error("获取失败");
+                        return;
+                    }
+                    resolve(dataList);
+                });
+            }
+
+            whileFunc();
+        });
+    }
+}
+
+/**
+ * 根据网页url指定不同的逻辑
+ * @param href{String} url链接
+ */
 function bilibili(href) {
+    if (href.includes("live.bilibili.com/p/eden/area-tags")) {
+        console.log("直播专区")
+        Live.liveDel.delLiveRoom();
+        return;
+    }
+    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
+        const videoData = Rule.videoData;
+        const interval = setInterval(() => {
+            try {
+                const videoElement = document.getElementsByTagName("video")[0];
+                if (videoElement === undefined) {
+                    return;
+                }
+                clearInterval(interval);
+                const autoPlay = Util.getData("autoPlay");
+                if (autoPlay === true) {
+                    const intervalAutoPlay = setInterval(() => {
+                        const au = $("input[aria-label='自动开播']");
+                        if (au.length === 0) {
+                            return;
+                        }
+                        videoElement.pause();
+                        if (au.is(":checked")) {
+                            au.attr("checked", false);
+                            console.log(au.is(":checked"));
+                        } else {
+                            clearInterval(intervalAutoPlay);
+                            console.log("退出intervalAutoPlay")
+                            console.log("已自动暂定视频播放");
+                        }
+                    }, 800);
+                }
+
+                function setVideoSpeedInfo() {
+                    const data = Util.getData("playbackSpeed");
+                    if (data === undefined) {
+                        return;
+                    }
+                    if (data === 0 || data < 0.1) {
+                        return;
+                    }
+                    //播放视频速度
+                    videoElement.playbackRate = data;
+                    Print.ln("已设置播放器的速度=" + data);
+                }
+
+                setVideoSpeedInfo();
+                videoElement.addEventListener('ended', () => {//播放器结束之后事件
+                    Print.ln("播放结束");
+                    if (videoData.isVideoEndRecommend) {
+                        Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
+                    }
+                }, false);
+            } catch (e) {
+            }
+        }, 1000);
+        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
+            const interval = setInterval(() => {
+                const list = document.querySelectorAll(".video-page-card-small");
+                if (list.length === 0) {
+                    return;
+                }
+                videoFun.rightVideo();
+                console.log("检测到右侧视频列表中符合条件");
+                clearInterval(interval)
+
+            }, 2000);
+        }
+        videoFun.delRightE();
+        videoFun.delBottonE();
+        videoFun.rightSuspendButton();
+
+        const interval01 = setInterval(() => {
+            const upInfo = document.querySelector(".up-detail-top");
+            if (upInfo.length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            $(upInfo).mouseenter((e) => {
+                const domElement = e.delegateTarget;//dom对象
+                const adHref = domElement.href;
+                Util.showSDPanel(e, domElement.text.trim(), Util.getSubWebUrlUid(adHref));
+            });
+        }, 2000);
+        return;
+    }
+    if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
+        const interval = setInterval(() => {
+            const list = $(".video-list").children();
+            const tempListLength = list.length;
+            if (list.length === 0) {
+                return;
+            }
+            if (list[0].textContent === "") {
+                return;
+            }
+            search.searchRules(list);
+            if (tempListLength === list.length) {
+                clearInterval(interval);
+                //Print.ln("页面元素没有变化，故退出循环")
+            }
+        }, 10);
+        return;
+    }
+    if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
+        message.delMessageAT();
+        return;
+    }
+    if (href.includes("message.bilibili.com/#/reply") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
+        message.delMessageReply();
+        return;
+    }
+    if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
+        frequencyChannel.videoRules();
+        frequencyChannel.delDevelop();
+        frequencyChannel.cssStyle.backGauge();
+
+    }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         greatDemand.delVideo();
         try {
@@ -2428,7 +2661,7 @@ function bilibili(href) {
         Home.homePrefecture();
         return;
     }
-    if (href.includes("space.bilibili.com/[0-9]+/dynamic") !== -1) {
+    if (href.search("space.bilibili.com/[0-9]+/dynamic") !== -1) {
         const interval01 = setInterval(() => {
             const tempE = $(".bili-dyn-list__items");
             if (tempE.length === 0) {
@@ -2448,6 +2681,26 @@ function bilibili(href) {
                 Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
             });
         }, 1000);
+        return;
+    }
+    const followersOrWatchlists = $("#getFollowersOrWatchlists");
+    if (href.search("space.bilibili.com/[0-9]+/fans/") !== -1) {//用户粉丝数或关注数页面
+        const tempButton = followersOrWatchlists.find("button");
+        const type = Space.isSpaceFollowOrFollow(href);
+        switch (type) {
+            case "follow"://关注数
+                tempButton.text("获取用户关注列表");
+                break;
+            case "fans"://粉丝
+                tempButton.text("获取用户粉丝列表");
+                break;
+            default:
+                alert("出现意外的参数！" + type);
+                return;
+        }
+        followersOrWatchlists.show();
+    } else {
+        followersOrWatchlists.hide();
     }
 }
 /**
@@ -2728,13 +2981,52 @@ function bilibiliOne(href, windowsTitle) {
             }, 4500);
             return;
         }
-        const temp = layout.getFilter_queue();
-        $("body").append(temp);
-        temp.click(() => {
+        const filterQueue = layout.panel.getFilter_queue();
+        const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
+        const $body = $("body");
+        $body.append(filterQueue);
+        $body.append(getFollowersOrWatchlists);
+        getFollowersOrWatchlists.attr("id", "getFollowersOrWatchlists");
+        filterQueue.click(() => {
             butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
+        });
+        if (Space.isSpaceFollowOrFollow(href) === null) {
+            getFollowersOrWatchlists.hide();
+        }
+        getFollowersOrWatchlists.click(() => {
+            if (Space.isFetchingFollowersOrWatchlists) {
+                Qmsg.error("请等待获取完！");
+                return;
+            }
+            Space.isFetchingFollowersOrWatchlists = true;
+            let loading, fileName;
+            const type = Space.isSpaceFollowOrFollow(Util.getWindowUrl());
+            switch (type) {
+                case "follow"://关注数
+                    loading = Qmsg.loading("正在获取关注列表数据中，请不要轻易动当前页面内容");
+                    fileName = "用户关注列表.json";
+                    break;
+                case "fans"://粉丝
+                    loading = Qmsg.loading("正在获取粉丝列表数据中，请不要轻易动当前页面内容");
+                    fileName = "用户粉丝列表.json";
+                    break;
+                default:
+                    alert("出现意外的参数！" + type);
+                    Space.isFetchingFollowersOrWatchlists = false;
+                    return;
+            }
+            Space.extracted(loading).then(dataList => {
+                const info = "最终结果个数：" + dataList.length;
+                Qmsg.success(info);
+                console.log(info);
+                console.log(dataList);
+                Util.fileDownload(JSON.stringify(dataList), fileName);
+                Space.isFetchingFollowersOrWatchlists = false;
+            });
         });
         return;
     }
+
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         subjectOfATalk.deltopIC();
         return;
@@ -3169,130 +3461,6 @@ function bilibiliOne(href, windowsTitle) {
             login.remove();
             console.log("已移除页面的提示登录信息");
         }, 1000);
-    }
-}
-/**
- * 根据网页url指定不同的逻辑
- * @param href{String} url链接
- */
-function ruleList(href) {
-    if (href.includes("live.bilibili.com/p/eden/area-tags")) {
-        console.log("直播专区")
-        Live.liveDel.delLiveRoom();
-        return;
-    }
-    if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
-        const videoData = Rule.videoData;
-        const interval = setInterval(() => {
-            try {
-                const videoElement = document.getElementsByTagName("video")[0];
-                if (videoElement === undefined) {
-                    return;
-                }
-                clearInterval(interval);
-                const autoPlay = Util.getData("autoPlay");
-                if (autoPlay === true) {
-                    const intervalAutoPlay = setInterval(() => {
-                        const au = $("input[aria-label='自动开播']");
-                        if (au.length === 0) {
-                            return;
-                        }
-                        videoElement.pause();
-                        if (au.is(":checked")) {
-                            au.attr("checked", false);
-                            console.log(au.is(":checked"));
-                        } else {
-                            clearInterval(intervalAutoPlay);
-                            console.log("退出intervalAutoPlay")
-                            console.log("已自动暂定视频播放");
-                        }
-                    }, 800);
-                }
-
-                function setVideoSpeedInfo() {
-                    const data = Util.getData("playbackSpeed");
-                    if (data === undefined) {
-                        return;
-                    }
-                    if (data === 0 || data < 0.1) {
-                        return;
-                    }
-                    //播放视频速度
-                    videoElement.playbackRate = data;
-                    Print.ln("已设置播放器的速度=" + data);
-                }
-
-                setVideoSpeedInfo();
-                videoElement.addEventListener('ended', () => {//播放器结束之后事件
-                    Print.ln("播放结束");
-                    if (videoData.isVideoEndRecommend) {
-                        Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
-                    }
-                }, false);
-            } catch (e) {
-            }
-        }, 1000);
-        if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
-            const interval = setInterval(() => {
-                const list = document.querySelectorAll(".video-page-card-small");
-                if (list.length === 0) {
-                    return;
-                }
-                videoFun.rightVideo();
-                console.log("检测到右侧视频列表中符合条件");
-                clearInterval(interval)
-
-            }, 2000);
-        }
-        videoFun.delRightE();
-        videoFun.delBottonE();
-        videoFun.rightSuspendButton();
-
-        const interval01 = setInterval(() => {
-            const upInfo = document.querySelector(".up-detail-top");
-            if (upInfo.length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            $(upInfo).mouseenter((e) => {
-                const domElement = e.delegateTarget;//dom对象
-                const adHref = domElement.href;
-                Util.showSDPanel(e, domElement.text.trim(), Util.getSubWebUrlUid(adHref));
-            });
-        }, 2000);
-        return;
-    }
-    if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
-        const interval = setInterval(() => {
-            const list = $(".video-list").children();
-            const tempListLength = list.length;
-            if (list.length === 0) {
-                return;
-            }
-            if (list[0].textContent === "") {
-                return;
-            }
-            search.searchRules(list);
-            if (tempListLength === list.length) {
-                clearInterval(interval);
-                //Print.ln("页面元素没有变化，故退出循环")
-            }
-        }, 10);
-        return;
-    }
-    if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
-        message.delMessageAT();
-        return;
-    }
-    if (href.includes("message.bilibili.com/#/reply") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
-        message.delMessageReply();
-        return;
-    }
-    if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
-        frequencyChannel.videoRules();
-        frequencyChannel.delDevelop();
-        frequencyChannel.cssStyle.backGauge();
-
     }
 }
 function github(href) {
@@ -6064,7 +6232,6 @@ function loadChannel() {//加载下拉框中的频道信息
     const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
     $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
 
-    ruleList(href)//正常加载网页时执行
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
         const tempUrl = Util.getWindowUrl();
@@ -6073,12 +6240,12 @@ function loadChannel() {//加载下拉框中的频道信息
         }//有变化就执行对应事件
         console.log("页面url发生变化了，原=" + href + " 现=" + tempUrl);
         href = tempUrl;//更新url
-        ruleList(href);//网页url发生变化时执行
+        bilibili(href);//网页url发生变化时执行
     }, 1000);
 
     if (href.includes("bilibili.com")) {
-        bilibili(href);
         bilibiliOne(href, document.title);
+        bilibili(href);
         startMonitorTheNetwork();
     }
 })
