@@ -434,7 +434,7 @@ const Remove = {
      * @returns {String|null}
      */
     contentKey: function (element, content) {
-        const shieldArrContent = Shield.arrContent(Util.getData("commentOnKeyArr"), content);
+        const shieldArrContent = Shield.arrContent(LocalData.getCommentOnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -2408,7 +2408,7 @@ function loadChannel() {//加载下拉框中的频道信息
         list = ruleRes["标题黑名单模式(正则匹配)"];
         LocalData.setArrTitleKeyCanonical(list);
         list = ruleRes["评论关键词黑名单模式(模糊匹配)"];
-        Util.setData("commentOnKeyArr", list);
+        LocalData.setCommentOnKeyArr(list);
         list = ruleRes["评论关键词黑名单模式(正则匹配)"];
         LocalData.setArrContentOnKeyCanonicalArr(list);
         list = ruleRes["粉丝牌黑名单模式(精确匹配)"];
