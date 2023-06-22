@@ -870,5 +870,9 @@ function bilibiliOne(href, windowsTitle) {
                 Util.fileDownload(JSON.stringify(dataHistory, null, 3), `b站用户全部的历史记录${Util.toTimeString()}(${dataHistory.length}个).json`);
             });
         });
+        return;
+    }
+    if (href.includes("www.bilibili.com/watchlater")) {
+        Watchlater.initLayout();
     }
 }
