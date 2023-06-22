@@ -773,5 +773,59 @@ function bilibiliOne(href, windowsTitle) {
             login.remove();
             console.log("已移除页面的提示登录信息");
         }, 1000);
+        return;
+    }
+    if (href.includes("www.bilibili.com/account/history") && windowsTitle === "历史记录") {
+        const getPageShowHistoryBut = layout.panel.getHoverball("获取页面可见的历史记录", "18%", "5%", "52px", "95px", "10%");
+        const getAllPageHistoryBut = layout.panel.getHoverball("获取页面全部的历史记录", "28%", "5%", "52px", "95px", "10%");
+        const body = $("body");
+        body.append(getPageShowHistoryBut);
+        body.append(getAllPageHistoryBut);
+        getPageShowHistoryBut.click(() => {
+            if (History.isGetLoadIngData) {
+                alert("请等待获取完成！");
+                return;
+            }
+            alert("如果您要获取所有全部可见的历史记录内容，可以一直滚动到底部，直到显示全部可见的历史记录内容，再获取");
+            History.isGetLoadIngData = true;
+            const dataHistory = History.getDataHistory();
+            History.isGetLoadIngData = false;
+            if (dataHistory.length === 0) {
+                alert("未获取到相关历史记录！");
+                return;
+            }
+            alert("已获取完成！接下来可以将获取到的数据保存到电脑上任意一个位置");
+            Util.fileDownload(JSON.stringify(dataHistory, null, 3), `b站用户的历史记录${Util.toTimeString()}(${dataHistory.length}个).json`);
+        });
+        getAllPageHistoryBut.click(() => {
+            if (History.isGetLoadIngData) {
+                alert("请等待获取完成！");
+                return;
+            }
+            if (!confirm("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！是否继续？")) {
+                return;
+            }
+            History.isGetLoadIngData = true;
+            const loading = Qmsg.loading("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！");
+            new Promise(resolve => {
+                const interval01 = setInterval(() => {
+                    if (document.querySelector(".endpic") === null) {
+                        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+                        return;
+                    }
+                    resolve();
+                }, 1500);
+            }).then(() => {
+                loading.close();
+                const dataHistory = History.getDataHistory();
+                History.isGetLoadIngData = false;
+                if (dataHistory.length === 0) {
+                    alert("未获取到相关历史记录！");
+                    return;
+                }
+                alert("已获取完成！接下来可以将获取到的数据保存到电脑上任意一个位置");
+                Util.fileDownload(JSON.stringify(dataHistory, null, 3), `b站用户全部的历史记录${Util.toTimeString()}(${dataHistory.length}个).json`);
+            });
+        });
     }
 }
