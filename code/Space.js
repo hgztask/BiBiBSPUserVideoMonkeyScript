@@ -1,5 +1,16 @@
 const Space = {
-    isFetchingFollowersOrWatchlists: false,//是否正在获取粉丝或关注列表
+    //是否正在获取粉丝或关注列表
+    isFetchingFollowersOrWatchlists: false,
+    //获取当前用户空间是否是自己的空间主页
+    isH_action: function () {
+        return document.querySelector(".h-action") === null;
+    },
+    getMyFollowLabel: function () {//获取当前关注数页面中展示关注列表的标签，如，全部关注，以及用户自定义的分类，xxx
+        return document.querySelector(".item.cur").textContent;
+    },
+    getUserName: function () {//获取当前空间中的用户名
+        return document.querySelector("#h-name").textContent;
+    },
     isSpaceFollowOrFollow: function (url) {//判断url最后的地址是否是关注或粉丝参数
         let type;
         const match = /\/fans\/(.*?)\?/.exec(url);
@@ -56,6 +67,7 @@ const Space = {
     }
     ,
     extracted: function (loading) {
+        const isHAction = this.isH_action();
         return new Promise(resolve => {
             let dataList = [];
 
@@ -72,12 +84,18 @@ const Space = {
                         resolve(dataList);
                         return;
                     }
+                    const page = parseInt(document.querySelector(".be-pager>.be-pager-item.be-pager-item-active>a").textContent.trim());
+                    if (page === 5 && (!isHAction)) {
+                        loading.close();
+                        resolve(dataList);
+                        alert("因您当前访问的用户空间非自己实际登录的个人空间主页（不是自己当前网页登录的账号）而是访问他人，b站系统限制只能访问前5页");
+                        return;
+                    }
                     next.click();
-                    console.log("点击下一页");
-                    Qmsg.info("点击下一页");
                     setTimeout(() => {
+                        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
                         whileFunc();
-                    }, 1000);
+                    }, 1500);
                 }).catch(() => {
                     loading.close();
                     if (dataList.length === 0) {

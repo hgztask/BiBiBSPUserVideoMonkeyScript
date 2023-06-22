@@ -279,9 +279,22 @@ function bilibiliOne(href, windowsTitle) {
         const filterQueue = layout.panel.getFilter_queue();
         const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
         const $body = $("body");
-        $body.append(filterQueue);
         $body.append(getFollowersOrWatchlists);
         getFollowersOrWatchlists.attr("id", "getFollowersOrWatchlists");
+        new Promise(resolve => {
+            const interval01 = setInterval(() => {
+                if ($("#h-name").length === 0) {
+                    return;
+                }
+                clearInterval(interval01);
+                resolve(true);
+            }, 1000);
+        }).then(() => {
+            if (!Space.isH_action()) {
+                console.log("非个人空间主页")
+                $body.append(filterQueue);
+            }
+        });
         filterQueue.click(() => {
             butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
         });
@@ -296,14 +309,18 @@ function bilibiliOne(href, windowsTitle) {
             Space.isFetchingFollowersOrWatchlists = true;
             let loading, fileName;
             const type = Space.isSpaceFollowOrFollow(Util.getWindowUrl());
+            const userName = Space.getUserName();
             switch (type) {
                 case "follow"://关注数
-                    loading = Qmsg.loading("正在获取关注列表数据中，请不要轻易动当前页面内容");
-                    fileName = "用户关注列表.json";
+                    loading = Qmsg.loading(`正在获取 ${userName} 的关注列表数据中，请不要轻易动当前页面内容`);
+                    fileName = `${userName}用户的${Space.getMyFollowLabel()}列表`;
                     break;
                 case "fans"://粉丝
-                    loading = Qmsg.loading("正在获取粉丝列表数据中，请不要轻易动当前页面内容");
-                    fileName = "用户粉丝列表.json";
+                    if (!confirm("温馨提示，最多能获取1000(一千)个粉丝用户信息，是否继续？")) {
+                        return;
+                    }
+                    loading = Qmsg.loading(`正在获取 ${userName} 的粉丝列表数据中，请不要轻易动当前页面内容`);
+                    fileName = `${userName}的用户粉丝列表`;
                     break;
                 default:
                     alert("出现意外的参数！" + type);
@@ -315,7 +332,7 @@ function bilibiliOne(href, windowsTitle) {
                 Qmsg.success(info);
                 console.log(info);
                 console.log(dataList);
-                Util.fileDownload(JSON.stringify(dataList), fileName);
+                Util.fileDownload(JSON.stringify(dataList), `${fileName}[${dataList.length}个].json`);
                 Space.isFetchingFollowersOrWatchlists = false;
             });
         });
