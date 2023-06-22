@@ -874,5 +874,7 @@ function bilibiliOne(href, windowsTitle) {
     }
     if (href.includes("www.bilibili.com/watchlater")) {
         Watchlater.initLayout();
+        $(".international-footer").remove();
+        console.log("已移除页面页脚信息");
     }
 }
