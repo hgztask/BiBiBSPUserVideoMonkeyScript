@@ -781,6 +781,7 @@ function bilibiliOne(href, windowsTitle) {
         const body = $("body");
         body.append(getPageShowHistoryBut);
         body.append(getAllPageHistoryBut);
+        History.delLayout.footer();
         getPageShowHistoryBut.click(() => {
             if (History.isGetLoadIngData) {
                 alert("请等待获取完成！");

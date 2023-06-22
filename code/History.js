@@ -1,6 +1,11 @@
 const History = {
     //是否正在执行获取操作
     isGetLoadIngData: false,
+    delLayout: {
+        footer: function () {
+            $(".footer.bili-footer").remove();
+        }
+    },
     getDevice: function (e) {
         const classList = e.classList;
         if (classList.contains("bili-PC")) {
