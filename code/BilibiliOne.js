@@ -267,8 +267,7 @@ function bilibiliOne(href, windowsTitle) {
         }, 100);
         return;
     }
-
-    if (href.includes("space.bilibili.com/")) {//个人主页
+    if (href.includes("space.bilibili.com/")) {//b站用户空间主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
         if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
             setTimeout(() => {
@@ -278,23 +277,27 @@ function bilibiliOne(href, windowsTitle) {
         }
         const filterQueue = layout.panel.getFilter_queue();
         const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
+        const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%", "52px", "140px", "3%");
+        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "36%", "7%", "52px", "140px", "3%");
         const $body = $("body");
         $body.append(getFollowersOrWatchlists);
+        $body.append(getFavListPageBut);
+        $body.append(getFavAllListBut);
         getFollowersOrWatchlists.attr("id", "getFollowersOrWatchlists");
-        new Promise(resolve => {
-            const interval01 = setInterval(() => {
-                if ($("#h-name").length === 0) {
-                    return;
-                }
-                clearInterval(interval01);
-                resolve(true);
-            }, 1000);
-        }).then(() => {
+        getFavListPageBut.attr("id", "getFavListPageBut");
+        getFavAllListBut.attr("id", "getFavAllListBut");
+        getFavListPageBut.hide();
+        getFavAllListBut.hide();
+        const interval01 = setInterval(() => {
+            if ($("#h-name").length === 0) {
+                return;
+            }
+            clearInterval(interval01);
             if (!Space.isH_action()) {
                 console.log("非个人空间主页")
                 $body.append(filterQueue);
             }
-        });
+        }, 1000);
         filterQueue.click(() => {
             butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
         });
@@ -334,6 +337,45 @@ function bilibiliOne(href, windowsTitle) {
                 console.log(dataList);
                 Util.fileDownload(JSON.stringify(dataList), `${fileName}[${dataList.length}个].json`);
                 Space.isFetchingFollowersOrWatchlists = false;
+            });
+        });
+
+        getFavListPageBut.click(() => {
+            const fav = Space.fav;
+            const favName = fav.getFavName();
+            const authorName = fav.getAuthorName();
+            if (!confirm(`获取【${authorName}】用户【${favName}】收藏夹当前显示的内容，是要获取吗？`)) {
+                return;
+            }
+            const dataList = fav.getDataList();
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `${authorName}的${favName}收藏夹(${dataList.length}个).json`);
+        });
+        getFavAllListBut.click(() => {
+            const fav = Space.fav;
+            const favName = fav.getFavName();
+            const authorName = fav.getAuthorName();
+            if (!confirm(`是要获取收藏夹创建者【${authorName}】用户【${favName}】的收藏夹所有的内容吗？`)) {
+                return;
+            }
+            const loading = Qmsg.loading(`正在获取用户【${authorName}】的收藏夹【${favName}】....`);
+            new Promise(resolve => {
+                let dataList = [];
+                const interval = setInterval(() => {
+                    const tempDataList = fav.getDataList();
+                    const next = $(".be-pager-next");
+                    dataList = dataList.concat(tempDataList);
+                    if (next.is(':hidden')) {
+                        clearInterval(interval);
+                        resolve(dataList);
+                        return;
+                    }
+                    next.click();
+                }, 2000);
+            }).then(dataList => {
+                loading.close();
+                Qmsg.success("获取成功！");
+                alert("获取成功！");
+                Util.fileDownload(JSON.stringify(dataList, null, 3), `${authorName}的${favName}收藏夹(${dataList.length}个).json`);
             });
         });
         return;

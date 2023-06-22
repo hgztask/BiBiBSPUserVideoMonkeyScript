@@ -158,6 +158,16 @@ function bilibili(href) {
         return;
     }
     const followersOrWatchlists = $("#getFollowersOrWatchlists");
+    const getFavListPageBut = $("#getFavListPageBut");
+    const getFavAllListBut = $("#getFavAllListBut");
+    if (Space.fav.isUrlFavlist(href)) {
+        getFavListPageBut.show();
+        getFavAllListBut.show();
+        return;
+    } else {
+        getFavListPageBut.hide();
+        getFavAllListBut.hide();
+    }
     if (href.search("space.bilibili.com/[0-9]+/fans/") !== -1) {//用户粉丝数或关注数页面
         const tempButton = followersOrWatchlists.find("button");
         const type = Space.isSpaceFollowOrFollow(href);
@@ -176,4 +186,5 @@ function bilibili(href) {
     } else {
         followersOrWatchlists.hide();
     }
+
 }
