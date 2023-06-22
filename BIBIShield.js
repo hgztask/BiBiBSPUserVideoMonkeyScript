@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.56
+// @version      1.1.57
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -2434,7 +2434,30 @@ const Trends = {
     }
 };
 const Space = {
-    isFetchingFollowersOrWatchlists: false,//是否正在获取粉丝或关注列表
+    //是否正在获取粉丝或关注列表
+    isFetchingFollowersOrWatchlists: false,
+    //获取当前用户空间是否是自己的空间主页
+    isH_action: function () {
+        return document.querySelector(".h-action") === null;
+    },
+    isTab: function (tabName) {//页面选项卡是否选中了某个值
+        return new Promise(resolve => {
+            const interval = setInterval(() => {
+                const element = document.querySelector("#navigator .n-tab-links>.active>.n-text");
+                if (element === null) {
+                    return;
+                }
+                clearInterval(interval);
+                resolve(element.textContent === tabName);
+            }, 1000);
+        });
+    },
+    getMyFollowLabel: function () {//获取当前关注数页面中展示关注列表的标签，如，全部关注，以及用户自定义的分类，xxx
+        return document.querySelector(".item.cur").textContent;
+    },
+    getUserName: function () {//获取当前空间中的用户名
+        return document.querySelector("#h-name").textContent;
+    },
     isSpaceFollowOrFollow: function (url) {//判断url最后的地址是否是关注或粉丝参数
         let type;
         const match = /\/fans\/(.*?)\?/.exec(url);
@@ -2450,6 +2473,62 @@ const Space = {
                 return type;
             default:
                 return null;
+        }
+    },
+    fav: {
+        isUrlFavlist: function (url) {//当前页面的url是否是处于收藏
+            const match = url.match(/\/\d+\/(\w+)\?/);
+            if (match && match[1] === "favlist") {
+                return true;
+            }
+            if (url.split("/")[4] === "favlist") {
+                return true;
+            }
+            return false;
+        },
+        getFavName: function () {//获取收藏选项卡中对应展示的收藏夹名
+            let favName = document.querySelector(".favInfo-details>.fav-name");
+            if (favName !== null) {
+                return favName.textContent.trim();
+            }
+            favName = document.querySelector(".collection-details .title-name");
+            if (favName !== null) {
+                return favName.textContent.trim();
+            }
+            return "未知收藏夹";
+        },
+        getAuthorName: function () {//获取收藏选项卡中对应展示的创建收藏夹的作者
+            let favUpName = document.querySelector(".favInfo-details .fav-up-name");
+            if (favUpName !== null) {
+                return favUpName.textContent.replace("创建者：", "");
+            }
+            favUpName = document.querySelector(".author-wrapper>.author");
+            if (favUpName !== null) {
+                return favUpName.textContent.replace("合集 · UP主：", "");
+            }
+            return "不确定的用户名";
+        },
+        getDataList: function () {//获取获取收藏选项卡中对应展示的收藏夹项目内容
+            const elementList = document.querySelectorAll(".fav-video-list.clearfix.content>li");
+            const dataList = [];
+            elementList.forEach(value => {
+                const data = {};
+                data["title"] = value.querySelector(".title").textContent;
+                const bvID = value.getAttribute("data-aid");
+                data["bvID"] = bvID;
+                data["avID"] = Util.BilibiliEncoder.dec(bvID);
+                data["metaPubdate"] = value.querySelector(".meta.pubdate").textContent.trim();//收藏于何时
+                data["itemLength"] = value.querySelector("a>.length").textContent;//对象的时长
+                const videoInfo = value.querySelector(".meta-mask>.meta-info");
+                data["authorName"] = videoInfo.querySelector(".author").textContent.split("：")[1];//作者名
+                data["videoAddress"] = `https://www.bilibili.com/video/${bvID}`;//视频地址
+                data["view"] = videoInfo.querySelector(".view").textContent.split("：")[1];//播放量
+                data["favorite"] = videoInfo.querySelector(".favorite").textContent.split("：")[1];//收藏量
+                data["pubdate"] = videoInfo.querySelector(".pubdate").textContent.split("：")[1];//投稿时间(审核通过的时间)
+                data["itemImg"] = value.querySelector(".b-img__inner>img").getAttribute("src");//收藏对象的封面，如视频封面
+                dataList.push(data);
+            });
+            return dataList;
         }
     },
     getRealtIonList: function () {
@@ -2488,9 +2567,9 @@ const Space = {
                 resolve(userinfoList);
             }, 1000);
         });
-    }
-    ,
+    },
     extracted: function (loading) {
+        const isHAction = this.isH_action();
         return new Promise(resolve => {
             let dataList = [];
 
@@ -2507,12 +2586,18 @@ const Space = {
                         resolve(dataList);
                         return;
                     }
+                    const page = parseInt(document.querySelector(".be-pager>.be-pager-item.be-pager-item-active>a").textContent.trim());
+                    if (page === 5 && (!isHAction)) {
+                        loading.close();
+                        resolve(dataList);
+                        alert("因您当前访问的用户空间非自己实际登录的个人空间主页（不是自己当前网页登录的账号）而是访问他人，b站系统限制只能访问前5页");
+                        return;
+                    }
                     next.click();
-                    console.log("点击下一页");
-                    Qmsg.info("点击下一页");
                     setTimeout(() => {
+                        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
                         whileFunc();
-                    }, 1000);
+                    }, 1500);
                 }).catch(() => {
                     loading.close();
                     if (dataList.length === 0) {
@@ -2527,6 +2612,133 @@ const Space = {
         });
     }
 }
+const History = {
+    //是否正在执行获取操作
+    isGetLoadIngData: false,
+    delLayout: {
+        footer: function () {
+            $(".footer.bili-footer").remove();
+        }
+    },
+    getDevice: function (e) {
+        const classList = e.classList;
+        if (classList.contains("bili-PC")) {
+            return "电脑";
+        }
+        if (classList.contains("bili-Mobile")) {
+            return "手机";
+        }
+        return "其他";
+    },
+    getDataHistory: function () {
+        const historyEList = document.querySelectorAll("#history_list>li");
+        const dataList = [];
+        historyEList.forEach(value => {
+            if (value.querySelector(".endpic") !== null) {
+                return;
+            }
+            const data = {};
+            const textInfo = value.querySelector(".r-txt");
+            data["itemImg"] = value.querySelector(".cover-contain>.preview>.lazy-img>img").getAttribute("src");//项目中的封面，如视频封面番剧封面等
+            data["historyRedRound"] = value.querySelector(".lastplay-time>.lastplay-t").textContent;//具体时间开始观看，如12:45
+            data["title"] = textInfo.querySelector(".title").textContent;
+            data["itemAddress"] = textInfo.querySelector(".title").getAttribute("href");//项目中的地址，如视频地址，番剧地址
+            data["history_mark"] = textInfo.querySelector(".history-mark") !== null;//是否已收藏
+            data["device"] = this.getDevice(textInfo.querySelector(".device.bilifont"));
+            data["proTextProgress"] = textInfo.querySelector(".w-info>.time-wrap>.pro-txt.progress").textContent;//观看进度条相关
+            const userInfo = textInfo.querySelector(".w-info>span");
+            if (userInfo !== null) {//主导方为用户，而非官方（官方的如番剧电影等）
+                data["tag"] = userInfo.querySelector(".name").textContent;
+                data["name"] = userInfo.querySelector(".username").textContent;
+                const userAddress = userInfo.querySelector("a").getAttribute("href");
+                data["userAddress"] = userAddress;
+                data["uid"] = Util.getSubWebUrlUid(userAddress);
+                data["img"] = userInfo.querySelector(".lazy-img.userpic>img").getAttribute("src");
+            } else {
+                data["otherLabel"] = value.querySelector(".cover-contain>p[class='label']").textContent;//其他相关标签，如番剧，直播中、电影
+            }
+            dataList.push(data);
+        });
+        return dataList;
+    }
+}
+const Watchlater = {
+    initLayout: function () {
+        const panel = layout.panel.getHoverball("获取稍后再看列表数据", "32%", "5%", "52px", "95px", "10%");
+        const paneLooked = layout.panel.getHoverball("获取稍后再看列表数据(已观看)", "42%", "5%", "52px", "95px", "10%");
+        const $body = $("body");
+        $body.append(panel);
+        $body.append(paneLooked);
+        panel.click(() => {
+            if (!confirm("仅获取页面可见的列表了内容并导出为json，是要继续吗？")) {
+                return;
+            }
+            $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+            setTimeout(() => {
+                const dataList = this.getDataList();
+                if (dataList.length === 0) {
+                    alert("未有相关内容！");
+                    return;
+                }
+                const info = `已获取到${dataList.length}个稍后再看的记录`;
+                Qmsg.success(info);
+                Print.ln(info);
+                alert(info);
+                Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的稍后再看记录${dataList.length}个.json`);
+            }, 1550);
+        });
+        paneLooked.click(() => {
+            if (!confirm("仅获取页面可见的列表中【已观看】了的内容并导出为json，是要继续吗？")) {
+                return;
+            }
+            $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+            setTimeout(() => {
+                const dataList = this.getDataList(true);
+                if (dataList.length === 0) {
+                    alert("未有相关内容！");
+                    return;
+                }
+                const info = `已获取到${dataList.length}【已观看的】稍后再看的记录`;
+                Qmsg.success(info);
+                Print.ln(info);
+                alert(info);
+                Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的【已观看】稍后再看记录${dataList.length}个.json`);
+            }, 1550);
+        });
+    },
+    /**
+     *
+     * @param isV 是否只获取已观看的项目
+     * @returns {*[]}
+     */
+    getDataList: function (isV = false) {
+        const eList = document.querySelectorAll(".list-box>span>*");
+        const dataList = [];
+        eList.forEach(v => {
+            const data = {};
+            const videoInfo = v.querySelector(".av-about");
+            data["title"] = videoInfo.querySelector(".t").textContent.trim();
+            const userInfo = videoInfo.querySelector(".info.clearfix>.user");
+            data["name"] = userInfo.querySelector("span").textContent;
+            const userAddress = userInfo.getAttribute("href");
+            data["uid"] = Util.getSubWebUrlUid(userAddress);
+            data["userAddress"] = userAddress;
+            data["videoAddress"] = videoInfo.querySelector(".t").getAttribute("href");
+            data["userImg"] = userInfo.querySelector(".lazy-img>img").getAttribute("src");
+            if (isV) {
+                const looked = v.querySelector(".looked");
+                if (looked === null) {
+                    return;
+                }
+                dataList.push(data);
+                return;
+            }
+            dataList.push(data);
+        });
+        return dataList;
+    }
+}
+
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -2687,6 +2899,16 @@ function bilibili(href) {
         return;
     }
     const followersOrWatchlists = $("#getFollowersOrWatchlists");
+    const getFavListPageBut = $("#getFavListPageBut");
+    const getFavAllListBut = $("#getFavAllListBut");
+    if (Space.fav.isUrlFavlist(href)) {
+        getFavListPageBut.show();
+        getFavAllListBut.show();
+        return;
+    } else {
+        getFavListPageBut.hide();
+        getFavAllListBut.hide();
+    }
     if (href.search("space.bilibili.com/[0-9]+/fans/") !== -1) {//用户粉丝数或关注数页面
         const tempButton = followersOrWatchlists.find("button");
         const type = Space.isSpaceFollowOrFollow(href);
@@ -2705,6 +2927,7 @@ function bilibili(href) {
     } else {
         followersOrWatchlists.hide();
     }
+
 }
 /**
  *
@@ -2975,8 +3198,7 @@ function bilibiliOne(href, windowsTitle) {
         }, 100);
         return;
     }
-
-    if (href.includes("space.bilibili.com/")) {//个人主页
+    if (href.includes("space.bilibili.com/")) {//b站用户空间主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
         if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
             setTimeout(() => {
@@ -2986,10 +3208,27 @@ function bilibiliOne(href, windowsTitle) {
         }
         const filterQueue = layout.panel.getFilter_queue();
         const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
+        const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%", "52px", "140px", "3%");
+        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "36%", "7%", "52px", "140px", "3%");
         const $body = $("body");
-        $body.append(filterQueue);
         $body.append(getFollowersOrWatchlists);
+        $body.append(getFavListPageBut);
+        $body.append(getFavAllListBut);
         getFollowersOrWatchlists.attr("id", "getFollowersOrWatchlists");
+        getFavListPageBut.attr("id", "getFavListPageBut");
+        getFavAllListBut.attr("id", "getFavAllListBut");
+        getFavListPageBut.hide();
+        getFavAllListBut.hide();
+        const interval01 = setInterval(() => {
+            if ($("#h-name").length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            if (!Space.isH_action()) {
+                console.log("非个人空间主页")
+                $body.append(filterQueue);
+            }
+        }, 1000);
         filterQueue.click(() => {
             butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
         });
@@ -3004,14 +3243,18 @@ function bilibiliOne(href, windowsTitle) {
             Space.isFetchingFollowersOrWatchlists = true;
             let loading, fileName;
             const type = Space.isSpaceFollowOrFollow(Util.getWindowUrl());
+            const userName = Space.getUserName();
             switch (type) {
                 case "follow"://关注数
-                    loading = Qmsg.loading("正在获取关注列表数据中，请不要轻易动当前页面内容");
-                    fileName = "用户关注列表.json";
+                    loading = Qmsg.loading(`正在获取 ${userName} 的关注列表数据中，请不要轻易动当前页面内容`);
+                    fileName = `${userName}用户的${Space.getMyFollowLabel()}列表`;
                     break;
                 case "fans"://粉丝
-                    loading = Qmsg.loading("正在获取粉丝列表数据中，请不要轻易动当前页面内容");
-                    fileName = "用户粉丝列表.json";
+                    if (!confirm("温馨提示，最多能获取1000(一千)个粉丝用户信息，是否继续？")) {
+                        return;
+                    }
+                    loading = Qmsg.loading(`正在获取 ${userName} 的粉丝列表数据中，请不要轻易动当前页面内容`);
+                    fileName = `${userName}的用户粉丝列表`;
                     break;
                 default:
                     alert("出现意外的参数！" + type);
@@ -3023,8 +3266,47 @@ function bilibiliOne(href, windowsTitle) {
                 Qmsg.success(info);
                 console.log(info);
                 console.log(dataList);
-                Util.fileDownload(JSON.stringify(dataList), fileName);
+                Util.fileDownload(JSON.stringify(dataList), `${fileName}[${dataList.length}个].json`);
                 Space.isFetchingFollowersOrWatchlists = false;
+            });
+        });
+
+        getFavListPageBut.click(() => {
+            const fav = Space.fav;
+            const favName = fav.getFavName();
+            const authorName = fav.getAuthorName();
+            if (!confirm(`获取【${authorName}】用户【${favName}】收藏夹当前显示的内容，是要获取吗？`)) {
+                return;
+            }
+            const dataList = fav.getDataList();
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `${authorName}的${favName}收藏夹(${dataList.length}个).json`);
+        });
+        getFavAllListBut.click(() => {
+            const fav = Space.fav;
+            const favName = fav.getFavName();
+            const authorName = fav.getAuthorName();
+            if (!confirm(`是要获取收藏夹创建者【${authorName}】用户【${favName}】的收藏夹所有的内容吗？`)) {
+                return;
+            }
+            const loading = Qmsg.loading(`正在获取用户【${authorName}】的收藏夹【${favName}】....`);
+            new Promise(resolve => {
+                let dataList = [];
+                const interval = setInterval(() => {
+                    const tempDataList = fav.getDataList();
+                    const next = $(".be-pager-next");
+                    dataList = dataList.concat(tempDataList);
+                    if (next.is(':hidden')) {
+                        clearInterval(interval);
+                        resolve(dataList);
+                        return;
+                    }
+                    next.click();
+                }, 2000);
+            }).then(dataList => {
+                loading.close();
+                Qmsg.success("获取成功！");
+                alert("获取成功！");
+                Util.fileDownload(JSON.stringify(dataList, null, 3), `${authorName}的${favName}收藏夹(${dataList.length}个).json`);
             });
         });
         return;
@@ -3464,6 +3746,67 @@ function bilibiliOne(href, windowsTitle) {
             login.remove();
             console.log("已移除页面的提示登录信息");
         }, 1000);
+        return;
+    }
+    if (href.includes("www.bilibili.com/account/history") && windowsTitle === "历史记录") {
+        const getPageShowHistoryBut = layout.panel.getHoverball("获取页面可见的历史记录", "18%", "5%", "52px", "95px", "10%");
+        const getAllPageHistoryBut = layout.panel.getHoverball("获取页面全部的历史记录", "28%", "5%", "52px", "95px", "10%");
+        const body = $("body");
+        body.append(getPageShowHistoryBut);
+        body.append(getAllPageHistoryBut);
+        History.delLayout.footer();
+        getPageShowHistoryBut.click(() => {
+            if (History.isGetLoadIngData) {
+                alert("请等待获取完成！");
+                return;
+            }
+            alert("如果您要获取所有全部可见的历史记录内容，可以一直滚动到底部，直到显示全部可见的历史记录内容，再获取");
+            History.isGetLoadIngData = true;
+            const dataHistory = History.getDataHistory();
+            History.isGetLoadIngData = false;
+            if (dataHistory.length === 0) {
+                alert("未获取到相关历史记录！");
+                return;
+            }
+            alert("已获取完成！接下来可以将获取到的数据保存到电脑上任意一个位置");
+            Util.fileDownload(JSON.stringify(dataHistory, null, 3), `b站用户的历史记录${Util.toTimeString()}(${dataHistory.length}个).json`);
+        });
+        getAllPageHistoryBut.click(() => {
+            if (History.isGetLoadIngData) {
+                alert("请等待获取完成！");
+                return;
+            }
+            if (!confirm("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！是否继续？")) {
+                return;
+            }
+            History.isGetLoadIngData = true;
+            const loading = Qmsg.loading("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！");
+            new Promise(resolve => {
+                const interval01 = setInterval(() => {
+                    if (document.querySelector(".endpic") === null) {
+                        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+                        return;
+                    }
+                    resolve();
+                }, 1500);
+            }).then(() => {
+                loading.close();
+                const dataHistory = History.getDataHistory();
+                History.isGetLoadIngData = false;
+                if (dataHistory.length === 0) {
+                    alert("未获取到相关历史记录！");
+                    return;
+                }
+                alert("已获取完成！接下来可以将获取到的数据保存到电脑上任意一个位置");
+                Util.fileDownload(JSON.stringify(dataHistory, null, 3), `b站用户全部的历史记录${Util.toTimeString()}(${dataHistory.length}个).json`);
+            });
+        });
+        return;
+    }
+    if (href.includes("www.bilibili.com/watchlater")) {
+        Watchlater.initLayout();
+        $(".international-footer").remove();
+        console.log("已移除页面页脚信息");
     }
 }
 function github(href) {
