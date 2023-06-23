@@ -335,7 +335,7 @@ function bilibiliOne(href, windowsTitle) {
                 Qmsg.success(info);
                 console.log(info);
                 console.log(dataList);
-                Util.fileDownload(JSON.stringify(dataList), `${fileName}[${dataList.length}个].json`);
+                Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
                 Space.isFetchingFollowersOrWatchlists = false;
             });
         });

@@ -1947,7 +1947,7 @@ function loadChannel() {//加载下拉框中的频道信息
             data["sub"] = subArr;
             arr.push(data);
         }
-        Util.fileDownload(JSON.stringify(arr), "评论区列表-" + Util.toTimeString());
+        Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
         Qmsg.success("已获取成功！");
     });
 
@@ -1968,7 +1968,7 @@ function loadChannel() {//加载下拉框中的频道信息
             const name = v.textContent;
             array.push(name);
         }
-        Util.fileDownload(JSON.stringify(array), Util.toTimeString() + "直播间高能用户列表.json");
+        Util.fileDownload(JSON.stringify(array, null, 3), Util.toTimeString() + "直播间高能用户列表.json");
     });
 
     $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
@@ -2006,7 +2006,7 @@ function loadChannel() {//加载下拉框中的频道信息
             }
             arrData.push(data);
         }
-        Util.fileDownload(JSON.stringify(arrData), Util.toTimeString() + "_直播间弹幕内容.json");
+        Util.fileDownload(JSON.stringify(arrData, null, 3), Util.toTimeString() + "_直播间弹幕内容.json");
         Qmsg.success("获取成功并执行导出内容");
     });
 
@@ -2313,7 +2313,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 break;
             case "全部UID规则到文件":
                 const list = LocalData.getArrUID();
-                Util.fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
+                Util.fileDownload(JSON.stringify(list, null, 3), `UID规则-${list.length}个.json`);
                 break;
             case "全部UID规则到云端":
                 alert("暂不支持");
@@ -2390,7 +2390,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 }
                 list.push(arrListElement);
             }
-            Util.fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
+            Util.fileDownload(JSON.stringify(list, null, 3), "b站账号弹幕屏蔽设定规则.json");
         }
     });
 
