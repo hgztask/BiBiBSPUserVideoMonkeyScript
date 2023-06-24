@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.57
+// @version      1.1.58
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -1149,15 +1149,17 @@ style="position: fixed;z-index: 2022;  top: ${top}; left: ${left}; width: ${widt
     </div>
     <hr>
     <hr>
-    <div>
-    <details id="GBTLSGameDetails">
+<details id="GBTLSGameDetails">
     <summary>GBT乐赏游戏空间</summary>
     <button value="open">前往GBT乐赏游戏空间地址</button>
     <button value="getPageDataInfo">初始化页面资源信息</button>
     <button value="getData">获取页面资源</button>
     <button value="getFildKeys">获取指定key的项目</button>
 </details>
-</div>
+<details title="设置之后加载其他动态内容或者刷新页面才生效">
+<summary>动态</summary>
+<input type="checkbox" id="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
+</details>
     <div>
       <h1> 反馈问题</h1>
       <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>
@@ -2258,7 +2260,6 @@ const Trends = {
          * 关注用户直播-是否获取完列表item
          */
         concernBool: false,
-
         partition: {},
         /**
          * 分区列表页数
@@ -2293,8 +2294,13 @@ const Trends = {
         },
         partitionPage: 1,
         partitionBool: false,
-        partitionEndTypeLiveName: ""
-
+        partitionEndTypeLiveName: "",
+        setTrendsItemsTwoColumnCheackbox: function (bool) {
+            Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
+        },
+        getTrendsItemsTwoColumnCheackbox: function () {
+            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox"));
+        },
     }, topCssDisply: {
         //针对于整体布局的细调整
         body: function () {
@@ -2738,7 +2744,6 @@ const Watchlater = {
         return dataList;
     }
 }
-
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -3266,7 +3271,7 @@ function bilibiliOne(href, windowsTitle) {
                 Qmsg.success(info);
                 console.log(info);
                 console.log(dataList);
-                Util.fileDownload(JSON.stringify(dataList), `${fileName}[${dataList.length}个].json`);
+                Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
                 Space.isFetchingFollowersOrWatchlists = false;
             });
         });
@@ -3666,6 +3671,9 @@ function bilibiliOne(href, windowsTitle) {
                 }
                 clearInterval(interval01);
                 Trends.shrieDynamicItems(tempList);
+                if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) {
+                    return;
+                }
                 Trends.layoutCss.items();
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
@@ -5860,7 +5868,7 @@ function loadChannel() {//加载下拉框中的频道信息
             data["sub"] = subArr;
             arr.push(data);
         }
-        Util.fileDownload(JSON.stringify(arr), "评论区列表-" + Util.toTimeString());
+        Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
         Qmsg.success("已获取成功！");
     });
 
@@ -5881,7 +5889,7 @@ function loadChannel() {//加载下拉框中的频道信息
             const name = v.textContent;
             array.push(name);
         }
-        Util.fileDownload(JSON.stringify(array), Util.toTimeString() + "直播间高能用户列表.json");
+        Util.fileDownload(JSON.stringify(array, null, 3), Util.toTimeString() + "直播间高能用户列表.json");
     });
 
     $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
@@ -5919,7 +5927,7 @@ function loadChannel() {//加载下拉框中的频道信息
             }
             arrData.push(data);
         }
-        Util.fileDownload(JSON.stringify(arrData), Util.toTimeString() + "_直播间弹幕内容.json");
+        Util.fileDownload(JSON.stringify(arrData, null, 3), Util.toTimeString() + "_直播间弹幕内容.json");
         Qmsg.success("获取成功并执行导出内容");
     });
 
@@ -6226,7 +6234,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 break;
             case "全部UID规则到文件":
                 const list = LocalData.getArrUID();
-                Util.fileDownload(JSON.stringify(list), `UID规则-${list.length}个.json`);
+                Util.fileDownload(JSON.stringify(list, null, 3), `UID规则-${list.length}个.json`);
                 break;
             case "全部UID规则到云端":
                 alert("暂不支持");
@@ -6303,7 +6311,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 }
                 list.push(arrListElement);
             }
-            Util.fileDownload(JSON.stringify(list), "b站账号弹幕屏蔽设定规则.json");
+            Util.fileDownload(JSON.stringify(list, null, 3), "b站账号弹幕屏蔽设定规则.json");
         }
     });
 
@@ -6574,9 +6582,11 @@ function loadChannel() {//加载下拉框中的频道信息
         }
         GBTGame.find(key);
     });
-
+    const $isTrendsItemsTwoColumnCheackbox = $("#isTrendsItemsTwoColumnCheackbox");
     const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
     $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
+    $isTrendsItemsTwoColumnCheackbox.click(() => Trends.data.setTrendsItemsTwoColumnCheackbox($isTrendsItemsTwoColumnCheackbox.prop("checked")));
+
 
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
