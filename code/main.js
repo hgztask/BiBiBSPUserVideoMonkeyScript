@@ -2661,9 +2661,11 @@ function loadChannel() {//加载下拉框中的频道信息
         }
         GBTGame.find(key);
     });
-
+    const $isTrendsItemsTwoColumnCheackbox = $("#isTrendsItemsTwoColumnCheackbox");
     const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
     $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
+    $isTrendsItemsTwoColumnCheackbox.click(() => Trends.data.setTrendsItemsTwoColumnCheackbox($isTrendsItemsTwoColumnCheackbox.prop("checked")));
+
 
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url

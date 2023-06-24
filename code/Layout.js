@@ -322,15 +322,17 @@ style="position: fixed;z-index: 2022;  top: ${top}; left: ${left}; width: ${widt
     </div>
     <hr>
     <hr>
-    <div>
-    <details id="GBTLSGameDetails">
+<details id="GBTLSGameDetails">
     <summary>GBT乐赏游戏空间</summary>
     <button value="open">前往GBT乐赏游戏空间地址</button>
     <button value="getPageDataInfo">初始化页面资源信息</button>
     <button value="getData">获取页面资源</button>
     <button value="getFildKeys">获取指定key的项目</button>
 </details>
-</div>
+<details title="设置之后加载其他动态内容或者刷新页面才生效">
+<summary>动态</summary>
+<input type="checkbox" id="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
+</details>
     <div>
       <h1> 反馈问题</h1>
       <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>

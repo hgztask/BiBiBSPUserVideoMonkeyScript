@@ -9,7 +9,6 @@ const Trends = {
          * 关注用户直播-是否获取完列表item
          */
         concernBool: false,
-
         partition: {},
         /**
          * 分区列表页数
@@ -44,8 +43,13 @@ const Trends = {
         },
         partitionPage: 1,
         partitionBool: false,
-        partitionEndTypeLiveName: ""
-
+        partitionEndTypeLiveName: "",
+        setTrendsItemsTwoColumnCheackbox: function (bool) {
+            Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
+        },
+        getTrendsItemsTwoColumnCheackbox: function () {
+            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox"));
+        },
     }, topCssDisply: {
         //针对于整体布局的细调整
         body: function () {

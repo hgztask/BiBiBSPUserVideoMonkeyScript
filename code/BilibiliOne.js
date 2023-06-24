@@ -735,6 +735,9 @@ function bilibiliOne(href, windowsTitle) {
                 }
                 clearInterval(interval01);
                 Trends.shrieDynamicItems(tempList);
+                if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) {
+                    return;
+                }
                 Trends.layoutCss.items();
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
