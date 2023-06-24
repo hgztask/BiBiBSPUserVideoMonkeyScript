@@ -290,7 +290,6 @@ style="position: fixed;z-index: 2022;  top: ${top}; left: ${left}; width: ${widt
     <details>
       <summary>快捷键</summary>
       <div>
-        <h1>快捷键</h1>
         <p> 显示隐藏面板 快捷键\`</p>
         <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
         <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
