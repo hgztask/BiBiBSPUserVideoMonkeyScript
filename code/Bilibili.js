@@ -74,19 +74,6 @@ function bilibili(href) {
         videoFun.delRightE();
         videoFun.delBottonE();
         videoFun.rightSuspendButton();
-
-        const interval01 = setInterval(() => {
-            const upInfo = document.querySelector(".up-detail-top");
-            if (upInfo.length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            $(upInfo).mouseenter((e) => {
-                const domElement = e.delegateTarget;//dom对象
-                const adHref = domElement.href;
-                Util.showSDPanel(e, domElement.text.trim(), Util.getSubWebUrlUid(adHref));
-            });
-        }, 2000);
         return;
     }
     if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频

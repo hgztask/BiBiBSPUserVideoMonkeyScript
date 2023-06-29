@@ -5,6 +5,7 @@
  * @param {string}windowsTitle
  */
 function bilibiliOne(href, windowsTitle) {
+    const $body = $("body");
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
         if (nav_search_input.length === 0) {
@@ -279,7 +280,6 @@ function bilibiliOne(href, windowsTitle) {
         const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
         const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%", "52px", "140px", "3%");
         const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "36%", "7%", "52px", "140px", "3%");
-        const $body = $("body");
         $body.append(getFollowersOrWatchlists);
         $body.append(getFavListPageBut);
         $body.append(getFavAllListBut);
@@ -385,9 +385,29 @@ function bilibiliOne(href, windowsTitle) {
         subjectOfATalk.deltopIC();
         return;
     }
-    if (href.includes("www.bilibili.com/video")) {
+    if (href.includes("www.bilibili.com/video")) {//视频页
         $("#getVideoDanMueBut").css("display", "inline");
         $("#getVideoCommentArea").css("display", "inline");
+        const panel = layout.panel.getHoverball("屏蔽(uid)", "8%", "89%", "50px", "68px", "6%");
+        $body.append(panel);
+        panel.click(() => {
+            const userList = DefVideo.getCreativeTeam();
+            if (userList.length === 0) {
+                alert("获取失败！");
+                return;
+            }
+            if (userList.length === 1) {
+                const data = userList[0];
+                const name = data["name"];
+                const uid = data["uid"];
+                if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid=${uid}`)) {
+                    return;
+                }
+                butLayEvent.butaddName("userUIDArr", parseInt(uid));
+                return;
+            }
+            alert("暂不支持屏蔽多作者方式.");
+        });
         return;
     }
     if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
@@ -823,9 +843,8 @@ function bilibiliOne(href, windowsTitle) {
     if (href.includes("www.bilibili.com/account/history") && windowsTitle === "历史记录") {
         const getPageShowHistoryBut = layout.panel.getHoverball("获取页面可见的历史记录", "18%", "5%", "52px", "95px", "10%");
         const getAllPageHistoryBut = layout.panel.getHoverball("获取页面全部的历史记录", "28%", "5%", "52px", "95px", "10%");
-        const body = $("body");
-        body.append(getPageShowHistoryBut);
-        body.append(getAllPageHistoryBut);
+        $body.append(getPageShowHistoryBut);
+        $body.append(getAllPageHistoryBut);
         History.delLayout.footer();
         getPageShowHistoryBut.click(() => {
             if (History.isGetLoadIngData) {
