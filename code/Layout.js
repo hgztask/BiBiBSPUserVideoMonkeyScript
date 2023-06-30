@@ -79,22 +79,21 @@ border: 0.5px solid green;
          * @param text 显示内容
          * @param top
          * @param left
-         * @param width
-         * @param height
-         * @param border_radius
          * @returns {*|jQuery|HTMLElement}
          */
-        getHoverball: function (text, top, left, width, height, border_radius) {
-            return $(`<div
-style="position: fixed;z-index: 2022;  top: ${top}; left: ${left}; width: ${width}; height: ${height}; border-radius:${border_radius}; background-color: #FFA500; color: #FFF; font-size: 20px; display: flex;align-items: center;justify-content: center;">
-<button style="background-color: transparent;border: none;">${text}</button>
-</div>`);
+        getHoverball: function (text, top, left) {
+            return $(`<button style=" position: fixed;margin-top: 10px;z-index: 2000;left: ${left};top: ${top};
+    padding: 5px 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: #fff;
+    cursor: pointer;">${text}</button>`);
         },
         getFilter_queue: function () {//个人主页悬浮屏蔽按钮
-            return this.getHoverball("屏蔽", "15%", "4%", "50px", "50px", "25px");
+            return this.getHoverball("屏蔽", "15%", "4%");
         },
         getFollowersOrWatchlists: function () {
-            return this.getHoverball("获取xxx列表", "22%", "4%", "50px", "100px", "15px");
+            return this.getHoverball("获取xxx列表", "22%", "4%");
         }
     },
     getPanelSetsTheLayout: function () {//面板设置
