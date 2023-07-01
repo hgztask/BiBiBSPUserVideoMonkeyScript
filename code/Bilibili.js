@@ -94,6 +94,14 @@ function bilibili(href) {
         }, 10);
         return;
     }
+    if (href.includes("search.bilibili.com/upuser?keyword=")) {
+        $("#getAListOfUsersBut").show();
+        $("#getAAllListOfUsersBut").show();
+        return;
+    } else {
+        $("#getAListOfUsersBut").hide();
+        $("#getAAllListOfUsersBut").hide();
+    }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         message.delMessageAT();
         return;

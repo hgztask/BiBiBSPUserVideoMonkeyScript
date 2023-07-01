@@ -1518,7 +1518,6 @@ const search = {//搜索
                 }
                 $(v).mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
-                    console.log(domElement);
                     const title = domElement.querySelector(".text1").textContent;
                     const info = domElement.querySelector(".flex_start.flex_inline.text3");
                     const name = info.querySelector(".lh_xs").text;
