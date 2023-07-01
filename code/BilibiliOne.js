@@ -278,8 +278,8 @@ function bilibiliOne(href, windowsTitle) {
         }
         const filterQueue = layout.panel.getFilter_queue();
         const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
-        const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%", "52px", "140px", "3%");
-        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "36%", "7%", "52px", "140px", "3%");
+        const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%");
+        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "36%", "7%");
         $body.append(getFollowersOrWatchlists);
         $body.append(getFavListPageBut);
         $body.append(getFavAllListBut);
@@ -386,11 +386,15 @@ function bilibiliOne(href, windowsTitle) {
         return;
     }
     if (href.includes("www.bilibili.com/video")) {//视频页
-        $("#getVideoDanMueBut").css("display", "inline");
-        $("#getVideoCommentArea").css("display", "inline");
-        const panel = layout.panel.getHoverball("屏蔽(uid)", "8%", "89%", "50px", "68px", "6%");
-        $body.append(panel);
-        panel.click(() => {
+        const Shielding_UID = layout.panel.getHoverball("屏蔽(uid)", "15%", "96%");
+        const getTheVideoBarrage = layout.panel.getHoverball("获取视频弹幕", "19%", "95%");
+        const getTheVideoAVNumber = layout.panel.getHoverball("获取视频av号", "22%", "95%");
+        const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
+        $body.append(Shielding_UID);
+        $body.append(getTheVideoBarrage);
+        $body.append(getTheVideoAVNumber);
+        $body.append(getVideoCommentArea);
+        Shielding_UID.click(() => {
             const userList = DefVideo.getCreativeTeam();
             if (userList.length === 0) {
                 alert("获取失败！");
@@ -407,6 +411,103 @@ function bilibiliOne(href, windowsTitle) {
                 return;
             }
             alert("暂不支持屏蔽多作者方式.");
+        });
+        getTheVideoBarrage.click(() => {//打开当前视频弹幕列表
+            const windowUrl = Util.getWindowUrl();
+            if (!windowUrl.includes("www.bilibili.com/video")) {
+                alert("当前不是播放页!");
+                return;
+            }
+            const urlBVID = Util.getUrlBVID(windowUrl);
+            if (urlBVID === null) {
+                alert("获取不到BV号!");
+                return;
+            }
+            if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
+                return;
+            }
+            const loading = Qmsg.loading("正在获取数据中!");
+            HttpUtil.getVideoInfo(urlBVID, (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    Qmsg.error("获取失败!" + message);
+                    loading.close();
+                    return;
+                }
+                let data;
+                try {
+                    data = body["data"][0];
+                } catch (e) {
+                    Qmsg.error("获取数据失败!" + e);
+                    loading.close();
+                    return;
+                }
+                if (data === null || data === undefined) {
+                    Qmsg.error("获取到的数据为空的!");
+                    loading.close();
+                    return;
+                }
+                loading.close();
+                const cid = data["cid"];
+                Qmsg.success("cid=" + cid);
+                Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
+            }, (err) => {
+                loading.close();
+                Qmsg.error("错误状态!");
+                Qmsg.error(err);
+            });
+        });
+        getTheVideoAVNumber.click(() => {//获取视频av号
+            const urlBVID = Util.getUrlBVID(Util.getWindowUrl());
+            if (urlBVID === null) {
+                alert("获取不到BV号!");
+                return;
+            }
+            if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
+                return;
+            }
+            alert(Util.BilibiliEncoder.dec(urlBVID));
+        });
+        getVideoCommentArea.click(() => {//获取视频的评论区列表可见的内容
+            const list = document.querySelectorAll(".reply-list>.reply-item");
+            if (list.length === 0) {
+                Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
+                return;
+            }
+            const arr = [];
+            for (let v of list) {
+                const rootName = v.querySelector(".user-name").textContent;
+                const rootUid = v.querySelector(".user-name").getAttribute("data-user-id");
+                const rootContent = v.querySelector(".root-reply .reply-content").textContent;
+                const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
+                const data = {
+                    name: rootName,
+                    uid: parseInt(rootUid),
+                    content: rootContent,
+                };
+                if (subList.length === 0) {
+                    arr.push(data);
+                    continue;
+                }
+                const subArr = [];
+                for (let j of subList) {
+                    const subName = j.querySelector(".sub-user-name").textContent;
+                    const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
+                    const subContent = j.querySelector(".reply-content").textContent;
+                    const subData = {
+                        name: subName,
+                        uid: parseInt(subUid),
+                        content: subContent
+                    };
+                    subArr.push(subData);
+                }
+                data["sub"] = subArr;
+                arr.push(data);
+            }
+            Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
+            Qmsg.success("已获取成功！");
         });
         return;
     }
@@ -786,9 +887,34 @@ function bilibiliOne(href, windowsTitle) {
         }, 1000);
     }
     if (href.includes("search.bilibili.com")) {
+        const getAListOfUsersBut = layout.panel.getHoverball("获取用户列表(当前页)", "15%", "94%");
+        const getAAllListOfUsersBut = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
+        $body.append(getAListOfUsersBut);
+        $body.append(getAAllListOfUsersBut);
+        getAListOfUsersBut.click(() => {
+            const dataList = Search.upuser.getUserInfoList();
+            if (dataList.length === 0) {
+                alert("未获取到相关用户列表数据！");
+                return;
+            }
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `搜索关键词【${Search.upuser.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}的用户列表(${dataList.length}个).json`);
+        });
+        getAAllListOfUsersBut.click(() => {
+            const loading = Qmsg.loading("正在获取中，请耐心等待！");
+            Search.upuser.getUserInfoAllList().then(v => {
+                loading.close();
+                if (v.length === 0) {
+                    alert("未获取到相关用户列表数据！");
+                    return;
+                }
+                Qmsg.success(`获取成功!个数为：${v.length}个`);
+                Util.fileDownload(JSON.stringify(v, null, 3), `搜索关键词【${Search.upuser.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}用户列表(${v.length}个).json`);
+            });
+        });
+
         $("#biliMainFooter").remove();
         console.log("已清空底部信息");
-        $(".side-buttons.flex_col_end p_absolute").remove();
+        $(".side-buttons.flex_col_end.p_absolute").remove();
         console.log("已移除bilibili右侧悬浮按钮");
         return;
     }
@@ -841,8 +967,8 @@ function bilibiliOne(href, windowsTitle) {
         return;
     }
     if (href.includes("www.bilibili.com/account/history") && windowsTitle === "历史记录") {
-        const getPageShowHistoryBut = layout.panel.getHoverball("获取页面可见的历史记录", "18%", "5%", "52px", "95px", "10%");
-        const getAllPageHistoryBut = layout.panel.getHoverball("获取页面全部的历史记录", "28%", "5%", "52px", "95px", "10%");
+        const getPageShowHistoryBut = layout.panel.getHoverball("获取页面可见的历史记录", "18%", "5%");
+        const getAllPageHistoryBut = layout.panel.getHoverball("获取页面全部的历史记录", "28%", "5%");
         $body.append(getPageShowHistoryBut);
         $body.append(getAllPageHistoryBut);
         History.delLayout.footer();
