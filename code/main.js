@@ -2587,7 +2587,7 @@ function loadChannel() {//加载下拉框中的频道信息
         console.log("页面url发生变化了，原=" + href + " 现=" + tempUrl);
         href = tempUrl;//更新url
         bilibili(href);//网页url发生变化时执行
-    }, 1000);
+    }, 500);
 
     if (href.includes("bilibili.com")) {
         bilibiliOne(href, document.title);
