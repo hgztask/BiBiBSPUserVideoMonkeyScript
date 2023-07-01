@@ -76,7 +76,18 @@ function bilibili(href) {
         videoFun.rightSuspendButton();
         return;
     }
+    if (href.includes("search.bilibili.com/upuser?keyword=")) {//优先级要比下面的搜索页面-综合-搜索界面-视频-高
+        $("#getAListOfUsersBut").show();
+        $("#getAAllListOfUsersBut").show();
+    } else {
+        $("#getAListOfUsersBut").hide();
+        $("#getAAllListOfUsersBut").hide();
+    }
+    const $getVideoList = $("#getVideoList");
+    const $getAllVideoList = $("#getAllVideoList");
     if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
+        $getVideoList.show();
+        $getAllVideoList.show();
         const interval = setInterval(() => {
             const list = $(".video-list").children();
             const tempListLength = list.length;
@@ -93,14 +104,9 @@ function bilibili(href) {
             }
         }, 10);
         return;
-    }
-    if (href.includes("search.bilibili.com/upuser?keyword=")) {
-        $("#getAListOfUsersBut").show();
-        $("#getAAllListOfUsersBut").show();
-        return;
     } else {
-        $("#getAListOfUsersBut").hide();
-        $("#getAAllListOfUsersBut").hide();
+        $getVideoList.hide();
+        $getAllVideoList.hide();
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         message.delMessageAT();
