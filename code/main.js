@@ -11,7 +11,7 @@ const Rule = {
         });
         Util.addStyle(`
 #textRuleInfoDiv>div>p>span{
-color: yellow;
+color: #ff0000;
 }
 `);
     },
@@ -142,9 +142,9 @@ const Home = {
     //首页下拉底部时依次加载视频的个数
     videoIndex: 20,
     background: {//主面板背景颜色及透明度
-        r: 92,
-        g: 80,
-        b: 80,
+        r: 255,
+        g: 255,
+        b: 255,
         a: 1
     },
     data: {
@@ -1592,7 +1592,7 @@ function loadChannel() {//加载下拉框中的频道信息
         document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
             $(value).css("color", "");
         })
-        domElement.style.color = "yellow";
+        domElement.style.color = "#1b00ff";
         Home.openTab(domElement.value);
     });
 
@@ -1861,94 +1861,6 @@ function loadChannel() {//加载下拉框中的频道信息
             }
             $("#popDiv").css("display", "inline");
         });
-    });
-
-    $("#getVideoDanMueBut").click(() => {//打开当前视频弹幕列表
-        const windowUrl = Util.getWindowUrl();
-        if (!windowUrl.includes("www.bilibili.com/video")) {
-            alert("当前不是播放页!");
-            return;
-        }
-        const urlBVID = Util.getUrlBVID(windowUrl);
-        if (urlBVID === null) {
-            alert("获取不到BV号!");
-            return;
-        }
-        if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
-            return;
-        }
-        const loading = Qmsg.loading("正在获取数据中!");
-        HttpUtil.getVideoInfo(urlBVID, (res) => {
-            const body = JSON.parse(res.responseText);
-            const code = body["code"];
-            const message = body["message"];
-            if (code !== 0) {
-                Qmsg.error("获取失败!" + message);
-                loading.close();
-                return;
-            }
-            let data;
-            try {
-                data = body["data"][0];
-            } catch (e) {
-                Qmsg.error("获取数据失败!" + e);
-                loading.close();
-                return;
-            }
-            if (data === null || data === undefined) {
-                Qmsg.error("获取到的数据为空的!");
-                loading.close();
-                return;
-            }
-            loading.close();
-            const cid = data["cid"];
-            Qmsg.success("cid=" + cid);
-            Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
-        }, (err) => {
-            loading.close();
-            Qmsg.error("错误状态!");
-            Qmsg.error(err);
-        });
-    });
-
-    $("#getVideoCommentArea").click(() => {//获取视频的评论区列表可见的内容
-        const list = document.querySelectorAll(".reply-list>.reply-item");
-        if (list.length === 0) {
-            Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
-            return;
-        }
-        const arr = [];
-        for (let v of list) {
-            const rootName = v.querySelector(".user-name").textContent;
-            const rootUid = v.querySelector(".user-name").getAttribute("data-user-id");
-            const rootContent = v.querySelector(".root-reply .reply-content").textContent;
-            const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
-            const data = {
-                name: rootName,
-                uid: parseInt(rootUid),
-                content: rootContent,
-            };
-            if (subList.length === 0) {
-                arr.push(data);
-                continue;
-            }
-            const subArr = [];
-            for (let j of subList) {
-                const subName = j.querySelector(".sub-user-name").textContent;
-                const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
-                const subContent = j.querySelector(".reply-content").textContent;
-                const subData = {
-                    name: subName,
-                    uid: parseInt(subUid),
-                    content: subContent
-                };
-                subArr.push(subData);
-            }
-            data["sub"] = subArr;
-            arr.push(data);
-        }
-        Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
-        Qmsg.success("已获取成功！");
     });
 
     $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
