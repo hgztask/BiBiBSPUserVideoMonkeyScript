@@ -500,6 +500,9 @@ const Util = {
         if (title !== null) {
             $("#suspensionDiv details").show();
             $("#suspensionDiv .title").text(title);
+            if (bv === null) {
+                return;
+            }
             $("#suspensionDiv .bv").text(bv);
             $("#suspensionDiv .av").text(Util.BilibiliEncoder.dec(bv));
 
