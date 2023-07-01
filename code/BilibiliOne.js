@@ -891,6 +891,10 @@ function bilibiliOne(href, windowsTitle) {
         const getAAllListOfUsersBut = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
         $body.append(getAListOfUsersBut);
         $body.append(getAAllListOfUsersBut);
+        getAListOfUsersBut.attr("id", "getAListOfUsersBut");
+        getAAllListOfUsersBut.attr("id", "getAAllListOfUsersBut");
+        getAListOfUsersBut.hide();
+        getAAllListOfUsersBut.hide();
         getAListOfUsersBut.click(() => {
             const dataList = Search.upuser.getUserInfoList();
             if (dataList.length === 0) {
