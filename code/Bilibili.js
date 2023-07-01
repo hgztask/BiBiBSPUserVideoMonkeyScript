@@ -156,14 +156,13 @@ function bilibili(href) {
         getFavAllListBut.hide();
     }
     if (href.search("space.bilibili.com/[0-9]+/fans/") !== -1) {//用户粉丝数或关注数页面
-        const tempButton = followersOrWatchlists.find("button");
         const type = Space.isSpaceFollowOrFollow(href);
         switch (type) {
             case "follow"://关注数
-                tempButton.text("获取用户关注列表");
+                followersOrWatchlists.text("获取用户关注列表");
                 break;
             case "fans"://粉丝
-                tempButton.text("获取用户粉丝列表");
+                followersOrWatchlists.text("获取用户粉丝列表");
                 break;
             default:
                 alert("出现意外的参数！" + type);
