@@ -889,12 +889,20 @@ function bilibiliOne(href, windowsTitle) {
     if (href.includes("search.bilibili.com")) {
         const getAListOfUsersBut = layout.panel.getHoverball("获取用户列表(当前页)", "15%", "94%");
         const getAAllListOfUsersBut = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
+        const getVideoList = layout.panel.getHoverball("获取视频列表(当前页)", "15%", "94%");
+        const getAllVideoList = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
         $body.append(getAListOfUsersBut);
         $body.append(getAAllListOfUsersBut);
+        $body.append(getVideoList);
+        $body.append(getAllVideoList);
         getAListOfUsersBut.attr("id", "getAListOfUsersBut");
         getAAllListOfUsersBut.attr("id", "getAAllListOfUsersBut");
+        getVideoList.attr("id", "getVideoList");
+        getAllVideoList.attr("id", "getAllVideoList");
         getAListOfUsersBut.hide();
         getAAllListOfUsersBut.hide();
+        getVideoList.hide();
+        getAllVideoList.hide();
         getAListOfUsersBut.click(() => {
             const dataList = Search.upuser.getUserInfoList();
             if (dataList.length === 0) {
@@ -914,6 +922,13 @@ function bilibiliOne(href, windowsTitle) {
                 Qmsg.success(`获取成功!个数为：${v.length}个`);
                 Util.fileDownload(JSON.stringify(v, null, 3), `搜索关键词【${Search.upuser.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}用户列表(${v.length}个).json`);
             });
+        });
+        getVideoList.click(() => {
+
+        });
+
+        getAllVideoList.click(() => {
+
         });
 
         $("#biliMainFooter").remove();
