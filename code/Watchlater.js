@@ -1,7 +1,7 @@
 const Watchlater = {
     initLayout: function () {
-        const panel = layout.panel.getHoverball("获取稍后再看列表数据", "32%", "5%", "52px", "95px", "10%");
-        const paneLooked = layout.panel.getHoverball("获取稍后再看列表数据(已观看)", "42%", "5%", "52px", "95px", "10%");
+        const panel = layout.panel.getHoverball("获取稍后再看列表数据", "32%", "5%");
+        const paneLooked = layout.panel.getHoverball("获取稍后再看列表数据(已观看)", "42%", "5%");
         const $body = $("body");
         $body.append(panel);
         $body.append(paneLooked);
