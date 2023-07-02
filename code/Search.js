@@ -42,7 +42,8 @@ const Search = {
             let dataList = [];
             return new Promise((resolve, reject) => {
                 const interval = setInterval(() => {
-                    if (Search.getTabsItem() !== "视频") {
+                    const tabsItem = Search.getTabsItem();
+                    if (!(tabsItem === "视频" || tabsItem === "综合")) {
                         clearInterval(interval);
                         reject("当前请在视频选项卡或者综合选项卡中获取！");
                         return;
