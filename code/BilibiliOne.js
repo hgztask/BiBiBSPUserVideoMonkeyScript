@@ -909,7 +909,7 @@ function bilibiliOne(href, windowsTitle) {
                 alert("未获取到相关用户列表数据！");
                 return;
             }
-            Util.fileDownload(JSON.stringify(dataList, null, 3), `搜索关键词【${Search.upuser.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}的用户列表(${dataList.length}个).json`);
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `搜索关键词【${Search.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}的用户列表(${dataList.length}个).json`);
         });
         getAAllListOfUsersBut.click(() => {
             const loading = Qmsg.loading("正在获取中，请耐心等待！");
@@ -920,15 +920,41 @@ function bilibiliOne(href, windowsTitle) {
                     return;
                 }
                 Qmsg.success(`获取成功!个数为：${v.length}个`);
-                Util.fileDownload(JSON.stringify(v, null, 3), `搜索关键词【${Search.upuser.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}用户列表(${v.length}个).json`);
+                Util.fileDownload(JSON.stringify(v, null, 3), `搜索关键词【${Search.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}用户列表(${v.length}个).json`);
             });
         });
         getVideoList.click(() => {
-
+            const list = Search.video.getVideoDataList();
+            if (list.length === 0) {
+                alert("未获取到相关视频数据！");
+                return;
+            }
+            Qmsg.success("获取当前页的视频列表成功！");
+            Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${Search.getKeyword()}】的${Search.video.getTabTheSelectedSort()}用户了列表${list.length})个.json`);
         });
 
         getAllVideoList.click(() => {
-
+            if (Search.isGetLoadIngData) {
+                Qmsg.error("请等待，获取完成！");
+                return;
+            }
+            Search.isGetLoadIngData = true;
+            const keyword = Search.getKeyword();
+            const loading = Qmsg.loading(`正在获取【${keyword}】关键词相关的视频数据！`);
+            Search.video.getAllVideoDataList().then(list => {
+                if (list.length === 0) {
+                    alert("未获取到相关视频数据！");
+                    return;
+                }
+                Qmsg.success(`获取关键词${keyword}的视频列表成功！`);
+                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}用户了列表${list.length})个.json`);
+            }).catch(reason => {
+                Qmsg.error(reason);
+                alert(reason);
+            }).finally(() => {
+                Search.isGetLoadIngData = false;
+                loading.close();
+            });
         });
 
         $("#biliMainFooter").remove();
@@ -1017,15 +1043,7 @@ function bilibiliOne(href, windowsTitle) {
             }
             History.isGetLoadIngData = true;
             const loading = Qmsg.loading("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！");
-            new Promise(resolve => {
-                const interval01 = setInterval(() => {
-                    if (document.querySelector(".endpic") === null) {
-                        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
-                        return;
-                    }
-                    resolve();
-                }, 1500);
-            }).then(() => {
+            History.getAllDataHistory().then(() => {
                 loading.close();
                 const dataHistory = History.getDataHistory();
                 History.isGetLoadIngData = false;

@@ -1,5 +1,22 @@
 const Search = {
+    //是否正在执行获取操作
+    isGetLoadIngData: false,
+    getKeyword() {//返回搜索页面中搜索关键词
+        const match = Util.getWindowUrl().match(/keyword=([^&]+)/);
+        if (match) {
+            return decodeURIComponent(match[1]);
+        } else {
+            return null;
+        }
+    },
+    getTabsItem() {//获取搜索页面当前选中的总选项卡
+        return document.querySelector(".vui_tabs--nav.vui_tabs--nav-pl0>.vui_tabs--nav-item-active .vui_tabs--nav-text").textContent;
+    },
     video: {
+        getTabTheSelectedSort() {//排序
+            const e = document.querySelector(".search-condition-row>.vui_button--active");
+            return e == null ? "默认排序" : e.textContent;
+        },
         getVideoDataList() {
             const ENList = document.querySelectorAll(".video-list.row>*");
             const dataList = [];
@@ -8,11 +25,13 @@ const Search = {
                 const info = v.querySelector(".bili-video-card__info--right");
                 data["title"] = info.querySelector("h3").getAttribute("title").trim();
                 const videoAddress = info.querySelector("a").getAttribute("href");
+                data["bv"] = Util.getSubWebUrlBV(videoAddress);
                 data["videoAddress"] = videoAddress;
                 const userInfo = info.querySelector(".bili-video-card__info--owner");
                 const userAddress = userInfo.getAttribute("href");
-                data["userAddress"] = userAddress;
                 data["name"] = userInfo.querySelector(".bili-video-card__info--author").textContent;
+                data["uid"] = parseInt(Util.getSubWebUrlUid(userAddress));
+                data["userAddress"] = userAddress;
                 const tempDate = userInfo.querySelector(".bili-video-card__info--date").textContent;
                 data["date"] = tempDate.substring(3);
                 dataList.push(data);
@@ -21,8 +40,13 @@ const Search = {
         },
         getAllVideoDataList() {
             let dataList = [];
-            return new Promise(resolve => {
+            return new Promise((resolve, reject) => {
                 const interval = setInterval(() => {
+                    if (Search.getTabsItem() !== "视频") {
+                        clearInterval(interval);
+                        reject("当前请在视频选项卡或者综合选项卡中获取！");
+                        return;
+                    }
                     const tempDataList = Search.video.getVideoDataList();
                     dataList = dataList.concat(tempDataList);
                     const nextPageBut = $(".vui_pagenation--btns>button:contains('下一页')");
@@ -31,19 +55,12 @@ const Search = {
                         resolve(dataList);
                     }
                     nextPageBut.click();
-                }, 2110);
+                    Util.bufferBottom();
+                }, 2500);
             });
         }
     },
     upuser: {
-        getKeyword() {//返回搜索页面中搜索关键词
-            const match = Util.getWindowUrl().match(/keyword=([^&]+)/);
-            if (match) {
-                return decodeURIComponent(match[1]);
-            } else {
-                return null;
-            }
-        },
         getTabTheSelectedSort() {//排序
             const e = document.querySelector(".condition-row>.vui_button--active");
             return e == null ? "默认排序" : e.textContent;
