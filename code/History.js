@@ -51,7 +51,7 @@ const History = {
         return new Promise(resolve => {
             const interval = setInterval(() => {
                 if (document.querySelector(".endpic") === null) {
-                    $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+                   Util.bufferBottom();
                     return;
                 }
                 clearInterval(interval);

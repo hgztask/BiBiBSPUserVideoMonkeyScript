@@ -160,7 +160,7 @@ const Space = {
                     }
                     next.click();
                     setTimeout(() => {
-                        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+                        Util.bufferBottom();
                         whileFunc();
                     }, 1500);
                 }).catch(() => {

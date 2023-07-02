@@ -9,7 +9,8 @@ const Watchlater = {
             if (!confirm("仅获取页面可见的列表了内容并导出为json，是要继续吗？")) {
                 return;
             }
-            $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+            Util.bufferBottom();
+            ;
             setTimeout(() => {
                 const dataList = this.getDataList();
                 if (dataList.length === 0) {
@@ -27,7 +28,8 @@ const Watchlater = {
             if (!confirm("仅获取页面可见的列表中【已观看】了的内容并导出为json，是要继续吗？")) {
                 return;
             }
-            $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+            Util.bufferBottom();
+            ;
             setTimeout(() => {
                 const dataList = this.getDataList(true);
                 if (dataList.length === 0) {
