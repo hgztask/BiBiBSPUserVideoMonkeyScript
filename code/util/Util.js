@@ -538,7 +538,7 @@ const Util = {
     getSubWebUrlBV: function (address) {//截取地址中的bv号
         const match = address.match(/\/video\/(.*?)[?\/]/);
         if (match !== null) {
-            return match;
+            return match[1];
         }
         return this.subLastIndexStr.tempFuc(address);
     },
@@ -678,5 +678,8 @@ const Util = {
     isBoolean: function (str) {
         const bool = Boolean(str);
         return bool === true;
+    },
+    bufferBottom() {//缓冲置底
+        $('html, body').animate({scrollTop: $(document).height()}, 'slow');
     }
 }
