@@ -16,7 +16,7 @@ const History = {
         }
         return "其他";
     },
-    getDataHistory: function () {
+    getDataHistory() {
         const historyEList = document.querySelectorAll("#history_list>li");
         const dataList = [];
         historyEList.forEach(value => {
@@ -46,5 +46,17 @@ const History = {
             dataList.push(data);
         });
         return dataList;
+    },
+    getAllDataHistory() {
+        return new Promise(resolve => {
+            const interval = setInterval(() => {
+                if (document.querySelector(".endpic") === null) {
+                    $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+                    return;
+                }
+                clearInterval(interval);
+                resolve();
+            }, 1500);
+        })
     }
 }
