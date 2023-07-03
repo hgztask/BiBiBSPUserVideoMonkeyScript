@@ -892,7 +892,7 @@ function bilibiliOne(href, windowsTitle) {
         const getAListOfUsersBut = layout.panel.getHoverball("获取用户列表(当前页)", "15%", "94%");
         const getAAllListOfUsersBut = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
         const getVideoList = layout.panel.getHoverball("获取视频列表(当前页)", "15%", "94%");
-        const getAllVideoList = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
+        const getAllVideoList = layout.panel.getHoverball("获取视频列表(全部页)", "20%", "94%");
         const getArticleList = layout.panel.getHoverball("获取专栏列表(当前页)", "15%", "94%");
         const getAllArticleList = layout.panel.getHoverball("获取专栏列表(全部页)", "20%", "94%");
         $body.append(getAListOfUsersBut);
