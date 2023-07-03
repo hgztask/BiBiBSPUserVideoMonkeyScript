@@ -76,37 +76,49 @@ function bilibili(href) {
         videoFun.rightSuspendButton();
         return;
     }
-    if (href.includes("search.bilibili.com/upuser?keyword=")) {//优先级要比下面的搜索页面-综合-搜索界面-视频-高
-        $("#getAListOfUsersBut").show();
-        $("#getAAllListOfUsersBut").show();
-    } else {
-        $("#getAListOfUsersBut").hide();
-        $("#getAAllListOfUsersBut").hide();
-    }
-    const $getVideoList = $("#getVideoList");
-    const $getAllVideoList = $("#getAllVideoList");
-    if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
-        $getVideoList.show();
-        $getAllVideoList.show();
-        const interval = setInterval(() => {
-            const list = $(".video-list").children();
-            const tempListLength = list.length;
-            if (list.length === 0) {
-                return;
-            }
-            if (list[0].textContent === "") {
-                return;
-            }
-            search.searchRules(list);
-            if (tempListLength === list.length) {
-                clearInterval(interval);
-                //Print.ln("页面元素没有变化，故退出循环")
-            }
-        }, 10);
+    if (href.includes("search.bilibili.com")) {
+        const $getVideoList = $("#getVideoList");
+        const $getAllVideoList = $("#getAllVideoList");
+        const $getArticleList = $("#getArticleList");
+        const $getAllArticleList = $("#getAllArticleList");
+        if (href.includes("search.bilibili.com/upuser?keyword=")) {//优先级要比下面的搜索页面-综合-搜索界面-视频-高
+            $("#getAListOfUsersBut").show();
+            $("#getAAllListOfUsersBut").show();
+        } else {
+            $("#getAListOfUsersBut").hide();
+            $("#getAAllListOfUsersBut").hide();
+        }
+        if (href.includes("search.bilibili.com/article")) {
+            $getArticleList.show();
+            $getAllArticleList.show();
+        } else {
+            $getArticleList.hide();
+            $getAllArticleList.hide();
+        }
+        if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
+            $getVideoList.show();
+            $getAllVideoList.show();
+            const interval = setInterval(() => {
+                const list = $(".video-list").children();
+                const tempListLength = list.length;
+                if (list.length === 0) {
+                    return;
+                }
+                if (list[0].textContent === "") {
+                    return;
+                }
+                search.searchRules(list);
+                if (tempListLength === list.length) {
+                    clearInterval(interval);
+                    //Print.ln("页面元素没有变化，故退出循环")
+                }
+            }, 10);
+            return;
+        } else {
+            $getVideoList.hide();
+            $getAllVideoList.hide();
+        }
         return;
-    } else {
-        $getVideoList.hide();
-        $getAllVideoList.hide();
     }
     if (href.includes("message.bilibili.com/#/at") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/at")) {//消息中心-艾特我的
         message.delMessageAT();

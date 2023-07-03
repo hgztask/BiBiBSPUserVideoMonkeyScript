@@ -61,6 +61,55 @@ const Search = {
             });
         }
     },
+    article: {
+        getTabTheSelectedSort() {//排序
+            const e = document.querySelector(".condition-row>.vui_button--active");
+            return e == null ? "综合排序" : e.textContent;
+        },
+        getDataList() {
+            const eList = document.querySelectorAll(".media-list.row.mt_lg>*");
+            const list = [];
+            eList.forEach(v => {
+                const data = {};
+                data["title"] = v.querySelector(".text1").getAttribute("title");
+                data["type"] = v.querySelector(".b_text.atc-info.text_ellipsis>a").textContent;
+                data["desc"] = v.querySelector(".atc-desc").textContent;
+                const userInfo = v.querySelector(".flex_start.flex_inline.text3");
+                data["userAddress"] = userInfo.getAttribute("href");
+                data["name"] = userInfo.querySelector(".lh_xs").textContent;
+                const articleAddress = v.querySelector(".text1").getAttribute("href");
+                data["address"] = articleAddress;
+                data["cv"] = articleAddress.match(/read\/(.*?)[?]/)[1];
+                list.push(data);
+            });
+            return list;
+        },
+        getAllDataList() {
+            let dataList = [];
+            return new Promise((resolve, reject) => {
+                const interval = setInterval(() => {
+                    if (document.querySelector(".loading-text.b_text.text3.p_center") !== null) {
+                        Qmsg.info("加载中...");
+                        return;
+                    }
+                    const tempList = Search.article.getDataList();
+                    dataList = dataList.concat(tempList);
+                    if (document.querySelector(".net-error.p_center.text_center") !== null) {
+                        reject(dataList);
+                        clearInterval(interval);
+                        return;
+                    }
+                    const nextPageBut = $(".vui_pagenation--btns>button:contains('下一页')");
+                    if (nextPageBut.prop("disabled")) {
+                        clearInterval(interval);
+                        resolve(dataList);
+                    }
+                    nextPageBut.click();
+                    Util.bufferBottom();
+                }, 2000);
+            });
+        }
+    },
     upuser: {
         getTabTheSelectedSort() {//排序
             const e = document.querySelector(".condition-row>.vui_button--active");

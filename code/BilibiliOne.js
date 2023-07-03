@@ -887,22 +887,32 @@ function bilibiliOne(href, windowsTitle) {
         }, 1000);
     }
     if (href.includes("search.bilibili.com")) {
+
+
         const getAListOfUsersBut = layout.panel.getHoverball("获取用户列表(当前页)", "15%", "94%");
         const getAAllListOfUsersBut = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
         const getVideoList = layout.panel.getHoverball("获取视频列表(当前页)", "15%", "94%");
         const getAllVideoList = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
+        const getArticleList = layout.panel.getHoverball("获取专栏列表(当前页)", "15%", "94%");
+        const getAllArticleList = layout.panel.getHoverball("获取专栏列表(全部页)", "20%", "94%");
         $body.append(getAListOfUsersBut);
         $body.append(getAAllListOfUsersBut);
         $body.append(getVideoList);
         $body.append(getAllVideoList);
+        $body.append(getArticleList);
+        $body.append(getAllArticleList);
         getAListOfUsersBut.attr("id", "getAListOfUsersBut");
         getAAllListOfUsersBut.attr("id", "getAAllListOfUsersBut");
         getVideoList.attr("id", "getVideoList");
         getAllVideoList.attr("id", "getAllVideoList");
+        getArticleList.attr("id", "getArticleList");
+        getAllArticleList.attr("id", "getAllArticleList");
         getAListOfUsersBut.hide();
         getAAllListOfUsersBut.hide();
         getVideoList.hide();
         getAllVideoList.hide();
+        getArticleList.hide();
+        getAllArticleList.hide();
         getAListOfUsersBut.click(() => {
             const dataList = Search.upuser.getUserInfoList();
             if (dataList.length === 0) {
@@ -930,9 +940,8 @@ function bilibiliOne(href, windowsTitle) {
                 return;
             }
             Qmsg.success("获取当前页的视频列表成功！");
-            Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${Search.getKeyword()}】的${Search.video.getTabTheSelectedSort()}用户了列表${list.length})个.json`);
+            Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${Search.getKeyword()}】的${Search.video.getTabTheSelectedSort()}视频列表${list.length})个.json`);
         });
-
         getAllVideoList.click(() => {
             if (Search.isGetLoadIngData) {
                 Qmsg.error("请等待，获取完成！");
@@ -947,7 +956,7 @@ function bilibiliOne(href, windowsTitle) {
                     return;
                 }
                 Qmsg.success(`获取关键词${keyword}的视频列表成功！`);
-                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}用户了列表${list.length})个.json`);
+                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}视频列表${list.length})个.json`);
             }).catch(reason => {
                 Qmsg.error(reason);
                 alert(reason);
@@ -955,6 +964,46 @@ function bilibiliOne(href, windowsTitle) {
                 Search.isGetLoadIngData = false;
                 loading.close();
             });
+        });
+        getArticleList.click(() => {
+            const list = Search.article.getDataList();
+            if (list.length === 0) {
+                alert("未获取到相关专栏数据！");
+                return;
+            }
+            Qmsg.success("获取当前页的专栏列表成功！");
+            Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${Search.getKeyword()}】的${Search.article.getTabTheSelectedSort()}专栏列表${list.length})个.json`);
+
+        });
+        getAllArticleList.click(() => {
+            if (Search.isGetLoadIngData) {
+                Qmsg.error("请等待，获取完成！");
+                return;
+            }
+            Search.isGetLoadIngData = true;
+            const keyword = Search.getKeyword();
+            const loading = Qmsg.loading(`正在获取关键词${keyword}的专栏列表数据，请稍等...`);
+            Search.article.getAllDataList().then(list => {
+                if (list.length === 0) {
+                    alert("未获取到相关专栏数据！");
+                    return;
+                }
+                Qmsg.success(`获取关键词{${keyword}的专栏列表成功！`);
+                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.article.getTabTheSelectedSort()}专栏列表${list.length})个.json`);
+            }).catch(list => {
+                Qmsg.error("加载太频繁了，请尝试减少间隔时间！");
+                if (list.length === 0) {
+                    alert("未获取到相关专栏数据！");
+                    return;
+                }
+                Qmsg.success(`获取过程中被中断了，目前已获取关键词{${keyword}的专栏列表内容成功！`);
+                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.article.getTabTheSelectedSort()}专栏列表${list.length})个.json`);
+
+            })
+                .finally(() => {
+                    Search.isGetLoadIngData = true;
+                    loading.close();
+                });
         });
 
         $("#biliMainFooter").remove();
