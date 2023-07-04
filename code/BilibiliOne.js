@@ -279,7 +279,7 @@ function bilibiliOne(href, windowsTitle) {
         const filterQueue = layout.panel.getFilter_queue();
         const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
         const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%");
-        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "36%", "7%");
+        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "40%", "4%");
         $body.append(getFollowersOrWatchlists);
         $body.append(getFavListPageBut);
         $body.append(getFavAllListBut);
