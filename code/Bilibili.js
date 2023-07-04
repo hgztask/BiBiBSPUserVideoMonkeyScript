@@ -77,27 +77,21 @@ function bilibili(href) {
         return;
     }
     if (href.includes("search.bilibili.com")) {
-        const $getVideoList = $("#getVideoList");
-        const $getAllVideoList = $("#getAllVideoList");
-        const $getArticleList = $("#getArticleList");
-        const $getAllArticleList = $("#getAllArticleList");
-        if (href.includes("search.bilibili.com/upuser?keyword=")) {//优先级要比下面的搜索页面-综合-搜索界面-视频-高
-            $("#getAListOfUsersBut").show();
-            $("#getAAllListOfUsersBut").show();
+        const tabsItem = Search.getTabsItem();
+        const $getDataListBut = $("#getDataListBut");
+        const $getAllDataListBut = $("#getAllDataListBut");
+        $getDataListBut.text(`获取${tabsItem}数据(当前页)`);
+        $getAllDataListBut.text(`获取${tabsItem}数据(全部页)`);
+        if (tabsItem === "影视" || tabsItem === "直播") {
+            $getDataListBut.hide();
+            $getAllDataListBut.hide();
         } else {
-            $("#getAListOfUsersBut").hide();
-            $("#getAAllListOfUsersBut").hide();
+            $getDataListBut.show();
+            $getAllDataListBut.show();
         }
-        if (href.includes("search.bilibili.com/article")) {
-            $getArticleList.show();
-            $getAllArticleList.show();
-        } else {
-            $getArticleList.hide();
-            $getAllArticleList.hide();
-        }
+
+
         if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
-            $getVideoList.show();
-            $getAllVideoList.show();
             const interval = setInterval(() => {
                 const list = $(".video-list").children();
                 const tempListLength = list.length;
@@ -114,9 +108,6 @@ function bilibili(href) {
                 }
             }, 10);
             return;
-        } else {
-            $getVideoList.hide();
-            $getAllVideoList.hide();
         }
         return;
     }

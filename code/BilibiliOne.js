@@ -887,123 +887,90 @@ function bilibiliOne(href, windowsTitle) {
         }, 1000);
     }
     if (href.includes("search.bilibili.com")) {
+        const getDataListBut = layout.panel.getHoverball("get(当前页)", "15%", "94%");
+        const getAllDataListBut = layout.panel.getHoverball("get(全部页)", "20%", "94%");
 
+        $body.append(getDataListBut);
+        $body.append(getAllDataListBut);
 
-        const getAListOfUsersBut = layout.panel.getHoverball("获取用户列表(当前页)", "15%", "94%");
-        const getAAllListOfUsersBut = layout.panel.getHoverball("获取用户列表(全部页)", "20%", "94%");
-        const getVideoList = layout.panel.getHoverball("获取视频列表(当前页)", "15%", "94%");
-        const getAllVideoList = layout.panel.getHoverball("获取视频列表(全部页)", "20%", "94%");
-        const getArticleList = layout.panel.getHoverball("获取专栏列表(当前页)", "15%", "94%");
-        const getAllArticleList = layout.panel.getHoverball("获取专栏列表(全部页)", "20%", "94%");
-        $body.append(getAListOfUsersBut);
-        $body.append(getAAllListOfUsersBut);
-        $body.append(getVideoList);
-        $body.append(getAllVideoList);
-        $body.append(getArticleList);
-        $body.append(getAllArticleList);
-        getAListOfUsersBut.attr("id", "getAListOfUsersBut");
-        getAAllListOfUsersBut.attr("id", "getAAllListOfUsersBut");
-        getVideoList.attr("id", "getVideoList");
-        getAllVideoList.attr("id", "getAllVideoList");
-        getArticleList.attr("id", "getArticleList");
-        getAllArticleList.attr("id", "getAllArticleList");
-        getAListOfUsersBut.hide();
-        getAAllListOfUsersBut.hide();
-        getVideoList.hide();
-        getAllVideoList.hide();
-        getArticleList.hide();
-        getAllArticleList.hide();
-        getAListOfUsersBut.click(() => {
-            const dataList = Search.upuser.getUserInfoList();
+        getDataListBut.attr("id", "getDataListBut");
+        getAllDataListBut.attr("id", "getAllDataListBut");
+
+        // getDataListBut.hide();
+        // getAllDataListBut.hide();
+
+        getDataListBut.click(() => {
+            let dataList, fileName;
+            const tabsItem = Search.getTabsItem();
+            const keyword = Search.getKeyword();
+            switch (tabsItem) {
+                case "综合":
+                case "视频":
+                    dataList = Search.video.getVideoDataList();
+                    fileName = `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}视频列表${dataList.length})个.json`;
+                    break;
+                case "番剧":
+                    break;
+                case "专栏":
+                    dataList = Search.article.getDataList();
+                    fileName = `(搜索关键词【${keyword}】的${Search.article.getTabTheSelectedSort()}专栏列表${dataList.length})个.json`;
+                    break;
+                case "用户":
+                    dataList = Search.upuser.getUserInfoList();
+                    fileName = `搜索关键词【${keyword}】的${Search.upuser.getTabTheSelectedSort()}的用户列表(${dataList.length}个).json`;
+                    break;
+                default:
+                    alert(`搜索${keyword}时出现了意外的分支结果！`);
+                    return;
+            }
             if (dataList.length === 0) {
-                alert("未获取到相关用户列表数据！");
+                alert(`未获取到关键词【${keyword}】相关${tabsItem}列表数据！`);
                 return;
             }
-            Util.fileDownload(JSON.stringify(dataList, null, 3), `搜索关键词【${Search.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}的用户列表(${dataList.length}个).json`);
+            Qmsg.success(`获取当前页的${tabsItem}列表成功！`);
+            Util.fileDownload(JSON.stringify(dataList, null, 3), fileName);
         });
-        getAAllListOfUsersBut.click(() => {
-            const loading = Qmsg.loading("正在获取中，请耐心等待！");
-            Search.upuser.getUserInfoAllList().then(v => {
-                loading.close();
-                if (v.length === 0) {
-                    alert("未获取到相关用户列表数据！");
-                    return;
-                }
-                Qmsg.success(`获取成功!个数为：${v.length}个`);
-                Util.fileDownload(JSON.stringify(v, null, 3), `搜索关键词【${Search.getKeyword()}】的${Search.upuser.getTabTheSelectedSort()}用户列表(${v.length}个).json`);
-            });
-        });
-        getVideoList.click(() => {
-            const list = Search.video.getVideoDataList();
-            if (list.length === 0) {
-                alert("未获取到相关视频数据！");
-                return;
-            }
-            Qmsg.success("获取当前页的视频列表成功！");
-            Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${Search.getKeyword()}】的${Search.video.getTabTheSelectedSort()}视频列表${list.length})个.json`);
-        });
-        getAllVideoList.click(() => {
+
+        getAllDataListBut.click(async () => {
             if (Search.isGetLoadIngData) {
                 Qmsg.error("请等待，获取完成！");
                 return;
             }
             Search.isGetLoadIngData = true;
+            const tabsItem = Search.getTabsItem();
             const keyword = Search.getKeyword();
-            const loading = Qmsg.loading(`正在获取【${keyword}】关键词相关的视频数据！`);
-            Search.video.getAllVideoDataList().then(list => {
-                if (list.length === 0) {
-                    alert("未获取到相关视频数据！");
+            const loading = Qmsg.loading(`正在获取关键词【${keyword}】的相关${tabsItem}数据，请耐心等待！`);
+            let dataList, fileName;
+            switch (tabsItem) {
+                case "综合":
+                case "视频":
+                    dataList = await Search.video.getAllVideoDataList();
+                    fileName = `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}视频列表${dataList.length})个.json`;
+                    break;
+                case "番剧":
+                    dataList = await Search.bangumi.getAllDataList();
+                    fileName = `(搜索关键词【${keyword}】的番剧列表${dataList.length})个.json`;
+                    break;
+                case "专栏":
+                    dataList = await Search.article.getAllDataList();
+                    fileName = `(搜索关键词【${keyword}】的${Search.article.getTabTheSelectedSort()}专栏列表${dataList.length})个.json`;
+                    break;
+                case "用户":
+                    dataList = await Search.upuser.getUserInfoAllList();
+                    fileName = `搜索关键词【${keyword}】的${Search.upuser.getTabTheSelectedSort()}用户列表(${dataList.length}个).json`;
+                    break;
+                default:
+                    alert(`搜索${keyword}时出现了意外的分支结果！`);
                     return;
-                }
-                Qmsg.success(`获取关键词${keyword}的视频列表成功！`);
-                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}视频列表${list.length})个.json`);
-            }).catch(reason => {
-                Qmsg.error(reason);
-                alert(reason);
-            }).finally(() => {
-                Search.isGetLoadIngData = false;
-                loading.close();
-            });
-        });
-        getArticleList.click(() => {
-            const list = Search.article.getDataList();
-            if (list.length === 0) {
-                alert("未获取到相关专栏数据！");
+            }
+            loading.close();
+            Search.isGetLoadIngData = false;
+            if (dataList.length === 0) {
+                alert(`未获取到相关${tabsItem}列表数据！`);
                 return;
             }
-            Qmsg.success("获取当前页的专栏列表成功！");
-            Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${Search.getKeyword()}】的${Search.article.getTabTheSelectedSort()}专栏列表${list.length})个.json`);
-
-        });
-        getAllArticleList.click(() => {
-            if (Search.isGetLoadIngData) {
-                Qmsg.error("请等待，获取完成！");
-                return;
-            }
-            Search.isGetLoadIngData = true;
-            const keyword = Search.getKeyword();
-            const loading = Qmsg.loading(`正在获取关键词${keyword}的专栏列表数据，请稍等...`);
-            Search.article.getAllDataList().then(list => {
-                if (list.length === 0) {
-                    alert("未获取到相关专栏数据！");
-                    return;
-                }
-                Qmsg.success(`获取关键词{${keyword}的专栏列表成功！`);
-                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.article.getTabTheSelectedSort()}专栏列表${list.length})个.json`);
-            }).catch(list => {
-                Qmsg.error("加载太频繁了，请尝试减少间隔时间！");
-                if (list.length === 0) {
-                    alert("未获取到相关专栏数据！");
-                    return;
-                }
-                Qmsg.success(`获取过程中被中断了，目前已获取关键词{${keyword}的专栏列表内容成功！`);
-                Util.fileDownload(JSON.stringify(list, null, 3), `(搜索关键词【${keyword}】的${Search.article.getTabTheSelectedSort()}专栏列表${list.length})个.json`);
-
-            })
-                .finally(() => {
-                    Search.isGetLoadIngData = true;
-                    loading.close();
-                });
+            Qmsg.success(`获取${tabsItem}的关键词${keyword}的数据成功!个数为：${dataList.length}个`);
+            Util.fileDownload(JSON.stringify(dataList, null, 3), fileName);
         });
 
         $("#biliMainFooter").remove();
