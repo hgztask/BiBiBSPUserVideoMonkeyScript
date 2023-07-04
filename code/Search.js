@@ -75,6 +75,7 @@ const Search = {
                 data["type"] = v.querySelector(".b_text.atc-info.text_ellipsis>a").textContent;
                 data["desc"] = v.querySelector(".atc-desc").textContent;
                 const userInfo = v.querySelector(".flex_start.flex_inline.text3");
+                data["src"] = v.querySelector(".v-img.cover-img>img").getAttribute("src");
                 data["userAddress"] = userInfo.getAttribute("href");
                 data["name"] = userInfo.querySelector(".lh_xs").textContent;
                 const articleAddress = v.querySelector(".text1").getAttribute("href");
@@ -106,7 +107,7 @@ const Search = {
                     }
                     nextPageBut.click();
                     Util.bufferBottom();
-                }, 2000);
+                }, 2500);
             });
         }
     },
@@ -150,5 +151,42 @@ const Search = {
             });
         }
 
+    },
+    bangumi: {
+        getDataList() {
+            const arr = document.querySelectorAll(".media-list.i_wrapper>.row>*");
+            const list = [];
+            arr.forEach(v => {
+                const data = {};
+                data["封面"] = v.querySelector(".v-img>img").getAttribute("src");
+                data["tag"] = v.querySelector(".tag.tag-primary.media-card-content-head-title-tag").textContent;
+                data["番剧名"] = v.querySelector(".text_ellipsis").getAttribute("title");
+                data["lableContent"] = v.querySelector(".media-card-content-head-text.media-card-content-head-label").textContent;
+                const cvDesc = v.querySelector(".media-card-content-head-text.media-card-content-head-cv.text_ellipsis>span");
+                data["声优"] = cvDesc === null ? "" : cvDesc.textContent;
+                data["简介"] = v.querySelector(".media-card-content-head-text.media-card-content-head-desc.text_ellipsis_3l").getAttribute("title");
+                const scoreFooterE = v.querySelector(".score.media-card-content-footer-score");
+                data["评分人数"] = scoreFooterE.querySelector(".score-text").textContent;
+                data["评分值"] = scoreFooterE.querySelector(".score-value").textContent;
+                list.push(data);
+            });
+            console.log(list);
+            return list;
+        },
+        getAllDataList() {
+            let dataList = [];
+            return new Promise(resolve => {
+                const inte = setInterval(() => {
+                    const arr = Search.bangumi.getDataList();
+                    dataList = dataList.concat(arr);
+                    const nextPageBut = $(".vui_pagenation--btns>button:contains('下一页')");
+                    if (nextPageBut.prop("disabled")) {
+                        clearInterval(inte);
+                        resolve(dataList);
+                    }
+                    nextPageBut.click();
+                }, 2000);
+            });
+        }
     }
 }
