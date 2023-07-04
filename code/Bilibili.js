@@ -82,7 +82,7 @@ function bilibili(href) {
         const $getAllDataListBut = $("#getAllDataListBut");
         $getDataListBut.text(`获取${tabsItem}数据(当前页)`);
         $getAllDataListBut.text(`获取${tabsItem}数据(全部页)`);
-        if (tabsItem === "影视" || tabsItem === "直播") {
+        if (tabsItem === "直播") {
             $getDataListBut.hide();
             $getAllDataListBut.hide();
         } else {

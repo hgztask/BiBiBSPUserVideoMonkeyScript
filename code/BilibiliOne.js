@@ -910,6 +910,9 @@ function bilibiliOne(href, windowsTitle) {
                     fileName = `(搜索关键词【${keyword}】的${Search.video.getTabTheSelectedSort()}视频列表${dataList.length})个.json`;
                     break;
                 case "番剧":
+                case "影视":
+                    dataList = Search.bangumi.getDataList();
+                    fileName = `(搜索关键词【${keyword}】的${tabsItem}列表${dataList.length})个.json`;
                     break;
                 case "专栏":
                     dataList = Search.article.getDataList();
