@@ -82,9 +82,18 @@ function bilibili(href) {
         const $getAllDataListBut = $("#getAllDataListBut");
         $getDataListBut.text(`获取${tabsItem}数据(当前页)`);
         $getAllDataListBut.text(`获取${tabsItem}数据(全部页)`);
+
         if (tabsItem === "直播") {
-            $getDataListBut.hide();
-            $getAllDataListBut.hide();
+            const liveTabItems = Search.live.getTabsItem();
+            if (liveTabItems === "全部") {
+                $getDataListBut.hide();
+                $getAllDataListBut.hide();
+            } else {
+                $getDataListBut.text(`获取${liveTabItems}数据(当前页)`);
+                $getAllDataListBut.text(`获取${liveTabItems}数据(全部页)`);
+                $getDataListBut.show();
+                $getAllDataListBut.show();
+            }
         } else {
             $getDataListBut.show();
             $getAllDataListBut.show();

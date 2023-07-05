@@ -183,6 +183,51 @@ const Search = {
                     if (nextPageBut.prop("disabled")) {
                         clearInterval(inte);
                         resolve(dataList);
+                        return;
+                    }
+                    nextPageBut.click();
+                }, 2000);
+            });
+        }
+    },
+    live: {
+        getTabsItem() {
+            const e = document.querySelector(".live-condition.mt_lg.mt_xxl>.vui_button--active");
+            return e === null ? "全部" : e.textContent;
+        },
+        getLiveRoomSort() {//直播间排序
+            const e = document.querySelector(".room-order.flex_start.ml_sm>.vui_button--active");
+            return e === null ? "综合排序" : e.textContent;
+        },
+        getLiveDataList() {
+            const list = [];
+            document.querySelectorAll(".live-room-cards.row.mt_lg>*").forEach(v => {
+                const data = {};
+                data["封面"] = v.querySelector(".v-img.bili-live-card__cover>img").getAttribute("src");
+                const liveCard = v.querySelector(".bili-live-card__info--tit");
+                const userInfoE = v.querySelector(".bili-live-card__info--uname");
+                data["直播间标题"] = liveCard.querySelector("a>span").textContent;
+                data["直播间地址"] = liveCard.querySelector("a").getAttribute("href");
+                data["用户名"] = userInfoE.querySelector("span").textContent;
+                const userAddress = userInfoE.getAttribute("href");
+                data["uid"] = Util.getSubWebUrlUid(userAddress);
+                data["用户地址"] = userAddress;
+                data["人气"] = v.querySelector(".bili-live-card__stats--item>span").textContent;
+                list.push(data);
+            });
+            return list;
+        },
+        getLiveAllDataList() {
+            let list = [];
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    const arr = Search.live.getLiveDataList();
+                    list = list.concat(arr);
+                    const nextPageBut = $(".vui_pagenation--btns>button:contains('下一页')");
+                    if (nextPageBut.prop("disabled")) {
+                        clearInterval(interval);
+                        resolve(list);
+                        return;
                     }
                     nextPageBut.click();
                 }, 2000);

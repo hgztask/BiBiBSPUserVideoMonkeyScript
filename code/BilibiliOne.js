@@ -896,9 +896,6 @@ function bilibiliOne(href, windowsTitle) {
         getDataListBut.attr("id", "getDataListBut");
         getAllDataListBut.attr("id", "getAllDataListBut");
 
-        // getDataListBut.hide();
-        // getAllDataListBut.hide();
-
         getDataListBut.click(() => {
             let dataList, fileName;
             const tabsItem = Search.getTabsItem();
@@ -921,6 +918,20 @@ function bilibiliOne(href, windowsTitle) {
                 case "用户":
                     dataList = Search.upuser.getUserInfoList();
                     fileName = `搜索关键词【${keyword}】的${Search.upuser.getTabTheSelectedSort()}的用户列表(${dataList.length}个).json`;
+                    break;
+                case "直播":
+                    const liveTabs = Search.live.getTabsItem();
+                    switch (liveTabs) {
+                        case "直播间":
+                            dataList = Search.live.getLiveDataList();
+                            fileName = `(搜索关键词【${keyword}】的${Search.live.getLiveRoomSort()}${liveTabs}列表${dataList.length})个.json`;
+                            break;
+                        case "直播":
+                            break;
+                        default:
+                            alert("直播获取时出现意外的选项！");
+                            return;
+                    }
                     break;
                 default:
                     alert(`搜索${keyword}时出现了意外的分支结果！`);
@@ -953,6 +964,20 @@ function bilibiliOne(href, windowsTitle) {
                 case "番剧":
                     dataList = await Search.bangumi.getAllDataList();
                     fileName = `(搜索关键词【${keyword}】的番剧列表${dataList.length})个.json`;
+                    break;
+                case "直播":
+                    const liveTabs = Search.live.getTabsItem();
+                    switch (liveTabs) {
+                        case "直播间":
+                            dataList = await Search.live.getLiveAllDataList();
+                            fileName = `(搜索关键词【${keyword}】的${Search.live.getLiveRoomSort()}${liveTabs}列表${dataList.length})个.json`;
+                            break;
+                        case "直播":
+                            break;
+                        default:
+                            alert("直播获取时出现意外的选项！");
+                            return;
+                    }
                     break;
                 case "专栏":
                     dataList = await Search.article.getAllDataList();
