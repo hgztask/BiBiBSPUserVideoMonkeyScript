@@ -195,6 +195,37 @@ const Search = {
             const e = document.querySelector(".live-condition.mt_lg.mt_xxl>.vui_button--active");
             return e === null ? "全部" : e.textContent;
         },
+        liveUsers: {
+            getDataList() {
+                const list = [];
+                document.querySelectorAll(".live-user-cards.row.mt_lg>*").forEach(v => {
+                    const data = {};
+                    const liveTitleE = v.querySelector(".live-title");
+                    data["直播间标题"] = liveTitleE.textContent;
+                    data["直播间地址"] = liveTitleE.getAttribute("href");
+                    data["text_ellipsisD_inline_block"] = v.querySelector(".text_ellipsis.d_inline_block").textContent;
+                    data["用户头像"] = v.querySelector(".bili-avatar>img").getAttribute("src");
+                    list.push(data);
+                });
+                return list;
+            },
+            getAllDataList() {
+                let list = [];
+                return new Promise(resolve => {
+                    const interval = setInterval(() => {
+                        const arr = Search.live.liveUsers.getDataList();
+                        list = list.concat(arr);
+                        const nextPageBut = $(".vui_pagenation--btns>button:contains('下一页')");
+                        if (nextPageBut.prop("disabled")) {
+                            clearInterval(interval);
+                            resolve(list);
+                            return;
+                        }
+                        nextPageBut.click();
+                    }, 2000);
+                });
+            }
+        },
         getLiveRoomSort() {//直播间排序
             const e = document.querySelector(".room-order.flex_start.ml_sm>.vui_button--active");
             return e === null ? "综合排序" : e.textContent;

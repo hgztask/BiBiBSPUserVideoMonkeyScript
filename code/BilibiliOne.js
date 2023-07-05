@@ -926,7 +926,9 @@ function bilibiliOne(href, windowsTitle) {
                             dataList = Search.live.getLiveDataList();
                             fileName = `(搜索关键词【${keyword}】的${Search.live.getLiveRoomSort()}${liveTabs}列表${dataList.length})个.json`;
                             break;
-                        case "直播":
+                        case "主播":
+                            dataList = Search.live.liveUsers.getDataList();
+                            fileName = `(搜索关键词【${keyword}】的${liveTabs}列表${dataList.length})个.json`;
                             break;
                         default:
                             alert("直播获取时出现意外的选项！");
@@ -972,7 +974,9 @@ function bilibiliOne(href, windowsTitle) {
                             dataList = await Search.live.getLiveAllDataList();
                             fileName = `(搜索关键词【${keyword}】的${Search.live.getLiveRoomSort()}${liveTabs}列表${dataList.length})个.json`;
                             break;
-                        case "直播":
+                        case "主播":
+                            dataList = await Search.live.liveUsers.getAllDataList();
+                            fileName = `(搜索关键词【${keyword}】的${liveTabs}列表${dataList.length})个.json`;
                             break;
                         default:
                             alert("直播获取时出现意外的选项！");
