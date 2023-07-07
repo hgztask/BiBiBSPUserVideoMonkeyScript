@@ -2,7 +2,7 @@
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
  */
-function bilibili(href) {
+async function bilibili(href) {
     if (href.includes("live.bilibili.com/p/eden/area-tags")) {
         console.log("直播专区")
         Live.liveDel.delLiveRoom();
@@ -148,55 +148,46 @@ function bilibili(href) {
         Home.homePrefecture();
         return;
     }
-    if (href.search("space.bilibili.com/[0-9]+/dynamic") !== -1) {
-        const interval01 = setInterval(() => {
-            const tempE = $(".bili-dyn-list__items");
-            if (tempE.length === 0) {
-                return;
-            }
-            const list = tempE.children();
-            if (list.length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            Trends.shrieDynamicItems(list);
-            if (Util.isEventJq(tempE, "DOMNodeInserted")) {
-                clearInterval(interval01);
-                return;
-            }
-            tempE.bind("DOMNodeInserted", () => {
-                Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
-            });
-        }, 1000);
-        return;
-    }
-    const followersOrWatchlists = $("#getFollowersOrWatchlists");
-    const getFavListPageBut = $("#getFavListPageBut");
-    const getFavAllListBut = $("#getFavAllListBut");
-    if (Space.fav.isUrlFavlist(href)) {
-        getFavListPageBut.show();
-        getFavAllListBut.show();
-        return;
-    } else {
-        getFavListPageBut.hide();
-        getFavAllListBut.hide();
-    }
-    if (href.search("space.bilibili.com/[0-9]+/fans/") !== -1) {//用户粉丝数或关注数页面
-        const type = Space.isSpaceFollowOrFollow(href);
-        switch (type) {
-            case "follow"://关注数
-                followersOrWatchlists.text("获取用户关注列表");
-                break;
-            case "fans"://粉丝
-                followersOrWatchlists.text("获取用户粉丝列表");
-                break;
-            default:
-                alert("出现意外的参数！" + type);
-                return;
+    if (href.includes("space.bilibili.com")) {
+        const userName = await Space.getUserName();
+        const $getDataListBut = $("#getDataListBut");
+        const $getAllDataListBut = $("#getAllDataListBut");
+        const getTabName = Space.getTabName();
+        if (getTabName === "主页") {
+            $getDataListBut.hide();
+            $getAllDataListBut.hide();
+        } else {
+            $getDataListBut.show();
+            $getAllDataListBut.show();
         }
-        followersOrWatchlists.show();
-    } else {
-        followersOrWatchlists.hide();
+        $getDataListBut.text(`获取当前${getTabName}页的列表数据`);
+        $getAllDataListBut.text(`获取当前${getTabName}的列表数据`);
+
+        switch (getTabName) {
+            case "动态":
+                const interval01 = setInterval(() => {
+                    const tempE = $(".bili-dyn-list__items");
+                    if (tempE.length === 0) {
+                        return;
+                    }
+                    const list = tempE.children();
+                    if (list.length === 0) {
+                        return;
+                    }
+                    clearInterval(interval01);
+                    Trends.shrieDynamicItems(list);
+                    if (Util.isEventJq(tempE, "DOMNodeInserted")) {
+                        clearInterval(interval01);
+                        return;
+                    }
+                    tempE.bind("DOMNodeInserted", () => {
+                        Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
+                    });
+                }, 1000);
+                break;
+        }
+
+
     }
 
 }

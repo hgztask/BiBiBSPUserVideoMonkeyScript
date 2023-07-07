@@ -4,7 +4,7 @@
  * @param {string}href
  * @param {string}windowsTitle
  */
-function bilibiliOne(href, windowsTitle) {
+async function bilibiliOne(href, windowsTitle) {
     const $body = $("body");
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
@@ -270,114 +270,142 @@ function bilibiliOne(href, windowsTitle) {
     }
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
+        /**
+         * 获取选中收藏夹项目(当前页)
+         * 获取选中收藏夹项目(所有页)
+         */
+
+        const userName = await Space.getUserName();
         if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
             setTimeout(() => {
                 alert("当前用户时是黑名单！UID=" + hrefUID)
-            }, 4500);
+            }, 2500);
             return;
         }
         const filterQueue = layout.panel.getFilter_queue();
-        const getFollowersOrWatchlists = layout.panel.getFollowersOrWatchlists();
-        const getFavListPageBut = layout.panel.getHoverball("获取选中收藏夹项目(当前页)", "36%", "4%");
-        const getFavAllListBut = layout.panel.getHoverball("获取选中收藏夹项目(所有页)", "40%", "4%");
-        $body.append(getFollowersOrWatchlists);
-        $body.append(getFavListPageBut);
-        $body.append(getFavAllListBut);
-        getFollowersOrWatchlists.attr("id", "getFollowersOrWatchlists");
-        getFavListPageBut.attr("id", "getFavListPageBut");
-        getFavAllListBut.attr("id", "getFavAllListBut");
-        getFavListPageBut.hide();
-        getFavAllListBut.hide();
-        const interval01 = setInterval(() => {
-            if ($("#h-name").length === 0) {
-                return;
-            }
-            clearInterval(interval01);
-            if (!Space.isH_action()) {
-                console.log("非个人空间主页")
-                $body.append(filterQueue);
-            }
-        }, 1000);
-        filterQueue.click(() => {
-            butLayEvent.butaddName("userUIDArr", parseInt(hrefUID));
-        });
-        if (Space.isSpaceFollowOrFollow(href) === null) {
-            getFollowersOrWatchlists.hide();
+        const getDataListBut = layout.panel.getHoverball("get(当前页)", "5%", "85%");
+        const getAllDataListBut = layout.panel.getHoverball("get(全部页)", "9%", "85%");
+        $body.append(getDataListBut);
+        $body.append(getAllDataListBut);
+        getDataListBut.attr("id", "getDataListBut");
+        getAllDataListBut.attr("id", "getAllDataListBut");
+
+        if (Space.isH_action()) {
+            console.log("当前登录账号的个人空间主页");
+        } else {
+            console.log("非个人空间主页")
+            $body.append(filterQueue);
         }
-        getFollowersOrWatchlists.click(() => {
+
+        filterQueue.click(() => {
+            butLayEvent.butaddName("userUIDArr", hrefUID);
+        });
+
+        getDataListBut.click(() => {
+            const tabName = Space.getTabName();
+            let dataList, fileName;
+            switch (tabName) {
+                case "投稿":
+                    const tabTypeName = Space.video.getLeftTabTypeName();
+                    switch (tabTypeName) {
+                        case "视频":
+                            dataList = Space.video.getDataList();
+                            fileName = `获取用户${userName}${Space.video.getSortText()}的${Space.video.getVideoType()}${tabName}${tabTypeName}列表`;
+                            break;
+                        default:
+                            alert(`暂不支持获取${tabTypeName}的数据！`);
+                            return;
+                    }
+                    break;
+                case "收藏":
+                    const fav = Space.fav;
+                    const favName = fav.getFavName();
+                    const authorName = fav.getAuthorName();
+                    if (!confirm(`获取【${authorName}】用户【${favName}】收藏夹当前显示的内容，是要获取吗？`)) {
+                        return;
+                    }
+                    dataList = fav.getDataList();
+                    fileName = `${authorName}的${favName}收藏夹列表`;
+                    break;
+                case "关注数":
+                case "粉丝数":
+                    dataList = Space.followAndFans.getdataList();
+                    fileName = `${userName}的用户${tabName}列表.json`;
+                    break;
+                default:
+                    alert("出现意外的参数！" + tabName);
+                    return;
+            }
+            const info = "获取到个数：" + dataList.length;
+            Qmsg.success(info);
+            console.log(info);
+            console.log(dataList);
+            alert(info);
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
+        });
+
+        getAllDataListBut.click(async () => {
+            const tabName = Space.getTabName();
             if (Space.isFetchingFollowersOrWatchlists) {
                 Qmsg.error("请等待获取完！");
                 return;
             }
             Space.isFetchingFollowersOrWatchlists = true;
-            let loading, fileName;
-            const type = Space.isSpaceFollowOrFollow(Util.getWindowUrl());
-            const userName = Space.getUserName();
-            switch (type) {
-                case "follow"://关注数
-                    loading = Qmsg.loading(`正在获取 ${userName} 的关注列表数据中，请不要轻易动当前页面内容`);
-                    fileName = `${userName}用户的${Space.getMyFollowLabel()}列表`;
+            const loading = Qmsg.loading(`正在获取 ${userName} 的${tabName}列表数据中，请不要轻易动当前页面内容`);
+            let fileName, dataList;
+            switch (tabName) {
+                case "投稿":
+                    const tabTypeName = Space.video.getLeftTabTypeName();
+                    switch (tabTypeName) {
+                        case "视频":
+                            dataList = await Space.video.getAllDataList();
+                            fileName = `获取用户${userName}${Space.video.getSortText()}的${Space.video.getVideoType()}${tabName}${tabTypeName}列表`;
+                            break;
+                        default:
+                            loading.close();
+                            alert(`暂不支持获取${tabTypeName}的数据！`);
+                            break;
+                    }
                     break;
-                case "fans"://粉丝
-                    if (!confirm("温馨提示，最多能获取1000(一千)个粉丝用户信息，是否继续？")) {
+                case"收藏":
+                    const fav = Space.fav;
+                    const favName = fav.getFavName();
+                    const authorName = fav.getAuthorName();
+                    if (!confirm(`是要获取收藏夹创建者【${authorName}】用户【${favName}】的收藏夹所有的内容吗？`)) {
+                        Space.isFetchingFollowersOrWatchlists = false;
+                        loading.close();
                         return;
                     }
-                    loading = Qmsg.loading(`正在获取 ${userName} 的粉丝列表数据中，请不要轻易动当前页面内容`);
-                    fileName = `${userName}的用户粉丝列表`;
+                    dataList = await fav.getAllDataList();
+                    fileName = `${authorName}的${favName}收藏夹列表`;
+                    break;
+                case "关注数":
+                case "粉丝数":
+                    if (tabName === "粉丝数") {
+                        if (!confirm("温馨提示，最多能获取1000(一千)个粉丝用户信息，是否继续？")) {
+                            Space.isFetchingFollowersOrWatchlists = false;
+                            loading.close();
+                            return;
+                        }
+                    }
+                    fileName = `${userName}的用户${tabName}列表`;
+                    dataList = await Space.followAndFans.getAllDataList();
                     break;
                 default:
-                    alert("出现意外的参数！" + type);
+                    loading.close();
+                    alert("出现意外的参数！" + tabName);
                     Space.isFetchingFollowersOrWatchlists = false;
                     return;
             }
-            Space.extracted(loading).then(dataList => {
-                const info = "最终结果个数：" + dataList.length;
-                Qmsg.success(info);
-                console.log(info);
-                console.log(dataList);
-                Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
-                Space.isFetchingFollowersOrWatchlists = false;
-            });
+            loading.close();
+            const info = "最终结果个数：" + dataList.length;
+            Qmsg.success(info);
+            console.log(info);
+            console.log(dataList);
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
+            Space.isFetchingFollowersOrWatchlists = false;
         });
 
-        getFavListPageBut.click(() => {
-            const fav = Space.fav;
-            const favName = fav.getFavName();
-            const authorName = fav.getAuthorName();
-            if (!confirm(`获取【${authorName}】用户【${favName}】收藏夹当前显示的内容，是要获取吗？`)) {
-                return;
-            }
-            const dataList = fav.getDataList();
-            Util.fileDownload(JSON.stringify(dataList, null, 3), `${authorName}的${favName}收藏夹(${dataList.length}个).json`);
-        });
-        getFavAllListBut.click(() => {
-            const fav = Space.fav;
-            const favName = fav.getFavName();
-            const authorName = fav.getAuthorName();
-            if (!confirm(`是要获取收藏夹创建者【${authorName}】用户【${favName}】的收藏夹所有的内容吗？`)) {
-                return;
-            }
-            const loading = Qmsg.loading(`正在获取用户【${authorName}】的收藏夹【${favName}】....`);
-            new Promise(resolve => {
-                let dataList = [];
-                const interval = setInterval(() => {
-                    const tempDataList = fav.getDataList();
-                    const next = $(".be-pager-next");
-                    dataList = dataList.concat(tempDataList);
-                    if (next.is(':hidden')) {
-                        clearInterval(interval);
-                        resolve(dataList);
-                        return;
-                    }
-                    next.click();
-                }, 2000);
-            }).then(dataList => {
-                loading.close();
-                Qmsg.success("获取成功！");
-                alert("获取成功！");
-                Util.fileDownload(JSON.stringify(dataList, null, 3), `${authorName}的${favName}收藏夹(${dataList.length}个).json`);
-            });
-        });
         return;
     }
 
