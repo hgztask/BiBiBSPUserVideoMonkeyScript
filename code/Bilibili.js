@@ -160,8 +160,14 @@ async function bilibili(href) {
             $getDataListBut.show();
             $getAllDataListBut.show();
         }
-        $getDataListBut.text(`获取当前${getTabName}页的列表数据`);
-        $getAllDataListBut.text(`获取当前${getTabName}的列表数据`);
+        if (getTabName === "投稿") {
+            const name = Space.video.getLeftTabTypeName();
+            $getDataListBut.text(`获取当前${getTabName}页的${name}列表数据`);
+            $getAllDataListBut.text(`获取${getTabName}的${name}列表数据`);
+        } else {
+            $getDataListBut.text(`获取当前${getTabName}页的列表数据`);
+            $getAllDataListBut.text(`获取${getTabName}的列表数据`);
+        }
 
         switch (getTabName) {
             case "动态":

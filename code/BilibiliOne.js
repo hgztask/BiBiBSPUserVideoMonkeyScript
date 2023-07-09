@@ -310,12 +310,18 @@ async function bilibiliOne(href, windowsTitle) {
                     switch (tabTypeName) {
                         case "视频":
                             dataList = Space.video.getDataList();
-                            fileName = `获取用户${userName}${Space.video.getSortText()}的${Space.video.getVideoType()}${tabName}${tabTypeName}列表`;
+                            break;
+                        case "专栏":
+                            dataList = Space.article.getdataList();
+                            break;
+                        case "相簿":
+                            dataList = Space.album.getdataList();
                             break;
                         default:
                             alert(`暂不支持获取${tabTypeName}的数据！`);
                             return;
                     }
+                    fileName = `获取用户${userName}${Space.video.getSortText()}的${Space.video.getVideoType()}${tabName}${tabTypeName}列表`;
                     break;
                 case "收藏":
                     const fav = Space.fav;
@@ -359,13 +365,19 @@ async function bilibiliOne(href, windowsTitle) {
                     switch (tabTypeName) {
                         case "视频":
                             dataList = await Space.video.getAllDataList();
-                            fileName = `获取用户${userName}${Space.video.getSortText()}的${Space.video.getVideoType()}${tabName}${tabTypeName}列表`;
+                            break;
+                        case "专栏":
+                            dataList = await Space.article.getAllDataList();
+                            break;
+                        case "相簿":
+                            dataList = await Space.album.getAllDataList();
                             break;
                         default:
                             loading.close();
                             alert(`暂不支持获取${tabTypeName}的数据！`);
                             break;
                     }
+                    fileName = `获取用户${userName}${Space.video.getSortText()}的${Space.video.getVideoType()}${tabName}${tabTypeName}列表`;
                     break;
                 case"收藏":
                     const fav = Space.fav;

@@ -149,9 +149,8 @@ const Space = {
             });
 
         }
-    }
-    ,
-    video: {
+    },
+    video: {//投稿中的视频
         getLeftTabTypeName() {
             return $(".contribution-list>.contribution-item.cur>a").text();
         },
@@ -194,5 +193,83 @@ const Space = {
                 }, 2500);
             });
         }
+    },
+    article: {//投稿中的专栏
+        getdataList() {
+            const list = [];
+            document.querySelectorAll(".article-wrap.clearfix>li").forEach(v => {
+                const data = {};
+                data["标题"] = v.querySelector(".article-title>a").getAttribute("title");
+                data["地址"] = v.querySelector(".article-title>a").getAttribute("href");
+                data["预览部分"] = v.querySelector(".article-con>a").getAttribute("title");
+                const metaCol = v.querySelector(".meta-col");
+                data["标签"] = v.querySelectorAll(".meta-col>span")[0].textContent;
+                data["访问量"] = metaCol.querySelector(".view").textContent.trim();
+                data["喜欢数"] = metaCol.querySelector(".like").textContent.trim();
+                data["评论"] = metaCol.querySelector(".comment").textContent.trim();
+                data["创建时间"] = metaCol.querySelector(".time").textContent.trim();
+                const hrefCss = v.querySelector(".article-cover").getAttribute("style");
+                let imgUrl = hrefCss.match(/url\("([^"]+)"\)/);
+                data["封面"] = imgUrl ? imgUrl[1] : "";
+                //封面后面在弄
+                list.push(data);
+            });
+            return list;
+        },
+        getAllDataList() {
+            let list = [];
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    Util.bufferBottom();
+                    const tempList = Space.article.getdataList();
+                    list = list.concat(tempList);
+                    const nextPage = $(".be-pager-next");
+                    if (nextPage.is(":hidden")) {
+                        clearInterval(interval);
+                        resolve(list);
+                        return;
+                    }
+                    nextPage.click();
+                }, 2500);
+            });
+        }
+    },
+    album: {//相薄
+        getdataList() {
+            const list = [];
+            document.querySelectorAll(".album-list__content>*").forEach(v => {
+                const data = {};
+                const albumCardTitle = v.querySelector(".album-card__title");
+                data["预览部分"] = albumCardTitle.textContent;
+                data["动态地址"] = albumCardTitle.getAttribute("href");
+                const albumCardCountText = v.querySelectorAll(".album-card__info .album-card__count-text");
+                data["浏览量"] = albumCardCountText[0].textContent.trim();
+                data["点赞量"] = albumCardCountText[1].textContent.trim();
+                const hrefCss = v.querySelector(".album-card__picture").getAttribute("style");
+                let imgUrl = hrefCss.match(/url\("([^"]+)"\)/);
+                data["封面"] = imgUrl ? imgUrl[1] : "";
+                list.push(data);
+            });
+            return list;
+        },
+        getAllDataList() {
+            let list = [];
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    Util.bufferBottom();
+                    const tempList = Space.album.getdataList();
+                    list = list.concat(tempList);
+                    const nextPage = $(".be-pager-next");
+                    if (nextPage.is(":hidden")) {
+                        clearInterval(interval);
+                        resolve(list);
+                        return;
+                    }
+                    nextPage.click();
+                }, 2500);
+            });
+
+        }
     }
+
 }
