@@ -31,6 +31,9 @@
 对界面进行适当排版和精简处理
 <hr>
 
+[传送门\(企鹅反馈群聊\)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=tFU0xLt1uO5u5CXI2ktQRLh_XGAHBl7C&authKey=KAf4rICQYjfYUi66WelJAGhYtbJLILVWumOm%2BO9nM5fNaaVuF9Iiw3dJoPsVRUak&noverify=0&group_code=876295632)
+作者所建的反馈提意见交流群(如果你有更好的建议或者想法以及需求都可以来反馈)，得到作者回复相对比其他平台要快.
+
 [传送门](https://space.bilibili.com/473239155/dynamic)作者b站，最快更新状态和内容以及追进，也方便反馈相关问题
 
 [传送门](https://greasyfork.org/zh-CN/scripts/461382-b站屏蔽增强器)GF脚本主页
