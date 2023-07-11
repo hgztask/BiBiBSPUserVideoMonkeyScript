@@ -270,11 +270,6 @@ async function bilibiliOne(href, windowsTitle) {
     }
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
-        /**
-         * 获取选中收藏夹项目(当前页)
-         * 获取选中收藏夹项目(所有页)
-         */
-
         const userName = await Space.getUserName();
         if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
             setTimeout(() => {
@@ -333,6 +328,16 @@ async function bilibiliOne(href, windowsTitle) {
                     dataList = fav.getDataList();
                     fileName = `${authorName}的${favName}收藏夹列表`;
                     break;
+                case "订阅":
+                    const tempTabsName = Space.subscribe.getTabsName();
+                    if (tempTabsName === "标签") {
+                        dataList = Space.subscribe.subs.getdataList();
+                        fileName = `${userName}的订阅标签`;
+                        break;
+                    }
+                    dataList = Space.subscribe.bangumiAndCinema.getdataList();
+                    fileName = `${userName}订阅的${tempTabsName}列表`;
+                    break;
                 case "关注数":
                 case "粉丝数":
                     dataList = Space.followAndFans.getdataList();
@@ -390,6 +395,17 @@ async function bilibiliOne(href, windowsTitle) {
                     }
                     dataList = await fav.getAllDataList();
                     fileName = `${authorName}的${favName}收藏夹列表`;
+                    break;
+                case "订阅":
+                    const tempTabsName = Space.subscribe.getTabsName();
+                    if (tempTabsName === "标签") {
+                        Space.isFetchingFollowersOrWatchlists = false;
+                        loading.close();
+                        Qmsg.error("意外的结果!");
+                        return;
+                    }
+                    dataList = await Space.subscribe.bangumiAndCinema.getAllDataList();
+                    fileName = `${userName}订阅的${tempTabsName}列表`;
                     break;
                 case "关注数":
                 case "粉丝数":

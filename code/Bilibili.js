@@ -164,6 +164,10 @@ async function bilibili(href) {
             const name = Space.video.getLeftTabTypeName();
             $getDataListBut.text(`获取当前${getTabName}页的${name}列表数据`);
             $getAllDataListBut.text(`获取${getTabName}的${name}列表数据`);
+        } else if (getTabName === "订阅") {
+            const tabsName = Space.subscribe.getTabsName();
+            $getDataListBut.text(`获取当前${tabsName}页的列表数据`);
+            $getAllDataListBut.text(`获取${tabsName}的列表数据`);
         } else {
             $getDataListBut.text(`获取当前${getTabName}页的列表数据`);
             $getAllDataListBut.text(`获取${getTabName}的列表数据`);
