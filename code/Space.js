@@ -268,8 +268,55 @@ const Space = {
                     nextPage.click();
                 }, 2500);
             });
-
+        }
+    },
+    bangumiAndCinema: {//追番和追剧
+        getSortText() {//筛选的依据
+            return $(".be-dropdown>.cur-filter").text();
+        },
+        getdataList() {
+            const list = [];
+            document.querySelectorAll(".pgc-space-follow-item").forEach(v => {
+                const data = {};
+                data["封面"] = v.querySelector(".pgc-item-cover>img").getAttribute("src");
+                const pgcItemInfo = v.querySelector(".pgc-item-info");
+                data["标题"] = pgcItemInfo.querySelector(".pgc-item-title").textContent;
+                data["部分简介"] = pgcItemInfo.querySelector(".pgc-item-desc").textContent;
+                data["类型"] = pgcItemInfo.querySelector(".type-and-area>span:first-child").textContent;
+                data["地区"] = pgcItemInfo.querySelector(".type-and-area>span:last-child").textContent;
+                list.push(data);
+            });
+            return list;
+        },
+        getAllDataList() {
+            let list = [];
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    const tempList = Space.bangumiAndCinema.getdataList();
+                    list = list.concat(tempList);
+                    const nextPage = $(".p.next-page");
+                    if (nextPage.length === 0) {
+                        clearInterval(interval);
+                        resolve(list);
+                        return;
+                    }
+                    nextPage.click();
+                }, 2500);
+            });
+        }
+    },
+    subs: {//订阅中的标签
+        getdataList() {
+            const list = [];
+            document.querySelectorAll(".content.clearfix>.mini-item").forEach(v => {
+                const data = {};
+                const detail = v.querySelector(".detail");
+                data["标签名"] = detail.getAttribute("title");
+                data["标签图标"] = v.querySelector(".cover>img").getAttribute("src");
+                data["地址"] = detail.querySelector("a").getAttribute("href");
+                list.push(data);
+            });
+            return list;
         }
     }
-
 }
