@@ -293,14 +293,14 @@ const Space = {
                 });
                 return list;
             },
-            getAllDataList() {//该函数还存在一个问题，无法正常通过jq的click()进行模拟点击，提供思路，获取最大页，并从开始递增填写进去页面中的跳至xxx页进行模拟翻页
+            getAllDataList() {
                 let list = [];
                 return new Promise(resolve => {
                     const interval = setInterval(() => {
                         const tempList = Space.subscribe.bangumiAndCinema.getdataList();
                         list = list.concat(tempList);
-                        const nextPage = $(".p.next-page");
-                        if (nextPage.length === 0) {
+                        const nextPage = document.querySelector(".p.next-page");
+                        if (nextPage === null) {
                             clearInterval(interval);
                             resolve(list);
                             return;
