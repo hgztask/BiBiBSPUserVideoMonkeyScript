@@ -150,6 +150,19 @@ const Space = {
 
         }
     },
+    dynamic: {
+        getdataList() {
+            const list = [];
+            document.querySelectorAll(".bili-dyn-list__items>*").forEach(v => {
+                const data = {};
+                data["动态内容"] = v.querySelector(".bili-dyn-content").textContent.trim();
+                data["点赞量"] = v.querySelector(".bili-dyn-item__footer .like").textContent.trim();
+                list.push(data);
+            })
+            console.log(list);
+        }
+
+    },
     video: {//投稿中的视频
         getLeftTabTypeName() {
             return $(".contribution-list>.contribution-item.cur>a").text();
