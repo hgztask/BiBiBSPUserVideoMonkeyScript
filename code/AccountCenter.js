@@ -34,7 +34,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
             getInfo["share"] = shareBool;
             LocalData.AccountCenter.setInfo(getInfo);
             Qmsg.success(message);
-        }, error: function (xhr, status, error) { //请求失败的回调函数
+        }, error: function (xhr, status, error) {
             loading.close();
             console.log(error);
             console.log(status);
