@@ -449,7 +449,11 @@ border: 0.5px solid green;
   <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
   <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
-  <div class="tab" id="ruleCenterLayout"><!-- 规则中心布局 --></div>
+  <div class="tab" id="ruleCenterLayout">
+<!-- 规则中心布局 -->
+<button disabled><a href="https://www.bilibili.com/read/cv25025973" target="_blank">提示error解决方案</a></button>
+<!-- 规则中心布局 -->
+</div>
   <div class="tab" id="accountCenterLayout"><!-- 账户中心布局 --></div>
       </div>
 <!-- 分割home_layout -->
