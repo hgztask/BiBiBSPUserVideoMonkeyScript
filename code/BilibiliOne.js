@@ -172,11 +172,7 @@ async function bilibiliOne(href, windowsTitle) {
                 Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
-            $(".container.is-version8").append(
-                addElement.homeVideoE.getHtmlStr(
-                    videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr,
-                    Util.getNumberFormat(view), Util.getNumberFormat(danmaku))
-            );
+            $(".container.is-version8").append(addElement.homeVideoE.getHtmlStr(videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr, Util.getNumberFormat(view), Util.getNumberFormat(danmaku)));
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
                 const domElement = e.delegateTarget;//dom对象
                 const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
@@ -539,9 +535,7 @@ async function bilibiliOne(href, windowsTitle) {
                 const rootContent = v.querySelector(".root-reply .reply-content").textContent;
                 const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
                 const data = {
-                    name: rootName,
-                    uid: parseInt(rootUid),
-                    content: rootContent,
+                    name: rootName, uid: parseInt(rootUid), content: rootContent,
                 };
                 if (subList.length === 0) {
                     arr.push(data);
@@ -553,9 +547,7 @@ async function bilibiliOne(href, windowsTitle) {
                     const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
                     const subContent = j.querySelector(".reply-content").textContent;
                     const subData = {
-                        name: subName,
-                        uid: parseInt(subUid),
-                        content: subContent
+                        name: subName, uid: parseInt(subUid), content: subContent
                     };
                     subArr.push(subData);
                 }
@@ -565,6 +557,23 @@ async function bilibiliOne(href, windowsTitle) {
             Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
             Qmsg.success("已获取成功！");
         });
+
+
+        const isSetCollectionMexpContentStyle = false;
+        setInterval(() => {
+            const $collection = document.querySelector(".collection-m-exp>.content");
+            if ($collection === null) {
+                return;
+            }
+            $collection.style.height = "750px";
+            if (isSetCollectionMexpContentStyle) {
+                return;
+            }
+            Util.addStyle(`
+        .collection-m-exp .content .group-list li{
+        padding-bottom:0px
+        }`);
+        }, 1100);
         return;
     }
     if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
