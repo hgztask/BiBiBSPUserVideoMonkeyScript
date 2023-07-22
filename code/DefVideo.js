@@ -1,4 +1,7 @@
 const DefVideo = {
+    getVIdeoTitle() {//获取当前页面视频标题
+        return document.querySelector("#viewbox_report>.video-title").title;
+    },
     isCreativeTeam: function () {//判断是否是创作团队
         return document.querySelector(".header") !== null;
     },
