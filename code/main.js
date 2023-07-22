@@ -1307,7 +1307,7 @@ const videoFun = {
     },
     //对视频页的播放器下面的进行处理
     delBottonE: function () {
-        this.commentArea();//处理评论区
+        DefVideo.hideCommentArea();//处理评论区
         Util.circulateIDs("bannerAd", 10, 2500, "已移除播放器底部的广告");
         Util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
         Util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
@@ -1317,10 +1317,6 @@ const videoFun = {
         }
         if (Rule.videoData.isDesc) {
             Util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
-        }
-    }, commentArea: function () {
-        if (LocalData.getDelVideoCommentSections()) {
-            Util.circulateID("comment", 1500, "已移除评论区");
         }
     }, //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
     rightVideo: async function () {//异步形式执行
