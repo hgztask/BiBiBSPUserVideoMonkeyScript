@@ -81,10 +81,11 @@ border: 0.5px solid green;
          * @param text 显示内容
          * @param top
          * @param left
+         * @param position
          * @returns {*|jQuery|HTMLElement}
          */
-        getHoverball: function (text, top, left) {
-            return $(`<button style=" position: fixed;margin-top: 10px;z-index: 2000;left: ${left};top: ${top};
+        getHoverball: function (text, top, left, position = "fixed") {
+            return $(`<button style=" position: ${position};margin-top: 10px;z-index: 2000;left: ${left};top: ${top};
     padding: 5px 10px;
     border: none;
     background-color: #4CAF50;
