@@ -597,6 +597,14 @@ async function bilibiliOne(href, windowsTitle) {
 
         const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
         $body.append(isHideButtonLayoutBut);
+        const e = $(".left-container-under-player");
+        if (LocalData.getDelVideoCommentSections()) {
+            e.hide();
+            isHideButtonLayoutBut.text("显示评论区");
+        } else {
+            e.show();
+            isHideButtonLayoutBut.text("隐藏评论区");
+        }
         isHideButtonLayoutBut.click(() => {
             const e = $(".left-container-under-player");
             if (e.is(":hidden")) {
