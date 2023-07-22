@@ -186,5 +186,13 @@ const Trends = {
                 Print.ln(tempInfo);
             }
         }
+    },
+    getGrid9Imge() {
+        const imgeUrlList = [];
+        document.querySelectorAll(".bili-album__preview.grid9>*").forEach(v => {
+            const src = v.querySelector("img").src;
+            imgeUrlList.push(src.split("@")[0]);
+        });
+        return imgeUrlList;
     }
 };
