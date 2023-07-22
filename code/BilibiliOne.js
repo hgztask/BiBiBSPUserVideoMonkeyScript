@@ -442,10 +442,12 @@ async function bilibiliOne(href, windowsTitle) {
         const getTheVideoBarrage = layout.panel.getHoverball("获取视频弹幕", "19%", "95%");
         const getTheVideoAVNumber = layout.panel.getHoverball("获取视频av号", "22%", "95%");
         const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
+        const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
         $body.append(Shielding_UID);
         $body.append(getTheVideoBarrage);
         $body.append(getTheVideoAVNumber);
         $body.append(getVideoCommentArea);
+        $body.append(getLeftTopVideoListBut);
         Shielding_UID.click(() => {
             const userList = DefVideo.getCreativeTeam();
             if (userList.length === 0) {
@@ -557,7 +559,20 @@ async function bilibiliOne(href, windowsTitle) {
             Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
             Qmsg.success("已获取成功！");
         });
-
+        getLeftTopVideoListBut.click(() => {
+            const videoCollection = DefVideo.videoCollection;
+            if (!videoCollection.isMulti_page()) {
+                alert("并未有视频选集列表！");
+                return;
+            }
+            let dataList;
+            if (videoCollection.isList()) {
+                dataList = videoCollection.getVideoList();
+            } else {
+                dataList = videoCollection.getVIdeoGridList();
+            }
+            Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
+        });
 
         const isSetCollectionMexpContentStyle = false;
         setInterval(() => {
