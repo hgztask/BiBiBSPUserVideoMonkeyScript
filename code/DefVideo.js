@@ -27,5 +27,37 @@ const DefVideo = {
         data["e"] = userInfo;
         userList.push(data);
         return userList;
+    },
+    videoCollection: {
+        isList() {
+            return document.querySelector(".range-box>.van-icon-general_viewlist") !== null;
+        },
+        getVideoList() {
+            const list = [];
+            document.querySelectorAll("#multi_page>.cur-list>ul>li").forEach(v => {
+                const data = {};
+                const routerLinkActive = v.querySelector(".router-link-active");
+                data["分p序号"] = v.querySelector(".page-num").textContent;
+                data["分p标题"] = routerLinkActive.title;
+                data["分p地址"] = routerLinkActive.href;
+                data["分p时长"] = v.querySelector(".duration").textContent;
+                list.push(data);
+            })
+            console.log(list);
+            return list;
+        },
+        getVIdeoGridList() {
+            const list = [];
+            document.querySelectorAll(".module-box.clearfix>li").forEach(value => {
+                const data = {};
+                data["分p序号"] = value.querySelector("span").textContent;
+                const tempE = value.querySelector(".router-link-active");
+                data["分p标题"] = tempE.title;
+                data["分p地址"] = tempE.href;
+                list.push(data);
+            });
+            return list;
+        }
     }
+
 }
