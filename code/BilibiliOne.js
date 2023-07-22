@@ -580,7 +580,7 @@ async function bilibiliOne(href, windowsTitle) {
             }
             clearInterval(interval01);
             Qmsg.success("获取到标题");
-            const el = layout.panel.getHoverball("隐藏标题", "8%", "1%", "absolute");
+            const el = layout.panel.getHoverball("隐藏标题", "8%", "1%");
             $body.append(el);
             el.click(() => {
                 const videoTitle = $(".video-title");
@@ -593,6 +593,20 @@ async function bilibiliOne(href, windowsTitle) {
                 el.text("显示标题");
             });
         }, 1000);
+
+
+        const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
+        $body.append(isHideButtonLayoutBut);
+        isHideButtonLayoutBut.click(() => {
+            const e = $(".left-container-under-player");
+            if (e.is(":hidden")) {
+                e.show();
+                isHideButtonLayoutBut.text("隐藏评论区");
+                return;
+            }
+            e.hide();
+            isHideButtonLayoutBut.text("显示评论区");
+        });
 
         const isSetCollectionMexpContentStyle = false;
         setInterval(() => {
