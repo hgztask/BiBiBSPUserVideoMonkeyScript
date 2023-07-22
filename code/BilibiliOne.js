@@ -574,6 +574,26 @@ async function bilibiliOne(href, windowsTitle) {
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
         });
 
+        const interval01 = setInterval(() => {
+            if ($(".video-title").length === 0) {
+                return;
+            }
+            clearInterval(interval01);
+            Qmsg.success("获取到标题");
+            const el = layout.panel.getHoverball("隐藏标题", "8%", "1%", "absolute");
+            $body.append(el);
+            el.click(() => {
+                const videoTitle = $(".video-title");
+                if (videoTitle.is(":hidden")) {
+                    videoTitle.show();
+                    el.text("隐藏标题");
+                    return;
+                }
+                videoTitle.hide();
+                el.text("显示标题");
+            });
+        }, 1000);
+
         const isSetCollectionMexpContentStyle = false;
         setInterval(() => {
             const $collection = document.querySelector(".collection-m-exp>.content");
