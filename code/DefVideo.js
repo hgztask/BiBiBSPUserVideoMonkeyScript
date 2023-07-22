@@ -32,6 +32,9 @@ const DefVideo = {
         isList() {
             return document.querySelector(".range-box>.van-icon-general_viewlist") !== null;
         },
+        isMulti_page() {//判断是否有视频选集
+            return document.getElementById("multi_page") !== null;
+        },
         getVideoList() {
             const list = [];
             document.querySelectorAll("#multi_page>.cur-list>ul>li").forEach(v => {
