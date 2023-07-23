@@ -443,11 +443,15 @@ async function bilibiliOne(href, windowsTitle) {
         const getTheVideoAVNumber = layout.panel.getHoverball("获取视频av号", "22%", "95%");
         const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
         const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
+        const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
+        const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
         $body.append(Shielding_UID);
         $body.append(getTheVideoBarrage);
         $body.append(getTheVideoAVNumber);
         $body.append(getVideoCommentArea);
         $body.append(getLeftTopVideoListBut);
+        $body.append(isHideButtonLayoutBut);
+        $body.append(isHideRightLayoutBut);
         Shielding_UID.click(() => {
             const userList = DefVideo.getCreativeTeam();
             if (userList.length === 0) {
@@ -604,10 +608,12 @@ async function bilibiliOne(href, windowsTitle) {
             }
             jqE.hide();
         }, 1200);
+        if (LocalData.video.getHideVideoRightLayout()) {
+            isHideRightLayoutBut.text("显示右侧布局");
+        } else {
+            isHideRightLayoutBut.text("隐藏右侧布局");
+        }
 
-
-        const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
-        $body.append(isHideButtonLayoutBut);
         new Promise(resolve => {
             const interval = setInterval(() => {
                 const jqE = $("#comment .reply-loading");
@@ -626,7 +632,8 @@ async function bilibiliOne(href, windowsTitle) {
                 e.show();
                 isHideButtonLayoutBut.text("隐藏评论区");
             }
-        })
+        });
+
         isHideButtonLayoutBut.click(() => {
             const e = $("#comment");
             if (e.is(":hidden")) {
@@ -636,6 +643,21 @@ async function bilibiliOne(href, windowsTitle) {
             }
             e.hide();
             isHideButtonLayoutBut.text("显示评论区");
+        });
+        isHideRightLayoutBut.click(() => {
+            clearInterval(interval02);
+            const jqE = $(".right-container.is-in-large-ab");
+            if (jqE.length === 0) {
+                alert("获取不到右侧布局！");
+                return;
+            }
+            if (jqE.is(":hidden")) {
+                jqE.show();
+                isHideRightLayoutBut.text("隐藏右侧布局");
+                return;
+            }
+            jqE.hide();
+            isHideRightLayoutBut.text("显示右侧布局");
         });
 
         const isSetCollectionMexpContentStyle = false;
