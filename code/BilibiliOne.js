@@ -445,6 +445,7 @@ async function bilibiliOne(href, windowsTitle) {
         const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
         const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
         const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
+        const hideTopVideoTitleInfoBut = layout.panel.getHoverball("隐藏顶部视频标题信息", "8%", "1%");
         $body.append(Shielding_UID);
         $body.append(getTheVideoBarrage);
         $body.append(getTheVideoAVNumber);
@@ -452,6 +453,8 @@ async function bilibiliOne(href, windowsTitle) {
         $body.append(getLeftTopVideoListBut);
         $body.append(isHideButtonLayoutBut);
         $body.append(isHideRightLayoutBut);
+        $body.append(hideTopVideoTitleInfoBut);
+
         Shielding_UID.click(() => {
             const userList = DefVideo.getCreativeTeam();
             if (userList.length === 0) {
@@ -577,26 +580,16 @@ async function bilibiliOne(href, windowsTitle) {
             }
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
         });
-
-        const interval01 = setInterval(() => {
-            if ($(".video-title").length === 0) {
+        hideTopVideoTitleInfoBut.click(() => {
+            const jqE = $("#viewbox_report");
+            if (jqE.is(":hidden")) {
+                jqE.show();
+                hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
                 return;
             }
-            clearInterval(interval01);
-            Qmsg.success("获取到标题");
-            const el = layout.panel.getHoverball("隐藏标题", "8%", "1%");
-            $body.append(el);
-            el.click(() => {
-                const videoTitle = $(".video-title");
-                if (videoTitle.is(":hidden")) {
-                    videoTitle.show();
-                    el.text("隐藏标题");
-                    return;
-                }
-                videoTitle.hide();
-                el.text("显示标题");
-            });
-        }, 1000);
+            jqE.hide();
+            hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
+        });
         const interval02 = setInterval(() => {
             if (!LocalData.video.getHideVideoRightLayout()) {
                 clearInterval(interval02);
