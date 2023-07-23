@@ -65,19 +65,14 @@ const DefVideo = {
             return list;
         }
     },
-    delCommentArea() {//移除评论区
-        if (LocalData.getDelVideoCommentSections()) {
-            Util.circulateClassName("left-container-under-player", 1500, "已移除评论区");
-        }
-    },
     hideCommentArea() {//隐藏评论区
-        if (LocalData.getDelVideoCommentSections()) {
-            const interva01 = setInterval(() => {
-                const jqE = $(".left-container-under-player");
+        if (LocalData.getHideVideoButtonCommentSections()) {
+            const interval = setInterval(() => {
+                const jqE = $("#comment");
                 if (jqE.length === 0) {
                     return;
                 }
-                clearInterval(interva01);
+                clearInterval(interval);
                 jqE.hide();
                 Qmsg.success("已隐藏评论区");
             }, 500);

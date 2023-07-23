@@ -593,20 +593,42 @@ async function bilibiliOne(href, windowsTitle) {
                 el.text("显示标题");
             });
         }, 1000);
+        const interval02 = setInterval(() => {
+            if (!LocalData.video.getHideVideoRightLayout()) {
+                clearInterval(interval02);
+                return;
+            }
+            const jqE = $(".right-container.is-in-large-ab");
+            if (jqE.length === 0) {
+                return;
+            }
+            jqE.hide();
+        }, 1200);
 
 
         const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
         $body.append(isHideButtonLayoutBut);
-        const e = $(".left-container-under-player");
-        if (LocalData.getDelVideoCommentSections()) {
-            e.hide();
-            isHideButtonLayoutBut.text("显示评论区");
-        } else {
-            e.show();
-            isHideButtonLayoutBut.text("隐藏评论区");
-        }
+        new Promise(resolve => {
+            const interval = setInterval(() => {
+                const jqE = $("#comment .reply-loading");
+                if (jqE.length === 0) {
+                    return;
+                }
+                clearInterval(interval);
+                resolve();
+            }, 1000);
+        }).then(() => {
+            const e = $("#comment");
+            if (LocalData.getHideVideoButtonCommentSections()) {
+                e.hide();
+                isHideButtonLayoutBut.text("显示评论区");
+            } else {
+                e.show();
+                isHideButtonLayoutBut.text("隐藏评论区");
+            }
+        })
         isHideButtonLayoutBut.click(() => {
-            const e = $(".left-container-under-player");
+            const e = $("#comment");
             if (e.is(":hidden")) {
                 e.show();
                 isHideButtonLayoutBut.text("隐藏评论区");

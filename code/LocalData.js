@@ -121,13 +121,11 @@ const LocalData = {
     setWatchedArr: function (key) {
         Util.setData("watchedArr", key);
     },
-    getDelVideoCommentSections: function () {//是否移除评论区布局
-        const data = Util.getData("isCommentArea");
-        return data === true;
-
+    getHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
+        return Util.getData("isCommentArea") === true;
     },
-    setDelVideoCommentSections: function (key) {//是否移除评论区布局
-        Util.setData("isCommentArea", key === true ? true : false);
+    setHideVideoButtonCommentSections(key) {//是隐藏视频底部评论区布局
+        Util.setData("isCommentArea", key === true);
     },
     setPrivacyMode: function (key) {
         Util.setData("isPrivacyMode", key === true);
@@ -160,6 +158,12 @@ const LocalData = {
         },
         getBarrageQuantityMax: function () {//设置弹幕量最大值，为0则不生效
             return LocalData.getVideoInt("barrageQuantityMax");
+        },
+        getHideVideoRightLayout() {//是否隐藏视频右侧布局
+            return Util.getData("isHideVideoRightLayout") === true;
+        },
+        setHideVideoRightLayout(key) {//是否隐藏视频右侧布局
+            Util.setData("isHideVideoRightLayout", key === true);
         }
     },
     AccountCenter: {
