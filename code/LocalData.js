@@ -164,7 +164,13 @@ const LocalData = {
         },
         setHideVideoRightLayout(key) {//是否隐藏视频右侧布局
             Util.setData("isHideVideoRightLayout", key === true);
-        }
+        },
+        getHideVideoTopTitleInfoLayout() {
+            return Util.getData("isHideVideoTopTitleInfoLayout") === true;
+        },
+        setHideVideoTopTitleInfoLayout(key) {
+            Util.setData("isHideVideoTopTitleInfoLayout", key === true);
+        },
     },
     AccountCenter: {
         getInfo: function () {//读取本地账户信息
