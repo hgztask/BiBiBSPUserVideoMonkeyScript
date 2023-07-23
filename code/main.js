@@ -48,6 +48,7 @@ color: #ff0000;
                 videoZoneSelect.val(LocalData.getVideo_zone());
                 break;
         }
+        $("#hideVideoTopTitleInfoCheackBox").prop('checked', LocalData.video.getHideVideoTopTitleInfoLayout());
         $("#hideVideoButtonCheackBox").prop('checked', LocalData.getHideVideoButtonCommentSections());
         $("#hideVideoRightLayoutCheackBox").prop('checked', LocalData.video.getHideVideoRightLayout());
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
@@ -1938,6 +1939,8 @@ function loadChannel() {//加载下拉框中的频道信息
     tempdelBox.click(() => LocalData.setHideVideoButtonCommentSections(tempdelBox.is(':checked')));
     const $hideVideoRightLayoutCheackBox = $("#hideVideoRightLayoutCheackBox");
     $hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayout($hideVideoRightLayoutCheackBox.is(":checked")));
+    const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
+    $hideVideoTopTitleInfoCheackBox.click(() => LocalData.video.setHideVideoTopTitleInfoLayout($hideVideoTopTitleInfoCheackBox.is(":checked")));
 
     $("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
         const value = $("#backgroundPellucidityRange").val();//获取值
