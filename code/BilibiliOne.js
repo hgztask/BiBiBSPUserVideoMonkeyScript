@@ -581,6 +581,7 @@ async function bilibiliOne(href, windowsTitle) {
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
         });
         hideTopVideoTitleInfoBut.click(() => {
+            clearInterval(interval02);
             const jqE = $("#viewbox_report");
             if (jqE.is(":hidden")) {
                 jqE.show();
@@ -590,9 +591,9 @@ async function bilibiliOne(href, windowsTitle) {
             jqE.hide();
             hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
         });
-        const interval02 = setInterval(() => {
+        const interval01 = setInterval(() => {
             if (!LocalData.video.getHideVideoRightLayout()) {
-                clearInterval(interval02);
+                clearInterval(interval01);
                 return;
             }
             const jqE = $(".right-container.is-in-large-ab");
@@ -617,15 +618,33 @@ async function bilibiliOne(href, windowsTitle) {
                 resolve();
             }, 1000);
         }).then(() => {
-            const e = $("#comment");
             if (LocalData.getHideVideoButtonCommentSections()) {
-                e.hide();
+                $("#comment").hide();
                 isHideButtonLayoutBut.text("显示评论区");
             } else {
-                e.show();
                 isHideButtonLayoutBut.text("隐藏评论区");
             }
         });
+
+
+        const interval02 = setInterval(() => {
+            if (!LocalData.video.getHideVideoTopTitleInfoLayout()) {
+                clearInterval(interval02);
+                return;
+            }
+            ;
+            const jqE = $("#viewbox_report");
+            if (jqE.length === 0) {
+                return;
+            }
+            jqE.hide();
+        }, 1500);
+        if (LocalData.video.getHideVideoTopTitleInfoLayout()) {
+            $("#viewbox_report").hide();
+            hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
+        } else {
+            hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
+        }
 
         isHideButtonLayoutBut.click(() => {
             const e = $("#comment");
@@ -638,7 +657,7 @@ async function bilibiliOne(href, windowsTitle) {
             isHideButtonLayoutBut.text("显示评论区");
         });
         isHideRightLayoutBut.click(() => {
-            clearInterval(interval02);
+            clearInterval(interval01);
             const jqE = $(".right-container.is-in-large-ab");
             if (jqE.length === 0) {
                 alert("获取不到右侧布局！");
