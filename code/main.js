@@ -1299,8 +1299,7 @@ const videoFun = {
             setTimeout(() => {
                 document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
                     Print.ln("用户点击了右侧的展开")
-                    videoFun.rightVideo().then(() => {
-                    });
+                    videoFun.rightVideo();
                 })
             }, 4000);
         }
@@ -1319,19 +1318,14 @@ const videoFun = {
             Util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
         }
     }, //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
-    rightVideo: async function () {//异步形式执行
+    rightVideo() {
         const interval = setInterval(() => {
-            let list;
-            try {
-                list = document.querySelectorAll(".video-page-card-small");
-            } catch (e) {
-                return;
-            }
+            let list = document.querySelectorAll(".video-page-card-small");
             if (list.length === 0) {
                 return;
             }
             clearInterval(interval);
-            for (let v of list) {//获取右侧的页面的视频列表
+            list.forEach(v => {//获取右侧的页面的视频列表
                 //用户名
                 const name = v.querySelector(".name").textContent;
                 //视频标题
@@ -1341,7 +1335,7 @@ const videoFun = {
                 const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
                 if (shieldVideo_userName_uid_title(v, name, parseInt(id), videoTitle, null, null, null)) {
                     Qmsg.info("屏蔽了视频！！");
-                    continue;
+                    return;
                 }
                 $(v).mouseenter((e) => {
                     const domElement = e.delegateTarget;//dom对象
@@ -1351,7 +1345,7 @@ const videoFun = {
                     const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
                     Util.showSDPanel(e, name, id, title);
                 });
-            }
+            })
         }, 1000);
     },
     click_playerCtrlWhid: function () {//点击播放器的宽屏按钮
