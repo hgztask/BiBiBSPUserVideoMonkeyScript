@@ -272,7 +272,8 @@ border: 0.5px solid green;
               <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
              </div>
              <div style="display: flex;">
-             <input type="checkbox" id="delVideoCommentSectionsCheackBox">默认隐藏视频播放页的评论区</div>
+             <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
+             <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
 `;
     },
     getOutputInfoLayout: function () {
