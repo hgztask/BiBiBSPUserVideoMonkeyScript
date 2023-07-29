@@ -66,7 +66,7 @@ function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/article/metas?ids=")) {//搜索专栏
-            search.searchColumn();
+            Search.searchColumn();
             continue;
         }
         if (url.includes("api.bilibili.com/x/msgfeed/at?build=")) {//消息中心的 @我的
@@ -92,7 +92,7 @@ function perf_observer() {
             }
         }
         if (url.includes("app.bilibili.com/x/topic/web/details/cards?topic_id=") && windowUrl.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题页面数据加载
-            subjectOfATalk.deltopIC();
+            SubjectOfATalk.deltopIC();
             continue;
         }
         if (url.includes("api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web")) {//直播间列表，目前依旧还有点小问题，暂时不考虑维护了，后面再考虑
@@ -131,7 +131,7 @@ function perf_observer() {
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?")) {//搜索界面
             if (windowUrl.includes("search.bilibili.com/video") || windowUrl.includes("search.bilibili.com/all")) {
-                search.searchRules($(".video-list").children());
+                Search.video.searchRules();
                 continue;
             }
             Qmsg.info("检测到搜索的接口");

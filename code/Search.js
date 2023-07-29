@@ -13,32 +13,75 @@ const Search = {
         return document.querySelector(".vui_tabs--nav.vui_tabs--nav-pl0>.vui_tabs--nav-item-active .vui_tabs--nav-text").textContent;
     },
     video: {
+        getDataV(v) {
+            let info = v.querySelector(".bili-video-card__info--right");
+            let userInfo = info.querySelector(".bili-video-card__info--owner");
+            //用户空间地址
+            let upSpatialAddress = userInfo.getAttribute("href");
+            const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
+            return {
+                //用户名
+                name: userInfo.querySelector(".bili-video-card__info--author").textContent,
+                //标题
+                title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
+                upSpatialAddress: upSpatialAddress,
+                uid: Util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
+                //视频的时间
+                videoTime: v.querySelector(".bili-video-card__stats__duration").textContent,
+                //播放量
+                playbackVolume: topInfo[0],
+                //弹幕量
+                barrageQuantity: topInfo[1]
+            }
+        },
         getTabTheSelectedSort() {//排序
             const e = document.querySelector(".search-condition-row>.vui_button--active");
             return e == null ? "默认排序" : e.textContent;
         },
-        getVideoDataList() {
-            const ENList = document.querySelectorAll(".video-list.row>*");
+        getVideoDataList(list = document.querySelectorAll(".video-list.row>*")) {
             const dataList = [];
-            ENList.forEach(v => {
+            list.forEach(v => {
                 const data = {};
                 const info = v.querySelector(".bili-video-card__info--right");
-                data["title"] = info.querySelector("h3").getAttribute("title").trim();
+                const title = info.querySelector("h3").getAttribute("title");
+                if (title === null) {
+                    return;
+                }
+                data["title"] = title.trim();
                 const videoAddress = info.querySelector("a").getAttribute("href");
                 data["bv"] = Util.getSubWebUrlBV(videoAddress);
                 data["videoAddress"] = videoAddress;
                 const userInfo = info.querySelector(".bili-video-card__info--owner");
+                if (userInfo === null) {
+                    return;
+                }
                 const userAddress = userInfo.getAttribute("href");
                 data["name"] = userInfo.querySelector(".bili-video-card__info--author").textContent;
                 data["uid"] = parseInt(Util.getSubWebUrlUid(userAddress));
                 data["userAddress"] = userAddress;
                 const tempDate = userInfo.querySelector(".bili-video-card__info--date").textContent;
                 data["date"] = tempDate.substring(3);
+                data["e"] = v;
                 dataList.push(data);
             });
             return dataList;
         },
-        getAllVideoDataList() {
+        async getAsyncVideoDataList() {
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    const arr = document.querySelectorAll(".video-list.row>*");
+                    if (arr.length === 0) {
+                        return;
+                    }
+                    if (arr[0].textContent === "") {
+                        return;
+                    }
+                    clearInterval(interval)
+                    resolve(Search.video.getVideoDataList(arr));
+                }, 500);
+            });
+        },
+        async getAllVideoDataList() {
             let dataList = [];
             return new Promise((resolve, reject) => {
                 const interval = setInterval(() => {
@@ -58,6 +101,27 @@ const Search = {
                     nextPageBut.click();
                     Util.bufferBottom();
                 }, 2500);
+            });
+        },
+        /**
+         * 删除搜索页面的视频元素
+         */
+        async searchRules() {
+            const videoDataList = await this.getAsyncVideoDataList();
+            videoDataList.forEach(v => {
+                if (shieldVideo_userName_uid_title(v["e"], v["name"], v["uid"], v["title"], v["videoAddress"], null, null)) {
+                    Qmsg.info("屏蔽了视频！！");
+                    return;
+                }
+                const jqE = $(v["e"]);
+                if (Util.isEventJq(jqE, "mouseover")) {
+                    return;
+                }
+                jqE.mouseenter((e) => {
+                    const domElement = e.delegateTarget;//dom对象
+                    const data = Search.video.getDataV(domElement);
+                    Util.showSDPanel(e, data.name, data.uid);
+                });
             });
         }
     },
@@ -264,5 +328,62 @@ const Search = {
                 }, 2000);
             });
         }
+    },
+    searchColumn() {//根据规则屏蔽搜索专栏项目
+        const interval = setInterval(() => {
+            const list = $(".media-list.row.mt_lg").children();
+            if (list.length === 0) {
+                return;
+            }
+            clearInterval(interval);
+            for (let v of list) {
+                const userInfo = v.querySelector(".flex_start.flex_inline.text3");
+                const title = v.querySelector(".text1").textContent;
+                const textContent = v.querySelector(".atc-desc.b_text.text_ellipsis_2l.text3.fs_5").textContent;//搜索专栏中的预览部分
+                const name = userInfo.text;
+                const upSpatialAddress = userInfo.href;
+                const uid = parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1));
+                if (Remove.isWhiteUserUID(uid)) {
+                    continue;
+                }
+                if (Remove.uid(v, uid)) {
+                    Print.ln("已通过uid【" + uid + "】，屏蔽用户【" + name + "】，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                    continue;
+                }
+                if (Remove.name(v, name)) {
+                    Print.ln("已通过黑名单用户【" + name + "】，屏蔽处理，专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                    continue;
+                }
+                const isNameKey = Remove.nameKey(v, name);
+                if (isNameKey != null) {
+                    Print.ln("用户【" + name + "】的用户名包含屏蔽词【" + isNameKey + "】 故进行屏蔽处理 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid)
+                    continue;
+                }
+                const isTitleKey = Remove.titleKey(v, title);
+                if (isTitleKey != null) {
+                    Print.ln("通过标题关键词屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                    continue;
+                }
+                const titleKeyCanonical = Remove.titleKeyCanonical(v, title);
+                if (titleKeyCanonical != null) {
+                    Print.ln(`通过标题正则表达式=【${titleKeyCanonical}】屏蔽用户【${name}】专栏预览内容=${textContent} 用户空间地址=https://space.bilibili.com/${uid}`);
+                    continue;
+                }
+                const key = Remove.columnContentKey(v, textContent);
+                if (key !== null) {
+                    Print.ln("已通过专栏内容关键词【" + key + "】屏蔽用户【" + name + "】 专栏预览内容=" + textContent + " 用户空间地址=https://space.bilibili.com/" + uid);
+                    continue;
+                }
+                $(v).mouseenter((e) => {
+                    const domElement = e.delegateTarget;//dom对象
+                    const title = domElement.querySelector(".text1").textContent;
+                    const info = domElement.querySelector(".flex_start.flex_inline.text3");
+                    const name = info.querySelector(".lh_xs").text;
+                    const userHref = info.href;
+                    const uid = userHref.substring(userHref.lastIndexOf("/") + 1);
+                    Util.showSDPanel(e, name, uid, title);
+                });
+            }
+        }, 1000);
     }
 }

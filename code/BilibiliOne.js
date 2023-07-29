@@ -439,7 +439,7 @@ async function bilibiliOne(href, windowsTitle) {
     }
 
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
-        subjectOfATalk.deltopIC();
+        SubjectOfATalk.deltopIC();
         return;
     }
     if (href.includes("www.bilibili.com/video")) {//视频页

@@ -101,21 +101,7 @@ async function bilibili(href) {
 
 
         if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
-            const interval = setInterval(() => {
-                const list = $(".video-list").children();
-                const tempListLength = list.length;
-                if (list.length === 0) {
-                    return;
-                }
-                if (list[0].textContent === "") {
-                    return;
-                }
-                search.searchRules(list);
-                if (tempListLength === list.length) {
-                    clearInterval(interval);
-                    //Print.ln("页面元素没有变化，故退出循环")
-                }
-            }, 10);
+                Search.video.searchRules();
             return;
         }
         return;
