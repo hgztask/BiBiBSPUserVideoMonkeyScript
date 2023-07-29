@@ -2615,5 +2615,8 @@ function loadChannel() {//加载下拉框中的频道信息
         bilibili(href);
         startMonitorTheNetwork();
     }
+    if (href.includes("gbtgame.ysepan.com")) {
+        $("#GBTLSGameDetails").attr("open", true);
+    }
 })
 ();
