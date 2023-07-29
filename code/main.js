@@ -1,4 +1,5 @@
 //主入口
+
 const Rule = {
     ruleLength() {
         const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
@@ -957,68 +958,6 @@ function startMonitorTheNetwork() {//监听网络变化
     observer.observe({entryTypes: ['resource']});
 }
 
-const urleCrud = {//规则的增删改查
-    /**
-     * 单个元素进行添加
-     * @param {Array} arr
-     * @param {String,number} key
-     * @param {String} ruleStrName
-     */
-    add(arr, key, ruleStrName) {
-        arr.push(key);
-        Util.setData(ruleStrName, arr);
-        Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
-        Rule.ruleLength();
-        return true;
-    },
-    /**
-     * 批量添加，要求以数组形式
-     * @param {Array} arr
-     * @param {Array} key
-     * @param ruleStrName
-     */
-    addAll(arr, key, ruleStrName) {
-        let tempLenSize = 0;
-        const set = new Set();
-        for (let v of key) {
-            if (arr.includes(v)) {
-                continue;
-            }
-            tempLenSize++;
-            arr.push(v);
-            set.add(v);
-        }
-
-        if (tempLenSize === 0) {
-            Print.ln("内容长度无变化，可能是已经有了的值")
-            return;
-        }
-        Util.setData(ruleStrName, arr);
-        Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
-        Rule.ruleLength();
-    },
-    /**
-     *
-     * @param arr
-     * @param key
-     * @param ruleStrName
-     * @return {boolean}
-     */
-    del(arr, key, ruleStrName) {
-        const index = arr.indexOf(key);
-        if (index === -1) {
-            Print.ln("未有该元素！")
-            return false;
-        }
-        arr.splice(index, 1);
-        Util.setData(ruleStrName, arr);
-        Print.ln("已经删除该元素=" + key);
-        Rule.ruleLength();
-        return true;
-    }
-
-}
-
 const butLayEvent = {
     butaddName(ruleStr, contentV) {
         if (contentV === '') {
@@ -1030,14 +969,14 @@ const butLayEvent = {
         }
         let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
-            urleCrud.add([], contentV, ruleStr);
+            UrleCrud.add([], contentV, ruleStr);
             return false;
         }
         if (arrayList.includes(contentV)) {
             Qmsg.error("当前已有该值！")
             return false;
         }
-        return urleCrud.add(arrayList, contentV, ruleStr);
+        return UrleCrud.add(arrayList, contentV, ruleStr);
         ;
     },
     butaddAllName(ruleStr, contentV) {
@@ -1054,10 +993,10 @@ const butLayEvent = {
         }
         let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
-            urleCrud.addAll([], tempList, ruleStr);
+            UrleCrud.addAll([], tempList, ruleStr);
             return;
         }
-        urleCrud.addAll(arrayList, tempList, ruleStr);
+        UrleCrud.addAll(arrayList, tempList, ruleStr);
     },
     butDelName(ruleStr, contentV) {
         let arrayList = Util.getData(ruleStr);
@@ -1069,7 +1008,7 @@ const butLayEvent = {
             Print.ln("没有该内容哟=" + contentV)
             return false;
         }
-        return urleCrud.del(arrayList, contentV, ruleStr);
+        return UrleCrud.del(arrayList, contentV, ruleStr);
     },
     butDelAllName(ruleStr) {
         const list = Util.getData(ruleStr);
