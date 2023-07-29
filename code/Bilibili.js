@@ -161,7 +161,6 @@ async function bilibili(href) {
             $getDataListBut.text(`获取当前${getTabName}页的列表数据`);
             $getAllDataListBut.text(`获取${getTabName}的列表数据`);
         }
-
         switch (getTabName) {
             case "动态":
                 const interval01 = setInterval(() => {
@@ -184,6 +183,12 @@ async function bilibili(href) {
                     });
                 }, 1000);
                 break;
+        }
+
+        if (LocalData.getPrivacyMode() && Space.isH_action()) {
+            $(".h-inner").hide();
+            $("#navigator-fixed .n-tab-links .n-fans").hide();
+            Qmsg.success(`检测到当前页面是用户自己的个人空间，由于开启了隐私模式，故隐藏该信息`);
         }
 
 
