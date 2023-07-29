@@ -19,7 +19,7 @@ const GreatDemand = {//热门
             const name = v.getElementsByClassName("up-name__text")[0].textContent;//用户名
             const play = v.getElementsByClassName("play-text")[0].textContent.trim();//播放量
             //const like = v.getElementsByClassName("like-text")[0].textContent.trim();//弹幕量
-            if (shieldVideo_userName_uid_title(v, name, null, title, null, play)) {
+            if (shieldVideo_userName_uid_title(v, name, null, title, null, play, null)) {
                 Qmsg.info("屏蔽了视频！！");
             }
         }

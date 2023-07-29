@@ -1122,7 +1122,7 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  * @param{String}videoPlaybackVolume 播放量
  * @returns {boolean} 是否执行完
  */
-function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume) {
+function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume = null) {
     if (Remove.isWhiteUserUID(uid)) {
         return false;
     }
