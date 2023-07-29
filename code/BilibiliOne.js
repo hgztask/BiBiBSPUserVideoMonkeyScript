@@ -767,7 +767,7 @@ async function bilibiliOne(href, windowsTitle) {
 
 
     if (href.includes("t.bilibili.com") && windowsTitle === "动态首页-哔哩哔哩") {
-        console.log("动态页面")
+        console.log("动态页面");
         const interval01 = setInterval(() => {
             const login = $(".bili-dyn-login-register");
             if (login.length === 0) {
@@ -776,6 +776,15 @@ async function bilibiliOne(href, windowsTitle) {
             clearInterval(interval01);
             login.remove();
             console.log("已移除动态页面中的提示登录");
+        }, 1000);
+        const interval02 = setInterval(() => {
+            const jqE = $(".bili-rich-textarea");
+            if (jqE.length === 0) {
+                return;
+            }
+            clearInterval(interval02);
+            jqE.css("max-height", "");
+            Qmsg.success("已解锁发动态编辑框的最大可视内容！");
         }, 1000);
         //.bili-dyn-ads
         Trends.topCssDisply.body();
@@ -1054,7 +1063,7 @@ async function bilibiliOne(href, windowsTitle) {
         }
 
         tempLoadIng();
-        const interval02 = setInterval(() => {
+        const interval03 = setInterval(() => {
             const tempE = $(".bili-dyn-up-list__content");
             if (tempE.length === 0) {
                 return;
@@ -1063,7 +1072,7 @@ async function bilibiliOne(href, windowsTitle) {
             if (list === null || list.length === 0) {
                 return;
             }
-            clearInterval(interval02);
+            clearInterval(interval03);
             list.click(() => {
                 tempLoadIng();
             });
