@@ -2553,19 +2553,43 @@ function loadChannel() {//加载下拉框中的频道信息
         Util.openWindow("http://gbtgame.ysepan.com/");
     });
 
-    $("#GBTLSGameDetails>button[value='getPageDataInfo']").click(() => GBTGame.init());
-    $("#GBTLSGameDetails>button[value='getData']").click(() => GBTGame.getData());
-    $("#GBTLSGameDetails>button[value='getFildKeys']").click(() => {
-        const key = prompt("请输入您要搜索的内容");
-        if (key === null) {
-            return;
+    $("#GBTLSGameDetails>button").click((e) => {
+        switch (e.target.value) {
+            case "getPageDataInfo":
+                GBTGame.init();
+                break;
+            case "getData":
+                GBTGame.getData();
+                break;
+            case "getFildKeys":
+                const key = prompt("请输入您要搜索的内容");
+                if (key === null) {
+                    return;
+                }
+                if (key.includes(" ") || key === "") {
+                    alert("请正确填写您要搜索的内容！");
+                    return;
+                }
+                const findList = GBTGame.find(key);
+                const filter = Object.keys(findList);
+                if (filter.length === 0) {
+                    const info = "并未搜索到您想要的资源，key=" + key;
+                    Print.ln(info);
+                    Qmsg.info(info);
+                    alert(info);
+                    return;
+                }
+                const info = `已找到了${filter.length}个资源，并输出到控制台上，且用户接下来可以将其保存在电脑上！`;
+                alert(info);
+                const findJsonListStr = JSON.stringify(findList, null, 3);
+                console.log(findList);
+                console.log(findJsonListStr);
+                Qmsg.success(info);
+                Util.fileDownload(findJsonListStr, `搜索GBT乐赏游戏空间关键词为【${key}】 的资源${filter.length}个.json`);
+                break;
         }
-        if (key.includes(" ") || key === "") {
-            alert("请正确填写您要搜索的内容！");
-            return;
-        }
-        GBTGame.find(key);
     });
+
     const $isTrendsItemsTwoColumnCheackbox = $("#isTrendsItemsTwoColumnCheackbox");
     const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
     $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));

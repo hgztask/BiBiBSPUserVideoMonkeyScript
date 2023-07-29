@@ -15,7 +15,7 @@ const GBTGame = {
             if (arrList.length <= chickTempIndex) {
                 loading.close();
                 clearInterval(interval);
-                alert("已点击完成！");
+                alert("已点击完成！现在可以对资源进行获取和查找从操作了。ps：每次访问当前页面都需要初始化！");
                 return;
             }
             const tempE = arrList[chickTempIndex++];
@@ -50,8 +50,7 @@ const GBTGame = {
         if (keys.length === 0) {
             const info = "请先获取页面所有游戏资源先！";
             Qmsg.error(info);
-            alert(info);
-            return;
+            throw Error(info);
         }
         const newArray = {};
         keys.forEach(value => {
@@ -60,21 +59,7 @@ const GBTGame = {
             }
             newArray[value] = tempArrList[value];
         });
-        const filter = Object.keys(newArray);
-        if (filter.length === 0) {
-            const info = "并未搜索到您想要的资源，key=" + key;
-            Print.ln(info);
-            Qmsg.info(info);
-            alert(info);
-            return;
-        }
-        const info = `已找到了${filter.length}个资源，并输出到控制台上！`;
-        alert(info);
-        Print.ln(info);
-        Qmsg.success(info);
-        console.log(info);
-        console.log(newArray);
-        console.log(JSON.stringify(newArray));
+        return newArray;
     },
     getData: function () {
         const tempArrList = this.data.tempArrList;
@@ -86,11 +71,9 @@ const GBTGame = {
             return;
         }
         const info = `已获取到${keys.length}个资源，并将其打印在控制台和输出面板上！`;
-        const strJson = JSON.stringify(tempArrList);
+        alert(info);
         Print.ln(info);
-        Print.ln(strJson);
-        console.log(info);
-        console.log(tempArrList);
-        console.log(strJson);
+        Qmsg.success(info);
+        Util.fileDownload(JSON.stringify(tempArrList, null, 3), `GBT乐赏游戏空间游戏磁力地址${keys.length}个资源(${Util.toTimeString()}).json`);
     }
 }
