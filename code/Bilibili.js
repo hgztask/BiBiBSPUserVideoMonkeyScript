@@ -101,7 +101,7 @@ async function bilibili(href) {
 
 
         if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
-                Search.video.searchRules();
+            Search.video.searchRules();
             return;
         }
         return;
@@ -122,11 +122,14 @@ async function bilibili(href) {
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         GreatDemand.delVideo();
-        try {
-            document.getElementsByClassName("international-footer")[0].remove();
-        } catch (e) {
-            console.log("屏蔽热门底部元素出错！" + e);
-        }
+        const interval = setInterval(() => {
+            const jqE = $(".international-footer");
+            if (jqE.length === 0) {
+                return;
+            }
+            clearInterval(interval);
+            jqE.remove();
+        }, 1000);
         return;
     }
     if (href.includes("www.bilibili.com/v/")) {//通过URL变动执行屏蔽首页分区视频
