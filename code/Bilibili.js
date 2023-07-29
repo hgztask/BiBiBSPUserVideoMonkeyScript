@@ -121,7 +121,7 @@ async function bilibili(href) {
 
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
-        greatDemand.delVideo();
+        GreatDemand.delVideo();
         try {
             document.getElementsByClassName("international-footer")[0].remove();
         } catch (e) {

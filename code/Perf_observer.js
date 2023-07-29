@@ -102,7 +102,7 @@ function perf_observer() {
         if (url.includes("api.bilibili.com/x/web-interface/popular")
             || url.includes("api.bilibili.com/x/copyright-music-publicity/toplist/music_list?csrf=")
             && windowUrl.includes("www.bilibili.com/v/popular")) {//热门
-            greatDemand.delVideo();
+            GreatDemand.delVideo();
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/dynamic/region?ps=")) {//首页分区类的api
