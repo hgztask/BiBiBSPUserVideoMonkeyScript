@@ -335,6 +335,13 @@ border: 0.5px solid green;
 <summary>动态</summary>
 <input type="checkbox" id="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
 </details>
+<details open id="openWebBiliBliUrlAddress">
+<summary>b站页面传送门</summary>
+<button value="watchlaterList">稍后再看列表</button>
+<button value="watchlaterPlayerList">稍后再看播放列表</button>
+<button value="liveCenter">直播中心</button>
+<button value="coolHome">素材库平台</button>
+</details>
     <div>
       <h1> 反馈问题</h1>
       <p>作者b站：<span><a href="https://space.bilibili.com/473239155" target="_blank">点我进行传送！</a></span></p>

@@ -2571,6 +2571,33 @@ function loadChannel() {//加载下拉框中的频道信息
     $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
     $isTrendsItemsTwoColumnCheackbox.click(() => Trends.data.setTrendsItemsTwoColumnCheackbox($isTrendsItemsTwoColumnCheackbox.prop("checked")));
 
+    $("#openWebBiliBliUrlAddress>button").click((e) => {
+        const target = e.target;
+        const name = target.textContent;
+        let url;
+        switch (target.value) {
+            case "watchlaterList":
+                url = "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list";
+                break;
+            case "watchlaterPlayerList":
+                url = "https://www.bilibili.com/watchlater";
+                break;
+            case "liveCenter":
+                url = "https://link.bilibili.com/p/center/index";
+                break;
+            case "coolHome":
+                url = "https://cool.bilibili.com/";
+                break;
+            default:
+                alert("出现未知的参数？");
+                return;
+        }
+        if (!confirm(`是要前往 ${name} 吗？`)) {
+            return;
+        }
+        Util.openWindow(url);
+    });
+
 
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url
