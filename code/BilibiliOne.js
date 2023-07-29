@@ -6,6 +6,11 @@
  */
 async function bilibiliOne(href, windowsTitle) {
     const $body = $("body");
+    if (LocalData.getBWebNone()) {
+        Qmsg.success("已执行不可见模式！");
+        $body.append(`<div style="position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: black;z-index: 2022"></div>`);
+        return;
+    }
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
         if (nav_search_input.length === 0) {

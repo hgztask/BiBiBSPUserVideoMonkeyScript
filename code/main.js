@@ -53,6 +53,7 @@ color: #ff0000;
         $("#hideVideoRightLayoutCheackBox").prop('checked', LocalData.video.getHideVideoRightLayout());
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
         $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
+        $("#openBWebNoneCheckbox").prop("checked", LocalData.getBWebNone());
     },
     //视频参数
     videoData: {
@@ -2194,10 +2195,12 @@ function loadChannel() {//加载下拉框中的频道信息
 
     const openPrivacyModeCheckbox = $("#openPrivacyModeCheckbox");
     openPrivacyModeCheckbox.click(() => {
-        const isbool = openPrivacyModeCheckbox.is(":checked");
-        LocalData.setPrivacyMode(isbool);
+        LocalData.setPrivacyMode(openPrivacyModeCheckbox.is(":checked"));
     });
-
+    const JQEOpenBWebNoneCheckbox = $("#openBWebNoneCheckbox");
+    JQEOpenBWebNoneCheckbox.click(() => {
+        LocalData.setBWebNone(JQEOpenBWebNoneCheckbox.is(":checked"));
+    });
 
     $("#outExport").click(() => {//点击导出规则事件
         const selectedText = $('#outRuleSelect option:selected').text();
