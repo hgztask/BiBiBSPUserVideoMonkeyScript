@@ -2,7 +2,7 @@ const SubjectOfATalk = {//话题
     /**
      * 针对b站话题
      */
-    deltopIC: function () {
+    deltopIC() {
         for (let v of document.getElementsByClassName("list__topic-card")) {
             const info = v.getElementsByClassName("bili-dyn-content__orig")[0];
             const name = v.getElementsByClassName("bili-dyn-title")[0].textContent.trim();

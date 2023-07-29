@@ -1,6 +1,6 @@
 //直播
 const Live = {
-    shield: function (list) {
+    shield(list) {
         for (let v of list) {
             const userName = v.getAttribute("data-uname");
             const uid = v.getAttribute("data-uid");
@@ -33,7 +33,7 @@ const Live = {
     //直播间
     liveDel: {
         //针对于直播间顶部的屏蔽处理
-        topElement: function () {
+        topElement() {
             if (Rule.liveData.topElement) {
                 try {
                     document.getElementsByClassName("link-navbar-ctnr z-link-navbar w-100 p-fixed p-zero ts-dot-4 z-navbar contain-optimize")[0].remove();
@@ -63,7 +63,7 @@ const Live = {
             }
         },
         //针对直播间播放器头部的用户信息，举例子，，某某用户直播，就会显示器的信息和直播标题等
-        hreadElement: function () {
+        hreadElement() {
             const liveData = Rule.liveData;
             if (liveData.isheadInfoVm) {
                 const interval = setInterval(() => {
@@ -76,7 +76,7 @@ const Live = {
                 }, 2000);
             }
         },
-        bottomElement: function () {//针对于直播间底部的屏蔽处理
+        bottomElement() {//针对于直播间底部的屏蔽处理
             document.getElementById("link-footer-vm").remove();
             Print.ln("已移除底部的页脚信息")
             if (Rule.liveData.bottomElement) {
@@ -105,7 +105,7 @@ const Live = {
             }
         },
         //礼物栏的布局处理
-        delGiftBar: function () {
+        delGiftBar() {
             if (Rule.liveData.delGiftLayout) {
                 Util.circulateIDs("gift-control-vm", 5, 1500, "已移除礼物栏")
                 return;
@@ -142,7 +142,7 @@ const Live = {
             }
         },
         //移除右侧的聊天布局
-        delRightChatLayout: function () {
+        delRightChatLayout() {
             const liveData = Rule.liveData;
             if (liveData.isRightChatLayout) {
                 const interval = setInterval(() => {
@@ -189,7 +189,7 @@ const Live = {
                 }, 2000);
             }
         },
-        delOtherE: function () {
+        delOtherE() {
             const liveData = Rule.liveData;
             if (liveData.is233Ma) {
                 const interval = setInterval(() => {
@@ -259,7 +259,7 @@ const Live = {
                 }
             }, 2000);
         },
-        delLiveRoom: function () {//过滤直播间列表，该功能目前尚未完善，暂时用着先
+        delLiveRoom() {//过滤直播间列表，该功能目前尚未完善，暂时用着先
             const list = document.getElementsByClassName("index_3Uym8ODI");
             for (let v of list) {
                 const title = v.getElementsByClassName("Item_2GEmdhg6")[0].textContent.trim();

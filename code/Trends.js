@@ -13,7 +13,7 @@ const Trends = {
         /**
          * 分区列表页数
          */
-        getPartitionPage: function (key) {
+        getPartitionPage(key) {
             const data = this.partition[key + "Page"];
             if (data == undefined || data == null) {
                 return 1;
@@ -23,18 +23,18 @@ const Trends = {
         /**
          * 分区列表页数
          */
-        setPartitionPage: function (key, value) {
+        setPartitionPage(key, value) {
             this.partition[key + "Page"] = value;
         },
         /**
          * 分区用户直播-是否获取完列表item
          */
-        setPartitionBool: function (key, value) {
+        setPartitionBool(key, value) {
             this.partition[key + "Bool"] = value;
         }, /**
          * 分区用户直播-是否获取完列表item
          */
-        getPartitionBool: function (key) {
+        getPartitionBool(key) {
             const data = this.partition[key + "Bool"];
             if (data == undefined || data == null || data === false) {
                 return false;
@@ -44,15 +44,15 @@ const Trends = {
         partitionPage: 1,
         partitionBool: false,
         partitionEndTypeLiveName: "",
-        setTrendsItemsTwoColumnCheackbox: function (bool) {
+        setTrendsItemsTwoColumnCheackbox(bool) {
             Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
         },
-        getTrendsItemsTwoColumnCheackbox: function () {
+        getTrendsItemsTwoColumnCheackbox() {
             return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox"));
         },
     }, topCssDisply: {
         //针对于整体布局的细调整
-        body: function () {
+        body() {
             const sessdata = LocalData.getSESSDATA();
             const interval = setInterval(() => {
                 try {
@@ -86,7 +86,7 @@ const Trends = {
             }, 500);
         },
         //针对顶部的处理
-        topTar: function () {
+        topTar() {
             const trends = Rule.trendsData;
             if (trends.isTop) {
                 const interval = setInterval(() => {
@@ -99,7 +99,7 @@ const Trends = {
                 );
             }
         },
-        rightLayout: function () {
+        rightLayout() {
             const trendsData = Rule.trendsData;
             if (trendsData.isRightLayout) {
                 const interval = setInterval(() => {
@@ -137,7 +137,7 @@ const Trends = {
 
         }
     }, layoutCss: {
-        items: function () {//调整动态列表的布局方式为类似网格
+        items() {//调整动态列表的布局方式为类似网格
             Util.addStyle(`
             .bili-dyn-list__items{
            column-count: 2;
@@ -148,7 +148,7 @@ const Trends = {
             `);
         }
     },
-    getVideoCommentAreaOrTrendsLandlord: function (v) {//获取动态页面-评论区信息-单个元素信息-楼主
+    getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
         return {
             name: v.querySelector(".user-name").textContent,
             uid: v.querySelector(".user-name").getAttribute("data-user-id"),
@@ -156,14 +156,14 @@ const Trends = {
             info: v.querySelector(".user-info")
         }
     },
-    getVideoCommentAreaOrTrendsStorey: function (j) {//获取动态页面-评论区信息-单个元素信息-楼层
+    getVideoCommentAreaOrTrendsStorey(j) {//获取动态页面-评论区信息-单个元素信息-楼层
         return {
             name: j.querySelector(".sub-user-name").textContent,
             uid: j.querySelector(".sub-user-name").getAttribute("data-user-id"),
             content: j.querySelector(".reply-content").textContent
         }
     },
-    shrieDynamicItems: function (list) {//屏蔽动态页动态项目
+    shrieDynamicItems(list) {//屏蔽动态页动态项目
         for (let v of list) {
             let tempE = v.querySelector(".bili-rich-text");
             if (tempE === null || tempE.length === 0) {//没有说明是其他的类型动态，如投稿了视频且没有评论显示

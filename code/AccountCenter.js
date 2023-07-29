@@ -18,7 +18,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
             anonymity: anonymityBool
         },
         dataType: "json",
-        success: function (data) {
+        success(data) {
             loading.close();
             const message = data["message"];
             if (data["code"] !== 1) {
@@ -34,7 +34,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
             getInfo["share"] = shareBool;
             LocalData.AccountCenter.setInfo(getInfo);
             Qmsg.success(message);
-        }, error: function (xhr, status, error) {
+        }, error(xhr, status, error) {
             loading.close();
             console.log(error);
             console.log(status);
@@ -43,7 +43,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
 }
 
 const AccountCenter = {//账号中心
-    info: function () {//加载配置信息
+    info() {//加载配置信息
         const getInfo = LocalData.AccountCenter.getInfo();
         if (getInfo === {} || Object.keys(getInfo).length === 0) {
             this.login();
@@ -51,7 +51,7 @@ const AccountCenter = {//账号中心
         }
         this.haveLanded();
     },
-    login: function () {//未登录
+    login() {//未登录
         $("#accountCenterLayout").append(layout.getLogin());
         $("#loginBut").click(() => {
             const captcha = Util.randomNum(1000, 9999);
@@ -95,7 +95,7 @@ const AccountCenter = {//账号中心
 
         });
     },
-    haveLanded: function () {//已登录
+    haveLanded() {//已登录
         $("#accountCenterLayout").append(`<div>
     <h1>个人信息</h1>
     <div style="display: flex">

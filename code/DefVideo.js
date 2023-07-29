@@ -2,10 +2,10 @@ const DefVideo = {
     getVIdeoTitle() {//获取当前页面视频标题
         return document.querySelector("#viewbox_report>.video-title").title;
     },
-    isCreativeTeam: function () {//判断是否是创作团队
+    isCreativeTeam() {//判断是否是创作团队
         return document.querySelector(".header") !== null;
     },
-    getCreativeTeam: function () {//获取创作团队
+    getCreativeTeam() {//获取创作团队
         const userList = [];
         if (this.isCreativeTeam()) {
             const list = document.querySelectorAll(".container .membersinfo-upcard-wrap .staff-name.is-vip");

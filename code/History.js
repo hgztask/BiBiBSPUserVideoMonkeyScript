@@ -2,11 +2,11 @@ const History = {
     //是否正在执行获取操作
     isGetLoadIngData: false,
     delLayout: {
-        footer: function () {
+        footer() {
             $(".footer.bili-footer").remove();
         }
     },
-    getDevice: function (e) {
+    getDevice(e) {
         const classList = e.classList;
         if (classList.contains("bili-PC")) {
             return "电脑";

@@ -1,5 +1,5 @@
 const Watchlater = {
-    initLayout: function () {
+    initLayout() {
         const panel = layout.panel.getHoverball("获取稍后再看列表数据", "32%", "5%");
         const paneLooked = layout.panel.getHoverball("获取稍后再看列表数据(已观看)", "42%", "5%");
         const $body = $("body");
@@ -49,7 +49,7 @@ const Watchlater = {
      * @param isV 是否只获取已观看的项目
      * @returns {*[]}
      */
-    getDataList: function (isV = false) {
+    getDataList(isV = false) {
         const eList = document.querySelectorAll(".list-box>span>*");
         const dataList = [];
         eList.forEach(v => {

@@ -2,7 +2,7 @@ const GBTGame = {
     data: {
         tempArrList: {}
     },
-    init: function () {//初始化页面资源信息，用于获取资源操作
+    init() {//初始化页面资源信息，用于获取资源操作
         if (!Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
             alert("当前网站不是GBT乐赏游戏空间");
             return;
@@ -44,7 +44,7 @@ const GBTGame = {
         }, 1000);
 
     },
-    find: function (key) {
+    find(key) {
         const tempArrList = this.data.tempArrList;
         const keys = Object.keys(tempArrList);
         if (keys.length === 0) {
@@ -61,7 +61,7 @@ const GBTGame = {
         });
         return newArray;
     },
-    getData: function () {
+    getData() {
         const tempArrList = this.data.tempArrList;
         const keys = Object.keys(tempArrList);
         if (keys.length === 0) {

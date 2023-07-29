@@ -3,46 +3,46 @@
  */
 const Util = {
     //设置数据
-    setData: function (key, content) {
+    setData(key, content) {
         GM_setValue(key, content);
     },
     //读取数据
-    getData: function (key) {
+    getData(key) {
         return GM_getValue(key);
     },
     //删除数据
-    delData: function (key) {
+    delData(key) {
         GM_deleteValue(key);
     },
-    setLocalData: function (key, data) {
+    setLocalData(key, data) {
         window.localStorage.setItem(key, data);
     },
-    getLocalData: function (key) {//如果 key 所对应的值不存在，它将返回 null，否则返回存储的对应键值 key 的字符串值。
+    getLocalData(key) {//如果 key 所对应的值不存在，它将返回 null，否则返回存储的对应键值 key 的字符串值。
         return window.localStorage.getItem(key);
     },
     //添加样式
-    addStyle: function (cssStyleStr) {
+    addStyle(cssStyleStr) {
         GM_addStyle(cssStyleStr);
     },
     /**
      * 发起http请求
      * @param {Object}x
      */
-    httpRequest: function (x) {
+    httpRequest(x) {
         GM_xmlhttpRequest(x);
     },
     /**
      * 获取当前网页cookie
      * @return {string}
      */
-    getCookie: function () {
+    getCookie() {
         return document.cookie;
     },
     /**
      * 获取当前网页cookie，已键值对形式对象返回
      * @return {{}}
      */
-    getCookieList: function () {
+    getCookieList() {
         const arrCookie = {};
         const cookie = this.getCookie();
         if (cookie === "") {
@@ -64,7 +64,7 @@ const Util = {
      * @param {String}time
      * @returns {{s: number, h: number, m: number}|{s: number, m: number}}
      */
-    splitTimeHMS: function (time) {
+    splitTimeHMS(time) {
         const split = time.split(":");
         if (split.length === 2) {//说明时长是在60分钟以内
             const tempM = parseInt(split[0]);//分
@@ -89,7 +89,7 @@ const Util = {
      * @param {String} time 时分秒字符串
      * @returns {number}总秒
      */
-    getTimeTotalSeconds: function (time) {
+    getTimeTotalSeconds(time) {
         const demoTime = Util.splitTimeHMS(time);
         if (demoTime.h === undefined) {//表示时长没有时
             if (demoTime.m === 0) {//时长低于60秒
@@ -111,7 +111,7 @@ const Util = {
      * @param {number}time
      * @return {string}
      */
-    formateTime: function (time) {
+    formateTime(time) {
         const h = parseInt(time / 3600)
         const minute = parseInt(time / 60 % 60)
         const second = Math.ceil(time % 60)
@@ -124,7 +124,7 @@ const Util = {
      * @param {number}timestamp
      * @return {string}
      */
-    timestampToTime: function (timestamp) {
+    timestampToTime(timestamp) {
         timestamp = timestamp ? timestamp : null;
         if ((timestamp + "").length === 10) {
             timestamp *= 1000;
@@ -143,7 +143,7 @@ const Util = {
      * @param {String}str
      * @returns {number}
      */
-    changeFormat: function (str) {
+    changeFormat(str) {
         if (str = "".includes("万")) {
             str = str.replace("万", "");
             if (str.includes(".")) {
@@ -161,7 +161,7 @@ const Util = {
      * @param {string|number}strNumber
      * @returns {string}
      */
-    getNumberFormat: function (strNumber) {
+    getNumberFormat(strNumber) {
         strNumber += "";
         const length = strNumber.length;
         if (length <= 4) {
@@ -180,7 +180,7 @@ const Util = {
      * 获取当前网页的url
      * @returns {string}
      */
-    getWindowUrl: function () {
+    getWindowUrl() {
         return window.location.href;
     },
     /**
@@ -189,7 +189,7 @@ const Util = {
      * @param {number}time
      * @param {String}tip
      */
-    circulateID: function (idName, time, tip) {
+    circulateID(idName, time, tip) {
         const interval = setInterval(() => {
             const elementById = document.getElementById(idName);
             if (elementById) {
@@ -206,7 +206,7 @@ const Util = {
      * @param {number}time
      * @param {String}tip
      */
-    circulateIDs: function (elementStr, index, time, tip) {
+    circulateIDs(elementStr, index, time, tip) {
         let tempIndex = 0;
         const interval = setInterval(() => {
             const byElement = document.getElementById(elementStr);
@@ -220,7 +220,7 @@ const Util = {
         }, time);
     },
     //设置元素可自由拖动拖动
-    suspensionBall: function (dragId, func) {
+    suspensionBall(dragId, func) {
         let startEvt, moveEvt, endEvt;
         // 判断是否支持触摸事件
         if ("ontouchstart" in window) {
@@ -304,7 +304,7 @@ const Util = {
             }
         }
     },
-    randomNum: function (minNum, maxNum) { //生成从minNum到maxNum的随机数
+    randomNum(minNum, maxNum) { //生成从minNum到maxNum的随机数
         return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     },
     /**
@@ -313,7 +313,7 @@ const Util = {
      * @param time
      * @param {String}tip
      */
-    circulateClassName: function (elementStr, time, tip) {
+    circulateClassName(elementStr, time, tip) {
         const interval = setInterval(() => {
             const byElement = document.getElementsByClassName(elementStr)[0];
             if (byElement) {
@@ -331,7 +331,7 @@ const Util = {
      * @param {number}time
      * @param {String}tip
      */
-    circulateClassNames: function (elementStr, elementIndex, index, time, tip) {
+    circulateClassNames(elementStr, elementIndex, index, time, tip) {
         let tempIndex = 0;
         const interval = setInterval(() => {
             const byElement = document.getElementsByClassName(elementStr)[elementIndex];
@@ -348,14 +348,14 @@ const Util = {
      * 返回当前时间
      * @returns {String}
      */
-    toTimeString: function () {
+    toTimeString() {
         return new Date().toLocaleString();
     },
-    printElement: function (id, element) {
+    printElement(id, element) {
         $(id).prepend(element);
     },
     //获取格式化规则的内容
-    getRuleFormatStr: function () {
+    getRuleFormatStr() {
         //温馨提示每个{}对象最后一个不可以有,符号
         return Util.strTrimAll(`{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
     "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
@@ -368,7 +368,7 @@ const Util = {
      * 设置页面播放器的播放速度
      * @param {Number|String} index
      */
-    setVideoBackSpeed: function (index) {
+    setVideoBackSpeed(index) {
         const videoTag = $("video");
         if (videoTag.length === 0) {
             return;
@@ -386,7 +386,7 @@ const Util = {
      * @param {String}xy x轴还是Y轴
      * @param {String|Number}index
      */
-    setVideoRotationAngle: function (xy, index) {
+    setVideoRotationAngle(xy, index) {
         const videoV = $("video");
         if (videoV === null) {
             return false;
@@ -404,7 +404,7 @@ const Util = {
      * @param {String|number}index 角度
      * @return {boolean}
      */
-    setVideoCenterRotation: function (index) {
+    setVideoCenterRotation(index) {
         const videoV = $("video");
         if (videoV === null) {
             return false;
@@ -419,7 +419,7 @@ const Util = {
      * @param {string|number}a 透明度，0到1，越小越透明
      * @return {string}
      */
-    getRGBA: function (r, g, b, a) {
+    getRGBA(r, g, b, a) {
         return `rgba(${r},${g}, ${b}, ${a})`;
     },
     /**
@@ -427,7 +427,7 @@ const Util = {
      * content : 需要复制的内容
      * message : 复制完后的提示，不传则默认提示"复制成功"
      */
-    copyToClip: function (content, message) {
+    copyToClip(content, message) {
         const aux = document.createElement("input");
         aux.setAttribute("value", content);
         document.body.appendChild(aux);
@@ -444,7 +444,7 @@ const Util = {
      * 更新悬浮按钮的坐标
      * @param e 事件源
      */
-    updateLocation: function (e) {
+    updateLocation(e) {
         const x = e.clientX;
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
@@ -456,7 +456,7 @@ const Util = {
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
     },
-    dShielPanel: function () {
+    dShielPanel() {
 
     },
     /**
@@ -464,7 +464,7 @@ const Util = {
      * @param url 链接
      * @return {null|string}
      */
-    getRealmName: function (url) {
+    getRealmName(url) {
         try {
             const domain = url.split("/");
             if (domain[2]) {
@@ -484,7 +484,7 @@ const Util = {
      * @param title 标题
      * @param bv bv号
      */
-    showSDPanel: function (e, name, uid, title = null, bv = null) {
+    showSDPanel(e, name, uid, title = null, bv = null) {
         const newVar = Util.getData("isDShielPanel");
         if (newVar) {
             return;
@@ -517,25 +517,25 @@ const Util = {
      * @param {string}uidStr
      * @return {number}
      */
-    getSubUid: function (uidStr) {
+    getSubUid(uidStr) {
         uidStr = uidStr + "";
         const indexOf = uidStr.indexOf("?");
         const uid = indexOf === -1 ? uidStr : uidStr.substring(0, indexOf);
         return parseInt(uid);
     },
     subLastIndexStr: {
-        tempFuc: function (str) {
+        tempFuc(str) {
             return str.substring(str.lastIndexOf("/") + 1);
         }
     },
-    getSubWebUrlUid: function (uidAndes) {//获取url中的uid
+    getSubWebUrlUid(uidAndes) {//获取url中的uid
         const sub = this.subLastIndexStr.tempFuc(uidAndes);
         if (isNaN(sub)) {
             return null;
         }
         return sub;
     },
-    getSubWebUrlBV: function (address) {//截取地址中的bv号
+    getSubWebUrlBV(address) {//截取地址中的bv号
         const match = address.match(/\/video\/(.*?)[?\/]/);
         if (match !== null) {
             return match[1];
@@ -547,7 +547,7 @@ const Util = {
      * @param url
      * @return {null|string}
      */
-    getUrlBVID: function (url) {
+    getUrlBVID(url) {
         const arr = url.split("/");
         if (arr.length <= 0) {
             return null;
@@ -566,7 +566,7 @@ const Util = {
      * @param {string}url
      * @returns {string|null}
      */
-    getUrlLiveID: function (url) {
+    getUrlLiveID(url) {
         let id;
         try {
             url = url + "".split("/")[3];
@@ -585,7 +585,7 @@ const Util = {
      * @param {string} eventName 事件名
      * @returns {boolean}
      */
-    isEventJq: function (element, eventName) {
+    isEventJq(element, eventName) {
         const tempData = $._data(element[0], "events");
         if (tempData === undefined) {
             return false;
@@ -599,7 +599,7 @@ const Util = {
      获取数组中所有对象的不同键集合
      @param {Object[]} arr - 包含对象的数组
      @return {string[]} - 包含不同键的数组 */
-    getDistinctKeys: function (arr) {
+    getDistinctKeys(arr) {
         let keysSet = new Set();
         arr.forEach(obj => {
             Object.keys(obj).forEach(key => keysSet.add(key));
@@ -611,7 +611,7 @@ const Util = {
      * @param {String}content 内容
      * @param {String}fileName 文件名
      */
-    fileDownload: function (content, fileName) {
+    fileDownload(content, fileName) {
         // 获取导出文件内容
         // 创建隐藏的下载文件链接
         const element = document.createElement('a');
@@ -638,19 +638,19 @@ const Util = {
         s: [11, 10, 3, 8, 4, 6],
         xor: 177451812,
         add: 8728348608,
-        init: function () {//初始化
+        init() {//初始化
             for (let i = 0; i < 58; i++) {
                 this.tr[this.table[i]] = i;
             }
         },
-        dec: function (x) {//bv转av
+        dec(x) {//bv转av
             let r = 0;
             for (let i = 0; i < 6; i++) {
                 r += this.tr[x[this.s[i]]] * Math.pow(58, i);
             }
             return (r - this.add) ^ this.xor;
         },
-        enc: function (x) {//av转bv
+        enc(x) {//av转bv
             x = (x ^ this.xor) + this.add;
             const r = "BV1  4 1 7  ".split("");
             for (let i = 0; i < 6; i++) {
@@ -659,7 +659,7 @@ const Util = {
             return r.join("");
         }
     },
-    openWindowWriteContent: function (content) {//打开一个标签页并写入内容至页面
+    openWindowWriteContent(content) {//打开一个标签页并写入内容至页面
         try {
             const newWindow = window.open();
             newWindow.document.write(content);
@@ -672,10 +672,10 @@ const Util = {
      * @param {string}ele
      * @returns {string}
      */
-    strTrimAll: function (ele) {
+    strTrimAll(ele) {
         return ele.split(/[\t\r\f\n\s]*/g).join("");
     },
-    isBoolean: function (str) {
+    isBoolean(str) {
         const bool = Boolean(str);
         return bool === true;
     },

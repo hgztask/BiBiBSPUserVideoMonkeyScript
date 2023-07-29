@@ -2,13 +2,13 @@ const Space = {
     //是否正在获取粉丝或关注列表
     isFetchingFollowersOrWatchlists: false,
     //获取当前用户空间是否是自己的空间主页
-    isH_action: function () {
+    isH_action() {
         return document.querySelector(".h-action") === null;
     },
-    getMyFollowLabel: function () {//获取当前关注数页面中展示关注列表的标签，如，全部关注，以及用户自定义的分类，xxx
+    getMyFollowLabel() {//获取当前关注数页面中展示关注列表的标签，如，全部关注，以及用户自定义的分类，xxx
         return document.querySelector(".item.cur").textContent;
     },
-    getUserName: function () {//获取当前空间中的用户名
+    getUserName() {//获取当前空间中的用户名
         return new Promise(resolve => {
             const interval = setInterval(() => {
                 const e = $("#h-name");
@@ -20,7 +20,7 @@ const Space = {
             }, 100);
         });
     },
-    getTabName: function () {
+    getTabName() {
         let typeE = document.querySelector(".n-statistics>.router-link-active>.n-data-k");//关注或粉丝页
         if (typeE !== null) {
             return typeE.textContent;
@@ -32,7 +32,7 @@ const Space = {
         return typeE.textContent;
     },
     fav: {
-        getFavName: function () {//获取收藏选项卡中对应展示的收藏夹名
+        getFavName() {//获取收藏选项卡中对应展示的收藏夹名
             let favName = document.querySelector(".favInfo-details>.fav-name");
             if (favName !== null) {
                 return favName.textContent.trim();
@@ -44,7 +44,7 @@ const Space = {
             return "未知收藏夹";
         }
         ,
-        getAuthorName: function () {//获取收藏选项卡中对应展示的创建收藏夹的作者
+        getAuthorName() {//获取收藏选项卡中对应展示的创建收藏夹的作者
             let favUpName = document.querySelector(".favInfo-details .fav-up-name");
             if (favUpName !== null) {
                 return favUpName.textContent.replace("创建者：", "");
@@ -56,7 +56,7 @@ const Space = {
             return "不确定的用户名";
         }
         ,
-        getDataList: function () {//获取获取收藏选项卡中对应展示的收藏夹项目内容
+        getDataList() {//获取获取收藏选项卡中对应展示的收藏夹项目内容
             const elementList = document.querySelectorAll(".fav-video-list.clearfix.content>li");
             const dataList = [];
             elementList.forEach(value => {

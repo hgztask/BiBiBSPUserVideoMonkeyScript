@@ -1,5 +1,5 @@
 const HttpUtil = {
-    httpRequest: function (method, url, headers, resolve, reject) {
+    httpRequest(method, url, headers, resolve, reject) {
         let tempHraders = {
             "User-Agent": navigator.userAgent
         };
@@ -14,7 +14,7 @@ const HttpUtil = {
             onerror: reject
         });
     },
-    httpRequestPost: function (url, data, headers, resolve, reject) {
+    httpRequestPost(url, data, headers, resolve, reject) {
         let temp = {
             "Content-Type": "application/json"
         };
@@ -30,7 +30,7 @@ const HttpUtil = {
             onerror: reject
         });
 
-    }, post: function (url, data, resolve, reject) {
+    }, post(url, data, resolve, reject) {
         this.httpRequestPost(url, data, null, resolve, reject);
     },
     /**
@@ -39,7 +39,7 @@ const HttpUtil = {
      * @param {function}resolve 相应成功
      * @param {function}reject 相应失败
      */
-    get: function (url, resolve, reject) {
+    get(url, resolve, reject) {
         this.httpRequest("get", url, {
             "User-Agent": navigator.userAgent,
         }, resolve, reject);
@@ -51,7 +51,7 @@ const HttpUtil = {
      * @param resolve
      * @param reject
      */
-    getCookie: function (url, cookie, resolve, reject) {
+    getCookie(url, cookie, resolve, reject) {
         this.httpRequest("get", url, {
             "User-Agent": navigator.userAgent,
             "cookie": cookie
@@ -63,7 +63,7 @@ const HttpUtil = {
      * @param {function}resolve
      * @param {function}reject
      */
-    getVideoInfo: function (bvOrAv, resolve, reject) {
+    getVideoInfo(bvOrAv, resolve, reject) {
         let url = "https://api.bilibili.com/x/player/pagelist?";
         if (bvOrAv + "".startsWith("BV")) {
             url = url + "bvid=" + bvOrAv;//需要带上BV号
@@ -78,7 +78,7 @@ const HttpUtil = {
      * @param resolve
      * @param reject
      */
-    getLiveInfo: function (id, resolve, reject) {
+    getLiveInfo(id, resolve, reject) {
         this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
     },
     /**
@@ -88,7 +88,7 @@ const HttpUtil = {
      * @param resolve
      * @param reject
      */
-    getUsersFollowTheLiveList: function (cookie, page, resolve, reject) {
+    getUsersFollowTheLiveList(cookie, page, resolve, reject) {
         this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
     },
     /**
@@ -98,7 +98,7 @@ const HttpUtil = {
      * @param page 页数
      * @param sort 排序-如综合或者最新，最新live_time 为空着综合
      */
-    getLiveList: function (parent_id, id, page, sort, resolve, reject) {
+    getLiveList(parent_id, id, page, sort, resolve, reject) {
         //https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=3&area_id=0&sort_type=sort_type_121&page=3
         this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
     }

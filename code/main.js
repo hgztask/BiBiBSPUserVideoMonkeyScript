@@ -1,6 +1,6 @@
 //主入口
 const Rule = {
-    ruleLength: function () {
+    ruleLength() {
         const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
         $textRuleInfoDiv.children().remove();
         const ruleJson = JSON.parse(Util.getRuleFormatStr());
@@ -15,7 +15,7 @@ color: #ff0000;
 }
 `);
     },
-    showInfo: function () {
+    showInfo() {
         const isDShielPanel = Util.getData("isDShielPanel");
         const isAutoPlay = Util.getData("autoPlay");
         const dShielPanel = $("#DShielPanel");
@@ -162,21 +162,21 @@ const Home = {
      *
      * @return {string}
      */
-    getPushType: function () {
+    getPushType() {
         const data = Util.getData("pushType");
         if (data === null || data === undefined) {
             return "分区";
         }
         return data;
     },
-    setPushType: function (key) {
+    setPushType(key) {
         Util.setData("pushType", key);
     },
-    getBackgroundStr: function () {
+    getBackgroundStr() {
         return Util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
     },
     //调整首页样式
-    stypeBody: function () {
+    stypeBody() {
         document.querySelector(".bili-header__banner").remove()//删除首页顶部的图片位置的布局
         const interval = setInterval(() => {
             try {
@@ -197,7 +197,7 @@ const Home = {
      * 屏蔽首页对应的视频
      * @param {String} str 首页视频元素
      */
-    startShieldMainVideo: function (str) {
+    startShieldMainVideo(str) {
         return new Promise((resolve, reject) => {
             const interval = setInterval(() => {
                 let list = document.querySelectorAll(str);
@@ -257,7 +257,7 @@ const Home = {
         });
 
     },
-    hideDisplayHomeLaylout: function () {//隐藏显示面板
+    hideDisplayHomeLaylout() {//隐藏显示面板
         const home_layout = document.getElementById("home_layout");
         if (Home.myidClickIndex) {
             home_layout.style.display = "block";
@@ -267,7 +267,7 @@ const Home = {
         home_layout.style.display = "none";
         Home.myidClickIndex = true;
     },
-    homePrefecture: function () {//针对于分区的广告页脚信息屏蔽
+    homePrefecture() {//针对于分区的广告页脚信息屏蔽
         Util.circulateID("biliMainFooter", 2000, "已移除底部信息");
         Util.circulateClassName("primary-btn feedback visible", 2000, "已移除右侧悬浮按钮");
         for (let v of document.querySelectorAll(".eva-banner")) {
@@ -275,7 +275,7 @@ const Home = {
             console.log("已移除界面中的横幅广告");
         }
     },
-    openTab: function (e) {// 点击标签时执行此函数
+    openTab(e) {// 点击标签时执行此函数
         // 获取所有标签布局
         const tabs = document.getElementsByClassName("tab");
         // 循环遍历每个标签布局
@@ -297,7 +297,7 @@ const Shield = {
      * @param key 唯一key
      * @returns {boolean}
      */
-    arrKey: function (arr, key) {
+    arrKey(arr, key) {
         if (arr === null || arr === undefined) {
             return false;
         }
@@ -310,7 +310,7 @@ const Shield = {
      * @param {string}content 内容
      * @returns {null|string}
      */
-    arrContent: function (arr, content) {
+    arrContent(arr, content) {
         if (arr === null || arr === undefined) {
             return null;
         }
@@ -333,7 +333,7 @@ const Shield = {
      * @param {string}content 内容
      * @return {null|string}
      */
-    arrContentCanonical: function (arr, content) {
+    arrContentCanonical(arr, content) {
         if (arr === null || arr === undefined) {
             return null;
         }
@@ -355,7 +355,7 @@ const Shield = {
 //针对内容符合规则的删除元素并返回状态值
 const Remove = {
     //是否是白名单用户
-    isWhiteUserUID: function (uid) {
+    isWhiteUserUID(uid) {
         const tempArr = LocalData.getArrWhiteUID();
         if (tempArr === null || tempArr === undefined) {
             return false;
@@ -368,7 +368,7 @@ const Remove = {
      * @param uid
      * @returns {boolean}
      */
-    uid: function (element, uid) {
+    uid(element, uid) {
         if (Shield.arrKey(LocalData.getArrUID(), parseInt(uid))) {
             element.remove();
             return true;
@@ -382,7 +382,7 @@ const Remove = {
      * @param name
      * @returns {boolean}
      */
-    name: function (element, name) {
+    name(element, name) {
         if (Shield.arrKey(LocalData.getArrName(), name)) {
             element.remove();
             return true;
@@ -395,7 +395,7 @@ const Remove = {
      * @param name
      * @returns {String|null}
      */
-    nameKey: function (element, name) {
+    nameKey(element, name) {
         const shieldArrContent = Shield.arrContent(LocalData.getArrNameKey(), name);
         if (shieldArrContent !== null) {
             element.remove();
@@ -409,7 +409,7 @@ const Remove = {
      * @param title
      * @returns {String|null}
      */
-    titleKey: function (element, title) {
+    titleKey(element, title) {
         const shieldArrContent = Shield.arrContent(LocalData.getArrTitle(), title);
         if (shieldArrContent !== null) {
             element.remove();
@@ -423,7 +423,7 @@ const Remove = {
      * @param title
      * @return {string|null}
      */
-    titleKeyCanonical: function (element, title) {
+    titleKeyCanonical(element, title) {
         const canonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
         if (canonical !== null) {
             element.remove();
@@ -436,7 +436,7 @@ const Remove = {
      * @param content
      * @returns {String|null}
      */
-    contentKey: function (element, content) {
+    contentKey(element, content) {
         const shieldArrContent = Shield.arrContent(LocalData.getCommentOnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
@@ -449,7 +449,7 @@ const Remove = {
      * @param content
      * @returns {String|null}
      */
-    columnContentKey: function (element, content) {
+    columnContentKey(element, content) {
         const shieldArrContent = Shield.arrContent(element, LocalData.getContentColumnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
@@ -462,7 +462,7 @@ const Remove = {
      * @param key
      * @returns {boolean}
      */
-    fanCard: function (element, key) {
+    fanCard(element, key) {
         if (Shield.arrKey(LocalData.getFanCardArr(), key)) {
             element.remove();
             return true;
@@ -476,7 +476,7 @@ const Remove = {
      * @param {Number}key 秒数
      * @returns {boolean}
      */
-    videoMinFilterS: function (element, key) {
+    videoMinFilterS(element, key) {
         const min = LocalData.video.getFilterSMin();
         if (min === null) {
             return false;
@@ -493,7 +493,7 @@ const Remove = {
      * @param {Number}key 秒数
      * @returns {boolean}
      */
-    videoMaxFilterS: function (element, key) {
+    videoMaxFilterS(element, key) {
         const max = LocalData.video.getfilterSMax();
         if (max === 0 || max < LocalData.video.getFilterSMin() || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
@@ -511,7 +511,7 @@ const Remove = {
      * @param {number}key 播放量纯数字
      * @returns {boolean}
      */
-    videoMinPlaybackVolume: function (element, key) {
+    videoMinPlaybackVolume(element, key) {
         const min = LocalData.video.getBroadcastMin();
         if (min === null) {
             return false;
@@ -529,7 +529,7 @@ const Remove = {
      * @param {number}key 播放量纯数字
      * @returns {boolean}
      */
-    videoMaxPlaybackVolume: function (element, key) {
+    videoMaxPlaybackVolume(element, key) {
         const max = LocalData.video.getBroadcastMax();
         if (max === 0 || max < LocalData.video.getBroadcastMin() || max === null) {//如果最大值为0，则不需要执行了，和当最小值大于最大值也不执行
             return false;
@@ -547,7 +547,7 @@ const Remove = {
      * @param {number}key 弹幕数量
      * @returns {boolean}
      */
-    videoMinBarrageQuantity: function (element, key) {
+    videoMinBarrageQuantity(element, key) {
         if (LocalData.video.getBarrageQuantityMin() > key) {
             element.remove();
             return true;
@@ -561,7 +561,7 @@ const Remove = {
      * @param {number}key 弹幕数量
      * @returns {boolean}
      */
-    videoMaxBarrageQuantity: function (element, key) {
+    videoMaxBarrageQuantity(element, key) {
         const max = LocalData.video.getBarrageQuantityMax();
         if (max === 0 || LocalData.video.getBarrageQuantityMin() > max) {
             return false;
@@ -644,7 +644,7 @@ const HtmlStr = {
      * @param hz {string} 获赞
      * @return {string}
      */
-    getUserCard: function (uid, userName, level, sign, image, gz, fs, hz) {
+    getUserCard(uid, userName, level, sign, image, gz, fs, hz) {
         return ` <div id="popDiv" style=" border-radius: 8px; display: none;background-color: rgb(152, 152, 152);z-index: 11;width: 374px; height: 35%; position: fixed; 
 left: 0;  bottom: 0;">
       <img src="http://i0.hdslb.com/bfs/space/768cc4fd97618cf589d23c2711a1d1a729f42235.png@750w_240h.webp" alt=""/>
@@ -669,7 +669,7 @@ left: 0;  bottom: 0;">
     /**
      * 获取直播列表布局
      */
-    getLiveList: function (typeTitle) {
+    getLiveList(typeTitle) {
         return $(`<div class="bili-dyn-live-users">
         <div class="bili-dyn-live-users__header">
             <div class="bili-dyn-live-users__title">
@@ -691,7 +691,7 @@ left: 0;  bottom: 0;">
      * @param title 直播间标题
      * @returns {string}
      */
-    getLiveItem: function (name, uid, liveID, image, title) {
+    getLiveItem(name, uid, liveID, image, title) {
         return $(` <div class="bili-dyn-live-users__item" title="点击用户名打开直播间,点击用户头像打开用户主页">
                 <div class="bili-dyn-live-users__item__left">
                     <div class="bili-dyn-live-users__item__face-container">
@@ -718,15 +718,15 @@ left: 0;  bottom: 0;">
 }
 
 const Print = {
-    ln: function (content) {
+    ln(content) {
         Util.printElement("#outputInfo", `<dd>${content}</dd>`);
     },
-    video: function (color, content, name, uid, title, videoHref) {
+    video(color, content, name, uid, title, videoHref) {
         Util.printElement("#outputInfo", `
         <dd><b
             style="color: ${color}; ">${Util.toTimeString()}${content}屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>标题【<a href="${videoHref}" target="_blank">${title}</a>】</b>
         </dd>`);
-    }, commentOn: function (color, content, name, uid, primaryContent) {
+    }, commentOn(color, content, name, uid, primaryContent) {
         Util.printElement("#outputInfo", `
         <dd>
         <b  style="color: ${color}; ">${Util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
@@ -743,7 +743,7 @@ const HoverBlockList = {
      * @param search 符合上面参数，且包含该关键字的匹配
      * @returns Array
      */
-    searchAndInitList: function (arr, key, search = '') {
+    searchAndInitList(arr, key, search = '') {
         const searchStr = search.toString().toLowerCase();
         const result = [];
 
@@ -785,7 +785,7 @@ const HoverBlockList = {
      * @param typeName 要显示在项目的值
      * @param func 点击获取选中事件
      */
-    init: function (list, typeName = "name", func) {
+    init(list, typeName = "name", func) {
         const pop_ListLayout = $("pop-ListLayout");
         if (pop_ListLayout.length > 0) {
             alert("请先关闭现有悬浮列表！");
@@ -861,7 +861,7 @@ z-index: 2000;
      * @param search 搜索的关键词
      * @returns {boolean}
      */
-    initList: function (dataList, itemKey, search = "") {
+    initList(dataList, itemKey, search = "") {
         const keyArr = HoverBlockList.searchAndInitList(dataList, itemKey, search);
         if (keyArr.length === 0) {
             return false;
@@ -889,7 +889,7 @@ const addElement = {
          * @param {string}view 播放量
          * @param {string}danmaku 弹幕量
          */
-        getHtmlStr: function (title, videoAddess, videoImage, userID, userName, timeLong, ctime, view, danmaku) {
+        getHtmlStr(title, videoAddess, videoImage, userID, userName, timeLong, ctime, view, danmaku) {
             return `<div class="bili-video-card is-rcmd" data-report="tianma.7-1-23.click" data-v-45e09777="">
     <div class="bili-video-card__skeleton hide">
         <div class="bili-video-card__skeleton--cover"></div>
@@ -964,7 +964,7 @@ const urleCrud = {//规则的增删改查
      * @param {String,number} key
      * @param {String} ruleStrName
      */
-    add: function (arr, key, ruleStrName) {
+    add(arr, key, ruleStrName) {
         arr.push(key);
         Util.setData(ruleStrName, arr);
         Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
@@ -977,7 +977,7 @@ const urleCrud = {//规则的增删改查
      * @param {Array} key
      * @param ruleStrName
      */
-    addAll: function (arr, key, ruleStrName) {
+    addAll(arr, key, ruleStrName) {
         let tempLenSize = 0;
         const set = new Set();
         for (let v of key) {
@@ -1004,7 +1004,7 @@ const urleCrud = {//规则的增删改查
      * @param ruleStrName
      * @return {boolean}
      */
-    del: function (arr, key, ruleStrName) {
+    del(arr, key, ruleStrName) {
         const index = arr.indexOf(key);
         if (index === -1) {
             Print.ln("未有该元素！")
@@ -1020,7 +1020,7 @@ const urleCrud = {//规则的增删改查
 }
 
 const butLayEvent = {
-    butaddName: function (ruleStr, contentV) {
+    butaddName(ruleStr, contentV) {
         if (contentV === '') {
             Qmsg.error("请输入正确的内容");
             return false;
@@ -1040,7 +1040,7 @@ const butLayEvent = {
         return urleCrud.add(arrayList, contentV, ruleStr);
         ;
     },
-    butaddAllName: function (ruleStr, contentV) {
+    butaddAllName(ruleStr, contentV) {
         if (contentV === '') {
             Print.ln("请输入正确的内容")
             return;
@@ -1059,7 +1059,7 @@ const butLayEvent = {
         }
         urleCrud.addAll(arrayList, tempList, ruleStr);
     },
-    butDelName: function (ruleStr, contentV) {
+    butDelName(ruleStr, contentV) {
         let arrayList = Util.getData(ruleStr);
         if (arrayList === null || arrayList === undefined) {
             Print.ln("没有内容哟")
@@ -1071,7 +1071,7 @@ const butLayEvent = {
         }
         return urleCrud.del(arrayList, contentV, ruleStr);
     },
-    butDelAllName: function (ruleStr) {
+    butDelAllName(ruleStr) {
         const list = Util.getData(ruleStr);
         if (list === null || list === undefined) {
             Print.ln("没有内容哟")
@@ -1086,7 +1086,7 @@ const butLayEvent = {
         Rule.ruleLength();
     },
     //查询
-    butFindKey: function (ruleStr, contentV) {
+    butFindKey(ruleStr, contentV) {
         if (contentV === '') {
             Print.ln("请输入正确的内容")
             return;
@@ -1108,7 +1108,7 @@ const butLayEvent = {
     },
 
     //修改
-    butSetKey: function (ruleStr, oldKey, newKey) {
+    butSetKey(ruleStr, oldKey, newKey) {
         if (oldKey === '' || oldKey.includes(" ") || newKey === "" || newKey.includes(" ")) {
             return;
         }
@@ -1245,7 +1245,7 @@ const message = {//消息中心
     /**
      * 删除消息中心的回复我的规则
      */
-    delMessageReply: function () {
+    delMessageReply() {
         const list = document.getElementsByClassName("reply-item");
         for (let v of list) {
             const info = v.getElementsByClassName("name-field")[0];
@@ -1261,7 +1261,7 @@ const message = {//消息中心
     /**
      * 删除消息中的艾特我的规则
      */
-    delMessageAT: function () {
+    delMessageAT() {
         for (let v of document.getElementsByClassName("at-item")) {
             const userInfo = v.getElementsByClassName("name-field")[0].getElementsByTagName("a")[0];
             const href = userInfo.getAttribute("href");
@@ -1278,11 +1278,11 @@ const message = {//消息中心
 //针对视频播放页的相关方法
 const videoFun = {
     //移除右侧悬浮按钮
-    rightSuspendButton: function () {
+    rightSuspendButton() {
         Util.circulateClassNames("storage-box", 0, 2, 2000, "已移除右侧的【返回旧版】【新版反馈】【客服】");//针对新版界面
 
     },
-    delRightE: function () {
+    delRightE() {
         const video = Rule.videoData;
         if (video.isRhgthlayout) {
             Util.circulateClassNames("right-container is-in-large-ab", 0, 3, 1500, "已移除视频播放器右侧的布局");
@@ -1308,7 +1308,7 @@ const videoFun = {
         }
     },
     //对视频页的播放器下面的进行处理
-    delBottonE: function () {
+    delBottonE() {
         DefVideo.hideCommentArea();//处理评论区
         Util.circulateIDs("bannerAd", 10, 2500, "已移除播放器底部的广告");
         Util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
@@ -1351,7 +1351,7 @@ const videoFun = {
             })
         }, 1000);
     },
-    click_playerCtrlWhid: function () {//点击播放器的宽屏按钮
+    click_playerCtrlWhid() {//点击播放器的宽屏按钮
         const interval = setInterval(() => {
             try {
                 document.getElementsByClassName("bpx-player-ctrl-btn bpx-player-ctrl-wide")[0].click()
@@ -1364,7 +1364,7 @@ const videoFun = {
 }
 
 const greatDemand = {//热门
-    delVideo: function () {
+    delVideo() {
         let list = document.getElementsByClassName("video-card");
         if (list.length === 0) {
             list = document.getElementsByClassName("_card_1kuml_6");
@@ -1443,7 +1443,7 @@ function loadChannel() {//加载下拉框中的频道信息
                 model: "ruleCenter"
             },
             dataType: "json",
-            success: function (data) {
+            success(data) {
                 loading.close();
                 const message = data["message"];
                 if (data["code"] !== 1) {
@@ -1521,7 +1521,7 @@ function loadChannel() {//加载下拉框中的频道信息
                     }
                 });
 
-            }, error: function (xhr, status, error) { //请求失败的回调函数
+            }, error(xhr, status, error) { //请求失败的回调函数
                 loading.close();
                 console.log(error, status);
                 Qmsg.error(error + " " + status);
@@ -2088,7 +2088,7 @@ function loadChannel() {//加载下拉框中的频道信息
                         postData: Util.getRuleFormatStr()
                     },
                     dataType: "json",
-                    success: function (data) {
+                    success(data) {
                         loading.close();
                         const message = data["message"];
                         if (data["code"] !== 1) {
@@ -2097,7 +2097,7 @@ function loadChannel() {//加载下拉框中的频道信息
                         }
                         Qmsg.success(message);
                         console.log(data["dataJson"])
-                    }, error: function (xhr, status, error) { //请求失败的回调函数
+                    }, error(xhr, status, error) { //请求失败的回调函数
                         loading.close();
                         console.log(error);
                         console.log(status);
@@ -2196,7 +2196,7 @@ function loadChannel() {//加载下拉框中的频道信息
                         userPassword: getInfo["userPassword"]
                     },
                     dataType: "json",
-                    success: function (data) {
+                    success(data) {
                         loading.close();
                         const message = data["message"];
                         if (data["code"] !== 1) {
@@ -2209,7 +2209,7 @@ function loadChannel() {//加载下拉框中的频道信息
                         console.log(time);
                         console.log(ruleRes);
                         rulesAreImportedLocally(ruleRes);
-                    }, error: function (xhr, status, error) { //请求失败的回调函数
+                    }, error(xhr, status, error) { //请求失败的回调函数
                         loading.close();
                         console.log(error);
                         console.log(status);

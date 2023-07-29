@@ -1,6 +1,6 @@
 const layout = {
     css: {
-        home: function () {
+        home() {
             Util.addStyle(`
 #home_layout {
     background: ${Home.getBackgroundStr()};
@@ -84,7 +84,7 @@ border: 0.5px solid green;
          * @param position
          * @returns {*|jQuery|HTMLElement}
          */
-        getHoverball: function (text, top, left, position = "fixed") {
+        getHoverball(text, top, left, position = "fixed") {
             return $(`<button style=" position: ${position};margin-top: 10px;z-index: 2000;left: ${left};top: ${top};
     padding: 5px 10px;
     border: none;
@@ -92,14 +92,14 @@ border: 0.5px solid green;
     color: #fff;
     cursor: pointer;">${text}</button>`);
         },
-        getFilter_queue: function () {//个人主页悬浮屏蔽按钮
+        getFilter_queue() {//个人主页悬浮屏蔽按钮
             return this.getHoverball("屏蔽", "15%", "4%");
         },
-        getFollowersOrWatchlists: function () {
+        getFollowersOrWatchlists() {
             return this.getHoverball("获取xxx列表", "22%", "4%");
         }
     },
-    getPanelSetsTheLayout: function () {//面板设置
+    getPanelSetsTheLayout() {//面板设置
         return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
       <div>
         <span>背景透明度</span>
@@ -122,7 +122,7 @@ border: 0.5px solid green;
     <h1>悬浮屏蔽筛选列表面板</h1>
         <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
     },
-    getRuleCRUDLayout: function () {
+    getRuleCRUDLayout() {
         return `
 <div style="display: flex;flex-wrap: wrap;">
 <div>
@@ -209,7 +209,7 @@ border: 0.5px solid green;
     </div>
 `;
     },
-    getHomePageLayout: function () {
+    getHomePageLayout() {
         return ` <details open>
       <summary>首页</summary>
       <h3>首页推荐视频</h3>
@@ -235,7 +235,7 @@ border: 0.5px solid green;
       </div>
       </details>`;
     },
-    getVideo_params_layout: function () {
+    getVideo_params_layout() {
         return `<div>
                 <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
                 <div>
@@ -277,7 +277,7 @@ border: 0.5px solid green;
              <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
 `;
     },
-    getOutputInfoLayout: function () {
+    getOutputInfoLayout() {
         return `<div>
       <button id="butClearMessage">清空信息</button>
       <input type="checkbox" checked="checked">
@@ -286,7 +286,7 @@ border: 0.5px solid green;
     <div id="outputInfo">
     </div>`;
     },
-    getOtherLayout: function () {
+    getOtherLayout() {
         return `<div>
       <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
     </div>
@@ -354,7 +354,7 @@ border: 0.5px solid green;
       </p>
     </div>`;
     },
-    getSuspensionDiv: function () {
+    getSuspensionDiv() {
         return `<!-- 悬浮屏蔽布局 -->
       <div id="suspensionDiv">坐标:
         <span id="suspensionXY">xy</span>
@@ -384,7 +384,7 @@ border: 0.5px solid green;
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
     },
-    getDonateLayout: function () {//捐赠页面
+    getDonateLayout() {//捐赠页面
         return $(`
    <div style="border: 3px solid #000;">
             <div style="display: flex;align-items: center;">
@@ -416,12 +416,12 @@ border: 0.5px solid green;
 `);
     },
     ruleCenter: {
-        getRuleCenterLayout: function () {//规则中心
+        getRuleCenterLayout() {//规则中心
             return $(`<ul style="margin: 0;padding-left: 0">
 </ul>`);
         }
     },
-    getLogin: function () {//登录账号界面
+    getLogin() {//登录账号界面
         return $(`<div style="display: flex;flex-direction: column;align-items: center;">
     <h1>登录账号</h1>
     <input type="text" placeholder="用户名" id="userNameInput">
@@ -434,7 +434,7 @@ border: 0.5px solid green;
     </div>
 </div>`);
     }, loading: {
-        home: function () {
+        home() {
             const bodyJQE = $("body");
             bodyJQE.prepend(`
       <div id="home_layout" style="display: none">
