@@ -159,6 +159,7 @@ const Home = {
     myidClickIndex: true,
     //是否初次点击了规则中心按钮
     isFirstRuleCenterLayoutClick: false,
+    isFirstLiveLayoutClick: false,
     /**
      *
      * @return {string}
@@ -1438,6 +1439,22 @@ function loadChannel() {//加载下拉框中的频道信息
                 Qmsg.error(error + " " + status);
             }
         });
+    });
+
+    $("#tabUl>li>button[value='liveLayout']").click(() => {
+        if (!(Util.getWindowUrl().includes("t.bilibili.com") && document.title === "动态首页-哔哩哔哩")) {
+            alert("目前暂时只能在动态首页中展示！");
+            return;
+        }
+        if (Home.isFirstLiveLayoutClick) {
+            return;
+        }
+        const sessdata = LocalData.getSESSDATA();
+        if (sessdata == null) {
+        }
+        Home.isFirstLiveLayoutClick = true;
+        Qmsg.success("用户配置了sessdata");
+        Live.followListLive(sessdata);
     });
 
     Util.suspensionBall(document.getElementById("suspensionDiv"));

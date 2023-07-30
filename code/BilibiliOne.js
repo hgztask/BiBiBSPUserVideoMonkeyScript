@@ -793,68 +793,6 @@ async function bilibiliOne(href, windowsTitle) {
 
         // trends.layoutCss.items();
 
-        function followListLive() {
-            const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
-            HttpUtil.getUsersFollowTheLiveList(sessdata, Trends.data.concernPage++, (res) => {
-                const body = JSON.parse(res.responseText);
-                const code = body["code"];
-                const message = body["message"];
-                if (code !== 0) {
-                    const info = "获取当前用户正在直播的用户错误！" + message;
-                    Qmsg.error(info);
-                    console.log(info);
-                    return;
-                }
-                /**
-                 *
-                 * @type {Array}
-                 */
-                const list = body["data"]["list"];
-                if (list === undefined || list === null || list.length === 0) {
-                    const info = "未获取到当前用户关注的直播用户列表信息";
-                    Qmsg.info(info);
-                    console.log(info);
-                    return;
-                }
-                for (let v of list) {
-                    /**
-                     *直播状态
-                     * 0：未开播
-                     * 1：直播中
-                     * 2：轮播中
-                     */
-                    const live_status = v["live_status"];
-                    if (live_status === 0) {
-                        Trends.data.concernBool = true;
-                        break;
-                    }
-                    if (live_status !== 1) {
-                        continue;
-                    }
-                    const roomid = v["roomid"];
-                    const uid = v["uid"];
-                    const uname = v["uname"];
-                    const title = v["title"];
-                    const face = v["face"];
-                    const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
-                    tempE.append(liveItem);
-                }
-                const tempIndex = tempE.children().length;
-                if (tempIndex === 0) {
-                    Qmsg.info("未获取到关注中正在直播的用户");
-                    return;
-                }
-                if (!Trends.data.concernBool) {
-                    followListLive();
-                    return;
-                }
-                $("#liveLayout .bili-dyn-live-users__title>span:eq(0)").text(`${tempIndex}`);
-                Qmsg.success(`已获取到${tempIndex}个直播间`);
-            }, (err) => {
-                Qmsg.error("出现错误");
-                Qmsg.error(err);
-            });
-        }
 
         const liveLayout = $("#liveLayout");
         liveLayout.append(HtmlStr.getLiveList("关注列表在中正在直播的用户-"));
@@ -957,11 +895,6 @@ async function bilibiliOne(href, windowsTitle) {
 </div>`);
         liveLayout.append(flushBut);
         liveLayout.append(`<hr>`);
-        const sessdata = LocalData.getSESSDATA();
-        if (sessdata !== null) {
-            Qmsg.success("用户配置了sessdata");
-            followListLive();
-        }
 
         flushBut.click(() => {
             const select_parent_ID = select_parent_name.val();
