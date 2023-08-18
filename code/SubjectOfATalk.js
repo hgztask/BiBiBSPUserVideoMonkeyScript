@@ -14,10 +14,18 @@ const SubjectOfATalk = {//话题
                 }
                 continue;
             }//如果内容是视频样式
+
             const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
             const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
             const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
-            if (shieldVideo_userName_uid_title(v, name, uid, title, null, videoTime, null)) {
+            const data = {
+                e: v,
+                upName: name,
+                uid: uid,
+                title: title,
+                "视频总时长": videoTime
+            };
+            if (shieldVideo_userName_uid_title(data)) {
                 Qmsg.info("屏蔽了视频！！");
             }
         }

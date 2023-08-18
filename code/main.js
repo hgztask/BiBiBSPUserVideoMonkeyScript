@@ -235,7 +235,16 @@ const Home = {
                         console.log("清理非正常视频样式");
                         continue;
                     }
-                    if (shieldVideo_userName_uid_title(v, upName, parseInt(uid), title, videoAddress, videoTime, playbackVolume)) {
+                    const data = {
+                        e: v,
+                        upName: upName,
+                        uid: parseInt(uid),
+                        title: title,
+                        "视频地址": videoAddress,
+                        "视频总时长": videoTime,
+                        "播放量": playbackVolume
+                    };
+                    if (shieldVideo_userName_uid_title(data)) {
                         continue;
                     }
                     const jqE = $(v);
@@ -1114,17 +1123,27 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
 /**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
- * @param element 对应的视频元素
- * @param {String}name 用户名
- * @param {Number}uid 用户uid
- * @param {String}title 视频标题
- * @param{String}videoHref 视频地址
- * @param  {String}videoTime 视频时间
- * @param{String}videoPlaybackVolume 播放量
- * @returns {boolean} 是否执行完
+ * @param {Object} data - 包含以下属性的数据对象：
+ *   @property {string} uid - 视频用户的唯一标识符
+ *   @property {HTMLElement} e - 视频元素的引用
+ *   @property {string} title - 视频的标题
+ *   @property {string} 视频地址 - 视频的链接地址
+ *   @property {string} name - 视频用户的姓名
+ *   @property {number} 播放量 - 视频的播放量
+ *   @property {string} 视频总时长 - 视频的总时长
+ *   @return  {Boolean} 是否屏蔽
  */
-function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume = null) {
-    if (Remove.isWhiteUserUID(uid)) {
+function shieldVideo_userName_uid_title(data) {
+// function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume = null) {
+    const uid = data["uid"];
+    const element = data["e"];
+    const title = data["title"];
+    const videoHref = data["视频地址"];
+    const name = data["upName"];
+    const videoPlaybackVolume = data["播放量"];
+    const videoTime = data["视频总时长"];
+    const barrageQuantity = data["弹幕量"];
+    if (Remove.isWhiteUserUID(data["uid"])) {
         return false;
     }
     if (uid !== null) {
@@ -1154,7 +1173,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
         Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${titleKeyCanonical}`, name, uid, title, videoHref);
         return true;
     }
-    if (videoPlaybackVolume !== null) {
+    if (videoPlaybackVolume !== undefined) {
         const change = Util.changeFormat(videoPlaybackVolume);
         if (Remove.videoMinPlaybackVolume(element, change)) {
             Print.video(null, `已过滤视频播放量小于=【${LocalData.video.getBroadcastMin()}】的视频`, name, uid, title, videoHref);
@@ -1165,7 +1184,7 @@ function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, vi
             return true;
         }
     }
-    if (videoTime === null) {
+    if (videoTime === undefined) {
         return false;
     }
     const timeTotalSeconds = Util.getTimeTotalSeconds(videoTime);
@@ -1269,14 +1288,15 @@ const videoFun = {
             }
             clearInterval(interval);
             list.forEach(v => {//获取右侧的页面的视频列表
-                //用户名
-                const name = v.querySelector(".name").textContent;
-                //视频标题
-                const videoTitle = v.querySelector(".title").textContent;
-                //用户空间地址
                 const upSpatialAddress = v.querySelector(".upname>a").href;
-                const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
-                if (shieldVideo_userName_uid_title(v, name, parseInt(id), videoTitle, null, null, null)) {
+                const data = {
+                    e: v,
+                    upName: v.querySelector(".name").textContent,
+                    uid: parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)),
+                    title: v.querySelector(".title").textContent
+                };
+                //视频标题
+                if (shieldVideo_userName_uid_title(data)) {
                     Qmsg.info("屏蔽了视频！！");
                     return;
                 }

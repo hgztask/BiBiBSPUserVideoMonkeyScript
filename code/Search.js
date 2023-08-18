@@ -59,8 +59,14 @@ const Search = {
                 data["name"] = userInfo.querySelector(".bili-video-card__info--author").textContent;
                 data["uid"] = parseInt(Util.getSubWebUrlUid(userAddress));
                 data["userAddress"] = userAddress;
-                const tempDate = userInfo.querySelector(".bili-video-card__info--date").textContent;
-                data["date"] = tempDate.substring(3);
+                let tempDate;
+                try {
+                    tempDate = userInfo.querySelector(".bili-video-card__info--date").textContent;
+                    data["date"] = tempDate.substring(3);
+                } catch (e) {
+                    console.log("搜索页面中获取项目时间出错了！");
+                    console.error(e);
+                }
                 data["e"] = v;
                 dataList.push(data);
             });
@@ -109,7 +115,14 @@ const Search = {
         async searchRules() {
             const videoDataList = await this.getAsyncVideoDataList();
             videoDataList.forEach(v => {
-                if (shieldVideo_userName_uid_title(v["e"], v["name"], v["uid"], v["title"], v["videoAddress"], null, null)) {
+                const data = {
+                    e: v["e"],
+                    upName: v["name"],
+                    uid: v["uid"],
+                    title: v["title"],
+                    "视频地址": v["videoAddress"]
+                };
+                if (shieldVideo_userName_uid_title(data)) {
                     Qmsg.info("屏蔽了视频！！");
                     return;
                 }

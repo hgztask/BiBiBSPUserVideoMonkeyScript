@@ -122,7 +122,7 @@ const frequencyChannel = {//频道
                 };
                 element.style.margin = "0px 5px 0px 0px";//设置元素边距
                 const data = frequencyChannel.getVideoRules(element);
-                temp = shieldVideo_userName_uid_title(element, data.upName, data.uid, data.title, data.videohref, data.videoTime, data.playbackVolume);
+                temp = shieldVideo_userName_uid_title(data);
             }
         } catch (e) {
             return temp;
@@ -150,22 +150,16 @@ const frequencyChannel = {//频道
         const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
         const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
         return {
+            e: element,
             //用户名
             upName: element.getElementsByClassName("up-name__text")[0].textContent,
             //视频标题
             title: videoInfo.textContent.trim(),
-            //视频地址
-            videohref: "https:" + videoInfo.getAttribute("href"),
-            //视频时长
-            videoTime: element.getElementsByClassName("play-duraiton")[0].textContent,
-            //空间地址
-            upSpatialAddress: upSpatialAddress,
-            //UID
+            "视频地址": "https:" + videoInfo.getAttribute("href"),
+            "视频总时长": element.getElementsByClassName("play-duraiton")[0].textContent,
             uid: Util.getSubUid(lastIndexOf),
-            //播放量
-            playbackVolume: topInfo[0].textContent.trim(),
-            //弹幕量
-            barrageQuantity: topInfo[1].textContent.trim()
+            "播放量": topInfo[0].textContent.trim(),
+            "弹幕量": topInfo[1].textContent.trim()
         };
     }
 }
