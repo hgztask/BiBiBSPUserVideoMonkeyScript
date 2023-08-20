@@ -170,7 +170,7 @@ const Trends = {
                 continue;
             }
             const tempContent = tempE.textContent;
-            const contentKey = Shield.arrContent(LocalData.getDynamicArr(), tempContent);
+            const contentKey = Matching.arrContent(LocalData.getDynamicArr(), tempContent);
             if (contentKey !== null) {
                 const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
                 v.remove();
@@ -178,7 +178,7 @@ const Trends = {
                 Print.ln(tempInfo);
                 continue;
             }
-            const arrContentCanonical = Shield.arrContentCanonical(LocalData.getDynamicCanonicalArr(), tempContent);
+            const arrContentCanonical = Matching.arrContentCanonical(LocalData.getDynamicCanonicalArr(), tempContent);
             if (arrContentCanonical != null) {
                 const tempInfo = `已通过动态正则关键词【${arrContentCanonical}】屏蔽了动态【${tempContent}】`;
                 v.remove();

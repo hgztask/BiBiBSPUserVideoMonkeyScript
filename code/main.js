@@ -1,5 +1,6 @@
 //主入口
 
+
 const Rule = {
     ruleLength() {
         const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
@@ -300,69 +301,6 @@ const Home = {
     }
 }
 
-//判断内容是否匹配上元素
-const Shield = {
-    /**
-     * 根据用户提供的网页元素和对应的数组及key，精确匹配数组某个元素
-     * @param arr 数组
-     * @param key 唯一key
-     * @returns {boolean}
-     */
-    arrKey(arr, key) {
-        if (arr === null || arr === undefined) {
-            return false;
-        }
-        return arr.includes(key);
-    },
-    /**
-     * 根据用户提供的字符串集合，当content某个字符包含了了集合中的某个字符则返回对应的字符，模糊匹配
-     * 反之返回null
-     * @param {string[]}arr 字符串数组
-     * @param {string}content 内容
-     * @returns {null|string}
-     */
-    arrContent(arr, content) {
-        if (arr === null || arr === undefined) {
-            return null;
-        }
-        try {
-            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
-            for (let str of arr) {
-                if (lowerCase.includes(str)) {
-                    return str;
-                }
-            }
-        } catch (e) {
-            return null;
-        }
-        return null;
-    },
-    /**
-     * 根据用户提供的字符串集合，与指定内容进行比较，当content某个字符包含了了集合中的某个正则匹配则返回对应的字符，正则匹配
-     * 反之返回null
-     * @param {string[]}arr 字符串数组
-     * @param {string}content 内容
-     * @return {null|string}
-     */
-    arrContentCanonical(arr, content) {
-        if (arr === null || arr === undefined) {
-            return null;
-        }
-        try {
-            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
-            for (let str of arr) {
-                if (lowerCase.search(str) === -1) {
-                    continue;
-                }
-                return str;
-            }
-        } catch (e) {
-            return null;
-        }
-        return null;
-    }
-}
-
 //针对内容符合规则的删除元素并返回状态值
 const Remove = {
     //是否是白名单用户
@@ -380,7 +318,7 @@ const Remove = {
      * @returns {boolean}
      */
     uid(element, uid) {
-        if (Shield.arrKey(LocalData.getArrUID(), parseInt(uid))) {
+        if (Matching.arrKey(LocalData.getArrUID(), parseInt(uid))) {
             element.remove();
             return true;
         }
@@ -394,7 +332,7 @@ const Remove = {
      * @returns {boolean}
      */
     name(element, name) {
-        if (Shield.arrKey(LocalData.getArrName(), name)) {
+        if (Matching.arrKey(LocalData.getArrName(), name)) {
             element.remove();
             return true;
         }
@@ -407,7 +345,7 @@ const Remove = {
      * @returns {String|null}
      */
     nameKey(element, name) {
-        const shieldArrContent = Shield.arrContent(LocalData.getArrNameKey(), name);
+        const shieldArrContent = Matching.arrContent(LocalData.getArrNameKey(), name);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -421,7 +359,7 @@ const Remove = {
      * @returns {String|null}
      */
     titleKey(element, title) {
-        const shieldArrContent = Shield.arrContent(LocalData.getArrTitle(), title);
+        const shieldArrContent = Matching.arrContent(LocalData.getArrTitle(), title);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -435,7 +373,7 @@ const Remove = {
      * @return {string|null}
      */
     titleKeyCanonical(element, title) {
-        const canonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
+        const canonical = Matching.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
         if (canonical !== null) {
             element.remove();
         }
@@ -448,7 +386,7 @@ const Remove = {
      * @returns {String|null}
      */
     contentKey(element, content) {
-        const shieldArrContent = Shield.arrContent(LocalData.getCommentOnKeyArr(), content);
+        const shieldArrContent = Matching.arrContent(LocalData.getCommentOnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -461,7 +399,7 @@ const Remove = {
      * @returns {String|null}
      */
     columnContentKey(element, content) {
-        const shieldArrContent = Shield.arrContent(element, LocalData.getContentColumnKeyArr(), content);
+        const shieldArrContent = Matching.arrContent(element, LocalData.getContentColumnKeyArr(), content);
         if (shieldArrContent !== null) {
             element.remove();
         }
@@ -474,7 +412,7 @@ const Remove = {
      * @returns {boolean}
      */
     fanCard(element, key) {
-        if (Shield.arrKey(LocalData.getFanCardArr(), key)) {
+        if (Matching.arrKey(LocalData.getFanCardArr(), key)) {
             element.remove();
             return true;
         }
@@ -1134,7 +1072,6 @@ function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
  *   @return  {Boolean} 是否屏蔽
  */
 function shieldVideo_userName_uid_title(data) {
-// function shieldVideo_userName_uid_title(element, name, uid, title, videoHref, videoTime, videoPlaybackVolume = null) {
     const uid = data["uid"];
     const element = data["e"];
     const title = data["title"];

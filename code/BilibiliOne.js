@@ -158,21 +158,21 @@ async function bilibiliOne(href, windowsTitle) {
          * @param pic 封面
          */
         function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
-            if (Shield.arrKey(LocalData.getArrUID(), uid)) {
+            if (Matching.arrKey(LocalData.getArrUID(), uid)) {
                 Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
-            const isNameKey = Shield.arrContent(LocalData.getArrNameKey(), userName);
+            const isNameKey = Matching.arrContent(LocalData.getArrNameKey(), userName);
             if (isNameKey != null) {
                 Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
-            const isTitleKey = Shield.arrContent(LocalData.getArrTitle(), videoTitle);
+            const isTitleKey = Matching.arrContent(LocalData.getArrTitle(), videoTitle);
             if (isTitleKey != null) {
                 Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
-            const isTitleKeyCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
+            const isTitleKeyCanonical = Matching.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
             if (isTitleKeyCanonical != null) {
                 Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
@@ -272,7 +272,7 @@ async function bilibiliOne(href, windowsTitle) {
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页
         const hrefUID = Util.getSubUid(href.split("/")[3]);
         const userName = await Space.getUserName();
-        if (Shield.arrKey(LocalData.getArrUID(), hrefUID)) {
+        if (Matching.arrKey(LocalData.getArrUID(), hrefUID)) {
             setTimeout(() => {
                 alert("当前用户时是黑名单！UID=" + hrefUID)
             }, 2500);
@@ -936,7 +936,7 @@ async function bilibiliOne(href, windowsTitle) {
                     const title = v["title"];
                     const uname = v["uname"];
                     const uid = v["uid"];
-                    if (Shield.arrKey(LocalData.getArrUID(), uid)) {
+                    if (Matching.arrKey(LocalData.getArrUID(), uid)) {
                         const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
                         Print.ln(tempInfo);
                         Qmsg.success(tempInfo);

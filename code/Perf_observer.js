@@ -114,13 +114,13 @@ function perf_observer() {
             for (let v of document.querySelectorAll(".bili-rank-list-video__list.video-rank-list")) {//遍历每个排行榜
                 for (let q of v.querySelectorAll("li[class='bili-rank-list-video__item']")) {//遍历某个排行榜中的项目
                     const title = q.querySelector("[title]").textContent;
-                    const isTitle = Shield.arrContent(LocalData.getArrTitle(), title);
+                    const isTitle = Matching.arrContent(LocalData.getArrTitle(), title);
                     if (isTitle != null) {
                         Print.ln(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
                         q.remove();
                         continue;
                     }
-                    const isTitleCanonical = Shield.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
+                    const isTitleCanonical = Matching.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
                     if (isTitleCanonical != null) {
                         Print.ln(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
                         q.remove();
