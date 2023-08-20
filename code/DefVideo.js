@@ -1,4 +1,113 @@
 const DefVideo = {
+    delLayout: {
+        //移除右侧悬浮按钮
+        rightSuspendButton() {
+            Util.circulateClassNames("storage-box", 0, 2, 2000, "已移除右侧的【返回旧版】【新版反馈】【客服】");//针对新版界面
+        },
+        delRightE() {
+            const video = Rule.videoData;
+            if (video.isRhgthlayout) {
+                Util.circulateClassNames("right-container is-in-large-ab", 0, 3, 1500, "已移除视频播放器右侧的布局");
+                return;
+            }
+            Util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
+            Util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
+            Util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
+            Util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
+            Util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
+            Util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
+            if (video.isrigthVideoList) {
+                Util.circulateID("reco_list", 2000, "已移除播放页右侧的视频列表");
+                return;
+            }
+            if (!video.isRightVideo) {
+                setTimeout(() => {
+                    document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
+                        Print.ln("用户点击了右侧的展开")
+                        DefVideo.rightVideo();
+                    })
+                }, 4000);
+            }
+        },
+        //对视频页的播放器下面的进行处理
+        delBottonE() {
+            DefVideo.hideCommentArea();//处理评论区
+            Util.circulateIDs("bannerAd", 10, 2500, "已移除播放器底部的广告");
+            Util.circulateID("activity_vote", 2500, "已移除播放器底部的活动广告");
+            Util.circulateClassName("reply-notice", 2000, "已移除播放器底部的橙色横幅通知");
+            Util.circulateClassName("ad-floor-cover b-img", 2000, "已移除播放器底部的图片广告");
+            if (Rule.videoData.isTag) {
+                Util.circulateID("v_tag", 2000, "已移除播放器底部的tag栏");
+            }
+            if (Rule.videoData.isDesc) {
+                Util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
+            }
+        },
+
+    },
+    //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
+    rightVideo() {
+        const interval = setInterval(() => {
+            let list = document.querySelectorAll(".video-page-card-small");
+            if (list.length === 0) {
+                return;
+            }
+            clearInterval(interval);
+            list.forEach(v => {//获取右侧的页面的视频列表
+                const upSpatialAddress = v.querySelector(".upname>a").href;
+                const data = {
+                    e: v,
+                    upName: v.querySelector(".name").textContent,
+                    uid: parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)),
+                    title: v.querySelector(".title").textContent
+                };
+                //视频标题
+                if (shieldVideo_userName_uid_title(data)) {
+                    Qmsg.info("屏蔽了视频！！");
+                    return;
+                }
+                $(v).mouseenter((e) => {
+                    const domElement = e.delegateTarget;//dom对象
+                    const name = domElement.querySelector(".name").textContent;
+                    const title = domElement.querySelector(".title").textContent;
+                    const upSpatialAddress = domElement.querySelector(".upname>a").href;
+                    const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
+                    Util.showSDPanel(e, name, id, title);
+                });
+            })
+        }, 1000);
+    },
+    clickLayout: {
+        fullScreenOnThePlayerPage() {//点击播放器的网页全屏按钮
+            const interval = setInterval(() => {
+                const jqE = $(".bpx-player-ctrl-btn.bpx-player-ctrl-web");
+                if (jqE.length === 0) {
+                    return;
+                }
+                clearInterval(interval);
+                jqE.click();
+                const info = `已自动点击播放器的网页全屏`;
+                Print.ln(info);
+                Qmsg.success(info);
+                console.log(info);
+            }, 1000);
+        },
+        thePlayerGoesToGullScreen() {//点击播放器的进入全屏按钮
+            const interval = setInterval(() => {
+                const jqE = $(".bpx-player-ctrl-btn.bpx-player-ctrl-full");
+                if (jqE.length === 0) {
+                    return;
+                }
+                clearInterval(interval);
+                jqE.click();
+                const info = "已自动点击播放器的进入全屏按钮";
+                Qmsg.success(info);
+                Print.ln(info);
+                console.log(info);
+            }, 1000);
+        }
+    },
+
     getVIdeoTitle() {//获取当前页面视频标题
         return document.querySelector("#viewbox_report>.video-title").title;
     },

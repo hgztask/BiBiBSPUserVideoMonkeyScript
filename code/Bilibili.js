@@ -65,15 +65,15 @@ async function bilibili(href) {
                 if (list.length === 0) {
                     return;
                 }
-                videoFun.rightVideo();
+                DefVideo.rightVideo();
                 console.log("检测到右侧视频列表中符合条件");
                 clearInterval(interval)
 
             }, 2000);
         }
-        videoFun.delRightE();
-        videoFun.delBottonE();
-        videoFun.rightSuspendButton();
+        DefVideo.delLayout.delRightE();
+        DefVideo.delLayout.delBottonE();
+        DefVideo.delLayout.rightSuspendButton();
         return;
     }
     if (href.includes("search.bilibili.com")) {
