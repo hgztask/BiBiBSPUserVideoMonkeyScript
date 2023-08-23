@@ -183,9 +183,12 @@ async function bilibiliOne(href, windowsTitle) {
                 const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
                 const userInfo = domElement.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;
-                const uerName = domElement.querySelector(".bili-video-card__info--author").textContent;
-                Util.showSDPanel(e, uerName, Util.getSubWebUrlUid(userHref), title);
-
+                const data = {
+                    upName: domElement.querySelector(".bili-video-card__info--author").textContent,
+                    uid: Util.getSubWebUrlUid(userHref),
+                    title: title
+                };
+                Util.showSDPanel(e, data);
             });
         }
 

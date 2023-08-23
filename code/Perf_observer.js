@@ -27,7 +27,7 @@ function perf_observer() {
                 const usercontentWarp = v.querySelector(".content-warp");
                 const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
                 const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
-                if (startPrintShieldNameOrUIDOrContent(v, data.name, data.uid, data.content)) {
+                if (startPrintShieldNameOrUIDOrContent(v, data.upName, data.uid, data.content)) {
                     Qmsg.success("屏蔽了言论！！");
                     continue;
                 }
@@ -36,7 +36,7 @@ function perf_observer() {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
                         const data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
-                        Util.showSDPanel(e, data.name, data.uid);
+                        Util.showSDPanel(e, data);
                     });
                 }
                 if (subReplyList.length === 0) {
@@ -44,7 +44,7 @@ function perf_observer() {
                 }
                 for (let j of subReplyList) {
                     const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
-                    if (startPrintShieldNameOrUIDOrContent(j, data.name, data.uid, data.content)) {
+                    if (startPrintShieldNameOrUIDOrContent(j, data.upName, data.uid, data.content)) {
                         Qmsg.success("屏蔽了言论！！");
                         continue;
                     }
@@ -54,8 +54,7 @@ function perf_observer() {
                     }
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
-                        const data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
-                        Util.showSDPanel(e, data.name, data.uid);
+                        Util.showSDPanel(e, Trends.getVideoCommentAreaOrTrendsStorey(domElement));
                     });
                 }
             }

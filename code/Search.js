@@ -21,7 +21,7 @@ const Search = {
             const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
             return {
                 //用户名
-                name: userInfo.querySelector(".bili-video-card__info--author").textContent,
+                upName: userInfo.querySelector(".bili-video-card__info--author").textContent,
                 //标题
                 title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
                 upSpatialAddress: upSpatialAddress,
@@ -133,7 +133,7 @@ const Search = {
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;
                     const data = Search.video.getDataV(domElement);
-                    Util.showSDPanel(e, data.name, data.uid);
+                    Util.showSDPanel(e, data);
                 });
             });
         }
@@ -391,10 +391,11 @@ const Search = {
                     const domElement = e.delegateTarget;
                     const title = domElement.querySelector(".text1").textContent;
                     const info = domElement.querySelector(".flex_start.flex_inline.text3");
-                    const name = info.querySelector(".lh_xs").text;
                     const userHref = info.href;
-                    const uid = userHref.substring(userHref.lastIndexOf("/") + 1);
-                    Util.showSDPanel(e, name, uid, title);
+                    Util.showSDPanel(e, {
+                        upName: info.querySelector(".lh_xs").text,
+                        uid: userHref.substring(userHref.lastIndexOf("/") + 1)
+                    });
                 });
             }
         }, 1000);

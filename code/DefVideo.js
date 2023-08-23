@@ -68,11 +68,13 @@ const DefVideo = {
                 }
                 $(v).mouseenter((e) => {
                     const domElement = e.delegateTarget;
-                    const name = domElement.querySelector(".name").textContent;
-                    const title = domElement.querySelector(".title").textContent;
                     const upSpatialAddress = domElement.querySelector(".upname>a").href;
-                    const id = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1);
-                    Util.showSDPanel(e, name, id, title);
+                    const data = {
+                        upName: domElement.querySelector(".name").textContent,
+                        title: domElement.querySelector(".title").textContent,
+                        uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)
+                    };
+                    Util.showSDPanel(e, data);
                 });
             })
         }, 1000);

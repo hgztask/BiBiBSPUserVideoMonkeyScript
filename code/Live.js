@@ -24,9 +24,10 @@ const Live = {
             }
             jqE.mouseenter((e) => {
                 const domElement = e.delegateTarget;
-                const name = domElement.getAttribute("data-uname");
-                const uid = domElement.getAttribute("data-uid");
-                Util.showSDPanel(e, name, uid);
+                Util.showSDPanel(e, {
+                    upName: domElement.getAttribute("data-uname"),
+                    uid: domElement.getAttribute("data-uid")
+                });
             });
         }
     },

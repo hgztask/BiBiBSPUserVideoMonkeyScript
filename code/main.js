@@ -255,13 +255,15 @@ const Home = {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
                         const info = domElement.querySelector(".bili-video-card__info--right");
-                        const title = info.querySelector(".bili-video-card__info--tit").getAttribute("title");
                         const videoAddress = info.querySelector(".bili-video-card__info--tit>a").getAttribute("href");
-                        const name = info.querySelector(".bili-video-card__info--author").textContent;
                         const href = info.querySelector(".bili-video-card__info--owner").href;
-                        const uid = Util.getSubWebUrlUid(href);
-                        const bv = Util.getSubWebUrlBV(videoAddress);
-                        Util.showSDPanel(e, name, uid, title, bv);
+                        Util.showSDPanel(e, {
+                            upName: info.querySelector(".bili-video-card__info--author").textContent,
+                            uid: Util.getSubWebUrlUid(href),
+                            title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
+                            bv: Util.getSubWebUrlBV(videoAddress),
+
+                        });
                     });
                 }
                 resolve(true);
@@ -547,9 +549,10 @@ function delDReplay() {
             if (!Util.isEventJq(jqE, "mouseover")) {
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;
-                    const name = domElement.textContent;
-                    const uid = domElement.getAttribute("data-usercard-mid");
-                    Util.showSDPanel(e, name, uid);
+                    Util.showSDPanel(e, {
+                        upName: domElement.textContent,
+                        uid: domElement.getAttribute("data-usercard-mid")
+                    });
                 });
             }
             const replyItem = v.querySelectorAll(".reply-box>.reply-item.reply-wrap");//楼层成员
@@ -571,9 +574,10 @@ function delDReplay() {
                 }
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;
-                    const name = domElement.querySelector(".name").textContent;
-                    const uid = domElement.querySelector("a").getAttribute("data-usercard-mid");
-                    Util.showSDPanel(e, name, uid);
+                    Util.showSDPanel(e, {
+                        upName: domElement.querySelector(".name").textContent,
+                        uid: domElement.querySelector("a").getAttribute("data-usercard-mid")
+                    });
                 });
             }
         }
@@ -2261,6 +2265,31 @@ function loadChannel() {//加载下拉框中的频道信息
             return;
         }
         Util.openWindow(url);
+    });
+
+    $("#addToWatchedBut").click((e) => {
+        let data = e.target.value;
+        if (data === "") {
+            alert("视频信息未记录！");
+            return;
+        }
+        data = JSON.parse(data);
+        if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
+            return;
+        }
+        const arr = LocalData.getWatchedArr();
+        for (const v of arr) {
+            const tempTitle = data["title"];
+            if (v["title"] === tempTitle) {
+                alert(`您已添加该视频【${tempTitle}】！故本轮不添加进去！`);
+                return;
+            }
+        }
+        arr.push(data);
+        const tip = `已添加视频【${data["title"]}】至已观看列表！`;
+        LocalData.setWatchedArr(arr);
+        Qmsg.success(tip)
+        alert(tip);
     });
 
 

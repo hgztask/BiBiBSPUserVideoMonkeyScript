@@ -121,7 +121,7 @@ const frequencyChannel = {//频道
             jqE.mouseenter((e) => {
                 const element = e.delegateTarget;
                 const data = frequencyChannel.getVideoRules(element);
-                Util.showSDPanel(e, data.upName, data.uid, data.title);
+                Util.showSDPanel(e, data);
             });
             element.style.margin = "0px 5px 0px 0px";//设置元素边距
             const data = frequencyChannel.getVideoRules(element);
@@ -144,7 +144,6 @@ const frequencyChannel = {//频道
         }
     },
     getVideoRules(element) {//获取频道界面单个的视频信息
-
         const videoInfo = element.querySelector(".video-name");
         //空间地址
         const tempE = element.querySelector(".up-name");

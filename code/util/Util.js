@@ -479,12 +479,14 @@ const Util = {
     /**
      * 显示屏蔽面板
      * @param e 事件源
-     * @param name 用户名
-     * @param uid uid
-     * @param title 标题
-     * @param bv bv号
+     * @param data
      */
-    showSDPanel(e, name, uid, title = null, bv = null) {
+    showSDPanel(e, data) {
+        const name = data["upName"];
+        const uid = Util.getSubUid(data["uid"]);
+        const title = data["title"];
+        let bv = data["bv"];
+        let av = data["av"];
         const newVar = Util.getData("isDShielPanel");
         if (newVar) {
             return;
@@ -492,25 +494,28 @@ const Util = {
         if ($("#fixedPanelValueCheckbox").is(':checked')) {
             return;
         }
+        $("#addToWatchedBut").attr("value", JSON.stringify({
+            upName: name,
+            uid: uid,
+            title: title,
+            bv: bv,
+            av: av
+        }));
         $("#nameSuspensionDiv").text(name);
         let uidA = $("#uidSuspensionDiv");
-        uid = Util.getSubUid(uid);
         uidA.text(uid);
         uidA.attr("href", `https://space.bilibili.com/${uid}`);
-        if (title !== null) {
+        if (title !== undefined) {
             $("#suspensionDiv details").show();
             $("#suspensionDiv .title").text(title);
-            if (bv === null) {
+            if (bv === undefined) {
                 return;
             }
             $("#suspensionDiv .bv").text(bv);
             $("#suspensionDiv .av").text(Util.BilibiliEncoder.dec(bv));
-
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
-
-
     },
     /**
      * 对UID后面带有其他符号的字符截取掉并保留UID返回

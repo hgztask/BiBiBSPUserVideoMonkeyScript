@@ -150,7 +150,7 @@ const Trends = {
     },
     getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
         return {
-            name: v.querySelector(".user-name").textContent,
+            upName: v.querySelector(".user-name").textContent,
             uid: v.querySelector(".user-name").getAttribute("data-user-id"),
             content: v.querySelector(".reply-content").parentNode.textContent,
             info: v.querySelector(".user-info")
@@ -158,7 +158,7 @@ const Trends = {
     },
     getVideoCommentAreaOrTrendsStorey(j) {//获取动态页面-评论区信息-单个元素信息-楼层
         return {
-            name: j.querySelector(".sub-user-name").textContent,
+            upName: j.querySelector(".sub-user-name").textContent,
             uid: j.querySelector(".sub-user-name").getAttribute("data-user-id"),
             content: j.querySelector(".reply-content").textContent
         }
