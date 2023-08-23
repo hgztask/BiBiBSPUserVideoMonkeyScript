@@ -147,17 +147,19 @@ const frequencyChannel = {//频道
         const videoInfo = element.querySelector(".video-name");
         //空间地址
         const tempE = element.querySelector(".up-name");
-        console.assert(tempE !== null, "用户空间地址获取失败", element, tempE);
+        // console.assert(tempE !== null, "用户空间地址获取失败", element, tempE);
         const upSpatialAddress = tempE.href;
         const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
         const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
+        const videoHref = videoInfo.href;
         return {
             e: element,
             //用户名
             upName: element.getElementsByClassName("up-name__text")[0].textContent,
             //视频标题
             title: videoInfo.textContent.trim(),
-            "视频地址": "https:" + videoInfo.getAttribute("href"),
+            "视频地址": "https:" + videoHref,
+            bv: Util.getSubWebUrlBV(videoHref),
             "视频总时长": element.getElementsByClassName("play-duraiton")[0].textContent,
             uid: Util.getSubUid(lastIndexOf),
             "播放量": topInfo[0].textContent.trim(),
