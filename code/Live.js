@@ -23,7 +23,7 @@ const Live = {
                 continue;
             }
             jqE.mouseenter((e) => {
-                const domElement = e.delegateTarget;//dom对象
+                const domElement = e.delegateTarget;
                 const name = domElement.getAttribute("data-uname");
                 const uid = domElement.getAttribute("data-uid");
                 Util.showSDPanel(e, name, uid);

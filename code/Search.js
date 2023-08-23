@@ -131,7 +131,7 @@ const Search = {
                     return;
                 }
                 jqE.mouseenter((e) => {
-                    const domElement = e.delegateTarget;//dom对象
+                    const domElement = e.delegateTarget;
                     const data = Search.video.getDataV(domElement);
                     Util.showSDPanel(e, data.name, data.uid);
                 });
@@ -388,7 +388,7 @@ const Search = {
                     continue;
                 }
                 $(v).mouseenter((e) => {
-                    const domElement = e.delegateTarget;//dom对象
+                    const domElement = e.delegateTarget;
                     const title = domElement.querySelector(".text1").textContent;
                     const info = domElement.querySelector(".flex_start.flex_inline.text3");
                     const name = info.querySelector(".lh_xs").text;

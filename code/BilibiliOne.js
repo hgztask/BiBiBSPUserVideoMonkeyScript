@@ -179,7 +179,7 @@ async function bilibiliOne(href, windowsTitle) {
             }
             $(".container.is-version8").append(addElement.homeVideoE.getHtmlStr(videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr, Util.getNumberFormat(view), Util.getNumberFormat(danmaku)));
             $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
-                const domElement = e.delegateTarget;//dom对象
+                const domElement = e.delegateTarget;
                 const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
                 const userInfo = domElement.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;

@@ -34,7 +34,7 @@ function perf_observer() {
                 const jqE = $(usercontentWarp);
                 if (!Util.isEventJq(jqE, "mouseover")) {
                     jqE.mouseenter((e) => {
-                        const domElement = e.delegateTarget;//dom对象
+                        const domElement = e.delegateTarget;
                         const data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
                         Util.showSDPanel(e, data.name, data.uid);
                     });
@@ -53,7 +53,7 @@ function perf_observer() {
                         continue;
                     }
                     jqE.mouseenter((e) => {
-                        const domElement = e.delegateTarget;//dom对象
+                        const domElement = e.delegateTarget;
                         const data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
                         Util.showSDPanel(e, data.name, data.uid);
                     });

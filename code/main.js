@@ -253,7 +253,7 @@ const Home = {
                         continue;
                     }
                     jqE.mouseenter((e) => {
-                        const domElement = e.delegateTarget;//dom对象
+                        const domElement = e.delegateTarget;
                         const info = domElement.querySelector(".bili-video-card__info--right");
                         const title = info.querySelector(".bili-video-card__info--tit").getAttribute("title");
                         const videoAddress = info.querySelector(".bili-video-card__info--tit>a").getAttribute("href");
@@ -546,7 +546,7 @@ function delDReplay() {
             const jqE = $(rootUserinfo);
             if (!Util.isEventJq(jqE, "mouseover")) {
                 jqE.mouseenter((e) => {
-                    const domElement = e.delegateTarget;//dom对象
+                    const domElement = e.delegateTarget;
                     const name = domElement.textContent;
                     const uid = domElement.getAttribute("data-usercard-mid");
                     Util.showSDPanel(e, name, uid);
@@ -570,7 +570,7 @@ function delDReplay() {
                     continue;
                 }
                 jqE.mouseenter((e) => {
-                    const domElement = e.delegateTarget;//dom对象
+                    const domElement = e.delegateTarget;
                     const name = domElement.querySelector(".name").textContent;
                     const uid = domElement.querySelector("a").getAttribute("data-usercard-mid");
                     Util.showSDPanel(e, name, uid);
@@ -1202,7 +1202,7 @@ function loadChannel() {//加载下拉框中的频道信息
     Util.BilibiliEncoder.init();
 
     $("#tabUl>li>button").click((e) => {
-        const domElement = e.delegateTarget;//dom对象
+        const domElement = e.delegateTarget;
         document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
             $(value).css("color", "");
         })

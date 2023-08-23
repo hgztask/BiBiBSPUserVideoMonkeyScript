@@ -67,7 +67,7 @@ const DefVideo = {
                     return;
                 }
                 $(v).mouseenter((e) => {
-                    const domElement = e.delegateTarget;//dom对象
+                    const domElement = e.delegateTarget;
                     const name = domElement.querySelector(".name").textContent;
                     const title = domElement.querySelector(".title").textContent;
                     const upSpatialAddress = domElement.querySelector(".upname>a").href;

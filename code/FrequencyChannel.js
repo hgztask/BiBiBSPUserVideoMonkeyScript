@@ -113,19 +113,19 @@ const frequencyChannel = {//频道
      */
     startExtracted(vdoc) {
         let temp = false;
-        try {
-            for (let element of vdoc) {
-                element.onmouseenter = (e) => {
-                    const element = e.srcElement;
-                    const data = frequencyChannel.getVideoRules(element);
-                    Util.showSDPanel(e, data.upName, data.uid);
-                };
-                element.style.margin = "0px 5px 0px 0px";//设置元素边距
-                const data = frequencyChannel.getVideoRules(element);
-                temp = shieldVideo_userName_uid_title(data);
+        for (let element of vdoc) {
+            const jqE = $(element);
+            if (Util.isEventJq(jqE, "mouseover")) {
+                continue;
             }
-        } catch (e) {
-            return temp;
+            jqE.mouseenter((e) => {
+                const element = e.delegateTarget;
+                const data = frequencyChannel.getVideoRules(element);
+                Util.showSDPanel(e, data.upName, data.uid, data.title);
+            });
+            element.style.margin = "0px 5px 0px 0px";//设置元素边距
+            const data = frequencyChannel.getVideoRules(element);
+            temp = shieldVideo_userName_uid_title(data);
         }
         return temp;
     },
@@ -144,9 +144,12 @@ const frequencyChannel = {//频道
         }
     },
     getVideoRules(element) {//获取频道界面单个的视频信息
-        const videoInfo = element.getElementsByClassName("video-name")[0];
+
+        const videoInfo = element.querySelector(".video-name");
         //空间地址
-        const upSpatialAddress = element.getElementsByClassName("up-name")[0].getAttribute("href");
+        const tempE = element.querySelector(".up-name");
+        console.assert(tempE !== null, "用户空间地址获取失败", element, tempE);
+        const upSpatialAddress = tempE.href;
         const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
         const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
         return {

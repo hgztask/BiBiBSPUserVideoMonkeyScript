@@ -373,6 +373,7 @@ border: 0.5px solid green;
         <p>标题:<span class="title"></span></p>
         <p>视频BV号:<span class="bv"></span></p>
         <p>视频AV号:<span class="av"></span></p>
+        <button id="addToWatchedBut">添加进已观看</button>
 </details>
         </div>
         <p>用户UID：<a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a></p>
