@@ -1119,6 +1119,7 @@ function shieldVideo_userName_uid_title(data) {
         if (Matching.arrObjKey(LocalData.getWatchedArr(), "bv", bv)) {
             element.remove();
             Print.video("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
+            Qmsg.success(`已过滤已观看的视频`);
             return true;
         }
     }
