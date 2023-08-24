@@ -451,6 +451,7 @@ async function bilibiliOne(href, windowsTitle) {
         const getTheVideoAVNumber = layout.panel.getHoverball("获取视频av号", "22%", "95%");
         const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
         const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
+        const addLefToWatchedBut = layout.panel.getHoverball("添加进已观看", "33%", "94%");
         const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
         const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
         const hideTopVideoTitleInfoBut = layout.panel.getHoverball("隐藏顶部视频标题信息", "8%", "1%");
@@ -459,6 +460,7 @@ async function bilibiliOne(href, windowsTitle) {
         $body.append(getTheVideoAVNumber);
         $body.append(getVideoCommentArea);
         $body.append(getLeftTopVideoListBut);
+        $body.append(addLefToWatchedBut);
         $body.append(isHideButtonLayoutBut);
         $body.append(isHideRightLayoutBut);
         $body.append(hideTopVideoTitleInfoBut);
@@ -587,6 +589,22 @@ async function bilibiliOne(href, windowsTitle) {
                 dataList = videoCollection.getVIdeoGridList();
             }
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
+        });
+        addLefToWatchedBut.click(() => {
+            const upInfo = document.querySelector(".up-name");
+            let data;
+            try {
+                data = {
+                    upName: upInfo.textContent.trim(),
+                    uid: parseInt(Util.getSubWebUrlUid(upInfo.href)),
+                    title: document.querySelector(".video-title").textContent,
+                    bv: Util.getSubWebUrlBV(Util.getWindowUrl())
+                };
+            } catch (e) {
+                console.error("获取视频信息出现错误！", e);
+                return;
+            }
+            Watched.addWatched(data);
         });
         hideTopVideoTitleInfoBut.click(() => {
             clearInterval(interval02);
