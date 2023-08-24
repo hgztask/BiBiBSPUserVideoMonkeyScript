@@ -114,11 +114,11 @@ const LocalData = {
     },
     setVideo_zone(key) {
         Util.setData("video_zone", key);
-    },//获取已观看的视频数组
-    getWatchedArr() {
+    },
+    getWatchedArr() {//获取已观看的视频数组
         return this.temp("watchedArr");
-    },//设置已观看的视频
-    setWatchedArr(key) {
+    },
+    setWatchedArr(key) {//设置已观看的视频
         Util.setData("watchedArr", key);
     },
     getHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
