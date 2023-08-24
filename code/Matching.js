@@ -13,6 +13,21 @@ const Matching = {
         return arr.includes(key);
     },
     /**
+     * 根据对象数组，返回匹配数组中对象oBjKey属性是否有指定value的布尔值
+     * @param objArr{Array} 对象数组
+     * @param objKey{String}对象属性名
+     * @param value {String} 要匹配的完整值
+     * @return {boolean} 是否有指定value布尔值
+     */
+    arrObjKey(objArr, objKey, value) {
+        for (const v of objArr) {
+            if (v[objKey] === undefined) {
+                return false;
+            }
+            return v[objKey] === value;
+        }
+    },
+    /**
      * 根据用户提供的字符串集合，当content某个字符包含了了集合中的某个字符则返回对应的字符，模糊匹配
      * 反之返回null
      * @param {string[]}arr 字符串数组
