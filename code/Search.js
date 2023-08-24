@@ -19,11 +19,14 @@ const Search = {
             //用户空间地址
             let upSpatialAddress = userInfo.getAttribute("href");
             const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
+            const videOHref = info.querySelector("a[href*='www.bilibili.com/video/']").href;
             return {
                 //用户名
                 upName: userInfo.querySelector(".bili-video-card__info--author").textContent,
                 //标题
                 title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
+                "视频地址": videOHref,
+                bv: Util.getSubWebUrlBV(videOHref),
                 upSpatialAddress: upSpatialAddress,
                 uid: Util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
                 //视频的时间
