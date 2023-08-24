@@ -1114,6 +1114,14 @@ function shieldVideo_userName_uid_title(data) {
         Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${titleKeyCanonical}`, name, uid, title, videoHref);
         return true;
     }
+    if (videoHref !== undefined) {
+        const bv = Util.getSubWebUrlBV(videoHref);
+        if (Matching.arrObjKey(LocalData.getWatchedArr(), "bv", bv)) {
+            element.remove();
+            Print.video("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
+            return true;
+        }
+    }
     if (videoPlaybackVolume !== undefined) {
         const change = Util.changeFormat(videoPlaybackVolume);
         if (Remove.videoMinPlaybackVolume(element, change)) {
