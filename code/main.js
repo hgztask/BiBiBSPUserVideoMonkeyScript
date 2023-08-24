@@ -2282,23 +2282,7 @@ function loadChannel() {//加载下拉框中的频道信息
             alert("视频信息未记录！");
             return;
         }
-        data = JSON.parse(data);
-        if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
-            return;
-        }
-        const arr = LocalData.getWatchedArr();
-        for (const v of arr) {
-            const tempTitle = data["title"];
-            if (v["title"] === tempTitle) {
-                alert(`您已添加该视频【${tempTitle}】！故本轮不添加进去！`);
-                return;
-            }
-        }
-        arr.push(data);
-        const tip = `已添加视频【${data["title"]}】至已观看列表！`;
-        LocalData.setWatchedArr(arr);
-        Qmsg.success(tip)
-        alert(tip);
+        Watched.addWatched(JSON.parse(data));
     });
 
 
