@@ -22,10 +22,13 @@ const Matching = {
     arrObjKey(objArr, objKey, value) {
         for (const v of objArr) {
             if (v[objKey] === undefined) {
-                return false;
+                continue;
             }
-            return v[objKey] === value;
+            if (v[objKey] === value) {
+                return true;
+            }
         }
+        return false;
     },
     /**
      * 根据用户提供的字符串集合，当content某个字符包含了了集合中的某个字符则返回对应的字符，模糊匹配
