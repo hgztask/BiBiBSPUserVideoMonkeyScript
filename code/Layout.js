@@ -447,6 +447,7 @@ border: 0.5px solid green;
     <li><button value="homePageLayout">首页</button></li>
     <li><button value="video_params_layout">视频参数</button></li>
     <li><button value="liveLayout">直播列表</button></li>
+    <li><button value="watchedListLayout">已观看列表</button></li>
     <li><button value="outputInfoLayout">输出信息</button></li>
     <li><button value="otherLayout">其他</button></li>
     <li><button value="donateLayout">支持打赏作者</button></li>
@@ -460,6 +461,12 @@ border: 0.5px solid green;
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
   <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
   <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
+  <div class="tab" id="watchedListLayout">
+  <h3>已观看视频个数{{watchedList.length}}个</h3>
+ <div v-for="item in watchedList">
+ <p>{{item.upName}}</p>
+</div>
+</div><!-- 已观看列表布局 -->
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
   <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
   <div class="tab" id="ruleCenterLayout">

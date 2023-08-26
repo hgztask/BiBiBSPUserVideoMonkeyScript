@@ -1,4 +1,8 @@
 const Watched = {
+    dataVue: {
+        watchedList: LocalData.getWatchedArr(),//已观看视频个数,
+
+    },
     addWatched(data) {//添加视频到已观看列表流程
         if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
             return;
