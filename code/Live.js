@@ -79,7 +79,6 @@ const Live = {
             }
             const tempIndex = tempE.children().length;
             if (tempIndex === 0) {
-                ``
                 Qmsg.info("未获取到关注中正在直播的用户");
                 return;
             }
