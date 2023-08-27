@@ -122,7 +122,7 @@ const LocalData = {
         Util.setData("watchedArr", key);
     },
     getLookAtItLaterArr() {//获取稍后再看列表
-        this.temp("lookAtItLaterArr");
+        return this.temp("lookAtItLaterArr");
     },
     setLookAtItLaterArr(arr) {//设置稍后再看列表
         Util.setData("lookAtItLaterArr", arr)

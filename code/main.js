@@ -2293,6 +2293,8 @@ function loadChannel() {//加载下拉框中的频道信息
         }
     });
 
+    LookAtItLater.lookAtItLaterListVue();
+
 
     //每秒监听网页标题URL
     setInterval(function () {//每秒监听网页中的url

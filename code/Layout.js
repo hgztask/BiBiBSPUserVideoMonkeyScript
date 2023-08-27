@@ -448,6 +448,7 @@ border: 0.5px solid green;
     <li><button value="video_params_layout">视频参数</button></li>
     <li><button value="liveLayout">直播列表</button></li>
     <li><button value="watchedListLayout">已观看列表</button></li>
+    <li><button value="lookAtItLaterListLayout">稍后再看列表</button></li>
     <li><button value="outputInfoLayout">输出信息</button></li>
     <li><button value="otherLayout">其他</button></li>
     <li><button value="donateLayout">支持打赏作者</button></li>
@@ -467,6 +468,14 @@ border: 0.5px solid green;
  <p>{{item.upName}}</p>
 </div>
 </div><!-- 已观看列表布局 -->
+  <div class="tab" id="lookAtItLaterListLayout">
+  <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
+  <ul v-for="item in lookAtItLaterList">
+  <li>
+  {{item.title}}
+</li>
+</ul>
+  <!-- 稍后再看列表布局 --></div>
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
   <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
   <div class="tab" id="ruleCenterLayout">
