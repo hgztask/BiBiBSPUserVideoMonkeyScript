@@ -452,7 +452,7 @@ async function bilibiliOne(href, windowsTitle) {
         const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
         const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
         const addLefToWatchedBut = layout.panel.getHoverball("添加进已观看", "33%", "94%");
-        const addLefToLookAtItLaterListBut = layout.panel.getHoverball("添加进稍后再看", "35%", "94%");
+        const addLefToLookAtItLaterListBut = layout.panel.getHoverball("添加进稍后再看", "36%", "94%");
         const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
         const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
         const hideTopVideoTitleInfoBut = layout.panel.getHoverball("隐藏顶部视频标题信息", "8%", "1%");
