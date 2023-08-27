@@ -121,6 +121,12 @@ const LocalData = {
     setWatchedArr(key) {//设置已观看的视频
         Util.setData("watchedArr", key);
     },
+    getLookAtItLaterArr() {//获取稍后再看列表
+        this.temp("lookAtItLaterArr");
+    },
+    setLookAtItLaterArr(arr) {//设置稍后再看列表
+        Util.setData("lookAtItLaterArr", arr)
+    },
     getHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
         return Util.getData("isCommentArea") === true;
     },
