@@ -494,25 +494,17 @@ const Util = {
         if ($("#fixedPanelValueCheckbox").is(':checked')) {
             return;
         }
-        $("#addToWatchedBut").attr("value", JSON.stringify({
-            upName: name,
-            uid: uid,
-            title: title,
-            bv: bv,
-            av: av
-        }));
-        $("#nameSuspensionDiv").text(name);
-        let uidA = $("#uidSuspensionDiv");
-        uidA.text(uid);
-        uidA.attr("href", `https://space.bilibili.com/${uid}`);
+        suspensionDivVue.upName = name;
+        suspensionDivVue.uid = uid;
+        suspensionDivVue.videoData.title = title;
+        suspensionDivVue.videoData.bv = bv;
+        suspensionDivVue.videoData.av = av;
         if (title !== undefined) {
-            $("#suspensionDiv details").show();
-            $("#suspensionDiv .title").text(title);
+            $("#vueSuspensinVideoInfo").show();
             if (bv === undefined) {
                 return;
             }
-            $("#suspensionDiv .bv").text(bv);
-            $("#suspensionDiv .av").text(Util.BilibiliEncoder.dec(bv));
+            suspensionDivVue.videoData.av = Util.BilibiliEncoder.dec(bv);
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
