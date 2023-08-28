@@ -2287,6 +2287,9 @@ const watchedListVue = new Vue({
 const suspensionDivVue = new Vue({
     el: "#suspensionDiv",
     data: {
+        xy: {
+            x: 0, y: 0
+        },
         upName: "",
         uid: "",
         videoData: {

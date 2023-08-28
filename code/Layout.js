@@ -355,8 +355,7 @@ border: 0.5px solid green;
     },
     getSuspensionDiv() {
         return `<!-- 悬浮屏蔽布局 -->
-      <div id="suspensionDiv">坐标:
-        <span id="suspensionXY">xy</span>
+      <div id="suspensionDiv">坐标:x{{xy.x}}|y:{{xy.y}}
         <div>
           <span>按钮跟随鼠标</span>
           <input id="quickLevitationShield" type="checkbox">

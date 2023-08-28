@@ -448,7 +448,8 @@ const Util = {
         const x = e.clientX;
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
-        $("#suspensionXY").text(`X:${x} Y:${y}`);
+        suspensionDivVue.xy.x = x;
+        suspensionDivVue.xy.y = y;
         if (!($("#quickLevitationShield").is(':checked'))) {
             return;
         }
