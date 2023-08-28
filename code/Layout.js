@@ -32,8 +32,7 @@ ul {
     display: none;
     z-index: 2024;
     background: rgb(149, 156, 135);
-    overflow-y: auto;
-    height: 30%;
+    height: atuo;
     width: 10%;
     top: 70%;
     left: 90%;
@@ -366,17 +365,15 @@ border: 0.5px solid green;
        <span>固定面板值</span>
        <input id="fixedPanelValueCheckbox" type="checkbox">
        </div>
-        <p>用户名：<span id="nameSuspensionDiv"></span></p>
-        <div>
-        <details style="display: none">
+        <p>用户名：{{upName}}</p>
+        <details id="vueSuspensinVideoInfo" style="display: none">
         <summary>视频信息</summary>
-        <p>标题:<span class="title"></span></p>
-        <p>视频BV号:<span class="bv"></span></p>
-        <p>视频AV号:<span class="av"></span></p>
-        <button id="addToWatchedBut">添加进已观看</button>
+        <p>标题:{{videoData.title}}</span></p>
+        <p>视频BV号:{{videoData.bv}}</span></p>
+        <p>视频AV号:{{videoData.av}}</p>
+        <button @click="addToWatchedBut">添加进已观看</button>
 </details>
-        </div>
-        <p>用户UID：<a id="uidSuspensionDiv" href="#" target="_blank">用户地址</a></p>
+        <p>用户UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
         <button id="butShieldName">add屏蔽用户名</button>
         <button id="butShieldUid">add屏蔽用户名UID</button>
         <button id="findUserInfo">查询基本信息</button>
