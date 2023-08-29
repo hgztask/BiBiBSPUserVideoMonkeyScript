@@ -1357,7 +1357,7 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
         q.prop("checked", !q.is(':checked'));
     }
     if (keycode === 51) {//隐藏快捷悬浮屏蔽按钮 键盘上的3
-        $("#suspensionDiv").css("display", "none");
+        $("#suspensionDiv").hide();
     }
 });
 
