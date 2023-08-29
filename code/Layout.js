@@ -466,6 +466,7 @@ border: 0.5px solid green;
 </div><!-- 已观看列表布局 -->
   <div class="tab" id="lookAtItLaterListLayout">
   <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
+  <button @click="renovateLayoutItemList">刷新列表</button>
   <ul v-for="item in lookAtItLaterList">
   <li>
   {{item.title}}

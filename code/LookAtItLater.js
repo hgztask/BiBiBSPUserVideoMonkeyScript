@@ -1,9 +1,18 @@
 const LookAtItLater = {
     lookAtItLaterListVue() {
         return new Vue({
-            el: "lookAtItLaterListLayout",
+            el: "#lookAtItLaterListLayout",
             data: {
                 lookAtItLaterList: LocalData.getLookAtItLaterArr()
+            },
+            methods: {
+                renovateLayoutItemList() {//刷新列表
+                    this.lookAtItLaterList.length = 0;
+                    for (const value of LocalData.getLookAtItLaterArr()) {
+                        this.lookAtItLaterList.push(value);
+                    }
+                    Qmsg.success("已刷新了列表！");
+                }
             }
         })
     },
