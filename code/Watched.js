@@ -1,35 +1,12 @@
 const Watched = {
     WatchedListVue() {
         return new Vue({
-            el: "#suspensionDiv",
+            el: "#watchedListLayout",
             data: {
-                xy: {
-                    x: 0, y: 0
-                },
-                upName: "",
-                uid: "",
-                videoData: {
-                    title: "",
-                    bv: "",
-                    av: ""
-                },
+                watchedList: LocalData.getWatchedArr()
             },
-            methods: {
-                getVideoData() {
-                    return {
-                        upName: suspensionDivVue.upName,
-                        uid: suspensionDivVue.uid,
-                        title: suspensionDivVue.videoData.title,
-                        bv: suspensionDivVue.videoData.bv
-                    };
-                },
-                addToWatchedBut() {
-                    Watched.addWatched(this.getVideoData());
-                }, addLookAtItLater() {
-                    LookAtItLater.addLookAtItLater(this.getVideoData());
-                }
-            }
-        });
+            methods: {}
+        })
     },
     dataVue: {
         watchedList: LocalData.getWatchedArr(),//已观看视频个数,

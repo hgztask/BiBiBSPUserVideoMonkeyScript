@@ -2276,15 +2276,40 @@ $("#openWebBiliBliUrlAddress>button").click((e) => {
     Util.openWindow(url);
 });
 
-const watchedListVue = new Vue({
-    el: "#watchedListLayout",
+
+const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
+    el: "#suspensionDiv",
     data: {
-        watchedList: LocalData.getWatchedArr()
+        xy: {
+            x: 0, y: 0
+        },
+        upName: "",
+        uid: "",
+        videoData: {
+            title: "",
+            bv: "",
+            av: ""
+        },
+    },
+    methods: {
+        getVideoData() {
+            return {
+                upName: suspensionDivVue.upName,
+                uid: suspensionDivVue.uid,
+                title: suspensionDivVue.videoData.title,
+                bv: suspensionDivVue.videoData.bv
+            };
+        },
+        addToWatchedBut() {
+            Watched.addWatched(this.getVideoData());
+        }, addLookAtItLater() {
+            LookAtItLater.addLookAtItLater(this.getVideoData());
+        }
     }
 });
 
+Watched.WatchedListVue();
 
-const suspensionDivVue = Watched.WatchedListVue();
 LookAtItLater.lookAtItLaterListVue();
 
 
