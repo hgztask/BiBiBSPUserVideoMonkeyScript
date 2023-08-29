@@ -1,4 +1,36 @@
 const Watched = {
+    WatchedListVue() {
+        return new Vue({
+            el: "#suspensionDiv",
+            data: {
+                xy: {
+                    x: 0, y: 0
+                },
+                upName: "",
+                uid: "",
+                videoData: {
+                    title: "",
+                    bv: "",
+                    av: ""
+                },
+            },
+            methods: {
+                getVideoData() {
+                    return {
+                        upName: suspensionDivVue.upName,
+                        uid: suspensionDivVue.uid,
+                        title: suspensionDivVue.videoData.title,
+                        bv: suspensionDivVue.videoData.bv
+                    };
+                },
+                addToWatchedBut() {
+                    Watched.addWatched(this.getVideoData());
+                }, addLookAtItLater() {
+                    LookAtItLater.addLookAtItLater(this.getVideoData());
+                }
+            }
+        });
+    },
     dataVue: {
         watchedList: LocalData.getWatchedArr(),//已观看视频个数,
 

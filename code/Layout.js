@@ -371,6 +371,7 @@ border: 0.5px solid green;
         <p>视频BV号:{{videoData.bv}}</span></p>
         <p>视频AV号:{{videoData.av}}</p>
         <button @click="addToWatchedBut">添加进已观看</button>
+        <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>
         <p>用户UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
         <button id="butShieldName">add屏蔽用户名</button>

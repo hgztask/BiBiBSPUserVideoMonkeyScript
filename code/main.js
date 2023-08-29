@@ -2284,32 +2284,7 @@ const watchedListVue = new Vue({
 });
 
 
-const suspensionDivVue = new Vue({
-    el: "#suspensionDiv",
-    data: {
-        xy: {
-            x: 0, y: 0
-        },
-        upName: "",
-        uid: "",
-        videoData: {
-            title: "",
-            bv: "",
-            av: ""
-        },
-    },
-    methods: {
-        addToWatchedBut() {
-            Watched.addWatched({
-                upName: suspensionDivVue.upName,
-                uid: suspensionDivVue.uid,
-                title: suspensionDivVue.videoData.title,
-                bv: suspensionDivVue.videoData.bv
-            });
-        }
-    }
-});
-
+const suspensionDivVue = Watched.WatchedListVue();
 LookAtItLater.lookAtItLaterListVue();
 
 
