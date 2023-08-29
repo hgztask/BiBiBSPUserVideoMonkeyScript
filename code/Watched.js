@@ -16,9 +16,8 @@ const Watched = {
             }
         }
         arr.push(data);
-        const tip = `已添加视频【${data["title"]}】至已观看列表！`;
         LocalData.setWatchedArr(arr);
-        Qmsg.success(tip)
-        alert(tip);
+        Qmsg.success("添加成功")
+        alert(`已添加视频【${data["title"]}】至已观看列表！`);
     }
 }

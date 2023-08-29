@@ -592,7 +592,8 @@ async function bilibiliOne(href, windowsTitle) {
             }
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
         });
-        addLefToWatchedBut.click(() => {
+
+        function localGetVideoInfo() {
             const upInfo = document.querySelector(".up-name");
             let data;
             try {
@@ -604,13 +605,13 @@ async function bilibiliOne(href, windowsTitle) {
                 };
             } catch (e) {
                 console.error("获取视频信息出现错误！", e);
-                return;
+                return null;
             }
-            Watched.addWatched(data);
-        });
-        addLefToLookAtItLaterListBut.click(() => {
-            //定义添加到稍后再看点击事件，后续更新完善此功能
-        });
+            return data;
+        }
+
+        addLefToWatchedBut.click(() => Watched.addWatched(localGetVideoInfo()));
+        addLefToLookAtItLaterListBut.click(() => LookAtItLater.addLookAtItLater(localGetVideoInfo()));
         hideTopVideoTitleInfoBut.click(() => {
             clearInterval(interval02);
             const jqE = $("#viewbox_report");
