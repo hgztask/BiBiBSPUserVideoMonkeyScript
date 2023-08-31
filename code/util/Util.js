@@ -679,5 +679,10 @@ const Util = {
     },
     bufferBottom() {//缓冲置底
         $('html, body').animate({scrollTop: $(document).height()}, 'slow');
+    },
+    Str: {
+        lastForwardSlashEnd(str) {//返回字符串尾部中正斜杠/后面的内容
+            return str.substring(str.lastIndexOf("/") + 1);
+        }
     }
 }
