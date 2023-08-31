@@ -1,6 +1,6 @@
 const LookAtItLater = {
-    lookAtItLaterListVue() {
-        return new Vue({
+    returnVue() {
+        const listVue = new Vue({
             el: "#lookAtItLaterListLayout",
             data: {
                 searchKey: "",
@@ -42,6 +42,18 @@ const LookAtItLater = {
                 }
             }
         })
+        return function () {
+            return listVue;
+        };
+    },
+    isVarTitleLookAtItLaterList(typeV, data) {//判断对象是否有相同的指定属性的值
+        for (const v of LocalData.getLookAtItLaterArr()) {
+            if (!(v[typeV] === data[typeV])) {
+                continue;
+            }
+            return true;
+        }
+        return false;
     },
     addLookAtItLater(data) {//添加视频到稍后再看列表流程
         if (!confirm(`是要将【${data["title"]}】添加进稍后再看列表吗？`)) {

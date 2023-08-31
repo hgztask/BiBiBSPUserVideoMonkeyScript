@@ -2309,8 +2309,7 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
 });
 
 Watched.WatchedListVue();
-
-LookAtItLater.lookAtItLaterListVue();
+const returnVue = LookAtItLater.returnVue();
 
 
 //每秒监听网页标题URL
