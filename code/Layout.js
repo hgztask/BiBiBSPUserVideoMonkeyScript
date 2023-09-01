@@ -365,6 +365,7 @@ border: 0.5px solid green;
        <input id="fixedPanelValueCheckbox" type="checkbox">
        </div>
         <p>用户名：{{upName}}</p>
+        <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
         <details id="vueSuspensinVideoInfo" style="display: none">
         <summary>视频信息</summary>
         <p>标题:{{videoData.title}}</span></p>
@@ -373,10 +374,9 @@ border: 0.5px solid green;
         <button @click="addToWatchedBut">添加进已观看</button>
         <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>
-        <p>用户UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
-        <button id="butShieldName">add屏蔽用户名</button>
-        <button id="butShieldUid">add屏蔽用户名UID</button>
-        <button id="findUserInfo">查询基本信息</button>
+        <button @click="addShieldName">add屏蔽用户名</button>
+        <button @click="addShieldUid">add屏蔽用户名UID</button>
+        <button @click="findUserInfo">查询基本信息</button>
         <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
       </div>

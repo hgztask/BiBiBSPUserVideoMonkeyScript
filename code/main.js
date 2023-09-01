@@ -1,6 +1,4 @@
 //主入口
-
-
 const Rule = {
     ruleLength() {
         const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
@@ -1199,7 +1197,6 @@ function loadChannel() {//加载下拉框中的频道信息
 }
 
 
-'use strict';
 let href = Util.getWindowUrl();
 console.log("当前网页url=" + href);
 
@@ -1442,68 +1439,6 @@ $("#flipVertical").click(function () {//垂直翻转视频
     if (Util.setVideoRotationAngle("X", 180)) {
         videoData.flipVertical = true;
     }
-});
-
-$("#butShieldName").click(() => {//悬浮小窗体-添加屏蔽用户名
-    const name = $("#nameSuspensionDiv").text();
-    butLayEvent.butaddName("userNameArr", name);
-});
-$("#butShieldUid").click(() => {//悬浮小窗体-添加屏蔽uid
-    const uid = $("#uidSuspensionDiv").text();
-    const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(uid));
-    if (!tempLoop) {
-        return;
-    }
-    const title = document.title;
-    const url = Util.getWindowUrl();
-    if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
-        Home.startShieldMainVideo(".bili-video-card.is-rcmd");
-        return;
-    }
-    if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
-        Search.video.searchRules();
-        return;
-    }
-    if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
-        Live.shield($("#chat-items").children());
-        return;
-    }
-});
-$("#findUserInfo").click(() => {
-    const uid = $("#uidSuspensionDiv").text();
-    if (uid === "") {
-        Qmsg.error("未检测到UID！")
-        return;
-    }
-    const loading = Qmsg.loading("正在获取中！");
-    HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${uid}&photo=false`, (res) => {
-        const body = JSON.parse(res.responseText);
-        if (body["code"] !== 0) {
-            Qmsg.error("请求失败！");
-            loading.close();
-            return;
-        }
-        loading.close();
-        const cradInfo = body["data"]["card"];
-        const uid = cradInfo["mid"];//uid
-        const sex = cradInfo["sex"];//性别
-        const userName = cradInfo["name"];
-        const fans = cradInfo["fans"];//粉丝数
-        const sign = cradInfo["sign"];//个性签名信息
-        const face = cradInfo["face"];//头像
-        const current_level = cradInfo["level_info"]["current_level"];//当前用户b站等级
-        const friend = cradInfo["friend"];//关注量
-        const follower = body["data"]["follower"];//粉丝量
-        const like_num = body["data"]["like_num"];//点赞量
-        const userCardHtml = HtmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
-        if ($("#popDiv").length === 0) {
-            $("body").append(userCardHtml);
-        } else {
-            $("#popDiv").remove();
-            $("body").append(userCardHtml);
-        }
-        $("#popDiv").css("display", "inline");
-    });
 });
 
 $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
@@ -2302,8 +2237,64 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
         },
         addToWatchedBut() {
             Watched.addWatched(this.getVideoData());
-        }, addLookAtItLater() {
+        },
+        addLookAtItLater() {
             LookAtItLater.addLookAtItLater(this.getVideoData());
+        },
+        addShieldName() {
+            butLayEvent.butaddName("userNameArr", this.upName);
+        },
+        addShieldUid() {
+            const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(this.uid));
+            if (!tempLoop) {
+                return;
+            }
+            const title = document.title;
+            const url = Util.getWindowUrl();
+            if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
+                Home.startShieldMainVideo(".bili-video-card.is-rcmd");
+                return;
+            }
+            if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
+                Search.video.searchRules();
+                return;
+            }
+            if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
+                Live.shield($("#chat-items").children());
+
+            }
+        },
+        findUserInfo() {
+            const loading = Qmsg.loading("正在获取中！");
+            HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`, (res) => {
+                const body = JSON.parse(res.responseText);
+                if (body["code"] !== 0) {
+                    Qmsg.error("请求失败！");
+                    loading.close();
+                    return;
+                }
+                loading.close();
+                const cradInfo = body["data"]["card"];
+                const uid = cradInfo["mid"];//uid
+                const sex = cradInfo["sex"];//性别
+                const userName = cradInfo["name"];
+                const fans = cradInfo["fans"];//粉丝数
+                const sign = cradInfo["sign"];//个性签名信息
+                const face = cradInfo["face"];//头像
+                const current_level = cradInfo["level_info"]["current_level"];//当前用户b站等级
+                const friend = cradInfo["friend"];//关注量
+                const follower = body["data"]["follower"];//粉丝量
+                const like_num = body["data"]["like_num"];//点赞量
+                const userCardHtml = HtmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
+                const tempJq = $("#popDiv");
+                if (tempJq.length === 0) {
+                    $("body").append(userCardHtml);
+                } else {
+                    $("#popDiv").remove();
+                    $("body").append(userCardHtml);
+                }
+                tempJq.css("display", "inline");
+            });
         }
     }
 });

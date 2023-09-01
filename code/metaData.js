@@ -42,3 +42,5 @@
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
+
+'use strict';
