@@ -58,7 +58,7 @@ const Watchlater = {
                 const lookAtItLaterArr = LocalData.getLookAtItLaterArr();
                 let tempIndex = 0;
                 for (let v of dataList) {
-                    if (LookAtItLater.isVarTitleLookAtItLaterList("title", v)) {
+                    if (LookAtItLater.isVarTitleLookAtItLaterList("title", lookAtItLaterArr, v)) {
                         continue;
                     }
                     if (v.videoAddress === null) {

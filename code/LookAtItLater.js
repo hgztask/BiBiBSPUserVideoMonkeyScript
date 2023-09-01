@@ -8,7 +8,7 @@ const LookAtItLater = {
             },
             methods: {
                 renovateLayoutItemList() {//刷新列表
-                    this.lookAtItLaterList.length = 0;
+                    this.lookAtItLaterList = [];
                     for (const value of LocalData.getLookAtItLaterArr()) {
                         this.lookAtItLaterList.push(value);
                     }
@@ -19,6 +19,59 @@ const LookAtItLater = {
                 },
                 splicingVideoAddress(s) {//拼接视频地址
                     return "https://www.bilibili.com/video/" + s;
+                },
+                outLookAtItLaterArr() {//导出稍后再看列表数据
+                    Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
+                },
+                inputLookAtItLaterArr() {//导入稍后再看列表数据
+                    let s = prompt("请输入导出时的格式json（本轮操作为追加数据操作）");
+                    if (s === null) {
+                        return;
+                    }
+                    s = s.trim();
+                    if (!s || !(s.startsWith("[")) || s.endsWith("]")) {
+                        alert("请填写正确的json格式！");
+                        return;
+                    }
+                    const parse = JSON.parse(s);
+                    if (parse.length === 0) {
+                        alert("数组未有内容！");
+                        return;
+                    }
+                    const tempList = LocalData.getLookAtItLaterArr();
+                    try {
+                        for (let v of parse) {
+                            if (LookAtItLater.isVarTitleLookAtItLaterList("bv", tempList, v)) {
+                                continue;
+                            }
+                            tempList.push({
+                                title: v.title,
+                                upName: v.upName,
+                                uid: v.uid,
+                                bv: v.bv
+                            })
+                        }
+                    } catch (e) {
+                        console.log(tempList);
+                        console.log(e);
+                        alert("数组异常!,异常信息已打印在控制台上！");
+                        return;
+                    }
+                    if (!confirm("是否要保存本轮操作结果？")) {
+                        return;
+                    }
+                    LocalData.setLookAtItLaterArr(tempList);
+                    Qmsg.success("追加数据成功！");
+                    console.table(tempList);
+                },
+                clearLookAtItLaterArr() {
+                    if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) {
+                        Qmsg.info("操作结束了.");
+                        return;
+                    }
+                    LocalData.setLookAtItLaterArr([]);
+                    this.lookAtItLaterList = [];
+                    Qmsg.success("已清空本地脚本存储的稍后再看列表数据了");
                 }
             },
             watch: {
@@ -26,7 +79,7 @@ const LookAtItLater = {
                     if (newValue === oldValue || newValue.trim() === "") {
                         return;
                     }
-                    this.lookAtItLaterList.length = 0;
+                    this.lookAtItLaterList = [];
                     for (const value of LocalData.getLookAtItLaterArr()) {
                         if (!value.title.includes(newValue)) {
                             continue;
@@ -46,8 +99,8 @@ const LookAtItLater = {
             return listVue;
         };
     },
-    isVarTitleLookAtItLaterList(typeV, data) {//判断对象是否有相同的指定属性的值
-        for (const v of LocalData.getLookAtItLaterArr()) {
+    isVarTitleLookAtItLaterList(typeV, list, data) {//判断对象是否有相同的指定属性的值
+        for (const v of list) {
             if (!(v[typeV] === data[typeV])) {
                 continue;
             }

@@ -468,6 +468,9 @@ border: 0.5px solid green;
   <div class="tab" id="lookAtItLaterListLayout">
   <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
   <button @click="renovateLayoutItemList">刷新列表</button>
+  <button @click="outLookAtItLaterArr">导出稍后再看列表</button>
+  <button @click="inputLookAtItLaterArr">追加导入稍后再看列表</button>
+  <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <div>
   搜索<input type="text" v-model="searchKey">
 </div>
