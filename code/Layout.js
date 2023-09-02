@@ -474,8 +474,8 @@ border: 0.5px solid green;
   <div>
   搜索<input type="text" v-model="searchKey">
 </div>
-  <ul v-for="item in lookAtItLaterList">
-  <li style="border: 1px solid green">
+  <ul>
+  <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
   <div>Title：<a v-bind:href=splicingVideoAddress(item.bv) target="_blank">{{item.title}}</a></div>
   <div>UP：<a v-bind:href=splicingUserAddress(item.uid) target="_blank">{{item.upName}}</a>
   </div>
