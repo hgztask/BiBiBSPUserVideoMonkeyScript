@@ -14,7 +14,7 @@ function perf_observer() {
             frequencyChannel.listRules();
             continue;
         }
-        if (url.includes("api.bilibili.com/x/v2/reply/main?csrf=") || url.includes("api.bilibili.com/x/v2/reply/reply?csrf=")) {
+        if (url.includes("api.bilibili.com/x/v2/reply/wbi/main?") || url.includes("api.bilibili.com/x/v2/reply/reply?")) {
             /**
              * 视频播放页和www.bilibili.com/opus动态页下的评论
              * 需要注意的是，www.bilibili.com/opus这地址，可以从动态页中的，直接点击动态内容跳转的地址
