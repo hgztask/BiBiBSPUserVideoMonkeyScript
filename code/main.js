@@ -208,6 +208,7 @@ const Home = {
                 $(".floor-single-card").remove();
                 $(".bili-live-card").remove();
                 clearInterval(interval);
+
                 for (let v of list) {
                     let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
                     try {
@@ -215,7 +216,7 @@ const Home = {
                         const titleInfo = videoInfo.querySelector(".bili-video-card__info--tit");
                         //视频标题
                         title = titleInfo.getAttribute("title");
-                        videoAddress = titleInfo.getAttribute("href");
+                        videoAddress = titleInfo.querySelector("a").href;
                         //用户名
                         upName = videoInfo.querySelector(".bili-video-card__info--author").getAttribute("title");
                         //用户空间地址
