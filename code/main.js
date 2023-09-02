@@ -1336,7 +1336,6 @@ $("#tabUl>li>button[value='liveLayout']").click(() => {
     Live.followListLive(sessdata);
 });
 
-Util.suspensionBall(document.getElementById("suspensionDiv"));
 Rule.ruleLength();
 Rule.showInfo();
 $("#mybut").click(() => Home.hideDisplayHomeLaylout());
@@ -2216,6 +2215,7 @@ $("#openWebBiliBliUrlAddress>button").click((e) => {
 const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
     el: "#suspensionDiv",
     data: {
+        moveLayoutValue: 5,
         xy: {
             x: 0, y: 0
         },
@@ -2296,6 +2296,23 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
                 }
                 tempJq.css("display", "inline");
             });
+        },
+        move(value, index = this.moveLayoutValue) {
+            const jqE = $("#suspensionDiv");
+            let moveIndex = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
+            jqE.css(value, `${moveIndex -= index}px`);
+        },
+        moveTop() {
+            this.move("top");
+        },
+        moveLrft() {
+            this.move("left");
+        },
+        moveRight() {
+            this.move("right");
+        },
+        moveButton() {
+            this.move("button");
         }
     }
 });

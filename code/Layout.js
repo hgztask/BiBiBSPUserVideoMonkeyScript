@@ -34,14 +34,14 @@ ul {
     background: rgb(149, 156, 135);
     height: atuo;
     width: 10%;
-    top: 70%;
+    top: 49%;
     left: 90%;
     border: 3px solid green;
 }
 #suspensionDiv p {
     margin-top: 10px;
 }
-#suspensionDiv button {
+#suspensionDiv .center button {
     margin-top: 10px;
     padding: 5px 10px;
     border: none;
@@ -49,7 +49,7 @@ ul {
     color: #fff;
     cursor: pointer;
 }
-#suspensionDiv button:hover {
+#suspensionDiv .center button:hover {
     background-color: #3E8E41;
 }
 /* 悬浮屏蔽布局 */
@@ -355,7 +355,15 @@ border: 0.5px solid green;
     },
     getSuspensionDiv() {
         return `<!-- 悬浮屏蔽布局 -->
-      <div id="suspensionDiv">坐标:x{{xy.x}}|y:{{xy.y}}
+      <div id="suspensionDiv">
+       <div style="display: flex;justify-content: center;">
+        <button value="上" @click="moveTop" >↑</button>
+    </div>
+        <div style="display: flex;justify-content: space-between;">
+        <button value="左" @click="moveLrft">←</button>
+       <div class="center">
+       <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="100" v-model="moveLayoutValue"></div>
+      坐标:x{{xy.x}}|y:{{xy.y}}
         <div>
           <span>按钮跟随鼠标</span>
           <input id="quickLevitationShield" type="checkbox">
@@ -379,6 +387,14 @@ border: 0.5px solid green;
         <button @click="findUserInfo">查询基本信息</button>
         <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
+       </div>
+        <button value="右" @click="moveRight">→</button>
+    </div>
+    <div style="display: flex;justify-content: center;">
+        <button value="下" @click="moveButton">↓</button>
+    </div>
+    
+    
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
     },
