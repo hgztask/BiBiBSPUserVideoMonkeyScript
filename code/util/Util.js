@@ -683,6 +683,12 @@ const Util = {
     Str: {
         lastForwardSlashEnd(str) {//返回字符串尾部中正斜杠/后面的内容
             return str.substring(str.lastIndexOf("/") + 1);
+        },
+        lastIndexSub(str, lastIndex) {//返回排除尾部lastIndex个字符，并把前面字符串返回
+            if (str === "") {
+                throw new Error("str错误！");
+            }
+            return str.substring(0, str.length - lastIndex);
         }
     }
 }
