@@ -1,4 +1,3 @@
-// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\lib\vue@2.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\metaData.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\Class.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\util\Util.js
