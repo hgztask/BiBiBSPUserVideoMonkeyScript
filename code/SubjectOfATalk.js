@@ -9,7 +9,10 @@ const SubjectOfATalk = {//话题
             const uid = parseInt(v.getElementsByClassName("bili-dyn-item__following")[0].getAttribute("data-mid"));
             if (info.getElementsByClassName("bili-dyn-content__orig__desc").length === 1) {
                 const content = info.textContent;
-                if (startPrintShieldNameOrUIDOrContent(v, name, uid, content)) {
+                if (startPrintShieldNameOrUIDOrContent(v, new ContentCLass()
+                    .setUpName(name)
+                    .setUid(uid)
+                    .setContent(content))) {
                     Qmsg.info("屏蔽了言论！！");
                 }
                 continue;

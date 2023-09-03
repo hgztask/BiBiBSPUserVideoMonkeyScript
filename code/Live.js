@@ -10,7 +10,10 @@ const Live = {
                 fansMeda = v.querySelector(".fans-medal-content").text;
             } catch (e) {
             }
-            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+            if (startPrintShieldNameOrUIDOrContent(v, new ContentCLass()
+                .setUpName(userName)
+                .setUid(uid)
+                .setContent(content))) {
                 Qmsg.info("屏蔽了言论！！");
                 continue;
             }

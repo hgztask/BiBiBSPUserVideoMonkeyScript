@@ -1,7 +1,7 @@
 /**
  * 用户基本信息
  */
-class userClass {
+class UserClass {
     upName;
     uid;
     upAddress;
@@ -25,7 +25,7 @@ class userClass {
 /**
  * 视频基本信息
  */
-class VideoClass extends userClass {
+class VideoClass extends UserClass {
     title;
     bv;
     av;
@@ -65,6 +65,20 @@ class VideoClass extends userClass {
     }
 
 }
+
+
+/**
+ * 用户评论内容
+ */
+class ContentCLass extends UserClass {
+    content;
+
+    setContent(content) {
+        this.content = content;
+        return this;
+    }
+}
+
 
 
 

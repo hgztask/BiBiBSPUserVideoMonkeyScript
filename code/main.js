@@ -540,7 +540,10 @@ function delDReplay() {
             const rootName = rootUserinfo.textContent;
             const rootUid = rootUserinfo.getAttribute("data-usercard-mid");
             const rootContent = v.querySelector(".text").textContent;
-            if (startPrintShieldNameOrUIDOrContent(v, rootName, parseInt(rootUid), rootContent)) {
+            if (startPrintShieldNameOrUIDOrContent(v, new ContentCLass()
+                .setUpName(rootName)
+                .setUid(parseInt(rootUid))
+                .setContent(rootContent))) {
                 Qmsg.info("屏蔽了言论！！");
                 continue;
             }
@@ -563,7 +566,10 @@ function delDReplay() {
                 const subName = subUserInfo.textContent;
                 const subUid = subUserInfo.getAttribute("data-usercard-mid");
                 const subContent = j.querySelector(".text-con").textContent;
-                if (startPrintShieldNameOrUIDOrContent(j, subName, parseInt(subUid), subContent)) {
+                if (startPrintShieldNameOrUIDOrContent(j, new ContentCLass()
+                    .setUpName(subName)
+                    .setUid(parseInt(subUid))
+                    .setContent(subContent))) {
                     Qmsg.info("屏蔽了言论！！");
                     continue;
                 }
@@ -1029,33 +1035,31 @@ const butLayEvent = {
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
  * @param element 网页元素
- * @param name 用户名
- * @param uid 用户uid
- * @param content 言论内容
+ * @param {ContentCLass}  contentCLass
  * @returns {boolean}
  */
-function startPrintShieldNameOrUIDOrContent(element, name, uid, content) {
-    if (Remove.isWhiteUserUID(uid)) {
+function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
+    if (Remove.isWhiteUserUID(contentCLass.uid)) {
         return false;
     }
-    const key = Remove.contentKey(element, content);
+    const key = Remove.contentKey(element, contentCLass.content);
     if (key != null) {
-        Print.commentOn("#00BFFF", `已通过言论关键词了【${key}】`, name, uid, content);
+        Print.commentOn("#00BFFF", `已通过言论关键词了【${key}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
-    const isUid = Remove.uid(element, uid);
+    const isUid = Remove.uid(element, contentCLass.uid);
     if (isUid) {
-        Print.commentOn("#yellow", `已通过UID屏蔽`, name, uid, content);
+        Print.commentOn("#yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
-    const isName = Remove.name(element, name);
+    const isName = Remove.name(element, contentCLass.upName);
     if (isName) {
-        Print.commentOn(null, `已通过指定用户名【${isName}】`, name, uid, content);
+        Print.commentOn(null, `已通过指定用户名【${isName}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
-    const isNameKey = Remove.nameKey(element, name);
+    const isNameKey = Remove.nameKey(element, contentCLass.upName);
     if (isNameKey != null) {
-        Print.commentOn(null, `已通过指定用户名模糊规则【${isNameKey}】`, name, uid, content);
+        Print.commentOn(null, `已通过指定用户名模糊规则【${isNameKey}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     return false;
@@ -1161,7 +1165,10 @@ const message = {//消息中心
             const indess = info.getElementsByTagName("a")[0].getAttribute("href");
             const uid = parseInt(indess.substring(indess.lastIndexOf("/") + 1));
             const content = v.getElementsByClassName("text string")[0].textContent;//消息内容
-            if (startPrintShieldNameOrUIDOrContent(v, name, uid, content)) {
+            if (startPrintShieldNameOrUIDOrContent(v, new ContentCLass()
+                .setUpName(name)
+                .setUid(uid)
+                .setContent(content))) {
                 Qmsg.info("屏蔽了言论！！");
             }
         }
@@ -1176,7 +1183,10 @@ const message = {//消息中心
             const userName = userInfo.textContent;
             const uid = parseInt(href.substring(href.lastIndexOf("/") + 1));
             const content = v.getElementsByClassName("content-list")[0].textContent;
-            if (startPrintShieldNameOrUIDOrContent(v, userName, uid, content)) {
+            if (startPrintShieldNameOrUIDOrContent(v, new ContentCLass()
+                .setUpName(userName)
+                .setUid(uid)
+                .setContent(content))) {
                 Qmsg.info("屏蔽了言论！！");
             }
         }

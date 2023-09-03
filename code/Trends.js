@@ -149,19 +149,14 @@ const Trends = {
         }
     },
     getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
-        return {
-            upName: v.querySelector(".user-name").textContent,
-            uid: v.querySelector(".user-name").getAttribute("data-user-id"),
-            content: v.querySelector(".reply-content").parentNode.textContent,
-            info: v.querySelector(".user-info")
-        }
+        return new ContentCLass().setUpName(v.querySelector(".user-name").textContent).setUid(v.querySelector(".user-name").getAttribute("data-user-id"))
+            .setContent(v.querySelector(".reply-content").parentNode.textContent);
     },
     getVideoCommentAreaOrTrendsStorey(j) {//获取动态页面-评论区信息-单个元素信息-楼层
-        return {
-            upName: j.querySelector(".sub-user-name").textContent,
-            uid: j.querySelector(".sub-user-name").getAttribute("data-user-id"),
-            content: j.querySelector(".reply-content").textContent
-        }
+        return new ContentCLass()
+            .setUpName(j.querySelector(".sub-user-name").textContent)
+            .setUid(j.querySelector(".sub-user-name").getAttribute("data-user-id"))
+            .setContent(j.querySelector(".reply-content").textContent)
     },
     shrieDynamicItems(list) {//屏蔽动态页动态项目
         for (let v of list) {
