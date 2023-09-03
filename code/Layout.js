@@ -490,13 +490,13 @@ border: 0.5px solid green;
   <div>
   搜索<input type="text" v-model="searchKey">
 </div>
-  <ul>
+  <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
   <div>Title：<a v-bind:href=splicingVideoAddress(item.bv) target="_blank">{{item.title}}</a></div>
   <div>UP：<a v-bind:href=splicingUserAddress(item.uid) target="_blank">{{item.upName}}</a>
   </div>
 </li>
-</ul>
+</ol>
   <!-- 稍后再看列表布局 --></div>
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
   <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
