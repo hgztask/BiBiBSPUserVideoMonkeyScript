@@ -33,6 +33,8 @@ class VideoClass extends UserClass {
     videoAddress;
     videoTime;
     playbackVolume;
+    barrageQuantity;
+    e;
 
     setTitle(title) {
         this.title = title;
@@ -62,6 +64,16 @@ class VideoClass extends UserClass {
     //设置播放量
     setPlaybackVolume(playbackVolume) {
         this.playbackVolume = playbackVolume;
+        return this;
+    }
+
+    setE(element) {//元素
+        this.e = element;
+        return this;
+    }
+
+    setBarrageQuantity(value) {//弹幕量
+        this.barrageQuantity = value;
         return this;
     }
 
