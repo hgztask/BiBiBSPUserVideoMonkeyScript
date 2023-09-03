@@ -489,7 +489,8 @@ border: 0.5px solid green;
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <button @click="listInversion">列表反转</button>
   <div>
-  搜索<input type="text" v-model="searchKey">
+  搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList"  @change="getTypeListShowValue($event)">{{item}}</option></select>
+  
 </div>
   <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">

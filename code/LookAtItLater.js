@@ -4,7 +4,9 @@ const LookAtItLater = {
             el: "#lookAtItLaterListLayout",
             data: {
                 searchKey: "",
-                lookAtItLaterList: LocalData.getLookAtItLaterArr()
+                lookAtItLaterList: LocalData.getLookAtItLaterArr(),
+                typeList: ["upName", "uid", "title", "bv"],
+                typeListShowValue: "title"
             },
             methods: {
                 renovateLayoutItemList() {//刷新列表
@@ -75,6 +77,9 @@ const LookAtItLater = {
                 },
                 listInversion() {
                     this.lookAtItLaterList.reverse();
+                },
+                getTypeListShowValue(event) {
+                    this.typeListShowValue = event.target.value;
                 }
 
             },
@@ -83,18 +88,21 @@ const LookAtItLater = {
                     if (newValue === oldValue || newValue.trim() === "") {
                         return;
                     }
-                    this.lookAtItLaterList = [];
+                    const tempList = [];
+                    const type = this.typeListShowValue;
                     for (const value of LocalData.getLookAtItLaterArr()) {
-                        if (!value.title.includes(newValue)) {
+                        if (!value[type].toString().includes(newValue)) {
                             continue;
                         }
-                        this.lookAtItLaterList.push(value);
+                        tempList.push(value);
                     }
-                    const length = this.lookAtItLaterList.length;
+                    const length = tempList.length;
                     if (length === 0) {
                         Qmsg.error("未搜索到指定内容的元素");
                         return;
                     }
+                    this.lookAtItLaterList = [];
+                    tempList.forEach(value => this.lookAtItLaterList.push(value));
                     Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
                 }
             }
