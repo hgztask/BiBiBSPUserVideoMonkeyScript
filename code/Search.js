@@ -18,8 +18,15 @@ const Search = {
             let userInfo = info.querySelector(".bili-video-card__info--owner");
             //用户空间地址
             let upSpatialAddress = userInfo.getAttribute("href");
-            const topInfo = v.querySelector(".bili-video-card__stats--left").querySelectorAll(".bili-video-card__stats--item");//1播放量2弹幕数
-            const videOHref = info.querySelector("a[href*='www.bilibili.com/video/']").href;
+            let videOHref;
+            const topInfo = v.querySelectorAll(".bili-video-card__stats--left>.bili-video-card__stats--item");//1播放量2弹幕数
+            const tempE = info.querySelector("a[href*='www.bilibili.com/video/']");
+            if (tempE == null) {
+                v.remove();
+                console.log("视频地址非video，故删除");
+            } else {
+                videOHref = tempE.href;
+            }
             return {
                 //用户名
                 upName: userInfo.querySelector(".bili-video-card__info--author").textContent,
@@ -51,7 +58,13 @@ const Search = {
                     return;
                 }
                 data["title"] = title.trim();
-                const videoAddress = info.querySelector("a").getAttribute("href");
+                const tempHref = info.querySelector("a[href*='www.bilibili.com/video/']");
+                if (tempHref == null) {
+                    v.remove();
+                    console.error("视频地址非video，故删除");
+                    return;
+                }
+                const videoAddress = tempHref.href;
                 data["bv"] = Util.getSubWebUrlBV(videoAddress);
                 data["videoAddress"] = videoAddress;
                 const userInfo = info.querySelector(".bili-video-card__info--owner");
@@ -64,8 +77,9 @@ const Search = {
                 data["userAddress"] = userAddress;
                 let tempDate;
                 try {
-                    tempDate = userInfo.querySelector(".bili-video-card__info--date").textContent;
-                    data["date"] = tempDate.substring(3);
+                    const tempE = userInfo.querySelector(".bili-video-card__info--date");
+                    tempDate = tempE ? tempE.textContent.substring(3) : null;
+                    data["date"] = tempDate;
                 } catch (e) {
                     console.log("搜索页面中获取项目时间出错了！");
                     console.error(e);
