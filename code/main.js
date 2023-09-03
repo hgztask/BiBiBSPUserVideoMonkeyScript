@@ -2315,6 +2315,11 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             if (value === "left" && moveIndex > width) {
                 moveIndex = width;
             }
+            if (value === "top") {
+                this.xy.y = moveIndex;
+            } else {
+                this.xy.x = moveIndex;
+            }
             jqE.css(value, `${moveIndex}px`);
         },
         moveTop() {
@@ -2333,17 +2338,25 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             if (event.target.open === false) {
                 return;
             }
+            this.correctedPosition();
+        },
+        correctedPosition() {//修正位置
             const jqE = $("#suspensionDiv");
-            const jqHeight = parseInt(jqE.css("height"));
-            const panelTop = jqE.offset().top;
-            const height = jqHeight + panelTop;
-            const windonsCilentHight = document.documentElement.clientHeight - jqHeight;
-            if (height < windonsCilentHight) {
+            const jqHeight = parseInt(jqE.css("height"));//面板本身面积高度
+            const panelTop = jqE.offset().top;//面板左上角的坐标y
+            const height = jqHeight + panelTop;//面板在页面高度中所占用的高度大小
+            const remainHeight = document.documentElement.clientHeight - height;//剩余的高度
+            const maxHeight = document.documentElement.clientHeight - jqHeight;//允许的最低位置
+            if (jqHeight < remainHeight) {
                 return;
             }
-            jqE.css("top", `${windonsCilentHight}px`);
+            if (remainHeight > maxHeight) {
+                return;
+            }
+            jqE.css("top", `${maxHeight}px`);
         }
-    }
+    },
+    watch: {}
 });
 
 Watched.WatchedListVue();
