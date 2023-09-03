@@ -62,37 +62,6 @@ async function bilibiliOne(href, windowsTitle) {
         }, 1100);
     }
 
-    function tempFunc(css) {
-        let tempIndex = 0;
-        const interval = setInterval(() => {
-            const leftEntryItems = document.querySelectorAll(css);
-            if (leftEntryItems.length === 0) {
-                return;
-            }
-            leftEntryItems.forEach((value) => {
-                const title = value.textContent;
-                switch (title) {
-                    case "首页":
-                    case "直播":
-                    case "番剧":
-                    case "主站":
-                        break;
-                    default:
-                        value.remove();
-                }
-            });
-            if (++tempIndex >= 10) {
-                clearInterval(interval);
-            }
-        }, 1000);
-    }
-
-    if (href.includes("www.bilibili.com/v/channel")) {
-        tempFunc(".nav-link-ul");
-    } else {
-        tempFunc(".left-entry>*");
-    }
-
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
         if (!LocalData.getIsMainVideoList()) {
@@ -177,16 +146,25 @@ async function bilibiliOne(href, windowsTitle) {
                 Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
-            $(".container.is-version8").append(addElement.homeVideoE.getHtmlStr(videoTitle, "https://www.bilibili.com/" + bvid, pic, uid, userName, duration, ctimeStr, Util.getNumberFormat(view), Util.getNumberFormat(danmaku)));
-            $("div[class='bili-video-card is-rcmd']:last").mouseenter((e) => {
-                const domElement = e.delegateTarget;
-                const title = domElement.querySelector(".bili-video-card__info--tit").textContent;
-                const userInfo = domElement.querySelector(".bili-video-card__info--owner");
+            const jqE = addElement.homeVideoE.getHtmlStr(videoTitle, "https://www.bilibili.com/video/" + bvid, pic, uid, userName, duration, ctimeStr, Util.getNumberFormat(view), Util.getNumberFormat(danmaku));
+            $(".container.is-version8").append(jqE);
+
+            if (Util.isEventJq(jqE, "mouseover")) {
+                return false;
+            }
+            jqE.mouseenter((e) => {
+                const element = e.delegateTarget;
+                const tempInfo = element.querySelector(".bili-video-card__info--tit");
+                const title = tempInfo.textContent;
+                const videoAddress = tempInfo.querySelector("a").href;
+                const userInfo = element.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;
                 const data = {
-                    upName: domElement.querySelector(".bili-video-card__info--author").textContent,
+                    upName: element.querySelector(".bili-video-card__info--author").textContent,
                     uid: Util.getSubWebUrlUid(userHref),
-                    title: title
+                    title: title,
+                    videoAddress: videoAddress,
+                    bv: Util.getSubWebUrlBV(videoAddress)
                 };
                 Util.showSDPanel(e, data);
             });

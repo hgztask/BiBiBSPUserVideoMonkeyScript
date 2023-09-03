@@ -834,7 +834,7 @@ const addElement = {
          * @param {string}danmaku 弹幕量
          */
         getHtmlStr(title, videoAddess, videoImage, userID, userName, timeLong, ctime, view, danmaku) {
-            return `<div class="bili-video-card is-rcmd" data-report="tianma.7-1-23.click" data-v-45e09777="">
+            return $(`<div class="bili-video-card is-rcmd" data-report="tianma.7-1-23.click" data-v-45e09777="">
     <div class="bili-video-card__skeleton hide">
         <div class="bili-video-card__skeleton--cover"></div>
         <div class="bili-video-card__skeleton--info">
@@ -891,7 +891,7 @@ const addElement = {
             </div>
         </div>
     </div>
-</div>`;
+</div>`);
         }
     }
 }
