@@ -18,6 +18,7 @@ class UserClass {
 
     setUid(uid) {
         this.uid = uid;
+        this.setUpAddress(`https://space.bilibili.com/${uid}`)
         return this;
     }
 }
@@ -78,7 +79,4 @@ class ContentCLass extends UserClass {
         return this;
     }
 }
-
-
-
 
