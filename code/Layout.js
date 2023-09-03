@@ -487,6 +487,7 @@ border: 0.5px solid green;
   <button @click="outLookAtItLaterArr">导出稍后再看列表</button>
   <button @click="inputLookAtItLaterArr">追加导入稍后再看列表</button>
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
+  <button @click="listInversion">列表反转</button>
   <div>
   搜索<input type="text" v-model="searchKey">
 </div>

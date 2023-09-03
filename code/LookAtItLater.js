@@ -72,7 +72,11 @@ const LookAtItLater = {
                     LocalData.setLookAtItLaterArr([]);
                     this.lookAtItLaterList = [];
                     Qmsg.success("已清空本地脚本存储的稍后再看列表数据了");
+                },
+                listInversion() {
+                    this.lookAtItLaterList.reverse();
                 }
+
             },
             watch: {
                 searchKey(newValue, oldValue) {//监听搜索关键词key
