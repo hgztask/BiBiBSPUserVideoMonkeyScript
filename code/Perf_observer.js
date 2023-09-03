@@ -14,20 +14,21 @@ function perf_observer() {
             frequencyChannel.listRules();
             continue;
         }
-        if (url.includes("api.bilibili.com/x/v2/reply/wbi/main?") || url.includes("api.bilibili.com/x/v2/reply/reply?")) {
+        if (url.includes("api.bilibili.com/x/v2/reply/wbi/main?") || url.includes("api.bilibili.com/x/v2/reply/reply?") ||
+            url.includes("api.bilibili.com/x/web-interface/wbi/view/detail?aid=") || url.includes("api.bilibili.com/x/v2/reply/reply?oid=")) {
             /**
              * 视频播放页和www.bilibili.com/opus动态页下的评论
              * 需要注意的是，www.bilibili.com/opus这地址，可以从动态页中的，直接点击动态内容跳转的地址
              */
             if (windowUrl.includes("https://www.bilibili.com/video") && LocalData.getHideVideoButtonCommentSections()) {
-                return;
+                continue;
             }
             const list = document.querySelectorAll(".reply-list>.reply-item");
             for (let v of list) {//针对于评论区
                 const usercontentWarp = v.querySelector(".content-warp");
                 const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
                 const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
-                if (startPrintShieldNameOrUIDOrContent(v, data.upName, data.uid, data.content)) {
+                if (startPrintShieldNameOrUIDOrContent(v, data)) {
                     Qmsg.success("屏蔽了言论！！");
                     continue;
                 }
@@ -44,7 +45,7 @@ function perf_observer() {
                 }
                 for (let j of subReplyList) {
                     const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
-                    if (startPrintShieldNameOrUIDOrContent(j, data.upName, data.uid, data.content)) {
+                    if (startPrintShieldNameOrUIDOrContent(j, data)) {
                         Qmsg.success("屏蔽了言论！！");
                         continue;
                     }
