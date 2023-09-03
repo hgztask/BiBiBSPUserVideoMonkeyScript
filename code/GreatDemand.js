@@ -4,13 +4,10 @@ const GreatDemand = {//热门
         if (list.length === 0) {
             list = document.getElementsByClassName("_card_1kuml_6");
             for (let v of list) {
-                const data = {
-                    e: v,
-                    title: v.getElementsByClassName("title")[1].textContent,
-                    upName: v.getElementsByClassName("upName")[0].textContent,
-                    "视频总时长": v.getElementsByClassName("time")[0].textContent
-                };
-                if (shieldVideo_userName_uid_title(data)) {
+                if (shieldVideo_userName_uid_title(new VideoClass().setE(v)
+                    .setTitle(v.getElementsByClassName("title")[1].textContent)
+                    .setUpName(v.getElementsByClassName("upName")[0].textContent)
+                    .setVideoTime(v.getElementsByClassName("time")[0].textContent))) {
                     Qmsg.info("屏蔽了视频！！");
                 }
             }

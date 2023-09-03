@@ -132,14 +132,12 @@ const Search = {
         async searchRules() {
             const videoDataList = await this.getAsyncVideoDataList();
             videoDataList.forEach(v => {
-                const data = {
-                    e: v["e"],
-                    upName: v["name"],
-                    uid: v["uid"],
-                    title: v["title"],
-                    "视频地址": v["videoAddress"]
-                };
-                if (shieldVideo_userName_uid_title(data)) {
+                if (shieldVideo_userName_uid_title(new VideoClass()
+                    .setE(v["e"])
+                    .setUpName(v["name"])
+                    .setUid(v["uid"])
+                    .setTitle(v["title"])
+                    .setVideoAddress(v["videoAddress"]))) {
                     Qmsg.info("屏蔽了视频！！");
                     return;
                 }

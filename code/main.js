@@ -211,40 +211,26 @@ const Home = {
 
                 for (let v of list) {
                     let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
+                    const videoClass = new VideoClass();
                     try {
                         videoInfo = v.querySelector(".bili-video-card__info--right");
                         const titleInfo = videoInfo.querySelector(".bili-video-card__info--tit");
-                        //视频标题
-                        title = titleInfo.getAttribute("title");
-                        videoAddress = titleInfo.querySelector("a").href;
-                        //用户名
-                        upName = videoInfo.querySelector(".bili-video-card__info--author").getAttribute("title");
-                        //用户空间地址
-                        upSpatialAddress = videoInfo.querySelector(".bili-video-card__info--owner").getAttribute("href");
-                        videoTime = v.querySelector(".bili-video-card__stats__duration").textContent;//视频的时间
+                        upSpatialAddress = videoInfo.querySelector(".bili-video-card__info--owner").getAttribute("href");//用户空间地址
                         const topInfo = v.querySelectorAll(".bili-video-card__stats--left .bili-video-card__stats--item");//1播放量2弹幕数
-                        playbackVolume = topInfo[0].textContent;
+                        videoClass.setTitle(titleInfo.getAttribute("title"))
+                            .setVideoAddress(titleInfo.querySelector("a").href)
+                            .setUpName(videoInfo.querySelector(".bili-video-card__info--author").title)
+                            .setUid(Util.getSubWebUrlUid(upSpatialAddress))
+                            .setVideoTime(v.querySelector(".bili-video-card__stats__duration").textContent)
+                            .setPlaybackVolume(topInfo[0].textContent)
+                            .setBarrageQuantity(topInfo[1].textContent)
+                            .setE(v);
                     } catch (e) {
                         v.remove();
-                        console.log("清理异常元素");
+                        console.error("清理异常元素", e);
                         continue;
                     }
-                    let uid = Util.getSubWebUrlUid(upSpatialAddress);
-                    if (uid === null) {
-                        v.remove();
-                        console.log("清理非正常视频样式");
-                        continue;
-                    }
-                    const data = {
-                        e: v,
-                        upName: upName,
-                        uid: parseInt(uid),
-                        title: title,
-                        "视频地址": videoAddress,
-                        "视频总时长": videoTime,
-                        "播放量": playbackVolume
-                    };
-                    if (shieldVideo_userName_uid_title(data)) {
+                    if (shieldVideo_userName_uid_title(videoClass)) {
                         continue;
                     }
                     const jqE = $(v);
@@ -838,7 +824,7 @@ const addElement = {
     homeVideoE: {
         /**
          * @param {string}title 视频标题
-         * @param {string}videoAddess 视频地址
+         * @param {string}videoAddess
          * @param {string}videoImage 视频封面
          * @param {string}userID 用户uid
          * @param {string}userName 用户名
@@ -1068,26 +1054,19 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
 /**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
- * @param {Object} data - 包含以下属性的数据对象：
- *   @property {string} uid - 视频用户的唯一标识符
- *   @property {HTMLElement} e - 视频元素的引用
- *   @property {string} title - 视频的标题
- *   @property {string} 视频地址 - 视频的链接地址
- *   @property {string} name - 视频用户的姓名
- *   @property {number} 播放量 - 视频的播放量
- *   @property {string} 视频总时长 - 视频的总时长
+ * @param {VideoClass} data - 包含以下属性的数据对象：
  *   @return  {Boolean} 是否屏蔽
  */
 function shieldVideo_userName_uid_title(data) {
-    const uid = data["uid"];
-    const element = data["e"];
-    const title = data["title"];
-    const videoHref = data["视频地址"];
-    const name = data["upName"];
-    const videoPlaybackVolume = data["播放量"];
-    const videoTime = data["视频总时长"];
-    const barrageQuantity = data["弹幕量"];
-    if (Remove.isWhiteUserUID(data["uid"])) {
+    const uid = data.uid;
+    const element = data.e;
+    const title = data.title;
+    const videoHref = data.videoAddress;
+    const name = data.upName;
+    const videoPlaybackVolume = data.playbackVolume;
+    const videoTime = data.videoTime;
+    const barrageQuantity = data.barrageQuantity;
+    if (Remove.isWhiteUserUID(uid)) {
         return false;
     }
     if (uid !== null) {

@@ -18,17 +18,13 @@ const SubjectOfATalk = {//话题
                 continue;
             }//如果内容是视频样式
 
-            const videoInfo = info.getElementsByClassName("bili-dyn-card-video")[0];
-            const videoTime = videoInfo.getElementsByClassName("bili-dyn-card-video__duration")[0].textContent;
-            const title = videoInfo.getElementsByClassName("bili-dyn-card-video__title bili-ellipsis")[0].textContent;
-            const data = {
-                e: v,
-                upName: name,
-                uid: uid,
-                title: title,
-                "视频总时长": videoTime
-            };
-            if (shieldVideo_userName_uid_title(data)) {
+            const videoInfo = info.querySelector(".bili-dyn-card-video");
+            if (shieldVideo_userName_uid_title(new VideoClass()
+                .setE(v)
+                .setUpName(name)
+                .setUid(uid)
+                .setTitle(videoInfo.querySelector(".bili-dyn-card-video__title.bili-ellipsis").textContent)
+                .setVideoTime(videoInfo.querySelector(".bili-dyn-card-video__duration").textContent))) {
                 Qmsg.info("屏蔽了视频！！");
             }
         }

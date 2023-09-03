@@ -55,14 +55,13 @@ const DefVideo = {
             clearInterval(interval);
             list.forEach(v => {//获取右侧的页面的视频列表
                 const upSpatialAddress = v.querySelector(".upname>a").href;
-                const data = {
-                    e: v,
-                    upName: v.querySelector(".name").textContent,
-                    uid: parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)),
-                    title: v.querySelector(".title").textContent
-                };
                 //视频标题
-                if (shieldVideo_userName_uid_title(data)) {
+                if (shieldVideo_userName_uid_title(new VideoClass()
+                    .setUpName(v.querySelector(".name").textContent)
+                    .setUid(parseInt(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)))
+                    .setTitle(v.querySelector(".title").textContent)
+                    .setE(v)
+                )) {
                     Qmsg.info("屏蔽了视频！！");
                     return;
                 }

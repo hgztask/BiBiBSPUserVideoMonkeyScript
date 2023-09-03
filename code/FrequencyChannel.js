@@ -152,18 +152,15 @@ const frequencyChannel = {//频道
         const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
         const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
         const videoHref = videoInfo.href;
-        return {
-            e: element,
-            //用户名
-            upName: element.getElementsByClassName("up-name__text")[0].textContent,
-            //视频标题
-            title: videoInfo.textContent.trim(),
-            "视频地址": "https:" + videoHref,
-            bv: Util.getSubWebUrlBV(videoHref),
-            "视频总时长": element.getElementsByClassName("play-duraiton")[0].textContent,
-            uid: Util.getSubUid(lastIndexOf),
-            "播放量": topInfo[0].textContent.trim(),
-            "弹幕量": topInfo[1].textContent.trim()
-        };
+        return new VideoClass()
+            .setE(element)
+            .setUpName(element.querySelector(".up-name__text").textContent)
+            .setUid(Util.getSubUid(lastIndexOf))
+            .setTitle(videoInfo.textContent.trim())
+            .setVideoAddress("https:" + videoHref)
+            .setBv(Util.getSubWebUrlBV(videoHref))
+            .setPlaybackVolume(topInfo[0].textContent.trim())
+            .setVideoTime(element.getElementsByClassName("play-duraiton")[0].textContent)
+            .setBarrageQuantity(topInfo[1].textContent.trim());
     }
 }
