@@ -2297,22 +2297,51 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
                 tempJq.css("display", "inline");
             });
         },
-        move(value, index = this.moveLayoutValue) {
+        move(value, func) {
             const jqE = $("#suspensionDiv");
-            let moveIndex = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
-            jqE.css(value, `${moveIndex -= index}px`);
+            const moveLayoutValue = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
+            let moveIndex = func(moveLayoutValue, this.moveLayoutValue);
+            const width = document.documentElement.clientWidth - parseInt(jqE.css("width"));
+            const height = document.documentElement.clientHeight - parseInt(jqE.css("height"));
+            if (value === "top" && 0 >= moveIndex) {
+                moveIndex = 0;
+            }
+            if (value === "top" && moveIndex > height) {
+                moveIndex = height;
+            }
+            if (value === "left" && moveIndex <= 0) {
+                moveIndex = 0;
+            }
+            if (value === "left" && moveIndex > width) {
+                moveIndex = width;
+            }
+            jqE.css(value, `${moveIndex}px`);
         },
         moveTop() {
-            this.move("top");
+            this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
         },
         moveLrft() {
-            this.move("left");
+            this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
         },
         moveRight() {
-            this.move("right");
+            this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
         },
         moveButton() {
-            this.move("button");
+            this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
+        },
+        handleToggle(event) {//处理监听details展开关闭事件
+            if (event.target.open === false) {
+                return;
+            }
+            const jqE = $("#suspensionDiv");
+            const jqHeight = parseInt(jqE.css("height"));
+            const panelTop = jqE.offset().top;
+            const height = jqHeight + panelTop;
+            const windonsCilentHight = document.documentElement.clientHeight - jqHeight;
+            if (height < windonsCilentHight) {
+                return;
+            }
+            jqE.css("top", `${windonsCilentHight}px`);
         }
     }
 });

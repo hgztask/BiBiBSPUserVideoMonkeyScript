@@ -219,8 +219,8 @@ const Util = {
             }
         }, time);
     },
-    //设置元素可自由拖动拖动
-    suspensionBall(dragId, func) {
+
+    suspensionBall(dragId, func) {//设置元素可自由拖动拖动
         let startEvt, moveEvt, endEvt;
         // 判断是否支持触摸事件
         if ("ontouchstart" in window) {
