@@ -1,4 +1,4 @@
-function perf_observer() {
+async function perf_observer() {
     const entries = performance.getEntriesByType('resource');
     const windowUrl = Util.getWindowUrl();
     for (let entry of entries) {
@@ -14,7 +14,7 @@ function perf_observer() {
             frequencyChannel.listRules();
             continue;
         }
-        if (url.includes("api.bilibili.com/x/v2/reply/wbi/main?") || url.includes("api.bilibili.com/x/v2/reply/reply?") ||
+        if (url.includes("api.bilibili.com/x/v2/reply/wbi/main?oid=") || url.includes("api.bilibili.com/x/v2/reply/reply?") ||
             url.includes("api.bilibili.com/x/web-interface/wbi/view/detail?aid=") || url.includes("api.bilibili.com/x/v2/reply/reply?oid=")) {
             /**
              * 视频播放页和www.bilibili.com/opus动态页下的评论
@@ -23,11 +23,21 @@ function perf_observer() {
             if (windowUrl.includes("https://www.bilibili.com/video") && LocalData.getHideVideoButtonCommentSections()) {
                 continue;
             }
-            const list = document.querySelectorAll(".reply-list>.reply-item");
+            console.log("视频api");
+            const p = new Promise(resolve => {
+                const i1 = setInterval(() => {
+                    if (document.querySelector(".reply-list>.reply-loading") !== null) {
+                        return;
+                    }
+                    clearInterval(i1);
+                    resolve(document.querySelectorAll(".reply-list>.reply-item"));
+
+                }, 1000);
+            });
+            const list = await p;
             for (let v of list) {//针对于评论区
                 const usercontentWarp = v.querySelector(".content-warp");
                 const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
-                const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
                 if (startPrintShieldNameOrUIDOrContent(v, data)) {
                     Qmsg.success("屏蔽了言论！！");
                     continue;
@@ -40,6 +50,7 @@ function perf_observer() {
                         Util.showSDPanel(e, data);
                     });
                 }
+                const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
                 if (subReplyList.length === 0) {
                     continue;
                 }
