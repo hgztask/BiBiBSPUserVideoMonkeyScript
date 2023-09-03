@@ -2297,24 +2297,66 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
                 tempJq.css("display", "inline");
             });
         },
-        move(value, index = this.moveLayoutValue) {
+        move(value, func) {
             const jqE = $("#suspensionDiv");
-            let moveIndex = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
-            jqE.css(value, `${moveIndex -= index}px`);
+            const moveLayoutValue = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
+            let moveIndex = func(moveLayoutValue, this.moveLayoutValue);
+            const width = document.documentElement.clientWidth - parseInt(jqE.css("width"));
+            const height = document.documentElement.clientHeight - parseInt(jqE.css("height"));
+            if (value === "top" && 0 >= moveIndex) {
+                moveIndex = 0;
+            }
+            if (value === "top" && moveIndex > height) {
+                moveIndex = height;
+            }
+            if (value === "left" && moveIndex <= 0) {
+                moveIndex = 0;
+            }
+            if (value === "left" && moveIndex > width) {
+                moveIndex = width;
+            }
+            if (value === "top") {
+                this.xy.y = moveIndex;
+            } else {
+                this.xy.x = moveIndex;
+            }
+            jqE.css(value, `${moveIndex}px`);
         },
         moveTop() {
-            this.move("top");
+            this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
         },
         moveLrft() {
-            this.move("left");
+            this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
         },
         moveRight() {
-            this.move("right");
+            this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
         },
         moveButton() {
-            this.move("button");
+            this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
+        },
+        handleToggle(event) {//处理监听details展开关闭事件
+            if (event.target.open === false) {
+                return;
+            }
+            this.correctedPosition();
+        },
+        correctedPosition() {//修正位置
+            const jqE = $("#suspensionDiv");
+            const jqHeight = parseInt(jqE.css("height"));//面板本身面积高度
+            const panelTop = jqE.offset().top;//面板左上角的坐标y
+            const height = jqHeight + panelTop;//面板在页面高度中所占用的高度大小
+            const remainHeight = document.documentElement.clientHeight - height;//剩余的高度
+            const maxHeight = document.documentElement.clientHeight - jqHeight;//允许的最低位置
+            if (jqHeight < remainHeight) {
+                return;
+            }
+            if (remainHeight > maxHeight) {
+                return;
+            }
+            jqE.css("top", `${maxHeight}px`);
         }
-    }
+    },
+    watch: {}
 });
 
 Watched.WatchedListVue();

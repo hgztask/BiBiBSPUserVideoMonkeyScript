@@ -362,7 +362,7 @@ border: 0.5px solid green;
         <div style="display: flex;justify-content: space-between;">
         <button value="左" @click="moveLrft">←</button>
        <div class="center">
-       <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="100" v-model="moveLayoutValue"></div>
+       <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="1000" v-model="moveLayoutValue"></div>
       坐标:x{{xy.x}}|y:{{xy.y}}
         <div>
           <span>按钮跟随鼠标</span>
@@ -374,7 +374,7 @@ border: 0.5px solid green;
        </div>
         <p>用户名：{{upName}}</p>
         <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
-        <details id="vueSuspensinVideoInfo" style="display: none">
+        <details id="vueSuspensinVideoInfo" style="display: none" @toggle="handleToggle">
         <summary>视频信息</summary>
         <p>标题:{{videoData.title}}</span></p>
         <p>视频BV号:{{videoData.bv}}</span></p>
