@@ -344,6 +344,17 @@ const Util = {
             }
         }, time);
     },
+    forIntervalDelE(elementCss, tip, time = 1000) {//定时检查指定元素，执行删除
+        const i = setInterval(() => {
+            const e = document.querySelector(elementCss);
+            if (e === null) {
+                return;
+            }
+            clearInterval(i);
+            e.remove();
+            Qmsg.success(tip);
+        }, time);
+    },
     /**
      * 返回当前时间
      * @returns {String}
