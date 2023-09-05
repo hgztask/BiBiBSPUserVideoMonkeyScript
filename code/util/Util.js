@@ -468,9 +468,6 @@ const Util = {
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
     },
-    dShielPanel() {
-
-    },
     /**
      * 获取链接的域名
      * @param url 链接
@@ -499,7 +496,7 @@ const Util = {
         const title = data["title"];
         let bv = data["bv"];
         let av = data["av"];
-        const newVar = Util.getData("isDShielPanel");
+        const newVar = LocalData.isDShieldPanel();
         if (newVar) {
             return;
         }

@@ -206,4 +206,10 @@ const LocalData = {
     setIsMainVideoList(bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
         Util.setData("isMainVideoList", Util.isBoolean(bool));
     },
+    isDShieldPanel() {//是否开启禁用快捷悬浮屏蔽面板自动显示
+        return Util.getData("isDShieldPanel") === true;
+    },
+    setDShieldPanel(v) {//设置禁用快捷悬浮屏蔽面板自动显示
+        Util.setData("isDShieldPanel", v === true)
+    }
 }
