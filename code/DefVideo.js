@@ -10,12 +10,13 @@ const DefVideo = {
                 Util.circulateClassNames("right-container is-in-large-ab", 0, 3, 1500, "已移除视频播放器右侧的布局");
                 return;
             }
-            Util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
-            Util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
-            Util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
-            Util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
-            Util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
-            Util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
+            // Util.forIntervalDelE("#slide_ad", "已移除右侧slide_ad广告！");
+            // Util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
+            // Util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
+            // Util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
+            // Util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
+            // Util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
+            // Util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
             if (video.isrigthVideoList) {
                 Util.circulateID("reco_list", 2000, "已移除播放页右侧的视频列表");
                 return;
