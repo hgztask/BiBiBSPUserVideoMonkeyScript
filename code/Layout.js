@@ -98,29 +98,6 @@ border: 0.5px solid green;
             return this.getHoverball("获取xxx列表", "22%", "4%");
         }
     },
-    getPanelSetsTheLayout() {//面板设置
-        return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
-      <div>
-        <span>背景透明度</span>
-        <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
-        <span id="backgroundPelluciditySpan">1</span>
-      </div>
-      <div>
-        <span>高度</span>
-        <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
-        <span id="heightSpan">100%</span>
-      </div>
-      <div>
-        <span>宽度</span>
-        <input id="widthRange" type="range" value="100" min="20" max="100" step="0.1">
-        <span id="widthSpan">90%</span>
-      </div>
-    </div>
-    <h1>快捷悬浮面板</h1>
-    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
-    <h1>悬浮屏蔽筛选列表面板</h1>
-        <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
-    },
     getRuleCRUDLayout() {
         return `
 <div style="display: flex;flex-wrap: wrap;">
@@ -469,7 +446,27 @@ border: 0.5px solid green;
     <li><button value="accountCenterLayout">账户中心</button></li>
   </ul>
   <!-- 标签布局 -->
-  <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
+  <div class="tab" id="panelSetsTheLayout">
+  <div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
+      <div>
+        <span>背景透明度</span>
+        <input type="range" value="1" min="0.1" max="1" step="0.1" v-model="backgroundPellucidRange">
+        <span>{{backgroundPellucidRange}}</span>
+      </div>
+      <div>
+        <span>高度</span>
+        <input type="range" value="100" min="20" max="100" step="0.1" v-model="heightRange">
+        <span>{{heightRangeText}}</span>
+      </div>
+      <div>
+        <span>宽度</span>
+        <input type="range" value="100" min="20" max="100" step="0.1" v-model="widthRange">
+        <span>{{widthRangeText}}</span>
+      </div>
+    </div>
+    <h1>快捷悬浮面板</h1>
+    <input type="checkbox" v-model="isDShieldPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
+</div><!-- 面板设置布局 -->
   <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
@@ -511,7 +508,6 @@ border: 0.5px solid green;
       </div>
 <!-- 分割home_layout -->
     `);
-            $("#panelSetsTheLayout").append(layout.getPanelSetsTheLayout());
             $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
             $("#homePageLayout").append(layout.getHomePageLayout());
             $("#video_params_layout").append(layout.getVideo_params_layout());

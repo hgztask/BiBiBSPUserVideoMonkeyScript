@@ -4,6 +4,7 @@
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\util\HttpUtil.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\Layout.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\LocalData.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\PanelSetsTheLayout.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\matching.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\UrleCrud.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\Watched.js

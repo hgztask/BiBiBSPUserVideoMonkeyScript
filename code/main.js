@@ -16,15 +16,8 @@ color: #ff0000;
 `);
     },
     showInfo() {
-        const isDShielPanel = Util.getData("isDShielPanel");
         const isAutoPlay = Util.getData("autoPlay");
-        const dShielPanel = $("#DShielPanel");
         const autoPlayCheckbox = $("#autoPlayCheckbox");
-        if (isDShielPanel === null || isDShielPanel === undefined) {
-            dShielPanel.attr("checked", false);
-        } else {
-            dShielPanel.attr("checked", isDShielPanel);
-        }
         if (isAutoPlay === null || isAutoPlay === undefined) {
             autoPlayCheckbox.attr("checked", false);
         } else {
@@ -276,15 +269,15 @@ const Home = {
     },
     openTab(e) {// 点击标签时执行此函数
         // 获取所有标签布局
-        const tabs = document.getElementsByClassName("tab");
+        const tabs = document.querySelectorAll(".tab");
         // 循环遍历每个标签布局
-        for (let i = 0; i < tabs.length; i++) {
+        for (let v of tabs) {
             // 从所有标签布局中删除“active”类，使它们不可见
-            tabs[i].classList.remove("active");
+            v.classList.remove("active");
         }
+        const tempE = document.querySelector(`#${e}`);
         // 将指定的标签布局添加到“active”类，使它可见
-        const tempId = document.getElementById(e);
-        tempId.classList.add("active");
+        tempE.classList.add("active");
     }
 }
 
@@ -676,146 +669,6 @@ const Print = {
         <b  style="color: ${color}; ">${Util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
    原言论=【${primaryContent}】</b>
 </dd>`);
-    }
-};
-
-const HoverBlockList = {
-    /**
-     *匹配符合条件的数组
-     * @param arr 数组
-     * @param key 匹配元素键中的key
-     * @param search 符合上面参数，且包含该关键字的匹配
-     * @returns Array
-     */
-    searchAndInitList(arr, key, search = '') {
-        const searchStr = search.toString().toLowerCase();
-        const result = [];
-
-        function omitKey(obj, key, search) {
-            const newItem = Object.assign({}, obj);
-            delete newItem[key];
-            newItem[key] = search;
-            return newItem;
-        }
-
-        for (let i = 0, len = arr.length; i < len; i++) {
-            const item = arr[i];
-            if (item.hasOwnProperty(key) && item[key].toString().toLowerCase().includes(searchStr)) {
-                const existingItemIndex = result.findIndex(r => r.uid === item.uid);
-
-                if (existingItemIndex === -1) {
-                    const newItem = {
-                        uid: item.uid,
-                        show: item[$("#show-select").val()],
-                        items: [omitKey(item, key, search)]
-                    };
-
-                    result.push(newItem);
-                } else {
-                    result[existingItemIndex].items.push(omitKey(item, key, search));
-                }
-            }
-        }
-        return result;
-    },
-    /**
-     *数据例子
-     * [
-     *         {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
-     *         {"uid": 2, "name": "李四", "age": 25},
-     *         {"uid": 3, "name": "王四", "age": 30}
-     *     ];
-     * @param list 数据
-     * @param typeName 要显示在项目的值
-     * @param func 点击获取选中事件
-     */
-    init(list, typeName = "name", func) {
-        const pop_ListLayout = $("pop-ListLayout");
-        if (pop_ListLayout.length > 0) {
-            alert("请先关闭现有悬浮列表！");
-            return;
-        }
-        $("body").append(`<div id="pop-ListLayout" style="
-position: fixed;
-z-index: 2000;
-    left: 76%;
-    top: 9%;
-    background: cornflowerblue;">
-    <div style="display: flex;
-    flex-direction: row-reverse;
-">
-        <button  id="clone-popLayoutList">关闭</button>
-    </div>
-    <label>筛选条件:
-        <select id="search-select"></select>
-    </label>
-    <label>显示条件
-        <select id="show-select"></select>
-    </label>
-    <br>
-    <label>搜索内容:</label>
-    <input id="search-input" type="text">
-    <ul id="popList" style="list-style: none;padding: 0;overflow-y: auto;height: 350px; list-style: none;padding: 0;">
-    </ul>
-    <button id="getSelectedCheckboxItem">获取选中的数据</button>
-</div>`);
-
-        for (let v of Util.getDistinctKeys(list)) {
-            $("#search-select").append(`<option value=${v}>${v}</option>`);
-            $("#show-select").append(`<option value=${v}>${v}</option>`);
-        }
-
-        HoverBlockList.initList(list, typeName);
-        $("#getSelectedCheckboxItem").click(() => {
-            // 获取所有选中的项
-            const checkedItems = $('#popList input[type="checkbox"]:checked');
-            if (checkedItems.length === 0) {
-                return;
-            }
-            const tempArrID = [];
-            // 遍历选中的元素并打印它们的值
-            checkedItems.each(function () {
-                tempArrID.push(parseInt($(this).val()));
-            });
-            if (tempArrID.length === 0) {
-                return;
-            }
-            func(tempArrID);
-        });
-        // 监听 input 的 value 变化
-        $('#search-input').on('input', function () {
-            const content = $(this).val();
-            if (content === "" || content.includes(" ")) {
-                return;
-            }
-            const search_selectV = $("#search-select").val();
-            HoverBlockList.initList(list, search_selectV, content);
-        });
-        $("#clone-popLayoutList").click(() => {//点击关闭，则删掉悬浮列表下面的所有jq添加的事件并删除列表元素
-            const popMain = $("#pop-ListLayout");
-            popMain.off();
-            popMain.remove();
-            $("#OpenTheFilteredList").show();
-        });
-    },
-    /**
-     *
-     * @param dataList 数据列表
-     * @param itemKey 匹配元素键中的key
-     * @param search 搜索的关键词
-     * @returns {boolean}
-     */
-    initList(dataList, itemKey, search = "") {
-        const keyArr = HoverBlockList.searchAndInitList(dataList, itemKey, search);
-        if (keyArr.length === 0) {
-            return false;
-        }
-        const popList = $("#popList");
-        popList.children().remove();
-        keyArr.forEach((value) => {
-            popList.append($(`<li><label><input type="checkbox" value=${value.uid}>${value.show}</label></li>`));
-        });
-        return true;
     }
 };
 
@@ -1489,21 +1342,6 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
     Qmsg.success("获取成功并执行导出内容");
 });
 
-const openTheFilteredList = $("#OpenTheFilteredList");
-openTheFilteredList.click(() => {
-    Qmsg.info("该功能暂未完善");
-    openTheFilteredList.hide();
-    const windowsTitle = document.title;
-    const windowUrl = Util.getWindowUrl();
-    HoverBlockList.init([
-        {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
-        {"uid": 2, "name": "李四", "age": 25},
-        {"uid": 3, "name": "王四", "age": 30}
-    ], "name", (data) => {
-        console.log(data);
-    });
-    console.log(href);
-});
 
 $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
     const value = $("#axleRange").val();//获取值
@@ -1518,26 +1356,6 @@ $hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayo
 const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
 $hideVideoTopTitleInfoCheackBox.click(() => LocalData.video.setHideVideoTopTitleInfoLayout($hideVideoTopTitleInfoCheackBox.is(":checked")));
 
-$("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
-    const value = $("#backgroundPellucidityRange").val();//获取值
-    $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
-    const back = Home.background;
-    $("#home_layout").css("background", Util.getRGBA(back.r, back.g, back.b, value));
-});
-$("#heightRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板高度拖动条
-    const value = $("#heightRange").val();//获取值
-    $("#heightSpan").text(value + "%");//修改对应标签的文本显示
-    $("#home_layout").css("height", `${value}%`);
-});
-$("#widthRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板宽度拖动条
-    const value = $("#widthRange").val();//获取值
-    $("#widthSpan").text(value + "%");//修改对应标签的文本显示
-    $("#home_layout").css("width", `${value}%`);
-});
-
-$("#DShielPanel").click(() => {//点击禁用快捷悬浮屏蔽面板自动显示
-    Util.setData("isDShielPanel", $("#DShielPanel").is(":checked"));
-});
 
 $("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
     Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
@@ -2350,6 +2168,7 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
 
 Watched.WatchedListVue();
 const returnVue = LookAtItLater.returnVue();
+const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 
 
 //每秒监听网页标题URL
