@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.60
+// @version      1.1.61
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理，支持获取b站相关数据并导出为json(用户收藏夹导出，历史记录导出、关注列表导出、粉丝列表导出)(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -44,7 +44,6 @@
 // ==/UserScript==
 
 'use strict';
-
 /**
  * 用户基本信息
  */
@@ -486,6 +485,17 @@ const Util = {
             }
         }, time);
     },
+    forIntervalDelE(elementCss, tip, time = 1000) {//定时检查指定元素，执行删除
+        const i = setInterval(() => {
+            const e = document.querySelector(elementCss);
+            if (e === null) {
+                return;
+            }
+            clearInterval(i);
+            e.remove();
+            Qmsg.success(tip);
+        }, time);
+    },
     /**
      * 返回当前时间
      * @returns {String}
@@ -599,9 +609,6 @@ const Util = {
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
     },
-    dShielPanel() {
-
-    },
     /**
      * 获取链接的域名
      * @param url 链接
@@ -630,7 +637,7 @@ const Util = {
         const title = data["title"];
         let bv = data["bv"];
         let av = data["av"];
-        const newVar = Util.getData("isDShielPanel");
+        const newVar = LocalData.isDShieldPanel();
         if (newVar) {
             return;
         }
@@ -1039,29 +1046,6 @@ border: 0.5px solid green;
             return this.getHoverball("获取xxx列表", "22%", "4%");
         }
     },
-    getPanelSetsTheLayout() {//面板设置
-        return `<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
-      <div>
-        <span>背景透明度</span>
-        <input id="backgroundPellucidityRange" type="range" value="1" min="0.1" max="1" step="0.1">
-        <span id="backgroundPelluciditySpan">1</span>
-      </div>
-      <div>
-        <span>高度</span>
-        <input id="heightRange" type="range" value="100" min="20" max="100" step="0.1">
-        <span id="heightSpan">100%</span>
-      </div>
-      <div>
-        <span>宽度</span>
-        <input id="widthRange" type="range" value="100" min="20" max="100" step="0.1">
-        <span id="widthSpan">90%</span>
-      </div>
-    </div>
-    <h1>快捷悬浮面板</h1>
-    <input type="checkbox" id="DShielPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
-    <h1>悬浮屏蔽筛选列表面板</h1>
-        <button id="OpenTheFilteredList" style="">打开筛选列表</button>`;
-    },
     getRuleCRUDLayout() {
         return `
 <div style="display: flex;flex-wrap: wrap;">
@@ -1410,7 +1394,27 @@ border: 0.5px solid green;
     <li><button value="accountCenterLayout">账户中心</button></li>
   </ul>
   <!-- 标签布局 -->
-  <div class="tab" id="panelSetsTheLayout"></div><!-- 面板设置布局 -->
+  <div class="tab" id="panelSetsTheLayout">
+  <div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
+      <div>
+        <span>背景透明度</span>
+        <input type="range" value="1" min="0.1" max="1" step="0.1" v-model="backgroundPellucidRange">
+        <span>{{backgroundPellucidRange}}</span>
+      </div>
+      <div>
+        <span>高度</span>
+        <input type="range" value="100" min="20" max="100" step="0.1" v-model="heightRange">
+        <span>{{heightRangeText}}</span>
+      </div>
+      <div>
+        <span>宽度</span>
+        <input type="range" value="100" min="20" max="100" step="0.1" v-model="widthRange">
+        <span>{{widthRangeText}}</span>
+      </div>
+    </div>
+    <h1>快捷悬浮面板</h1>
+    <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>
+</div><!-- 面板设置布局 -->
   <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
@@ -1429,9 +1433,9 @@ border: 0.5px solid green;
   <button @click="inputLookAtItLaterArr">追加导入稍后再看列表</button>
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <button @click="listInversion">列表反转</button>
+  <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
   <div>
   搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList"  @change="getTypeListShowValue($event)">{{item}}</option></select>
-  
 </div>
   <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
@@ -1452,7 +1456,6 @@ border: 0.5px solid green;
       </div>
 <!-- 分割home_layout -->
     `);
-            $("#panelSetsTheLayout").append(layout.getPanelSetsTheLayout());
             $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
             $("#homePageLayout").append(layout.getHomePageLayout());
             $("#video_params_layout").append(layout.getVideo_params_layout());
@@ -1673,178 +1676,47 @@ const LocalData = {
     setIsMainVideoList(bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
         Util.setData("isMainVideoList", Util.isBoolean(bool));
     },
-}
-//匹配数组元素
-const Matching = {
-    /**
-     * 根据用户提供的网页元素和对应的数组及key，精确匹配数组某个元素
-     * @param arr 数组
-     * @param key 唯一key
-     * @returns {boolean}
-     */
-    arrKey(arr, key) {
-        if (arr === null || arr === undefined) {
-            return false;
-        }
-        return arr.includes(key);
+    isDShieldPanel() {//是否开启禁用快捷悬浮屏蔽面板自动显示
+        return Util.getData("isDShieldPanel") === true;
     },
-    /**
-     * 根据对象数组，返回匹配数组中对象oBjKey属性是否有指定value的布尔值
-     * @param objArr{Array} 对象数组
-     * @param objKey{String}对象属性名
-     * @param value {String} 要匹配的完整值
-     * @return {boolean} 是否有指定value布尔值
-     */
-    arrObjKey(objArr, objKey, value) {
-        for (const v of objArr) {
-            if (v[objKey] === undefined) {
-                continue;
-            }
-            if (v[objKey] === value) {
-                return true;
-            }
-        }
-        return false;
-    },
-    /**
-     * 根据用户提供的字符串集合，当content某个字符包含了了集合中的某个字符则返回对应的字符，模糊匹配
-     * 反之返回null
-     * @param {string[]}arr 字符串数组
-     * @param {string}content 内容
-     * @returns {null|string}
-     */
-    arrContent(arr, content) {
-        if (arr === null || arr === undefined) {
-            return null;
-        }
-        try {
-            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
-            for (let str of arr) {
-                if (lowerCase.includes(str)) {
-                    return str;
-                }
-            }
-        } catch (e) {
-            return null;
-        }
-        return null;
-    },
-    /**
-     * 根据用户提供的字符串集合，与指定内容进行比较，当content某个字符包含了了集合中的某个正则匹配则返回对应的字符，正则匹配
-     * 反之返回null
-     * @param {string[]}arr 字符串数组
-     * @param {string}content 内容
-     * @return {null|string}
-     */
-    arrContentCanonical(arr, content) {
-        if (arr === null || arr === undefined) {
-            return null;
-        }
-        try {
-            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
-            for (let str of arr) {
-                if (lowerCase.search(str) === -1) {
-                    continue;
-                }
-                return str;
-            }
-        } catch (e) {
-            return null;
-        }
-        return null;
+    setDShieldPanel(v) {//设置禁用快捷悬浮屏蔽面板自动显示
+        Util.setData("isDShieldPanel", v === true)
     }
 }
-const UrleCrud = {//规则的增删改查
-    /**
-     * 单个元素进行添加
-     * @param {Array} arr
-     * @param {String,number} key
-     * @param {String} ruleStrName
-     */
-    add(arr, key, ruleStrName) {
-        arr.push(key);
-        Util.setData(ruleStrName, arr);
-        Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
-        Rule.ruleLength();
-        return true;
-    },
-    /**
-     * 批量添加，要求以数组形式
-     * @param {Array} arr
-     * @param {Array} key
-     * @param ruleStrName
-     */
-    addAll(arr, key, ruleStrName) {
-        let tempLenSize = 0;
-        const set = new Set();
-        for (let v of key) {
-            if (arr.includes(v)) {
-                continue;
-            }
-            tempLenSize++;
-            arr.push(v);
-            set.add(v);
-        }
-
-        if (tempLenSize === 0) {
-            Print.ln("内容长度无变化，可能是已经有了的值")
-            return;
-        }
-        Util.setData(ruleStrName, arr);
-        Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
-        Rule.ruleLength();
-    },
-    /**
-     *
-     * @param arr
-     * @param key
-     * @param ruleStrName
-     * @return {boolean}
-     */
-    del(arr, key, ruleStrName) {
-        const index = arr.indexOf(key);
-        if (index === -1) {
-            Print.ln("未有该元素！")
-            return false;
-        }
-        arr.splice(index, 1);
-        Util.setData(ruleStrName, arr);
-        Print.ln("已经删除该元素=" + key);
-        Rule.ruleLength();
-        return true;
-    }
-
-}
-const Watched = {
-    WatchedListVue() {
-        return new Vue({
-            el: "#watchedListLayout",
+const PanelSetsTheLayout = {//面板设置
+    returnVue() {
+        const vue = new Vue({
+            el: "#panelSetsTheLayout",
             data: {
-                watchedList: LocalData.getWatchedArr()
+                backgroundPellucidRange: 1,
+                heightRange: 100,
+                heightRangeText: "100%",
+                widthRange: 100,
+                widthRangeText: "100%",
+                isDShieldPanel: LocalData.isDShieldPanel()
             },
-            methods: {}
-        })
-    },
-    dataVue: {
-        watchedList: LocalData.getWatchedArr(),//已观看视频个数,
-
-    },
-    addWatched(data) {//添加视频到已观看列表流程
-        if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
-            return;
-        }
-        const arr = LocalData.getWatchedArr();
-        for (const v of arr) {
-            const tempTitle = data["title"];
-            if (v["title"] === tempTitle) {
-                alert(`您已添加该视频【${tempTitle}】！故本轮不添加进去！`);
-                return;
+            watch: {
+                backgroundPellucidRange(newVal) {
+                    const back = Home.background;
+                    $("#home_layout").css("background", Util.getRGBA(back.r, back.g, back.b, newVal));
+                },
+                heightRange(newVal) {
+                    this.heightRangeText = newVal + "%";
+                    $("#home_layout").css("height", `${newVal}%`);
+                },
+                widthRange(newVal) {
+                    this.widthRangeText = newVal + "%";
+                    $("#home_layout").css("width", `${newVal}%`);
+                },
+                isDShieldPanel(newVal) {
+                    LocalData.setDShieldPanel(newVal);
+                    Qmsg.success(`您更改了【禁用快捷悬浮屏蔽面板自动显示】的状态，当前为：${newVal ? "启用" : "不启用"}状态`);
+                }
             }
-        }
-        arr.push(data);
-        LocalData.setWatchedArr(arr);
-        Qmsg.success("添加成功")
-        alert(`已添加视频【${data["title"]}】至已观看列表！`);
+        });
+        return function () {
+            return vue;
+        };
     }
 }
 const LookAtItLater = {
@@ -1987,7 +1859,179 @@ const LookAtItLater = {
         alert(`已添加视频【${data["title"]}】至稍后再看列表！`);
     }
 }
+const Watched = {
+    WatchedListVue() {
+        return new Vue({
+            el: "#watchedListLayout",
+            data: {
+                watchedList: LocalData.getWatchedArr()
+            },
+            methods: {}
+        })
+    },
+    dataVue: {
+        watchedList: LocalData.getWatchedArr(),//已观看视频个数,
 
+    },
+    addWatched(data) {//添加视频到已观看列表流程
+        if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
+            return;
+        }
+        const arr = LocalData.getWatchedArr();
+        for (const v of arr) {
+            const tempTitle = data["title"];
+            if (v["title"] === tempTitle) {
+                alert(`您已添加该视频【${tempTitle}】！故本轮不添加进去！`);
+                return;
+            }
+        }
+        arr.push(data);
+        LocalData.setWatchedArr(arr);
+        Qmsg.success("添加成功")
+        alert(`已添加视频【${data["title"]}】至已观看列表！`);
+    }
+}
+//匹配数组元素
+const Matching = {
+    /**
+     * 根据用户提供的网页元素和对应的数组及key，精确匹配数组某个元素
+     * @param arr 数组
+     * @param key 唯一key
+     * @returns {boolean}
+     */
+    arrKey(arr, key) {
+        if (arr === null || arr === undefined) {
+            return false;
+        }
+        return arr.includes(key);
+    },
+    /**
+     * 根据对象数组，返回匹配数组中对象oBjKey属性是否有指定value的布尔值
+     * @param objArr{Array} 对象数组
+     * @param objKey{String}对象属性名
+     * @param value {String} 要匹配的完整值
+     * @return {boolean} 是否有指定value布尔值
+     */
+    arrObjKey(objArr, objKey, value) {
+        for (const v of objArr) {
+            if (v[objKey] === undefined) {
+                continue;
+            }
+            if (v[objKey] === value) {
+                return true;
+            }
+        }
+        return false;
+    },
+    /**
+     * 根据用户提供的字符串集合，当content某个字符包含了了集合中的某个字符则返回对应的字符，模糊匹配
+     * 反之返回null
+     * @param {string[]}arr 字符串数组
+     * @param {string}content 内容
+     * @returns {null|string}
+     */
+    arrContent(arr, content) {
+        if (arr === null || arr === undefined) {
+            return null;
+        }
+        try {
+            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
+            for (let str of arr) {
+                if (lowerCase.includes(str)) {
+                    return str;
+                }
+            }
+        } catch (e) {
+            return null;
+        }
+        return null;
+    },
+    /**
+     * 根据用户提供的字符串集合，与指定内容进行比较，当content某个字符包含了了集合中的某个正则匹配则返回对应的字符，正则匹配
+     * 反之返回null
+     * @param {string[]}arr 字符串数组
+     * @param {string}content 内容
+     * @return {null|string}
+     */
+    arrContentCanonical(arr, content) {
+        if (arr === null || arr === undefined) {
+            return null;
+        }
+        try {
+            const lowerCase = Util.strTrimAll(content).toLowerCase();//将内容去重空格并把字母转成小写进行比较
+            for (let str of arr) {
+                if (lowerCase.search(str) === -1) {
+                    continue;
+                }
+                return str;
+            }
+        } catch (e) {
+            return null;
+        }
+        return null;
+    }
+}
+const UrleCrud = {//规则的增删改查
+    /**
+     * 单个元素进行添加
+     * @param {Array} arr
+     * @param {String,number} key
+     * @param {String} ruleStrName
+     */
+    add(arr, key, ruleStrName) {
+        arr.push(key);
+        Util.setData(ruleStrName, arr);
+        Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
+        Rule.ruleLength();
+        return true;
+    },
+    /**
+     * 批量添加，要求以数组形式
+     * @param {Array} arr
+     * @param {Array} key
+     * @param ruleStrName
+     */
+    addAll(arr, key, ruleStrName) {
+        let tempLenSize = 0;
+        const set = new Set();
+        for (let v of key) {
+            if (arr.includes(v)) {
+                continue;
+            }
+            tempLenSize++;
+            arr.push(v);
+            set.add(v);
+        }
+
+        if (tempLenSize === 0) {
+            Print.ln("内容长度无变化，可能是已经有了的值")
+            return;
+        }
+        Util.setData(ruleStrName, arr);
+        Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
+        Rule.ruleLength();
+    },
+    /**
+     *
+     * @param arr
+     * @param key
+     * @param ruleStrName
+     * @return {boolean}
+     */
+    del(arr, key, ruleStrName) {
+        const index = arr.indexOf(key);
+        if (index === -1) {
+            Print.ln("未有该元素！")
+            return false;
+        }
+        arr.splice(index, 1);
+        Util.setData(ruleStrName, arr);
+        Print.ln("已经删除该元素=" + key);
+        Rule.ruleLength();
+        return true;
+    }
+
+}
 async function perf_observer() {
     const entries = performance.getEntriesByType('resource');
     const windowUrl = Util.getWindowUrl();
@@ -3557,12 +3601,13 @@ const DefVideo = {
                 Util.circulateClassNames("right-container is-in-large-ab", 0, 3, 1500, "已移除视频播放器右侧的布局");
                 return;
             }
-            Util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
-            Util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
-            Util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
-            Util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
-            Util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
-            Util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
+            // Util.forIntervalDelE("#slide_ad", "已移除右侧slide_ad广告！");
+            // Util.circulateClassNames("video-page-special-card-small", 0, 2, 2000, "移除播放页右上角的其他推广");
+            // Util.circulateClassNames("vcd", 0, 2, 2000, "已移除右上角的广告");
+            // Util.circulateClassName("video-page-game-card-small", 2000, "移除播放页右上角的游戏推广");
+            // Util.circulateIDs("right-bottom-banner", 2, 1500, "删除右下角的活动推广");
+            // Util.circulateClassName("pop-live-small-mode part-undefined", 1000, "删除右下角的直播推广")
+            // Util.circulateClassNames("ad-report video-card-ad-small", 0, 3, 2000, "已删除播放页右上角的广告内容");
             if (video.isrigthVideoList) {
                 Util.circulateID("reco_list", 2000, "已移除播放页右侧的视频列表");
                 return;
@@ -4217,7 +4262,6 @@ const GreatDemand = {//热门
         }
     }
 }
-
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -5761,15 +5805,8 @@ color: #ff0000;
 `);
     },
     showInfo() {
-        const isDShielPanel = Util.getData("isDShielPanel");
         const isAutoPlay = Util.getData("autoPlay");
-        const dShielPanel = $("#DShielPanel");
         const autoPlayCheckbox = $("#autoPlayCheckbox");
-        if (isDShielPanel === null || isDShielPanel === undefined) {
-            dShielPanel.attr("checked", false);
-        } else {
-            dShielPanel.attr("checked", isDShielPanel);
-        }
         if (isAutoPlay === null || isAutoPlay === undefined) {
             autoPlayCheckbox.attr("checked", false);
         } else {
@@ -6021,15 +6058,15 @@ const Home = {
     },
     openTab(e) {// 点击标签时执行此函数
         // 获取所有标签布局
-        const tabs = document.getElementsByClassName("tab");
+        const tabs = document.querySelectorAll(".tab");
         // 循环遍历每个标签布局
-        for (let i = 0; i < tabs.length; i++) {
+        for (let v of tabs) {
             // 从所有标签布局中删除“active”类，使它们不可见
-            tabs[i].classList.remove("active");
+            v.classList.remove("active");
         }
+        const tempE = document.querySelector(`#${e}`);
         // 将指定的标签布局添加到“active”类，使它可见
-        const tempId = document.getElementById(e);
-        tempId.classList.add("active");
+        tempE.classList.add("active");
     }
 }
 
@@ -6421,146 +6458,6 @@ const Print = {
         <b  style="color: ${color}; ">${Util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
    原言论=【${primaryContent}】</b>
 </dd>`);
-    }
-};
-
-const HoverBlockList = {
-    /**
-     *匹配符合条件的数组
-     * @param arr 数组
-     * @param key 匹配元素键中的key
-     * @param search 符合上面参数，且包含该关键字的匹配
-     * @returns Array
-     */
-    searchAndInitList(arr, key, search = '') {
-        const searchStr = search.toString().toLowerCase();
-        const result = [];
-
-        function omitKey(obj, key, search) {
-            const newItem = Object.assign({}, obj);
-            delete newItem[key];
-            newItem[key] = search;
-            return newItem;
-        }
-
-        for (let i = 0, len = arr.length; i < len; i++) {
-            const item = arr[i];
-            if (item.hasOwnProperty(key) && item[key].toString().toLowerCase().includes(searchStr)) {
-                const existingItemIndex = result.findIndex(r => r.uid === item.uid);
-
-                if (existingItemIndex === -1) {
-                    const newItem = {
-                        uid: item.uid,
-                        show: item[$("#show-select").val()],
-                        items: [omitKey(item, key, search)]
-                    };
-
-                    result.push(newItem);
-                } else {
-                    result[existingItemIndex].items.push(omitKey(item, key, search));
-                }
-            }
-        }
-        return result;
-    },
-    /**
-     *数据例子
-     * [
-     *         {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
-     *         {"uid": 2, "name": "李四", "age": 25},
-     *         {"uid": 3, "name": "王四", "age": 30}
-     *     ];
-     * @param list 数据
-     * @param typeName 要显示在项目的值
-     * @param func 点击获取选中事件
-     */
-    init(list, typeName = "name", func) {
-        const pop_ListLayout = $("pop-ListLayout");
-        if (pop_ListLayout.length > 0) {
-            alert("请先关闭现有悬浮列表！");
-            return;
-        }
-        $("body").append(`<div id="pop-ListLayout" style="
-position: fixed;
-z-index: 2000;
-    left: 76%;
-    top: 9%;
-    background: cornflowerblue;">
-    <div style="display: flex;
-    flex-direction: row-reverse;
-">
-        <button  id="clone-popLayoutList">关闭</button>
-    </div>
-    <label>筛选条件:
-        <select id="search-select"></select>
-    </label>
-    <label>显示条件
-        <select id="show-select"></select>
-    </label>
-    <br>
-    <label>搜索内容:</label>
-    <input id="search-input" type="text">
-    <ul id="popList" style="list-style: none;padding: 0;overflow-y: auto;height: 350px; list-style: none;padding: 0;">
-    </ul>
-    <button id="getSelectedCheckboxItem">获取选中的数据</button>
-</div>`);
-
-        for (let v of Util.getDistinctKeys(list)) {
-            $("#search-select").append(`<option value=${v}>${v}</option>`);
-            $("#show-select").append(`<option value=${v}>${v}</option>`);
-        }
-
-        HoverBlockList.initList(list, typeName);
-        $("#getSelectedCheckboxItem").click(() => {
-            // 获取所有选中的项
-            const checkedItems = $('#popList input[type="checkbox"]:checked');
-            if (checkedItems.length === 0) {
-                return;
-            }
-            const tempArrID = [];
-            // 遍历选中的元素并打印它们的值
-            checkedItems.each(function () {
-                tempArrID.push(parseInt($(this).val()));
-            });
-            if (tempArrID.length === 0) {
-                return;
-            }
-            func(tempArrID);
-        });
-        // 监听 input 的 value 变化
-        $('#search-input').on('input', function () {
-            const content = $(this).val();
-            if (content === "" || content.includes(" ")) {
-                return;
-            }
-            const search_selectV = $("#search-select").val();
-            HoverBlockList.initList(list, search_selectV, content);
-        });
-        $("#clone-popLayoutList").click(() => {//点击关闭，则删掉悬浮列表下面的所有jq添加的事件并删除列表元素
-            const popMain = $("#pop-ListLayout");
-            popMain.off();
-            popMain.remove();
-            $("#OpenTheFilteredList").show();
-        });
-    },
-    /**
-     *
-     * @param dataList 数据列表
-     * @param itemKey 匹配元素键中的key
-     * @param search 搜索的关键词
-     * @returns {boolean}
-     */
-    initList(dataList, itemKey, search = "") {
-        const keyArr = HoverBlockList.searchAndInitList(dataList, itemKey, search);
-        if (keyArr.length === 0) {
-            return false;
-        }
-        const popList = $("#popList");
-        popList.children().remove();
-        keyArr.forEach((value) => {
-            popList.append($(`<li><label><input type="checkbox" value=${value.uid}>${value.show}</label></li>`));
-        });
-        return true;
     }
 };
 
@@ -7076,19 +6973,30 @@ $("#mybut").click(() => Home.hideDisplayHomeLaylout());
 
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     const keycode = event.keyCode;
-    if (keycode === 192) {//按下`按键显示隐藏面板
-        Home.hideDisplayHomeLaylout();
-    }
-    if (keycode === 49) {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
-        const q = $("#quickLevitationShield");
-        q.prop("checked", !q.is(':checked'));
-    }
-    if (keycode === 50) {//隐藏快捷悬浮屏蔽按钮 键盘上的2
-        const q = $("#fixedPanelValueCheckbox");
-        q.prop("checked", !q.is(':checked'));
-    }
-    if (keycode === 51) {//隐藏快捷悬浮屏蔽按钮 键盘上的3
-        $("#suspensionDiv").hide();
+    switch (keycode) {
+        case 192: {//按下`按键显示隐藏面板
+            Home.hideDisplayHomeLaylout();
+            break;
+        }
+        case 49: {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
+            const q = $("#quickLevitationShield");
+            q.prop("checked", !q.is(':checked'));
+            break;
+        }
+        case 50: {//固定快捷悬浮面板值 键盘上的2
+            const q = $("#fixedPanelValueCheckbox");
+            q.prop("checked", !q.is(':checked'));
+            break;
+        }
+        case 51: {//隐藏快捷悬浮屏蔽按钮 键盘上的3
+            $("#suspensionDiv").hide();
+            break;
+        }
+        case 52: {//选中或取消面板中面板设置禁用快捷悬浮屏蔽面板自动显示
+            const vue = panelSetsTheLayoutVue();
+            vue.isDShieldPanel = !vue.isDShieldPanel;
+            break;
+        }
     }
 });
 
@@ -7234,21 +7142,6 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
     Qmsg.success("获取成功并执行导出内容");
 });
 
-const openTheFilteredList = $("#OpenTheFilteredList");
-openTheFilteredList.click(() => {
-    Qmsg.info("该功能暂未完善");
-    openTheFilteredList.hide();
-    const windowsTitle = document.title;
-    const windowUrl = Util.getWindowUrl();
-    HoverBlockList.init([
-        {"uid": 1, "name": "张三", "age": 20, "title": "标题"},
-        {"uid": 2, "name": "李四", "age": 25},
-        {"uid": 3, "name": "王四", "age": 30}
-    ], "name", (data) => {
-        console.log(data);
-    });
-    console.log(href);
-});
 
 $("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
     const value = $("#axleRange").val();//获取值
@@ -7263,26 +7156,6 @@ $hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayo
 const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
 $hideVideoTopTitleInfoCheackBox.click(() => LocalData.video.setHideVideoTopTitleInfoLayout($hideVideoTopTitleInfoCheackBox.is(":checked")));
 
-$("#backgroundPellucidityRange").bind("input propertychange", function () {//监听拖动条值变化-面板背景透明度拖动条
-    const value = $("#backgroundPellucidityRange").val();//获取值
-    $("#backgroundPelluciditySpan").text(value);//修改对应标签的文本显示
-    const back = Home.background;
-    $("#home_layout").css("background", Util.getRGBA(back.r, back.g, back.b, value));
-});
-$("#heightRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板高度拖动条
-    const value = $("#heightRange").val();//获取值
-    $("#heightSpan").text(value + "%");//修改对应标签的文本显示
-    $("#home_layout").css("height", `${value}%`);
-});
-$("#widthRange").bind("input propertychange", function (event) {//监听拖动条值变化-面板宽度拖动条
-    const value = $("#widthRange").val();//获取值
-    $("#widthSpan").text(value + "%");//修改对应标签的文本显示
-    $("#home_layout").css("width", `${value}%`);
-});
-
-$("#DShielPanel").click(() => {//点击禁用快捷悬浮屏蔽面板自动显示
-    Util.setData("isDShielPanel", $("#DShielPanel").is(":checked"));
-});
 
 $("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
     Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
@@ -8095,6 +7968,7 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
 
 Watched.WatchedListVue();
 const returnVue = LookAtItLater.returnVue();
+const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 
 
 //每秒监听网页标题URL
