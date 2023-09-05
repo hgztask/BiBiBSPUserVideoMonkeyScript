@@ -1184,19 +1184,30 @@ $("#mybut").click(() => Home.hideDisplayHomeLaylout());
 
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     const keycode = event.keyCode;
-    if (keycode === 192) {//按下`按键显示隐藏面板
-        Home.hideDisplayHomeLaylout();
-    }
-    if (keycode === 49) {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
-        const q = $("#quickLevitationShield");
-        q.prop("checked", !q.is(':checked'));
-    }
-    if (keycode === 50) {//隐藏快捷悬浮屏蔽按钮 键盘上的2
-        const q = $("#fixedPanelValueCheckbox");
-        q.prop("checked", !q.is(':checked'));
-    }
-    if (keycode === 51) {//隐藏快捷悬浮屏蔽按钮 键盘上的3
-        $("#suspensionDiv").hide();
+    switch (keycode) {
+        case 192: {//按下`按键显示隐藏面板
+            Home.hideDisplayHomeLaylout();
+            break;
+        }
+        case 49: {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
+            const q = $("#quickLevitationShield");
+            q.prop("checked", !q.is(':checked'));
+            break;
+        }
+        case 50: {//固定快捷悬浮面板值 键盘上的2
+            const q = $("#fixedPanelValueCheckbox");
+            q.prop("checked", !q.is(':checked'));
+            break;
+        }
+        case 51: {//隐藏快捷悬浮屏蔽按钮 键盘上的3
+            $("#suspensionDiv").hide();
+            break;
+        }
+        case 52: {//选中或取消面板中面板设置禁用快捷悬浮屏蔽面板自动显示
+            const vue = panelSetsTheLayoutVue();
+            vue.isDShieldPanel = !vue.isDShieldPanel;
+            break;
+        }
     }
 });
 

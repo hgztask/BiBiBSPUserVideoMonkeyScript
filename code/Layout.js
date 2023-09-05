@@ -465,7 +465,7 @@ border: 0.5px solid green;
       </div>
     </div>
     <h1>快捷悬浮面板</h1>
-    <input type="checkbox" v-model="isDShieldPanel"><span>禁用快捷悬浮屏蔽面板自动显示(提示:快捷键3可隐藏该快捷悬浮屏蔽面板)</span>
+    <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>
 </div><!-- 面板设置布局 -->
   <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
