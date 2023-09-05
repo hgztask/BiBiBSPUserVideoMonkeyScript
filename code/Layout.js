@@ -485,9 +485,9 @@ border: 0.5px solid green;
   <button @click="inputLookAtItLaterArr">追加导入稍后再看列表</button>
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <button @click="listInversion">列表反转</button>
+  <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
   <div>
   搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList"  @change="getTypeListShowValue($event)">{{item}}</option></select>
-  
 </div>
   <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
