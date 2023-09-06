@@ -56,6 +56,23 @@ const UrleCrud = {//规则的增删改查
         Print.ln("已经删除该元素=" + key);
         Rule.ruleLength();
         return true;
+    },
+    /**
+     *根据数组中的每一项rule名，删除对应存储在油猴脚本中的数据
+     * @param ruleStrNameArr{Array} 删除成功之后的个数，和对应的rule名
+     */
+    delALl(ruleStrNameArr) {
+        const info = {index: 0, ruleNameArr: []};
+        for (let rule of ruleStrNameArr) {
+            if (!Util.isData(rule)) {
+                continue;
+            }
+            if (Util.delData(rule)) {
+                info.index++;
+                info.ruleNameArr.push(rule);
+            }
+        }
+        return info;
     }
 
 }
