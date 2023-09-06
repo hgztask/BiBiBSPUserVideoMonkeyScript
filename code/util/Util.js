@@ -7,8 +7,8 @@ const Util = {
         GM_setValue(key, content);
     },
     //读取数据
-    getData(key) {
-        return GM_getValue(key);
+    getData(key, defaultValue) {
+        return GM_getValue(key, defaultValue);
     },
     //删除数据
     delData(key) {
