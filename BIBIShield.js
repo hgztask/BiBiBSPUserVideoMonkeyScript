@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.61
+// @version      1.1.62
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理，支持获取b站相关数据并导出为json(用户收藏夹导出，历史记录导出、关注列表导出、粉丝列表导出)(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -5987,10 +5987,9 @@ const Home = {
                 if (list.length === 0) {
                     return;
                 }
+                clearInterval(interval);
                 $(".floor-single-card").remove();
                 $(".bili-live-card").remove();
-                clearInterval(interval);
-
                 for (let v of list) {
                     let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
                     const videoClass = new VideoClass();
@@ -6005,8 +6004,10 @@ const Home = {
                             .setUid(Util.getSubWebUrlUid(upSpatialAddress))
                             .setVideoTime(v.querySelector(".bili-video-card__stats__duration").textContent)
                             .setPlaybackVolume(topInfo[0].textContent)
-                            .setBarrageQuantity(topInfo[1].textContent)
                             .setE(v);
+                        if (topInfo[1] !== undefined) {
+                            videoClass.setBarrageQuantity(topInfo[1].textContent)
+                        }
                     } catch (e) {
                         v.remove();
                         console.error("清理异常元素", e);
@@ -7970,6 +7971,8 @@ Watched.WatchedListVue();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 
+
+Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
 //每秒监听网页标题URL
 setInterval(function () {//每秒监听网页中的url
