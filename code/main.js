@@ -2183,6 +2183,8 @@ const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 
 
+Util.suspensionBall(document.querySelector("#suspensionDiv"));
+
 //每秒监听网页标题URL
 setInterval(function () {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
