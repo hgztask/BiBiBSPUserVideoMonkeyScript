@@ -198,10 +198,9 @@ const Home = {
                 if (list.length === 0) {
                     return;
                 }
+                clearInterval(interval);
                 $(".floor-single-card").remove();
                 $(".bili-live-card").remove();
-                clearInterval(interval);
-
                 for (let v of list) {
                     let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
                     const videoClass = new VideoClass();
@@ -216,8 +215,10 @@ const Home = {
                             .setUid(Util.getSubWebUrlUid(upSpatialAddress))
                             .setVideoTime(v.querySelector(".bili-video-card__stats__duration").textContent)
                             .setPlaybackVolume(topInfo[0].textContent)
-                            .setBarrageQuantity(topInfo[1].textContent)
                             .setE(v);
+                        if (topInfo[1] !== undefined) {
+                            videoClass.setBarrageQuantity(topInfo[1].textContent)
+                        }
                     } catch (e) {
                         v.remove();
                         console.error("清理异常元素", e);
