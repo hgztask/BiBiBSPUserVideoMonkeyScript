@@ -10,9 +10,16 @@ const Util = {
     getData(key, defaultValue) {
         return GM_getValue(key, defaultValue);
     },
+    isData(key) {//判断数据是否存在
+        return this.getData(key) !== undefined;
+    },
     //删除数据
     delData(key) {
+        if (!this.isData(key)) {
+            return false;
+        }
         GM_deleteValue(key);
+        return true;
     },
     setLocalData(key, data) {
         window.localStorage.setItem(key, data);
