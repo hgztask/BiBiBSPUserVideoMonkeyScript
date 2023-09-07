@@ -64,11 +64,22 @@ async function bilibiliOne(href, windowsTitle) {
 
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+        const interval03 = setInterval(() => {
+            const jqE = $(".channel-icons");
+            if (jqE.length === 0) {
+                return;
+            }
+            clearInterval(interval03);
+            const jqELast = jqE.children().eq(-1);
+            const jqEa = jqELast.clone();
+            jqEa.attr("href", "https://www.bilibili.com/v/channel");
+            jqEa.find(".icon-title").text("频道");
+            jqE.append(jqEa);
+        }, 1000);
         if (!LocalData.getIsMainVideoList()) {
             Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
                 Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
             }); //换一换
-
             return;
         }
 
