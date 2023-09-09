@@ -77,11 +77,7 @@ const LookAtItLater = {
                 },
                 listInversion() {
                     this.lookAtItLaterList.reverse();
-                },
-                getTypeListShowValue(event) {
-                    this.typeListShowValue = event.target.value;
                 }
-
             },
             watch: {
                 searchKey(newValue, oldValue) {//监听搜索关键词key
