@@ -1,61 +1,138 @@
 const UrleCrud = {//规则的增删改查
+    addShow(ruleType, ruleName, content = null) {
+        if (content === null) {
+            content = prompt(`要添加的类型为${ruleName}，请在输入框中填写要添加的具体值规则.`);
+            if (content === null) return false;
+            content = content.trim();
+            if (content === "") {
+                Qmsg.error("请输入正确的内容！");
+                return false;
+            }
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(content)) {
+                Qmsg.error(`输入的内容不是一个数字！value=${content}`);
+                return false;
+            }
+            content = parseInt(content);
+        }
+        if (!confirm(`是要添加的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
+            return false;
+        }
+        let ruleDataList = Util.getData(ruleType, []);
+        this.add(ruleDataList, content, ruleType);
+        return true;
+    },
+    addAllShow(ruleType, ruleName, jsonStrContent) {
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            alert("暂不支持uid和白名单uid批量添加");
+            return false;
+        }
+        let json;
+        if (typeof jsonStrContent !== "string") {
+            return false;
+        }
+        jsonStrContent = jsonStrContent.trim();
+        try {
+            json = JSON.parse(jsonStrContent);
+        } catch (e) {
+            Qmsg.error(`内容不正确！内容需要数组或者json格式！错误信息=${e}`);
+            console.error("内容不正确！内容需要数组或者json格式！错误信息", e);
+            return false;
+        }
+        const ruleList = Util.getData(ruleType, []);
+        return this.addAll(ruleList, json, ruleType);
+    },
     /**
      * 单个元素进行添加
      * @param {Array} arr
      * @param {String,number} key
-     * @param {String} ruleStrName
+     * @param {String} ruleType
      */
-    add(arr, key, ruleStrName) {
+    add(arr, key, ruleType) {
+        if (arr.includes(key)) return false;
         arr.push(key);
-        Util.setData(ruleStrName, arr);
-        Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
+        Util.setData(ruleType, arr);
+        Qmsg.success(`添加${ruleType}的值成功=${key}`);
         Rule.ruleLength();
         return true;
     },
     /**
      * 批量添加，要求以数组形式
-     * @param {Array} arr
-     * @param {Array} key
-     * @param ruleStrName
+     * @param {Array} ruleList
+     * @param {Array} contentList
+     * @param ruleType
      */
-    addAll(arr, key, ruleStrName) {
+    addAll(ruleList, contentList, ruleType) {
         let tempLenSize = 0;
-        const set = new Set();
-        for (let v of key) {
-            if (arr.includes(v)) {
-                continue;
-            }
-            tempLenSize++;
-            arr.push(v);
-            set.add(v);
+        const set = new Set(ruleList);
+        for (const value of set) {
+            set.add(value);
         }
-
-        if (tempLenSize === 0) {
+        if (set.size === ruleList.length) {
             Print.ln("内容长度无变化，可能是已经有了的值")
-            return;
+            return false;
         }
-        Util.setData(ruleStrName, arr);
-        Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
+        const fromList = Array.from(set);
+        Util.setData(ruleType, fromList);
+        console.log(`已更新${ruleType}的数组`, fromList);
         Rule.ruleLength();
+        return true;
     },
     /**
      *
-     * @param arr
-     * @param key
-     * @param ruleStrName
+     * @param ruleList
+     * @param content
+     * @param ruleType
      * @return {boolean}
      */
-    del(arr, key, ruleStrName) {
-        const index = arr.indexOf(key);
+    del(ruleList, content, ruleType) {
+        const index = ruleList.indexOf(content);
         if (index === -1) {
-            Print.ln("未有该元素！")
             return false;
         }
-        arr.splice(index, 1);
-        Util.setData(ruleStrName, arr);
-        Print.ln("已经删除该元素=" + key);
+        ruleList.splice(index, 1);
+        Util.setData(ruleType, ruleList);
+        Print.ln("已经删除该元素=" + content);
         Rule.ruleLength();
         return true;
+    },
+    delShow(ruleType, ruleName, content = null) {
+        if (content === null) {
+            content = prompt(`要删除的类型为${ruleName}，请在输入框中填写要添加的具体值规则.`);
+            if (content === null) return false;
+            content = content.trim();
+            if (content === "") {
+                Qmsg.error("请输入正确的内容！");
+                return false;
+            }
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(content)) {
+                Qmsg.error(`输入的内容不是一个数字！value=${content}`);
+                return false;
+            }
+            content = parseInt(content);
+        }
+        if (!confirm(`是要添加的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
+            return false;
+        }
+        let ruleDataList = Util.getData(ruleType, []);
+        this.del(ruleDataList, content, ruleType);
+        return true;
+    },
+    delItem(ruleType) {
+        if (!Util.isData(ruleType)) {
+            return false;
+        }
+        Util.setData(ruleType, []);
+        return true;
+    },
+    delItemShow(ruleType, ruleName) {
+        if (!confirm(`是要删除指定项目${ruleName}的规则吗？`)) {
+            return;
+        }
+        this.delItem(ruleType);
     },
     /**
      *根据数组中的每一项rule名，删除对应存储在油猴脚本中的数据
@@ -73,6 +150,37 @@ const UrleCrud = {//规则的增删改查
             }
         }
         return info;
+    },
+    findKey(ruleType, key, defaultValue = undefined) {
+        if (!Util.isData(ruleType)) {
+            return false;
+        }
+        return Util.getData(ruleType, defaultValue).includes(key);
+    },
+    findKeyShow(ruleType, ruleName, key = null) {
+        if (key === null) {
+            key = prompt(`输入要查询${ruleName}的具体规则值`);
+            if (key === null) return;
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(key)) {
+                Qmsg.error(`输入的内容不是一个数字！value=${key}`);
+                return false;
+            }
+            key = parseInt(key);
+        }
+        let tip;
+        if (this.findKey(ruleType, key, [])) {
+            tip = `搜索的${ruleName}规则值已存在！find=${key}`;
+            Qmsg.success(tip);
+            console.log(tip, key);
+            Print.ln(tip);
+            return;
+        }
+        tip = `搜索的${ruleName}规则值不存在！find=${key}`;
+        Qmsg.error(tip);
+        console.log(tip, key);
+        Print.ln(tip);
     }
 
 }

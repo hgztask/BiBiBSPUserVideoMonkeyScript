@@ -286,7 +286,7 @@ async function bilibiliOne(href, windowsTitle) {
         }
 
         filterQueue.click(() => {
-            butLayEvent.butaddName("userUIDArr", hrefUID);
+            UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", hrefUID);
         });
 
         getDataListBut.click(() => {
@@ -469,7 +469,7 @@ async function bilibiliOne(href, windowsTitle) {
                 if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid=${uid}`)) {
                     return;
                 }
-                butLayEvent.butaddName("userUIDArr", parseInt(uid));
+                UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", uid);
                 return;
             }
             alert("暂不支持屏蔽多作者方式.");

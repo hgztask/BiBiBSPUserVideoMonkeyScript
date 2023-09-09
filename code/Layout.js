@@ -108,27 +108,20 @@ border: 0.5px solid green;
           <option value="one">单个</option>
           <option value="batch">批量</option>
         </select>
-        <select id="model">
-          <option value="userNameArr">用户名黑名单模式(精确匹配)</option>
-          <option value="userNameKeyArr">用户名黑名单模式(模糊匹配)</option>
-          <option value="userUIDArr">用户uid黑名单模式(精确匹配)</option>
-          <option value="userWhiteUIDArr">用户白名单模式(精确匹配)</option>
-          <option value="titleKeyArr">标题黑名单模式(模糊匹配)</option>
-          <option value="titleKeyCanonicalArr">标题黑名单模式(正则匹配)</option>
-          <option value="commentOnKeyArr">评论关键词黑名单模式(模糊匹配)</option>
-          <option value="contentOnKeyCanonicalArr">评论关键词黑名单模式(正则匹配)</option>
-          <option value="fanCardArr">粉丝牌黑名单模式(精确匹配)</option>
-          <option value="contentColumnKeyArr">专栏关键词内容黑名单模式(模糊匹配)</option>
-          <option value="dynamicArr">动态关键词内容黑名单模式(模糊匹配)</option>
+        
+        
+        <select v-model="defaultSelect">
+          <option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item}}</option>
         </select>
+        
         <textarea id="inputTextAreaModel" style="resize: none; width: 40%; height: 100px; display: none"></textarea>
         <div>
-          <button id="butadd">增加</button>
-          <button id="butaddAll" style="display: none">批量增加</button>
-          <button id="butdel">删除</button>
-          <button id="butdelAll" style="display: none">全部删除</button>
+          <button @click="add">增加</button>
+          <button style="display: none" @click="addAll">批量增加</button>
+          <button @click="del">删除</button>
+          <button style="display: none" @click="delItem">全部删除</button>
           <button id="butSet">修改</button>
-          <button id="butFind">查询</button>
+          <button @click="findKey">查询</button>
           <button id="lookRuleContentBut">查看本地规则内容</button>
         </div>
       </div>
@@ -487,7 +480,7 @@ border: 0.5px solid green;
   <button @click="listInversion">列表反转</button>
   <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
   <div>
-  搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList"  @change="getTypeListShowValue($event)">{{item}}</option></select>
+  搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
 </div>
   <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">

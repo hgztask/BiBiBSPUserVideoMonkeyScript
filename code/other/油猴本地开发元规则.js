@@ -7,6 +7,7 @@
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\PanelSetsTheLayout.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\LookAtItLater.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\Watched.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\RuleCRUDLayout.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\matching.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\UrleCrud.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\Perf_observer.js

@@ -756,93 +756,6 @@ function startMonitorTheNetwork() {//监听网络变化
 }
 
 const butLayEvent = {
-    butaddName(ruleStr, contentV) {
-        if (contentV === '') {
-            Qmsg.error("请输入正确的内容");
-            return false;
-        }
-        if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
-            return false;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            UrleCrud.add([], contentV, ruleStr);
-            return false;
-        }
-        if (arrayList.includes(contentV)) {
-            Qmsg.error("当前已有该值！")
-            return false;
-        }
-        return UrleCrud.add(arrayList, contentV, ruleStr);
-        ;
-    },
-    butaddAllName(ruleStr, contentV) {
-        if (contentV === '') {
-            Print.ln("请输入正确的内容")
-            return;
-        }
-        let tempList;
-        try {
-            tempList = JSON.parse(contentV);
-        } catch (error) {
-            Qmsg.error("内容不正确！内容需要数组或者json格式！错误信息=" + error);
-            return;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            UrleCrud.addAll([], tempList, ruleStr);
-            return;
-        }
-        UrleCrud.addAll(arrayList, tempList, ruleStr);
-    },
-    butDelName(ruleStr, contentV) {
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            Print.ln("没有内容哟")
-            return false;
-        }
-        if (!arrayList.includes(contentV)) {
-            Print.ln("没有该内容哟=" + contentV)
-            return false;
-        }
-        return UrleCrud.del(arrayList, contentV, ruleStr);
-    },
-    butDelAllName(ruleStr) {
-        const list = Util.getData(ruleStr);
-        if (list === null || list === undefined) {
-            Print.ln("没有内容哟")
-            return;
-        }
-        const b = confirm("您确定要全部删除吗？");
-        if (!b) {
-            return;
-        }
-        Util.delData(ruleStr);
-        Print.ln("已全部清除=" + ruleStr);
-        Rule.ruleLength();
-    },
-    //查询
-    butFindKey(ruleStr, contentV) {
-        if (contentV === '') {
-            Print.ln("请输入正确的内容")
-            return;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            Print.ln("找不到该内容！");
-            return;
-        }
-        if (arrayList.includes(contentV)) {
-            const info = `搜索的值【${contentV}】，已存在！`;
-            Print.ln(info);
-            Qmsg.success(info);
-            return;
-        }
-        const info = `找不到该内容！【${contentV}】`;
-        Print.ln(info);
-        Qmsg.error(info);
-    },
-
     //修改
     butSetKey(ruleStr, oldKey, newKey) {
         if (oldKey === '' || oldKey.includes(" ") || newKey === "" || newKey.includes(" ")) {
@@ -1212,35 +1125,21 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     }
 });
 
+
+//TODO 等待处理
 $('#singleDoubleModel').change(() => {//监听模式下拉列表
     const modelStr = $('#singleDoubleModel').val();
     const inputTextAreaModel = $('#inputTextAreaModel');
-    const butadd = $('#butadd');
-    const butdel = $('#butdel');
-    const butaddAll = $('#butaddAll');
-    const butdelAll = $('#butdelAll');
     const butSet = $('#butSet');
-    const butFind = $('#butFind');
     if (modelStr === "one") {//如果中的是单个
         inputTextAreaModel.css("display", "none");
         //暂时显示对应的按钮
-        butadd.css("display", "inline");
-        butdel.css("display", "inline");
         butSet.css("display", "inline");
-        butFind.css("display", "inline");
-        butaddAll.css("display", "none");
-        butdelAll.css("display", "none");
         return;
     }//如果选择的是批量
     inputTextAreaModel.css("display", "block");
-
-    butaddAll.css("display", "inline");
-    butdelAll.css("display", "inline");
     //暂时隐藏别的按钮先
-    butadd.css("display", "none");
-    butdel.css("display", "none");
     butSet.css("display", "none");
-    butFind.css("display", "none");
 });
 
 $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
@@ -1396,59 +1295,6 @@ $("#butClearMessage").click(() => {
     document.querySelector('#outputInfo').innerHTML = '';
 });
 
-$("#butadd").click(function () {//增
-    const typeVal = $("#model option:selected").val();
-    const content = prompt("请填写要添加的值");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butaddName(typeVal, parseInt(content));
-        return;
-    }
-    butLayEvent.butaddName(typeVal, content);
-})
-
-$("#butaddAll").click(function () {
-    const typeVal = $("#model option:selected").val();
-    const content = $("#inputTextAreaModel").val();
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        alert("暂不支持uid和白名单uid");
-        return;
-    }
-    butLayEvent.butaddAllName(typeVal, content);
-})
-$("#butdel").click(function () {//删
-    const typeVal = $("#model option:selected").val();
-    const content = prompt("请输入你要删除的单个元素规则");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butDelName(typeVal, parseInt(content));
-        return;
-    }
-    butLayEvent.butDelName(typeVal, content);
-})
-$("#butdelAll").click(function () {//指定规则全删
-    const typeVal = $("#model option:selected").val();
-    butLayEvent.butDelAllName(typeVal);
-})
 
 $("#butSet").click(() => {
     const oldContent = prompt("请输入你要修改的单个元素规则");
@@ -1467,22 +1313,7 @@ $("#butSet").click(() => {
     }
     butLayEvent.butSetKey(typeVal, oldContent, content);
 });
-$("#butFind").click(function () {//查
-    const typeVal = $("#model option:selected").val();
-    const content = prompt("请输入你要查询的单个元素规则");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butFindKey(typeVal, parseInt(content));
-        return;
-    }
-    butLayEvent.butFindKey(typeVal, content);
-});
+
 
 $("#lookRuleContentBut").click(() => Util.openWindowWriteContent(Util.getRuleFormatStr()));
 
@@ -2062,11 +1893,10 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             LookAtItLater.addLookAtItLater(this.getVideoData());
         },
         addShieldName() {
-            butLayEvent.butaddName("userNameArr", this.upName);
+            UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", this.upName);
         },
         addShieldUid() {
-            const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(this.uid));
-            if (!tempLoop) {
+            if (!UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", this.uid)) {
                 return;
             }
             const title = document.title;
@@ -2179,6 +2009,7 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
 });
 
 Watched.WatchedListVue();
+const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 
