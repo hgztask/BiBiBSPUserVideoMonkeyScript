@@ -1125,23 +1125,6 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     }
 });
 
-
-//TODO 等待处理
-$('#singleDoubleModel').change(() => {//监听模式下拉列表
-    const modelStr = $('#singleDoubleModel').val();
-    const inputTextAreaModel = $('#inputTextAreaModel');
-    const butSet = $('#butSet');
-    if (modelStr === "one") {//如果中的是单个
-        inputTextAreaModel.css("display", "none");
-        //暂时显示对应的按钮
-        butSet.css("display", "inline");
-        return;
-    }//如果选择的是批量
-    inputTextAreaModel.css("display", "block");
-    //暂时隐藏别的按钮先
-    butSet.css("display", "none");
-});
-
 $("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
     const vaule = $("#rangePlaySpeed").val();//获取值
     Util.setVideoBackSpeed(vaule);

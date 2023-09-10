@@ -104,26 +104,25 @@ border: 0.5px solid green;
 <div>
 <div>
 <h2>规则增删改查</h2>
-        <select id="singleDoubleModel">
-          <option value="one">单个</option>
-          <option value="batch">批量</option>
-        </select>
-        
-        
-        <select v-model="defaultSelect">
-          <option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item}}</option>
-        </select>
-        
-        <textarea id="inputTextAreaModel" style="resize: none; width: 40%; height: 100px; display: none"></textarea>
+<select v-model="model">
+<option v-for="(item,key) in modelList" v-bind:value="key">{{item}}</option>
+</select>      
+<select v-model="defaultSelect">
+<option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item}}</option>
+</select> 
+<div>
+<textarea style="width: 40%; height: 100px;"v-show="isBatchShow" v-model="ruleEditBox"></textarea>
+</div>  
         <div>
-          <button @click="add">增加</button>
-          <button style="display: none" @click="addAll">批量增加</button>
-          <button @click="del">删除</button>
-          <button style="display: none" @click="delItem">全部删除</button>
+          <button @click="add" v-show="isSingleShow">增加</button>
+          <button v-show="isBatchShow" @click="addAll">批量增加</button>
+          <button @click="del" v-show="isSingleShow">删除</button>
+          <button v-show="isBatchShow" @click="delItem">全部删除</button>
           <button id="butSet">修改</button>
-          <button @click="findKey">查询</button>
+          <button @click="findKey" v-show="isSingleShow">查询</button>
           <button id="lookRuleContentBut">查看本地规则内容</button>
         </div>
+        
       </div>
     <details>
       <summary>其他</summary> 
