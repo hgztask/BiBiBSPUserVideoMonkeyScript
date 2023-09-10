@@ -1,20 +1,5 @@
 //主入口
 const Rule = {
-    ruleLength() {
-        const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
-        $textRuleInfoDiv.children().remove();
-        const ruleJson = JSON.parse(Util.getRuleFormatStr());
-        Object.keys(ruleJson).forEach(value => {
-            $textRuleInfoDiv.append(`<p>${value}个数:
-        <span>${ruleJson[value].length}</span>个
-      </p>`);
-        });
-        Util.addStyle(`
-#textRuleInfoDiv>div>p>span{
-color: #ff0000;
-}
-`);
-    },
     showInfo() {
         const isAutoPlay = Util.getData("autoPlay");
         const autoPlayCheckbox = $("#autoPlayCheckbox");
@@ -1092,7 +1077,6 @@ $("#tabUl>li>button[value='liveLayout']").click(() => {
     Live.followListLive(sessdata);
 });
 
-Rule.ruleLength();
 Rule.showInfo();
 $("#mybut").click(() => Home.hideDisplayHomeLaylout());
 
@@ -1532,7 +1516,7 @@ function rulesAreImportedLocally(ruleRes) {//规则导入本地
     LocalData.setDynamicArr(list);
     list = ruleRes["动态关键词内容黑名单模式(正则匹配)"];
     LocalData.setDynamicCanonicalArr(list);
-    Rule.ruleLength();
+    ruleCRUDLlayoutVue().updateRuleIndex();
     alert("已导入");
 }
 
@@ -1979,6 +1963,7 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
 
 Watched.WatchedListVue();
 const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
+ruleCRUDLlayoutVue().updateRuleIndex();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 

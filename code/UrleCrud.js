@@ -20,8 +20,7 @@ const UrleCrud = {//规则的增删改查
             return false;
         }
         let ruleDataList = Util.getData(ruleType, []);
-        this.add(ruleDataList, content, ruleType);
-        return true;
+        return this.add(ruleDataList, content, ruleType);
     },
     addAllShow(ruleType, ruleName, jsonStrContent) {
         if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
@@ -54,7 +53,7 @@ const UrleCrud = {//规则的增删改查
         arr.push(key);
         Util.setData(ruleType, arr);
         Qmsg.success(`添加${ruleType}的值成功=${key}`);
-        Rule.ruleLength();
+        ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
     },
     /**
@@ -76,7 +75,7 @@ const UrleCrud = {//规则的增删改查
         const fromList = Array.from(set);
         Util.setData(ruleType, fromList);
         console.log(`已更新${ruleType}的数组`, fromList);
-        Rule.ruleLength();
+        ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
     },
     /**
@@ -94,7 +93,7 @@ const UrleCrud = {//规则的增删改查
         ruleList.splice(index, 1);
         Util.setData(ruleType, ruleList);
         Print.ln("已经删除该元素=" + content);
-        Rule.ruleLength();
+        ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
     },
     delShow(ruleType, ruleName, content = null) {
@@ -114,12 +113,17 @@ const UrleCrud = {//规则的增删改查
             }
             content = parseInt(content);
         }
-        if (!confirm(`是要添加的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
+        if (!confirm(`是要删除的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
             return false;
         }
         let ruleDataList = Util.getData(ruleType, []);
-        this.del(ruleDataList, content, ruleType);
-        return true;
+        const isDel = this.del(ruleDataList, content, ruleType);
+        if (isDel) {
+            Qmsg.success(`删除指定规则内容成功！content=${content}`);
+        } else {
+            Qmsg.error(`删除失败，未找到该规则！content=${content}`);
+        }
+        return isDel;
     },
     delItem(ruleType) {
         if (!Util.isData(ruleType)) {

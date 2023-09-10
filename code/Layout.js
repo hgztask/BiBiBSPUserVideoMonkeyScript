@@ -108,7 +108,7 @@ border: 0.5px solid green;
 <option v-for="(item,key) in modelList" v-bind:value="key">{{item}}</option>
 </select>      
 <select v-model="defaultSelect">
-<option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item}}</option>
+<option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item.name}}</option>
 </select> 
 <div>
 <textarea style="width: 40%; height: 100px;"v-show="isBatchShow" v-model="ruleEditBox"></textarea>
@@ -143,9 +143,9 @@ border: 0.5px solid green;
      <li>如需要备份自己的规则可以考虑在当前选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
      </ol>
      </div>
-     <div id="textRuleInfoDiv">
+     <div>
      <h2>规则信息</h2>
-     <div></div>
+     <p v-for="(item,key) in ruleKeyList">{{item.name}}个数<span style="color: #ff0000">{{item.size}}</span>个</p>
     </div>
     <div>
     <h2>规则导入导出</h2>
