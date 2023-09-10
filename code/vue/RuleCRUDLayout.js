@@ -25,6 +25,16 @@ const RuleCRUDLayout = {
                     contentColumnKeyArr: "专栏关键词内容黑名单模式(模糊匹配)",
                     dynamicArr: "动态关键词内容黑名单模式(模糊匹配)",
                 },
+                videoRuleList: {
+                    filterSMin: "时长最小值(单位秒)",
+                    filterSMax: "时长最大值(单位秒)",
+                    broadcastMin: "播放量最小值",
+                    broadcastMax: "播放量最大值",
+                    barrageQuantityMin: "弹幕量最小值",
+                    barrageQuantityMax: "弹幕量最大值"
+                },
+                videoRuleValueInput: "",
+                videoSelectValue: "filterSMin",
                 defaultSelect: "userUIDArr",//当前下拉框选中的值
             },
             methods: {
@@ -78,6 +88,16 @@ const RuleCRUDLayout = {
                         return;
                     }
                     UrleCrud.findKeyShow(ruleType, ruleName);
+                },
+                okVideoSelectBut() {//确定时长播放量弹幕
+                    const videoSelectType = this.videoSelectValue;
+                    const videoSelectName = this.videoRuleList[videoSelectType];
+                    const contentInput = this.videoRuleValueInput;
+                    if (contentInput === "") return;
+                    Util.setData(videoSelectType, parseInt(contentInput));
+                    const info = `已设置${videoSelectName}的具体值【${contentInput}】，为0则不生效`;
+                    Print.ln(info);
+                    Qmsg.success(info);
                 }
             },
             watch: {

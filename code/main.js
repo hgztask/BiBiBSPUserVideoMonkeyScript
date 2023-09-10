@@ -1255,20 +1255,6 @@ $("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动�
     Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
 });
 
-$("#butSelectVideo").click(function () {//确定时长播放量弹幕
-    const selectVideo = $("#selectVideo");
-    const typeV = selectVideo.val();
-    let inputVideoV = $("#inputVideo").val();
-    if (inputVideoV === "") {
-        return;
-    }
-    const name = selectVideo.find("option:selected").text();
-    Util.setData(typeV, parseInt(inputVideoV));
-    const info = `已设置${name}的具体值【${inputVideoV}】，为0则不生效`;
-    Print.ln(info);
-    Qmsg.success(info);
-});
-
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {
         if (!confirm("是要清空消息吗？")) {

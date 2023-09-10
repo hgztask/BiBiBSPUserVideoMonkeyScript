@@ -122,21 +122,16 @@ border: 0.5px solid green;
           <button @click="findKey" v-show="isSingleShow">查询</button>
           <button id="lookRuleContentBut">查看本地规则内容</button>
         </div>
-        
+    
       </div>
     <details>
-      <summary>其他</summary> 
+      <summary>视频基本信息处理(时长弹幕播放量)</summary> 
       <h4 style="color: red">注意下面为0则不生效</h4>
-      <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
-      <select id="selectVideo">
-        <option value="filterSMin">时长最小值(单位秒)</option>
-        <option value="filterSMax">时长最大值(单位秒)</option>
-        <option value="broadcastMin">播放量最小值</option>
-        <option value="broadcastMax">播放量最大值</option>
-        <option value="barrageQuantityMin">弹幕量最小值</option>
-        <option value="barrageQuantityMax">弹幕量最大值</option>
+      <input min="0" style="width: 29%;height: 20px;" type="number" v-model="videoRuleValueInput"/>
+      <select v-model="videoSelectValue">
+       <option v-for="(item,key) in videoRuleList" v-bind:value="key">{{item}}</option>
       </select>
-      <button id="butSelectVideo">确定</button>
+      <button @click="okVideoSelectBut">确定</button>
      </details>
      <h2>使用说明</h2>
      <ol>
