@@ -129,14 +129,19 @@ const UrleCrud = {//规则的增删改查
         if (!Util.isData(ruleType)) {
             return false;
         }
-        Util.setData(ruleType, []);
+        Util.delData(ruleType)
         return true;
     },
     delItemShow(ruleType, ruleName) {
         if (!confirm(`是要删除指定项目${ruleName}的规则吗？`)) {
             return;
         }
-        this.delItem(ruleType);
+        if (this.delItem(ruleType)) {
+            Qmsg.success(`已删除${ruleName}的规则内容！`);
+        } else {
+            Qmsg.error(`删除失败！可能是不存在指定项目${ruleName}的规则内容！`);
+        }
+        ruleCRUDLlayoutVue().updateRuleIndex();
     },
     /**
      *根据数组中的每一项rule名，删除对应存储在油猴脚本中的数据

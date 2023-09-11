@@ -36,6 +36,18 @@ const RuleCRUDLayout = {
                 videoRuleValueInput: "",
                 videoSelectValue: "filterSMin",
                 defaultSelect: "userUIDArr",//当前下拉框选中的值
+                outRuleSelect: "allRuleOutFIle",
+                outRUleModelList: {
+                    allRuleOutFIle: "全部规则到文件",
+                    allRuleOutShearPlate: "全部规则到剪贴板",
+                    allUIDRuleOutFIle: "全部UID规则到文件",
+                    barrageShieldingRule: "b站弹幕屏蔽规则",
+                    allRuleOutCloudServer: "全部规则到云端账号"
+                },
+                inputRuleSelect: "从下面编辑框导入全部规则",
+                inputEditContent: "",
+                inoutRUleModelList: ["从云端账号导入覆盖本地规则", "从下面编辑框导入全部规则", "从下面编辑框合并导入UID规则"],
+                isInputEditShow: true
             },
             methods: {
                 add() {
@@ -60,13 +72,27 @@ const RuleCRUDLayout = {
                     }
                     UrleCrud.addAllShow(selectRUleItem.ruleType, selectRUleItem.ruleName, content);
                 },
-                del() {
-                    const selectRUleItem = this.getSelectRUleItem();
-                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155534');
+                delAll() {
+                    const list = this.ruleKeyList;
+                    let str = "";
+                    for (let key in list) {
+                        const name = list[key].name;
+                        const size = Util.getData(key, []).length;
+                        str += `规则名:${name} 个数:${size}个\n`;
+                    }
+                    if (!confirm(`是要全部规则吗？，以下是您的全部规则基本信息\n\n${str}`)) {
                         return;
                     }
-                    UrleCrud.delShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                    const okData = {success: 0, fail: 0};
+                    for (const key in this.ruleKeyList) {
+                        if (Util.delData(key)) {
+                            okData.success++;
+                        } else {
+                            okData.fail++;
+                        }
+                    }
+                    this.updateRuleIndex();
+                    alert(`删除结果:\n成功:${okData.success}\n失败:${okData.fail}`);
                 },
                 delItem() {
                     const selectRUleItem = this.getSelectRUleItem();
@@ -109,6 +135,243 @@ const RuleCRUDLayout = {
                         }
                         tempList[item].size = newSize;
                     }
+                },
+                getOutRuleDataFormat(space = 3) {//获取导出规则的结果内容
+                    const ruleKeyList = this.ruleKeyList;
+                    const data = {};
+                    for (let key in ruleKeyList) {
+                        const ruleName = ruleKeyList[key].name;
+                        data[ruleName] = Util.getData(key, []);
+                    }
+                    return JSON.stringify(data, null, space);
+                },
+                inputRuleLocalData(json) {//导入规则内容！
+                    const list = this.ruleKeyList;
+                    for (let ruleKey in list) {
+                        const name = list[ruleKey].name;
+                        const jsonRuleList = json[name];
+                        if (!jsonRuleList) {
+                            continue;
+                        }
+                        if (jsonRuleList.length === 0) {
+                            continue;
+                        }
+                        Util.setData(ruleKey, jsonRuleList);
+                    }
+                    this.updateRuleIndex();
+                    alert("已导入");
+                },
+                outRule() {
+                    const outType = this.outRUleModelList[this.outRuleSelect];
+                    switch (outType) {
+                        case "全部规则到文件":
+                            let fileName = "规则-" + Util.toTimeString();
+                            const s = prompt("保存为", fileName);
+                            if (s === null) return;
+                            if (!(s.includes(" ") || s === "" || s.length === 0)) fileName = s;
+                            Util.fileDownload(this.getOutRuleDataFormat(), fileName + ".json");
+                            break;
+                        case "全部规则到剪贴板":
+                            Util.copyToClip(this.getOutRuleDataFormat(0));
+                            break;
+                        case "全部UID规则到文件":
+                            const list = LocalData.getArrUID();
+                            Util.fileDownload(JSON.stringify(list, null, 3), `UID规则-${list.length}个.json`);
+                            break;
+                        case "全部UID规则到云端":
+                            alert("暂不支持");
+                            break;
+                        case "全部规则到云端账号":
+                            const getInfo = LocalData.AccountCenter.getInfo();
+                            if (getInfo === {} || Object.keys(getInfo).length === 0) {
+                                alert("请先登录在进行操作.");
+                                return;
+                            }
+                            if (!confirm("确定要将本地规则导出到对应账号的云端上吗")) return;
+                            const loading = Qmsg.loading("请稍等...");
+                            $.ajax({
+                                type: "POST",
+                                url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+                                data: {
+                                    model: "All",
+                                    userName: getInfo["userName"],
+                                    userPassword: getInfo["userPassword"],
+                                    postData: Util.getRuleFormatStr()
+                                },
+                                dataType: "json",
+                                success(data) {
+                                    loading.close();
+                                    const message = data["message"];
+                                    if (data["code"] !== 1) {
+                                        Qmsg.error(message);
+                                        return;
+                                    }
+                                    Qmsg.success(message);
+                                    console.log(data["dataJson"])
+                                }, error(xhr, status, error) { //请求失败的回调函数
+                                    loading.close();
+                                    console.log(error);
+                                    console.log(status);
+                                }
+                            });
+                            break;
+                        case "b站弹幕屏蔽规则": {
+                            //已经登录b站账号的前提下，打开该api
+                            //https://api.bilibili.com/x/dm/filter/user
+                            //即可获取到该账号下的b站云端最新的屏蔽词内容
+                            //type类型
+                            //0 屏蔽文本
+                            //1 屏蔽正则
+                            //2 屏蔽用户
+                            /**
+                             * filter 规则内容
+                             */
+                            /**
+                             *opened 是否启用
+                             */
+                            const item = window.localStorage.getItem("bpx_player_profile");
+                            if (item === null || item === undefined) {
+                                alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
+                                return;
+                            }
+                            const arrList = JSON.parse(item)["blockList"];
+                            if (arrList === undefined || arrList === null || arrList.length === 0) {
+                                alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
+                                return;
+                            }
+                            const list = [];
+                            for (const arrListElement of arrList) {
+                                const type = arrListElement["type"];
+                                const filter = arrListElement["filter"];
+                                const opened = arrListElement["opened"];
+                                const id = arrListElement["id"];
+                                if (type === 2) {
+                                    continue;
+                                }
+                                list.push(arrListElement);
+                            }
+                            Util.fileDownload(JSON.stringify(list, null, 3), "b站账号弹幕屏蔽设定规则.json");
+                            break;
+                        }
+                    }
+                },
+                inputRule() {
+                    const inputType = this.inputRuleSelect;
+                    const content = this.inputEditContent;
+                    switch (inputType) {
+                        case "从云端账号导入覆盖本地规则":
+                            const getInfo = LocalData.AccountCenter.getInfo();
+                            if (getInfo === {} || Object.keys(getInfo).length === 0) {
+                                alert("请先登录在进行操作.");
+                                return;
+                            }
+                            if (!confirm("确定要云端账号对应的规则导入并覆盖到本地已有的规则吗？")) {
+                                return;
+                            }
+                            const loading = Qmsg.loading("请稍等...");
+                            $.ajax({
+                                type: "GET",
+                                url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+                                data: {
+                                    userName: getInfo["userName"],
+                                    userPassword: getInfo["userPassword"]
+                                },
+                                dataType: "json",
+                                success(data) {
+                                    loading.close();
+                                    const message = data["message"];
+                                    if (data["code"] !== 1) {
+                                        Qmsg.error(message);
+                                        return;
+                                    }
+                                    Qmsg.success(message);
+                                    const time = data["data"]["time"];
+                                    const ruleRes = data["data"]["ruleRes"];
+                                    console.log(time);
+                                    console.log(ruleRes);
+                                    ruleCRUDLlayoutVue().inputRuleLocalData(ruleRes);
+                                }, error(xhr, status, error) { //请求失败的回调函数
+                                    loading.close();
+                                    console.log(error);
+                                    console.log(status);
+                                }
+                            });
+                            break;
+                        case "从下面编辑框导入全部规则":
+                            if (content === "" || content === " ") {
+                                alert("请填写正确的规则样式！");
+                                return;
+                            }
+                            if (!confirm("需要注意的是，这一步操作会覆盖你当前的已有规则！您确定要导入吗？")) {
+                                return;
+                            }
+                            let jsonRule = [];
+                            try {
+                                jsonRule = JSON.parse(content);
+                            } catch (error) {
+                                alert("内容格式错误！" + error)
+                                return;
+                            }
+                            this.inputRuleLocalData(jsonRule);
+                            break;
+                        case "从下面编辑框合并导入UID规则":
+                            let uidList;
+                            try {
+                                uidList = JSON.parse(content)
+                                if (!(uidList instanceof Array)) {
+                                    throw new Error("错误信息，导入的类型不是数组！");
+                                }
+                            } catch (e) {
+                                alert("类型错误，导入的内容不是jsoN")
+                                return;
+                            }
+                            for (let i = 0; i < uidList.length; i++) {
+                                try {
+                                    uidList[i] = parseInt(uidList[i]);
+                                } catch (e) {
+                                    alert("数组中存在非数字内容")
+                                    return;
+                                }
+                            }
+                            if (uidList.length === 0) {
+                                alert("该数组长度为0！")
+                                return;
+                            }
+                            const data = LocalData.getArrUID();
+                            if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
+                                if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
+                                    LocalData.setArrUID(uidList);
+                                    alert("添加成功！")
+                                }
+                                return;
+                            }
+                            let index = 0;
+                            for (const v of uidList) {
+                                if (data.includes(v)) {
+                                    continue;
+                                }
+                                index++;
+                                data.push(v);
+                            }
+                            if (index === 0) {
+                                alert("内容没有变化！，可能是原先的规则里已经有了");
+                                return;
+                            }
+                            alert(`已新增${index}个UID规则`);
+                            LocalData.setArrUID(data);
+                            break;
+                        case "本地b站弹幕屏蔽规则":
+                            alert("暂时未写")
+                            break;
+                        default:
+                            alert(`出现超出的条件！inputType=${inputType}`);
+                            break;
+                    }
+
+
+                },
+                lookLocalRUleContent() {
+                    Util.openWindowWriteContent(this.getOutRuleDataFormat(3));
                 }
             },
             watch: {
@@ -121,6 +384,10 @@ const RuleCRUDLayout = {
                         this.isBatchShow = true;
                         this.isSingleShow = false;
                     }
+                },
+                inputRuleSelect(newVal, oldVal) {
+                    if (newVal === oldVal) return;
+                    this.isInputEditShow = newVal !== "从云端账号导入覆盖本地规则";
                 }
             }
         });

@@ -116,11 +116,11 @@ border: 0.5px solid green;
         <div>
           <button @click="add" v-show="isSingleShow">增加</button>
           <button v-show="isBatchShow" @click="addAll">批量增加</button>
-          <button @click="del" v-show="isSingleShow">删除</button>
-          <button v-show="isBatchShow" @click="delItem">全部删除</button>
+          <button @click="delItem" v-show="isSingleShow">删除下拉框选中的规则</button>
+          <button v-show="isBatchShow" @click="delAll">删除所有规则</button>
           <button id="butSet">修改</button>
           <button @click="findKey" v-show="isSingleShow">查询</button>
-          <button id="lookRuleContentBut">查看本地规则内容</button>
+          <button @click="lookLocalRUleContent">查看本地规则内容</button>
         </div>
     
       </div>
@@ -150,25 +150,17 @@ border: 0.5px solid green;
     <div>
     <h2>规则导入导出</h2>
       <div>
-  <select id="outRuleSelect">
-  <option>全部规则到文件</option>
-  <option>全部规则到剪贴板</option>
-  <option>全部UID规则到文件</option>
-  <option>b站弹幕屏蔽规则</option>
-  <option>全部规则到云端账号</option>
+  <select v-model="outRuleSelect">
+  <option v-for="(item,key) in outRUleModelList":value="key">{{item}}</option>
 </select>
-<button id="outExport">导出</button>
+<button @click="outRule">导出</button>
 </div>
 <div>
-  <select id="inputRuleSelect">
-  <option value="">从云端账号导入覆盖本地规则</option>
-  <option value="">从下面编辑框导入全部规则</option>
-  <option value="">从下面编辑框合并导入UID规则</option>
+  <select v-model="inputRuleSelect">
+  <option  v-for="item in inoutRUleModelList" :value="item">{{item}}</option>
 </select>
-<button id="inputExport">导入</button>
-</div>
-    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
-    </div>
+<button @click="inputRule">导入</button>
+</div><textarea v-model="inputEditContent" placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
     </div>
 `;
     },
