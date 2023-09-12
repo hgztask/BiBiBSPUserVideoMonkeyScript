@@ -114,10 +114,11 @@ border: 0.5px solid green;
 <textarea style="width: 40%; height: 100px;"v-show="isBatchShow" v-model="ruleEditBox"></textarea>
 </div>  
         <div>
-          <button @click="add" v-show="isSingleShow">增加</button>
-          <button v-show="isBatchShow" @click="addAll">批量增加</button>
-          <button @click="delItem" v-show="isSingleShow">删除下拉框选中的规则</button>
-          <button v-show="isBatchShow" @click="delAll">删除所有规则</button>
+          <button @click="add" v-show="isSingleShow">增加指定规则</button>
+          <button @click="addAll" v-show="isBatchShow">批量增加规则</button>
+          <button @click="delItem" v-show="isBatchShow">删除下拉框选中的规则</button>
+          <button @click="delKey" v-show="isSingleShow">删除指定规则</button>
+          <button @click="delAll" v-show="isBatchShow">删除所有规则</button>
           <button id="butSet">修改</button>
           <button @click="findKey" v-show="isSingleShow">查询</button>
           <button @click="lookLocalRUleContent">查看本地规则内容</button>

@@ -102,6 +102,14 @@ const RuleCRUDLayout = {
                     }
                     UrleCrud.delItemShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
                 },
+                delKey() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155537');
+                        return;
+                    }
+                    UrleCrud.delShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                },
                 findKey() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
