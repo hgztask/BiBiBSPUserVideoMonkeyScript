@@ -460,11 +460,13 @@ border: 0.5px solid green;
   <div class="tab" id="lookAtItLaterListLayout">
   <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
   <button @click="renovateLayoutItemList">刷新列表</button>
-  <button @click="outLookAtItLaterArr">导出稍后再看列表</button>
-  <button @click="inputLookAtItLaterArr">追加导入稍后再看列表</button>
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <button @click="listInversion">列表反转</button>
   <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
+  <div>
+导入导出模式<select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select><button @click="okOutOrInputClick">执行{{inputOutSelect}}操作</button>
+</div>
+  <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
   <div>
   搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
 </div>

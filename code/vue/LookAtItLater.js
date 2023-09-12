@@ -6,7 +6,11 @@ const LookAtItLater = {
                 searchKey: "",
                 lookAtItLaterList: LocalData.getLookAtItLaterArr(),
                 typeList: ["upName", "uid", "title", "bv"],
-                typeListShowValue: "title"
+                typeListShowValue: "title",
+                inputOutSelect: "导出稍后再看列表",
+                inputOutSelectArr: ["导出稍后再看列表", "追加导入稍后再看列表"],
+                inputEditContent: "",
+                isInputSelect: false
             },
             methods: {
                 renovateLayoutItemList() {//刷新列表
@@ -26,12 +30,8 @@ const LookAtItLater = {
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
                 },
                 inputLookAtItLaterArr() {//导入稍后再看列表数据
-                    let s = prompt("请输入导出时的格式json（本轮操作为追加数据操作）");
-                    if (s === null) {
-                        return;
-                    }
-                    s = s.trim();
-                    if (!s || !(s.startsWith("[")) || s.endsWith("]")) {
+                    let s = this.inputEditContent;
+                    if (!(s.startsWith("[")) && s.endsWith("]")) {
                         alert("请填写正确的json格式！");
                         return;
                     }
@@ -65,6 +65,11 @@ const LookAtItLater = {
                     LocalData.setLookAtItLaterArr(tempList);
                     Qmsg.success("追加数据成功！");
                     console.table(tempList);
+                },
+                okOutOrInputClick() {
+                    if (this.inputOutSelect === "导出稍后再看列表") {
+                        this.outLookAtItLaterArr();
+                    } else this.inputLookAtItLaterArr();
                 },
                 clearLookAtItLaterArr() {
                     if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) {
@@ -100,6 +105,13 @@ const LookAtItLater = {
                     this.lookAtItLaterList = [];
                     tempList.forEach(value => this.lookAtItLaterList.push(value));
                     Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
+                },
+                inputOutSelect(newVal) {
+                    if (newVal === "导出稍后再看列表") {
+                        this.isInputSelect = false;
+                    } else {
+                        this.isInputSelect = true;
+                    }
                 }
             }
         })
