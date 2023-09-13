@@ -8,9 +8,11 @@ const LookAtItLater = {
                 typeList: ["upName", "uid", "title", "bv"],
                 typeListShowValue: "title",
                 inputOutSelect: "导出稍后再看列表",
-                inputOutSelectArr: ["导出稍后再看列表", "追加导入稍后再看列表"],
+                inputOutSelectArr: ["导出稍后再看列表", "导入稍后再看列表"],
                 inputEditContent: "",
-                isInputSelect: false
+                isInputSelect: false,
+                isAddToInput: true,
+                isAddToInputTxt: "追加导入"
             },
             methods: {
                 renovateLayoutItemList() {//刷新列表
@@ -29,9 +31,9 @@ const LookAtItLater = {
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
                 },
-                inputLookAtItLaterArr() {//导入稍后再看列表数据
+                inputAddToLookAtItLaterArr() {//追加导入稍后再看列表数据
                     let s = this.inputEditContent;
-                    if (!(s.startsWith("[")) && s.endsWith("]")) {
+                    if (!((s.startsWith("[")) && s.endsWith("]"))) {
                         alert("请填写正确的json格式！");
                         return;
                     }
@@ -59,17 +61,68 @@ const LookAtItLater = {
                         alert("数组异常!,异常信息已打印在控制台上！");
                         return;
                     }
-                    if (!confirm("是否要保存本轮操作结果？")) {
+                    if (!confirm("是否要保存本轮追加操作结果？")) {
                         return;
                     }
                     LocalData.setLookAtItLaterArr(tempList);
                     Qmsg.success("追加数据成功！");
                     console.table(tempList);
+                    return true;
+                },
+                inputCoverLookAtItLaterArr() {//覆盖导入稍后再看列表数据
+                    let s = this.inputEditContent;
+                    if (!((s.startsWith("[")) && s.endsWith("]"))) {
+                        alert("请填写正确的json格式！");
+                        return;
+                    }
+                    const parse = JSON.parse(s);
+                    if (parse.length === 0) {
+                        alert("数组未有内容！");
+                        return;
+                    }
+                    const tempList = LocalData.getLookAtItLaterArr();
+                    let index = 0;
+                    try {
+                        for (let v of parse) {
+                            if (LookAtItLater.isVarTitleLookAtItLaterList("bv", tempList, v)) {
+                                continue;
+                            }
+                        }
+                    } catch (e) {
+                        console.log(tempList);
+                        console.log(e);
+                        alert("数组异常!,异常信息已打印在控制台上！");
+                        return;
+                    }
+                    if (tempList.length === index) {
+                        alert(`覆盖失败！两者规则一致！`);
+                        return;
+                    }
+                    if (!confirm("是否要保存本轮覆盖操作结果？")) {
+                        return;
+                    }
+                    LocalData.setLookAtItLaterArr(parse);
+                    Qmsg.success("覆盖数据成功！");
+                    console.table(parse);
+                    return true;
                 },
                 okOutOrInputClick() {
                     if (this.inputOutSelect === "导出稍后再看列表") {
                         this.outLookAtItLaterArr();
-                    } else this.inputLookAtItLaterArr();
+                        return;
+                    }
+                    if (!confirm(`是要执行${this.isAddToInputTxt}吗？`)) return;
+                    let loop = false;
+                    if (this.isAddToInput) {//追加
+                        loop = this.inputAddToLookAtItLaterArr();
+                    } else {
+                        //覆盖
+                        //TODO  判断bug，后续修复
+                        loop = this.inputCoverLookAtItLaterArr();
+                    }
+                    if (loop === true) {
+                        this.renovateLayoutItemList();
+                    }
                 },
                 clearLookAtItLaterArr() {
                     if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) {
@@ -112,6 +165,13 @@ const LookAtItLater = {
                     } else {
                         this.isInputSelect = true;
                     }
+                },
+                isAddToInput(newVal) {
+                    if (newVal) {
+                        this.isAddToInputTxt = "追加导入";
+                    } else {
+                        this.isAddToInputTxt = "覆盖导入";
+                    }
                 }
             }
         })
@@ -127,7 +187,8 @@ const LookAtItLater = {
             return true;
         }
         return false;
-    },
+    }
+    ,
     addLookAtItLater(data) {//添加视频到稍后再看列表流程
         if (!confirm(`是要将【${data["title"]}】添加进稍后再看列表吗？`)) {
             return;
