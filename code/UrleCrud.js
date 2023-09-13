@@ -190,6 +190,41 @@ const UrleCrud = {//规则的增删改查
         Qmsg.error(tip);
         console.log(tip, key);
         Print.ln(tip);
+    },
+    setKey(ruleType, oldValue, newValue) {
+        if (oldValue === newValue) return false;
+        if (oldValue === '' || oldValue.includes(" ") || newValue === "" || newValue.includes(" ")) return false;
+        const ruleList = Util.getData(ruleType, []);
+        if (ruleList.length === 0) return false;
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(oldValue) || isNaN(newValue)) {
+                return false;
+            }
+            oldValue = parseInt(oldValue);
+            newValue = parseInt(newValue);
+        }
+        const indexOf = ruleList.indexOf(oldValue);
+        if (indexOf === -1) return false;
+        ruleList.splice(indexOf, 1, newValue);
+        Util.setData(ruleType, ruleList);
+        return true;
+    },
+    setKeyShow(ruleType, ruleName, oldValue = null, newValue = null) {
+        if (oldValue === null || newValue || null) {
+            const data = {};
+            let oldVal = prompt(`请输入要修改${ruleName}规则的值`);
+            if (oldVal === null) return;
+            if (!confirm(`是要对${ruleName}规则中的${oldVal}值进行修改更换吗？`)) return;
+            const newVal = prompt(`请输入要修改${ruleName}规则的中${oldVal}之后的值`);
+            if (newVal === "取消了操作.") return;
+            oldValue = oldVal;
+            newValue = newVal;
+        }
+        if (this.setKey(ruleType, oldValue, newValue)) {
+            Qmsg.success(`修改${ruleName}规则成功！,已将 ${oldValue} 修改成 ${newValue}的值！`);
+            return;
+        }
+        Qmsg.error(`修改${ruleName}规则失败！`);
     }
 
 }

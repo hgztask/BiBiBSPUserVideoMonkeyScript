@@ -119,9 +119,10 @@ border: 0.5px solid green;
           <button @click="delItem" v-show="isBatchShow">删除下拉框选中的规则</button>
           <button @click="delKey" v-show="isSingleShow">删除指定规则</button>
           <button @click="delAll" v-show="isBatchShow">删除所有规则</button>
-          <button id="butSet">修改</button>
+          <button @click="setKey" v-show="isSingleShow">修改</button>
           <button @click="findKey" v-show="isSingleShow">查询</button>
-          <button @click="lookLocalRUleContent">查看本地规则内容</button>
+          <button @click="lookLocalRUleContent">查看本地下拉框中所有的规则内容</button>
+          <button @click="lookLocalAppointRUleContent">查看下拉框中指定的规则内容</button>
         </div>
     
       </div>

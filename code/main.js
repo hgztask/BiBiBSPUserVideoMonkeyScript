@@ -740,36 +740,6 @@ function startMonitorTheNetwork() {//监听网络变化
     observer.observe({entryTypes: ['resource']});
 }
 
-const butLayEvent = {
-    //修改
-    butSetKey(ruleStr, oldKey, newKey) {
-        if (oldKey === '' || oldKey.includes(" ") || newKey === "" || newKey.includes(" ")) {
-            return;
-        }
-        if (oldKey === newKey) {
-            Print.ln("请输入正确的内容，两者内容不能相同")
-            return;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            Print.ln("找不到该内容！");
-            return;
-        }
-        if (!arrayList.includes(oldKey)) {
-            Print.ln("找不到该内容！，无法替换！");
-            return;
-        }
-        const index = arrayList.indexOf(oldKey);
-        if (index === -1) {
-            Print.ln("未有该元素！")
-            return;
-        }
-        arrayList.splice(index, 1, newKey);
-        Util.setData(ruleStr, arrayList);
-        Qmsg.success("替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
-    }
-}
-
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
  * @param element 网页元素
@@ -1248,24 +1218,6 @@ $("#butClearMessage").click(() => {
     document.querySelector('#outputInfo').innerHTML = '';
 });
 
-
-$("#butSet").click(() => {
-    const oldContent = prompt("请输入你要修改的单个元素规则");
-    const content = prompt("请输入修改之后的值");
-    if (content === null || oldContent === null) {
-        return;
-    }
-    if (content === "" || oldContent === "") {
-        Qmsg.error("请填写正常的内容");
-        return;
-    }
-    const typeVal = $("#model option:selected").val();
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butSetKey(typeVal, parseInt(oldContent), parseInt(content));
-        return;
-    }
-    butLayEvent.butSetKey(typeVal, oldContent, content);
-});
 
 const bilibiliEncoder = Util.BilibiliEncoder;
 $("#otherLayout div>button[value='bvBut']").click(() => {

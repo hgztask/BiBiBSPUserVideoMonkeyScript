@@ -118,6 +118,14 @@ const RuleCRUDLayout = {
                     }
                     UrleCrud.findKeyShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
                 },
+                setKey() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155537');
+                        return;
+                    }
+                    UrleCrud.setKeyShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                },
                 okVideoSelectBut() {//确定时长播放量弹幕
                     const videoSelectType = this.videoSelectValue;
                     const videoSelectName = this.videoRuleList[videoSelectType];
@@ -380,6 +388,16 @@ const RuleCRUDLayout = {
                 },
                 lookLocalRUleContent() {
                     Util.openWindowWriteContent(this.getOutRuleDataFormat(3));
+                },
+                lookLocalAppointRUleContent() {
+                    const item = this.getSelectRUleItem();
+                    if (!confirm(`是要查询${item.ruleName}的规则内容吗？`)) return;
+                    const data = Util.getData(item.ruleType, []);
+                    if (data.length === 0) {
+                        Qmsg.info(`${item.ruleName}规则内容为空的！`);
+                        return;
+                    }
+                    Util.openWindowWriteContent(JSON.stringify(data, null, 3));
                 }
             },
             watch: {
