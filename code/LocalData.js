@@ -211,5 +211,32 @@ const LocalData = {
     },
     setDShieldPanel(v) {//设置禁用快捷悬浮屏蔽面板自动显示
         Util.setData("isDShieldPanel", v === true)
-    }
+    },
+    LockScreen: {
+        setState(bool) {
+            Util.setData("LockScreenState", bool === true);
+        },
+        getState() {//返回是否开启锁屏
+            return Util.getData("LockScreenState", false);
+        },
+        setIntervalTime(timeInt) {
+            Util.setData("LockScreenIntervalTime", timeInt);
+        },
+        getIntervalTime() {//返回锁屏间隔时间戳
+            return Util.getData("LockScreenIntervalTime", 0);
+            ;
+        },
+        setPwd(pwd) {
+            Util.setData("LockScreenPwd", pwd);
+        },
+        getPwd() {
+            return Util.getData("LockScreenPwd", null);
+        },
+        getTLastTimestamp() {//返回最后记录的时间戳
+            return Util.getData("LockScreenLastTimestamp", 0);
+        },
+        setTLastTimestamp(timeNov) {
+            Util.setData("LockScreenLastTimestamp", timeNov);
+        }
+    },
 }
