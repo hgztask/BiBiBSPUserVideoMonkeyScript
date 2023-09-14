@@ -41,6 +41,8 @@
 // @grant        GM_addValueChangeListener
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // ==/UserScript==
 
 'use strict';

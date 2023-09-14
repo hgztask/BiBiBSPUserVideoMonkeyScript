@@ -39,6 +39,23 @@ const Util = {
         GM_xmlhttpRequest(x);
     },
     /**
+     *注册一个菜单并返回菜单id，可在插件中点击油猴时看到对应脚本的菜单
+     * @param {string}text 显示文本
+     * @param {function}func 事件
+     * @param {string}shortcutKey 快捷键
+     * @return menu 菜单id
+     */
+    addGMMenu(text, func, shortcutKey) {
+        return GM_registerMenuCommand(text, func, shortcutKey);
+    },
+    /**
+     * 根据注册的菜单id删除对应菜单
+     * @param menuValue 菜单id
+     */
+    delGMMenu(menuValue) {
+        GM_unregisterMenuCommand(menuValue) // 按删除一个菜单
+    },
+    /**
      * 获取当前网页cookie
      * @return {string}
      */
