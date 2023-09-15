@@ -222,9 +222,8 @@ const LocalData = {
         setIntervalTime(timeInt) {
             Util.setData("LockScreenIntervalTime", timeInt);
         },
-        getIntervalTime() {//返回锁屏间隔时间戳
-            return Util.getData("LockScreenIntervalTime", 0);
-            ;
+        getIntervalTime() {//返回锁屏间隔时间戳，默认返回5分钟的时间戳
+            return Util.getData("LockScreenIntervalTime", 60000 * 1);
         },
         setPwd(pwd) {
             Util.setData("LockScreenPwd", pwd);
@@ -232,10 +231,10 @@ const LocalData = {
         getPwd() {
             return Util.getData("LockScreenPwd", null);
         },
-        getTLastTimestamp() {//返回最后记录的时间戳
-            return Util.getData("LockScreenLastTimestamp", 0);
+        getTLastTimestamp() {//返回最后锁屏解锁的时间戳
+            return Util.getData("LockScreenLastTimestamp", Date.now());
         },
-        setTLastTimestamp(timeNov) {
+        setTLastTimestamp(timeNov) {//设置最后锁屏解锁的时间戳
             Util.setData("LockScreenLastTimestamp", timeNov);
         }
     },
