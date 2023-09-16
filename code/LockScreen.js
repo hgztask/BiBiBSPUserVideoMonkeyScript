@@ -134,6 +134,18 @@ const LockScreen = {
     manualLockScreen() {//手动锁屏
         this.screen.setTLastTimestamp(-1);
         this.isLockScreen();
+    },
+    lookScreenLockTime() {
+        const lastTimestamp = this.screen.getTLastTimestamp();
+        const intervalTime = this.screen.getIntervalTime();
+        alert(`最后锁屏解锁时间${Util.timestampToTime(lastTimestamp)}
+锁屏间隔时间戳：${intervalTime}
+        
+毫秒为单位的时间戳数值参考：
+一天的时间戳是 86,400,000 毫秒（24小时 × 60分钟 × 60秒 × 1000毫秒）。
+一小时的时间戳是 3,600,000 毫秒（60分钟 × 60秒 × 1000毫秒）。
+一分钟的时间戳是 60,000 毫秒（60秒 × 1000毫秒）。
+        `);
     }
 
 }
