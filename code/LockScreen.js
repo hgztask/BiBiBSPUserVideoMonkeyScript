@@ -103,13 +103,18 @@ const LockScreen = {
             clearInterval(interval);
             screen.setTLastTimestamp(Date.now());
             alert("已解锁成功！");
-        }, 50);
+        }, 25);
 
     },
     setScreenLockTimeShow() {
         const verifyPwd = this.verifyPwd();
         if (verifyPwd === null) return;
-        let time = prompt("请输入间隔时间戳？");
+        let time = prompt(`请输入间隔时间戳？
+需使用毫秒为单位的时间戳，如果您需要指定间隔时间，比如下面的一天时间则为86400000，一天之后才会触发自动锁屏，以下仅供参考
+一天的时间戳是 86,400,000 毫秒（24小时 × 60分钟 × 60秒 × 1000毫秒）。
+一小时的时间戳是 3,600,000 毫秒（60分钟 × 60秒 × 1000毫秒）。
+一分钟的时间戳是 60,000 毫秒（60秒 × 1000毫秒）。
+        `);
         if (time === null) return;
         time = time.trim();
         if (isNaN(time)) {
@@ -125,6 +130,10 @@ const LockScreen = {
         const tip = `已成功设置间隔时间戳为${time}，单位毫秒，当下次访问超出该时间时会对页面进行锁屏操作，用户需要输入锁屏密码通过之后才可以正常访问页面，且成功之后以当时的时间重新开始统计`;
         Qmsg.success(tip);
         alert(tip);
+    },
+    manualLockScreen() {//手动锁屏
+        this.screen.setTLastTimestamp(-1);
+        this.isLockScreen();
     }
 
 }
