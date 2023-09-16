@@ -111,7 +111,7 @@ border: 0.5px solid green;
 <option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item.name}}</option>
 </select> 
 <div>
-<textarea style="width: 40%; height: 100px;"v-show="isBatchShow" v-model="ruleEditBox"></textarea>
+<textarea style="width: 40%; height: 100px;"v-show="isBatchShow" v-model.trim="ruleEditBox"></textarea>
 </div>  
         <div>
           <button @click="add" v-show="isSingleShow">增加指定规则</button>
@@ -162,7 +162,7 @@ border: 0.5px solid green;
   <option  v-for="item in inoutRUleModelList" :value="item">{{item}}</option>
 </select>
 <button @click="inputRule">导入</button>
-</div><textarea v-model="inputEditContent" placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
+</div><textarea v-model="inputEditContent".trim placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
     </div>
 `;
     },
@@ -470,7 +470,7 @@ border: 0.5px solid green;
 </div>
   <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
   <div>
-  搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
+  搜索<input type="text" v-model="searchKey">搜索条件<select v-model.trim="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
 </div>
   <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
