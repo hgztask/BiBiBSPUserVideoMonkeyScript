@@ -60,10 +60,10 @@ const LockScreen = {
         const s = prompt(`输入1为开启，0为关闭，当前为${this.screen.getState() ? "开启" : "关闭"}状态`);
         if (s === null) return;
         let boo = null;
-        if (s == "1") {
+        if (s === "1") {
             boo = true;
         }
-        if (s == "0") {
+        if (s === "0") {
             boo = false;
         }
         if (boo === null) {
@@ -82,6 +82,11 @@ const LockScreen = {
         alert(tip);
     },
     isLockScreen() {
+        if (!this.screen.getState()) {
+            Qmsg.info("未开启锁屏功能");
+            return;
+        }
+        Qmsg.info("开启锁屏功能");
         const nowTime = Date.now();
         const screen = this.screen;
         const intervalTime = screen.getIntervalTime();//锁屏间隔时间戳
@@ -102,7 +107,7 @@ const LockScreen = {
             }
             clearInterval(interval);
             screen.setTLastTimestamp(Date.now());
-            alert("已解锁成功！");
+            Qmsg.success("已解锁成功！");
         }, 25);
 
     },
