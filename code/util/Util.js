@@ -45,7 +45,7 @@ const Util = {
      * @param {string}shortcutKey 快捷键
      * @return menu 菜单id
      */
-    addGMMenu(text, func, shortcutKey) {
+    addGMMenu(text, func, shortcutKey = null) {
         return GM_registerMenuCommand(text, func, shortcutKey);
     },
     /**
