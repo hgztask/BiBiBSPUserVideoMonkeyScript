@@ -722,5 +722,20 @@ const Util = {
             }
             return str.substring(0, str.length - lastIndex);
         }
+    },
+    /**
+     * 判断对象是否具有指定的所有属性名
+     * @param {Object} obj - 要检查的对象
+     * @param {Array} propertyArray - 属性名数组
+     * @returns {boolean} - 如果对象包含数组中的所有属性名，则返回 true；否则返回 false
+     */
+    hasAllProperties(obj, propertyArray) {
+        for (let value of propertyArray) {
+            if (!obj.hasOwnProperty(value)) {
+                return false;
+            }
+        }
+        return true;
     }
+
 }
