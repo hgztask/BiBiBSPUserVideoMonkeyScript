@@ -31,17 +31,22 @@ const LookAtItLater = {
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
                 },
+                isStringArray(strArray) {
+                    if (strArray.startsWith("[") && strArray.endsWith("]")) {
+                        const parse = JSON.parse(strArray);
+                        if (parse.length === 0) {
+                            Qmsg.error("数组未有内容！");
+                            return null;
+                        }
+                        return parse;
+                    }
+                    Qmsg.error("内容不是json数组！");
+                    return null;
+                },
                 inputAddToLookAtItLaterArr() {//追加导入稍后再看列表数据
                     let s = this.inputEditContent;
-                    if (!((s.startsWith("[")) && s.endsWith("]"))) {
-                        alert("请填写正确的json格式！");
-                        return;
-                    }
-                    const parse = JSON.parse(s);
-                    if (parse.length === 0) {
-                        alert("数组未有内容！");
-                        return;
-                    }
+                    const parse = this.isStringArray(s);
+                    if (parse === null) return false;
                     const tempList = LocalData.getLookAtItLaterArr();
                     try {
                         for (let v of parse) {
@@ -59,10 +64,10 @@ const LookAtItLater = {
                         console.log(tempList);
                         console.log(e);
                         alert("数组异常!,异常信息已打印在控制台上！");
-                        return;
+                        return false;
                     }
                     if (!confirm("是否要保存本轮追加操作结果？")) {
-                        return;
+                        return false;
                     }
                     LocalData.setLookAtItLaterArr(tempList);
                     Qmsg.success("追加数据成功！");
@@ -71,35 +76,19 @@ const LookAtItLater = {
                 },
                 inputCoverLookAtItLaterArr() {//覆盖导入稍后再看列表数据
                     let s = this.inputEditContent;
-                    if (!((s.startsWith("[")) && s.endsWith("]"))) {
-                        alert("请填写正确的json格式！");
-                        return;
-                    }
-                    const parse = JSON.parse(s);
-                    if (parse.length === 0) {
-                        alert("数组未有内容！");
-                        return;
-                    }
-                    const tempList = LocalData.getLookAtItLaterArr();
-                    let index = 0;
-                    try {
-                        for (let v of parse) {
-                            if (LookAtItLater.isVarTitleLookAtItLaterList("bv", tempList, v)) {
-                                continue;
-                            }
+                    const parse = this.isStringArray(s);
+                    if (parse === null) return false;
+                    const isKeyArr = ["upName", "uid", "title", "bv"];
+                    for (const value of parse) {
+                        if (Util.hasAllProperties(value, isKeyArr)) {
+                            continue;
                         }
-                    } catch (e) {
-                        console.log(tempList);
-                        console.log(e);
-                        alert("数组异常!,异常信息已打印在控制台上！");
-                        return;
+                        alert(`数组内容对应的项目缺少了相关属性\n项目：\n${JSON.stringify(value)}`);
+                        return false;
                     }
-                    if (tempList.length === index) {
-                        alert(`覆盖失败！两者规则一致！`);
-                        return;
-                    }
+
                     if (!confirm("是否要保存本轮覆盖操作结果？")) {
-                        return;
+                        return false;
                     }
                     LocalData.setLookAtItLaterArr(parse);
                     Qmsg.success("覆盖数据成功！");
@@ -116,9 +105,7 @@ const LookAtItLater = {
                     if (this.isAddToInput) {//追加
                         loop = this.inputAddToLookAtItLaterArr();
                     } else {
-                        //覆盖
-                        //TODO  判断bug，后续修复
-                        loop = this.inputCoverLookAtItLaterArr();
+                        loop = this.inputCoverLookAtItLaterArr();//覆盖
                     }
                     if (loop === true) {
                         this.renovateLayoutItemList();
