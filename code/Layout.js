@@ -162,7 +162,7 @@ border: 0.5px solid green;
   <option  v-for="item in inoutRUleModelList" :value="item">{{item}}</option>
 </select>
 <button @click="inputRule">导入</button>
-</div><textarea v-model="inputEditContent".trim placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
+</div><textarea v-model.trim="inputEditContent" placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
     </div>
 `;
     },
@@ -470,13 +470,12 @@ border: 0.5px solid green;
 </div>
   <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
   <div>
-  搜索<input type="text" v-model="searchKey">搜索条件<select v-model.trim="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
+  搜索<input type="text" v-model.trim="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
 </div>
   <ol>
   <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
   <div>Title：<a v-bind:href=splicingVideoAddress(item.bv) target="_blank">{{item.title}}</a></div>
-  <div>UP：<a v-bind:href=splicingUserAddress(item.uid) target="_blank">{{item.upName}}</a>
-  </div>
+  <div>UP：<a v-bind:href=splicingUserAddress(item.uid) target="_blank">{{item.upName}}</a></div>
 </li>
 </ol>
   <!-- 稍后再看列表布局 --></div>
