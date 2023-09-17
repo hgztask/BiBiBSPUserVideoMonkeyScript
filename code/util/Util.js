@@ -736,6 +736,24 @@ const Util = {
             }
         }
         return true;
+    },
+    /**
+     * 比较两个对象是否相同
+     * @param {Object}obj1
+     * @param {Object}obj2
+     * @param {Array}keyArr 属性名数组
+     * @return {boolean}如果两个对象的属性缺少或对不上KeyArr属性名数组中的属性，则返回false，反之继续比较其属性值是否相同
+     */
+    objEquals(obj1, obj2, keyArr) {
+        if (!this.hasAllProperties(obj1, keyArr)) return false;
+        if (!this.hasAllProperties(obj2, keyArr)) return false;
+        for (let key of keyArr) {
+            if (obj1[key] === obj2[key]) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 
 }
