@@ -74,6 +74,8 @@ async function bilibiliOne(href, windowsTitle) {
             const jqEa = jqELast.clone();
             jqEa.attr("href", "https://www.bilibili.com/v/channel");
             jqEa.find(".icon-title").text("频道");
+            jqEa.find(".icon-bg.icon-bg__popular>svg").remove();
+            jqEa.find(".icon-bg.icon-bg__popular").append(`<img src="https://img1.imgtp.com/2023/09/18/tR1X1XpA.png" alt="频道">`);
             jqE.append(jqEa);
         }, 1000);
         if (!LocalData.getIsMainVideoList()) {
