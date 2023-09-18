@@ -238,4 +238,11 @@ const LocalData = {
             Util.setData("LockScreenLastTimestamp", timeNov);
         }
     },
+    setEnableShortcutKeys(is) {
+        Util.setData("enableShortcutKeys", is);
+    },
+
+    isEnableShortcutKeys() {//获取是否启用了快捷键功能
+        return Util.getData("enableShortcutKeys", true);
+    }
 }

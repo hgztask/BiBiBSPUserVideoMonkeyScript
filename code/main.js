@@ -1051,6 +1051,9 @@ Rule.showInfo();
 $("#mybut").click(() => Home.hideDisplayHomeLaylout());
 
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
+    if (!LocalData.isEnableShortcutKeys()) {
+        return;
+    }
     const keycode = event.keyCode;
     switch (keycode) {
         case 192: {//按下`按键显示隐藏面板
