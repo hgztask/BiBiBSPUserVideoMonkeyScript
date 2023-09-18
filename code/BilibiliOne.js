@@ -1022,6 +1022,9 @@ async function bilibiliOne(href, windowsTitle) {
                 return;
             }
             clearInterval(interval03);
+            tempE.css("display", "flex");
+            tempE.css("flex-flow", "row wrap");
+            $(".bili-dyn-up-list__shadow-right").remove();
             list.click(() => {
                 tempLoadIng();
             });
