@@ -1500,6 +1500,9 @@ $("#openWebBiliBliUrlAddress>button").click((e) => {
         case "coolHome":
             url = "https://cool.bilibili.com/";
             break;
+        case "channel":
+            url = "https://www.bilibili.com/v/channel";
+            break;
         default:
             alert("出现未知的参数？");
             return;

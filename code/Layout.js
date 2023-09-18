@@ -300,6 +300,7 @@ border: 0.5px solid green;
 <button value="watchlaterPlayerList">稍后再看播放列表</button>
 <button value="liveCenter">直播中心</button>
 <button value="coolHome">素材库平台</button>
+<button value="channel">频道</button>
 </details>
     <div>
       <h1> 反馈问题</h1>
