@@ -532,8 +532,10 @@ const Util = {
         suspensionDivVue.videoData.title = title;
         suspensionDivVue.videoData.bv = bv;
         suspensionDivVue.videoData.av = av;
-        if (title !== undefined) {
-            $("#vueSuspensinVideoInfo").show();
+        if (title === undefined) {
+            suspensionDivVue.videoData.show = false;
+        } else {
+            suspensionDivVue.videoData.show = true;
             if (bv === undefined) {
                 return;
             }

@@ -1520,7 +1520,8 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
         videoData: {
             title: "",
             bv: "",
-            av: ""
+            av: "",
+            show: false
         },
     },
     methods: {

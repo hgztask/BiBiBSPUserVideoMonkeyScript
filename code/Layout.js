@@ -331,7 +331,7 @@ border: 0.5px solid green;
        </div>
         <p>用户名：{{upName}}</p>
         <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
-        <details id="vueSuspensinVideoInfo" style="display: none" @toggle="handleToggle">
+        <details v-show="videoData.show" :open="videoData.show" @toggle="handleToggle">
         <summary>视频信息</summary>
         <p>标题:{{videoData.title}}</span></p>
         <p>视频BV号:{{videoData.bv}}</span></p>
