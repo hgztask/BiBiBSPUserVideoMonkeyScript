@@ -78,6 +78,15 @@ async function bilibiliOne(href, windowsTitle) {
             jqEa.find(".icon-bg.icon-bg__popular").append(`<img src="https://img1.imgtp.com/2023/09/18/tR1X1XpA.png" alt="频道">`);
             jqE.append(jqEa);
         }, 1000);
+        const interval04 = setInterval(() => {
+            const jqE = document.querySelector(".header-channel");
+            if (jqE.length === 0) {
+                return;
+            }
+            clearInterval(interval04);
+            jqE.remove();
+            Qmsg.info("已移除页面下滑时，显示顶部的部分导航信息");
+        }, 1000);
         if (!LocalData.getIsMainVideoList()) {
             Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
                 Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
