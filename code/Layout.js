@@ -14,7 +14,6 @@ const layout = {
     border: 3px solid green;
 }
 
-
 /* 隐藏标签布局，除了“active”的标签布局 */
 .tab {
     display: none;
@@ -41,7 +40,7 @@ ul {
 #suspensionDiv p {
     margin-top: 10px;
 }
-#suspensionDiv .center button {
+#suspensionDiv  button,#home_layout button {
     margin-top: 10px;
     padding: 5px 10px;
     border: none;
@@ -49,7 +48,7 @@ ul {
     color: #fff;
     cursor: pointer;
 }
-#suspensionDiv .center button:hover {
+#suspensionDiv .center button:hover,#home_layout button:hover {
     background-color: #3E8E41;
 }
 /* 悬浮屏蔽布局 */
@@ -163,7 +162,7 @@ border: 0.5px solid green;
 </select>
 <button @click="inputRule">导入</button>
 </div><textarea v-model.trim="inputEditContent" placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
-    </div>
+</div>
 `;
     },
     getHomePageLayout() {
@@ -473,9 +472,16 @@ border: 0.5px solid green;
   搜索<input type="text" v-model.trim="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
 </div>
   <ol>
-  <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
+  <li style="border: 1px solid green" v-for="(item,index) in lookAtItLaterList">
   <div>Title：<a v-bind:href=splicingVideoAddress(item.bv) target="_blank">{{item.title}}</a></div>
   <div>UP：<a v-bind:href=splicingUserAddress(item.uid) target="_blank">{{item.upName}}</a></div>
+    <button @click="delListItem(item)">删除该项</button>
+    <button @click="setListItem(item,index,'upName','用户名',item.upName)">修改用户名</button>
+    <button @click="setListItem(item,index,'uid','uid',item.uid)">修改uid</button>
+    <button @click="setListItem(item,index,'title','标题',item.title)">修改标题</button>
+    <button @click="setListItem(item,index,'bv','BV号',item.bv)">修改bv</button>
+    <div>
+</div>
 </li>
 </ol>
   <!-- 稍后再看列表布局 --></div>

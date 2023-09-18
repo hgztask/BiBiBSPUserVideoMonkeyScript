@@ -122,13 +122,78 @@ const LookAtItLater = {
                 },
                 listInversion() {
                     this.lookAtItLaterList.reverse();
+                },
+                getItemFindIndex(data) {
+                    const index = this.lookAtItLaterList.findIndex(value => value === data);
+                    if (index === -1) {
+                        Qmsg.error(`查找列表中指定item失败!-1`);
+                        return null;
+                    }
+                    if (!confirm(`是要对 ${data.title} 选项进行操作吗？\nbv:${data.bv}`)) {
+                        return null;
+                    }
+                    return index;
+                },
+                delListItem(data) {
+                    const index = this.getItemFindIndex(data);
+                    if (index === null) return;
+                    this.lookAtItLaterList.splice(index, 1);
+                    const isKeyArr = ["upName", "uid", "title", "bv"];
+                    const tempLookAtItLaterArr = LocalData.getLookAtItLaterArr();
+                    const tempIndex = tempLookAtItLaterArr.findIndex(value => Util.objEquals(value, data, isKeyArr));
+                    if (tempIndex === -1) {
+                        Qmsg.error("查找数据组列表中要删除的item失败！-1");
+                        return;
+                    }
+                    tempLookAtItLaterArr.splice(tempIndex, 1);
+                    LocalData.setLookAtItLaterArr(tempLookAtItLaterArr);
+                    Qmsg.success(`已删除 ${data.title} 选项，bv=${data.bv}`);
+                },
+                /**
+                 *
+                 * @param {Object}item
+                 * @param {number}index
+                 * @param {string}key
+                 * @param {string}keyName
+                 * @param {string|number}value
+                 */
+                setListItem(item, index, key, keyName, value) {
+                    let input = prompt(`原${keyName}为=${value}\n修改${keyName}为`, value);
+                    if (input === null) return;
+                    input = input.trim();
+                    if (input.length < 1) {
+                        Qmsg.error("输入的字符不可小于1！");
+                        return;
+                    }
+                    if (value === input) {
+                        Qmsg.error("输入的值不能和原有的值相同！");
+                        return;
+                    }
+                    if (key === "uid") {
+                        if (isNaN(value)) {
+                            Qmsg.error(`输入的uid不是一个数字！`);
+                            return;
+                        }
+                        value = parseInt(value);
+                    }
+                    const tempLookAtItLaterArr = LocalData.getLookAtItLaterArr();
+                    const isKeyArr = ["upName", "uid", "title", "bv"];
+                    const tempIndex = tempLookAtItLaterArr.findIndex(value => Util.objEquals(value, item, isKeyArr));
+                    if (tempIndex === -1) {
+                        Qmsg.error("查找数据组列表中要修改的item失败！-1");
+                        return;
+                    }
+                    item[key] = input;
+                    tempLookAtItLaterArr.splice(tempIndex, 1, item);
+                    LocalData.setLookAtItLaterArr(tempLookAtItLaterArr);
+                    const tip = `已将${keyName}的值=${value}\n改成=${input}`;
+                    Qmsg.success(tip);
+                    alert(tip);
                 }
             },
             watch: {
-                searchKey(newValue, oldValue) {//监听搜索关键词key
-                    if (newValue === oldValue || newValue.trim() === "") {
-                        return;
-                    }
+                searchKey(newValue, oldValue) {
+                    if (newValue === oldValue) return;
                     const tempList = [];
                     const type = this.typeListShowValue;
                     for (const value of LocalData.getLookAtItLaterArr()) {
@@ -174,8 +239,7 @@ const LookAtItLater = {
             return true;
         }
         return false;
-    }
-    ,
+    },
     addLookAtItLater(data) {//添加视频到稍后再看列表流程
         if (!confirm(`是要将【${data["title"]}】添加进稍后再看列表吗？`)) {
             return;
