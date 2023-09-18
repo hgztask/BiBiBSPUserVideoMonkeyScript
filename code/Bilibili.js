@@ -118,7 +118,16 @@ async function bilibili(href) {
         frequencyChannel.videoRules();
         frequencyChannel.delDevelop();
         frequencyChannel.cssStyle.backGauge();
-
+    }
+    if (href.includes("www.bilibili.com/v/channel/")) {
+        const interval = setInterval(() => {
+            const jqE = $(".slide-scroll");
+            if (jqE.length === 0) return;
+            clearInterval(interval);
+            jqE.css("flex-wrap", "wrap");
+            document.querySelector(".arrow-btn.arrow-btn--right").remove();
+            Qmsg.success("已调整页面顶部最近观看的频道列表展示效果");
+        }, 1000);
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         GreatDemand.delVideo();
