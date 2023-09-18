@@ -40,7 +40,7 @@ ul {
 #suspensionDiv p {
     margin-top: 10px;
 }
-#suspensionDiv  button,#home_layout button {
+#suspensionDiv .center button,#home_layout button {
     margin-top: 10px;
     padding: 5px 10px;
     border: none;
