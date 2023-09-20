@@ -207,12 +207,12 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "POST",
-                                url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+                                url: "https://api.mikuchase.ltd/bilibili/shieldRule/",
                                 data: {
                                     model: "All",
                                     userName: getInfo["userName"],
                                     userPassword: getInfo["userPassword"],
-                                    postData: Util.getRuleFormatStr()
+                                    postData: this.getOutRuleDataFormat()
                                 },
                                 dataType: "json",
                                 success(data) {

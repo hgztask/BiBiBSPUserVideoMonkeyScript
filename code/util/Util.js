@@ -243,7 +243,6 @@ const Util = {
             }
         }, time);
     },
-
     suspensionBall(dragId, func) {//设置元素可自由拖动拖动
         let startEvt, moveEvt, endEvt;
         // 判断是否支持触摸事件
@@ -388,16 +387,6 @@ const Util = {
     },
     printElement(id, element) {
         $(id).prepend(element);
-    },
-    //获取格式化规则的内容
-    getRuleFormatStr() {
-        //温馨提示每个{}对象最后一个不可以有,符号
-        return Util.strTrimAll(`{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
-    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
-    "标题黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrTitleKeyCanonical())},
-    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getCommentOnKeyArr())},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
-    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getContentColumnKeyArr())},
-    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())},"动态关键词内容黑名单模式(正则匹配)":${JSON.stringify(LocalData.getDynamicCanonicalArr())}}`);
     },
     /**
      * 设置页面播放器的播放速度
@@ -756,6 +745,29 @@ const Util = {
             return false;
         }
         return true;
+    },
+    getUrlParam(urlStr, urlKey) {//获取url指定参数的值
+        const reg = new RegExp('[\?\&]' + urlKey + '=([^\&]*)(\&?)', 'i')
+        const r = urlStr.match(reg)
+        return r ? decodeURI(r[1]) : null;
+    },
+    /**
+     * 不产生新的数据对象
+     * 合并两个数组并返回合并之后的数组，返回源数组
+     * @param {Array}array1 源数组
+     * @param {Array}array2 目标数组
+     * @param {number}threshold
+     * @return {Array} 源数组
+     */
+    mergeArrays(array1, array2, threshold = 1000) {
+        if (array1.length + array2.length <= threshold) {// 当数组长度较小时，使用 push() 方法
+            array1.push(...array2);
+        } else if (array1.length <= threshold) {// 当 array1 较短，array2 较长时，使用 splice() 方法
+            array1.splice(array1.length, 0, ...array2);
+        } else {// 当数组长度都较大时，使用 Array.prototype.push.apply() 方法
+            Array.prototype.push.apply(array1, array2);
+        }
+        return array1;
     }
 
 }
