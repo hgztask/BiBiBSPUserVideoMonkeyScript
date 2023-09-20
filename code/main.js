@@ -1690,3 +1690,9 @@ if (href.includes("bilibili.com")) {
 if (href.includes("gbtgame.ysepan.com")) {
     $("#GBTLSGameDetails").attr("open", true);
 }
+
+
+
+
+
+

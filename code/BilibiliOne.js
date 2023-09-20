@@ -299,7 +299,7 @@ async function bilibiliOne(href, windowsTitle) {
             UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", hrefUID);
         });
 
-        getDataListBut.click(() => {
+        getDataListBut.click(async () => {
             const tabName = Space.getTabName();
             let dataList, fileName;
             switch (tabName) {
@@ -325,11 +325,41 @@ async function bilibiliOne(href, windowsTitle) {
                     const fav = Space.fav;
                     const favName = fav.getFavName();
                     const authorName = fav.getAuthorName();
+                    const favID = fav.getFavID();
+                    const favtype = fav.getFavtype();
                     if (!confirm(`获取【${authorName}】用户【${favName}】收藏夹当前显示的内容，是要获取吗？`)) {
                         return;
                     }
-                    dataList = fav.getDataList();
+                    const input = prompt(`请选择获取的模式\n输入单个数字0为：页面自动化操作模式进行获取\n1为：网络请求模式获取，比页面自动化操作模式多3个结果参数（头像、uid、弹幕量）`);
+                    if (input === null) return;
                     fileName = `${authorName}的${favName}收藏夹列表`;
+                    if (input === "0") {
+                        dataList = fav.getDataList();
+                        break;
+                    }
+                    if (input === "1") {
+                        const loading = Qmsg.loading("正在获取中！");
+                        let data;
+                        if (favtype === "collect") {//用户收藏其他用户收藏夹
+                            if (!confirm(`检测到请求的是是收藏了其他用户的收藏夹，故一次性获取`)) {
+                                loading.close();
+                                return;
+                            }
+                            //TODO 该功能实现不应该放在这里，后续调整为在获取收藏的列表数据，而非当前收藏页的列表数据事件中
+                            data = await fav.getHttpCollectOthersDataAllList(favID);
+                        } else {
+                            data = await fav.getHttpUserCreationDataList(favID)
+                        }
+                        loading.close();
+                        if (!data["state"]) {
+                            Qmsg.error("获取失败!");
+                            return;
+                        }
+                        dataList = data["dataList"];
+                    } else {
+                        Qmsg.error("输入了意外的值！" + input);
+                        return;
+                    }
                     break;
                 case "订阅":
                     const tempTabsName = Space.subscribe.getTabsName();

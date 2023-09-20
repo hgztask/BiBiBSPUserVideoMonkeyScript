@@ -34,16 +34,21 @@ const Space = {
     fav: {
         getFavName() {//获取收藏选项卡中对应展示的收藏夹名
             let favName = document.querySelector(".favInfo-details>.fav-name");
-            if (favName !== null) {
-                return favName.textContent.trim();
-            }
+            if (favName !== null) return favName.textContent.trim();
             favName = document.querySelector(".collection-details .title-name");
-            if (favName !== null) {
-                return favName.textContent.trim();
-            }
+            if (favName !== null) return favName.textContent.trim();
             return "未知收藏夹";
-        }
-        ,
+        },
+        getFavID() {//获取收藏夹选项卡中展示的收藏夹id
+            const element = $(".fav-item.cur a");
+            let id = element.attr("href");
+            return Util.getUrlParam(id, "fid");
+        },
+        getFavtype() {//获取左侧收藏夹选中的的类型
+            const urlParam = Util.getUrlParam($(".fav-item.cur a").attr("href"), "ftype");
+            if (urlParam === null) return null;
+            return urlParam;
+        },
         getAuthorName() {//获取收藏选项卡中对应展示的创建收藏夹的作者
             let favUpName = document.querySelector(".favInfo-details .fav-up-name");
             if (favUpName !== null) {
@@ -77,8 +82,7 @@ const Space = {
                 dataList.push(data);
             });
             return dataList;
-        }
-        ,
+        },
         getAllDataList() {
             let list = [];
             return new Promise(resolve => {
@@ -94,6 +98,78 @@ const Space = {
                     nextPageBut.click();
                 }, 2000);
             });
+        },
+        getHttpDataList(url) {
+            const dataList = [];
+            return new Promise((resolve, reject) => {
+                HttpUtil.get(url, (res) => {
+                    const json = JSON.parse(res.response);
+                    const mediasArr = json["data"]["medias"];
+                    for (let value of mediasArr) {
+                        const data = {};
+                        const upInfo = value["upper"];
+                        data["作者名"] = upInfo["name"];
+                        data["uid"] = upInfo["mid"];
+                        data["头像"] = upInfo["face"];
+                        data["标题"] = value["title"];
+                        data["封面"] = value["cover"];
+                        data["AV号"] = value["id"];
+                        data["BV号"] = value["bvid"];
+                        data["弹幕量"] = value["cnt_info"]["danmaku"];
+                        data["播放量"] = value["cnt_info"]["play"];
+                        data["收藏量"] = value["cnt_info"]["collect"];
+                        data["投稿时间"] = value["ctime"];
+                        data["收藏于何时"] = value["fav_time"];
+                        dataList.push(data);
+                    }
+                    const hasMore = json["data"]["has_more"];//返回后面是否还有列表内容
+                    resolve({state: true, hasMore: hasMore, dataList: dataList});
+                }, (reject) => {
+                    reject({state: false, reject});
+                })
+            });
+        },
+        /**
+         * 请求自己或他人所建的收藏夹指定页数的列表内容
+         * 该api最大只能获取20个收藏夹内容
+         * 详情参数可查询<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/fav/list.md">api信息</a>
+         * @param {string}id 收藏夹id
+         * @param page
+         * @return {Promise<unknown>}
+         */
+        getHttpUserCreationDataList(id, page = 1) {
+            return this.getHttpDataList(`https://api.bilibili.com/x/v3/fav/resource/list?media_id=${id}&pn=${page}&ps=20`);
+        },
+        /**
+         * 请求自己或他人所建的收藏夹中指定收藏夹所有item
+         */
+        async getHttpUserCreationAllDataList(id) {
+            let page = 1;
+            const datalist = [];
+
+            async function f() {
+                const data = await this.getHttpUserCreationDataList(id, page);
+                if (!data["state"]) {
+                    return false;
+                }
+                if (!data["hasMore"]) {
+                    return false;
+                }
+                Util.mergeArrays(datalist, data["dataList"]);
+                f();
+            }
+
+            await f();
+            return datalist;
+        },
+        /**
+         *
+         * 请求他人或者自己收藏了他人指定收藏夹列表中所有项目
+         * @param id 收藏夹id
+         * @return {Promise<unknown>}
+         */
+        getHttpCollectOthersDataAllList(id) {
+            return this.getHttpDataList(`https://api.bilibili.com/x/space/fav/season/list?season_id=${id}`);
         }
     },
     followAndFans: {
