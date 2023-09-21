@@ -123,8 +123,26 @@ border: 0.5px solid green;
           <button @click="lookLocalRUleContent">查看本地下拉框中所有的规则内容</button>
           <button @click="lookLocalAppointRUleContent">查看下拉框中指定的规则内容</button>
         </div>
-    
+        <hr>
+        <h3>测试规则</h3>
+        <select v-model="defaultMPSelect">
+        <option v-for="item in MPSList" :value="item">{{item}}</option>
+        </select>模式
+        <div>
+        二次确认<input type="checkbox" v-model=debugSeC>
+        </div>
+        <div>
+        填写规则时自动测试<input type="checkbox" v-model="debugATestOInput">
+        </div>
+        <div>
+        要匹配的内容(测试内容)：<input type="text" v-model.trim="debugText">
+        </div>
+        <div>
+        规则：<input type="text" v-model.trim="debugRuleVal">
+        </div>
+        <button @click="okDebugRule" title="用于测试指定规则类型是否能匹配内容">测试</button>
       </div>
+      <hr>
     <details>
       <summary>视频基本信息处理(时长弹幕播放量)</summary> 
       <h4 style="color: red">注意下面为0则不生效</h4>
