@@ -339,17 +339,12 @@ async function bilibiliOne(href, windowsTitle) {
                     }
                     if (input === "1") {
                         const loading = Qmsg.loading("正在获取中！");
-                        let data;
                         if (favtype === "collect") {//用户收藏其他用户收藏夹
-                            if (!confirm(`检测到请求的是是收藏了其他用户的收藏夹，故一次性获取`)) {
-                                loading.close();
-                                return;
-                            }
-                            //TODO 该功能实现不应该放在这里，后续调整为在获取收藏的列表数据，而非当前收藏页的列表数据事件中
-                            data = await fav.getHttpCollectOthersDataAllList(favID);
-                        } else {
-                            data = await fav.getHttpUserCreationDataList(favID)
+                            alert("暂不支持通过网络请求方式只获取当前页收藏夹列表，如需网络请求方式，请使用【获取收藏的列表数据】功能！或者使用【页面自动化操作模式】");
+                            loading.close();
+                            return;
                         }
+                        const data = await fav.getHttpUserCreationDataList(favID)
                         loading.close();
                         if (!data["state"]) {
                             Qmsg.error("获取失败!");
@@ -421,13 +416,41 @@ async function bilibiliOne(href, windowsTitle) {
                     const fav = Space.fav;
                     const favName = fav.getFavName();
                     const authorName = fav.getAuthorName();
+                    const favID = fav.getFavID();
                     if (!confirm(`是要获取收藏夹创建者【${authorName}】用户【${favName}】的收藏夹所有的内容吗？`)) {
                         Space.isFetchingFollowersOrWatchlists = false;
                         loading.close();
                         return;
                     }
-                    dataList = await fav.getAllDataList();
+                    const input = prompt(`请选择获取的模式\n输入单个数字0为：页面自动化操作模式进行获取\n1为：网络请求模式获取，比页面自动化操作模式多3个结果参数（头像、uid、弹幕量）`);
+                    if (input === null) {
+                        loading.close();
+                        return;
+                    }
                     fileName = `${authorName}的${favName}收藏夹列表`;
+                    if (input === "0") {
+                        dataList = await fav.getAllDataList();
+                        break;
+                    }
+                    if (input === "1") {
+                        const favtype = fav.getFavtype();
+                        let data;
+                        if (favtype === "collect") {//用户收藏其他用户收藏夹
+                            data = await fav.getHttpCollectOthersDataAllList(favID);
+                        } else {
+                            data = await fav.getHttpUserCreationAllDataList(favID);
+                        }
+                        if (!data["state"]) {
+                            Qmsg.error("获取失败!");
+                            loading.close();
+                            return;
+                        }
+                        dataList = data["dataList"];
+                    } else {
+                        Qmsg.error("出现意外的值！" + input);
+                        loading.close();
+                        return;
+                    }
                     break;
                 case "订阅":
                     const tempTabsName = Space.subscribe.getTabsName();

@@ -122,7 +122,7 @@ const Space = {
                         data["收藏于何时"] = value["fav_time"];
                         dataList.push(data);
                     }
-                    const hasMore = json["data"]["has_more"];//返回后面是否还有列表内容
+                    const hasMore = json["data"]["has_more"];
                     resolve({state: true, hasMore: hasMore, dataList: dataList});
                 }, (reject) => {
                     reject({state: false, reject});
