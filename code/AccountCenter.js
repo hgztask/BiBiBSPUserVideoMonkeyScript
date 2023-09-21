@@ -9,7 +9,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
     const loading = Qmsg.loading("请稍等...");
     $.ajax({
         type: "POST",
-        url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+        url: "https://api.mikuchase.ltd/bilibili/shieldRule/",
         data: {
             model: "setShare",
             userName: userName,
@@ -74,7 +74,7 @@ const AccountCenter = {//账号中心
                 return;
             }
             const loading = Qmsg.loading("正在登录中...");
-            HttpUtil.get(`https://vip.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`, (res) => {
+            HttpUtil.get(`https://api.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`, (res) => {
                 loading.close();
                 const body = JSON.parse(res.responseText);
                 const code = body["code"];
@@ -119,7 +119,7 @@ const AccountCenter = {//账号中心
     <hr>
     <div style="display: flex;justify-content: center;">
      <button>
-     <a href="https://vip.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+     <a href="https://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
      </button>
         <button id="exitSignBut">退出登录</button>
     </div>

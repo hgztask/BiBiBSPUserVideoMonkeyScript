@@ -35,7 +35,7 @@
 // @require      http://code.jquery.com/ui/1.10.4/jquery-ui.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
-// @connect      vip.mikuchase.ltd
+// @connect      api.mikuchase.ltd
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
