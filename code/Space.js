@@ -189,12 +189,13 @@ const Space = {
                     desc = desc.getAttribute("title");
                 }
                 data["desc"] = desc;
-                const uid = /space\.bilibili\.com\/(\d+?)\//.exec(userAddress);
+                let uid = /space\.bilibili\.com\/(\d+?)\//.exec(userAddress);
                 if (uid && uid[1]) {
-                    data["uid"] = uid[1];
+                    uid = uid[1];
                 } else {
-                    data["uid"] = userAddress;
+                    uid = userAddress;
                 }
+                data["uid"] = parseInt(uid);
                 data["fansActionType"] = fansActionText;
                 list.push(data);
             });
