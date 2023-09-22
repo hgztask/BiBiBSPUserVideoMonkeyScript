@@ -40,7 +40,7 @@ ul {
 #suspensionDiv p {
     margin-top: 10px;
 }
-#suspensionDiv .center button,#home_layout button {
+#suspensionDiv .center button,#home_layout button,#rightLayout button{
     margin-top: 10px;
     padding: 5px 10px;
     border: none;
@@ -48,7 +48,7 @@ ul {
     color: #fff;
     cursor: pointer;
 }
-#suspensionDiv .center button:hover,#home_layout button:hover {
+#suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover {
     background-color: #3E8E41;
 }
 /* 悬浮屏蔽布局 */
@@ -524,6 +524,29 @@ border: 0.5px solid green;
             $("#ruleCenterLayout").append(layout.ruleCenter.getRuleCenterLayout());
             AccountCenter.info();
             bodyJQE.append(layout.getSuspensionDiv());
+        }
+    },
+    htmlVue: {
+        videoPlayVue() {
+            return $(`<div style="position: fixed;left: 95%;top: 15%">
+<div id="rightLayout" style="display: flex; flex-direction: column;">
+<button @click="subItemShowBut">收起</button>
+<div v-show="subItemButShow">
+<button @click="addUid">屏蔽(uid)</button>
+<button @click="getTheVideoBarrage">获取视频弹幕</button>
+<button @click="getTheVideoAVNumber">获取视频av号</button>
+<button @click="getVideoCommentArea">获取评论区页面可见数据</button>
+<button @click="getLeftTopVideoListBut">获取视频选集列表数据</button>
+<button @click="addLefToWatchedBut">添加进已观看</button>
+<button @click="addLefToLookAtItLaterListBut">添加进稍后再看</button>
+<button @click="isHideButtonLayoutBut">{{isHideButtonLayoutButText}}</button>
+<button>隐藏右侧布局</button>
+<button>隐藏顶部视频标题信息</button>
+</div>
+
+
+</div>
+</div>`);
         }
     }
 }

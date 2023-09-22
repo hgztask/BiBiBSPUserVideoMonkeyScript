@@ -498,172 +498,14 @@ async function bilibiliOne(href, windowsTitle) {
         return;
     }
     if (href.includes("www.bilibili.com/video")) {//视频页
-        const Shielding_UID = layout.panel.getHoverball("屏蔽(uid)", "15%", "96%");
-        const getTheVideoBarrage = layout.panel.getHoverball("获取视频弹幕", "19%", "95%");
-        const getTheVideoAVNumber = layout.panel.getHoverball("获取视频av号", "22%", "95%");
-        const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
-        const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
-        const addLefToWatchedBut = layout.panel.getHoverball("添加进已观看", "33%", "94%");
-        const addLefToLookAtItLaterListBut = layout.panel.getHoverball("添加进稍后再看", "36%", "94%");
-        const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
+        $body.append(layout.htmlVue.videoPlayVue());
+        const videoPlayVue = VideoPlayVue.returnVue();
         const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
         const hideTopVideoTitleInfoBut = layout.panel.getHoverball("隐藏顶部视频标题信息", "8%", "1%");
-        $body.append(Shielding_UID);
-        $body.append(getTheVideoBarrage);
-        $body.append(getTheVideoAVNumber);
-        $body.append(getVideoCommentArea);
-        $body.append(getLeftTopVideoListBut);
-        $body.append(addLefToWatchedBut);
-        $body.append(addLefToLookAtItLaterListBut);
-        $body.append(isHideButtonLayoutBut);
-        $body.append(isHideRightLayoutBut);
-        $body.append(hideTopVideoTitleInfoBut);
+        // $body.append(isHideRightLayoutBut);
+        // $body.append(hideTopVideoTitleInfoBut);
 
-        Shielding_UID.click(() => {
-            const userList = DefVideo.getCreativeTeam();
-            if (userList.length === 0) {
-                alert("获取失败！");
-                return;
-            }
-            if (userList.length === 1) {
-                const data = userList[0];
-                const name = data["name"];
-                const uid = data["uid"];
-                if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid=${uid}`)) {
-                    return;
-                }
-                UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", uid);
-                return;
-            }
-            alert("暂不支持屏蔽多作者方式.");
-        });
-        getTheVideoBarrage.click(() => {//打开当前视频弹幕列表
-            const windowUrl = Util.getWindowUrl();
-            if (!windowUrl.includes("www.bilibili.com/video")) {
-                alert("当前不是播放页!");
-                return;
-            }
-            const urlBVID = Util.getUrlBVID(windowUrl);
-            if (urlBVID === null) {
-                alert("获取不到BV号!");
-                return;
-            }
-            if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
-                return;
-            }
-            const loading = Qmsg.loading("正在获取数据中!");
-            HttpUtil.getVideoInfo(urlBVID, (res) => {
-                const body = JSON.parse(res.responseText);
-                const code = body["code"];
-                const message = body["message"];
-                if (code !== 0) {
-                    Qmsg.error("获取失败!" + message);
-                    loading.close();
-                    return;
-                }
-                let data;
-                try {
-                    data = body["data"][0];
-                } catch (e) {
-                    Qmsg.error("获取数据失败!" + e);
-                    loading.close();
-                    return;
-                }
-                if (data === null || data === undefined) {
-                    Qmsg.error("获取到的数据为空的!");
-                    loading.close();
-                    return;
-                }
-                loading.close();
-                const cid = data["cid"];
-                Qmsg.success("cid=" + cid);
-                Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
-            }, (err) => {
-                loading.close();
-                Qmsg.error("错误状态!");
-                Qmsg.error(err);
-            });
-        });
-        getTheVideoAVNumber.click(() => {//获取视频av号
-            const urlBVID = Util.getUrlBVID(Util.getWindowUrl());
-            if (urlBVID === null) {
-                alert("获取不到BV号!");
-                return;
-            }
-            if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
-                return;
-            }
-            alert(Util.BilibiliEncoder.dec(urlBVID));
-        });
-        getVideoCommentArea.click(() => {//获取视频的评论区列表可见的内容
-            const list = document.querySelectorAll(".reply-list>.reply-item");
-            if (list.length === 0) {
-                Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
-                return;
-            }
-            const arr = [];
-            for (let v of list) {
-                const rootName = v.querySelector(".user-name").textContent;
-                const rootUid = v.querySelector(".user-name").getAttribute("data-user-id");
-                const rootContent = v.querySelector(".root-reply .reply-content").textContent;
-                const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
-                const data = {
-                    name: rootName, uid: parseInt(rootUid), content: rootContent,
-                };
-                if (subList.length === 0) {
-                    arr.push(data);
-                    continue;
-                }
-                const subArr = [];
-                for (let j of subList) {
-                    const subName = j.querySelector(".sub-user-name").textContent;
-                    const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
-                    const subContent = j.querySelector(".reply-content").textContent;
-                    const subData = {
-                        name: subName, uid: parseInt(subUid), content: subContent
-                    };
-                    subArr.push(subData);
-                }
-                data["sub"] = subArr;
-                arr.push(data);
-            }
-            Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
-            Qmsg.success("已获取成功！");
-        });
-        getLeftTopVideoListBut.click(() => {
-            const videoCollection = DefVideo.videoCollection;
-            if (!videoCollection.isMulti_page()) {
-                alert("并未有视频选集列表！");
-                return;
-            }
-            let dataList;
-            if (videoCollection.isList()) {
-                dataList = videoCollection.getVideoList();
-            } else {
-                dataList = videoCollection.getVIdeoGridList();
-            }
-            Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
-        });
 
-        function localGetVideoInfo() {
-            const upInfo = document.querySelector(".up-name");
-            let data;
-            try {
-                data = {
-                    upName: upInfo.textContent.trim(),
-                    uid: parseInt(Util.getSubWebUrlUid(upInfo.href)),
-                    title: document.querySelector(".video-title").textContent,
-                    bv: Util.getSubWebUrlBV(Util.getWindowUrl())
-                };
-            } catch (e) {
-                console.error("获取视频信息出现错误！", e);
-                return null;
-            }
-            return data;
-        }
-
-        addLefToWatchedBut.click(() => Watched.addWatched(localGetVideoInfo()));
-        addLefToLookAtItLaterListBut.click(() => LookAtItLater.addLookAtItLater(localGetVideoInfo()));
         hideTopVideoTitleInfoBut.click(() => {
             clearInterval(interval02);
             const jqE = $("#viewbox_report");
@@ -704,9 +546,7 @@ async function bilibiliOne(href, windowsTitle) {
         }).then(() => {
             if (LocalData.getHideVideoButtonCommentSections()) {
                 $("#comment").hide();
-                isHideButtonLayoutBut.text("显示评论区");
             } else {
-                isHideButtonLayoutBut.text("隐藏评论区");
             }
         });
 
@@ -730,16 +570,6 @@ async function bilibiliOne(href, windowsTitle) {
             hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
         }
 
-        isHideButtonLayoutBut.click(() => {
-            const e = $("#comment");
-            if (e.is(":hidden")) {
-                e.show();
-                isHideButtonLayoutBut.text("隐藏评论区");
-                return;
-            }
-            e.hide();
-            isHideButtonLayoutBut.text("显示评论区");
-        });
         isHideRightLayoutBut.click(() => {
             clearInterval(interval01);
             const jqE = $(".right-container.is-in-large-ab");

@@ -921,7 +921,9 @@ layout.loading.home();
 $("body").prepend('<button id="mybut">按钮</button>');
 layout.css.home();
 
+
 Util.BilibiliEncoder.init();
+
 
 $("#tabUl>li>button").click((e) => {
     const domElement = e.delegateTarget;
