@@ -1,13 +1,6 @@
 //主入口
 const Rule = {
     showInfo() {
-        const isAutoPlay = Util.getData("autoPlay");
-        const autoPlayCheckbox = $("#autoPlayCheckbox");
-        if (isAutoPlay === null || isAutoPlay === undefined) {
-            autoPlayCheckbox.attr("checked", false);
-        } else {
-            autoPlayCheckbox.attr("checked", isAutoPlay);
-        }
         const pushTypeSelect = $("#pushTypeSelect");
         const videoZoneSelect = $("#video_zoneSelect");
         const pushType = Home.getPushType();
@@ -1209,11 +1202,6 @@ $hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayo
 const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
 $hideVideoTopTitleInfoCheackBox.click(() => LocalData.video.setHideVideoTopTitleInfoLayout($hideVideoTopTitleInfoCheackBox.is(":checked")));
 
-
-$("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
-    Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
-});
-
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {
         if (!confirm("是要清空消息吗？")) {
@@ -1345,25 +1333,6 @@ JQEOpenBWebNoneCheckbox.click(() => {
     LocalData.setBWebNone(JQEOpenBWebNoneCheckbox.is(":checked"));
 });
 
-$("#fenestruleCheckbox").change(function () {
-    if ($("#fenestruleCheckbox").is(":checked")) {//如果是选中状态
-        try {
-            for (const v of $("video")) {
-                v.requestPictureInPicture();//进入画中画
-            }
-        } catch (e) {
-            alert("未找到视频播放器！")
-        }
-    } else {
-        try {
-            for (const v of $("video")) {
-                v.exitPictureInPicture();//退出画中画
-            }
-        } catch (e) {
-            alert("未找到视频播放器！")
-        }
-    }
-});
 
 const tempPushTypeSelect = $('#pushTypeSelect');
 tempPushTypeSelect.change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
@@ -1668,6 +1637,7 @@ const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
 ruleCRUDLlayoutVue().updateRuleIndex();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
+const videoParamsLayoutVue = Video_params_layout.returnVue();
 
 
 Util.suspensionBall(document.querySelector("#suspensionDiv"));

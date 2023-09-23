@@ -211,44 +211,45 @@ border: 0.5px solid green;
     },
     getVideo_params_layout() {
         return `<div>
-                <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
-                <div>
-                  <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
-                </div>
-                <h3>视频播放速度</h3>
-              拖动更改页面视频播放速度
-                <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
-                <span id="playbackSpeedText">1.0x</span>
-                <button id="preservePlaySpeed">保存</button>
-                <div>固定视频播放速度值
-                  <select id="playbackSpeedModel">
-                  <option value="1">1.0x</option>
-                  <option value="0.25">0.25x</option>
-                  <option value="0.5">0.5x</option>
-                  <option value="0.75">0.75x</option>
-                  <option value="0.9">0.9x</option>
-                  <option value="1.25">1.25x</option>
-                  <option value="1.35">1.35x</option>
-                  <option value="1.5">1.5x</option>
-                  <option value="2">2x</option>
-                </select>
-                <button id="preservePlaybackSpeedModel">保存</button>
-              </div>
-              <hr>
-              <div>
-              </div>
-              </div>
-              <h3>播放画面翻转</h3>
-             <button id="flipHorizontal">水平翻转</button>
-             <button id="flipVertical">垂直翻转</button>
-             <div>
-              自定义角度
-              <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
-             </div>
-             <div style="display: flex;">
-             <input type="checkbox" id="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
-             <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
-             <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
+<div>
+<h1>播放器</h1>
+<div>
+<input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
+</div>
+<div>
+<input type="checkbox" v-model="fenestruleCheckbox" @click="VideoPIPicture">视频画中画
+</div>
+<h3>视频播放速度</h3>
+拖动更改页面视频播放速度<input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+ <span id="playbackSpeedText">1.0x</span>
+ <button id="preservePlaySpeed">保存</button>
+ <div>固定视频播放速度值
+   <select id="playbackSpeedModel">
+   <option value="1">1.0x</option>
+   <option value="0.25">0.25x</option>
+   <option value="0.5">0.5x</option>
+   <option value="0.75">0.75x</option>
+   <option value="0.9">0.9x</option>
+   <option value="1.25">1.25x</option>
+   <option value="1.35">1.35x</option>
+   <option value="1.5">1.5x</option>
+   <option value="2">2x</option>
+    </select>
+    <button id="preservePlaybackSpeedModel">保存</button>
+  </div>
+<hr>
+</div>
+    <h3>播放画面翻转</h3>
+   <button id="flipHorizontal">水平翻转</button>
+   <button id="flipVertical">垂直翻转</button>
+   <div>
+    自定义角度
+    <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
+   </div>
+   <div style="display: flex;">
+   <input type="checkbox" id="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
+   <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
+   <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
 `;
     },
     getOutputInfoLayout() {

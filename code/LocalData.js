@@ -182,6 +182,12 @@ const LocalData = {
         },
         setHideVideoButtonCommentSections(key) {//是隐藏视频底部评论区布局
             Util.setData("isCommentArea", key === true);
+        },
+        isAutoPlay() {
+            return Util.getData("autoPlay", false);
+        },
+        setAutoPlay(v) {
+            Util.setData("autoPlay", v === true)
         }
     },
     AccountCenter: {
