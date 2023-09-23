@@ -530,7 +530,7 @@ border: 0.5px solid green;
         videoPlayVue() {
             return $(`<div style="position: fixed;left: 95%;top: 15%">
 <div id="rightLayout" style="display: flex; flex-direction: column;">
-<button @click="subItemShowBut">收起</button>
+<button @click="subItemShowBut">{{subItemButText}}</button>
 <div v-show="subItemButShow">
 <button @click="addUid">屏蔽(uid)</button>
 <button @click="getTheVideoBarrage">获取视频弹幕</button>
@@ -539,9 +539,9 @@ border: 0.5px solid green;
 <button @click="getLeftTopVideoListBut">获取视频选集列表数据</button>
 <button @click="addLefToWatchedBut">添加进已观看</button>
 <button @click="addLefToLookAtItLaterListBut">添加进稍后再看</button>
-<button @click="isHideButtonLayoutBut">{{isHideButtonLayoutButText}}</button>
-<button>隐藏右侧布局</button>
-<button>隐藏顶部视频标题信息</button>
+<button @click="isHideButtonLayoutBut">{{hideButtonLayoutButText}}</button>
+<button @click="isHideRightLayoutBut">{{hideRightLayoutButText}}</button>
+<button @click="isHideTopVideoTitleInfoBut">{{hideTopVideoTitleInfoButText}}</button>
 </div>
 
 

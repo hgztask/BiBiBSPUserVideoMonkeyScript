@@ -127,12 +127,6 @@ const LocalData = {
     setLookAtItLaterArr(arr) {//设置稍后再看列表
         Util.setData("lookAtItLaterArr", arr)
     },
-    getHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
-        return Util.getData("isCommentArea") === true;
-    },
-    setHideVideoButtonCommentSections(key) {//是隐藏视频底部评论区布局
-        Util.setData("isCommentArea", key === true);
-    },
     setPrivacyMode(key) {
         Util.setData("isPrivacyMode", key === true);
     },
@@ -171,18 +165,24 @@ const LocalData = {
         getBarrageQuantityMax() {//设置弹幕量最大值，为0则不生效
             return LocalData.getVideoInt("barrageQuantityMax");
         },
-        getHideVideoRightLayout() {//是否隐藏视频右侧布局
+        isHideVideoRightLayout() {//是否隐藏视频右侧布局
             return Util.getData("isHideVideoRightLayout") === true;
         },
         setHideVideoRightLayout(key) {//是否隐藏视频右侧布局
             Util.setData("isHideVideoRightLayout", key === true);
         },
-        getHideVideoTopTitleInfoLayout() {
+        isHideVideoTopTitleInfoLayout() {
             return Util.getData("isHideVideoTopTitleInfoLayout") === true;
         },
         setHideVideoTopTitleInfoLayout(key) {
             Util.setData("isHideVideoTopTitleInfoLayout", key === true);
         },
+        isHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
+            return Util.getData("isCommentArea") === true;
+        },
+        setHideVideoButtonCommentSections(key) {//是隐藏视频底部评论区布局
+            Util.setData("isCommentArea", key === true);
+        }
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息

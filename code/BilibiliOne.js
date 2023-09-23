@@ -497,110 +497,42 @@ async function bilibiliOne(href, windowsTitle) {
         SubjectOfATalk.deltopIC();
         return;
     }
-    if (href.includes("www.bilibili.com/video")) {//视频页
+    if (href.includes("www.bilibili.com/video") || href.includes("www.bilibili.com/list/watchlater")) {//视频页
         $body.append(layout.htmlVue.videoPlayVue());
         const videoPlayVue = VideoPlayVue.returnVue();
-        const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
-        const hideTopVideoTitleInfoBut = layout.panel.getHoverball("隐藏顶部视频标题信息", "8%", "1%");
-        // $body.append(isHideRightLayoutBut);
-        // $body.append(hideTopVideoTitleInfoBut);
 
 
-        hideTopVideoTitleInfoBut.click(() => {
-            clearInterval(interval02);
-            const jqE = $("#viewbox_report");
-            if (jqE.is(":hidden")) {
-                jqE.show();
-                hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
-                return;
-            }
-            jqE.hide();
-            hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
-        });
-        const interval01 = setInterval(() => {
-            if (!LocalData.video.getHideVideoRightLayout()) {
-                clearInterval(interval01);
-                return;
-            }
-            const jqE = $(".right-container.is-in-large-ab");
-            if (jqE.length === 0) {
-                return;
-            }
-            jqE.hide();
-        }, 1200);
-        if (LocalData.video.getHideVideoRightLayout()) {
-            isHideRightLayoutBut.text("显示右侧布局");
-        } else {
-            isHideRightLayoutBut.text("隐藏右侧布局");
-        }
-
-        new Promise(resolve => {
+        if (LocalData.video.isHideVideoRightLayout()) {
             const interval = setInterval(() => {
-                const jqE = $("#comment .reply-loading");
-                if (jqE.length === 0) {
+                const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
+                if (jqE.length === 0) return;
+                if (!LocalData.video.isHideVideoRightLayout() || videoPlayVue().hideRightLayoutButText === "隐藏右侧布局") {
+                    clearInterval(interval)
                     return;
                 }
-                clearInterval(interval);
-                resolve();
-            }, 1000);
-        }).then(() => {
-            if (LocalData.getHideVideoButtonCommentSections()) {
-                $("#comment").hide();
-            } else {
-            }
-        });
-
-
-        const interval02 = setInterval(() => {
-            if (!LocalData.video.getHideVideoTopTitleInfoLayout()) {
-                clearInterval(interval02);
-                return;
-            }
-            ;
-            const jqE = $("#viewbox_report");
-            if (jqE.length === 0) {
-                return;
-            }
-            jqE.hide();
-        }, 1500);
-        if (LocalData.video.getHideVideoTopTitleInfoLayout()) {
-            $("#viewbox_report").hide();
-            hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
-        } else {
-            hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
+                jqE.hide();
+            }, 1600);
+        }
+        if (LocalData.video.isHideVideoButtonCommentSections()) {
+            const interval = setInterval(() => {
+                const jqE = $("#comment,.playlist-comment");
+                if (jqE.length === 0) return;
+                if (!LocalData.video.isHideVideoButtonCommentSections() || videoPlayVue().hideButtonLayoutButText === "隐藏评论区") {
+                    clearInterval(interval)
+                    return;
+                }
+                jqE.hide();
+            }, 1600);
         }
 
-        isHideRightLayoutBut.click(() => {
-            clearInterval(interval01);
-            const jqE = $(".right-container.is-in-large-ab");
-            if (jqE.length === 0) {
-                alert("获取不到右侧布局！");
-                return;
-            }
-            if (jqE.is(":hidden")) {
-                jqE.show();
-                isHideRightLayoutBut.text("隐藏右侧布局");
-                return;
-            }
-            jqE.hide();
-            isHideRightLayoutBut.text("显示右侧布局");
-        });
-
-        const isSetCollectionMexpContentStyle = false;
-        setInterval(() => {
-            const $collection = document.querySelector(".collection-m-exp>.content");
-            if ($collection === null) {
-                return;
-            }
-            $collection.style.height = "750px";
-            if (isSetCollectionMexpContentStyle) {
-                return;
-            }
-            Util.addStyle(`
-        .collection-m-exp .content .group-list li{
-        padding-bottom:0px
-        }`);
-        }, 1100);
+        if (LocalData.video.isHideVideoTopTitleInfoLayout()) {
+            const interval = setInterval(() => {
+                const jqE = $("#viewbox_report,.video-info-container");
+                if (jqE.length === 0) return;
+                clearInterval(interval);
+                jqE.hide();
+            }, 1500);
+        }
         return;
     }
     if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页

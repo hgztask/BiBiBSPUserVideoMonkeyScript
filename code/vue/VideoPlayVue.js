@@ -3,9 +3,11 @@ const VideoPlayVue = {
         const vue = new Vue({
             el: "#rightLayout",
             data: {
-                isHideButtonLayoutButText: this.showHideButtonLayoutButText(),
+                hideButtonLayoutButText: this.showHideButtonLayoutButText(),
                 subItemButShow: true,
                 subItemButText: "收起",
+                hideRightLayoutButText: this.showHideRightLayoutButText(),
+                hideTopVideoTitleInfoButText: this.showHideTopVideoTitleInfoButText()
             },
             methods: {
                 subItemShowBut() {
@@ -164,25 +166,44 @@ const VideoPlayVue = {
                     LookAtItLater.addLookAtItLater(this.localGetVideoInfo())
                 },
                 isHideButtonLayoutBut() {//隐藏评论区
-                    const e = $("#comment");
+                    const e = $("#comment,.playlist-comment");
                     if (e.is(":hidden")) {
                         e.show();
-                        this.isHideButtonLayoutButText = "隐藏评论区";
+                        this.hideButtonLayoutButText = "隐藏评论区";
                         return;
                     }
                     e.hide();
-                    this.isHideButtonLayoutButText = "显示评论区";
+                    this.hideButtonLayoutButText = "显示评论区";
+                },
+                isHideRightLayoutBut() {
+                    const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
+                    if (jqE.length === 0) {
+                        alert("获取不到右侧布局！");
+                        return;
+                    }
+                    if (jqE.is(":hidden")) {
+                        jqE.show();
+                        this.hideRightLayoutButText = "隐藏右侧布局";
+                        return;
+                    }
+                    jqE.hide();
+                    this.hideRightLayoutButText = "显示右侧布局";
+                },
+                isHideTopVideoTitleInfoBut() {
+                    const jqE = $("#viewbox_report,.video-info-container");
+                    if (jqE.is(":hidden")) {
+                        jqE.show();
+                        this.hideTopVideoTitleInfoButText = "隐藏顶部视频标题信息";
+                        return;
+                    }
+                    jqE.hide();
+                    this.hideTopVideoTitleInfoButText = "显示顶部视频标题信息";
                 }
-
 
             },
             watch: {
-                subItemButShow(newval) {
-                    if (newval) {
-                        this.subItemButText = "收起";
-                    } else {
-                        this.subItemButText = "展开";
-                    }
+                subItemButShow(newVal) {
+                    this.subItemButText = newVal ? "收起" : "展开";
                 }
             }
         });
@@ -191,10 +212,13 @@ const VideoPlayVue = {
         }
     },
     showHideButtonLayoutButText() {
-        if (LocalData.getHideVideoButtonCommentSections()) {
-            return "显示评论区";
-        }
-        return "隐藏评论区";
+        return LocalData.video.isHideVideoButtonCommentSections() ? "显示评论区" : "隐藏评论区";
+    },
+    showHideRightLayoutButText() {
+        return LocalData.video.isHideVideoRightLayout() ? "显示右侧布局" : "隐藏右侧布局";
+    },
+    showHideTopVideoTitleInfoButText() {
+        return LocalData.video.isHideVideoTopTitleInfoLayout() ? "显示顶部视频标题信息" : "隐藏顶部视频标题信息";
     }
 
 }

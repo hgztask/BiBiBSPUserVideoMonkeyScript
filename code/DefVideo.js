@@ -177,7 +177,7 @@ const DefVideo = {
         }
     },
     hideCommentArea() {//隐藏评论区
-        if (LocalData.getHideVideoButtonCommentSections()) {
+        if (LocalData.video.isHideVideoButtonCommentSections()) {
             const interval = setInterval(() => {
                 const jqE = $("#comment");
                 if (jqE.length === 0) {

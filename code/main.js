@@ -26,9 +26,9 @@ const Rule = {
                 videoZoneSelect.val(LocalData.getVideo_zone());
                 break;
         }
-        $("#hideVideoTopTitleInfoCheackBox").prop('checked', LocalData.video.getHideVideoTopTitleInfoLayout());
-        $("#hideVideoButtonCheackBox").prop('checked', LocalData.getHideVideoButtonCommentSections());
-        $("#hideVideoRightLayoutCheackBox").prop('checked', LocalData.video.getHideVideoRightLayout());
+        $("#hideVideoTopTitleInfoCheackBox").prop('checked', LocalData.video.isHideVideoTopTitleInfoLayout());
+        $("#hideVideoButtonCheackBox").prop('checked', LocalData.video.isHideVideoButtonCommentSections());
+        $("#hideVideoRightLayoutCheackBox").prop('checked', LocalData.video.isHideVideoRightLayout());
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
         $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
         $("#openBWebNoneCheckbox").prop("checked", LocalData.getBWebNone());
@@ -1203,7 +1203,7 @@ $("#axleRange").bind("input propertychange", function () {//监听拖动条值�
 });
 
 const tempdelBox = $("#hideVideoButtonCheackBox");
-tempdelBox.click(() => LocalData.setHideVideoButtonCommentSections(tempdelBox.is(':checked')));
+tempdelBox.click(() => LocalData.video.setHideVideoButtonCommentSections(tempdelBox.is(':checked')));
 const $hideVideoRightLayoutCheackBox = $("#hideVideoRightLayoutCheackBox");
 $hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayout($hideVideoRightLayoutCheackBox.is(":checked")));
 const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
