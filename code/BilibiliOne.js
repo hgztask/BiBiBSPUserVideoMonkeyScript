@@ -78,7 +78,7 @@ async function bilibiliOne(href, windowsTitle) {
             jqE.append(jqEa);
         }, 1000);
         const interval04 = setInterval(() => {
-            const jqE = document.querySelector(".header-channel");
+            const jqE = $(".header-channel");
             if (jqE.length === 0) {
                 return;
             }
