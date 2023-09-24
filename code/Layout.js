@@ -543,6 +543,8 @@ border: 0.5px solid green;
 <button @click="isHideButtonLayoutBut">{{hideButtonLayoutButText}}</button>
 <button @click="isHideRightLayoutBut">{{hideRightLayoutButText}}</button>
 <button @click="isHideTopVideoTitleInfoBut">{{hideTopVideoTitleInfoButText}}</button>
+<button @click="VideoPIPicture">播放器画中画</button>
+<button @click="openVideoSubtitle">字幕开关</button>
 </div>
 
 

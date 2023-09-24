@@ -13,7 +13,6 @@ const VideoPlayVue = {
                 subItemShowBut() {
                     this.subItemButShow = !this.subItemButShow;
                 },
-                //TODO 发现bug，不知为什么获取失败，vue之后的事
                 addUid() {
                     debugger;
                     const userList = DefVideo.getCreativeTeam();
@@ -157,11 +156,9 @@ const VideoPlayVue = {
                     }
                     return data;
                 },
-                //TODO 发现bug，不知为什么获取失败，vue之后的事
                 addLefToWatchedBut() {
                     Watched.addWatched(this.localGetVideoInfo())
                 },
-                //TODO 发现bug，不知为什么获取失败，vue之后的事
                 addLefToLookAtItLaterListBut() {
                     LookAtItLater.addLookAtItLater(this.localGetVideoInfo())
                 },
@@ -198,8 +195,17 @@ const VideoPlayVue = {
                     }
                     jqE.hide();
                     this.hideTopVideoTitleInfoButText = "显示顶部视频标题信息";
+                },
+                VideoPIPicture() {
+                    Util.video.autoAllPictureInPicture();
+                },
+                openVideoSubtitle() {
+                    const ariaE = document.querySelector("[aria-label='字幕'] span");
+                    if (ariaE === null) {
+                        return alert("未获取到字幕！");
+                    }
+                    ariaE.click();
                 }
-
             },
             watch: {
                 subItemButShow(newVal) {
