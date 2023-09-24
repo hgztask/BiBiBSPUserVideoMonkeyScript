@@ -1077,15 +1077,6 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     }
 });
 
-$('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
-    Util.setVideoBackSpeed($('#playbackSpeedModel').val())
-});
-
-$("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
-    const val = $('#playbackSpeedModel').val();
-    Util.setData("playbackSpeed", parseFloat(val));
-    Print.ln("已保存播放速度数据=" + val);
-});
 
 $("#flipHorizontal").click(function () {//水平翻转视频
     const videoData = Rule.videoData;

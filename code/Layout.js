@@ -224,18 +224,10 @@ border: 0.5px solid green;
  <span>{{rangePlaySpeed}}x</span>
  <button @click="preservePlaySpeed">保存</button>
  <div>固定视频播放速度值
-   <select id="playbackSpeedModel">
-   <option value="1">1.0x</option>
-   <option value="0.25">0.25x</option>
-   <option value="0.5">0.5x</option>
-   <option value="0.75">0.75x</option>
-   <option value="0.9">0.9x</option>
-   <option value="1.25">1.25x</option>
-   <option value="1.35">1.35x</option>
-   <option value="1.5">1.5x</option>
-   <option value="2">2x</option>
+   <select v-model="playbackSpeedSelect">
+   <option v-for="item in playbackSpeedList" :value="item">{{item}}x</option>
     </select>
-    <button id="preservePlaybackSpeedModel">保存</button>
+    <button @click="okplaybackSpeedSelectBut">保存</button>
   </div>
 <hr>
 </div>
