@@ -405,6 +405,29 @@ const Util = {
             console.log("出现错误，当前页面疑似没有播放器或者其他问题=" + error);
         }
     },
+    video: {
+        openPictureInPicture(video) {//打开指定视频标签的画中画模式
+            return video.requestPictureInPicture();
+        },
+        closePictureInPicture() {//关闭页面画中画
+            if (!document.pictureInPictureElement) return false;
+            document.exitPictureInPicture();//退出画中画
+            return true;
+        },
+        autoPictureInPicture(video) {//页面
+            if (document.pictureInPictureElement) {
+                this.closePictureInPicture();
+                return;
+            }
+            this.openPictureInPicture(video);
+        },
+        autoAllPictureInPicture() {
+            for (let video of document.getElementsByTagName("video")) {
+                this.autoPictureInPicture(video);
+            }
+        }
+
+    },
     /**
      *
      * @param {String}xy x轴还是Y轴
