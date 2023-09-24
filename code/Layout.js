@@ -217,7 +217,7 @@ border: 0.5px solid green;
 <input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
 </div>
 <div>
-<input type="checkbox" v-model="fenestruleCheckbox" @click="VideoPIPicture">视频画中画
+<button @click="VideoPIPicture">视频画中画</button>
 </div>
 <h3>视频播放速度</h3>
 拖动更改页面视频播放速度<input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
