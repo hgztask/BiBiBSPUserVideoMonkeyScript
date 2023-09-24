@@ -1077,12 +1077,6 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     }
 });
 
-$("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
-    const vaule = $("#rangePlaySpeed").val();//获取值
-    Util.setVideoBackSpeed(vaule);
-    $("#playbackSpeedText").text(vaule + "x");//修改对应标签的文本显示
-});
-
 $('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
     Util.setVideoBackSpeed($('#playbackSpeedModel').val())
 });
@@ -1090,12 +1084,6 @@ $('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-
 $("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
     const val = $('#playbackSpeedModel').val();
     Util.setData("playbackSpeed", parseFloat(val));
-    Print.ln("已保存播放速度数据=" + val);
-});
-
-$("#preservePlaySpeed").click(() => {//保存拖动条中的值的播放数据
-    const val = $("#rangePlaySpeed").val();
-    Util.setData("rangePlaySpeed", parseFloat(val));
     Print.ln("已保存播放速度数据=" + val);
 });
 

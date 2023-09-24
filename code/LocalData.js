@@ -188,7 +188,18 @@ const LocalData = {
         },
         setAutoPlay(v) {
             Util.setData("autoPlay", v === true)
+        },
+        getRangePlaySpeed() {
+            const data = Util.getData("rangePlaySpeed", 1);
+            if (isNaN(data)) {
+                return 1;
+            }
+            return data;
+        },
+        setRangePlaySpeed(v) {
+            Util.setData("rangePlaySpeed", v);
         }
+
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息

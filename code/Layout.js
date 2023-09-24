@@ -220,9 +220,9 @@ border: 0.5px solid green;
 <button @click="VideoPIPicture">视频画中画</button>
 </div>
 <h3>视频播放速度</h3>
-拖动更改页面视频播放速度<input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
- <span id="playbackSpeedText">1.0x</span>
- <button id="preservePlaySpeed">保存</button>
+拖动更改页面视频播放速度<input v-model="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+ <span>{{rangePlaySpeed}}x</span>
+ <button @click="preservePlaySpeed">保存</button>
  <div>固定视频播放速度值
    <select id="playbackSpeedModel">
    <option value="1">1.0x</option>
