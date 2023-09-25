@@ -39,11 +39,7 @@ const Rule = {
         //是否移除视频播放完之后的，推荐视频
         isVideoEndRecommend: true,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
-        isRightVideo: false,
-        //是否点击了水平翻转
-        flipHorizontal: false,
-        //是否点击了垂直翻转
-        flipVertical: false
+        isRightVideo: false
     },
     //动态相关配置信息
     trendsData: {
@@ -1077,37 +1073,6 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     }
 });
 
-
-$("#flipHorizontal").click(function () {//水平翻转视频
-    const videoData = Rule.videoData;
-    if (videoData.flipHorizontal) {
-        if (Util.setVideoRotationAngle("Y", 0)) {
-            videoData.flipHorizontal = false;
-        }
-        return;
-    }
-    if (Util.setVideoRotationAngle("Y", 180)) {
-        videoData.flipHorizontal = true;
-    }
-});
-
-$("#flipVertical").click(function () {//垂直翻转视频
-    const videoV = $("video");
-    if (videoV === null) {
-        return;
-    }
-    const videoData = Rule.videoData;
-    if (videoData.flipVertical) {
-        if (Util.setVideoRotationAngle("X", 0)) {
-            videoData.flipVertical = false;
-        }
-        return;
-    }
-    if (Util.setVideoRotationAngle("X", 180)) {
-        videoData.flipVertical = true;
-    }
-});
-
 $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
     const title = document.title;
     const url = Util.getWindowUrl();
@@ -1165,13 +1130,6 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
     }
     Util.fileDownload(JSON.stringify(arrData, null, 3), Util.toTimeString() + "_直播间弹幕内容.json");
     Qmsg.success("获取成功并执行导出内容");
-});
-
-
-$("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
-    const value = $("#axleRange").val();//获取值
-    Util.setVideoCenterRotation(value);
-    $("#axleSpan").text(value + "%");//修改对应标签的文本显示
 });
 
 const tempdelBox = $("#hideVideoButtonCheackBox");

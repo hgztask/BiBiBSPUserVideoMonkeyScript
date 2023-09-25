@@ -232,17 +232,18 @@ border: 0.5px solid green;
 <hr>
 </div>
     <h3>播放画面翻转</h3>
-   <button id="flipHorizontal">水平翻转</button>
-   <button id="flipVertical">垂直翻转</button>
+   <button @click="okFlipHorizontal">水平翻转</button>
+   <button @click="okFlipVertical">垂直翻转</button>
    <div>
     自定义角度
-    <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
+    <input v-model="axleRange" type="range" value="0" min="0" max="360" step="1"><span>{{axleRange}}%</span>
    </div>
+   <hr>
    <div style="display: flex;">
-   <input type="checkbox" id="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
-   <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
-   <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
-`;
+       <input type="checkbox" id="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
+       <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
+       <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局
+   </div>`;
     },
     getOutputInfoLayout() {
         return `<div>
