@@ -220,15 +220,14 @@ border: 0.5px solid green;
 <button @click="VideoPIPicture">视频画中画</button>
 </div>
 <h3>视频播放速度</h3>
-拖动更改页面视频播放速度<input v-model="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
- <span>{{rangePlaySpeed}}x</span>
- <button @click="preservePlaySpeed">保存</button>
  <div>固定视频播放速度值
    <select v-model="playbackSpeedSelect">
    <option v-for="item in playbackSpeedList" :value="item">{{item}}x</option>
     </select>
-    <button @click="okplaybackSpeedSelectBut">保存</button>
   </div>
+拖动更改页面视频播放速度<input v-model="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+ <span>{{rangePlaySpeed}}x</span>
+ <button @click="preservePlaySpeed">保存</button>
 <hr>
 </div>
     <h3>播放画面翻转</h3>
@@ -239,10 +238,11 @@ border: 0.5px solid green;
     <input v-model="axleRange" type="range" value="0" min="0" max="360" step="1"><span>{{axleRange}}%</span>
    </div>
    <hr>
+   <h3>播放页界面元素显隐</h3>
    <div style="display: flex;">
-       <input type="checkbox" id="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
-       <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
-       <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局
+       <input type="checkbox" v-model="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
+       <input type="checkbox" v-model="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
+       <input type="checkbox" v-model="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局
    </div>`;
     },
     getOutputInfoLayout() {

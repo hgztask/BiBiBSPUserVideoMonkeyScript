@@ -11,6 +11,9 @@ const Video_params_layout = {
                 isFlipHorizontal: false,
                 isFlipVertical: false,
                 axleRange: 0,
+                hideVideoTopTitleInfoCheackBox: LocalData.video.isHideVideoTopTitleInfoLayout(),
+                hideVideoButtonCheackBox: LocalData.video.isHideVideoButtonCommentSections(),
+                hideVideoRightLayoutCheackBox: LocalData.video.isHideVideoRightLayout()
             },
             methods: {
                 VideoPIPicture() {
@@ -18,12 +21,6 @@ const Video_params_layout = {
                 },
                 preservePlaySpeed() {//保存视频播放速度值
                     const data = this.rangePlaySpeed;
-                    if (!confirm(`是要保存视频的播放速度值吗？\n${data}x`)) return;
-                    LocalData.video.setRangePlaySpeed(data);
-                    Qmsg.success(`已保存视频的播放速度值=${data}x`);
-                },
-                okplaybackSpeedSelectBut() {
-                    const data = this.playbackSpeedSelect;
                     if (!confirm(`是要保存视频的播放速度值吗？\n${data}x`)) return;
                     LocalData.video.setRangePlaySpeed(data);
                     Qmsg.success(`已保存视频的播放速度值=${data}x`);
@@ -56,10 +53,19 @@ const Video_params_layout = {
                     Util.setVideoBackSpeed(newVal);
                 },
                 playbackSpeedSelect(newVal) {
-                    Util.setVideoBackSpeed(newVal);
+                    this.rangePlaySpeed = newVal;
                 },
                 axleRange(newVal) {
                     Util.setVideoCenterRotation(newVal);
+                },
+                hideVideoTopTitleInfoCheackBox(newVal) {
+                    LocalData.video.setHideVideoTopTitleInfoLayout(newVal);
+                },
+                hideVideoRightLayoutCheackBox(newVal) {
+                    LocalData.video.setHideVideoRightLayout(newVal);
+                },
+                hideVideoButtonCheackBox(newVal) {
+                    LocalData.video.setHideVideoButtonCommentSections(newVal);
                 }
             }
         });

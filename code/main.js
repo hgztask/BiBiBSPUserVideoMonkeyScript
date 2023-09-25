@@ -19,13 +19,11 @@ const Rule = {
                 videoZoneSelect.val(LocalData.getVideo_zone());
                 break;
         }
-        $("#hideVideoTopTitleInfoCheackBox").prop('checked', LocalData.video.isHideVideoTopTitleInfoLayout());
-        $("#hideVideoButtonCheackBox").prop('checked', LocalData.video.isHideVideoButtonCommentSections());
-        $("#hideVideoRightLayoutCheackBox").prop('checked', LocalData.video.isHideVideoRightLayout());
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
         $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
         $("#openBWebNoneCheckbox").prop("checked", LocalData.getBWebNone());
     },
+    //TODO 后续把对应关联的变量清除修改
     //视频参数
     videoData: {
         //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
@@ -1132,12 +1130,6 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
     Qmsg.success("获取成功并执行导出内容");
 });
 
-const tempdelBox = $("#hideVideoButtonCheackBox");
-tempdelBox.click(() => LocalData.video.setHideVideoButtonCommentSections(tempdelBox.is(':checked')));
-const $hideVideoRightLayoutCheackBox = $("#hideVideoRightLayoutCheackBox");
-$hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayout($hideVideoRightLayoutCheackBox.is(":checked")));
-const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
-$hideVideoTopTitleInfoCheackBox.click(() => LocalData.video.setHideVideoTopTitleInfoLayout($hideVideoTopTitleInfoCheackBox.is(":checked")));
 
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {
