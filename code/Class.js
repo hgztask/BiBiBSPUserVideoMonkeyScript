@@ -79,7 +79,6 @@ class VideoClass extends UserClass {
 
 }
 
-
 /**
  * 用户评论内容
  */
@@ -92,3 +91,25 @@ class ContentCLass extends UserClass {
     }
 }
 
+class LiveRoom extends UserClass {
+    roomId;
+    title;
+    face;
+
+    setRoomId(roomId) {
+        this.roomId = roomId;
+        return this;
+    }
+
+    setTitle(title) {
+        this.title = title;
+        return this;
+    }
+
+    setFace(face) {
+        this.face = face;
+        return this;
+    }
+
+
+}
