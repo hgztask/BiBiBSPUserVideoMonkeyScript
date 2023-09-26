@@ -1,9 +1,7 @@
 const LocalData = {
     getSESSDATA() {
-        const data = Util.getData("SESSDATA");
-        if (data === undefined || data === null || data === "") {
-            return null;
-        }
+        const data = Util.getData("SESSDATA", null);
+        if (data === null) return null;
         return "SESSDATA=" + data;
     },
     setSESSDATA(key) {
