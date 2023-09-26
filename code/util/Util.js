@@ -791,6 +791,16 @@ const Util = {
             Array.prototype.push.apply(array1, array2);
         }
         return array1;
-    }
+    },
+    Thread: {
+        sleep(time) {//休眠操作，需要配合await和async
+            return new Promise(resolve => {
+                const timeout = setTimeout(() => {
+                    resolve();
+                    clearTimeout(timeout);
+                }, time);
+            });
 
+        }
+    }
 }
