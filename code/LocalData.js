@@ -9,17 +9,11 @@ const LocalData = {
     },
     getWebBili_jct() {
         const data = Util.getCookieList()["bili_jct"];
-        if (data === undefined) {
-            return null;
-        }
+        if (data === undefined) return null;
         return data;
     },
     getBili_jct() {
-        const data = Util.getData("bili_jct");
-        if (data === undefined || data === null === "") {
-            return null;
-        }
-        return data;
+        return Util.getData("bili_jct", null);
     },
     setBili_jct(key) {
         Util.setData("bili_jct", key);
@@ -33,63 +27,32 @@ const LocalData = {
     getArrWhiteUID() {
         return Util.getData("userWhiteUIDArr", []);
     },
-    setArrWhiteUID(key) {
-        Util.setData("userWhiteUIDArr", key);
-    },
     getArrName() {
         return Util.getData("userNameArr", []);
-    },
-    setArrName(key) {
-        Util.setData("userNameArr", key);
     },
     getArrNameKey() {
         return Util.getData("userNameKeyArr", []);
     },
-    setArrNameKey(key) {
-        Util.setData("userNameKeyArr", key);
-    },
     getArrTitle() {
         return Util.getData("titleKeyArr", []);
-    },
-    setArrTitle(key) {
-        Util.setData("titleKeyArr", key);
     },
     getArrTitleKeyCanonical() {//标题黑名单模式(正则匹配)
         return Util.getData("titleKeyCanonicalArr", []);
     },
-    setArrTitleKeyCanonical(key) {//标题黑名单模式(正则匹配)
-        Util.setData("titleKeyCanonicalArr", key);
-    },
-    getArrContentOnKeyCanonicalArr() {//获取评论关键词黑名单模式(正则匹配)
-        return Util.getData("contentOnKeyCanonicalArr", []);
-    },
     getCommentOnKeyArr() {//获取评论关键词黑名单模式(模糊匹配)
         return Util.getData("commentOnKeyArr", []);
-    },
-    setCommentOnKeyArr(data) {//设置评论关键词黑名单模式(模糊匹配)
-        return Util.setData("commentOnKeyArr", data);
-    },
-    setArrContentOnKeyCanonicalArr(key) {//设置评论关键词黑名单模式(正则匹配)
-        Util.setData("contentOnKeyCanonicalArr", key);
     },
     getDynamicArr() {//获取动态页屏蔽项目规则--模糊匹配
         return Util.getData("dynamicArr", []);
     },
-    setDynamicArr(key) {//设置动态页屏蔽项目规则-模糊匹配
-        Util.setData("dynamicArr", key);
-    },
     getDynamicCanonicalArr() {//获取动态页屏蔽项目规则--正则匹配
         return Util.getData("dynamicCanonicalArr", []);
     },
-    setDynamicCanonicalArr(key) {//设置动态页屏蔽项目规则-正则匹配
-        Util.setData("dynamicCanonicalArr", key);
-    },//粉丝牌
+    //粉丝牌
     getFanCardArr() {
         return Util.getData("fanCardArr", []);
-    },//粉丝牌
-    setFanCardArr(key) {
-        Util.setData("fanCardArr", key);
-    },//专栏关键词内容黑名单模式(模糊匹配)
+    },
+//专栏关键词内容黑名单模式(模糊匹配)
     getContentColumnKeyArr() {
         return Util.getData("contentColumnKeyArr", []);
     },//专栏关键词内容黑名单模式(模糊匹配)
@@ -127,10 +90,7 @@ const LocalData = {
         return Util.getData("isBWebNone") === true;
     },
     getVideoInt(rule) {
-        const data = Util.getData(rule);
-        if (data === undefined || data === null) {
-            return 0;
-        }
+        const data = Util.getData(rule, 0);
         return parseInt(data);
     },
     video: {
@@ -190,20 +150,13 @@ const LocalData = {
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息
-            const data = Util.getData("AccountCenterInfo");
-            if (data === undefined || data === null) {
-                return {};
-            }
-            return data;
+            return Util.getData("AccountCenterInfo", {});
         }, setInfo(key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
         }
     },
     getIsMainVideoList() {//获取是否使用脚本自带的针对于首页的处理效果状态值
-        const data = Util.getData("isMainVideoList");
-        if (data === null) {
-            return false;
-        }
+        const data = Util.getData("isMainVideoList", false);
         return Util.isBoolean(data);
 
     },
@@ -227,7 +180,7 @@ const LocalData = {
             Util.setData("LockScreenIntervalTime", timeInt);
         },
         getIntervalTime() {//返回锁屏间隔时间戳，默认返回5分钟的时间戳
-            return Util.getData("LockScreenIntervalTime", 60000 * 1);
+            return Util.getData("LockScreenIntervalTime", 60000 * 5);
         },
         setPwd(pwd) {
             Util.setData("LockScreenPwd", pwd);
