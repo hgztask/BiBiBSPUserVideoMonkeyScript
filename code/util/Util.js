@@ -802,5 +802,21 @@ const Util = {
             });
 
         }
+    },
+    /**
+     * 防抖函数
+     * 用于限制连续触发的事件频率，确保只有在一定的时间间隔内没有新的触发才会执行函数
+     * @param func 函数事件
+     * @param delay 间隔时间
+     * @return {(function(...[*]): void)|*}
+     */
+    debounce(func, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
     }
 }
