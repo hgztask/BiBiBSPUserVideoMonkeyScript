@@ -14,7 +14,6 @@ const VideoPlayVue = {
                     this.subItemButShow = !this.subItemButShow;
                 },
                 addUid() {
-                    debugger;
                     const userList = DefVideo.getCreativeTeam();
                     if (userList.length === 0) {
                         alert("获取失败！");
