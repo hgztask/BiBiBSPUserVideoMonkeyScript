@@ -12,6 +12,31 @@ const Search = {
     getTabsItem() {//获取搜索页面当前选中的总选项卡
         return document.querySelector(".vui_tabs--nav.vui_tabs--nav-pl0>.vui_tabs--nav-item-active .vui_tabs--nav-text").textContent;
     },
+    //TODO 后续需要防抖优化
+    /**
+     * 处理综合搜索页面展示对应用户是否匹配屏蔽规则执行屏蔽处理
+     */
+    blockUserCard() {
+        const interval = setInterval(() => {
+            const jqE = $(".user-list.search-all-list");
+            if (jqE.length === 0) return;
+            clearInterval(interval);
+            const userCrud = jqE.find('.user-name.cs_pointer.v_align_middle');
+            const userAddress = userCrud[0].href;
+            const userName = userCrud.text();
+            const userUid = Util.getSubWebUrlUid(userAddress);
+            debugger;
+            if (Matching.arrKey(LocalData.getArrUID(), userUid)) {
+                jqE.remove();
+                Qmsg.success(`已通过黑名单uid规则屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
+                return;
+            }
+            const MA = Matching.arrContent(LocalData.getArrNameKey(), userName);
+            if (MA === null) return;
+            jqE.remove();
+            Qmsg.success(`已通过黑名单用户名模糊规则=【${MA}】 屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
+        }, 1000);
+    },
     video: {
         getDataV(v) {
             let info = v.querySelector(".bili-video-card__info--right");

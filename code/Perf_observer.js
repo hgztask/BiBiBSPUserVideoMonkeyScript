@@ -141,9 +141,12 @@ async function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?") || url.includes("api.bilibili.com/x/web-interface/wbi/search/all/v2")) {//搜索界面
+
             if (windowUrl.includes("search.bilibili.com/video") || windowUrl.includes("search.bilibili.com/all")) {
                 Search.video.searchRules();
-                continue;
+            }
+            if (windowUrl.includes("search.bilibili.com/all")) {
+                Search.blockUserCard();
             }
             Qmsg.info("检测到搜索的接口");
             //search.searchRules();

@@ -102,6 +102,7 @@ async function bilibili(href) {
 
         if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
             Search.video.searchRules();
+            Search.blockUserCard();
             return;
         }
         return;
