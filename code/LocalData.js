@@ -24,54 +24,47 @@ const LocalData = {
     setBili_jct(key) {
         Util.setData("bili_jct", key);
     },
-    temp(key) {
-        const data = Util.getData(key);
-        if (data === undefined || data === null) {
-            return [];
-        }
-        return data;
-    },
     getArrUID() {
-        return this.temp("userUIDArr");
+        return Util.getData("userUIDArr", []);
     },
     setArrUID(key) {
         Util.setData("userUIDArr", key);
     },
     getArrWhiteUID() {
-        return this.temp("userWhiteUIDArr");
+        return Util.getData("userWhiteUIDArr", []);
     },
     setArrWhiteUID(key) {
         Util.setData("userWhiteUIDArr", key);
     },
     getArrName() {
-        return this.temp("userNameArr");
+        return Util.getData("userNameArr", []);
     },
     setArrName(key) {
         Util.setData("userNameArr", key);
     },
     getArrNameKey() {
-        return this.temp("userNameKeyArr");
+        return Util.getData("userNameKeyArr", []);
     },
     setArrNameKey(key) {
         Util.setData("userNameKeyArr", key);
     },
     getArrTitle() {
-        return this.temp("titleKeyArr");
+        return Util.getData("titleKeyArr", []);
     },
     setArrTitle(key) {
         Util.setData("titleKeyArr", key);
     },
     getArrTitleKeyCanonical() {//标题黑名单模式(正则匹配)
-        return this.temp("titleKeyCanonicalArr");
+        return Util.getData("titleKeyCanonicalArr", []);
     },
     setArrTitleKeyCanonical(key) {//标题黑名单模式(正则匹配)
         Util.setData("titleKeyCanonicalArr", key);
     },
     getArrContentOnKeyCanonicalArr() {//获取评论关键词黑名单模式(正则匹配)
-        return this.temp("contentOnKeyCanonicalArr");
+        return Util.getData("contentOnKeyCanonicalArr", []);
     },
     getCommentOnKeyArr() {//获取评论关键词黑名单模式(模糊匹配)
-        return this.temp("commentOnKeyArr");
+        return Util.getData("commentOnKeyArr", []);
     },
     setCommentOnKeyArr(data) {//设置评论关键词黑名单模式(模糊匹配)
         return Util.setData("commentOnKeyArr", data);
@@ -80,47 +73,43 @@ const LocalData = {
         Util.setData("contentOnKeyCanonicalArr", key);
     },
     getDynamicArr() {//获取动态页屏蔽项目规则--模糊匹配
-        return this.temp("dynamicArr");
+        return Util.getData("dynamicArr", []);
     },
     setDynamicArr(key) {//设置动态页屏蔽项目规则-模糊匹配
         Util.setData("dynamicArr", key);
     },
     getDynamicCanonicalArr() {//获取动态页屏蔽项目规则--正则匹配
-        return this.temp("dynamicCanonicalArr");
+        return Util.getData("dynamicCanonicalArr", []);
     },
     setDynamicCanonicalArr(key) {//设置动态页屏蔽项目规则-正则匹配
         Util.setData("dynamicCanonicalArr", key);
     },//粉丝牌
     getFanCardArr() {
-        return this.temp("fanCardArr");
+        return Util.getData("fanCardArr", []);
     },//粉丝牌
     setFanCardArr(key) {
         Util.setData("fanCardArr", key);
     },//专栏关键词内容黑名单模式(模糊匹配)
     getContentColumnKeyArr() {
-        return this.temp("contentColumnKeyArr");
+        return Util.getData("contentColumnKeyArr", []);
     },//专栏关键词内容黑名单模式(模糊匹配)
     setContentColumnKeyArr(key) {
         Util.setData("contentColumnKeyArr", key);
     },
     getVideo_zone() {
-        const data = this.temp("video_zone");
-        if (data === undefined || data === null) {
-            return 1;
-        }
-        return parseInt(data);
+        return parseInt(Util.getData("video_zone", 1));
     },
     setVideo_zone(key) {
         Util.setData("video_zone", key);
     },
     getWatchedArr() {//获取已观看的视频数组
-        return this.temp("watchedArr");
+        return Util.getData("watchedArr", []);
     },
     setWatchedArr(key) {//设置已观看的视频
         Util.setData("watchedArr", key);
     },
     getLookAtItLaterArr() {//获取稍后再看列表
-        return this.temp("lookAtItLaterArr");
+        return Util.getData("lookAtItLaterArr", []);
     },
     setLookAtItLaterArr(arr) {//设置稍后再看列表
         Util.setData("lookAtItLaterArr", arr)
