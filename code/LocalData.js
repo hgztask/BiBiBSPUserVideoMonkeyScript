@@ -9,118 +9,70 @@ const LocalData = {
     },
     getWebBili_jct() {
         const data = Util.getCookieList()["bili_jct"];
-        if (data === undefined) {
-            return null;
-        }
+        if (data === undefined) return null;
         return data;
     },
     getBili_jct() {
-        const data = Util.getData("bili_jct");
-        if (data === undefined || data === null === "") {
-            return null;
-        }
-        return data;
+        return Util.getData("bili_jct", null);
     },
     setBili_jct(key) {
         Util.setData("bili_jct", key);
     },
-    temp(key) {
-        const data = Util.getData(key);
-        if (data === undefined || data === null) {
-            return [];
-        }
-        return data;
-    },
     getArrUID() {
-        return this.temp("userUIDArr");
+        return Util.getData("userUIDArr", []);
     },
     setArrUID(key) {
         Util.setData("userUIDArr", key);
     },
     getArrWhiteUID() {
-        return this.temp("userWhiteUIDArr");
-    },
-    setArrWhiteUID(key) {
-        Util.setData("userWhiteUIDArr", key);
+        return Util.getData("userWhiteUIDArr", []);
     },
     getArrName() {
-        return this.temp("userNameArr");
-    },
-    setArrName(key) {
-        Util.setData("userNameArr", key);
+        return Util.getData("userNameArr", []);
     },
     getArrNameKey() {
-        return this.temp("userNameKeyArr");
-    },
-    setArrNameKey(key) {
-        Util.setData("userNameKeyArr", key);
+        return Util.getData("userNameKeyArr", []);
     },
     getArrTitle() {
-        return this.temp("titleKeyArr");
-    },
-    setArrTitle(key) {
-        Util.setData("titleKeyArr", key);
+        return Util.getData("titleKeyArr", []);
     },
     getArrTitleKeyCanonical() {//标题黑名单模式(正则匹配)
-        return this.temp("titleKeyCanonicalArr");
-    },
-    setArrTitleKeyCanonical(key) {//标题黑名单模式(正则匹配)
-        Util.setData("titleKeyCanonicalArr", key);
-    },
-    getArrContentOnKeyCanonicalArr() {//获取评论关键词黑名单模式(正则匹配)
-        return this.temp("contentOnKeyCanonicalArr");
+        return Util.getData("titleKeyCanonicalArr", []);
     },
     getCommentOnKeyArr() {//获取评论关键词黑名单模式(模糊匹配)
-        return this.temp("commentOnKeyArr");
-    },
-    setCommentOnKeyArr(data) {//设置评论关键词黑名单模式(模糊匹配)
-        return Util.setData("commentOnKeyArr", data);
-    },
-    setArrContentOnKeyCanonicalArr(key) {//设置评论关键词黑名单模式(正则匹配)
-        Util.setData("contentOnKeyCanonicalArr", key);
+        return Util.getData("commentOnKeyArr", []);
     },
     getDynamicArr() {//获取动态页屏蔽项目规则--模糊匹配
-        return this.temp("dynamicArr");
-    },
-    setDynamicArr(key) {//设置动态页屏蔽项目规则-模糊匹配
-        Util.setData("dynamicArr", key);
+        return Util.getData("dynamicArr", []);
     },
     getDynamicCanonicalArr() {//获取动态页屏蔽项目规则--正则匹配
-        return this.temp("dynamicCanonicalArr");
+        return Util.getData("dynamicCanonicalArr", []);
     },
-    setDynamicCanonicalArr(key) {//设置动态页屏蔽项目规则-正则匹配
-        Util.setData("dynamicCanonicalArr", key);
-    },//粉丝牌
+    //粉丝牌
     getFanCardArr() {
-        return this.temp("fanCardArr");
-    },//粉丝牌
-    setFanCardArr(key) {
-        Util.setData("fanCardArr", key);
-    },//专栏关键词内容黑名单模式(模糊匹配)
+        return Util.getData("fanCardArr", []);
+    },
+//专栏关键词内容黑名单模式(模糊匹配)
     getContentColumnKeyArr() {
-        return this.temp("contentColumnKeyArr");
+        return Util.getData("contentColumnKeyArr", []);
     },//专栏关键词内容黑名单模式(模糊匹配)
     setContentColumnKeyArr(key) {
         Util.setData("contentColumnKeyArr", key);
     },
     getVideo_zone() {
-        const data = this.temp("video_zone");
-        if (data === undefined || data === null) {
-            return 1;
-        }
-        return parseInt(data);
+        return parseInt(Util.getData("video_zone", 1));
     },
     setVideo_zone(key) {
         Util.setData("video_zone", key);
     },
     getWatchedArr() {//获取已观看的视频数组
-        return this.temp("watchedArr");
+        return Util.getData("watchedArr", []);
     },
     setWatchedArr(key) {//设置已观看的视频
         Util.setData("watchedArr", key);
     },
     getLookAtItLaterArr() {//获取稍后再看列表
-        return this.temp("lookAtItLaterArr");
+        return Util.getData("lookAtItLaterArr", []);
     },
     setLookAtItLaterArr(arr) {//设置稍后再看列表
         Util.setData("lookAtItLaterArr", arr)
@@ -138,10 +90,7 @@ const LocalData = {
         return Util.getData("isBWebNone") === true;
     },
     getVideoInt(rule) {
-        const data = Util.getData(rule);
-        if (data === undefined || data === null) {
-            return 0;
-        }
+        const data = Util.getData(rule, 0);
         return parseInt(data);
     },
     video: {
@@ -201,20 +150,13 @@ const LocalData = {
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息
-            const data = Util.getData("AccountCenterInfo");
-            if (data === undefined || data === null) {
-                return {};
-            }
-            return data;
+            return Util.getData("AccountCenterInfo", {});
         }, setInfo(key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
         }
     },
     getIsMainVideoList() {//获取是否使用脚本自带的针对于首页的处理效果状态值
-        const data = Util.getData("isMainVideoList");
-        if (data === null) {
-            return false;
-        }
+        const data = Util.getData("isMainVideoList", false);
         return Util.isBoolean(data);
 
     },
@@ -238,7 +180,7 @@ const LocalData = {
             Util.setData("LockScreenIntervalTime", timeInt);
         },
         getIntervalTime() {//返回锁屏间隔时间戳，默认返回5分钟的时间戳
-            return Util.getData("LockScreenIntervalTime", 60000 * 1);
+            return Util.getData("LockScreenIntervalTime", 60000 * 5);
         },
         setPwd(pwd) {
             Util.setData("LockScreenPwd", pwd);
