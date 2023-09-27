@@ -146,6 +146,23 @@ const Trends = {
             page-break-inside: avoid;
             }
             `);
+        },
+        tabUserItems(jqE) {//调整切换用户展示动态的按钮列表样式
+            let index = 0;
+            jqE.css("display", "flex");
+            jqE.css("flex-flow", "row wrap");
+            const interval = setInterval(() => {
+                if (index === 5) {
+                    clearInterval(interval);
+                    Qmsg.info("结束定时器");
+                }
+                if (jqE.css("flex-flow") === "row wrap") {
+                    index++;
+                    return;
+                }
+                jqE.css("display", "flex");
+                jqE.css("flex-flow", "row wrap");
+            }, 2500);
         }
     },
     getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
