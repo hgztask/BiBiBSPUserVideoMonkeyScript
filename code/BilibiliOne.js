@@ -13,39 +13,32 @@ async function bilibiliOne(href, windowsTitle) {
     }
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
-        if (nav_search_input.length === 0) {
-            return;
-        }
+        if (nav_search_input.length === 0) return;
         clearInterval(interval01);
         nav_search_input.click(() => {
-            console.log("点击了");
+            console.log("点击了顶部搜索框");
             const interval01 = setInterval(() => {
                 const list = document.querySelectorAll(".trendings-double .trending-item");
-                if (list.length === 0) {
-                    return;
-                }
+                if (list.length === 0) return;
                 clearInterval(interval01);
                 list.forEach((value, key, parent) => {
                     const content = value.querySelector(".trending-text").textContent;
                     const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
-                        const info = `已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`;
-                        Qmsg.info(info);
-                        Print.ln(info);
+                        Qmsg.info("规则屏蔽了相关热搜");
+                        Print.ln(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
-                        const info = `已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`;
-                        Qmsg.info(info);
-                        Print.ln(info);
+                        Qmsg.info("规则屏蔽了相关热搜");
+                        Print.ln(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
-                        const info = `已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`;
-                        Qmsg.info(info);
-                        Print.ln(info);
+                        Qmsg.info("规则屏蔽了相关热搜");
+                        Print.ln(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
                     }
                 });
                 // nav_search_input.unbind();//删除该元素的所有jq添加的事件
