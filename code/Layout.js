@@ -464,7 +464,39 @@ border: 0.5px solid green;
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
   <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
-  <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
+  <div class="tab" id="liveLayout">
+  点击用户名打开直播间,点击用户头像打开用户主页
+  <div></div>
+  <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
+  <button @click="loadFollowLst" v-if="isLoadFollowBut">加载列表</button>
+  <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowers">恢复列表</button>
+  </div>
+  <div>
+  搜索(用户名)：<input type="text" v-model.trim="findFollowListRoomKey">
+  搜索条件<select v-model="siftTypeSelect"><option v-for="item in siftTypeList" :value="item">{{item}}</option></select>
+  </div>
+  <hr>
+   <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
+        <div style="display: flex;flex-direction: row;height: 64px;align-items: center;border: 1px solid aqua" v-for="item in listOfFollowers">
+            <div style="width: 48px;height: 48px;border-radius: 50%;overflow: hidden;margin-right:15px;">
+            <a :href="item.upAddress" target="_blank">
+            <img v-bind:src="item.face" style="width: 100%; height: 100%;object-fit: inherit">
+            </a>
+            </div>
+            <div style="display: flex;flex-direction: column;justify-content: space-around;">
+                <a :href="joinRoomAddress(item.roomId)" target="_blank">
+                    <div :title="item.title" style="font-size: 17px;font-weight: bold">{{ item.title }}</div>
+                </a>
+                <a>
+                    <div :title="item.upName">{{ item.upName }}</div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div>其他分区直播列表</div>
+  <!-- 直播列表布局 -->
+</div>
   <div class="tab" id="watchedListLayout">
   <h3>已观看视频个数{{watchedList.length}}个</h3>
  <div v-for="item in watchedList">

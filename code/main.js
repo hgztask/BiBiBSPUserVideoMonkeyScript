@@ -123,7 +123,6 @@ const Home = {
     myidClickIndex: true,
     //是否初次点击了规则中心按钮
     isFirstRuleCenterLayoutClick: false,
-    isFirstLiveLayoutClick: false,
     /**
      *
      * @return {string}
@@ -602,6 +601,7 @@ left: 0;  bottom: 0;">
      * @returns {string}
      */
     getLiveItem(name, uid, liveID, image, title) {
+        //TODO 旧版直播列表中item的网页标签
         return $(` <div class="bili-dyn-live-users__item" title="点击用户名打开直播间,点击用户头像打开用户主页">
                 <div class="bili-dyn-live-users__item__left">
                     <div class="bili-dyn-live-users__item__face-container">
@@ -1018,22 +1018,6 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
             Qmsg.error(error + " " + status);
         }
     });
-});
-
-$("#tabUl>li>button[value='liveLayout']").click(() => {
-    if (!(Util.getWindowUrl().includes("t.bilibili.com") && document.title === "动态首页-哔哩哔哩")) {
-        alert("目前暂时只能在动态首页中展示！");
-        return;
-    }
-    if (Home.isFirstLiveLayoutClick) {
-        return;
-    }
-    const sessdata = LocalData.getSESSDATA();
-    if (sessdata == null) {
-    }
-    Home.isFirstLiveLayoutClick = true;
-    Qmsg.success("用户配置了sessdata");
-    Live.followListLive(sessdata);
 });
 
 Rule.showInfo();
@@ -1567,6 +1551,7 @@ ruleCRUDLlayoutVue().updateRuleIndex();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 const videoParamsLayoutVue = Video_params_layout.returnVue();
+const liveLayoutVue = LiveLayoutVue.returnVue();
 
 
 Util.suspensionBall(document.querySelector("#suspensionDiv"));

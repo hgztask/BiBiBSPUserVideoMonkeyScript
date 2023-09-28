@@ -34,67 +34,80 @@ const Live = {
             });
         }
     },
-    followListLive(sessdata) {
-        const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
-        HttpUtil.getUsersFollowTheLiveList(sessdata, Trends.data.concernPage++, (res) => {
-            const body = JSON.parse(res.responseText);
-            const code = body["code"];
-            const message = body["message"];
-            if (code !== 0) {
-                const info = "获取当前用户正在直播的用户错误！" + message;
-                Qmsg.error(info);
-                console.log(info);
-                return;
-            }
-            /**
-             *
-             * @type {Array}
-             */
-            const list = body["data"]["list"];
-            if (list === undefined || list === null || list.length === 0) {
-                const info = "未获取到当前用户关注的直播用户列表信息";
-                Qmsg.info(info);
-                console.log(info);
-                return;
-            }
-            for (let v of list) {
+    getFollowDataList(sessdata, page = 1) {
+        const followDataList = [];
+        return new Promise((resolve, reject) => {
+            HttpUtil.getUsersFollowTheLiveList(sessdata, page, (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    const info = "获取当前用户正在直播的用户错误！" + message;
+                    Qmsg.error(info);
+                    console.log(info);
+                    return;
+                }
                 /**
-                 *直播状态
-                 * 0：未开播
-                 * 1：直播中
-                 * 2：轮播中
+                 *
+                 * @type {Array}
                  */
-                const live_status = v["live_status"];
-                if (live_status === 0) {
-                    Trends.data.concernBool = true;
-                    break;
+                const list = body["data"]["list"];
+                if (list === undefined || list === null || list.length === 0) {
+                    const info = "未获取到当前用户关注的直播用户列表信息";
+                    Qmsg.info(info);
+                    console.log(info);
+                    return;
                 }
-                if (live_status !== 1) {
-                    continue;
+                let live_status = -1;
+                for (let v of list) {
+                    /**
+                     *直播状态
+                     * 0：未开播
+                     * 1：直播中
+                     * 2：轮播中
+                     */
+                    live_status = v["live_status"];
+                    if (live_status === 0) {//结束，说明后面的都是未开播的item
+                        break;
+                    }
+                    if (live_status !== 1) {//不等于1的，也就是除直播之外的都跳过本轮循环
+                        continue;
+                    }
+                    followDataList.push(new LiveRoom()
+                        .setUpName(v["uname"])
+                        .setUid(v["uid"])
+                        .setTitle(v["title"])
+                        .setRoomId(v["roomid"])
+                        .setFace(v["face"]));
                 }
-                const roomid = v["roomid"];
-                const uid = v["uid"];
-                const uname = v["uname"];
-                const title = v["title"];
-                const face = v["face"];
-                const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
-                tempE.append(liveItem);
-            }
-            const tempIndex = tempE.children().length;
-            if (tempIndex === 0) {
-                Qmsg.info("未获取到关注中正在直播的用户");
-                return;
-            }
-            if (!Trends.data.concernBool) {
-                Live.followListLive(sessdata);
-                return;
-            }
-            $("#liveLayout .bili-dyn-live-users__title>span:eq(0)").text(`${tempIndex}`);
-            Qmsg.success(`已获取到${tempIndex}个直播间`);
-        }, (err) => {
-            Qmsg.error("出现错误");
-            Qmsg.error(err);
+                resolve({live_status: live_status, dataList: followDataList});
+            }, (err) => {
+                reject(err);
+                Qmsg.error("出现错误");
+                Qmsg.error(err);
+            });
         });
+
+    },
+    async loadAddAllFollowDataList(dataList, sessdata) {
+        let page = 1;
+        do {
+            const data = await this.getFollowDataList(sessdata, page);
+            page++;
+            const liveStatus = data.live_status;
+            if (liveStatus === 1) {
+                Util.mergeArrays(dataList, data.dataList);
+                await Util.Thread.sleep(500);
+                Qmsg.success(`正在获取关注列表中正在直播列表`);
+                continue;
+            }
+            if (liveStatus === 0 || liveStatus === -1) {
+                Util.mergeArrays(dataList, data.dataList);
+                break;
+            }
+        } while (true);
+        Qmsg.success(`已获取完成！`);
+        return Promise.resolve();
     },
     //直播间
     liveDel: {
