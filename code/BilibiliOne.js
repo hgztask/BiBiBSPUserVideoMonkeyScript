@@ -15,6 +15,13 @@ async function bilibiliOne(href, windowsTitle) {
         const nav_search_input = $(".nav-search-input,.search-input-el");
         if (nav_search_input.length === 0) return;
         clearInterval(interval01);
+        const arrContent = Matching.arrContent(LocalData.getArrTitle(), nav_search_input.attr("placeholder"));
+        if (arrContent !== null) {
+            const title = nav_search_input.attr("title");
+            nav_search_input.attr("placeholder", "");
+            nav_search_input.attr("title", "");
+            Qmsg.info(`已通过标题关键词 ${arrContent} 过滤顶部搜索框显示的内容=${title}`);
+        }
         nav_search_input.click(() => {
             console.log("点击了顶部搜索框");
             const interval01 = setInterval(() => {
