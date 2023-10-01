@@ -99,7 +99,10 @@ class ContentCLass extends UserClass {
 class LiveRoom extends UserClass {
     roomId;
     title;
+    //头像
     face;
+    //封面
+    frontCover;
 
     setRoomId(roomId) {
         this.roomId = roomId;
@@ -116,5 +119,9 @@ class LiveRoom extends UserClass {
         return this;
     }
 
-
+    setFrontCover(frontCover) {
+        this.frontCover = frontCover;
+        return this;
+    }
 }
+

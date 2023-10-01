@@ -499,14 +499,15 @@ border: 0.5px solid green;
   搜索：<input type="text" v-model.trim="findOtherListRoomKey">
   搜索条件<select v-model="siftOtherLiveTypeSelect"><option v-for="item in siftOtherLiveTypeList" :value="item">{{item}}</option></select>
   </div>
-   <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
-    <live-room-item v-for="item in otherLiveRoomList"
+   <div style="display: grid;grid-template-columns: auto auto auto auto auto;margin: 0px 12px;justify-items: center;">
+    <live-room-front-cover-item v-for="item in otherLiveRoomList"
         :title="item.title"
          :up-address="item.upAddress"
         :face="item.face"
         :up-name="item.upName"
         :room-id="joinRoomAddress(item.roomId)"
-        ></live-room-item>
+        :front-cover="item.frontCover"
+        ></live-room-front-cover-item>
     </div>
     <div style="display: flex;justify-content:center" v-if="otherLoadMoreIf"><button @click="otherLoadMoreBut">加载更多</button></div>
 </div>

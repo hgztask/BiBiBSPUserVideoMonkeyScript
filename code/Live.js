@@ -151,6 +151,7 @@ const Live = {
                         .setFace(face)
                         .setTitle(title)
                         .setRoomId(roomid)
+                        .setFrontCover(cover)
                     )
                 }
                 if (list.length < 20) {
