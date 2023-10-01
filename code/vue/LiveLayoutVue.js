@@ -1,6 +1,7 @@
 //TODO 直播列表待开发
 const LiveLayoutVue = {
     listOfFollowers: [],
+    otherLiveRoomList: [],
     returnVue() {
         const vue = new Vue({
             el: "#liveLayout",
@@ -21,7 +22,10 @@ const LiveLayoutVue = {
                 sPartitionObjList: [],//子分区
                 partitionPage: 1,
                 otherLoadMoreIf: false,
-                loadedPartition: {}//用于记录上一次加载的直播列表数据
+                loadedPartition: {},//用于记录上一次加载的直播列表数据
+                findOtherListRoomKey: "",
+                siftOtherLiveTypeSelect: "upName",
+                siftOtherLiveTypeList: ["upName", "uid", "title", "roomId"]
             },
             methods: {
                 joinRoomAddress(roomId) {
@@ -68,6 +72,7 @@ const LiveLayoutVue = {
                         }
                         const tempList = value.dataList;
                         this.otherLiveRoomList = tempList;//清空列表并赋予新表
+                        LiveLayoutVue.otherLiveRoomList = tempList;
                         Qmsg.success(`获取成功！已获取到${tempList.length}个直播间`);
                     }).catch(reason => {
                         Qmsg.error(reason.errorText);
@@ -90,14 +95,23 @@ const LiveLayoutVue = {
                         const loadedPartition = this.loadedPartition;
                         if (!Util.objEquals(loadedPartition, sPartition, ["parent_name", "parent_id", "name", "id"])) {
                             this.otherLiveRoomList = [];//不相同时清空列表
-                            debugger;
+                            LiveLayoutVue.otherLiveRoomList = [];
                         }
                         const info = value["info"];
                         if (info) {
                             Qmsg.error(`info:${info}`);
                         }
+                        /**
+                         * 当两者数组长度不相同说明otherLiveRoomList应该是用户搜索过后过滤显示的内容
+                         * 此时加载更多需要将原先的数组内容补上并在后面合并
+                         */
+                        if (this.otherLiveRoomList.length !== LiveLayoutVue.otherLiveRoomList.length) {
+                            this.otherLiveRoomList = LiveLayoutVue.otherLiveRoomList;
+                        }
                         const dataList = value.dataList;
+                        //这里合并新数组的内容
                         Util.mergeArrays(this.otherLiveRoomList, dataList);
+                        LiveLayoutVue.otherLiveRoomList = this.otherLiveRoomList;
                         Qmsg.success(`获取成功！已获取到${dataList.length}个直播间，累计${this.otherLiveRoomList.length}个直播间`);
                     }).catch(reason => {
                         Qmsg.error(reason.errorText);
@@ -105,6 +119,10 @@ const LiveLayoutVue = {
                     }).finally(() => {
                         loading.close();
                     });
+                },
+                hRecoveryOtherLiveRoomListBut() {
+                    this.otherLiveRoomList = LiveLayoutVue.otherLiveRoomList;
+                    Qmsg.success(`已恢复其他分区正在直播的列表`);
                 },
                 godchildPartitionsSpecifiedParentPartition(parentPartitionName, title) {//查找指定父分区的子分区
                     const list = this.partitionObjList[parentPartitionName];
@@ -190,6 +208,23 @@ const LiveLayoutVue = {
                 },
                 sPartitionSelectID(newVal) {
                     this.sPartitionSelect = this.getSPartitionSelect(newVal);
+                },
+                findOtherListRoomKey(newVal) {
+                    if (newVal === "") return;
+                    const tempList = [];
+                    for (const v of LiveLayoutVue.otherLiveRoomList) {
+                        if (!v[this.siftOtherLiveTypeSelect].toString().includes(newVal)) {
+                            continue;
+                        }
+                        tempList.push(v);
+                    }
+                    const tempSize = tempList.length;
+                    if (tempSize === 0) {
+                        Qmsg.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
+                        return;
+                    }
+                    this.otherLiveRoomList = tempList;
+                    Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 }
             }
         });

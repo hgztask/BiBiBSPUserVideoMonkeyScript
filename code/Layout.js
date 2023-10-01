@@ -472,7 +472,7 @@ border: 0.5px solid green;
   <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowers">恢复列表</button>
   </div>
   <div>
-  搜索(用户名)：<input type="text" v-model.trim="findFollowListRoomKey">
+  搜索：<input type="text" v-model.trim="findFollowListRoomKey">
   搜索条件<select v-model="siftTypeSelect"><option v-for="item in siftTypeList" :value="item">{{item}}</option></select>
   </div>
   <hr>
@@ -490,10 +490,15 @@ border: 0.5px solid green;
     <select v-model="mainPartitionSelect"><option  v-for="(item,key) in partitionObjList" :value="key">{{key}}</option></select>
     <select v-model="sPartitionSelectID"><option v-for="item in sPartitionObjList" :value="item.id">{{item.name}}</option></select>
     <button @click="loadOtherPartitionLiveListBut">加载</button>
+    <button @click="hRecoveryOtherLiveRoomListBut">恢复列表</button>
     <button @click="findThisSubPartitionBut">从{{mainPartitionSelect}}查询子分区</button>
     <button @click="findSubPartitionBut">查询子分区</button>
     <button @click="openPartitionWebAddressBut">打开页面</button>
     <div>
+   <div>
+  搜索：<input type="text" v-model.trim="findOtherListRoomKey">
+  搜索条件<select v-model="siftOtherLiveTypeSelect"><option v-for="item in siftOtherLiveTypeList" :value="item">{{item}}</option></select>
+  </div>
    <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
     <live-room-item v-for="item in otherLiveRoomList"
         :title="item.title"
