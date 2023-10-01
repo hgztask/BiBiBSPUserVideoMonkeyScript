@@ -109,6 +109,62 @@ const Live = {
         Qmsg.success(`已获取完成！`);
         return Promise.resolve();
     },
+    getOthersAreWorkingLiveDataList(parent_id, id, page = 1) {//获取其他正在直播中的直播列表
+        const tempList = [];
+        const data = {
+            //已经没有内容时设置为true
+            partitionBool: false,
+            dataList: tempList
+        };
+        return new Promise((resolve, reject) => {
+            HttpUtil.getLiveList(parent_id, id, page, "", (res) => {
+                const body = JSON.parse(res.responseText);
+                const code = body["code"];
+                const message = body["message"];
+                data.message = message;
+                data.code = code;
+                if (code !== 0) {
+                    data["info"] = "获取直播分区信息错误！" + message;
+                    reject(data);
+                    return;
+                }
+                const list = body["data"]["list"];
+                for (let v of list) {
+                    const roomid = v["roomid"];
+                    const title = v["title"];
+                    const uname = v["uname"];
+                    const uid = v["uid"];
+                    if (Matching.arrKey(LocalData.getArrUID(), uid)) {
+                        const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
+                        Print.ln(tempInfo);
+                        Qmsg.success(tempInfo);
+                        continue;
+                    }
+                    const face = v["face"];
+                    const cover = v["cover"];//封面
+                    const system_cover = v["system_cover"];//关键帧
+                    const parent_name = v["parent_name"];//父级分区
+                    const area_name = v["area_name"];//子级分区
+                    tempList.push(new LiveRoom()
+                        .setUpName(uname)
+                        .setUid(uid)
+                        .setFace(face)
+                        .setTitle(title)
+                        .setRoomId(roomid)
+                    )
+                }
+                if (list.length < 20) {
+                    data.partitionBool = true;
+                }
+                resolve(data);//因一次加载最多20个，小于说明后面没有开播用户了,当小于时可以考虑加入隐藏加载更多，反之显示
+            }, (err) => {
+                data.errorText = "错误信息" + err;
+                data.err = err;
+                reject(data);
+            });
+        })
+
+    },
     //直播间
     liveDel: {
         //针对于直播间顶部的屏蔽处理

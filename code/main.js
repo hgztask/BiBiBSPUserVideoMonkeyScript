@@ -574,56 +574,6 @@ left: 0;  bottom: 0;">
       </div>
       <button style="position: absolute;top: 0;right: 0;" onclick="document.querySelector('#popDiv').remove()">关闭</button>
     </div>`;
-    },
-    /**
-     * 获取直播列表布局
-     */
-    getLiveList(typeTitle) {
-        return $(`<div class="bili-dyn-live-users">
-        <div class="bili-dyn-live-users__header">
-            <div class="bili-dyn-live-users__title">
-                ${typeTitle}(<span>0</span>)<!--直播人数-->
-            </div>
-        </div>
-        <hr>
-        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto auto auto;">
-        <!--列表中的项目-->
-        </div>
-    </div>`);
-    },
-    /**
-     *
-     * @param name 用户名
-     * @param uid 用户UID
-     * @param liveID 用户直播间房号
-     * @param image 用户头像
-     * @param title 直播间标题
-     * @returns {string}
-     */
-    getLiveItem(name, uid, liveID, image, title) {
-        //TODO 旧版直播列表中item的网页标签
-        return $(` <div class="bili-dyn-live-users__item" title="点击用户名打开直播间,点击用户头像打开用户主页">
-                <div class="bili-dyn-live-users__item__left">
-                    <div class="bili-dyn-live-users__item__face-container">
-                        <div class="bili-dyn-live-users__item__face">
-                            <div class="b-img--face b-img">
-                                <picture class="b-img__inner">
-                                <a href="https://space.bilibili.com/${uid}" target="_blank">
-                                <img src="${image}@76w_76h_!web-dynamic.webp"
-                                        loading="lazy" onload="bmgCmptOnload(this)" alt="图片异常">
-                                </a>
-                                </picture>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bili-dyn-live-users__item__right">
-                    <a href="https://live.bilibili.com/${liveID}" target="_blank">
-                        <div class="bili-dyn-live-users__item__uname bili-ellipsis">${name}</div>
-                    </a>
-                    <div class="bili-dyn-live-users__item__title bili-ellipsis" title=${title}>${title}</div>
-                </div>
-            </div>`);
     }
 }
 
@@ -1554,7 +1504,11 @@ const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
 const videoParamsLayoutVue = Video_params_layout.returnVue();
 const liveLayoutVue = LiveLayoutVue.returnVue();
-
+{//初始化一些配置
+    const data = liveLayoutVue()._data;
+    data.sPartitionObjList = data.partitionObjList[data.mainPartitionSelect];
+    data.sPartitionSelect = data.sPartitionObjList[0];
+}
 
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 

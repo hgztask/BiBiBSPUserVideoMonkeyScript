@@ -1,49 +1,6 @@
 //动态
 const Trends = {
     data: {
-        /**
-         * 关注用户直播列表页数
-         */
-        concernPage: 1,
-        /**
-         * 关注用户直播-是否获取完列表item
-         */
-        concernBool: false,
-        partition: {},
-        /**
-         * 分区列表页数
-         */
-        getPartitionPage(key) {
-            const data = this.partition[key + "Page"];
-            if (data == undefined || data == null) {
-                return 1;
-            }
-            return data;
-        },
-        /**
-         * 分区列表页数
-         */
-        setPartitionPage(key, value) {
-            this.partition[key + "Page"] = value;
-        },
-        /**
-         * 分区用户直播-是否获取完列表item
-         */
-        setPartitionBool(key, value) {
-            this.partition[key + "Bool"] = value;
-        }, /**
-         * 分区用户直播-是否获取完列表item
-         */
-        getPartitionBool(key) {
-            const data = this.partition[key + "Bool"];
-            if (data == undefined || data == null || data === false) {
-                return false;
-            }
-            return true;
-        },
-        partitionPage: 1,
-        partitionBool: false,
-        partitionEndTypeLiveName: "",
         setTrendsItemsTwoColumnCheackbox(bool) {
             Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
         },

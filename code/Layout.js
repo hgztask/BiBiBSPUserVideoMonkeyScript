@@ -477,24 +477,34 @@ border: 0.5px solid green;
   </div>
   <hr>
    <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
-        <div style="display: flex;flex-direction: row;height: 64px;align-items: center;border: 1px solid aqua" v-for="item in listOfFollowers">
-            <div style="width: 48px;height: 48px;border-radius: 50%;overflow: hidden;margin-right:15px;">
-            <a :href="item.upAddress" target="_blank">
-            <img v-bind:src="item.face" style="width: 100%; height: 100%;object-fit: inherit">
-            </a>
-            </div>
-            <div style="display: flex;flex-direction: column;justify-content: space-around;">
-                <a :href="joinRoomAddress(item.roomId)" target="_blank">
-                    <div :title="item.title" style="font-size: 17px;font-weight: bold">{{ item.title }}</div>
-                </a>
-                <a>
-                    <div :title="item.upName">{{ item.upName }}</div>
-                </a>
-            </div>
-        </div>
+        <live-room-item v-for="item in listOfFollowers"
+        :title="item.title"
+         :up-address="item.upAddress"
+        :face="item.face"
+        :up-name="item.upName"
+        :room-id="joinRoomAddress(item.roomId)"
+        ></live-room-item>
     </div>
     <hr>
-    <div>其他分区直播列表</div>
+    <div>其他分区直播列表{{otherLiveRoomList.length}}个</div>
+    <select v-model="mainPartitionSelect"><option  v-for="(item,key) in partitionObjList" :value="key">{{key}}</option></select>
+    <select v-model="sPartitionSelectID"><option v-for="item in sPartitionObjList" :value="item.id">{{item.name}}</option></select>
+    <button @click="loadOtherPartitionLiveListBut">加载</button>
+    <button @click="findThisSubPartitionBut">从{{mainPartitionSelect}}查询子分区</button>
+    <button @click="findSubPartitionBut">查询子分区</button>
+    <button @click="openPartitionWebAddressBut">打开页面</button>
+    <div>
+   <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
+    <live-room-item v-for="item in otherLiveRoomList"
+        :title="item.title"
+         :up-address="item.upAddress"
+        :face="item.face"
+        :up-name="item.upName"
+        :room-id="joinRoomAddress(item.roomId)"
+        ></live-room-item>
+    </div>
+    <div style="display: flex;justify-content:center" v-if="otherLoadMoreIf"><button @click="otherLoadMoreBut">加载更多</button></div>
+</div>
   <!-- 直播列表布局 -->
 </div>
   <div class="tab" id="watchedListLayout">
