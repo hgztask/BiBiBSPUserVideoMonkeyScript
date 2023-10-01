@@ -134,9 +134,7 @@ async function bilibili(href) {
         GreatDemand.delVideo();
         const interval = setInterval(() => {
             const jqE = $(".international-footer");
-            if (jqE.length === 0) {
-                return;
-            }
+            if (jqE.length === 0) return;
             clearInterval(interval);
             jqE.remove();
         }, 1000);

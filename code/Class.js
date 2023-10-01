@@ -6,8 +6,13 @@ class UserClass {
     uid;
     upAddress;
 
+    /**
+     *
+     * @param {string}upName
+     * @return {UserClass}
+     */
     setUpName(upName) {
-        this.upName = upName;
+        this.upName = upName.trim();
         return this;
     }
 

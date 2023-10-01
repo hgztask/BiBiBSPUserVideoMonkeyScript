@@ -764,14 +764,16 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
  * @param {VideoClass} data - 包含以下属性的数据对象：
+ * @param {string} data.upName 用户名
+ * @param {number} data.uid uid
  *   @return  {Boolean} 是否屏蔽
  */
 function shieldVideo_userName_uid_title(data) {
-    const uid = data.uid;
+    const uid = data.uid || 0;
     const element = data.e;
     const title = data.title;
     const videoHref = data.videoAddress;
-    const name = data.upName;
+    const name = data.upName.trim();
     const videoPlaybackVolume = data.playbackVolume;
     const videoTime = data.videoTime;
     const barrageQuantity = data.barrageQuantity;
