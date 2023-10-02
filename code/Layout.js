@@ -499,7 +499,7 @@ border: 0.5px solid green;
   搜索：<input type="text" v-model.trim="findOtherListRoomKey">
   搜索条件<select v-model="siftOtherLiveTypeSelect"><option v-for="item in siftOtherLiveTypeList" :value="item">{{item}}</option></select>
   </div>
-   <div style="display: grid;grid-template-columns: auto auto auto auto auto;margin: 0px 12px;justify-items: center;">
+   <div style="display: grid;grid-template-columns: auto auto auto auto auto;margin: 0px 12px;justify-items: stretch;">
     <live-room-front-cover-item v-for="item in otherLiveRoomList"
         :title="item.title"
          :up-address="item.upAddress"

@@ -103,6 +103,8 @@ class LiveRoom extends UserClass {
     face;
     //封面
     frontCover;
+    //视频帧
+    videoFrame;
 
     setRoomId(roomId) {
         this.roomId = roomId;
@@ -121,6 +123,11 @@ class LiveRoom extends UserClass {
 
     setFrontCover(frontCover) {
         this.frontCover = frontCover;
+        return this;
+    }
+
+    setVideoFrame(videoFrame) {
+        this.videoFrame = videoFrame;
         return this;
     }
 }
