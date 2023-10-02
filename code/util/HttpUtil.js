@@ -105,7 +105,18 @@ const HttpUtil = {
         this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
     },
     //获取指定用户创建的所有收藏夹信息
+    //使用教程<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/fav/info.md">地址</a>
     getUSerAllFavInfo(uid, resolve, reject) {
         this.get(`https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=${uid}`, resolve, reject);
+    },
+    /**
+     * 获取我的所有表情包
+     * api:<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/emoji/list.md">地址</a>
+     * @param {string}business 场景 reply：评论区 dynamic：动态
+     * @param resolve
+     * @param reject
+     */
+    getEmoJiList(business, resolve, reject) {
+        this.get(`https://api.bilibili.com/x/emote/setting/panel?business=${business}`, resolve, reject);
     }
 };
