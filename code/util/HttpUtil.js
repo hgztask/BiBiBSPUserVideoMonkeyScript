@@ -97,9 +97,15 @@ const HttpUtil = {
      * @param id 子级分区
      * @param page 页数
      * @param sort 排序-如综合或者最新，最新live_time 为空着综合
+     * @param resolve
+     * @param reject
      */
     getLiveList(parent_id, id, page, sort, resolve, reject) {
         //https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=3&area_id=0&sort_type=sort_type_121&page=3
         this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
+    },
+    //获取指定用户创建的所有收藏夹信息
+    getUSerAllFavInfo(uid, resolve, reject) {
+        this.get(`https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=${uid}`, resolve, reject);
     }
 };
