@@ -10,7 +10,7 @@ const LiveLayoutVue = {
                 listOfFollowers: [],
                 isLoadFollowBut: true,
                 findFollowListRoomKey: "",
-                hRecoveryListOfFollowers: false,
+                hRecoveryListOfFollowersIf: false,
                 siftTypeSelect: "upName",
                 siftTypeList: ["upName", "uid", "title", "roomId"],
                 //其他分区直播列表
@@ -21,11 +21,12 @@ const LiveLayoutVue = {
                 sPartitionSelect: {},
                 sPartitionObjList: [],//子分区
                 partitionPage: 1,
-                otherLoadMoreIf: false,
+                otherLoadMoreIf: false,//加载更多按钮销毁或显示
                 loadedPartition: {},//用于记录上一次加载的直播列表数据
                 findOtherListRoomKey: "",
                 siftOtherLiveTypeSelect: "upName",
-                siftOtherLiveTypeList: ["upName", "uid", "title", "roomId"]
+                siftOtherLiveTypeList: ["upName", "uid", "title", "roomId"],
+                hRecoveryOtherLiveListIf: false,//恢复列表
             },
             methods: {
                 joinRoomAddress(roomId) {
@@ -44,7 +45,6 @@ const LiveLayoutVue = {
                     Qmsg.success("用户配置了sessdata");
                     Live.loadAddAllFollowDataList(this.listOfFollowers, sessdata).then(() => {
                         LiveLayoutVue.listOfFollowers = this.listOfFollowers;
-                        this.hRecoveryListOfFollowers = true;
                         Qmsg.success(`已临时保存关注列表中正在直播的用户列表，可使用搜索对其进行筛选`);
                     });
                 },
@@ -200,6 +200,7 @@ const LiveLayoutVue = {
                         return;
                     }
                     this.listOfFollowers = tempList;
+                    this.hRecoveryListOfFollowersIf = true;
                     Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 },
                 mainPartitionSelect(newVal) {
@@ -223,6 +224,7 @@ const LiveLayoutVue = {
                         Qmsg.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
                         return;
                     }
+                    this.hRecoveryOtherLiveListIf = true;
                     this.otherLiveRoomList = tempList;
                     Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 }

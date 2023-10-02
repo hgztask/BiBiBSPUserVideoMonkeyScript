@@ -469,7 +469,7 @@ border: 0.5px solid green;
   <div></div>
   <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
   <button @click="loadFollowLst" v-if="isLoadFollowBut">加载列表</button>
-  <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowers">恢复列表</button>
+  <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowersIf">恢复列表</button>
   </div>
   <div>
   搜索：<input type="text" v-model.trim="findFollowListRoomKey">
@@ -490,7 +490,7 @@ border: 0.5px solid green;
     <select v-model="mainPartitionSelect"><option  v-for="(item,key) in partitionObjList" :value="key">{{key}}</option></select>
     <select v-model="sPartitionSelectID"><option v-for="item in sPartitionObjList" :value="item.id">{{item.name}}</option></select>
     <button @click="loadOtherPartitionLiveListBut">加载</button>
-    <button @click="hRecoveryOtherLiveRoomListBut">恢复列表</button>
+    <button @click="hRecoveryOtherLiveRoomListBut" v-if="hRecoveryOtherLiveListIf">恢复列表</button>
     <button @click="findThisSubPartitionBut">从{{mainPartitionSelect}}查询子分区</button>
     <button @click="findSubPartitionBut">查询子分区</button>
     <button @click="openPartitionWebAddressBut">打开页面</button>
