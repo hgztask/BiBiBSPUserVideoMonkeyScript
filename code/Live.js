@@ -37,8 +37,9 @@ const Live = {
     getFollowDataList(sessdata, page = 1) {
         const followDataList = [];
         return new Promise((resolve, reject) => {
-            HttpUtil.getUsersFollowTheLiveList(sessdata, page, (res) => {
-                const body = JSON.parse(res.responseText);
+            const promise = HttpUtil.getUsersFollowTheLiveList(sessdata, page);
+            promise.then(res => {
+                const body = JSON.parse(res.body);
                 const code = body["code"];
                 const message = body["message"];
                 if (code !== 0) {
@@ -81,7 +82,7 @@ const Live = {
                         .setFace(v["face"]));
                 }
                 resolve({live_status: live_status, dataList: followDataList});
-            }, (err) => {
+            }).catch(err => {
                 reject(err);
                 Qmsg.error("出现错误");
                 Qmsg.error(err);

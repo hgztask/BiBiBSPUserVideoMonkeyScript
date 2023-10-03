@@ -41,7 +41,6 @@ const HttpUtil = {
                 reject(error);
             });
         });
-
     },
     /**
      * 封装好的底层get请求
@@ -57,18 +56,43 @@ const HttpUtil = {
             });
         });
     },
+    //私有的，不应该外部访问到，调整相应结果中的res数据
+    _toData(res) {
+        const data = {
+            body: res.responseText,
+            res: res,
+            status: res.status,
+            responseType: res["RESPONSE_TYPE_JSON"],
+            bodyJson: null,
+            message: ""
+        };
+        try {
+            if (data.responseType === "json") {
+                data.bodyJson = JSON.parse(res.responseText);
+            }
+        } catch (e) {
+            data.bodyJson = null;
+            data.message = "检测到responseType是json,但转换json失败了";
+            console.error(data.message, e);
+        }
+        return data;
+    },
     /**
      *携带cookioie发起get请求
      * @param url
      * @param {string}cookie
-     * @param resolve
-     * @param reject
      */
-    getCookie(url, cookie, resolve, reject) {
-        this.httpRequest("get", url, {
-            "User-Agent": navigator.userAgent,
-            "cookie": cookie
-        }, resolve, reject);
+    getCookie(url, cookie) {
+        return new Promise((resolve, reject) => {
+            this.httpRequest("get", url, {
+                "User-Agent": navigator.userAgent,
+                "cookie": cookie
+            }, (res => {
+                resolve(this._toData(res));
+            }), (error) => {
+                reject(error);
+            });
+        });
     },
     /**
      * 发送请求获取视频的基本信息
@@ -94,11 +118,9 @@ const HttpUtil = {
      * 获取用户关注的用户直播列表
      * @param cookie
      * @param page 页数，每页最多29个
-     * @param resolve
-     * @param reject
      */
-    getUsersFollowTheLiveList(cookie, page, resolve, reject) {
-        this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
+    getUsersFollowTheLiveList(cookie, page) {
+        return this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie);
     },
     /**
      * 获取指定分区下的用户直播列表
@@ -129,13 +151,6 @@ const HttpUtil = {
      * @param {string}SESSDATA
      */
     getLookAtItLater(SESSDATA) {
-        return new Promise((resolve, reject) => {
-            this.getCookie("https://api.bilibili.com/x/v2/history/toview", SESSDATA, (data) => {
-                resolve(data);
-            }, () => {
-                reject(reject);
-            });
-        });
-
+        return this.getCookie("https://api.bilibili.com/x/v2/history/toview", SESSDATA);
     }
 };

@@ -193,7 +193,6 @@ const LookAtItLater = {
                 getBWebLookAtItLaterListBut() {
                     //TODO 待开发
                     debugger;
-                    return;
                     const se = LocalData.getSESSDATA();
                     if (se === null) {
                         alert("未设置SESSDATA！");
