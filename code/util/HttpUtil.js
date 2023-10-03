@@ -14,7 +14,10 @@ const HttpUtil = {
             onerror: reject
         });
     },
-    httpRequestPost(url, data, headers, resolve, reject) {
+    /**
+     *封装好的底层post请求，一般情况下不要直接调用，请使用对应的封装好的函数
+     */
+    _post(url, data, headers, resolve, reject) {
         let temp = {
             "Content-Type": "application/json"
         };
@@ -29,9 +32,16 @@ const HttpUtil = {
             onload: resolve,
             onerror: reject
         });
+    },
+    post(url, data, headers) {
+        return new Promise((resolve, reject) => {
+            this._post(url, data, headers, (res) => {
+                resolve(res);
+            }, (error) => {
+                reject(error);
+            });
+        });
 
-    }, post(url, data, resolve, reject) {
-        this.httpRequestPost(url, data, null, resolve, reject);
     },
     /**
      *封装get请求
