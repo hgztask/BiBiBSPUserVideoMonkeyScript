@@ -21,7 +21,6 @@ const Rule = {
         }
         $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
         $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
-        $("#openBWebNoneCheckbox").prop("checked", LocalData.getBWebNone());
     },
     //TODO 后续把对应关联的变量清除修改
     //视频参数
@@ -1192,10 +1191,6 @@ $("#sgSessdata>button:eq(1)").click(() => {
 const openPrivacyModeCheckbox = $("#openPrivacyModeCheckbox");
 openPrivacyModeCheckbox.click(() => {
     LocalData.setPrivacyMode(openPrivacyModeCheckbox.is(":checked"));
-});
-const JQEOpenBWebNoneCheckbox = $("#openBWebNoneCheckbox");
-JQEOpenBWebNoneCheckbox.click(() => {
-    LocalData.setBWebNone(JQEOpenBWebNoneCheckbox.is(":checked"));
 });
 
 

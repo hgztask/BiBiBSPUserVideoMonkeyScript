@@ -83,12 +83,6 @@ const LocalData = {
     getPrivacyMode() {//隐私模式
         return Util.getData("isPrivacyMode") === true;
     },
-    setBWebNone(key) {//不可见模式
-        Util.setData("isBWebNone", key === true);
-    },
-    getBWebNone() {//不可见模式
-        return Util.getData("isBWebNone") === true;
-    },
     getVideoInt(rule) {
         const data = Util.getData(rule, 0);
         return parseInt(data);

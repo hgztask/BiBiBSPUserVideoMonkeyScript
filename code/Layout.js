@@ -287,7 +287,6 @@ border: 0.5px solid green;
     <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
     </div>
     <div>
-     <input type="checkbox" id="openBWebNoneCheckbox">开启b站页面不可见模式
      </div>
     <div>
     <button  value="bvBut">bv号转av号</button>
