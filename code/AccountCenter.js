@@ -74,8 +74,8 @@ const AccountCenter = {//账号中心
                 return;
             }
             const loading = Qmsg.loading("正在登录中...");
-            HttpUtil.get(`https://api.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`, (res) => {
-                loading.close();
+            const promise = HttpUtil.get(`https://api.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`);
+            promise.then(res => {
                 const body = JSON.parse(res.responseText);
                 const code = body["code"];
                 const message = body["message"];
@@ -88,11 +88,11 @@ const AccountCenter = {//账号中心
                 Qmsg.success("登录成功！");
                 $("#accountCenterLayout>*").remove();
                 this.haveLanded();
-            }, (err) => {
+            }).catch((error) => {
+                console.log(error);
+            }).finally(() => {
                 loading.close();
-                console.log(err)
             });
-
         });
     },
     haveLanded() {//已登录

@@ -116,11 +116,11 @@ async function bilibiliOne(href, windowsTitle) {
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
             const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
             const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
+            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`);
+            promise.then(res => {
                 const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
                     alert("未获取到频道视频数据");
-                    loading.close();
                     return;
                 }
                 const bodyList = body["data"]["list"];
@@ -132,6 +132,7 @@ async function bilibiliOne(href, windowsTitle) {
                     ergodicList(bodyList);
                 }
                 frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
+            }).finally(() => {
                 loading.close();
             });
         };
@@ -193,7 +194,8 @@ async function bilibiliOne(href, windowsTitle) {
 
         function loadingVideoE(ps) {//加载分区视频数据
             const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`, function (res) {
+            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`);
+            promise.then(res => {
                 const bodyJson = JSON.parse(res.responseText);
                 if (bodyJson["code"] !== 0) {
                     alert("未获取到视频数据！");
@@ -222,6 +224,7 @@ async function bilibiliOne(href, windowsTitle) {
                         Qmsg.info("过滤了视频！！");
                     }
                 }
+            }).finally(() => {
                 loading.close();
             });
         }

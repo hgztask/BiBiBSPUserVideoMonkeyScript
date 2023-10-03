@@ -44,15 +44,18 @@ const HttpUtil = {
 
     },
     /**
-     *封装get请求
-     * @param {string}url 请求URL
-     * @param {function}resolve 相应成功
-     * @param {function}reject 相应失败
+     * 封装好的底层get请求
      */
-    get(url, resolve, reject) {
-        this.httpRequest("get", url, {
-            "User-Agent": navigator.userAgent,
-        }, resolve, reject);
+    get(url) {
+        return new Promise((resolve, reject) => {
+            this.httpRequest("get", url, {
+                "User-Agent": navigator.userAgent,
+            }, (res) => {
+                resolve(res)
+            }, (error) => {
+                reject(reject(error))
+            });
+        });
     },
     /**
      *携带cookioie发起get请求
@@ -70,26 +73,22 @@ const HttpUtil = {
     /**
      * 发送请求获取视频的基本信息
      * @param {string|number}bvOrAv
-     * @param {function}resolve
-     * @param {function}reject
      */
-    getVideoInfo(bvOrAv, resolve, reject) {
+    getVideoInfo(bvOrAv) {
         let url = "https://api.bilibili.com/x/player/pagelist?";
         if (bvOrAv + "".startsWith("BV")) {
             url = url + "bvid=" + bvOrAv;//需要带上BV号
         } else {
             url = url + "aid=" + bvOrAv;//不需要带上AV号
         }
-        this.get(url, resolve, reject);
+        return this.get(url);
     },
     /**
      * 发送请求获取直播间基本信息
      * @param id 直播间房间号
-     * @param resolve
-     * @param reject
      */
-    getLiveInfo(id, resolve, reject) {
-        this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
+    getLiveInfo(id) {
+        return this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id);
     },
     /**
      * 获取用户关注的用户直播列表
@@ -107,27 +106,23 @@ const HttpUtil = {
      * @param id 子级分区
      * @param page 页数
      * @param sort 排序-如综合或者最新，最新live_time 为空着综合
-     * @param resolve
-     * @param reject
      */
-    getLiveList(parent_id, id, page, sort, resolve, reject) {
+    getLiveList(parent_id, id, page, sort) {
         //https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=3&area_id=0&sort_type=sort_type_121&page=3
-        this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
+        return this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`);
     },
     //获取指定用户创建的所有收藏夹信息
     //使用教程<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/fav/info.md">地址</a>
-    getUSerAllFavInfo(uid, resolve, reject) {
-        this.get(`https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=${uid}`, resolve, reject);
+    getUSerAllFavInfo(uid) {
+        return this.get(`https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=${uid}`);
     },
     /**
      * 获取我的所有表情包
      * api:<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/emoji/list.md">地址</a>
      * @param {string}business 场景 reply：评论区 dynamic：动态
-     * @param resolve
-     * @param reject
      */
-    getEmoJiList(business, resolve, reject) {
-        this.get(`https://api.bilibili.com/x/emote/setting/panel?business=${business}`, resolve, reject);
+    getEmoJiList(business) {
+        return this.get(`https://api.bilibili.com/x/emote/setting/panel?business=${business}`);
     },
     /**
      * 获取稍后再看列表

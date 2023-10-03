@@ -1405,14 +1405,13 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
         },
         findUserInfo() {
             const loading = Qmsg.loading("正在获取中！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`, (res) => {
+            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`);
+            promise.then(res => {
                 const body = JSON.parse(res.responseText);
                 if (body["code"] !== 0) {
                     Qmsg.error("请求失败！");
-                    loading.close();
                     return;
                 }
-                loading.close();
                 const cradInfo = body["data"]["card"];
                 const uid = cradInfo["mid"];//uid
                 const sex = cradInfo["sex"];//性别
@@ -1433,6 +1432,8 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
                     $("body").append(userCardHtml);
                 }
                 tempJq.css("display", "inline");
+            }).finally(() => {
+                loading.close();
             });
         },
         move(value, func) {

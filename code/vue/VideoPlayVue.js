@@ -46,13 +46,13 @@ const VideoPlayVue = {
                         return;
                     }
                     const loading = Qmsg.loading("正在获取数据中!");
-                    HttpUtil.getVideoInfo(urlBVID, (res) => {
+                    const promise = HttpUtil.getVideoInfo(urlBVID);
+                    promise.then(res => {
                         const body = JSON.parse(res.responseText);
                         const code = body["code"];
                         const message = body["message"];
                         if (code !== 0) {
                             Qmsg.error("获取失败!" + message);
-                            loading.close();
                             return;
                         }
                         let data;
@@ -60,22 +60,20 @@ const VideoPlayVue = {
                             data = body["data"][0];
                         } catch (e) {
                             Qmsg.error("获取数据失败!" + e);
-                            loading.close();
                             return;
                         }
                         if (data === null || data === undefined) {
                             Qmsg.error("获取到的数据为空的!");
-                            loading.close();
                             return;
                         }
-                        loading.close();
                         const cid = data["cid"];
                         Qmsg.success("cid=" + cid);
                         Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
-                    }, (err) => {
-                        loading.close();
+                    }).catch(err => {
                         Qmsg.error("错误状态!");
                         Qmsg.error(err);
+                    }).finally(() => {
+                        loading.close();
                     });
                 },
                 getTheVideoAVNumber() {

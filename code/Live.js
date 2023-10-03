@@ -117,7 +117,8 @@ const Live = {
             dataList: tempList
         };
         return new Promise((resolve, reject) => {
-            HttpUtil.getLiveList(parent_id, id, page, "", (res) => {
+            const promise = HttpUtil.getLiveList(parent_id, id, page, "");
+            promise.then(res => {
                 const body = JSON.parse(res.responseText);
                 const code = body["code"];
                 const message = body["message"];
@@ -158,13 +159,12 @@ const Live = {
                     data.partitionBool = true;
                 }
                 resolve(data);//因一次加载最多20个，小于说明后面没有开播用户了,当小于时可以考虑加入隐藏加载更多，反之显示
-            }, (err) => {
+            }).catch(err => {
                 data.errorText = "错误信息" + err;
                 data.err = err;
                 reject(data);
             });
         })
-
     },
     //直播间
     liveDel: {

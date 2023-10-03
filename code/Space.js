@@ -102,7 +102,8 @@ const Space = {
         getHttpDataList(url) {
             const dataList = [];
             return new Promise((resolve, reject) => {
-                HttpUtil.get(url, (res) => {
+                const promise = HttpUtil.get(url);
+                promise.then(res => {
                     const json = JSON.parse(res.response);
                     const mediasArr = json["data"]["medias"];
                     for (let value of mediasArr) {
@@ -124,9 +125,9 @@ const Space = {
                     }
                     const hasMore = json["data"]["has_more"];
                     resolve({state: true, hasMore: hasMore, dataList: dataList});
-                }, (reject) => {
-                    reject({state: false, reject});
-                })
+                }).catch(error => {
+                    reject({state: false, error: error});
+                });
             });
         },
         /**
