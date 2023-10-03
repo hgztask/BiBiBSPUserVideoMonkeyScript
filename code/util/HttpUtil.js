@@ -118,5 +118,19 @@ const HttpUtil = {
      */
     getEmoJiList(business, resolve, reject) {
         this.get(`https://api.bilibili.com/x/emote/setting/panel?business=${business}`, resolve, reject);
+    },
+    /**
+     * 获取稍后再看列表
+     * @param {string}SESSDATA
+     */
+    getLookAtItLater(SESSDATA) {
+        return new Promise((resolve, reject) => {
+            this.getCookie("https://api.bilibili.com/x/v2/history/toview", SESSDATA, (data) => {
+                resolve(data);
+            }, () => {
+                reject(reject);
+            });
+        });
+
     }
 };

@@ -525,6 +525,7 @@ border: 0.5px solid green;
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <button @click="listInversion">列表反转</button>
   <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
+  <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
   <div>
 <input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}<select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select><button @click="okOutOrInputClick">执行</button>
 </div>

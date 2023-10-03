@@ -189,6 +189,22 @@ const LookAtItLater = {
                     const tip = `已将${keyName}的值=${value}\n改成=${input}`;
                     Qmsg.success(tip);
                     alert(tip);
+                },
+                getBWebLookAtItLaterListBut() {
+                    //TODO 待开发
+                    debugger;
+                    return;
+                    const se = LocalData.getSESSDATA();
+                    if (se === null) {
+                        alert("未设置SESSDATA！");
+                        return;
+                    }
+                    const promise = HttpUtil.getLookAtItLater(se);
+                    promise.then(value => {
+                        console.log(value);
+                    }).catch(reason => {
+                        console.log(reason);
+                    });
                 }
             },
             watch: {
