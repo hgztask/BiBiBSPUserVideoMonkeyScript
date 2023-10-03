@@ -118,7 +118,7 @@ async function bilibiliOne(href, windowsTitle) {
             const loading = Qmsg.loading("正在加载数据！");
             const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`);
             promise.then(res => {
-                const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
+                const body = res.bodyJson;//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
                     alert("未获取到频道视频数据");
                     return;
@@ -196,7 +196,7 @@ async function bilibiliOne(href, windowsTitle) {
             const loading = Qmsg.loading("正在加载数据！");
             const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`);
             promise.then(res => {
-                const bodyJson = JSON.parse(res.responseText);
+                const bodyJson = res.bodyJson;
                 if (bodyJson["code"] !== 0) {
                     alert("未获取到视频数据！");
                     loading.close();

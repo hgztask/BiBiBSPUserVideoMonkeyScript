@@ -36,7 +36,7 @@ const HttpUtil = {
     post(url, data, headers) {
         return new Promise((resolve, reject) => {
             this._post(url, data, headers, (res) => {
-                resolve(res);
+                resolve(this._toData(res));
             }, (error) => {
                 reject(error);
             });
@@ -50,7 +50,7 @@ const HttpUtil = {
             this.httpRequest("get", url, {
                 "User-Agent": navigator.userAgent,
             }, (res) => {
-                resolve(res)
+                resolve(this._toData(res))
             }, (error) => {
                 reject(reject(error))
             });

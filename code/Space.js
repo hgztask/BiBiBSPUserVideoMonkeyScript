@@ -104,7 +104,7 @@ const Space = {
             return new Promise((resolve, reject) => {
                 const promise = HttpUtil.get(url);
                 promise.then(res => {
-                    const json = JSON.parse(res.response);
+                    const json = res.bodyJson;
                     const mediasArr = json["data"]["medias"];
                     for (let value of mediasArr) {
                         const data = {};

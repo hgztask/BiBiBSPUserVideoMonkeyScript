@@ -48,7 +48,7 @@ const VideoPlayVue = {
                     const loading = Qmsg.loading("正在获取数据中!");
                     const promise = HttpUtil.getVideoInfo(urlBVID);
                     promise.then(res => {
-                        const body = JSON.parse(res.responseText);
+                        const body = res.bodyJson;
                         const code = body["code"];
                         const message = body["message"];
                         if (code !== 0) {

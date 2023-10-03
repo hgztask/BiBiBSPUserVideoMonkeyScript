@@ -76,7 +76,7 @@ const AccountCenter = {//账号中心
             const loading = Qmsg.loading("正在登录中...");
             const promise = HttpUtil.get(`https://api.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`);
             promise.then(res => {
-                const body = JSON.parse(res.responseText);
+                const body = res.bodyJson;
                 const code = body["code"];
                 const message = body["message"];
                 if (code !== 1) {
