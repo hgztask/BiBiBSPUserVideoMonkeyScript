@@ -9,7 +9,7 @@ const layout = {
     width: 100%;
     max-height: 100%;
     position: fixed;
-    z-index: 2023;
+    z-index: 2024;
     overflow-y: auto;
     border: 3px solid green;
 }
@@ -29,7 +29,7 @@ ul {
 #suspensionDiv {
     position: fixed;
     display: none;
-    z-index: 2024;
+    z-index: 2023;
     background: rgb(149, 156, 135);
     height: atuo;
     width: 10%;
@@ -57,7 +57,7 @@ ul {
 }
 #mybut {
     position: fixed;
-    z-index: 2024;
+    z-index: 2025;
     width: 50px;
     height: 50px;
     left: 96%;
