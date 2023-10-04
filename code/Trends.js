@@ -5,7 +5,7 @@ const Trends = {
             Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
         },
         getTrendsItemsTwoColumnCheackbox() {
-            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox"));
+            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox", false));
         },
     }, topCssDisply: {
         //针对于整体布局的细调整

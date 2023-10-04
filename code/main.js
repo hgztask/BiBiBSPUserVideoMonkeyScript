@@ -19,7 +19,6 @@ const Rule = {
                 videoZoneSelect.val(LocalData.getVideo_zone());
                 break;
         }
-        $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
         $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
     },
     //TODO 后续把对应关联的变量清除修改
@@ -1077,122 +1076,6 @@ $("#butClearMessage").click(() => {
 
 
 const bilibiliEncoder = Util.BilibiliEncoder;
-$("#otherLayout div>button[value='bvBut']").click(() => {
-    const content = prompt("bv转av号");
-    if (content === null) {
-        return;
-    }
-    if (content.length <= 5) {
-        alert("请正确填写内容！");
-        return;
-    }
-    const dec = bilibiliEncoder.dec(content);
-    if (isNaN(dec)) {
-        alert("结果错误！");
-        return;
-    }
-    alert("av" + dec);
-});
-
-$("#otherLayout div>button[value='avBut']").click(() => {
-    let content = prompt("av转bv号");
-    if (content === null) {
-        return;
-    }
-    if (content.startsWith("av") || content.startsWith("AV")) {
-        content = content.substring(2, content.length);
-    }
-    if (content.length < 1 || (isNaN(content))) {
-        alert("请正确填写内容！");
-        return;
-    }
-    const dec = bilibiliEncoder.enc(content);
-    if (!dec.startsWith("BV")) {
-        alert("结果错误！");
-        return;
-    }
-    alert(dec);
-});
-
-$("#sgSessdata>button:eq(0)").click(() => {
-    const content = prompt("请输入要保存的SESSDATA值");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        LocalData.setSESSDATA(null);
-        return;
-    }
-    if (content.includes(" ") || content.includes("=")) {
-        Qmsg.error("内容中包含空格或者=，请去除相关符号！");
-        return;
-    }
-    if (!confirm(`要保存的SESSDATA是\n${content}`)) {
-        return;
-    }
-    LocalData.setSESSDATA(content);
-    Qmsg.success("已设置SESSDATA的值！");
-});
-
-$("#bili_jctDiv>button:eq(0)").click(() => {
-    const content = prompt("设置bili_jct值为：");
-    if (content === null) {
-        return;
-    }
-    if (content === "" | content.includes(" ")) {
-        Qmsg.error("内容有误，请正确书写！");
-        return;
-    }
-    LocalData.setBili_jct(content);
-    Qmsg.success(`已设置bili_jct的值为\n${content}`);
-});
-$("#bili_jctDiv>button:eq(1)").click(() => {
-    const data = LocalData.getWebBili_jct();
-    if (data === null) {
-        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
-        return;
-    }
-    if (!confirm("确定要将存储在网页中的bili_jct值并设置存储在油猴脚本bili_jct值吗？")) {
-        return;
-    }
-    LocalData.setBili_jct(data);
-    Qmsg.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
-});
-$("#bili_jctDiv>button:eq(2)").click(() => {
-    const data = LocalData.getWebBili_jct();
-    if (data === null) {
-        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
-        return;
-    }
-    Qmsg.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
-    Print.ln(data);
-});
-$("#bili_jctDiv>button:eq(3)").click(() => {
-    const biliJct = LocalData.getBili_jct();
-    if (biliJct === null) {
-        Qmsg.error(`用户未设置bili_jct值`);
-        return;
-    }
-    Qmsg.success("获取成功！，已将bili_jct值输出到面板上");
-});
-$("#sgSessdata>button:eq(1)").click(() => {
-    const data = LocalData.getSESSDATA();
-    if (data === null) {
-        const tip = '用户未添加SESSDATA或者已删除存储在脚本的SESSDATA';
-        Qmsg.error(tip);
-        alert(tip);
-        return;
-    }
-    Qmsg.success("已将值输出到脚本面板的输出信息上！");
-    Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
-    Print.ln(data);
-});
-
-const openPrivacyModeCheckbox = $("#openPrivacyModeCheckbox");
-openPrivacyModeCheckbox.click(() => {
-    LocalData.setPrivacyMode(openPrivacyModeCheckbox.is(":checked"));
-});
-
 
 const tempPushTypeSelect = $('#pushTypeSelect');
 tempPushTypeSelect.change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
@@ -1263,86 +1146,9 @@ $("#findButon").click(() => {
     }
 });
 
-
-$("#GBTLSGameDetails>button[value='open']").click(() => {
-    if (Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
-        alert("当前网站就是GBT乐赏游戏空间");
-        return;
-    }
-    Util.openWindow("http://gbtgame.ysepan.com/");
-});
-
-$("#GBTLSGameDetails>button").click((e) => {
-    switch (e.target.value) {
-        case "getPageDataInfo":
-            GBTGame.init();
-            break;
-        case "getData":
-            GBTGame.getData();
-            break;
-        case "getFildKeys":
-            const key = prompt("请输入您要搜索的内容");
-            if (key === null) {
-                return;
-            }
-            if (key.includes(" ") || key === "") {
-                alert("请正确填写您要搜索的内容！");
-                return;
-            }
-            const findList = GBTGame.find(key);
-            const filter = Object.keys(findList);
-            if (filter.length === 0) {
-                const info = "并未搜索到您想要的资源，key=" + key;
-                Print.ln(info);
-                Qmsg.info(info);
-                alert(info);
-                return;
-            }
-            const info = `已找到了${filter.length}个资源，并输出到控制台上，且用户接下来可以将其保存在电脑上！`;
-            alert(info);
-            const findJsonListStr = JSON.stringify(findList, null, 3);
-            console.log(findList);
-            console.log(findJsonListStr);
-            Qmsg.success(info);
-            Util.fileDownload(findJsonListStr, `搜索GBT乐赏游戏空间关键词为【${key}】 的资源${filter.length}个.json`);
-            break;
-    }
-});
-
-const $isTrendsItemsTwoColumnCheackbox = $("#isTrendsItemsTwoColumnCheackbox");
 const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
 $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
-$isTrendsItemsTwoColumnCheackbox.click(() => Trends.data.setTrendsItemsTwoColumnCheackbox($isTrendsItemsTwoColumnCheackbox.prop("checked")));
 
-$("#openWebBiliBliUrlAddress>button").click((e) => {
-    const target = e.target;
-    const name = target.textContent;
-    let url;
-    switch (target.value) {
-        case "watchlaterList":
-            url = "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list";
-            break;
-        case "watchlaterPlayerList":
-            url = "https://www.bilibili.com/watchlater";
-            break;
-        case "liveCenter":
-            url = "https://link.bilibili.com/p/center/index";
-            break;
-        case "coolHome":
-            url = "https://cool.bilibili.com/";
-            break;
-        case "channel":
-            url = "https://www.bilibili.com/v/channel";
-            break;
-        default:
-            alert("出现未知的参数？");
-            return;
-    }
-    if (!confirm(`是要前往 ${name} 吗？`)) {
-        return;
-    }
-    Util.openWindow(url);
-});
 
 
 const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
@@ -1505,6 +1311,7 @@ const liveLayoutVue = LiveLayoutVue.returnVue();
     data.sPartitionObjList = data.partitionObjList[data.mainPartitionSelect];
     data.sPartitionSelect = data.sPartitionObjList[0];
 }
+OtherLayoutVue.returnVue();
 
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
@@ -1524,9 +1331,6 @@ if (href.includes("bilibili.com")) {
     bilibiliOne(href, document.title);
     bilibili(href);
     startMonitorTheNetwork();
-}
-if (href.includes("gbtgame.ysepan.com")) {
-    $("#GBTLSGameDetails").attr("open", true);
 }
 
 

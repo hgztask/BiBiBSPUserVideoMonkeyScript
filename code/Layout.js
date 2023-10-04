@@ -268,50 +268,58 @@ border: 0.5px solid green;
       </div>
     </details>
     <hr>
-    <details>
+    <details open>
       <summary>b站SESSDATA</summary>
       <p>该数据一些b站api需要用到，一般情况下不用设置，以下的设置和读取均是需要用户自行添加b站对应的SESSDATA值，读取时候也是读取用户自己添加进去的SESSDATA值，脚本本身不获取b站登录的SESSDATA</p>
       <P>提示：为空字符串则取消移除SESSDATA，不可带有空格</P>
-      <div style="display: flex; justify-content: space-between;" id="sgSessdata">
-        <button title="为空字符串则取消">设置SESSDATA</button>
-        <button>读取SESSDATA</button>
+      <div>
+        <button title="为空字符串则取消" @click="setSgSessdataBut">设置SESSDATA</button>
+        <button @click="getSgSessdataBut">读取SESSDATA</button>
       </div>
-      <div style=" display: flex;justify-content: space-between;" id="bili_jctDiv">
-        <button>设置bili_jct</button>
-        <button>设置b站登录的bili_jct</button>
-        <button>读取b站登录的bili_jct</button>
-        <button>读取bili_jct</button>
+      <div>
+        <button @click="setBili_jctBut">设置bili_jct</button>
+        <button @click="setLogInBili_jctBut">设置b站登录的bili_jct</button>
+        <button @click="getLogInBili_jctBut">读取b站登录的bili_jct</button>
+        <button @click="getBili_jctBut">读取bili_jct</button>
       </div>
     </details>
     <div style="display: flex">
-    <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
+    <input type="checkbox" v-model="isPrivacyModeCheckbox">开启隐私模式
     </div>
     <div>
-     </div>
+    <h1>网络请求</h1>
+    <p>默认仅仅只能请求b站的顶级域，如需请求其他的网站，请在油猴中打开本脚本的设置，在XHR安全选项卡中，针对性添加域名白名单，pan.baidu.com，和baidu.com，后者范围更大，前者无法请求到其他百度的子域名。</p>
+    请求Url：
+    <input type="text" v-model.trim="requestUrl" style="width: 100%">
+    Cookie：
+    <input type="text" v-model.trim="requestCookie" style="width: 100%">
+    <div><select v-model="requestTypeSelect"><option  v-for="item in requestType" :value="item">{{item}}</option></select></div>
+    <div><button @click="sendRequestBut">发送请求</button></div>
+    <details>
+    <summary>相应结果</summary>
+    <textarea style="width: 100%;height: 500px" readonly>{{responseResult}}</textarea>
+    </details>
+    </div>
     <div>
-    <button  value="bvBut">bv号转av号</button>
-    <button  value="avBut">av号转bv号</button>
+    <h1>其他</h1>
+    <button @click="bvToAvBut">bv号转av号</button>
+    <button @click="avTObvBut">av号转bv号</button>
     </div>
     <hr>
-    <hr>
-<details id="GBTLSGameDetails">
+<details open>
     <summary>GBT乐赏游戏空间</summary>
-    <button value="open">前往GBT乐赏游戏空间地址</button>
-    <button value="getPageDataInfo">初始化页面资源信息</button>
-    <button value="getData">获取页面资源</button>
-    <button value="getFildKeys">获取指定key的项目</button>
+    <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
+    <button @click="getGBTPageDataInfoBut">初始化页面资源信息</button>
+    <button @click="getGBTDataBut">获取页面资源</button>
+    <button @click="getGBTFildKeysBut">获取指定key的项目</button>
 </details>
-<details title="设置之后加载其他动态内容或者刷新页面才生效">
+<details title="设置之后加载其他动态内容或者刷新页面才生效" open>
 <summary>动态</summary>
-<input type="checkbox" id="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
+<input type="checkbox" v-model="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
 </details>
-<details open id="openWebBiliBliUrlAddress">
+<details open>
 <summary>b站页面传送门</summary>
-<button value="watchlaterList">稍后再看列表</button>
-<button value="watchlaterPlayerList">稍后再看播放列表</button>
-<button value="liveCenter">直播中心</button>
-<button value="coolHome">素材库平台</button>
-<button value="channel">频道</button>
+<button v-for="(item,keyName) in BWebOpenList" :value="item" @click="openBWeb(item,keyName)">{{keyName}}</button>
 </details>
     <div>
       <h1> 反馈问题</h1>
