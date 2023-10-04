@@ -152,7 +152,6 @@ const LocalData = {
     getIsMainVideoList() {//获取是否使用脚本自带的针对于首页的处理效果状态值
         const data = Util.getData("isMainVideoList", false);
         return Util.isBoolean(data);
-
     },
     setIsMainVideoList(bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
         Util.setData("isMainVideoList", Util.isBoolean(bool));

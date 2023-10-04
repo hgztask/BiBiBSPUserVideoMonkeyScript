@@ -51,10 +51,7 @@ ul {
 #suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover {
     background-color: #3E8E41;
 }
-/* 悬浮屏蔽布局 */
-#sort_typeSelect {
-    display: none;
-}
+
 #mybut {
     position: fixed;
     z-index: 2025;
@@ -184,30 +181,25 @@ border: 0.5px solid green;
 `;
     },
     getHomePageLayout() {
-        return ` <details open>
-      <summary>首页</summary>
+        return `
       <h3>首页推荐视频</h3>
-      <span>指定推送</span>
-      <input type="checkbox" id="isMainVideoListCheckbox">
-      <select id="pushTypeSelect" style="display: block">
-        <option value="分区">分区</option>
-        <option value="频道">频道</option>
-      </select>
-       <select id="sort_typeSelect">
-        <option value="hot">近期热门</option>
-        <option value="view">播放最多（近30天投稿）</option>
-        <option value="new">最新投稿</option>
-      </select>
-      <select id="video_zoneSelect">
-        <option value="1">下拉选择</option>
-      </select>
-      <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;padding-right: 2%;">
-      <input type="checkbox" id="isIdCheckbox">
-      <span>id</span>
-      <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
-      <button id="okButton">确定</button>
+      <div>
+          <span>指定推送</span>
+          <input type="checkbox" v-model="isMainVideoListCheckbox">
+          <select v-model="pushTypeSelect"><option v-for="item in pushTypeList" :value="item">{{item}}</option></select>
+           <select v-model="sort_typeSelect" v-if="isChannelSelect">
+            <option v-for="(item,key) in sort_typeList" :value="key">{{item}}</option>
+          </select>
+          <select v-model="showListSelect">
+            <option v-for="(item,key) in showList" :value="key">{{item}}</option>
+          </select>
       </div>
-      </details>`;
+
+      <div>
+      <input type="checkbox" v-model="isIdCheckbox">id
+      <button @click="findBut">查询</button>
+      <button @click="okBut">确定</button>
+      </div>`;
     },
     getVideo_params_layout() {
         return `<div>

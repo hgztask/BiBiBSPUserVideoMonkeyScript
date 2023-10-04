@@ -1,26 +1,5 @@
 //主入口
 const Rule = {
-    showInfo() {
-        const pushTypeSelect = $("#pushTypeSelect");
-        const videoZoneSelect = $("#video_zoneSelect");
-        const pushType = Home.getPushType();
-        pushTypeSelect.val(pushType);
-        switch (pushType) {
-            case "频道":
-                const tempSortTypeSelect = $("#sort_typeSelect");
-                const tempSortType = frequencyChannel.getSort_type();
-                loadChannel();
-                videoZoneSelect.val(frequencyChannel.getChannel_id());
-                tempSortTypeSelect.val(tempSortType);
-                tempSortTypeSelect.css("display", "inline")
-                break;
-            default:
-                loadPartition();
-                videoZoneSelect.val(LocalData.getVideo_zone());
-                break;
-        }
-        $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
-    },
     //TODO 后续把对应关联的变量清除修改
     //视频参数
     videoData: {
@@ -831,21 +810,6 @@ const message = {//消息中心
     }
 }
 
-function loadPartition() {//加载下拉框中的分区
-    const tempVar = Home.data.video_zoneList;
-    for (const v in tempVar) {
-        $("#video_zoneSelect").append(`<option value=${v}>${tempVar[v]}</option>`);
-    }
-}
-
-function loadChannel() {//加载下拉框中的频道信息
-    const list = frequencyChannel.data.channel_idList;
-    for (const v in list) {
-        $("#video_zoneSelect").append(`<option value=${v}>${list[v]}</option>`);
-    }
-}
-
-
 let href = Util.getWindowUrl();
 console.log("当前网页url=" + href);
 
@@ -858,9 +822,7 @@ layout.loading.home();
 $("body").prepend('<button id="mybut">按钮</button>');
 layout.css.home();
 
-
 Util.BilibiliEncoder.init();
-
 
 $("#tabUl>li>button").click((e) => {
     const domElement = e.delegateTarget;
@@ -970,7 +932,6 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     });
 });
 
-Rule.showInfo();
 $("#mybut").click(() => Home.hideDisplayHomeLaylout());
 
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
@@ -1074,81 +1035,7 @@ $("#butClearMessage").click(() => {
     document.querySelector('#outputInfo').innerHTML = '';
 });
 
-
 const bilibiliEncoder = Util.BilibiliEncoder;
-
-const tempPushTypeSelect = $('#pushTypeSelect');
-tempPushTypeSelect.change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
-    const tempVar = tempPushTypeSelect.val();
-    const tempSortTypeSelect = $("#sort_typeSelect");
-    $("#video_zoneSelect>option:not(:first)").remove();//清空下拉选择器内的元素（除第一个）
-    if (tempVar === "分区") {
-        loadPartition();
-        tempSortTypeSelect.css("display", "none");
-        return;
-    }
-    tempSortTypeSelect.css("display", "inline");
-    tempSortTypeSelect.val(frequencyChannel.getSort_type());
-    loadChannel();
-});
-
-const tempVideoZoneSelect = $('#video_zoneSelect');
-$("#okButton").click(() => {//确定首页指定推送视频
-    const pushType = $("#pushTypeSelect").val();
-    const selectVar = parseInt(tempVideoZoneSelect.val());
-    Home.setPushType(pushType);
-    if (pushType === "分区") {
-        Print.ln("选择了分区" + Home.data.video_zoneList[selectVar] + " uid=" + selectVar);
-        LocalData.setVideo_zone(selectVar);
-    } else {
-        const tempSortTypeSelect = $("#sort_typeSelect");
-        const tempVar = tempSortTypeSelect.val();
-        Print.ln("选择了" + tempSortTypeSelect.text() + "的频道" + frequencyChannel.data.channel_idList[selectVar] + " uid=" + selectVar);
-        frequencyChannel.setChannel_id(selectVar);
-        frequencyChannel.setSort_type(tempVar)
-    }
-    alert("已设置！")
-});
-
-const tempIdCheckbox = $("#isIdCheckbox");
-$("#findButon").click(() => {
-    const tempContent = prompt("查询的类型关键词");
-    if (tempContent === null || tempContent === "" || tempContent.includes(" ")) {
-        Qmsg.error("请正确输入内容");
-        return;
-    }
-
-    function tempFunc(typeStr, tempContent) {
-        const list = typeStr === "分区" ? Home.data.video_zoneList : frequencyChannel.data.channel_idList;
-        if (tempIdCheckbox.is(":checked")) {//通过ID方式查找
-            if (tempContent in list) {
-                tempVideoZoneSelect.val(tempContent);
-                Print.ln(`通过ID方式找到该值！=${list[tempContent]}`);
-                return;
-            }
-        } else {
-            for (let v in list) {//通过遍历字典中的value，该值包含于tempContent时成立
-                if (!list[v].includes(tempContent)) {
-                    continue;
-                }
-                tempVideoZoneSelect.val(v);
-                Print.ln(`通过value找到该值！=${tempContent}`);
-                return;
-            }
-        }
-        Qmsg.error("未找到该值！");
-    }
-
-    if (tempPushTypeSelect.val() === "分区") {
-        tempFunc("分区", tempContent);
-    } else {
-        tempFunc("频道", tempContent);
-    }
-});
-
-const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
-$isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
-
 
 const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
     el: "#suspensionDiv",
@@ -1312,10 +1199,29 @@ const liveLayoutVue = LiveLayoutVue.returnVue();
 }
 OtherLayoutVue.returnVue();
 DonateLayoutVue.returnVue();
+const homePageLayoutVue = HomePageLayoutVue.returnVue();
+{
+    let list;
+    let id;
+    switch (Home.getPushType()) {
+        case "频道":
+            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
+            list = HomePageLayoutVue.getChannel_idList();
+            id = frequencyChannel.getChannel_id();
+            homePageLayoutVue().isChannelSelect = true;
+            break;
+        default:
+            list = HomePageLayoutVue.getVideo_zoneList();
+            id = LocalData.getVideo_zone();
+            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
+            break;
+    }
+    homePageLayoutVue().showList = list;
+    homePageLayoutVue().showListSelect = id;
+}
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
-//每秒监听网页标题URL
-setInterval(function () {//每秒监听网页中的url
+setInterval(() => {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
     if (href === tempUrl) {//没有变化就结束本轮
         return;
@@ -1331,9 +1237,3 @@ if (href.includes("bilibili.com")) {
     bilibili(href);
     startMonitorTheNetwork();
 }
-
-
-
-
-
-
