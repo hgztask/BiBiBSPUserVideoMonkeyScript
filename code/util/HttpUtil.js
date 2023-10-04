@@ -71,9 +71,10 @@ const HttpUtil = {
                 data.bodyJson = JSON.parse(res.responseText);
             }
         } catch (e) {
+            data.error = e;
             data.bodyJson = null;
             data.message = "检测到responseType是json,但转换json失败了";
-            console.error(data.message, e);
+            console.error(data);
         }
         return data;
     },
