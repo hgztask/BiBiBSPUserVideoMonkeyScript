@@ -388,18 +388,9 @@ border: 0.5px solid green;
             </div>
             <hr>
         <div style="display: flex;justify-content: center;">
-            <div>
-                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeZFB.png" alt="支付宝打赏支持" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">支付宝赞助</span>
-            </div>
-            <div>
-                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeWX.png" alt="微信打赏支持" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">微信赞助</span>
-            </div>
-                <div>
-                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png" alt="QQ打赏支持" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">QQ赞助</span>
-            </div>
+                <div v-for="item in list" :title="item.name"><img :src="item.src" :alt="item.alt" style="max-height: 500px;">
+                <span style="display: flex;justify-content: center;">{{item.name}}</span>
+                </div>
         </div>
         <hr>
         <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>

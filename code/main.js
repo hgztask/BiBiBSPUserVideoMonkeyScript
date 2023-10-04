@@ -1150,7 +1150,6 @@ const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
 $isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
 
 
-
 const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
     el: "#suspensionDiv",
     data: {
@@ -1312,7 +1311,7 @@ const liveLayoutVue = LiveLayoutVue.returnVue();
     data.sPartitionSelect = data.sPartitionObjList[0];
 }
 OtherLayoutVue.returnVue();
-
+DonateLayoutVue.returnVue();
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
 //每秒监听网页标题URL

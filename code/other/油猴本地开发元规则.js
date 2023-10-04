@@ -13,6 +13,7 @@
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\Video_params_layout.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\LiveLayoutVue.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\OtherLayoutVue.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\DonateLayoutVue.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\matching.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\UrleCrud.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\Perf_observer.js
