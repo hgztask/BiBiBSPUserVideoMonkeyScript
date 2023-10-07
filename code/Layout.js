@@ -389,12 +389,6 @@ border: 0.5px solid green;
     </div>
 `);
     },
-    ruleCenter: {
-        getRuleCenterLayout() {//规则中心
-            return $(`<ul style="margin: 0;padding-left: 0">
-</ul>`);
-        }
-    },
     getLogin() {//登录账号界面
         return $(`<div style="display: flex;flex-direction: column;align-items: center;">
     <h1>登录账号</h1>
@@ -542,6 +536,14 @@ border: 0.5px solid green;
   <div class="tab" id="ruleCenterLayout">
 <!-- 规则中心布局 -->
 <button disabled><a href="https://www.bilibili.com/read/cv25025973" target="_blank">提示error解决方案</a></button>
+<button @click="reloadListBut" v-if="isReloadListButShow">重新加载</button>
+<ul style="margin: 0;padding-left: 0">
+<rule-center-item v-for="item in list"
+:user-name="item.name"
+:rule-list="item.ruleList"
+:time="item.time"
+></rule-center-item>
+</ul>
 <!-- 规则中心布局 -->
 </div>
   <div class="tab" id="accountCenterLayout"><!-- 账户中心布局 --></div>
@@ -554,7 +556,6 @@ border: 0.5px solid green;
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
             $("#donateLayout").append(layout.getDonateLayout());
-            $("#ruleCenterLayout").append(layout.ruleCenter.getRuleCenterLayout());
             AccountCenter.info();
             bodyJQE.append(layout.getSuspensionDiv());
         }

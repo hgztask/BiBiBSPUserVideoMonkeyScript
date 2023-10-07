@@ -837,98 +837,30 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     if (Home.isFirstRuleCenterLayoutClick) {
         return;
     }
-    Home.isFirstRuleCenterLayoutClick = true;
-    const loading = Qmsg.loading("请稍等...");
-    $.ajax({
-        type: "GET",
-        url: "https://api.mikuchase.ltd/bilibili/shieldRule/",
-        data: {
-            model: "ruleCenter"
-        },
-        dataType: "json",
-        success(data) {
-            loading.close();
-            const message = data["message"];
-            if (data["code"] !== 1) {
-                Qmsg.error(message);
-                return;
-            }
-            Qmsg.success(message);
-            const dataList = data["list"];
-            const $ruleCenterLayoutUl = $("#ruleCenterLayout>ul");
-            for (let index in dataList) {
-                const userName = dataList[index]["userName"];
-                const time = dataList[index]["rule"]["time"];
-                const ruleRes = dataList[index]["rule"]["ruleRes"];
-                let centerIndexE = [];
-                for (let key in ruleRes) {
-                    centerIndexE.push(`<div>${key}：<span >${ruleRes[key].length}</span>个</div>`);
-                }
-                const item = `<li value="${index}">
-            <div>
-                <div>
-                    <span>作者：</span><span class="authorNameSpan">${userName}</span>
-                </div>
-                <div>
-                    <span>更新时间：</span><span class="updateTimeSpan">${Util.timestampToTime(time)}</span>
-                </div>
-            </div>
-            <div style="column-count: 4">
-            ${centerIndexE.join("")}
-            </div>
-            <div>
-                <button value="inputLocalRule">导入覆盖本地规则</button>
-                <button value="inputCloudRule">导入覆盖云端规则</button>
-                <button value="lookUserRule">查看该用户的规则</button>
-            </div>
-        </li>`;
-                $ruleCenterLayoutUl.append(item);
-            }
-            Util.addStyle(`
+    Util.addStyle(`
    #ruleCenterLayout>ul li {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap:wrap;
         border: 1px solid rgb(0, 217, 0);
+        
     }
-    #ruleCenterLayout>ul>li>div:nth-child(2) span{
-    color: rgb(255, 255, 26);
-   }
                     `);
-            $ruleCenterLayoutUl.on("click", "button", (e) => {
-                const target = e.target;
-                const li = $(target).closest("li").get(0);
-                const liValue = li.getAttribute("value");
-                const authorName = li.querySelector(".authorNameSpan").textContent;
-                const userRuleData = dataList[liValue];
-                const ruleRes = userRuleData["rule"]["ruleRes"];
-                switch (target.getAttribute("value")) {
-                    case "inputLocalRule"://导入覆盖本地规则
-                        if (!confirm(`您确定要导入该用户 ${authorName} 的规则并覆盖您当前本地已有的规则？`)) {
-                            return;
-                        }
-                        ruleCRUDLlayoutVue().inputRuleLocalData(ruleRes);
-                        break;
-                    case "inputCloudRule"://导入覆盖云端规则
-                        alert("暂不支持导入覆盖云端规则！");
-                        break;
-                    case "lookUserRule":
-                        if (!confirm(`您是要查看用户 ${authorName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) {
-                            return;
-                        }
-                        Util.openWindowWriteContent(JSON.stringify(ruleRes, null, 2));
-                        break;
-                    default:
-                        alert("出现错误的选项！");
-                        break;
-                }
-            });
-
-        }, error(xhr, status, error) { //请求失败的回调函数
-            loading.close();
-            console.log(error, status);
-            Qmsg.error(error + " " + status);
-        }
+    Home.isFirstRuleCenterLayoutClick = true;
+    const loading = Qmsg.loading("请稍等...");
+    const promise = RuleCenterLayoutVue.httpGetList();
+    promise.then(dataBody => {
+        Qmsg.success(dataBody.message);
+        ruleCenterLayoutVue().list = dataBody.dataList;
+        ruleCenterLayoutVue().isReloadListButShow = true;
+    }).catch(reason => {
+        Home.isFirstRuleCenterLayoutClick = false;
+        ruleCenterLayoutVue().isReloadListButShow = true;
+        debugger;
+        console.log(reason);
+    }).finally(() => {
+        loading.close();
     });
 });
 
@@ -1219,6 +1151,9 @@ const homePageLayoutVue = HomePageLayoutVue.returnVue();
     homePageLayoutVue().showList = list;
     homePageLayoutVue().showListSelect = id;
 }
+
+const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
+
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
 setInterval(() => {//每秒监听网页中的url
