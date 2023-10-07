@@ -30,9 +30,6 @@ const LiveLayoutVue = {
                 hRecoveryOtherLiveListIf: false,//恢复列表
             },
             methods: {
-                joinRoomAddress(roomId) {
-                    return `https://live.bilibili.com/${roomId}`;
-                },
                 getSPartitionSelect(id) {//通过id查找对应子分区列表中符合条件的项目
                     return this.sPartitionObjList.find(value => value.id === id);
                 },

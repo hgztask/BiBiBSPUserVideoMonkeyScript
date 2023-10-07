@@ -463,10 +463,10 @@ border: 0.5px solid green;
    <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
         <live-room-item v-for="item in listOfFollowers"
         :title="item.title"
-         :up-address="item.upAddress"
+        :up-address="item.upAddress"
         :face="item.face"
         :up-name="item.upName"
-        :room-id="joinRoomAddress(item.roomId)"
+        :room-id="item.roomId"
         ></live-room-item>
     </div>
     <hr>
@@ -489,7 +489,7 @@ border: 0.5px solid green;
          :up-address="item.upAddress"
         :face="item.face"
         :up-name="item.upName"
-        :room-id="joinRoomAddress(item.roomId)"
+        :room-id="item.roomId"
         :front-cover="item.frontCover"
         ></live-room-front-cover-item>
     </div>

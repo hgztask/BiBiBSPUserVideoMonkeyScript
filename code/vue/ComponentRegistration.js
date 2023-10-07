@@ -9,7 +9,7 @@ Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，�
             </a>
         </div>
         <div style="display: flex;flex-direction: column;justify-content: space-around;">
-            <a :href="roomId" target="_blank">
+            <a :href="joinRoomAddress(roomId)" target="_blank">
                 <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
             </a>
             <a>
@@ -17,6 +17,11 @@ Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，�
             </a>
         </div>
         </div>`,
+    methods: {
+        joinRoomAddress(roomId) {
+            return `https://live.bilibili.com/${roomId}`;
+        }
+    }
 })
 
 //TODO 封面显示效果还需优化，以及视频帧等
@@ -41,8 +46,14 @@ Vue.component("liveRoomFrontCoverItem", {
             </div>
         </div>
         </div>`,
+    methods: {
+        joinRoomAddress(roomId) {
+            return `https://live.bilibili.com/${roomId}`;
+        }
+    }
 });
 
+//规则中心的项目item
 Vue.component("ruleCenterItem", {
         props: ["userName", "time", "ruleList"],
         template: `
