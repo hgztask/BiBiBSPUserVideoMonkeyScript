@@ -8,7 +8,8 @@ const LiveLayoutVue = {
             data: {
                 //关注列表
                 listOfFollowers: [],
-                isLoadFollowBut: true,
+                loadFollowButText: "加载列表",
+                isLoadFollowLstDisabled: false,
                 findFollowListRoomKey: "",
                 hRecoveryListOfFollowersIf: false,
                 siftTypeSelect: "upName",
@@ -36,16 +37,20 @@ const LiveLayoutVue = {
                     return this.sPartitionObjList.find(value => value.id === id);
                 },
                 loadFollowLst() {//加载关注列表中正在直播的用户列表api数据
-                    this.isLoadFollowBut = false;
                     const sessdata = LocalData.getSESSDATA();
                     if (sessdata === null) {
                         Qmsg.error("用户未配置sessdata！");
                         return;
                     }
                     Qmsg.success("用户配置了sessdata");
-                    Live.loadAddAllFollowDataList(this.listOfFollowers, sessdata).then(() => {
+                    this.isLoadFollowLstDisabled = true;
+                    const promise = Live.loadAddAllFollowDataList(this.listOfFollowers, sessdata);
+                    promise.then(() => {
                         LiveLayoutVue.listOfFollowers = this.listOfFollowers;
                         Qmsg.success(`已临时保存关注列表中正在直播的用户列表，可使用搜索对其进行筛选`);
+                    }).finally(() => {
+                        this.loadFollowButText = "重新加载";
+                        this.isLoadFollowLstDisabled = false;
                     });
                 },
                 hRecoveryListOfFollowersBut() {

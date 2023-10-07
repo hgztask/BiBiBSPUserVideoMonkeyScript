@@ -452,7 +452,7 @@ border: 0.5px solid green;
   点击用户名打开直播间,点击用户头像打开用户主页
   <div></div>
   <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
-  <button @click="loadFollowLst" v-if="isLoadFollowBut">加载列表</button>
+  <button @click="loadFollowLst" :disabled="isLoadFollowLstDisabled">{{loadFollowButText}}</button>
   <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowersIf">恢复列表</button>
   </div>
   <div>
