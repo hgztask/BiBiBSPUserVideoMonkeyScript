@@ -24,7 +24,6 @@ Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，�
     }
 })
 
-//TODO 封面显示效果还需优化，以及视频帧等
 Vue.component("liveRoomFrontCoverItem", {
     props: ["upAddress", "face", "roomId", "title", "upName", "videoFrameImg", "frontCoverImg"],
     template: `

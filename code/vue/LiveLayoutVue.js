@@ -1,4 +1,3 @@
-//TODO 直播列表待开发
 const LiveLayoutVue = {
     listOfFollowers: [],
     otherLiveRoomList: [],

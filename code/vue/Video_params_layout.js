@@ -1,4 +1,3 @@
-//TODO 等待后续开发
 const Video_params_layout = {
     returnVue() {
         const vue = new Vue({
