@@ -154,6 +154,7 @@ const Live = {
                         .setTitle(title)
                         .setRoomId(roomid)
                         .setFrontCover(cover)
+                        .setVideoFrame(system_cover)
                     )
                 }
                 if (list.length < 20) {

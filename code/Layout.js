@@ -490,7 +490,8 @@ border: 0.5px solid green;
         :face="item.face"
         :up-name="item.upName"
         :room-id="item.roomId"
-        :front-cover="item.frontCover"
+        :video-frame-img="item.videoFrame"
+       :front-cover-img="item.frontCover"
         ></live-room-front-cover-item>
     </div>
     <div style="display: flex;justify-content:center" v-if="otherLoadMoreIf"><button @click="otherLoadMoreBut">加载更多</button></div>
