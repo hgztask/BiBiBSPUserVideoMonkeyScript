@@ -119,3 +119,40 @@ Vue.component("ruleCenterItem", {
         }
     }
 );
+
+//用于稍后再看和已观看列表item项组件
+Vue.component("list-item", {
+    template: `
+        <li style="border: 1px solid green">
+        <div>Title：<a v-bind:href=splicingVideoAddress(bv) target="_blank">{{ title }}</a></div>
+        <div>UP：<a v-bind:href=splicingUserAddress(uid) target="_blank">{{ upName }}</a></div>
+        <button @click="delItem">删除该项</button>
+        <button @click="setItem('upName','用户名',upName)">修改用户名</button>
+        <button @click="setItem('uid','uid',uid)">修改uid</button>
+        <button @click="setItem('title','标题',title)">修改标题</button>
+        <button @click="setItem('bv','BV号',bv)">修改bv</button>
+        <div>
+        </div>
+        </li>`,
+    props: ["objItem", "title", "upName", "bv", "uid",],
+    methods: {
+        delItem() {
+            this.$emit("del-item-click", this.objItem);
+        },
+        setItem(key, name, value) {
+            this.$emit("set-item-click", this.objItem, key, name, value);
+        },
+        splicingVideoAddress(s) {//拼接视频地址
+            return "https://www.bilibili.com/video/" + s;
+        },
+        splicingUserAddress(str) {//拼接用户地址
+            return "https://space.bilibili.com/" + str;
+        },
+    }
+});
+
+//TODO 后续完善下面的def-list-layout，用于稍后再看和已观看列表的默认布局
+// Vue.component("def-list-layout", {
+//     template: ``,
+//     props: []
+// });

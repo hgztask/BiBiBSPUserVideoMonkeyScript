@@ -22,12 +22,6 @@ const LookAtItLater = {
                     }
                     Qmsg.success("已刷新了列表！");
                 },
-                splicingUserAddress(str) {//拼接用户地址
-                    return "https://space.bilibili.com/" + str;
-                },
-                splicingVideoAddress(s) {//拼接视频地址
-                    return "https://www.bilibili.com/video/" + s;
-                },
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
                 },
@@ -152,12 +146,11 @@ const LookAtItLater = {
                 /**
                  *
                  * @param {Object}item
-                 * @param {number}index
                  * @param {string}key
                  * @param {string}keyName
                  * @param {string|number}value
                  */
-                setListItem(item, index, key, keyName, value) {
+                setListItem(item, key, keyName, value) {
                     let input = prompt(`原${keyName}为=${value}\n修改${keyName}为`, value);
                     if (input === null) return;
                     input = input.trim();
