@@ -2,8 +2,8 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.62
-// @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理，支持获取b站相关数据并导出为json(用户收藏夹导出，历史记录导出、关注列表导出、粉丝列表导出)(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
+// @version      1.1.63
+// @description  根据规则进行相关屏蔽操作：动态内容屏蔽：评论区根据uid、用户名、发言内容进行过滤屏蔽；视频根据标题关键词、视频时长、用户名和uid等进行屏蔽；直播间右侧弹幕栏根据uid、用户名、发言内容和粉丝牌进行过滤屏蔽；面板的规则中心选项卡还能查看其他用户上传过来的；首页支持指定专区或者频道视频推送视频；支持控制页面视频播放速度，最小0.1最大16倍数播放；支持画面旋转和镜像垂直翻转；支持对稍后再看列表快捷增删改查操作；支持可选对视频播放页的视频标题信息、其评论区和右侧布局进行隐藏；支持获取b站相关数据并导出为json(用户收藏夹，历史记录、关注和粉丝列表、稍后再看、历史记录)(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开【欢迎加入qq群876295632催更】
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
 // @exclude      *://message.bilibili.com/pages/nav/index_new_pc_sync
@@ -32,18 +32,22 @@
 // @require      https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
+// @require      http://code.jquery.com/ui/1.10.4/jquery-ui.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
-// @connect      vip.mikuchase.ltd
+// @connect      api.mikuchase.ltd
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
 // @grant        GM_addValueChangeListener
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // ==/UserScript==
 
 'use strict';
+
 /**
  * 用户基本信息
  */
@@ -52,8 +56,13 @@ class UserClass {
     uid;
     upAddress;
 
+    /**
+     *
+     * @param {string}upName
+     * @return {UserClass}
+     */
     setUpName(upName) {
-        this.upName = upName;
+        this.upName = upName.trim();
         return this;
     }
 
@@ -125,7 +134,6 @@ class VideoClass extends UserClass {
 
 }
 
-
 /**
  * 用户评论内容
  */
@@ -138,7 +146,201 @@ class ContentCLass extends UserClass {
     }
 }
 
+class LiveRoom extends UserClass {
+    roomId;
+    title;
+    //头像
+    face;
+    //封面
+    frontCover;
+    //视频帧
+    videoFrame;
 
+    setRoomId(roomId) {
+        this.roomId = roomId;
+        return this;
+    }
+
+    setTitle(title) {
+        this.title = title;
+        return this;
+    }
+
+    setFace(face) {
+        this.face = face;
+        return this;
+    }
+
+    setFrontCover(frontCover) {
+        this.frontCover = frontCover;
+        return this;
+    }
+
+    setVideoFrame(videoFrame) {
+        this.videoFrame = videoFrame;
+        return this;
+    }
+}
+
+
+//定义自定义组件
+Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，无封面信息
+    props: ["upAddress", "face", "roomId", "title", "upName"],
+    template: `
+        <div style="display: flex;flex-direction: row;height: 64px;align-items: center;border: 1px solid aqua">
+        <div style="width: 48px;height: 48px;border-radius: 50%;overflow: hidden;margin-right:15px;">
+            <a :href="upAddress" target="_blank">
+                <img v-bind:src="face" style="width: 100%; height: 100%;object-fit: inherit">
+            </a>
+        </div>
+        <div style="display: flex;flex-direction: column;justify-content: space-around;">
+            <a :href="joinRoomAddress(roomId)" target="_blank">
+                <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
+            </a>
+            <a>
+                <div :title="upName">{{ upName }}</div>
+            </a>
+        </div>
+        </div>`,
+    methods: {
+        joinRoomAddress(roomId) {
+            return `https://live.bilibili.com/${roomId}`;
+        }
+    }
+})
+
+Vue.component("liveRoomFrontCoverItem", {
+    props: ["upAddress", "face", "roomId", "title", "upName", "videoFrameImg", "frontCoverImg"],
+    template: `
+        <div style="border: 1px solid aqua;display: flex;align-items: center;flex-direction: column;">
+        <div style="height: 144px;width: 256px;"><img :src="videoCover" alt="" style="height: 100%"
+                                                      @mouseover="setVideoFrameImg" @mouseleave="setFrontCoverImg">
+        </div>
+        <div style="display: flex;flex-direction: row;height: 64px;align-items: center;">
+            <div style="width: 48px;height: 48px;border-radius: 50%;overflow: hidden;margin-right:15px;">
+                <a :href="upAddress" target="_blank">
+                    <img v-bind:src="face" style="width: 100%; height: 100%;object-fit: inherit">
+                </a>
+            </div>
+            <div style="display: flex;flex-direction: column;justify-content: space-around;">
+                <a :href="roomId" target="_blank">
+                    <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
+                </a>
+                <a>
+                    <div :title="upName">{{ upName }}</div>
+                </a>
+            </div>
+        </div>
+        </div>`,
+    data() {
+        return {
+            videoCover: this.frontCoverImg
+        };
+    },
+    methods: {
+        joinRoomAddress(roomId) {
+            return `https://live.bilibili.com/${roomId}`;
+        },
+        setVideoFrameImg() {
+            this.videoCover = this.videoFrameImg;
+        },
+        setFrontCoverImg() {
+            this.videoCover = this.frontCoverImg;
+        }
+    }
+});
+
+//规则中心的项目item
+Vue.component("ruleCenterItem", {
+        props: ["userName", "time", "ruleList"],
+        template: `
+            <li>
+            <div>
+                <div>
+                    <span>作者：</span><span class="authorNameSpan">{{ userName }}</span>
+                </div>
+                <div>
+                    <span>更新时间：</span><span class="updateTimeSpan">{{ formatTIme(time) }}</span>
+                </div>
+            </div>
+            <div style="column-count: 4">
+                <div v-for="(item,key) in ruleList">
+                    {{ key }}<span style="color: rgb(217, 217, 37)">{{ item.length }}</span>个
+                    <button @click="lookKeyRuleBut(item,key)">查询</button>
+                </div>
+            </div>
+            <div>
+                <button @click="inputLocalRuleBut">导入覆盖本地规则</button>
+                <button @click="inputCloudRuleBut">导入覆盖云端规则</button>
+                <button @click="lookUserRuleBut">查看该用户的规则</button>
+            </div>
+            </li>`,
+        methods: {
+            lookKeyRuleBut(keyData, keyName) {
+                if (!confirm(`是要查询用户 ${this.userName} 的${keyName} 规则吗？`)) {
+                    return;
+                }
+                Util.openWindowWriteContent(JSON.stringify(keyData, null, 3));
+            },
+            inputLocalRuleBut() {
+                if (!confirm(`您确定要导入该用户 ${this.userName} 的规则并覆盖您当前本地已有的规则？`)) {
+                    return;
+                }
+                ruleCRUDLlayoutVue().inputRuleLocalData(this.ruleList);
+            },
+            inputCloudRuleBut() {//导入覆盖云端规则
+                alert("暂不支持导入覆盖云端规则！");
+            },
+            lookUserRuleBut() {
+                if (!confirm(`您是要查看用户 ${this.userName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) {
+                    return;
+                }
+                Util.openWindowWriteContent(JSON.stringify(this.ruleList, null, 2));
+
+            },
+            formatTIme(time) {
+                return Util.timestampToTime(time);
+            }
+        }
+    }
+);
+
+//用于稍后再看和已观看列表item项组件
+Vue.component("list-item", {
+    template: `
+        <li style="border: 1px solid green">
+        <div>Title：<a v-bind:href=splicingVideoAddress(bv) target="_blank">{{ title }}</a></div>
+        <div>UP：<a v-bind:href=splicingUserAddress(uid) target="_blank">{{ upName }}</a></div>
+        <button @click="delItem">删除该项</button>
+        <button @click="setItem('upName','用户名',upName)">修改用户名</button>
+        <button @click="setItem('uid','uid',uid)">修改uid</button>
+        <button @click="setItem('title','标题',title)">修改标题</button>
+        <button @click="setItem('bv','BV号',bv)">修改bv</button>
+        <div>
+        </div>
+        </li>`,
+    props: ["objItem", "title", "upName", "bv", "uid",],
+    methods: {
+        delItem() {
+            this.$emit("del-item-click", this.objItem);
+        },
+        setItem(key, name, value) {
+            this.$emit("set-item-click", this.objItem, key, name, value);
+        },
+        splicingVideoAddress(s) {//拼接视频地址
+            return "https://www.bilibili.com/video/" + s;
+        },
+        splicingUserAddress(str) {//拼接用户地址
+            return "https://space.bilibili.com/" + str;
+        },
+    }
+});
+
+//TODO 后续完善下面的def-list-layout，用于稍后再看和已观看列表的默认布局
+// Vue.component("def-list-layout", {
+//     template: ``,
+//     props: []
+// });
 /**
  * 工具类
  */
@@ -148,12 +350,19 @@ const Util = {
         GM_setValue(key, content);
     },
     //读取数据
-    getData(key) {
-        return GM_getValue(key);
+    getData(key, defaultValue) {
+        return GM_getValue(key, defaultValue);
+    },
+    isData(key) {//判断数据是否存在
+        return this.getData(key) !== undefined;
     },
     //删除数据
     delData(key) {
+        if (!this.isData(key)) {
+            return false;
+        }
         GM_deleteValue(key);
+        return true;
     },
     setLocalData(key, data) {
         window.localStorage.setItem(key, data);
@@ -171,6 +380,23 @@ const Util = {
      */
     httpRequest(x) {
         GM_xmlhttpRequest(x);
+    },
+    /**
+     *注册一个菜单并返回菜单id，可在插件中点击油猴时看到对应脚本的菜单
+     * @param {string}text 显示文本
+     * @param {function}func 事件
+     * @param {string}shortcutKey 快捷键
+     * @return menu 菜单id
+     */
+    addGMMenu(text, func, shortcutKey = null) {
+        return GM_registerMenuCommand(text, func, shortcutKey);
+    },
+    /**
+     * 根据注册的菜单id删除对应菜单
+     * @param menuValue 菜单id
+     */
+    delGMMenu(menuValue) {
+        GM_unregisterMenuCommand(menuValue) // 按删除一个菜单
     },
     /**
      * 获取当前网页cookie
@@ -360,7 +586,6 @@ const Util = {
             }
         }, time);
     },
-
     suspensionBall(dragId, func) {//设置元素可自由拖动拖动
         let startEvt, moveEvt, endEvt;
         // 判断是否支持触摸事件
@@ -506,16 +731,6 @@ const Util = {
     printElement(id, element) {
         $(id).prepend(element);
     },
-    //获取格式化规则的内容
-    getRuleFormatStr() {
-        //温馨提示每个{}对象最后一个不可以有,符号
-        return Util.strTrimAll(`{"用户名黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrName())},"用户名黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrNameKey())},
-    "用户uid黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrUID())},"用户uid白名单模式(精确匹配)": ${JSON.stringify(LocalData.getArrWhiteUID())},
-    "标题黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getArrTitle())},"标题黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrTitleKeyCanonical())},
-    "评论关键词黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getCommentOnKeyArr())},"评论关键词黑名单模式(正则匹配)": ${JSON.stringify(LocalData.getArrContentOnKeyCanonicalArr())},
-    "粉丝牌黑名单模式(精确匹配)": ${JSON.stringify(LocalData.getFanCardArr())},"专栏关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getContentColumnKeyArr())},
-    "动态关键词内容黑名单模式(模糊匹配)": ${JSON.stringify(LocalData.getDynamicArr())},"动态关键词内容黑名单模式(正则匹配)":${JSON.stringify(LocalData.getDynamicCanonicalArr())}}`);
-    },
     /**
      * 设置页面播放器的播放速度
      * @param {Number|String} index
@@ -532,6 +747,29 @@ const Util = {
         } catch (error) {
             console.log("出现错误，当前页面疑似没有播放器或者其他问题=" + error);
         }
+    },
+    video: {
+        openPictureInPicture(video) {//打开指定视频标签的画中画模式
+            return video.requestPictureInPicture();
+        },
+        closePictureInPicture() {//关闭页面画中画
+            if (!document.pictureInPictureElement) return false;
+            document.exitPictureInPicture();//退出画中画
+            return true;
+        },
+        autoPictureInPicture(video) {//页面
+            if (document.pictureInPictureElement) {
+                this.closePictureInPicture();
+                return;
+            }
+            this.openPictureInPicture(video);
+        },
+        autoAllPictureInPicture() {
+            for (let video of document.getElementsByTagName("video")) {
+                this.autoPictureInPicture(video);
+            }
+        }
+
     },
     /**
      *
@@ -649,8 +887,10 @@ const Util = {
         suspensionDivVue.videoData.title = title;
         suspensionDivVue.videoData.bv = bv;
         suspensionDivVue.videoData.av = av;
-        if (title !== undefined) {
-            $("#vueSuspensinVideoInfo").show();
+        if (title === undefined) {
+            suspensionDivVue.videoData.show = false;
+        } else {
+            suspensionDivVue.videoData.show = true;
             if (bv === undefined) {
                 return;
             }
@@ -839,6 +1079,88 @@ const Util = {
             }
             return str.substring(0, str.length - lastIndex);
         }
+    },
+    /**
+     * 判断对象是否具有指定的所有属性名
+     * @param {Object} obj - 要检查的对象
+     * @param {Array} propertyArray - 属性名数组
+     * @returns {boolean} - 如果对象包含数组中的所有属性名，则返回 true；否则返回 false
+     */
+    hasAllProperties(obj, propertyArray) {
+        for (let value of propertyArray) {
+            if (!obj.hasOwnProperty(value)) {
+                return false;
+            }
+        }
+        return true;
+    },
+    /**
+     * 比较两个对象是否相同
+     * @param {Object}obj1
+     * @param {Object}obj2
+     * @param {Array}keyArr 属性名数组
+     * @return {boolean}如果两个对象的属性缺少或对不上KeyArr属性名数组中的属性，则返回false，反之继续比较其属性值是否相同
+     */
+    objEquals(obj1, obj2, keyArr) {
+        if (!this.hasAllProperties(obj1, keyArr)) return false;
+        if (!this.hasAllProperties(obj2, keyArr)) return false;
+        for (let key of keyArr) {
+            if (obj1[key] === obj2[key]) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    },
+    getUrlParam(urlStr, urlKey) {//获取url指定参数的值
+        const reg = new RegExp('[\?\&]' + urlKey + '=([^\&]*)(\&?)', 'i')
+        const r = urlStr.match(reg)
+        return r ? decodeURI(r[1]) : null;
+    },
+    /**
+     * 不产生新的数据对象
+     * 合并两个数组并返回合并之后的数组，返回源数组
+     * @param {Array}array1 源数组
+     * @param {Array}array2 目标数组
+     * @param {number}threshold
+     * @return {Array} 源数组
+     */
+    mergeArrays(array1, array2, threshold = 1000) {
+        if (array1.length + array2.length <= threshold) {// 当数组长度较小时，使用 push() 方法
+            array1.push(...array2);
+        } else if (array1.length <= threshold) {// 当 array1 较短，array2 较长时，使用 splice() 方法
+            array1.splice(array1.length, 0, ...array2);
+        } else {// 当数组长度都较大时，使用 Array.prototype.push.apply() 方法
+            Array.prototype.push.apply(array1, array2);
+        }
+        return array1;
+    },
+    Thread: {
+        sleep(time) {//休眠操作，需要配合await和async
+            return new Promise(resolve => {
+                const timeout = setTimeout(() => {
+                    resolve();
+                    clearTimeout(timeout);
+                }, time);
+            });
+
+        }
+    },
+    /**
+     * 防抖函数
+     * 用于限制连续触发的事件频率，确保只有在一定的时间间隔内没有新的触发才会执行函数
+     * @param func 函数事件
+     * @param delay 间隔时间
+     * @return {(function(...[*]): void)|*}
+     */
+    debounce(func, delay) {
+        let timer;
+        return function (...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
     }
 }
 const HttpUtil = {
@@ -857,7 +1179,10 @@ const HttpUtil = {
             onerror: reject
         });
     },
-    httpRequestPost(url, data, headers, resolve, reject) {
+    /**
+     *封装好的底层post请求，一般情况下不要直接调用，请使用对应的封装好的函数
+     */
+    _post(url, data, headers, resolve, reject) {
         let temp = {
             "Content-Type": "application/json"
         };
@@ -872,67 +1197,96 @@ const HttpUtil = {
             onload: resolve,
             onerror: reject
         });
-
-    }, post(url, data, resolve, reject) {
-        this.httpRequestPost(url, data, null, resolve, reject);
+    },
+    post(url, data, headers) {
+        return new Promise((resolve, reject) => {
+            this._post(url, data, headers, (res) => {
+                resolve(this._toData(res));
+            }, (error) => {
+                reject(error);
+            });
+        });
     },
     /**
-     *封装get请求
-     * @param {string}url 请求URL
-     * @param {function}resolve 相应成功
-     * @param {function}reject 相应失败
+     * 封装好的底层get请求
      */
-    get(url, resolve, reject) {
-        this.httpRequest("get", url, {
-            "User-Agent": navigator.userAgent,
-        }, resolve, reject);
+    get(url) {
+        return new Promise((resolve, reject) => {
+            this.httpRequest("get", url, {
+                "User-Agent": navigator.userAgent,
+            }, (res) => {
+                resolve(this._toData(res))
+            }, (error) => {
+                reject(reject(error))
+            });
+        });
+    },
+    //私有的，不应该外部访问到，调整相应结果中的res数据
+    _toData(res) {
+        const data = {
+            body: res.responseText,
+            res: res,
+            status: res.status,
+            responseType: res["RESPONSE_TYPE_JSON"],
+            bodyJson: null,
+            message: ""
+        };
+        try {
+            if (data.responseType === "json") {
+                data.bodyJson = JSON.parse(res.responseText);
+            }
+        } catch (e) {
+            data.error = e;
+            data.bodyJson = null;
+            data.message = "检测到responseType是json,但转换json失败了";
+            console.error(data);
+        }
+        return data;
     },
     /**
      *携带cookioie发起get请求
      * @param url
      * @param {string}cookie
-     * @param resolve
-     * @param reject
      */
-    getCookie(url, cookie, resolve, reject) {
-        this.httpRequest("get", url, {
-            "User-Agent": navigator.userAgent,
-            "cookie": cookie
-        }, resolve, reject);
+    getCookie(url, cookie) {
+        return new Promise((resolve, reject) => {
+            this.httpRequest("get", url, {
+                "User-Agent": navigator.userAgent,
+                "cookie": cookie
+            }, (res => {
+                resolve(this._toData(res));
+            }), (error) => {
+                reject(error);
+            });
+        });
     },
     /**
      * 发送请求获取视频的基本信息
      * @param {string|number}bvOrAv
-     * @param {function}resolve
-     * @param {function}reject
      */
-    getVideoInfo(bvOrAv, resolve, reject) {
+    getVideoInfo(bvOrAv) {
         let url = "https://api.bilibili.com/x/player/pagelist?";
         if (bvOrAv + "".startsWith("BV")) {
             url = url + "bvid=" + bvOrAv;//需要带上BV号
         } else {
             url = url + "aid=" + bvOrAv;//不需要带上AV号
         }
-        this.get(url, resolve, reject);
+        return this.get(url);
     },
     /**
      * 发送请求获取直播间基本信息
      * @param id 直播间房间号
-     * @param resolve
-     * @param reject
      */
-    getLiveInfo(id, resolve, reject) {
-        this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id, resolve, reject);
+    getLiveInfo(id) {
+        return this.get("https://api.live.bilibili.com/room/v1/Room/get_info?room_id=" + id);
     },
     /**
      * 获取用户关注的用户直播列表
      * @param cookie
      * @param page 页数，每页最多29个
-     * @param resolve
-     * @param reject
      */
-    getUsersFollowTheLiveList(cookie, page, resolve, reject) {
-        this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie, resolve, reject);
+    getUsersFollowTheLiveList(cookie, page) {
+        return this.getCookie(`https://api.live.bilibili.com/xlive/web-ucenter/user/following?page=${page}&page_size=29`, cookie);
     },
     /**
      * 获取指定分区下的用户直播列表
@@ -941,9 +1295,29 @@ const HttpUtil = {
      * @param page 页数
      * @param sort 排序-如综合或者最新，最新live_time 为空着综合
      */
-    getLiveList(parent_id, id, page, sort, resolve, reject) {
+    getLiveList(parent_id, id, page, sort) {
         //https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=3&area_id=0&sort_type=sort_type_121&page=3
-        this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`, resolve, reject);
+        return this.get(`https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=${parent_id}&area_id=${id}&sort_type=${sort}&page=${page}`);
+    },
+    //获取指定用户创建的所有收藏夹信息
+    //使用教程<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/fav/info.md">地址</a>
+    getUSerAllFavInfo(uid) {
+        return this.get(`https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=${uid}`);
+    },
+    /**
+     * 获取我的所有表情包
+     * api:<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/emoji/list.md">地址</a>
+     * @param {string}business 场景 reply：评论区 dynamic：动态
+     */
+    getEmoJiList(business) {
+        return this.get(`https://api.bilibili.com/x/emote/setting/panel?business=${business}`);
+    },
+    /**
+     * 获取稍后再看列表
+     * @param {string}SESSDATA
+     */
+    getLookAtItLater(SESSDATA) {
+        return this.getCookie("https://api.bilibili.com/x/v2/history/toview", SESSDATA);
     }
 };
 const layout = {
@@ -957,11 +1331,10 @@ const layout = {
     width: 100%;
     max-height: 100%;
     position: fixed;
-    z-index: 2023;
+    z-index: 2024;
     overflow-y: auto;
     border: 3px solid green;
 }
-
 
 /* 隐藏标签布局，除了“active”的标签布局 */
 .tab {
@@ -978,7 +1351,7 @@ ul {
 #suspensionDiv {
     position: fixed;
     display: none;
-    z-index: 2024;
+    z-index: 2023;
     background: rgb(149, 156, 135);
     height: atuo;
     width: 10%;
@@ -989,7 +1362,7 @@ ul {
 #suspensionDiv p {
     margin-top: 10px;
 }
-#suspensionDiv .center button {
+#suspensionDiv .center button,#home_layout button,#rightLayout button{
     margin-top: 10px;
     padding: 5px 10px;
     border: none;
@@ -997,16 +1370,13 @@ ul {
     color: #fff;
     cursor: pointer;
 }
-#suspensionDiv .center button:hover {
+#suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover {
     background-color: #3E8E41;
 }
-/* 悬浮屏蔽布局 */
-#sort_typeSelect {
-    display: none;
-}
+
 #mybut {
     position: fixed;
-    z-index: 2024;
+    z-index: 2025;
     width: 50px;
     height: 50px;
     left: 96%;
@@ -1052,47 +1422,54 @@ border: 0.5px solid green;
 <div>
 <div>
 <h2>规则增删改查</h2>
-        <select id="singleDoubleModel">
-          <option value="one">单个</option>
-          <option value="batch">批量</option>
-        </select>
-        <select id="model">
-          <option value="userNameArr">用户名黑名单模式(精确匹配)</option>
-          <option value="userNameKeyArr">用户名黑名单模式(模糊匹配)</option>
-          <option value="userUIDArr">用户uid黑名单模式(精确匹配)</option>
-          <option value="userWhiteUIDArr">用户白名单模式(精确匹配)</option>
-          <option value="titleKeyArr">标题黑名单模式(模糊匹配)</option>
-          <option value="titleKeyCanonicalArr">标题黑名单模式(正则匹配)</option>
-          <option value="commentOnKeyArr">评论关键词黑名单模式(模糊匹配)</option>
-          <option value="contentOnKeyCanonicalArr">评论关键词黑名单模式(正则匹配)</option>
-          <option value="fanCardArr">粉丝牌黑名单模式(精确匹配)</option>
-          <option value="contentColumnKeyArr">专栏关键词内容黑名单模式(模糊匹配)</option>
-          <option value="dynamicArr">动态关键词内容黑名单模式(模糊匹配)</option>
-        </select>
-        <textarea id="inputTextAreaModel" style="resize: none; width: 40%; height: 100px; display: none"></textarea>
+<select v-model="model">
+<option v-for="(item,key) in modelList" v-bind:value="key">{{item}}</option>
+</select>      
+<select v-model="defaultSelect">
+<option v-for="(item,key) in ruleKeyList" v-bind:value="key">{{item.name}}</option>
+</select> 
+<div>
+<textarea style="width: 40%; height: 100px;"v-show="isBatchShow" v-model.trim="ruleEditBox"></textarea>
+</div>  
         <div>
-          <button id="butadd">增加</button>
-          <button id="butaddAll" style="display: none">批量增加</button>
-          <button id="butdel">删除</button>
-          <button id="butdelAll" style="display: none">全部删除</button>
-          <button id="butSet">修改</button>
-          <button id="butFind">查询</button>
-          <button id="lookRuleContentBut">查看本地规则内容</button>
+          <button @click="add" v-show="isSingleShow">增加指定规则</button>
+          <button @click="addAll" v-show="isBatchShow">批量增加规则</button>
+          <button @click="delItem" v-show="isBatchShow">删除下拉框选中的规则</button>
+          <button @click="delKey" v-show="isSingleShow">删除指定规则</button>
+          <button @click="delAll" v-show="isBatchShow">删除所有规则</button>
+          <button @click="setKey" v-show="isSingleShow">修改</button>
+          <button @click="findKey" v-show="isSingleShow">查询</button>
+          <button @click="lookLocalRUleContent">查看本地下拉框中所有的规则内容</button>
+          <button @click="lookLocalAppointRUleContent">查看下拉框中指定的规则内容</button>
         </div>
+        <hr>
+        <h3>测试规则</h3>
+        <select v-model="defaultMPSelect">
+        <option v-for="item in MPSList" :value="item">{{item}}</option>
+        </select>模式
+        <div>
+        二次确认<input type="checkbox" v-model=debugSeC>
+        </div>
+        <div>
+        填写规则时自动测试<input type="checkbox" v-model="debugATestOInput">
+        </div>
+        <div>
+        要匹配的内容(测试内容)：<input type="text" v-model.trim="debugText">
+        </div>
+        <div>
+        规则：<input type="text" v-model.trim="debugRuleVal">
+        </div>
+        <button @click="okDebugRule" title="用于测试指定规则类型是否能匹配内容">测试</button>
       </div>
+      <hr>
     <details>
-      <summary>其他</summary> 
+      <summary>视频基本信息处理(时长弹幕播放量)</summary> 
       <h4 style="color: red">注意下面为0则不生效</h4>
-      <input min="0" style="width: 29%;height: 20px;" type="number" id="inputVideo" />
-      <select id="selectVideo">
-        <option value="filterSMin">时长最小值(单位秒)</option>
-        <option value="filterSMax">时长最大值(单位秒)</option>
-        <option value="broadcastMin">播放量最小值</option>
-        <option value="broadcastMax">播放量最大值</option>
-        <option value="barrageQuantityMin">弹幕量最小值</option>
-        <option value="barrageQuantityMax">弹幕量最大值</option>
+      <input min="0" style="width: 29%;height: 20px;" type="number" v-model="videoRuleValueInput"/>
+      <select v-model="videoSelectValue">
+       <option v-for="(item,key) in videoRuleList" v-bind:value="key">{{item}}</option>
       </select>
-      <button id="butSelectVideo">确定</button>
+      <button @click="okVideoSelectBut">确定</button>
      </details>
      <h2>使用说明</h2>
      <ol>
@@ -1104,102 +1481,83 @@ border: 0.5px solid green;
      <li>如需要备份自己的规则可以考虑在当前选项卡下的【规则导入导出】中选择你要导出的方式，【全部规则到文件】、【全部规则到剪贴板】、【全部UID规则到文件】和【全部规则到云端账号】，如您需要备份在云端服务器上请选择【全部规则到云端账号】</li>
      </ol>
      </div>
-     <div id="textRuleInfoDiv">
+     <div>
      <h2>规则信息</h2>
-     <div></div>
+     <p v-for="(item,key) in ruleKeyList">{{item.name}}个数<span style="color: #ff0000">{{item.size}}</span>个</p>
     </div>
     <div>
     <h2>规则导入导出</h2>
       <div>
-  <select id="outRuleSelect">
-  <option>全部规则到文件</option>
-  <option>全部规则到剪贴板</option>
-  <option>全部UID规则到文件</option>
-  <option>b站弹幕屏蔽规则</option>
-  <option>全部规则到云端账号</option>
+  <select v-model="outRuleSelect">
+  <option v-for="(item,key) in outRUleModelList":value="key">{{item}}</option>
 </select>
-<button id="outExport">导出</button>
+<button @click="outRule">导出</button>
 </div>
 <div>
-  <select id="inputRuleSelect">
-  <option value="">从云端账号导入覆盖本地规则</option>
-  <option value="">从下面编辑框导入全部规则</option>
-  <option value="">从下面编辑框合并导入UID规则</option>
+  <select v-model="inputRuleSelect">
+  <option  v-for="item in inoutRUleModelList" :value="item">{{item}}</option>
 </select>
-<button id="inputExport">导入</button>
+<button @click="inputRule">导入</button>
+</div><textarea v-model.trim="inputEditContent" placeholder="请填导入的规则内容" style="height: 300px; width: 100%; font-size: 14px;" v-show="isInputEditShow"></textarea></div>
 </div>
-    <textarea id="ruleEditorInput" placeholder="请填导入的规则内容" style="resize: none; height: 300px; width: 100%; font-size: 14px;display: none"></textarea>
-    </div>
-    </div>
 `;
     },
     getHomePageLayout() {
-        return ` <details open>
-      <summary>首页</summary>
+        return `
       <h3>首页推荐视频</h3>
-      <span>指定推送</span>
-      <input type="checkbox" id="isMainVideoListCheckbox">
-      <select id="pushTypeSelect" style="display: block">
-        <option value="分区">分区</option>
-        <option value="频道">频道</option>
-      </select>
-       <select id="sort_typeSelect">
-        <option value="hot">近期热门</option>
-        <option value="view">播放最多（近30天投稿）</option>
-        <option value="new">最新投稿</option>
-      </select>
-      <select id="video_zoneSelect">
-        <option value="1">下拉选择</option>
-      </select>
-      <div style="display: flex;flex-direction: row;justify-content: flex-end;align-items: center;padding-right: 2%;">
-      <input type="checkbox" id="isIdCheckbox">
-      <span>id</span>
-      <button id="findButon" style="padding-right: 20px;padding-left: 10px;">查询</button>
-      <button id="okButton">确定</button>
+      <div>
+          <span>指定推送</span>
+          <input type="checkbox" v-model="isMainVideoListCheckbox">
+          <select v-model="pushTypeSelect"><option v-for="item in pushTypeList" :value="item">{{item}}</option></select>
+           <select v-model="sort_typeSelect" v-if="isChannelSelect">
+            <option v-for="(item,key) in sort_typeList" :value="key">{{item}}</option>
+          </select>
+          <select v-model="showListSelect">
+            <option v-for="(item,key) in showList" :value="key">{{item}}</option>
+          </select>
       </div>
-      </details>`;
+
+      <div>
+      <input type="checkbox" v-model="isIdCheckbox">id
+      <button @click="findBut">查询</button>
+      <button @click="okBut">确定</button>
+      </div>`;
     },
     getVideo_params_layout() {
         return `<div>
-                <input type="checkbox" id="autoPlayCheckbox"><span>禁止打开b站视频时的自动播放</span>
-                <div>
-                  <input type="checkbox" id="fenestruleCheckbox"><span>视频画中画</span>
-                </div>
-                <h3>视频播放速度</h3>
-              拖动更改页面视频播放速度
-                <input id="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
-                <span id="playbackSpeedText">1.0x</span>
-                <button id="preservePlaySpeed">保存</button>
-                <div>固定视频播放速度值
-                  <select id="playbackSpeedModel">
-                  <option value="1">1.0x</option>
-                  <option value="0.25">0.25x</option>
-                  <option value="0.5">0.5x</option>
-                  <option value="0.75">0.75x</option>
-                  <option value="0.9">0.9x</option>
-                  <option value="1.25">1.25x</option>
-                  <option value="1.35">1.35x</option>
-                  <option value="1.5">1.5x</option>
-                  <option value="2">2x</option>
-                </select>
-                <button id="preservePlaybackSpeedModel">保存</button>
-              </div>
-              <hr>
-              <div>
-              </div>
-              </div>
-              <h3>播放画面翻转</h3>
-             <button id="flipHorizontal">水平翻转</button>
-             <button id="flipVertical">垂直翻转</button>
-             <div>
-              自定义角度
-              <input id="axleRange" type="range" value="0" min="0" max="360" step="1"><span id="axleSpan">0%</span>
-             </div>
-             <div style="display: flex;">
-             <input type="checkbox" id="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
-             <input type="checkbox" id="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
-             <input type="checkbox" id="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
-`;
+<div>
+<h1>播放器</h1>
+<div>
+<input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
+</div>
+<div>
+<button @click="VideoPIPicture">视频画中画</button>
+</div>
+<h3>视频播放速度</h3>
+ <div>固定视频播放速度值
+   <select v-model="playbackSpeedSelect">
+   <option v-for="item in playbackSpeedList" :value="item">{{item}}x</option>
+    </select>
+  </div>
+拖动更改页面视频播放速度<input v-model="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
+ <span>{{rangePlaySpeed}}x</span>
+ <button @click="preservePlaySpeed">保存</button>
+<hr>
+</div>
+    <h3>播放画面翻转</h3>
+   <button @click="okFlipHorizontal">水平翻转</button>
+   <button @click="okFlipVertical">垂直翻转</button>
+   <div>
+    自定义角度
+    <input v-model="axleRange" type="range" value="0" min="0" max="360" step="1"><span>{{axleRange}}%</span>
+   </div>
+   <hr>
+   <h3>播放页界面元素显隐</h3>
+   <div style="display: flex;">
+       <input type="checkbox" v-model="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
+       <input type="checkbox" v-model="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
+       <input type="checkbox" v-model="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局
+   </div>`;
     },
     getOutputInfoLayout() {
         return `<div>
@@ -1224,50 +1582,58 @@ border: 0.5px solid green;
       </div>
     </details>
     <hr>
-    <details>
+    <details open>
       <summary>b站SESSDATA</summary>
       <p>该数据一些b站api需要用到，一般情况下不用设置，以下的设置和读取均是需要用户自行添加b站对应的SESSDATA值，读取时候也是读取用户自己添加进去的SESSDATA值，脚本本身不获取b站登录的SESSDATA</p>
       <P>提示：为空字符串则取消移除SESSDATA，不可带有空格</P>
-      <div style="display: flex; justify-content: space-between;" id="sgSessdata">
-        <button title="为空字符串则取消">设置SESSDATA</button>
-        <button>读取SESSDATA</button>
+      <div>
+        <button title="为空字符串则取消" @click="setSgSessdataBut">设置SESSDATA</button>
+        <button @click="getSgSessdataBut">读取SESSDATA</button>
       </div>
-      <div style=" display: flex;justify-content: space-between;" id="bili_jctDiv">
-        <button>设置bili_jct</button>
-        <button>设置b站登录的bili_jct</button>
-        <button>读取b站登录的bili_jct</button>
-        <button>读取bili_jct</button>
+      <div>
+        <button @click="setBili_jctBut">设置bili_jct</button>
+        <button @click="setLogInBili_jctBut">设置b站登录的bili_jct</button>
+        <button @click="getLogInBili_jctBut">读取b站登录的bili_jct</button>
+        <button @click="getBili_jctBut">读取bili_jct</button>
       </div>
     </details>
     <div style="display: flex">
-    <input type="checkbox" id="openPrivacyModeCheckbox">开启隐私模式
+    <input type="checkbox" v-model="isPrivacyModeCheckbox">开启隐私模式
     </div>
     <div>
-     <input type="checkbox" id="openBWebNoneCheckbox">开启b站页面不可见模式
-     </div>
+    <h1>网络请求</h1>
+    <p>默认仅仅只能请求b站的顶级域，如需请求其他的网站，请在油猴中打开本脚本的设置，在XHR安全选项卡中，针对性添加域名白名单，pan.baidu.com，和baidu.com，后者范围更大，前者无法请求到其他百度的子域名。</p>
+    请求Url：
+    <input type="text" v-model.trim="requestUrl" style="width: 100%">
+    Cookie：
+    <input type="text" v-model.trim="requestCookie" style="width: 100%">
+    <div><select v-model="requestTypeSelect"><option  v-for="item in requestType" :value="item">{{item}}</option></select></div>
+    <div><button @click="sendRequestBut">发送请求</button></div>
+    <details>
+    <summary>相应结果</summary>
+    <textarea style="width: 100%;height: 500px" readonly>{{responseResult}}</textarea>
+    </details>
+    </div>
     <div>
-    <button  value="bvBut">bv号转av号</button>
-    <button  value="avBut">av号转bv号</button>
+    <h1>其他</h1>
+    <button @click="bvToAvBut">bv号转av号</button>
+    <button @click="avTObvBut">av号转bv号</button>
     </div>
     <hr>
-    <hr>
-<details id="GBTLSGameDetails">
+<details open>
     <summary>GBT乐赏游戏空间</summary>
-    <button value="open">前往GBT乐赏游戏空间地址</button>
-    <button value="getPageDataInfo">初始化页面资源信息</button>
-    <button value="getData">获取页面资源</button>
-    <button value="getFildKeys">获取指定key的项目</button>
+    <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
+    <button @click="getGBTPageDataInfoBut">初始化页面资源信息</button>
+    <button @click="getGBTDataBut">获取页面资源</button>
+    <button @click="getGBTFildKeysBut">获取指定key的项目</button>
 </details>
-<details title="设置之后加载其他动态内容或者刷新页面才生效">
+<details title="设置之后加载其他动态内容或者刷新页面才生效" open>
 <summary>动态</summary>
-<input type="checkbox" id="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
+<input type="checkbox" v-model="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
 </details>
-<details open id="openWebBiliBliUrlAddress">
+<details open>
 <summary>b站页面传送门</summary>
-<button value="watchlaterList">稍后再看列表</button>
-<button value="watchlaterPlayerList">稍后再看播放列表</button>
-<button value="liveCenter">直播中心</button>
-<button value="coolHome">素材库平台</button>
+<button v-for="(item,keyName) in BWebOpenList" :value="item" @click="openBWeb(item,keyName)">{{keyName}}</button>
 </details>
     <div>
       <h1> 反馈问题</h1>
@@ -1299,7 +1665,7 @@ border: 0.5px solid green;
        </div>
         <p>用户名：{{upName}}</p>
         <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
-        <details id="vueSuspensinVideoInfo" style="display: none" @toggle="handleToggle">
+        <details v-show="videoData.show" :open="videoData.show" @toggle="handleToggle">
         <summary>视频信息</summary>
         <p>标题:{{videoData.title}}</span></p>
         <p>视频BV号:{{videoData.bv}}</span></p>
@@ -1336,29 +1702,14 @@ border: 0.5px solid green;
             </div>
             <hr>
         <div style="display: flex;justify-content: center;">
-            <div>
-                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeZFB.png" alt="支付宝打赏支持" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">支付宝赞助</span>
-            </div>
-            <div>
-                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeWX.png" alt="微信打赏支持" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">微信赞助</span>
-            </div>
-                <div>
-                <img src="https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png" alt="QQ打赏支持" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">QQ赞助</span>
-            </div>
+                <div v-for="item in list" :title="item.name"><img :src="item.src" :alt="item.alt" style="max-height: 500px;">
+                <span style="display: flex;justify-content: center;">{{item.name}}</span>
+                </div>
         </div>
         <hr>
         <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>
     </div>
 `);
-    },
-    ruleCenter: {
-        getRuleCenterLayout() {//规则中心
-            return $(`<ul style="margin: 0;padding-left: 0">
-</ul>`);
-        }
     },
     getLogin() {//登录账号界面
         return $(`<div style="display: flex;flex-direction: column;align-items: center;">
@@ -1367,7 +1718,7 @@ border: 0.5px solid green;
     <input type="text" placeholder="密码" id="userPasswordInput">
     <div>
         <button>
-            <a href="https://vip.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+            <a href="http://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
         </button>
         <button id="loginBut">登录</button>
     </div>
@@ -1419,7 +1770,56 @@ border: 0.5px solid green;
   <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
   <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
   <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
-  <div class="tab" id="liveLayout"></div><!-- 直播列表布局 -->
+  <div class="tab" id="liveLayout">
+  点击用户名打开直播间,点击用户头像打开用户主页
+  <div></div>
+  <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
+  <button @click="loadFollowLst" :disabled="isLoadFollowLstDisabled">{{loadFollowButText}}</button>
+  <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowersIf">恢复列表</button>
+  </div>
+  <div>
+  搜索：<input type="text" v-model.trim="findFollowListRoomKey">
+  搜索条件<select v-model="siftTypeSelect"><option v-for="item in siftTypeList" :value="item">{{item}}</option></select>
+  </div>
+  <hr>
+   <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
+        <live-room-item v-for="item in listOfFollowers"
+        :title="item.title"
+        :up-address="item.upAddress"
+        :face="item.face"
+        :up-name="item.upName"
+        :room-id="item.roomId"
+        ></live-room-item>
+    </div>
+    <hr>
+    <div>其他分区直播列表{{otherLiveRoomList.length}}个</div>
+    <select v-model="mainPartitionSelect"><option  v-for="(item,key) in partitionObjList" :value="key">{{key}}</option></select>
+    <select v-model="sPartitionSelectID"><option v-for="item in sPartitionObjList" :value="item.id">{{item.name}}</option></select>
+    <button @click="loadOtherPartitionLiveListBut">加载</button>
+    <button @click="hRecoveryOtherLiveRoomListBut" v-if="hRecoveryOtherLiveListIf">恢复列表</button>
+    <button @click="findThisSubPartitionBut">从{{mainPartitionSelect}}查询子分区</button>
+    <button @click="findSubPartitionBut">查询子分区</button>
+    <button @click="openPartitionWebAddressBut">打开页面</button>
+    <div>
+   <div>
+  搜索：<input type="text" v-model.trim="findOtherListRoomKey">
+  搜索条件<select v-model="siftOtherLiveTypeSelect"><option v-for="item in siftOtherLiveTypeList" :value="item">{{item}}</option></select>
+  </div>
+   <div style="display: grid;grid-template-columns: auto auto auto auto auto;margin: 0px 12px;justify-items: stretch;">
+    <live-room-front-cover-item v-for="item in otherLiveRoomList"
+        :title="item.title"
+         :up-address="item.upAddress"
+        :face="item.face"
+        :up-name="item.upName"
+        :room-id="item.roomId"
+        :video-frame-img="item.videoFrame"
+       :front-cover-img="item.frontCover"
+        ></live-room-front-cover-item>
+    </div>
+    <div style="display: flex;justify-content:center" v-if="otherLoadMoreIf"><button @click="otherLoadMoreBut">加载更多</button></div>
+</div>
+  <!-- 直播列表布局 -->
+</div>
   <div class="tab" id="watchedListLayout">
   <h3>已观看视频个数{{watchedList.length}}个</h3>
  <div v-for="item in watchedList">
@@ -1429,20 +1829,26 @@ border: 0.5px solid green;
   <div class="tab" id="lookAtItLaterListLayout">
   <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
   <button @click="renovateLayoutItemList">刷新列表</button>
-  <button @click="outLookAtItLaterArr">导出稍后再看列表</button>
-  <button @click="inputLookAtItLaterArr">追加导入稍后再看列表</button>
   <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
   <button @click="listInversion">列表反转</button>
   <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
+  <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
   <div>
-  搜索<input type="text" v-model="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList"  @change="getTypeListShowValue($event)">{{item}}</option></select>
+<input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}<select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select><button @click="okOutOrInputClick">执行</button>
+</div>
+  <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
+  <div>
+  搜索<input type="text" v-model.trim="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
 </div>
   <ol>
-  <li style="border: 1px solid green" v-for="item in lookAtItLaterList">
-  <div>Title：<a v-bind:href=splicingVideoAddress(item.bv) target="_blank">{{item.title}}</a></div>
-  <div>UP：<a v-bind:href=splicingUserAddress(item.uid) target="_blank">{{item.upName}}</a>
-  </div>
-</li>
+  <list-item v-for="(item,key) in lookAtItLaterList"
+  :title="item.title"
+  :up-name="item.upName"
+  :uid="item.uid"
+  :bv="item.bv"
+  :obj-item="item"
+  v-on:del-item-click="delListItem"
+  v-on:set-item-click="setListItem"></list-item>
 </ol>
   <!-- 稍后再看列表布局 --></div>
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
@@ -1450,6 +1856,14 @@ border: 0.5px solid green;
   <div class="tab" id="ruleCenterLayout">
 <!-- 规则中心布局 -->
 <button disabled><a href="https://www.bilibili.com/read/cv25025973" target="_blank">提示error解决方案</a></button>
+<button @click="reloadListBut" v-if="isReloadListButShow">重新加载</button>
+<ul style="margin: 0;padding-left: 0">
+<rule-center-item v-for="item in list"
+:user-name="item.name"
+:rule-list="item.ruleList"
+:time="item.time"
+></rule-center-item>
+</ul>
 <!-- 规则中心布局 -->
 </div>
   <div class="tab" id="accountCenterLayout"><!-- 账户中心布局 --></div>
@@ -1462,18 +1876,40 @@ border: 0.5px solid green;
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
             $("#donateLayout").append(layout.getDonateLayout());
-            $("#ruleCenterLayout").append(layout.ruleCenter.getRuleCenterLayout());
             AccountCenter.info();
             bodyJQE.append(layout.getSuspensionDiv());
+        }
+    },
+    htmlVue: {
+        videoPlayVue() {
+            return $(`<div style="position: fixed;left: 95%;top: 15%">
+<div id="rightLayout" style="display: flex; flex-direction: column;">
+<button @click="subItemShowBut">{{subItemButText}}</button>
+<div v-show="subItemButShow">
+<button @click="addUid">屏蔽(uid)</button>
+<button @click="getTheVideoBarrage">获取视频弹幕</button>
+<button @click="getTheVideoAVNumber">获取视频av号</button>
+<button @click="getVideoCommentArea">获取评论区页面可见数据</button>
+<button @click="getLeftTopVideoListBut">获取视频选集列表数据</button>
+<button @click="addLefToWatchedBut">添加进已观看</button>
+<button @click="addLefToLookAtItLaterListBut">添加进稍后再看</button>
+<button @click="isHideButtonLayoutBut">{{hideButtonLayoutButText}}</button>
+<button @click="isHideRightLayoutBut">{{hideRightLayoutButText}}</button>
+<button @click="isHideTopVideoTitleInfoBut">{{hideTopVideoTitleInfoButText}}</button>
+<button @click="VideoPIPicture">播放器画中画</button>
+<button @click="openVideoSubtitle">字幕开关</button>
+</div>
+
+
+</div>
+</div>`);
         }
     }
 }
 const LocalData = {
     getSESSDATA() {
-        const data = Util.getData("SESSDATA");
-        if (data === undefined || data === null || data === "") {
-            return null;
-        }
+        const data = Util.getData("SESSDATA", null);
+        if (data === null) return null;
         return "SESSDATA=" + data;
     },
     setSESSDATA(key) {
@@ -1481,127 +1917,73 @@ const LocalData = {
     },
     getWebBili_jct() {
         const data = Util.getCookieList()["bili_jct"];
-        if (data === undefined) {
-            return null;
-        }
+        if (data === undefined) return null;
         return data;
     },
     getBili_jct() {
-        const data = Util.getData("bili_jct");
-        if (data === undefined || data === null === "") {
-            return null;
-        }
-        return data;
+        return Util.getData("bili_jct", null);
     },
     setBili_jct(key) {
         Util.setData("bili_jct", key);
     },
-    temp(key) {
-        const data = Util.getData(key);
-        if (data === undefined || data === null) {
-            return [];
-        }
-        return data;
-    },
     getArrUID() {
-        return this.temp("userUIDArr");
+        return Util.getData("userUIDArr", []);
     },
     setArrUID(key) {
         Util.setData("userUIDArr", key);
     },
     getArrWhiteUID() {
-        return this.temp("userWhiteUIDArr");
-    },
-    setArrWhiteUID(key) {
-        Util.setData("userWhiteUIDArr", key);
+        return Util.getData("userWhiteUIDArr", []);
     },
     getArrName() {
-        return this.temp("userNameArr");
-    },
-    setArrName(key) {
-        Util.setData("userNameArr", key);
+        return Util.getData("userNameArr", []);
     },
     getArrNameKey() {
-        return this.temp("userNameKeyArr");
-    },
-    setArrNameKey(key) {
-        Util.setData("userNameKeyArr", key);
+        return Util.getData("userNameKeyArr", []);
     },
     getArrTitle() {
-        return this.temp("titleKeyArr");
-    },
-    setArrTitle(key) {
-        Util.setData("titleKeyArr", key);
+        return Util.getData("titleKeyArr", []);
     },
     getArrTitleKeyCanonical() {//标题黑名单模式(正则匹配)
-        return this.temp("titleKeyCanonicalArr");
-    },
-    setArrTitleKeyCanonical(key) {//标题黑名单模式(正则匹配)
-        Util.setData("titleKeyCanonicalArr", key);
-    },
-    getArrContentOnKeyCanonicalArr() {//获取评论关键词黑名单模式(正则匹配)
-        return this.temp("contentOnKeyCanonicalArr");
+        return Util.getData("titleKeyCanonicalArr", []);
     },
     getCommentOnKeyArr() {//获取评论关键词黑名单模式(模糊匹配)
-        return this.temp("commentOnKeyArr");
-    },
-    setCommentOnKeyArr(data) {//设置评论关键词黑名单模式(模糊匹配)
-        return Util.setData("commentOnKeyArr", data);
-    },
-    setArrContentOnKeyCanonicalArr(key) {//设置评论关键词黑名单模式(正则匹配)
-        Util.setData("contentOnKeyCanonicalArr", key);
+        return Util.getData("commentOnKeyArr", []);
     },
     getDynamicArr() {//获取动态页屏蔽项目规则--模糊匹配
-        return this.temp("dynamicArr");
-    },
-    setDynamicArr(key) {//设置动态页屏蔽项目规则-模糊匹配
-        Util.setData("dynamicArr", key);
+        return Util.getData("dynamicArr", []);
     },
     getDynamicCanonicalArr() {//获取动态页屏蔽项目规则--正则匹配
-        return this.temp("dynamicCanonicalArr");
+        return Util.getData("dynamicCanonicalArr", []);
     },
-    setDynamicCanonicalArr(key) {//设置动态页屏蔽项目规则-正则匹配
-        Util.setData("dynamicCanonicalArr", key);
-    },//粉丝牌
+    //粉丝牌
     getFanCardArr() {
-        return this.temp("fanCardArr");
-    },//粉丝牌
-    setFanCardArr(key) {
-        Util.setData("fanCardArr", key);
-    },//专栏关键词内容黑名单模式(模糊匹配)
+        return Util.getData("fanCardArr", []);
+    },
+//专栏关键词内容黑名单模式(模糊匹配)
     getContentColumnKeyArr() {
-        return this.temp("contentColumnKeyArr");
+        return Util.getData("contentColumnKeyArr", []);
     },//专栏关键词内容黑名单模式(模糊匹配)
     setContentColumnKeyArr(key) {
         Util.setData("contentColumnKeyArr", key);
     },
     getVideo_zone() {
-        const data = this.temp("video_zone");
-        if (data === undefined || data === null) {
-            return 1;
-        }
-        return parseInt(data);
+        return parseInt(Util.getData("video_zone", 1));
     },
     setVideo_zone(key) {
         Util.setData("video_zone", key);
     },
     getWatchedArr() {//获取已观看的视频数组
-        return this.temp("watchedArr");
+        return Util.getData("watchedArr", []);
     },
     setWatchedArr(key) {//设置已观看的视频
         Util.setData("watchedArr", key);
     },
     getLookAtItLaterArr() {//获取稍后再看列表
-        return this.temp("lookAtItLaterArr");
+        return Util.getData("lookAtItLaterArr", []);
     },
     setLookAtItLaterArr(arr) {//设置稍后再看列表
         Util.setData("lookAtItLaterArr", arr)
-    },
-    getHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
-        return Util.getData("isCommentArea") === true;
-    },
-    setHideVideoButtonCommentSections(key) {//是隐藏视频底部评论区布局
-        Util.setData("isCommentArea", key === true);
     },
     setPrivacyMode(key) {
         Util.setData("isPrivacyMode", key === true);
@@ -1609,17 +1991,8 @@ const LocalData = {
     getPrivacyMode() {//隐私模式
         return Util.getData("isPrivacyMode") === true;
     },
-    setBWebNone(key) {//不可见模式
-        Util.setData("isBWebNone", key === true);
-    },
-    getBWebNone() {//不可见模式
-        return Util.getData("isBWebNone") === true;
-    },
     getVideoInt(rule) {
-        const data = Util.getData(rule);
-        if (data === undefined || data === null) {
-            return 0;
-        }
+        const data = Util.getData(rule, 0);
         return parseInt(data);
     },
     video: {
@@ -1641,37 +2014,52 @@ const LocalData = {
         getBarrageQuantityMax() {//设置弹幕量最大值，为0则不生效
             return LocalData.getVideoInt("barrageQuantityMax");
         },
-        getHideVideoRightLayout() {//是否隐藏视频右侧布局
+        isHideVideoRightLayout() {//是否隐藏视频右侧布局
             return Util.getData("isHideVideoRightLayout") === true;
         },
         setHideVideoRightLayout(key) {//是否隐藏视频右侧布局
             Util.setData("isHideVideoRightLayout", key === true);
         },
-        getHideVideoTopTitleInfoLayout() {
+        isHideVideoTopTitleInfoLayout() {
             return Util.getData("isHideVideoTopTitleInfoLayout") === true;
         },
         setHideVideoTopTitleInfoLayout(key) {
             Util.setData("isHideVideoTopTitleInfoLayout", key === true);
         },
+        isHideVideoButtonCommentSections() {//是否隐藏视频底部评论区布局
+            return Util.getData("isCommentArea") === true;
+        },
+        setHideVideoButtonCommentSections(key) {//是隐藏视频底部评论区布局
+            Util.setData("isCommentArea", key === true);
+        },
+        isAutoPlay() {
+            return Util.getData("autoPlay", false);
+        },
+        setAutoPlay(v) {
+            Util.setData("autoPlay", v === true)
+        },
+        getRangePlaySpeed() {
+            const data = Util.getData("rangePlaySpeed", 1);
+            if (isNaN(data)) {
+                return 1;
+            }
+            return data;
+        },
+        setRangePlaySpeed(v) {
+            Util.setData("rangePlaySpeed", v);
+        }
+
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息
-            const data = Util.getData("AccountCenterInfo");
-            if (data === undefined || data === null) {
-                return {};
-            }
-            return data;
+            return Util.getData("AccountCenterInfo", {});
         }, setInfo(key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
         }
     },
     getIsMainVideoList() {//获取是否使用脚本自带的针对于首页的处理效果状态值
-        const data = Util.getData("isMainVideoList");
-        if (data === null) {
-            return false;
-        }
+        const data = Util.getData("isMainVideoList", false);
         return Util.isBoolean(data);
-
     },
     setIsMainVideoList(bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
         Util.setData("isMainVideoList", Util.isBoolean(bool));
@@ -1681,6 +2069,39 @@ const LocalData = {
     },
     setDShieldPanel(v) {//设置禁用快捷悬浮屏蔽面板自动显示
         Util.setData("isDShieldPanel", v === true)
+    },
+    LockScreen: {
+        setState(bool) {
+            Util.setData("LockScreenState", bool === true);
+        },
+        getState() {//返回是否开启锁屏
+            return Util.getData("LockScreenState", false);
+        },
+        setIntervalTime(timeInt) {
+            Util.setData("LockScreenIntervalTime", timeInt);
+        },
+        getIntervalTime() {//返回锁屏间隔时间戳，默认返回5分钟的时间戳
+            return Util.getData("LockScreenIntervalTime", 60000 * 5);
+        },
+        setPwd(pwd) {
+            Util.setData("LockScreenPwd", pwd);
+        },
+        getPwd() {
+            return Util.getData("LockScreenPwd", null);
+        },
+        getTLastTimestamp() {//返回最后锁屏解锁的时间戳
+            return Util.getData("LockScreenLastTimestamp", Date.now());
+        },
+        setTLastTimestamp(timeNov) {//设置最后锁屏解锁的时间戳
+            Util.setData("LockScreenLastTimestamp", timeNov);
+        }
+    },
+    setEnableShortcutKeys(is) {
+        Util.setData("enableShortcutKeys", is);
+    },
+
+    isEnableShortcutKeys() {//获取是否启用了快捷键功能
+        return Util.getData("enableShortcutKeys", true);
     }
 }
 const PanelSetsTheLayout = {//面板设置
@@ -1727,7 +2148,13 @@ const LookAtItLater = {
                 searchKey: "",
                 lookAtItLaterList: LocalData.getLookAtItLaterArr(),
                 typeList: ["upName", "uid", "title", "bv"],
-                typeListShowValue: "title"
+                typeListShowValue: "title",
+                inputOutSelect: "导出稍后再看列表",
+                inputOutSelectArr: ["导出稍后再看列表", "导入稍后再看列表"],
+                inputEditContent: "",
+                isInputSelect: false,
+                isAddToInput: true,
+                isAddToInputTxt: "追加导入"
             },
             methods: {
                 renovateLayoutItemList() {//刷新列表
@@ -1737,30 +2164,25 @@ const LookAtItLater = {
                     }
                     Qmsg.success("已刷新了列表！");
                 },
-                splicingUserAddress(str) {//拼接用户地址
-                    return "https://space.bilibili.com/" + str;
-                },
-                splicingVideoAddress(s) {//拼接视频地址
-                    return "https://www.bilibili.com/video/" + s;
-                },
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
                 },
-                inputLookAtItLaterArr() {//导入稍后再看列表数据
-                    let s = prompt("请输入导出时的格式json（本轮操作为追加数据操作）");
-                    if (s === null) {
-                        return;
+                isStringArray(strArray) {
+                    if (strArray.startsWith("[") && strArray.endsWith("]")) {
+                        const parse = JSON.parse(strArray);
+                        if (parse.length === 0) {
+                            Qmsg.error("数组未有内容！");
+                            return null;
+                        }
+                        return parse;
                     }
-                    s = s.trim();
-                    if (!s || !(s.startsWith("[")) || s.endsWith("]")) {
-                        alert("请填写正确的json格式！");
-                        return;
-                    }
-                    const parse = JSON.parse(s);
-                    if (parse.length === 0) {
-                        alert("数组未有内容！");
-                        return;
-                    }
+                    Qmsg.error("内容不是json数组！");
+                    return null;
+                },
+                inputAddToLookAtItLaterArr() {//追加导入稍后再看列表数据
+                    let s = this.inputEditContent;
+                    const parse = this.isStringArray(s);
+                    if (parse === null) return false;
                     const tempList = LocalData.getLookAtItLaterArr();
                     try {
                         for (let v of parse) {
@@ -1778,14 +2200,52 @@ const LookAtItLater = {
                         console.log(tempList);
                         console.log(e);
                         alert("数组异常!,异常信息已打印在控制台上！");
-                        return;
+                        return false;
                     }
-                    if (!confirm("是否要保存本轮操作结果？")) {
-                        return;
+                    if (!confirm("是否要保存本轮追加操作结果？")) {
+                        return false;
                     }
                     LocalData.setLookAtItLaterArr(tempList);
                     Qmsg.success("追加数据成功！");
                     console.table(tempList);
+                    return true;
+                },
+                inputCoverLookAtItLaterArr() {//覆盖导入稍后再看列表数据
+                    let s = this.inputEditContent;
+                    const parse = this.isStringArray(s);
+                    if (parse === null) return false;
+                    const isKeyArr = ["upName", "uid", "title", "bv"];
+                    for (const value of parse) {
+                        if (Util.hasAllProperties(value, isKeyArr)) {
+                            continue;
+                        }
+                        alert(`数组内容对应的项目缺少了相关属性\n项目：\n${JSON.stringify(value)}`);
+                        return false;
+                    }
+
+                    if (!confirm("是否要保存本轮覆盖操作结果？")) {
+                        return false;
+                    }
+                    LocalData.setLookAtItLaterArr(parse);
+                    Qmsg.success("覆盖数据成功！");
+                    console.table(parse);
+                    return true;
+                },
+                okOutOrInputClick() {
+                    if (this.inputOutSelect === "导出稍后再看列表") {
+                        this.outLookAtItLaterArr();
+                        return;
+                    }
+                    if (!confirm(`是要执行${this.isAddToInputTxt}吗？`)) return;
+                    let loop = false;
+                    if (this.isAddToInput) {//追加
+                        loop = this.inputAddToLookAtItLaterArr();
+                    } else {
+                        loop = this.inputCoverLookAtItLaterArr();//覆盖
+                    }
+                    if (loop === true) {
+                        this.renovateLayoutItemList();
+                    }
                 },
                 clearLookAtItLaterArr() {
                     if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) {
@@ -1799,16 +2259,93 @@ const LookAtItLater = {
                 listInversion() {
                     this.lookAtItLaterList.reverse();
                 },
-                getTypeListShowValue(event) {
-                    this.typeListShowValue = event.target.value;
-                }
-
-            },
-            watch: {
-                searchKey(newValue, oldValue) {//监听搜索关键词key
-                    if (newValue === oldValue || newValue.trim() === "") {
+                getItemFindIndex(data) {
+                    const index = this.lookAtItLaterList.findIndex(value => value === data);
+                    if (index === -1) {
+                        Qmsg.error(`查找列表中指定item失败!-1`);
+                        return null;
+                    }
+                    if (!confirm(`是要对 ${data.title} 选项进行操作吗？\nbv:${data.bv}`)) {
+                        return null;
+                    }
+                    return index;
+                },
+                delListItem(data) {
+                    const index = this.getItemFindIndex(data);
+                    if (index === null) return;
+                    this.lookAtItLaterList.splice(index, 1);
+                    const isKeyArr = ["upName", "uid", "title", "bv"];
+                    const tempLookAtItLaterArr = LocalData.getLookAtItLaterArr();
+                    const tempIndex = tempLookAtItLaterArr.findIndex(value => Util.objEquals(value, data, isKeyArr));
+                    if (tempIndex === -1) {
+                        Qmsg.error("查找数据组列表中要删除的item失败！-1");
                         return;
                     }
+                    tempLookAtItLaterArr.splice(tempIndex, 1);
+                    LocalData.setLookAtItLaterArr(tempLookAtItLaterArr);
+                    Qmsg.success(`已删除 ${data.title} 选项，bv=${data.bv}`);
+                },
+                /**
+                 *
+                 * @param {Object}item
+                 * @param {string}key
+                 * @param {string}keyName
+                 * @param {string|number}value
+                 */
+                setListItem(item, key, keyName, value) {
+                    let input = prompt(`原${keyName}为=${value}\n修改${keyName}为`, value);
+                    if (input === null) return;
+                    input = input.trim();
+                    if (input.length < 1) {
+                        Qmsg.error("输入的字符不可小于1！");
+                        return;
+                    }
+                    if (value === input) {
+                        Qmsg.error("输入的值不能和原有的值相同！");
+                        return;
+                    }
+                    if (key === "uid") {
+                        if (isNaN(value)) {
+                            Qmsg.error(`输入的uid不是一个数字！`);
+                            return;
+                        }
+                        value = parseInt(value);
+                    }
+                    const tempLookAtItLaterArr = LocalData.getLookAtItLaterArr();
+                    const isKeyArr = ["upName", "uid", "title", "bv"];
+                    const tempIndex = tempLookAtItLaterArr.findIndex(value => Util.objEquals(value, item, isKeyArr));
+                    if (tempIndex === -1) {
+                        Qmsg.error("查找数据组列表中要修改的item失败！-1");
+                        return;
+                    }
+                    item[key] = input;
+                    tempLookAtItLaterArr.splice(tempIndex, 1, item);
+                    LocalData.setLookAtItLaterArr(tempLookAtItLaterArr);
+                    const tip = `已将${keyName}的值=${value}\n改成=${input}`;
+                    Qmsg.success(tip);
+                    alert(tip);
+                },
+                getBWebLookAtItLaterListBut() {
+                    //TODO 待开发
+                    debugger;
+                    alert("待开发");
+                    return;
+                    const se = LocalData.getSESSDATA();
+                    if (se === null) {
+                        alert("未设置SESSDATA！");
+                        return;
+                    }
+                    const promise = HttpUtil.getLookAtItLater(se);
+                    promise.then(value => {
+                        console.log(value);
+                    }).catch(reason => {
+                        console.log(reason);
+                    });
+                }
+            },
+            watch: {
+                searchKey(newValue, oldValue) {
+                    if (newValue === oldValue) return;
                     const tempList = [];
                     const type = this.typeListShowValue;
                     for (const value of LocalData.getLookAtItLaterArr()) {
@@ -1825,6 +2362,20 @@ const LookAtItLater = {
                     this.lookAtItLaterList = [];
                     tempList.forEach(value => this.lookAtItLaterList.push(value));
                     Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
+                },
+                inputOutSelect(newVal) {
+                    if (newVal === "导出稍后再看列表") {
+                        this.isInputSelect = false;
+                    } else {
+                        this.isInputSelect = true;
+                    }
+                },
+                isAddToInput(newVal) {
+                    if (newVal) {
+                        this.isAddToInputTxt = "追加导入";
+                    } else {
+                        this.isAddToInputTxt = "覆盖导入";
+                    }
                 }
             }
         })
@@ -1889,6 +2440,1410 @@ const Watched = {
         LocalData.setWatchedArr(arr);
         Qmsg.success("添加成功")
         alert(`已添加视频【${data["title"]}】至已观看列表！`);
+    }
+}
+const RuleCRUDLayout = {
+    returnVue() {
+        const vue = new Vue({
+            el: "#ruleCRUDLayout",
+            data: {
+                modelList: {
+                    single: "单个",
+                    batch: "批量"
+                },
+                ruleEditBox: "",//规则编辑框内容
+                model: "single",
+                isSingleShow: true,//是否对的单个相关按钮进行显示处理
+                isBatchShow: false,//是否对批量相关按钮进行显示处理
+                ruleKeyList: {
+                    userNameArr: {name: "用户名黑名单模式(精确匹配)", size: 0},
+                    userNameKeyArr: {name: "用户名黑名单模式(模糊匹配)", size: 0},
+                    userUIDArr: {name: "用户uid黑名单模式(精确匹配)", size: 0},
+                    userWhiteUIDArr: {name: "用户uid白名单模式(精确匹配)", size: 0},
+                    titleKeyArr: {name: "标题黑名单模式(模糊匹配)", size: 0},
+                    titleKeyCanonicalArr: {name: "标题黑名单模式(正则匹配)", size: 0},
+                    commentOnKeyArr: {name: "评论关键词黑名单模式(模糊匹配)", size: 0},
+                    contentOnKeyCanonicalArr: {name: "评论关键词黑名单模式(正则匹配)", size: 0},
+                    fanCardArr: {name: "粉丝牌黑名单模式(精确匹配)", size: 0},
+                    contentColumnKeyArr: {name: "专栏关键词内容黑名单模式(模糊匹配)", size: 0},
+                    dynamicArr: {name: "动态关键词内容黑名单模式(模糊匹配)", size: 0},
+                },
+                MPSList: ["精确", "模糊", "正则"],
+                defaultMPSelect: "模糊",
+                debugText: "",
+                debugRuleVal: "",
+                debugSeC: true,
+                debugATestOInput: false,
+                videoRuleList: {
+                    filterSMin: "时长最小值(单位秒)",
+                    filterSMax: "时长最大值(单位秒)",
+                    broadcastMin: "播放量最小值",
+                    broadcastMax: "播放量最大值",
+                    barrageQuantityMin: "弹幕量最小值",
+                    barrageQuantityMax: "弹幕量最大值"
+                },
+                videoRuleValueInput: "",
+                videoSelectValue: "filterSMin",
+                defaultSelect: "userUIDArr",//当前下拉框选中的值
+                outRuleSelect: "allRuleOutFIle",
+                outRUleModelList: {
+                    allRuleOutFIle: "全部规则到文件",
+                    allRuleOutShearPlate: "全部规则到剪贴板",
+                    allUIDRuleOutFIle: "全部UID规则到文件",
+                    barrageShieldingRule: "b站弹幕屏蔽规则",
+                    allRuleOutCloudServer: "全部规则到云端账号"
+                },
+                inputRuleSelect: "从下面编辑框导入全部规则",
+                inputEditContent: "",
+                inoutRUleModelList: ["从云端账号导入覆盖本地规则", "从下面编辑框导入全部规则", "从下面编辑框合并导入UID规则"],
+                isInputEditShow: true
+            },
+            methods: {
+                add() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155532');
+                        return;
+                    }
+                    UrleCrud.addShow(selectRUleItem.ruleType, selectRUleItem.ruleName)
+                },
+                addAll() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155533');
+                        return;
+                    }
+                    const content = this.ruleEditBox;
+                    if (content === null) return;
+                    if (content === "") {
+                        Qmsg.error("请输入正确的内容！");
+                        return;
+                    }
+                    UrleCrud.addAllShow(selectRUleItem.ruleType, selectRUleItem.ruleName, content);
+                },
+                delAll() {
+                    const list = this.ruleKeyList;
+                    let str = "";
+                    for (let key in list) {
+                        const name = list[key].name;
+                        const size = Util.getData(key, []).length;
+                        str += `规则名:${name} 个数:${size}个\n`;
+                    }
+                    if (!confirm(`是要全部规则吗？，以下是您的全部规则基本信息\n\n${str}`)) {
+                        return;
+                    }
+                    const okData = {success: 0, fail: 0};
+                    for (const key in this.ruleKeyList) {
+                        if (Util.delData(key)) {
+                            okData.success++;
+                        } else {
+                            okData.fail++;
+                        }
+                    }
+                    this.updateRuleIndex();
+                    alert(`删除结果:\n成功:${okData.success}\n失败:${okData.fail}`);
+                },
+                delItem() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155535');
+                        return;
+                    }
+                    UrleCrud.delItemShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                },
+                delKey() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155537');
+                        return;
+                    }
+                    UrleCrud.delShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                },
+                findKey() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155536');
+                        return;
+                    }
+                    UrleCrud.findKeyShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                },
+                setKey() {
+                    const selectRUleItem = this.getSelectRUleItem();
+                    if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
+                        Qmsg.error('出现了意外的类型bug:155537');
+                        return;
+                    }
+                    UrleCrud.setKeyShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
+                },
+                okVideoSelectBut() {//确定时长播放量弹幕
+                    const videoSelectType = this.videoSelectValue;
+                    const videoSelectName = this.videoRuleList[videoSelectType];
+                    const contentInput = this.videoRuleValueInput;
+                    if (contentInput === "") return;
+                    Util.setData(videoSelectType, parseInt(contentInput));
+                    const info = `已设置${videoSelectName}的具体值【${contentInput}】，为0则不生效`;
+                    Print.ln(info);
+                    Qmsg.success(info);
+                },
+                getSelectRUleItem() {//返回defaultSelect中选中的规则项
+                    const ruleType = this.defaultSelect;
+                    const ruleName = this.ruleKeyList[ruleType].name;
+                    return {ruleType: ruleType, ruleName: ruleName}
+                },
+                updateRuleIndex() {//更新规则的个数
+                    const tempList = this.ruleKeyList;
+                    for (let item in tempList) {
+                        const tempSize = tempList[item].size;
+                        const newSize = Util.getData(item, []).length;
+                        if (tempSize === newSize) {
+                            continue;
+                        }
+                        tempList[item].size = newSize;
+                    }
+                },
+                getOutRuleDataFormat(space = 3) {//获取导出规则的结果内容
+                    const ruleKeyList = this.ruleKeyList;
+                    const data = {};
+                    for (let key in ruleKeyList) {
+                        const ruleName = ruleKeyList[key].name;
+                        data[ruleName] = Util.getData(key, []);
+                    }
+                    return JSON.stringify(data, null, space);
+                },
+                inputRuleLocalData(json) {//导入规则内容！
+                    const list = this.ruleKeyList;
+                    for (let ruleKey in list) {
+                        const name = list[ruleKey].name;
+                        const jsonRuleList = json[name];
+                        if (!jsonRuleList) {
+                            continue;
+                        }
+                        if (jsonRuleList.length === 0) {
+                            continue;
+                        }
+                        Util.setData(ruleKey, jsonRuleList);
+                    }
+                    this.updateRuleIndex();
+                    alert("已导入");
+                },
+                outRule() {
+                    const outType = this.outRUleModelList[this.outRuleSelect];
+                    switch (outType) {
+                        case "全部规则到文件":
+                            let fileName = "规则-" + Util.toTimeString();
+                            const s = prompt("保存为", fileName);
+                            if (s === null) return;
+                            if (!(s.includes(" ") || s === "" || s.length === 0)) fileName = s;
+                            Util.fileDownload(this.getOutRuleDataFormat(), fileName + ".json");
+                            break;
+                        case "全部规则到剪贴板":
+                            Util.copyToClip(this.getOutRuleDataFormat(0));
+                            break;
+                        case "全部UID规则到文件":
+                            const list = LocalData.getArrUID();
+                            Util.fileDownload(JSON.stringify(list, null, 3), `UID规则-${list.length}个.json`);
+                            break;
+                        case "全部UID规则到云端":
+                            alert("暂不支持");
+                            break;
+                        case "全部规则到云端账号":
+                            const getInfo = LocalData.AccountCenter.getInfo();
+                            if (getInfo === {} || Object.keys(getInfo).length === 0) {
+                                alert("请先登录在进行操作.");
+                                return;
+                            }
+                            if (!confirm("确定要将本地规则导出到对应账号的云端上吗")) return;
+                            const loading = Qmsg.loading("请稍等...");
+                            $.ajax({
+                                type: "POST",
+                                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                                data: {
+                                    model: "All",
+                                    userName: getInfo["userName"],
+                                    userPassword: getInfo["userPassword"],
+                                    postData: this.getOutRuleDataFormat()
+                                },
+                                dataType: "json",
+                                success(data) {
+                                    loading.close();
+                                    const message = data["message"];
+                                    if (data["code"] !== 1) {
+                                        Qmsg.error(message);
+                                        return;
+                                    }
+                                    Qmsg.success(message);
+                                    console.log(data["dataJson"])
+                                }, error(xhr, status, error) { //请求失败的回调函数
+                                    loading.close();
+                                    console.log(error);
+                                    console.log(status);
+                                }
+                            });
+                            break;
+                        case "b站弹幕屏蔽规则": {
+                            //已经登录b站账号的前提下，打开该api
+                            //https://api.bilibili.com/x/dm/filter/user
+                            //即可获取到该账号下的b站云端最新的屏蔽词内容
+                            //type类型
+                            //0 屏蔽文本
+                            //1 屏蔽正则
+                            //2 屏蔽用户
+                            /**
+                             * filter 规则内容
+                             */
+                            /**
+                             *opened 是否启用
+                             */
+                            const item = window.localStorage.getItem("bpx_player_profile");
+                            if (item === null || item === undefined) {
+                                alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
+                                return;
+                            }
+                            const arrList = JSON.parse(item)["blockList"];
+                            if (arrList === undefined || arrList === null || arrList.length === 0) {
+                                alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
+                                return;
+                            }
+                            const list = [];
+                            for (const arrListElement of arrList) {
+                                const type = arrListElement["type"];
+                                const filter = arrListElement["filter"];
+                                const opened = arrListElement["opened"];
+                                const id = arrListElement["id"];
+                                if (type === 2) {
+                                    continue;
+                                }
+                                list.push(arrListElement);
+                            }
+                            Util.fileDownload(JSON.stringify(list, null, 3), "b站账号弹幕屏蔽设定规则.json");
+                            break;
+                        }
+                    }
+                },
+                inputRule() {
+                    const inputType = this.inputRuleSelect;
+                    const content = this.inputEditContent;
+                    switch (inputType) {
+                        case "从云端账号导入覆盖本地规则":
+                            const getInfo = LocalData.AccountCenter.getInfo();
+                            if (getInfo === {} || Object.keys(getInfo).length === 0) {
+                                alert("请先登录在进行操作.");
+                                return;
+                            }
+                            if (!confirm("确定要云端账号对应的规则导入并覆盖到本地已有的规则吗？")) {
+                                return;
+                            }
+                            const loading = Qmsg.loading("请稍等...");
+                            $.ajax({
+                                type: "GET",
+                                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                                data: {
+                                    userName: getInfo["userName"],
+                                    userPassword: getInfo["userPassword"]
+                                },
+                                dataType: "json",
+                                success(data) {
+                                    loading.close();
+                                    const message = data["message"];
+                                    if (data["code"] !== 1) {
+                                        Qmsg.error(message);
+                                        return;
+                                    }
+                                    Qmsg.success(message);
+                                    const time = data["data"]["time"];
+                                    const ruleRes = data["data"]["ruleRes"];
+                                    console.log(time);
+                                    console.log(ruleRes);
+                                    ruleCRUDLlayoutVue().inputRuleLocalData(ruleRes);
+                                }, error(xhr, status, error) { //请求失败的回调函数
+                                    loading.close();
+                                    console.log(error);
+                                    console.log(status);
+                                }
+                            });
+                            break;
+                        case "从下面编辑框导入全部规则":
+                            if (content === "" || content === " ") {
+                                alert("请填写正确的规则样式！");
+                                return;
+                            }
+                            if (!confirm("需要注意的是，这一步操作会覆盖你当前的已有规则！您确定要导入吗？")) {
+                                return;
+                            }
+                            let jsonRule = [];
+                            try {
+                                jsonRule = JSON.parse(content);
+                            } catch (error) {
+                                alert("内容格式错误！" + error)
+                                return;
+                            }
+                            this.inputRuleLocalData(jsonRule);
+                            break;
+                        case "从下面编辑框合并导入UID规则":
+                            let uidList;
+                            try {
+                                uidList = JSON.parse(content)
+                                if (!(uidList instanceof Array)) {
+                                    throw new Error("错误信息，导入的类型不是数组！");
+                                }
+                            } catch (e) {
+                                alert("类型错误，导入的内容不是jsoN")
+                                return;
+                            }
+                            for (let i = 0; i < uidList.length; i++) {
+                                try {
+                                    uidList[i] = parseInt(uidList[i]);
+                                } catch (e) {
+                                    alert("数组中存在非数字内容")
+                                    return;
+                                }
+                            }
+                            if (uidList.length === 0) {
+                                alert("该数组长度为0！")
+                                return;
+                            }
+                            const data = LocalData.getArrUID();
+                            if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
+                                if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
+                                    LocalData.setArrUID(uidList);
+                                    alert("添加成功！")
+                                }
+                                return;
+                            }
+                            let index = 0;
+                            for (const v of uidList) {
+                                if (data.includes(v)) {
+                                    continue;
+                                }
+                                index++;
+                                data.push(v);
+                            }
+                            if (index === 0) {
+                                alert("内容没有变化！，可能是原先的规则里已经有了");
+                                return;
+                            }
+                            alert(`已新增${index}个UID规则`);
+                            LocalData.setArrUID(data);
+                            break;
+                        case "本地b站弹幕屏蔽规则":
+                            alert("暂时未写")
+                            break;
+                        default:
+                            alert(`出现超出的条件！inputType=${inputType}`);
+                            break;
+                    }
+
+
+                },
+                lookLocalRUleContent() {
+                    Util.openWindowWriteContent(this.getOutRuleDataFormat(3));
+                },
+                lookLocalAppointRUleContent() {
+                    const item = this.getSelectRUleItem();
+                    if (!confirm(`是要查询${item.ruleName}的规则内容吗？`)) return;
+                    const data = Util.getData(item.ruleType, []);
+                    if (data.length === 0) {
+                        Qmsg.info(`${item.ruleName}规则内容为空的！`);
+                        return;
+                    }
+                    Util.openWindowWriteContent(JSON.stringify(data, null, 3));
+                },
+                debugRule() {
+                    if (this.debugText.length === 0 || this.debugRuleVal.length === 0) {
+                        Qmsg.error("请正确书写内容！");
+                        return;
+                    }
+                    const mpSelect = this.defaultMPSelect;
+                    if (this.debugSeC) {
+                        if (!confirm(`当前选中的是${mpSelect}模式，是要进行调试测试吗，用于测试是否能匹配上，如匹配上说明，对应规则可以被处理(屏蔽)`)) {
+                            return;
+                        }
+                    }
+                    let loop = false;
+                    switch (mpSelect) {
+                        case "精确":
+                            loop = Matching.arrKey([this.debugRuleVal], this.debugText);
+                            break;
+                        case "模糊":
+                            loop = Matching.arrContent([this.debugRuleVal], this.debugText) || false;
+                            break;
+                        case "正则":
+                            loop = Matching.arrContentCanonical([this.debugRuleVal], this.debugText) || false;
+                            break;
+                        default:
+                            Qmsg.error("出现了意外的值!" + mpSelect);
+                            break;
+                    }
+                    if (loop) {
+                        Qmsg.success(`规则测试匹配成功!${mpSelect}模式`);
+                    } else {
+                        Qmsg.error(`规则测试匹配失败了!${mpSelect}模式`);
+                    }
+                },
+                okDebugRule() {
+                    this.debugRule();
+                }
+            },
+            watch: {
+                model(newVal, oldVal) {
+                    if (newVal === oldVal) return;
+                    if (newVal === "single") {
+                        this.isBatchShow = false;
+                        this.isSingleShow = true;
+                    } else {
+                        this.isBatchShow = true;
+                        this.isSingleShow = false;
+                    }
+                },
+                inputRuleSelect(newVal, oldVal) {
+                    if (newVal === oldVal) return;
+                    this.isInputEditShow = newVal !== "从云端账号导入覆盖本地规则";
+                },
+                debugSeC(newVal) {
+                    if (newVal) this.debugATestOInput = false;
+                },
+                debugATestOInput(newVal) {
+                    if (newVal) this.debugSeC = false;
+                },
+                debugRuleVal() {
+                    if (!this.debugATestOInput) return;
+                    this.debugRule();
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+const VideoPlayVue = {
+    returnVue() {
+        const vue = new Vue({
+            el: "#rightLayout",
+            data: {
+                hideButtonLayoutButText: this.showHideButtonLayoutButText(),
+                subItemButShow: true,
+                subItemButText: "收起",
+                hideRightLayoutButText: this.showHideRightLayoutButText(),
+                hideTopVideoTitleInfoButText: this.showHideTopVideoTitleInfoButText()
+            },
+            methods: {
+                subItemShowBut() {
+                    this.subItemButShow = !this.subItemButShow;
+                },
+                addUid() {
+                    const userList = DefVideo.getCreativeTeam();
+                    if (userList.length === 0) {
+                        alert("获取失败！");
+                        return;
+                    }
+                    if (userList.length === 1) {
+                        const data = userList[0];
+                        const name = data["name"];
+                        const uid = data["uid"];
+                        if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid=${uid}`)) {
+                            return;
+                        }
+                        UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", uid);
+                        return;
+                    }
+                    alert("暂不支持屏蔽多作者方式.");
+                },
+                getTheVideoBarrage() {
+                    const windowUrl = Util.getWindowUrl();
+                    if (!windowUrl.includes("www.bilibili.com/video")) {
+                        alert("当前不是播放页!");
+                        return;
+                    }
+                    const urlBVID = Util.getUrlBVID(windowUrl);
+                    if (urlBVID === null) {
+                        alert("获取不到BV号!");
+                        return;
+                    }
+                    if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
+                        return;
+                    }
+                    const loading = Qmsg.loading("正在获取数据中!");
+                    const promise = HttpUtil.getVideoInfo(urlBVID);
+                    promise.then(res => {
+                        const body = res.bodyJson;
+                        const code = body["code"];
+                        const message = body["message"];
+                        if (code !== 0) {
+                            Qmsg.error("获取失败!" + message);
+                            return;
+                        }
+                        let data;
+                        try {
+                            data = body["data"][0];
+                        } catch (e) {
+                            Qmsg.error("获取数据失败!" + e);
+                            return;
+                        }
+                        if (data === null || data === undefined) {
+                            Qmsg.error("获取到的数据为空的!");
+                            return;
+                        }
+                        const cid = data["cid"];
+                        Qmsg.success("cid=" + cid);
+                        Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
+                    }).catch(err => {
+                        Qmsg.error("错误状态!");
+                        Qmsg.error(err);
+                    }).finally(() => {
+                        loading.close();
+                    });
+                },
+                getTheVideoAVNumber() {
+                    const urlId = Util.getUrlBVID(Util.getWindowUrl());
+                    if (urlId === null) {
+                        alert("获取不到BV号!");
+                        return;
+                    }
+                    if (!confirm(`当前视频BV号是 ${urlId} 吗`)) {
+                        return;
+                    }
+                    alert(Util.BilibiliEncoder.dec(urlId));
+                },
+                getVideoCommentArea() {//获取视频的评论区列表可见的内容
+                    const list = document.querySelectorAll(".reply-list>.reply-item");
+                    if (list.length === 0) {
+                        Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
+                        return;
+                    }
+                    const arr = [];
+                    for (let v of list) {
+                        const rootName = v.querySelector(".user-name").textContent;
+                        const rootUid = v.querySelector(".user-name").getAttribute("data-user-id");
+                        const rootContent = v.querySelector(".root-reply .reply-content").textContent;
+                        const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
+                        const data = {
+                            name: rootName, uid: parseInt(rootUid), content: rootContent,
+                        };
+                        if (subList.length === 0) {
+                            arr.push(data);
+                            continue;
+                        }
+                        const subArr = [];
+                        for (let j of subList) {
+                            const subName = j.querySelector(".sub-user-name").textContent;
+                            const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
+                            const subContent = j.querySelector(".reply-content").textContent;
+                            const subData = {
+                                name: subName, uid: parseInt(subUid), content: subContent
+                            };
+                            subArr.push(subData);
+                        }
+                        data["sub"] = subArr;
+                        arr.push(data);
+                    }
+                    Util.fileDownload(JSON.stringify(arr, null, 3), `评论区列表-${Util.toTimeString()}.json`);
+                    Qmsg.success("已获取成功！");
+                },
+                getLeftTopVideoListBut() {
+                    const videoCollection = DefVideo.videoCollection;
+                    if (!videoCollection.isMulti_page()) {
+                        alert("并未有视频选集列表！");
+                        return;
+                    }
+                    let dataList;
+                    if (videoCollection.isList()) {
+                        dataList = videoCollection.getVideoList();
+                    } else {
+                        dataList = videoCollection.getVIdeoGridList();
+                    }
+                    Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
+
+                },
+                localGetVideoInfo() {
+                    const upInfo = document.querySelector(".up-name");
+                    let data;
+                    try {
+                        data = {
+                            upName: upInfo.textContent.trim(),
+                            uid: parseInt(Util.getSubWebUrlUid(upInfo.href)),
+                            title: document.querySelector(".video-title").textContent,
+                            bv: Util.getSubWebUrlBV(Util.getWindowUrl())
+                        };
+                    } catch (e) {
+                        console.error("获取视频信息出现错误！", e);
+                        return null;
+                    }
+                    return data;
+                },
+                addLefToWatchedBut() {
+                    Watched.addWatched(this.localGetVideoInfo())
+                },
+                addLefToLookAtItLaterListBut() {
+                    LookAtItLater.addLookAtItLater(this.localGetVideoInfo())
+                },
+                isHideButtonLayoutBut() {//隐藏评论区
+                    const e = $("#comment,.playlist-comment");
+                    if (e.is(":hidden")) {
+                        e.show();
+                        this.hideButtonLayoutButText = "隐藏评论区";
+                        return;
+                    }
+                    e.hide();
+                    this.hideButtonLayoutButText = "显示评论区";
+                },
+                isHideRightLayoutBut() {
+                    const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
+                    if (jqE.length === 0) {
+                        alert("获取不到右侧布局！");
+                        return;
+                    }
+                    if (jqE.is(":hidden")) {
+                        jqE.show();
+                        this.hideRightLayoutButText = "隐藏右侧布局";
+                        return;
+                    }
+                    jqE.hide();
+                    this.hideRightLayoutButText = "显示右侧布局";
+                },
+                isHideTopVideoTitleInfoBut() {
+                    const jqE = $("#viewbox_report,.video-info-container");
+                    if (jqE.is(":hidden")) {
+                        jqE.show();
+                        this.hideTopVideoTitleInfoButText = "隐藏顶部视频标题信息";
+                        return;
+                    }
+                    jqE.hide();
+                    this.hideTopVideoTitleInfoButText = "显示顶部视频标题信息";
+                },
+                VideoPIPicture() {
+                    Util.video.autoAllPictureInPicture();
+                },
+                openVideoSubtitle() {
+                    const ariaE = document.querySelector("[aria-label='字幕'] span");
+                    if (ariaE === null) {
+                        return alert("未获取到字幕！");
+                    }
+                    ariaE.click();
+                }
+            },
+            watch: {
+                subItemButShow(newVal) {
+                    this.subItemButText = newVal ? "收起" : "展开";
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
+    },
+    showHideButtonLayoutButText() {
+        return LocalData.video.isHideVideoButtonCommentSections() ? "显示评论区" : "隐藏评论区";
+    },
+    showHideRightLayoutButText() {
+        return LocalData.video.isHideVideoRightLayout() ? "显示右侧布局" : "隐藏右侧布局";
+    },
+    showHideTopVideoTitleInfoButText() {
+        return LocalData.video.isHideVideoTopTitleInfoLayout() ? "显示顶部视频标题信息" : "隐藏顶部视频标题信息";
+    }
+
+}
+const Video_params_layout = {
+    returnVue() {
+        const vue = new Vue({
+            el: "#video_params_layout",
+            data: {
+                autoPlayCheckbox: LocalData.video.isAutoPlay(),
+                rangePlaySpeed: LocalData.video.getRangePlaySpeed(),
+                playbackSpeedSelect: LocalData.video.getRangePlaySpeed(),
+                playbackSpeedList: [0.25, 0.5, 0.75, 0.9, 1, 1.25, 1.35, 1.5, 2],
+                isFlipHorizontal: false,
+                isFlipVertical: false,
+                axleRange: 0,
+                hideVideoTopTitleInfoCheackBox: LocalData.video.isHideVideoTopTitleInfoLayout(),
+                hideVideoButtonCheackBox: LocalData.video.isHideVideoButtonCommentSections(),
+                hideVideoRightLayoutCheackBox: LocalData.video.isHideVideoRightLayout()
+            },
+            methods: {
+                VideoPIPicture() {
+                    Util.video.autoAllPictureInPicture();
+                },
+                preservePlaySpeed() {//保存视频播放速度值
+                    const data = this.rangePlaySpeed;
+                    if (!confirm(`是要保存视频的播放速度值吗？\n${data}x`)) return;
+                    LocalData.video.setRangePlaySpeed(data);
+                    Qmsg.success(`已保存视频的播放速度值=${data}x`);
+                },
+                okFlipHorizontal() {//水平翻转
+                    if (this.isFlipHorizontal) {
+                        Util.setVideoRotationAngle("Y", 0);
+                        this.isFlipHorizontal = false;
+                        return;
+                    }
+                    Util.setVideoRotationAngle("Y", 180);
+                    this.isFlipHorizontal = true;
+                },
+                okFlipVertical() {//垂直翻转
+                    if (this.isFlipVertical) {
+                        Util.setVideoRotationAngle("X", 0);
+                        this.isFlipVertical = false;
+                        return;
+                    }
+                    Util.setVideoRotationAngle("X", 180)
+                    this.isFlipVertical = true;
+                }
+
+            },
+            watch: {
+                autoPlayCheckbox(newVal) {
+                    LocalData.video.setAutoPlay(newVal);
+                },
+                rangePlaySpeed(newVal) {
+                    Util.setVideoBackSpeed(newVal);
+                },
+                playbackSpeedSelect(newVal) {
+                    this.rangePlaySpeed = newVal;
+                },
+                axleRange(newVal) {
+                    Util.setVideoCenterRotation(newVal);
+                },
+                hideVideoTopTitleInfoCheackBox(newVal) {
+                    LocalData.video.setHideVideoTopTitleInfoLayout(newVal);
+                },
+                hideVideoRightLayoutCheackBox(newVal) {
+                    LocalData.video.setHideVideoRightLayout(newVal);
+                },
+                hideVideoButtonCheackBox(newVal) {
+                    LocalData.video.setHideVideoButtonCommentSections(newVal);
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+const LiveLayoutVue = {
+    listOfFollowers: [],
+    otherLiveRoomList: [],
+    returnVue() {
+        const vue = new Vue({
+            el: "#liveLayout",
+            data: {
+                //关注列表
+                listOfFollowers: [],
+                loadFollowButText: "加载列表",
+                isLoadFollowLstDisabled: false,
+                findFollowListRoomKey: "",
+                hRecoveryListOfFollowersIf: false,
+                siftTypeSelect: "upName",
+                siftTypeList: ["upName", "uid", "title", "roomId"],
+                //其他分区直播列表
+                otherLiveRoomList: [],
+                mainPartitionSelect: "手游",
+                partitionObjList: JSON.parse(`{"手游":[{"parent_name":"手游","parent_id":3,"name":"全部","id":0},{"parent_name":"手游","parent_id":3,"name":"原神","id":321},{"parent_name":"手游","parent_id":3,"name":"欢乐斗地主","id":719},{"parent_name":"手游","parent_id":3,"name":"DNF手游","id":343},{"parent_name":"手游","parent_id":3,"name":"新游评测","id":274},{"parent_name":"手游","parent_id":3,"name":"黎明觉醒：生机","id":479},{"parent_name":"手游","parent_id":3,"name":"宝可梦大集结","id":493},{"parent_name":"手游","parent_id":3,"name":"幻塔","id":550},{"parent_name":"手游","parent_id":3,"name":"三国志战棋版","id":756},{"parent_name":"手游","parent_id":3,"name":"明日之后","id":189},{"parent_name":"手游","parent_id":3,"name":"百闻牌","id":286},{"parent_name":"手游","parent_id":3,"name":"阴阳师","id":36},{"parent_name":"手游","parent_id":3,"name":"第五人格","id":163},{"parent_name":"手游","parent_id":3,"name":"战双帕弥什","id":293},{"parent_name":"手游","parent_id":3,"name":"FIFA足球世界","id":641},{"parent_name":"手游","parent_id":3,"name":"跃迁旅人","id":717},{"parent_name":"手游","parent_id":3,"name":"空之要塞：启航","id":718},{"parent_name":"手游","parent_id":3,"name":"火影忍者手游","id":292},{"parent_name":"手游","parent_id":3,"name":"Fate/GO","id":37},{"parent_name":"手游","parent_id":3,"name":"CF手游","id":333},{"parent_name":"手游","parent_id":3,"name":"游戏王","id":303},{"parent_name":"手游","parent_id":3,"name":"重返未来：1999 ","id":761},{"parent_name":"手游","parent_id":3,"name":"哈利波特：魔法觉醒 ","id":474},{"parent_name":"手游","parent_id":3,"name":"玛娜希斯回响","id":644},{"parent_name":"手游","parent_id":3,"name":" 东方归言录","id":538},{"parent_name":"手游","parent_id":3,"name":"无期迷途","id":675},{"parent_name":"手游","parent_id":3,"name":"光遇","id":687},{"parent_name":"手游","parent_id":3,"name":"少女前线：云图计划","id":525},{"parent_name":"手游","parent_id":3,"name":"黑色沙漠手游","id":615},{"parent_name":"手游","parent_id":3,"name":"雀姬","id":214},{"parent_name":"手游","parent_id":3,"name":"时空猎人3","id":643},{"parent_name":"手游","parent_id":3,"name":"明日方舟","id":255},{"parent_name":"手游","parent_id":3,"name":"猫咪公寓2","id":736},{"parent_name":"手游","parent_id":3,"name":"QQ飞车手游","id":154},{"parent_name":"手游","parent_id":3,"name":"古魂","id":759},{"parent_name":"手游","parent_id":3,"name":"航海王热血航线","id":504},{"parent_name":"手游","parent_id":3,"name":"和平精英","id":256},{"parent_name":"手游","parent_id":3,"name":"暗黑破坏神：不朽","id":492},{"parent_name":"手游","parent_id":3,"name":"蛋仔派对","id":571},{"parent_name":"手游","parent_id":3,"name":"JJ斗地主","id":724},{"parent_name":"手游","parent_id":3,"name":"香肠派对","id":689},{"parent_name":"手游","parent_id":3,"name":"跑跑卡丁车手游","id":265},{"parent_name":"手游","parent_id":3,"name":"梦幻模拟战","id":178},{"parent_name":"手游","parent_id":3,"name":"APEX手游","id":506},{"parent_name":"手游","parent_id":3,"name":"综合棋牌","id":354},{"parent_name":"手游","parent_id":3,"name":"以闪亮之名","id":755},{"parent_name":"手游","parent_id":3,"name":"恋爱养成游戏","id":576},{"parent_name":"手游","parent_id":3,"name":"漫威超级战争","id":478},{"parent_name":"手游","parent_id":3,"name":"暗区突围","id":502},{"parent_name":"手游","parent_id":3,"name":"狼人杀","id":41},{"parent_name":"手游","parent_id":3,"name":"盾之勇者成名录：浪潮","id":704},{"parent_name":"手游","parent_id":3,"name":"荒野乱斗","id":469},{"parent_name":"手游","parent_id":3,"name":"猫和老鼠手游","id":269},{"parent_name":"手游","parent_id":3,"name":"LOL手游","id":395},{"parent_name":"手游","parent_id":3,"name":"战火勋章","id":765},{"parent_name":"手游","parent_id":3,"name":"深空之眼","id":598},{"parent_name":"手游","parent_id":3,"name":"碧蓝航线","id":113},{"parent_name":"手游","parent_id":3,"name":"坎公骑冠剑","id":442},{"parent_name":"手游","parent_id":3,"name":"摩尔庄园手游","id":464},{"parent_name":"手游","parent_id":3,"name":"非人学园","id":212},{"parent_name":"手游","parent_id":3,"name":"崩坏3","id":40},{"parent_name":"手游","parent_id":3,"name":"天地劫：幽城再临","id":448},{"parent_name":"手游","parent_id":3,"name":"弹弹堂","id":734},{"parent_name":"手游","parent_id":3,"name":"300大作战","id":688},{"parent_name":"手游","parent_id":3,"name":"解密游戏","id":42},{"parent_name":"手游","parent_id":3,"name":"使命召唤手游","id":386},{"parent_name":"手游","parent_id":3,"name":"猫之城","id":645},{"parent_name":"手游","parent_id":3,"name":"长安幻想","id":738},{"parent_name":"手游","parent_id":3,"name":"少女前线","id":39},{"parent_name":"手游","parent_id":3,"name":"游戏王：决斗链接","id":407},{"parent_name":"手游","parent_id":3,"name":"梦幻西游手游","id":342},{"parent_name":"手游","parent_id":3,"name":"其他手游","id":98},{"parent_name":"手游","parent_id":3,"name":"决战！平安京","id":140},{"parent_name":"手游","parent_id":3,"name":"三国杀移动版","id":352},{"parent_name":"手游","parent_id":3,"name":"影之诗","id":156},{"parent_name":"手游","parent_id":3,"name":"公主连结Re:Dive","id":330},{"parent_name":"手游","parent_id":3,"name":"王者荣耀","id":35},{"parent_name":"手游","parent_id":3,"name":"忍者必须死3","id":203},{"parent_name":"手游","parent_id":3,"name":"BanG Dream","id":258},{"parent_name":"手游","parent_id":3,"name":"休闲小游戏","id":679},{"parent_name":"手游","parent_id":3,"name":"金铲铲之战","id":514},{"parent_name":"手游","parent_id":3,"name":"环形战争","id":725},{"parent_name":"手游","parent_id":3,"name":"天涯明月刀手游","id":389},{"parent_name":"手游","parent_id":3,"name":"漫威对决","id":511},{"parent_name":"手游","parent_id":3,"name":"奥比岛手游","id":661},{"parent_name":"手游","parent_id":3,"name":"奇点时代","id":762},{"parent_name":"手游","parent_id":3,"name":"部落冲突:皇室战争","id":50},{"parent_name":"手游","parent_id":3,"name":"重返帝国","id":613},{"parent_name":"手游","parent_id":3,"name":"小动物之星","id":473}],"赛事":[{"parent_name":"赛事","parent_id":13,"name":"全部","id":0},{"parent_name":"赛事","parent_id":13,"name":"体育赛事","id":562},{"parent_name":"赛事","parent_id":13,"name":"游戏赛事","id":561},{"parent_name":"赛事","parent_id":13,"name":"赛事综合","id":563}],"生活":[{"parent_name":"生活","parent_id":10,"name":"全部","id":0},{"parent_name":"生活","parent_id":10,"name":"手工绘画","id":627},{"parent_name":"生活","parent_id":10,"name":"时尚","id":378},{"parent_name":"生活","parent_id":10,"name":"影音馆","id":33},{"parent_name":"生活","parent_id":10,"name":"生活分享","id":646},{"parent_name":"生活","parent_id":10,"name":"萌宠","id":369},{"parent_name":"生活","parent_id":10,"name":"美食","id":367},{"parent_name":"生活","parent_id":10,"name":"搞笑","id":624},{"parent_name":"生活","parent_id":10,"name":"运动","id":628}],"娱乐":[{"parent_name":"娱乐","parent_id":1,"name":"全部","id":0},{"parent_name":"娱乐","parent_id":1,"name":"视频唱见","id":21},{"parent_name":"娱乐","parent_id":1,"name":"户外","id":123},{"parent_name":"娱乐","parent_id":1,"name":"萌宅领域","id":530},{"parent_name":"娱乐","parent_id":1,"name":"情感","id":706},{"parent_name":"娱乐","parent_id":1,"name":"视频聊天","id":145},{"parent_name":"娱乐","parent_id":1,"name":"日常","id":399},{"parent_name":"娱乐","parent_id":1,"name":"聊天室","id":740},{"parent_name":"娱乐","parent_id":1,"name":"舞见","id":207}],"电台":[{"parent_name":"电台","parent_id":5,"name":"全部","id":0},{"parent_name":"电台","parent_id":5,"name":"配音","id":193},{"parent_name":"电台","parent_id":5,"name":"唱见电台","id":190},{"parent_name":"电台","parent_id":5,"name":"聊天电台","id":192}],"网游":[{"parent_name":"网游","parent_id":2,"name":"全部","id":0},{"parent_name":"网游","parent_id":2,"name":"诛仙世界","id":654},{"parent_name":"网游","parent_id":2,"name":"街头篮球","id":649},{"parent_name":"网游","parent_id":2,"name":"洛克王国","id":669},{"parent_name":"网游","parent_id":2,"name":"剑灵","id":505},{"parent_name":"网游","parent_id":2,"name":"堡垒之夜","id":164},{"parent_name":"网游","parent_id":2,"name":"枪神纪","id":251},{"parent_name":"网游","parent_id":2,"name":"逃离塔科夫","id":252},{"parent_name":"网游","parent_id":2,"name":"吃鸡行动","id":80},{"parent_name":"网游","parent_id":2,"name":"坦克世界","id":115},{"parent_name":"网游","parent_id":2,"name":"VRChat","id":656},{"parent_name":"网游","parent_id":2,"name":"新游前瞻","id":298},{"parent_name":"网游","parent_id":2,"name":"星际战甲","id":249},{"parent_name":"网游","parent_id":2,"name":"战争雷霆","id":316},{"parent_name":"网游","parent_id":2,"name":"英雄联盟","id":86},{"parent_name":"网游","parent_id":2,"name":"超击突破","id":680},{"parent_name":"网游","parent_id":2,"name":"其他网游","id":107},{"parent_name":"网游","parent_id":2,"name":"创世战车","id":705},{"parent_name":"网游","parent_id":2,"name":"最终幻想14","id":102},{"parent_name":"网游","parent_id":2,"name":"跑跑卡丁车","id":664},{"parent_name":"网游","parent_id":2,"name":"梦三国","id":710},{"parent_name":"网游","parent_id":2,"name":"古剑奇谭OL","id":173},{"parent_name":"网游","parent_id":2,"name":"永恒轮回","id":459},{"parent_name":"网游","parent_id":2,"name":"激战2","id":607},{"parent_name":"网游","parent_id":2,"name":"奇迹MU","id":683},{"parent_name":"网游","parent_id":2,"name":"怀旧网游","id":288},{"parent_name":"网游","parent_id":2,"name":"APEX英雄","id":240},{"parent_name":"网游","parent_id":2,"name":"FIFA ONLINE 4","id":388},{"parent_name":"网游","parent_id":2,"name":"使命召唤:战区","id":318},{"parent_name":"网游","parent_id":2,"name":"反恐精英Online","id":629},{"parent_name":"网游","parent_id":2,"name":"阿尔比恩","id":639},{"parent_name":"网游","parent_id":2,"name":"星际争霸2","id":93},{"parent_name":"网游","parent_id":2,"name":"星际公民","id":658},{"parent_name":"网游","parent_id":2,"name":"CS:GO","id":89},{"parent_name":"网游","parent_id":2,"name":"天涯明月刀","id":596},{"parent_name":"网游","parent_id":2,"name":"炉石传说","id":91},{"parent_name":"网游","parent_id":2,"name":"生死狙击2","id":575},{"parent_name":"网游","parent_id":2,"name":"彩虹岛","id":686},{"parent_name":"网游","parent_id":2,"name":"武装突袭","id":634},{"parent_name":"网游","parent_id":2,"name":"魔兽争霸3","id":181},{"parent_name":"网游","parent_id":2,"name":"问道","id":670},{"parent_name":"网游","parent_id":2,"name":"剑网3","id":82},{"parent_name":"网游","parent_id":2,"name":"造梦西游","id":668},{"parent_name":"网游","parent_id":2,"name":"NBA2KOL2","id":581},{"parent_name":"网游","parent_id":2,"name":"星战前夜：晨曦","id":331},{"parent_name":"网游","parent_id":2,"name":"英魂之刃","id":690},{"parent_name":"网游","parent_id":2,"name":"永恒之塔","id":684},{"parent_name":"网游","parent_id":2,"name":"艾尔之光","id":651},{"parent_name":"网游","parent_id":2,"name":"大话西游","id":652},{"parent_name":"网游","parent_id":2,"name":"洛奇","id":663},{"parent_name":"网游","parent_id":2,"name":"风暴英雄","id":114},{"parent_name":"网游","parent_id":2,"name":"新天龙八部","id":653},{"parent_name":"网游","parent_id":2,"name":"骑士精神2","id":650},{"parent_name":"网游","parent_id":2,"name":"赛尔号","id":667},{"parent_name":"网游","parent_id":2,"name":"300英雄","id":84},{"parent_name":"网游","parent_id":2,"name":"封印者","id":300},{"parent_name":"网游","parent_id":2,"name":"新世界","id":544},{"parent_name":"网游","parent_id":2,"name":"战争与抉择","id":729},{"parent_name":"网游","parent_id":2,"name":"人间地狱","id":677},{"parent_name":"网游","parent_id":2,"name":"剑网3缘起","id":499},{"parent_name":"网游","parent_id":2,"name":"魔兽世界","id":83},{"parent_name":"网游","parent_id":2,"name":"泡泡堂","id":737},{"parent_name":"网游","parent_id":2,"name":"战舰世界","id":248},{"parent_name":"网游","parent_id":2,"name":"Squad战术小队","id":659},{"parent_name":"网游","parent_id":2,"name":"逆战","id":487},{"parent_name":"网游","parent_id":2,"name":"QQ飞车","id":610},{"parent_name":"网游","parent_id":2,"name":"穿越火线","id":88},{"parent_name":"网游","parent_id":2,"name":"洛奇英雄传","id":599},{"parent_name":"网游","parent_id":2,"name":"超激斗梦境","id":519},{"parent_name":"网游","parent_id":2,"name":"龙之谷","id":112},{"parent_name":"网游","parent_id":2,"name":"无畏契约","id":329},{"parent_name":"网游","parent_id":2,"name":"传奇","id":695},{"parent_name":"网游","parent_id":2,"name":"冒险岛","id":574},{"parent_name":"网游","parent_id":2,"name":"猎杀对决","id":600},{"parent_name":"网游","parent_id":2,"name":"流放之路","id":551},{"parent_name":"网游","parent_id":2,"name":"命运方舟","id":590},{"parent_name":"网游","parent_id":2,"name":"综合射击","id":601},{"parent_name":"网游","parent_id":2,"name":"黑色沙漠","id":632},{"parent_name":"网游","parent_id":2,"name":"刀塔自走棋","id":239},{"parent_name":"网游","parent_id":2,"name":"DNF","id":78},{"parent_name":"网游","parent_id":2,"name":"战意","id":383},{"parent_name":"网游","parent_id":2,"name":"守望先锋","id":87},{"parent_name":"网游","parent_id":2,"name":"DOTA2","id":92},{"parent_name":"网游","parent_id":2,"name":"FPS沙盒","id":633},{"parent_name":"网游","parent_id":2,"name":"风暴奇侠","id":648},{"parent_name":"网游","parent_id":2,"name":"幻想全明星","id":176},{"parent_name":"网游","parent_id":2,"name":"铁甲雄兵","id":691},{"parent_name":"网游","parent_id":2,"name":"三国杀","id":81},{"parent_name":"网游","parent_id":2,"name":"永劫无间","id":666},{"parent_name":"网游","parent_id":2,"name":"CFHD ","id":472},{"parent_name":"网游","parent_id":2,"name":"QQ三国","id":685},{"parent_name":"网游","parent_id":2,"name":"装甲战争","id":642}],"虚拟主播":[{"parent_name":"虚拟主播","parent_id":9,"name":"全部","id":0},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟Singer","id":744},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟Gamer","id":745},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟声优","id":746},{"parent_name":"虚拟主播","parent_id":9,"name":"TopStar","id":743},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟日常","id":371}],"单机游戏":[{"parent_name":"单机游戏","parent_id":6,"name":"全部","id":0},{"parent_name":"单机游戏","parent_id":6,"name":"原子之心","id":750},{"parent_name":"单机游戏","parent_id":6,"name":"以撒","id":219},{"parent_name":"单机游戏","parent_id":6,"name":"荒野大镖客2","id":226},{"parent_name":"单机游戏","parent_id":6,"name":"双人成行","id":446},{"parent_name":"单机游戏","parent_id":6,"name":"刺客信条","id":227},{"parent_name":"单机游戏","parent_id":6,"name":"霍格沃茨之遗","id":747},{"parent_name":"单机游戏","parent_id":6,"name":"狂野之心","id":748},{"parent_name":"单机游戏","parent_id":6,"name":"独立游戏","id":283},{"parent_name":"单机游戏","parent_id":6,"name":"怀旧游戏","id":237},{"parent_name":"单机游戏","parent_id":6,"name":"格斗游戏","id":433},{"parent_name":"单机游戏","parent_id":6,"name":"胡闹厨房","id":507},{"parent_name":"单机游戏","parent_id":6,"name":"怪物猎人","id":578},{"parent_name":"单机游戏","parent_id":6,"name":"重生细胞","id":426},{"parent_name":"单机游戏","parent_id":6,"name":"盗贼之海","id":341},{"parent_name":"单机游戏","parent_id":6,"name":"暖雪","id":582},{"parent_name":"单机游戏","parent_id":6,"name":"NBA2K","id":362},{"parent_name":"单机游戏","parent_id":6,"name":"消逝的光芒2","id":586},{"parent_name":"单机游戏","parent_id":6,"name":"恋爱模拟游戏","id":592},{"parent_name":"单机游戏","parent_id":6,"name":"饥荒","id":218},{"parent_name":"单机游戏","parent_id":6,"name":"策略游戏","id":570},{"parent_name":"单机游戏","parent_id":6,"name":"卧龙：苍天陨落","id":700},{"parent_name":"单机游戏","parent_id":6,"name":"全面坦克战略官","id":758},{"parent_name":"单机游戏","parent_id":6,"name":"弹幕互动玩法","id":460},{"parent_name":"单机游戏","parent_id":6,"name":"暗黑破坏神","id":535},{"parent_name":"单机游戏","parent_id":6,"name":"全境封锁2","id":243},{"parent_name":"单机游戏","parent_id":6,"name":"禁闭求生","id":707},{"parent_name":"单机游戏","parent_id":6,"name":"帝国时代4","id":548},{"parent_name":"单机游戏","parent_id":6,"name":"边境","id":763},{"parent_name":"单机游戏","parent_id":6,"name":"战神","id":579},{"parent_name":"单机游戏","parent_id":6,"name":"全面战争：战锤3","id":594},{"parent_name":"单机游戏","parent_id":6,"name":"无主之地3","id":273},{"parent_name":"单机游戏","parent_id":6,"name":"辐射76","id":220},{"parent_name":"单机游戏","parent_id":6,"name":"红色警戒2","id":693},{"parent_name":"单机游戏","parent_id":6,"name":"不羁联盟","id":764},{"parent_name":"单机游戏","parent_id":6,"name":"糖豆人","id":357},{"parent_name":"单机游戏","parent_id":6,"name":"霓虹序列","id":766},{"parent_name":"单机游戏","parent_id":6,"name":"战锤40K:暗潮","id":723},{"parent_name":"单机游戏","parent_id":6,"name":"Dread Hunger","id":591},{"parent_name":"单机游戏","parent_id":6,"name":"森林之子","id":751},{"parent_name":"单机游戏","parent_id":6,"name":"聚会游戏","id":636},{"parent_name":"单机游戏","parent_id":6,"name":"生化危机","id":721},{"parent_name":"单机游戏","parent_id":6,"name":"方舟","id":295},{"parent_name":"单机游戏","parent_id":6,"name":"艾尔登法环","id":555},{"parent_name":"单机游戏","parent_id":6,"name":"歧路旅人2","id":752},{"parent_name":"单机游戏","parent_id":6,"name":"Roblox","id":753},{"parent_name":"单机游戏","parent_id":6,"name":"只狼","id":245},{"parent_name":"单机游戏","parent_id":6,"name":"风帆纪元","id":739},{"parent_name":"单机游戏","parent_id":6,"name":"其他单机","id":235},{"parent_name":"单机游戏","parent_id":6,"name":"游戏速通","id":678},{"parent_name":"单机游戏","parent_id":6,"name":"恐怖游戏","id":276},{"parent_name":"单机游戏","parent_id":6,"name":"恐鬼症","id":387},{"parent_name":"单机游戏","parent_id":6,"name":"使命召唤19","id":282},{"parent_name":"单机游戏","parent_id":6,"name":"我的世界","id":216},{"parent_name":"单机游戏","parent_id":6,"name":"仁王2","id":313},{"parent_name":"单机游戏","parent_id":6,"name":"THE FINALS","id":754},{"parent_name":"单机游戏","parent_id":6,"name":"FORZA 极限竞速","id":302},{"parent_name":"单机游戏","parent_id":6,"name":"全面战争","id":257},{"parent_name":"单机游戏","parent_id":6,"name":"塞尔达传说","id":308},{"parent_name":"单机游戏","parent_id":6,"name":"鬼泣5","id":244},{"parent_name":"单机游戏","parent_id":6,"name":"法外枭雄:滚石城","id":757},{"parent_name":"单机游戏","parent_id":6,"name":"SIFU","id":587},{"parent_name":"单机游戏","parent_id":6,"name":"FIFA23","id":708},{"parent_name":"单机游戏","parent_id":6,"name":"命运2","id":277},{"parent_name":"单机游戏","parent_id":6,"name":"精灵宝可梦","id":228},{"parent_name":"单机游戏","parent_id":6,"name":"文字游戏","id":583},{"parent_name":"单机游戏","parent_id":6,"name":"主机游戏","id":236},{"parent_name":"单机游戏","parent_id":6,"name":"植物大战僵尸","id":309},{"parent_name":"单机游戏","parent_id":6,"name":"人类一败涂地","id":270},{"parent_name":"单机游戏","parent_id":6,"name":"战地风云","id":597},{"parent_name":"单机游戏","parent_id":6,"name":"骑马与砍杀","id":326},{"parent_name":"单机游戏","parent_id":6,"name":"泰拉瑞亚","id":593},{"parent_name":"单机游戏","parent_id":6,"name":"体育游戏","id":500},{"parent_name":"单机游戏","parent_id":6,"name":"宝可梦集换式卡牌游戏","id":720},{"parent_name":"单机游戏","parent_id":6,"name":"斯普拉遁3","id":694},{"parent_name":"单机游戏","parent_id":6,"name":"枪火重生","id":364}],"知识":[{"parent_name":"知识","parent_id":11,"name":"全部","id":0},{"parent_name":"知识","parent_id":11,"name":"科学科普","id":701},{"parent_name":"知识","parent_id":11,"name":"社科法律心理","id":376},{"parent_name":"知识","parent_id":11,"name":"职场·技能","id":377},{"parent_name":"知识","parent_id":11,"name":"科技","id":375},{"parent_name":"知识","parent_id":11,"name":"人文历史","id":702},{"parent_name":"知识","parent_id":11,"name":"校园学习","id":372}]}`),
+                sPartitionSelectID: 0,
+                sPartitionSelect: {},
+                sPartitionObjList: [],//子分区
+                partitionPage: 1,
+                otherLoadMoreIf: false,//加载更多按钮销毁或显示
+                loadedPartition: {},//用于记录上一次加载的直播列表数据
+                findOtherListRoomKey: "",
+                siftOtherLiveTypeSelect: "upName",
+                siftOtherLiveTypeList: ["upName", "uid", "title", "roomId"],
+                hRecoveryOtherLiveListIf: false,//恢复列表
+            },
+            methods: {
+                getSPartitionSelect(id) {//通过id查找对应子分区列表中符合条件的项目
+                    return this.sPartitionObjList.find(value => value.id === id);
+                },
+                loadFollowLst() {//加载关注列表中正在直播的用户列表api数据
+                    const sessdata = LocalData.getSESSDATA();
+                    if (sessdata === null) {
+                        Qmsg.error("用户未配置sessdata！");
+                        return;
+                    }
+                    Qmsg.success("用户配置了sessdata");
+                    this.isLoadFollowLstDisabled = true;
+                    const promise = Live.loadAddAllFollowDataList(this.listOfFollowers, sessdata);
+                    promise.then(() => {
+                        LiveLayoutVue.listOfFollowers = this.listOfFollowers;
+                        Qmsg.success(`已临时保存关注列表中正在直播的用户列表，可使用搜索对其进行筛选`);
+                    }).finally(() => {
+                        this.loadFollowButText = "重新加载";
+                        this.isLoadFollowLstDisabled = false;
+                    });
+                },
+                hRecoveryListOfFollowersBut() {
+                    this.listOfFollowers = LiveLayoutVue.listOfFollowers;
+                    Qmsg.success(`已恢复关注中正在直播的用户列表`);
+                },
+                //其他分区直播列表
+                loadOtherPartitionLiveListBut() {//加载其他分区直播列表
+                    const id = this.sPartitionSelectID;
+                    const sPartition = this.getSPartitionSelect(id);
+                    const parentId = sPartition["parent_id"];
+                    if (!confirm(`是要加载${sPartition["parent_name"]} 的子分区 ${sPartition.name} 吗？`)) return;
+                    const loading = Qmsg.loading(`正在获取中！`);
+                    const promise = Live.getOthersAreWorkingLiveDataList(parentId, id);
+                    promise.then(value => {
+                        if (!value.partitionBool) {
+                            this.otherLoadMoreIf = true;
+                        }
+                        this.partitionPage++;//默认第一次加载成功加1，为2
+                        this.loadedPartition = sPartition;
+                        const info = value["info"];
+                        if (info) {
+                            Qmsg.error(`info:${info}`);
+                        }
+                        const tempList = value.dataList;
+                        this.otherLiveRoomList = tempList;//清空列表并赋予新表
+                        LiveLayoutVue.otherLiveRoomList = tempList;
+                        Qmsg.success(`获取成功！已获取到${tempList.length}个直播间`);
+                    }).catch(reason => {
+                        Qmsg.error(reason.errorText);
+                        console.log(reason.err);
+                    }).finally(() => {
+                        loading.close();
+                    });
+                },
+                otherLoadMoreBut() {
+                    const id = this.sPartitionSelectID;
+                    const sPartition = this.getSPartitionSelect(id);
+                    const parentId = sPartition["parent_id"];
+                    const loading = Qmsg.loading(`正在获取更多！`);
+                    const promise = Live.getOthersAreWorkingLiveDataList(parentId, id, this.partitionPage);
+                    promise.then(value => {
+                        if (value.partitionBool) {
+                            this.otherLoadMoreIf = false;
+                        }
+                        this.partitionPage++;//下一轮之后的则是新的一页
+                        const loadedPartition = this.loadedPartition;
+                        if (!Util.objEquals(loadedPartition, sPartition, ["parent_name", "parent_id", "name", "id"])) {
+                            this.otherLiveRoomList = [];//不相同时清空列表
+                            LiveLayoutVue.otherLiveRoomList = [];
+                        }
+                        const info = value["info"];
+                        if (info) {
+                            Qmsg.error(`info:${info}`);
+                        }
+                        /**
+                         * 当两者数组长度不相同说明otherLiveRoomList应该是用户搜索过后过滤显示的内容
+                         * 此时加载更多需要将原先的数组内容补上并在后面合并
+                         */
+                        if (this.otherLiveRoomList.length !== LiveLayoutVue.otherLiveRoomList.length) {
+                            this.otherLiveRoomList = LiveLayoutVue.otherLiveRoomList;
+                        }
+                        const dataList = value.dataList;
+                        //这里合并新数组的内容
+                        Util.mergeArrays(this.otherLiveRoomList, dataList);
+                        LiveLayoutVue.otherLiveRoomList = this.otherLiveRoomList;
+                        Qmsg.success(`获取成功！已获取到${dataList.length}个直播间，累计${this.otherLiveRoomList.length}个直播间`);
+                    }).catch(reason => {
+                        Qmsg.error(reason.errorText);
+                        console.log(reason.err);
+                    }).finally(() => {
+                        loading.close();
+                    });
+                },
+                hRecoveryOtherLiveRoomListBut() {
+                    this.otherLiveRoomList = LiveLayoutVue.otherLiveRoomList;
+                    Qmsg.success(`已恢复其他分区正在直播的列表`);
+                },
+                godchildPartitionsSpecifiedParentPartition(parentPartitionName, title) {//查找指定父分区的子分区
+                    const list = this.partitionObjList[parentPartitionName];
+                    for (let value of list) {
+                        if (!value.name.includes(title)) {
+                            continue;
+                        }
+                        return value;
+                    }
+                    return null;
+                },
+                findThisSubPartitionBut() {//查询当前父分区中指定的子分区
+                    const parentName = this.mainPartitionSelect;
+                    let input = prompt(`请输入您要查询父分区${parentName}的子分区名是什么(可模糊匹配，仅匹配第一个)`);
+                    if (input === null) return;
+                    input = input.trim();
+                    if (input === "") {
+                        Qmsg.error("请正确书写！");
+                        return;
+                    }
+                    const subPartition = this.godchildPartitionsSpecifiedParentPartition(parentName, input);
+                    if (subPartition === null) {
+                        alert(`未在父分区${parentName}查询到子分区 ${input} ！`);
+                        return;
+                    }
+                    this.sPartitionSelect = subPartition;
+                    this.sPartitionSelectID = subPartition.id;
+                    Qmsg.success(`已在父分区${parentName}查询到子分区${subPartition.name} ！`);
+                },
+                findSubPartitionBut() {
+                    let input = prompt(`请输入您要查询的子分区名是什么(可模糊匹配，仅匹配第一个)`);
+                    if (input === null) return;
+                    input = input.trim();
+                    if (input === "") {
+                        Qmsg.error("请正确书写！");
+                        return;
+                    }
+                    const objList = this.partitionObjList;
+                    let obj = null;
+                    for (const key in objList) {
+                        const tempObj = this.godchildPartitionsSpecifiedParentPartition(key, input);
+                        if (tempObj === null) continue;
+                        obj = tempObj;
+                        break;
+                    }
+                    if (obj === null) {
+                        alert(`未查询到子分区 ${input} ！`);
+                        return;
+                    }
+                    Qmsg.success(`已在父分区${obj["parent_name"]}查询到子分区${obj.name} ！`);
+                    this.mainPartitionSelect = obj["parent_name"];
+                    this.sPartitionSelect = obj;
+                    //代码在延迟 50 毫秒后执行，为了确保在 Vue.js 的下一个渲染周期中更新这个数据属性的值。这样做是为了避免在同一个渲染周期中进行数据修改，以确保 Vue.js 的响应式系统能够正确地追踪数据的变化并更新视图。
+                    setTimeout(() => this.sPartitionSelectID = obj.id, 50);
+                },
+                openPartitionWebAddressBut() {
+                    const partition = this.sPartitionSelect;
+                    if (!confirm(`是要打开${partition["parent_name"]} 的子分区 ${partition.name} 吗？`)) return;
+                    Util.openWindow(`https://live.bilibili.com/p/eden/area-tags?areaId=${partition.id}&parentAreaId=${partition["parent_id"]}`);
+                },
+            },
+            watch: {
+                findFollowListRoomKey(newVal) {
+                    if (newVal === "") return;
+                    const tempList = [];
+                    for (const v of LiveLayoutVue.listOfFollowers) {
+                        if (!v[this.siftTypeSelect].toString().includes(newVal)) {
+                            continue;
+                        }
+                        tempList.push(v);
+                    }
+                    const tempSize = tempList.length;
+                    if (tempSize === 0) {
+                        Qmsg.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
+                        return;
+                    }
+                    this.listOfFollowers = tempList;
+                    this.hRecoveryListOfFollowersIf = true;
+                    Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
+                },
+                mainPartitionSelect(newVal) {
+                    this.sPartitionObjList = this.partitionObjList[newVal];
+                    this.sPartitionSelect = this.sPartitionObjList[0];
+                },
+                sPartitionSelectID(newVal) {
+                    this.sPartitionSelect = this.getSPartitionSelect(newVal);
+                },
+                findOtherListRoomKey(newVal) {
+                    if (newVal === "") return;
+                    const tempList = [];
+                    for (const v of LiveLayoutVue.otherLiveRoomList) {
+                        if (!v[this.siftOtherLiveTypeSelect].toString().includes(newVal)) {
+                            continue;
+                        }
+                        tempList.push(v);
+                    }
+                    const tempSize = tempList.length;
+                    if (tempSize === 0) {
+                        Qmsg.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
+                        return;
+                    }
+                    this.hRecoveryOtherLiveListIf = true;
+                    this.otherLiveRoomList = tempList;
+                    Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+const OtherLayoutVue = {
+    returnVue() {
+        const vue = new Vue({
+            el: "#otherLayout",
+            data: {
+                isPrivacyModeCheckbox: LocalData.getPrivacyMode(),
+                //网络请求Url
+                requestUrl: "",
+                requestTypeSelect: "get",
+                requestType: ["get",
+                    // "post"
+                ],
+                responseResult: "",
+                requestCookie: "",
+                isTrendsItemsTwoColumnCheackbox: Trends.data.getTrendsItemsTwoColumnCheackbox(),
+                BWebOpenList: {
+                    "稍后再看列表": "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list",
+                    "稍后再看播放列表": "https://www.bilibili.com/watchlater",
+                    "直播中心": "https://link.bilibili.com/p/center/index",
+                    "素材库平台": "coolHome",
+                    "频道": "https://www.bilibili.com/v/channel",
+                }
+            },
+            methods: {
+                setSgSessdataBut() {
+                    const content = prompt("请输入要保存的SESSDATA值");
+                    if (content === null) {
+                        return;
+                    }
+                    if (content === "") {
+                        LocalData.setSESSDATA(null);
+                        return;
+                    }
+                    if (content.includes(" ") || content.includes("=")) {
+                        Qmsg.error("内容中包含空格或者=，请去除相关符号！");
+                        return;
+                    }
+                    if (!confirm(`要保存的SESSDATA是\n${content}`)) {
+                        return;
+                    }
+                    LocalData.setSESSDATA(content);
+                    Qmsg.success("已设置SESSDATA的值！");
+                },
+                getSgSessdataBut() {
+                    const data = LocalData.getSESSDATA();
+                    if (data === null) {
+                        const tip = '用户未添加SESSDATA或者已删除存储在脚本的SESSDATA';
+                        Qmsg.error(tip);
+                        alert(tip);
+                        return;
+                    }
+                    Qmsg.success("已将值输出到脚本面板的输出信息上！");
+                    Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
+                    Print.ln(data);
+                },
+                setBili_jctBut() {
+                    const content = prompt("设置bili_jct值为：");
+                    if (content === null) {
+                        return;
+                    }
+                    if (content === "" | content.includes(" ")) {
+                        Qmsg.error("内容有误，请正确书写！");
+                        return;
+                    }
+                    LocalData.setBili_jct(content);
+                    Qmsg.success(`已设置bili_jct的值为\n${content}`);
+                },
+                setLogInBili_jctBut() {
+                    const data = LocalData.getWebBili_jct();
+                    if (data === null) {
+                        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
+                        return;
+                    }
+                    if (!confirm("确定要将存储在网页中的bili_jct值并设置存储在油猴脚本bili_jct值吗？")) {
+                        return;
+                    }
+                    LocalData.setBili_jct(data);
+                    Qmsg.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
+                },
+                getLogInBili_jctBut() {
+                    const data = LocalData.getWebBili_jct();
+                    if (data === null) {
+                        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
+                        return;
+                    }
+                    Qmsg.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
+                    Print.ln(data);
+                },
+                getBili_jctBut() {
+                    const biliJct = LocalData.getBili_jct();
+                    if (biliJct === null) {
+                        Qmsg.error(`用户未设置bili_jct值`);
+                        return;
+                    }
+                    Qmsg.success("获取成功！，已将bili_jct值输出到面板上");
+                },
+                bvToAvBut() {
+                    const content = prompt("bv转av号");
+                    if (content === null) {
+                        return;
+                    }
+                    if (content.length <= 5) {
+                        alert("请正确填写内容！");
+                        return;
+                    }
+                    const dec = bilibiliEncoder.dec(content);
+                    if (isNaN(dec)) {
+                        alert("结果错误！");
+                        return;
+                    }
+                    alert("av" + dec);
+                },
+                avTObvBut() {
+                    let content = prompt("av转bv号");
+                    if (content === null) {
+                        return;
+                    }
+                    if (content.startsWith("av") || content.startsWith("AV")) {
+                        content = content.substring(2, content.length);
+                    }
+                    if (content.length < 1 || (isNaN(content))) {
+                        alert("请正确填写内容！");
+                        return;
+                    }
+                    const dec = bilibiliEncoder.enc(content);
+                    if (!dec.startsWith("BV")) {
+                        alert("结果错误！");
+                        return;
+                    }
+                    alert(dec);
+                },
+                openGBTWebBut() {
+                    if (Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
+                        alert("当前网站就是GBT乐赏游戏空间");
+                        return;
+                    }
+                    Util.openWindow("http://gbtgame.ysepan.com/");
+                },
+                getGBTPageDataInfoBut() {
+                    GBTGame.init();
+                },
+                getGBTDataBut() {
+                    GBTGame.getData();
+                },
+                getGBTFildKeysBut() {
+                    const key = prompt("请输入您要搜索的内容");
+                    if (key === null) return;
+                    if (key.includes(" ") || key === "") {
+                        alert("请正确填写您要搜索的内容！");
+                        return;
+                    }
+                    const findList = GBTGame.find(key);
+                    const filter = Object.keys(findList);
+                    if (filter.length === 0) {
+                        const info = "并未搜索到您想要的资源，key=" + key;
+                        Print.ln(info);
+                        Qmsg.info(info);
+                        alert(info);
+                        return;
+                    }
+                    const info = `已找到了${filter.length}个资源，并输出到控制台上，且用户接下来可以将其保存在电脑上！`;
+                    alert(info);
+                    const findJsonListStr = JSON.stringify(findList, null, 3);
+                    console.log(findList);
+                    console.log(findJsonListStr);
+                    Qmsg.success(info);
+                    Util.fileDownload(findJsonListStr, `搜索GBT乐赏游戏空间关键词为【${key}】 的资源${filter.length}个.json`);
+                },
+                openBWeb(item, name) {
+                    if (!confirm(`是要前往 ${name} 吗？`)) return;
+                    Util.openWindow(item);
+                },
+                sendRequestBut() {
+                    const requestUrl = this.requestUrl;
+                    const cookie = this.requestCookie;
+                    if (!(requestUrl.startsWith("https://") || requestUrl.startsWith("http://"))) {
+                        Qmsg.error("请正确填写请求地址！");
+                        return;
+                    }
+                    const requestType = this.requestTypeSelect;
+                    const promise = HttpUtil.getCookie(requestUrl, cookie);
+                    const loading = Qmsg.loading(`正在使用${requestType}请求 请求地址${requestUrl}中！`);
+                    promise.then(data => {
+                        Qmsg.success("请求成功！");
+                        this.responseResult = data.body;
+                        console.log(data);
+                    }).catch(reason => {
+                        Qmsg.error("相应失败！");
+                        console.error(reason);
+                    }).finally(() => {
+                        loading.close();
+                    });
+                }
+            },
+            watch: {
+                isPrivacyModeCheckbox(newVal) {
+                    LocalData.setPrivacyMode(newVal);
+                },
+                isTrendsItemsTwoColumnCheackbox(newVal) {
+                    Trends.data.setTrendsItemsTwoColumnCheackbox(newVal);
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
+    }
+};
+const DonateLayoutVue = {
+    returnVue() {
+        const vue = new Vue({
+            el: "#donateLayout",
+            data: {
+                list: [
+                    {
+                        name: "支付宝赞助",
+                        alt: "支付宝支持",
+                        src: "https://hangexi.gitee.io/datafile/img/paymentCodeZFB.png"
+                    },
+                    {name: "微信赞助", alt: "微信支持", src: "https://hangexi.gitee.io/datafile/img/paymentCodeWX.png"},
+                    {name: "QQ赞助", alt: "QQ支持", src: "https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png"},
+                ]
+            }
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+const HomePageLayoutVue = {
+    getVideo_zoneList() {
+        return Home.data.video_zoneList;
+    },
+    getChannel_idList() {
+        return frequencyChannel.data.channel_idList;
+    },
+    returnVue() {
+        const vue = new Vue({
+            el: "#homePageLayout",
+            data: {
+                isMainVideoListCheckbox: LocalData.getIsMainVideoList(),
+                pushTypeSelect: Home.getPushType(),
+                pushTypeList: ["分区", "频道"],
+                sort_typeSelect: "hot",
+                sort_typeList: {hot: "近期热门", view: "播放最多(近30天投稿)", new: "最新投稿"},
+                isIdCheckbox: false,
+                //是否要显示频道的一级select
+                isChannelSelect: false,
+                showListSelect: 0,
+                showList: {},
+            },
+            methods: {
+                findBut() {//TODO 待测试
+                    const inputs = prompt("查询的类型关键词");
+                    if (inputs === null) return;
+                    if (inputs === "" || inputs.includes(" ")) {
+                        Qmsg.error("请正确输入内容");
+                        return;
+                    }
+                    const listMap = this.showList;
+                    if (this.isIdCheckbox) {
+                        if (inputs in listMap) {
+                            this.showListSelect = inputs;
+                            Qmsg.success(`通过ID的方式找到该值！id=${inputs} 值=${listMap[inputs]}`);
+                            return;
+                        }
+                    } else {
+                        for (let v in listMap) {//通过遍历字典中的value，该值包含于tempContent时成立
+                            if (!listMap[v].includes(inputs)) continue;
+                            this.showListSelect = v;
+                            Qmsg.success(`通过value找到该值！=${inputs}`);
+                            return;
+                        }
+                    }
+                    Qmsg.error("未找到该值！");
+                },
+                okBut() {
+                    const pushType = this.pushTypeSelect;
+                    const showListSelect = parseInt(this.showListSelect);
+                    let tip;
+                    if (pushType === "分区") {
+                        tip = `选择了分区${this.showList[showListSelect]} 进行指定推送 id=${showListSelect}`;
+                        LocalData.setVideo_zone(showListSelect);
+                    } else {
+                        const temp = this.sort_typeSelect;
+                        tip = `选择了${this.sort_typeList[temp]}的频道${this.showList[showListSelect]}进行指定推送 id=${showListSelect}`;
+                        frequencyChannel.setChannel_id(showListSelect);
+                        frequencyChannel.setSort_type(temp);
+                    }
+                    Home.setPushType(pushType);
+                    alert("已设置！\n" + tip)
+                }
+            },
+            watch: {
+                isMainVideoListCheckbox(newVal) {
+                    LocalData.setIsMainVideoList(newVal);
+                },
+                pushTypeSelect(newVal) {
+                    if (newVal === "分区") {
+                        this.showList = HomePageLayoutVue.getVideo_zoneList();
+                        this.isChannelSelect = false;
+                        this.showListSelect = LocalData.getVideo_zone();
+                    } else {
+                        this.showList = HomePageLayoutVue.getChannel_idList();
+                        this.isChannelSelect = true;
+                        this.showListSelect = frequencyChannel.getChannel_id();
+                        this.sort_typeSelect = frequencyChannel.getSort_type();
+                    }
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+const RuleCenterLayoutVue = {
+    httpGetList() {
+        return new Promise((resolve, reject) => {
+            const data = {
+                code: -1,
+                message: "未能成功响应"
+            };
+            //TODO 后续对下面代码进行调整
+            $.ajax({
+                type: "GET",
+                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                data: {
+                    model: "ruleCenter"
+                },
+                dataType: "json",
+                success(body) {
+                    const message = body["message"];
+                    const code = body["code"];
+                    data.message = message;
+                    data.code = code;
+                    if (code !== 1) {
+                        reject(data);
+                        return;
+                    }
+                    const tempDataList = [];
+                    for (const v of body["list"]) {
+                        const name = v["userName"];
+                        const time = v["rule"]["time"];
+                        const ruleList = v["rule"]["ruleRes"];
+                        tempDataList.push({name: name, time: time, ruleList: ruleList});
+                    }
+                    data["dataList"] = tempDataList;
+                    data["body"] = body;
+                    resolve(data);
+                }, error(xhr, status, error) { //请求失败的回调函数
+                    data["xhr"] = xhr;
+                    data["status"] = status;
+                    data["error"] = error;
+                    reject(data);
+                }
+            });
+        })
+    },
+    returnVue() {
+        const vue = new Vue({
+            el: "#ruleCenterLayout",
+            data: {
+                list: [],
+                isReloadListButShow: false,
+            },
+            methods: {
+                reloadListBut() {
+                    const loading = Qmsg.loading("正在重新加载，请稍等...");
+                    this.isReloadListButShow = false;
+                    const promise = RuleCenterLayoutVue.httpGetList();
+                    promise.then(dataBody => {
+                        Qmsg.success(dataBody.message);
+                        this.list = dataBody.dataList;
+                        this.isReloadListButShow = true;
+                    }).catch(reason => {
+                        this.isReloadListButShow = true;
+                        debugger;
+                        console.log(reason);
+                    }).finally(() => {
+                        loading.close();
+                    });
+                }
+            }
+        });
+        return function () {
+            return vue;
+        }
     }
 }
 //匹配数组元素
@@ -1972,63 +3927,232 @@ const Matching = {
     }
 }
 const UrleCrud = {//规则的增删改查
+    addShow(ruleType, ruleName, content = null) {
+        if (content === null) {
+            content = prompt(`要添加的类型为${ruleName}，请在输入框中填写要添加的具体值规则.`);
+            if (content === null) return false;
+            content = content.trim();
+            if (content === "") {
+                Qmsg.error("请输入正确的内容！");
+                return false;
+            }
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(content)) {
+                Qmsg.error(`输入的内容不是一个数字！value=${content}`);
+                return false;
+            }
+            content = parseInt(content);
+        }
+        if (!confirm(`是要添加的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
+            return false;
+        }
+        let ruleDataList = Util.getData(ruleType, []);
+        return this.add(ruleDataList, content, ruleType);
+    },
+    addAllShow(ruleType, ruleName, jsonStrContent) {
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            alert("暂不支持uid和白名单uid批量添加");
+            return false;
+        }
+        let json;
+        if (typeof jsonStrContent !== "string") {
+            return false;
+        }
+        jsonStrContent = jsonStrContent.trim();
+        try {
+            json = JSON.parse(jsonStrContent);
+        } catch (e) {
+            Qmsg.error(`内容不正确！内容需要数组或者json格式！错误信息=${e}`);
+            console.error("内容不正确！内容需要数组或者json格式！错误信息", e);
+            return false;
+        }
+        const ruleList = Util.getData(ruleType, []);
+        return this.addAll(ruleList, json, ruleType);
+    },
     /**
      * 单个元素进行添加
      * @param {Array} arr
      * @param {String,number} key
-     * @param {String} ruleStrName
+     * @param {String} ruleType
      */
-    add(arr, key, ruleStrName) {
+    add(arr, key, ruleType) {
+        if (arr.includes(key)) return false;
         arr.push(key);
-        Util.setData(ruleStrName, arr);
-        Qmsg.success(`添加${ruleStrName}的值成功=${key}`);
-        Rule.ruleLength();
+        Util.setData(ruleType, arr);
+        Qmsg.success(`添加${ruleType}的值成功=${key}`);
+        ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
     },
     /**
      * 批量添加，要求以数组形式
-     * @param {Array} arr
-     * @param {Array} key
-     * @param ruleStrName
+     * @param {Array} ruleList
+     * @param {Array} contentList
+     * @param ruleType
      */
-    addAll(arr, key, ruleStrName) {
+    addAll(ruleList, contentList, ruleType) {
         let tempLenSize = 0;
-        const set = new Set();
-        for (let v of key) {
-            if (arr.includes(v)) {
-                continue;
-            }
-            tempLenSize++;
-            arr.push(v);
-            set.add(v);
+        const set = new Set(ruleList);
+        for (const value of set) {
+            set.add(value);
         }
-
-        if (tempLenSize === 0) {
+        if (set.size === ruleList.length) {
             Print.ln("内容长度无变化，可能是已经有了的值")
-            return;
+            return false;
         }
-        Util.setData(ruleStrName, arr);
-        Print.ln(`已添加个数${tempLenSize}，新内容为【${JSON.stringify(Array.from(set))}】`)
-        Rule.ruleLength();
+        const fromList = Array.from(set);
+        Util.setData(ruleType, fromList);
+        console.log(`已更新${ruleType}的数组`, fromList);
+        ruleCRUDLlayoutVue().updateRuleIndex();
+        return true;
     },
     /**
      *
-     * @param arr
-     * @param key
-     * @param ruleStrName
+     * @param ruleList
+     * @param content
+     * @param ruleType
      * @return {boolean}
      */
-    del(arr, key, ruleStrName) {
-        const index = arr.indexOf(key);
+    del(ruleList, content, ruleType) {
+        const index = ruleList.indexOf(content);
         if (index === -1) {
-            Print.ln("未有该元素！")
             return false;
         }
-        arr.splice(index, 1);
-        Util.setData(ruleStrName, arr);
-        Print.ln("已经删除该元素=" + key);
-        Rule.ruleLength();
+        ruleList.splice(index, 1);
+        Util.setData(ruleType, ruleList);
+        Print.ln("已经删除该元素=" + content);
+        ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
+    },
+    delShow(ruleType, ruleName, content = null) {
+        if (content === null) {
+            content = prompt(`要删除的类型为${ruleName}，请在输入框中填写要添加的具体值规则.`);
+            if (content === null) return false;
+            content = content.trim();
+            if (content === "") {
+                Qmsg.error("请输入正确的内容！");
+                return false;
+            }
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(content)) {
+                Qmsg.error(`输入的内容不是一个数字！value=${content}`);
+                return false;
+            }
+            content = parseInt(content);
+        }
+        if (!confirm(`是要删除的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
+            return false;
+        }
+        let ruleDataList = Util.getData(ruleType, []);
+        const isDel = this.del(ruleDataList, content, ruleType);
+        if (isDel) {
+            Qmsg.success(`删除指定规则内容成功！content=${content}`);
+        } else {
+            Qmsg.error(`删除失败，未找到该规则！content=${content}`);
+        }
+        return isDel;
+    },
+    delItem(ruleType) {
+        if (!Util.isData(ruleType)) {
+            return false;
+        }
+        Util.delData(ruleType)
+        return true;
+    },
+    delItemShow(ruleType, ruleName) {
+        if (!confirm(`是要删除指定项目${ruleName}的规则吗？`)) {
+            return;
+        }
+        if (this.delItem(ruleType)) {
+            Qmsg.success(`已删除${ruleName}的规则内容！`);
+        } else {
+            Qmsg.error(`删除失败！可能是不存在指定项目${ruleName}的规则内容！`);
+        }
+        ruleCRUDLlayoutVue().updateRuleIndex();
+    },
+    /**
+     *根据数组中的每一项rule名，删除对应存储在油猴脚本中的数据
+     * @param ruleStrNameArr{Array} 删除成功之后的个数，和对应的rule名
+     */
+    delALl(ruleStrNameArr) {
+        const info = {index: 0, ruleNameArr: []};
+        for (let rule of ruleStrNameArr) {
+            if (!Util.isData(rule)) {
+                continue;
+            }
+            if (Util.delData(rule)) {
+                info.index++;
+                info.ruleNameArr.push(rule);
+            }
+        }
+        return info;
+    },
+    findKey(ruleType, key, defaultValue = undefined) {
+        if (!Util.isData(ruleType)) {
+            return false;
+        }
+        return Util.getData(ruleType, defaultValue).includes(key);
+    },
+    findKeyShow(ruleType, ruleName, key = null) {
+        if (key === null) {
+            key = prompt(`输入要查询${ruleName}的具体规则值`);
+            if (key === null) return;
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(key)) {
+                Qmsg.error(`输入的内容不是一个数字！value=${key}`);
+                return false;
+            }
+            key = parseInt(key);
+        }
+        let tip;
+        if (this.findKey(ruleType, key, [])) {
+            tip = `搜索的${ruleName}规则值已存在！find=${key}`;
+            Qmsg.success(tip);
+            console.log(tip, key);
+            Print.ln(tip);
+            return;
+        }
+        tip = `搜索的${ruleName}规则值不存在！find=${key}`;
+        Qmsg.error(tip);
+        console.log(tip, key);
+        Print.ln(tip);
+    },
+    setKey(ruleType, oldValue, newValue) {
+        if (oldValue === newValue) return false;
+        if (oldValue === '' || oldValue.includes(" ") || newValue === "" || newValue.includes(" ")) return false;
+        const ruleList = Util.getData(ruleType, []);
+        if (ruleList.length === 0) return false;
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
+            if (isNaN(oldValue) || isNaN(newValue)) {
+                return false;
+            }
+            oldValue = parseInt(oldValue);
+            newValue = parseInt(newValue);
+        }
+        const indexOf = ruleList.indexOf(oldValue);
+        if (indexOf === -1) return false;
+        ruleList.splice(indexOf, 1, newValue);
+        Util.setData(ruleType, ruleList);
+        return true;
+    },
+    setKeyShow(ruleType, ruleName, oldValue = null, newValue = null) {
+        if (oldValue === null || newValue || null) {
+            const data = {};
+            let oldVal = prompt(`请输入要修改${ruleName}规则的值`);
+            if (oldVal === null) return;
+            if (!confirm(`是要对${ruleName}规则中的${oldVal}值进行修改更换吗？`)) return;
+            const newVal = prompt(`请输入要修改${ruleName}规则的中${oldVal}之后的值`);
+            if (newVal === "取消了操作.") return;
+            oldValue = oldVal;
+            newValue = newVal;
+        }
+        if (this.setKey(ruleType, oldValue, newValue)) {
+            Qmsg.success(`修改${ruleName}规则成功！,已将 ${oldValue} 修改成 ${newValue}的值！`);
+            return;
+        }
+        Qmsg.error(`修改${ruleName}规则失败！`);
     }
 
 }
@@ -2054,7 +4178,7 @@ async function perf_observer() {
              * 视频播放页和www.bilibili.com/opus动态页下的评论
              * 需要注意的是，www.bilibili.com/opus这地址，可以从动态页中的，直接点击动态内容跳转的地址
              */
-            if (windowUrl.includes("https://www.bilibili.com/video") && LocalData.getHideVideoButtonCommentSections()) {
+            if (windowUrl.includes("https://www.bilibili.com/video") && LocalData.video.isHideVideoButtonCommentSections()) {
                 continue;
             }
             console.log("视频api");
@@ -2174,10 +4298,13 @@ async function perf_observer() {
             }
             continue;
         }
-        if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?")) {//搜索界面
+        if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?") || url.includes("api.bilibili.com/x/web-interface/wbi/search/all/v2")) {//搜索界面
+
             if (windowUrl.includes("search.bilibili.com/video") || windowUrl.includes("search.bilibili.com/all")) {
                 Search.video.searchRules();
-                continue;
+            }
+            if (windowUrl.includes("search.bilibili.com/all")) {
+                Search.blockUserCard();
             }
             Qmsg.info("检测到搜索的接口");
             //search.searchRules();
@@ -2203,7 +4330,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
     const loading = Qmsg.loading("请稍等...");
     $.ajax({
         type: "POST",
-        url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
+        url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
         data: {
             model: "setShare",
             userName: userName,
@@ -2268,9 +4395,9 @@ const AccountCenter = {//账号中心
                 return;
             }
             const loading = Qmsg.loading("正在登录中...");
-            HttpUtil.get(`https://vip.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`, (res) => {
-                loading.close();
-                const body = JSON.parse(res.responseText);
+            const promise = HttpUtil.get(`http://api.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`);
+            promise.then(res => {
+                const body = res.bodyJson;
                 const code = body["code"];
                 const message = body["message"];
                 if (code !== 1) {
@@ -2282,11 +4409,11 @@ const AccountCenter = {//账号中心
                 Qmsg.success("登录成功！");
                 $("#accountCenterLayout>*").remove();
                 this.haveLanded();
-            }, (err) => {
+            }).catch((error) => {
+                console.log(error);
+            }).finally(() => {
                 loading.close();
-                console.log(err)
             });
-
         });
     },
     haveLanded() {//已登录
@@ -2313,7 +4440,7 @@ const AccountCenter = {//账号中心
     <hr>
     <div style="display: flex;justify-content: center;">
      <button>
-     <a href="https://vip.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+     <a href="http://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
      </button>
         <button id="exitSignBut">退出登录</button>
     </div>
@@ -2551,67 +4678,139 @@ const Live = {
             });
         }
     },
-    followListLive(sessdata) {
-        const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(0)");
-        HttpUtil.getUsersFollowTheLiveList(sessdata, Trends.data.concernPage++, (res) => {
-            const body = JSON.parse(res.responseText);
-            const code = body["code"];
-            const message = body["message"];
-            if (code !== 0) {
-                const info = "获取当前用户正在直播的用户错误！" + message;
-                Qmsg.error(info);
-                console.log(info);
-                return;
-            }
-            /**
-             *
-             * @type {Array}
-             */
-            const list = body["data"]["list"];
-            if (list === undefined || list === null || list.length === 0) {
-                const info = "未获取到当前用户关注的直播用户列表信息";
-                Qmsg.info(info);
-                console.log(info);
-                return;
-            }
-            for (let v of list) {
+    getFollowDataList(sessdata, page = 1) {
+        const followDataList = [];
+        return new Promise((resolve, reject) => {
+            const promise = HttpUtil.getUsersFollowTheLiveList(sessdata, page);
+            promise.then(res => {
+                const body = JSON.parse(res.body);
+                const code = body["code"];
+                const message = body["message"];
+                if (code !== 0) {
+                    const info = "获取当前用户正在直播的用户错误！" + message;
+                    Qmsg.error(info);
+                    console.log(info);
+                    return;
+                }
                 /**
-                 *直播状态
-                 * 0：未开播
-                 * 1：直播中
-                 * 2：轮播中
+                 *
+                 * @type {Array}
                  */
-                const live_status = v["live_status"];
-                if (live_status === 0) {
-                    Trends.data.concernBool = true;
-                    break;
+                const list = body["data"]["list"];
+                if (list === undefined || list === null || list.length === 0) {
+                    const info = "未获取到当前用户关注的直播用户列表信息";
+                    Qmsg.info(info);
+                    console.log(info);
+                    return;
                 }
-                if (live_status !== 1) {
-                    continue;
+                let live_status = -1;
+                for (let v of list) {
+                    /**
+                     *直播状态
+                     * 0：未开播
+                     * 1：直播中
+                     * 2：轮播中
+                     */
+                    live_status = v["live_status"];
+                    if (live_status === 0) {//结束，说明后面的都是未开播的item
+                        break;
+                    }
+                    if (live_status !== 1) {//不等于1的，也就是除直播之外的都跳过本轮循环
+                        continue;
+                    }
+                    followDataList.push(new LiveRoom()
+                        .setUpName(v["uname"])
+                        .setUid(v["uid"])
+                        .setTitle(v["title"])
+                        .setRoomId(v["roomid"])
+                        .setFace(v["face"]));
                 }
-                const roomid = v["roomid"];
-                const uid = v["uid"];
-                const uname = v["uname"];
-                const title = v["title"];
-                const face = v["face"];
-                const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
-                tempE.append(liveItem);
-            }
-            const tempIndex = tempE.children().length;
-            if (tempIndex === 0) {
-                Qmsg.info("未获取到关注中正在直播的用户");
-                return;
-            }
-            if (!Trends.data.concernBool) {
-                Live.followListLive(sessdata);
-                return;
-            }
-            $("#liveLayout .bili-dyn-live-users__title>span:eq(0)").text(`${tempIndex}`);
-            Qmsg.success(`已获取到${tempIndex}个直播间`);
-        }, (err) => {
-            Qmsg.error("出现错误");
-            Qmsg.error(err);
+                resolve({live_status: live_status, dataList: followDataList});
+            }).catch(err => {
+                reject(err);
+                Qmsg.error("出现错误");
+                Qmsg.error(err);
+            });
         });
+
+    },
+    async loadAddAllFollowDataList(dataList, sessdata) {
+        let page = 1;
+        do {
+            const data = await this.getFollowDataList(sessdata, page);
+            page++;
+            const liveStatus = data.live_status;
+            if (liveStatus === 1) {
+                Util.mergeArrays(dataList, data.dataList);
+                await Util.Thread.sleep(500);
+                Qmsg.success(`正在获取关注列表中正在直播列表`);
+                continue;
+            }
+            if (liveStatus === 0 || liveStatus === -1) {
+                Util.mergeArrays(dataList, data.dataList);
+                break;
+            }
+        } while (true);
+        Qmsg.success(`已获取完成！`);
+        return Promise.resolve();
+    },
+    getOthersAreWorkingLiveDataList(parent_id, id, page = 1) {//获取其他正在直播中的直播列表
+        const tempList = [];
+        const data = {
+            //已经没有内容时设置为true
+            partitionBool: false,
+            dataList: tempList
+        };
+        return new Promise((resolve, reject) => {
+            const promise = HttpUtil.getLiveList(parent_id, id, page, "");
+            promise.then(res => {
+                const body = res.bodyJson;
+                const code = body["code"];
+                const message = body["message"];
+                data.message = message;
+                data.code = code;
+                if (code !== 0) {
+                    data["info"] = "获取直播分区信息错误！" + message;
+                    reject(data);
+                    return;
+                }
+                const list = body["data"]["list"];
+                for (let v of list) {
+                    const roomid = v["roomid"];
+                    const title = v["title"];
+                    const uname = v["uname"];
+                    const uid = v["uid"];
+                    if (Matching.arrKey(LocalData.getArrUID(), uid)) {
+                        const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
+                        Print.ln(tempInfo);
+                        Qmsg.success(tempInfo);
+                        continue;
+                    }
+                    const face = v["face"];
+                    const cover = v["cover"];//封面
+                    const system_cover = v["system_cover"];//关键帧
+                    const parent_name = v["parent_name"];//父级分区
+                    const area_name = v["area_name"];//子级分区
+                    tempList.push(new LiveRoom()
+                        .setUpName(uname)
+                        .setUid(uid)
+                        .setFace(face)
+                        .setTitle(title)
+                        .setRoomId(roomid)
+                        .setFrontCover(cover)
+                        .setVideoFrame(system_cover)
+                    )
+                }
+                if (list.length < 20) {
+                    data.partitionBool = true;
+                }
+                resolve(data);//因一次加载最多20个，小于说明后面没有开播用户了,当小于时可以考虑加入隐藏加载更多，反之显示
+            }).catch(err => {
+                data.errorText = "错误信息" + err;
+                data.err = err;
+                reject(data);
+            });
+        })
     },
     //直播间
     liveDel: {
@@ -2873,54 +5072,11 @@ const Live = {
 //动态
 const Trends = {
     data: {
-        /**
-         * 关注用户直播列表页数
-         */
-        concernPage: 1,
-        /**
-         * 关注用户直播-是否获取完列表item
-         */
-        concernBool: false,
-        partition: {},
-        /**
-         * 分区列表页数
-         */
-        getPartitionPage(key) {
-            const data = this.partition[key + "Page"];
-            if (data == undefined || data == null) {
-                return 1;
-            }
-            return data;
-        },
-        /**
-         * 分区列表页数
-         */
-        setPartitionPage(key, value) {
-            this.partition[key + "Page"] = value;
-        },
-        /**
-         * 分区用户直播-是否获取完列表item
-         */
-        setPartitionBool(key, value) {
-            this.partition[key + "Bool"] = value;
-        }, /**
-         * 分区用户直播-是否获取完列表item
-         */
-        getPartitionBool(key) {
-            const data = this.partition[key + "Bool"];
-            if (data == undefined || data == null || data === false) {
-                return false;
-            }
-            return true;
-        },
-        partitionPage: 1,
-        partitionBool: false,
-        partitionEndTypeLiveName: "",
         setTrendsItemsTwoColumnCheackbox(bool) {
             Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
         },
         getTrendsItemsTwoColumnCheackbox() {
-            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox"));
+            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox", false));
         },
     }, topCssDisply: {
         //针对于整体布局的细调整
@@ -3018,6 +5174,23 @@ const Trends = {
             page-break-inside: avoid;
             }
             `);
+        },
+        tabUserItems(jqE) {//调整切换用户展示动态的按钮列表样式
+            let index = 0;
+            jqE.css("display", "flex");
+            jqE.css("flex-flow", "row wrap");
+            const interval = setInterval(() => {
+                if (index === 5) {
+                    clearInterval(interval);
+                    Qmsg.info("结束定时器");
+                }
+                if (jqE.css("flex-flow") === "row wrap") {
+                    index++;
+                    return;
+                }
+                jqE.css("display", "flex");
+                jqE.css("flex-flow", "row wrap");
+            }, 2500);
         }
     },
     getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
@@ -3099,16 +5272,21 @@ const Space = {
     fav: {
         getFavName() {//获取收藏选项卡中对应展示的收藏夹名
             let favName = document.querySelector(".favInfo-details>.fav-name");
-            if (favName !== null) {
-                return favName.textContent.trim();
-            }
+            if (favName !== null) return favName.textContent.trim();
             favName = document.querySelector(".collection-details .title-name");
-            if (favName !== null) {
-                return favName.textContent.trim();
-            }
+            if (favName !== null) return favName.textContent.trim();
             return "未知收藏夹";
-        }
-        ,
+        },
+        getFavID() {//获取收藏夹选项卡中展示的收藏夹id
+            const element = $(".fav-item.cur a");
+            let id = element.attr("href");
+            return Util.getUrlParam(id, "fid");
+        },
+        getFavtype() {//获取左侧收藏夹选中的的类型
+            const urlParam = Util.getUrlParam($(".fav-item.cur a").attr("href"), "ftype");
+            if (urlParam === null) return null;
+            return urlParam;
+        },
         getAuthorName() {//获取收藏选项卡中对应展示的创建收藏夹的作者
             let favUpName = document.querySelector(".favInfo-details .fav-up-name");
             if (favUpName !== null) {
@@ -3142,8 +5320,7 @@ const Space = {
                 dataList.push(data);
             });
             return dataList;
-        }
-        ,
+        },
         getAllDataList() {
             let list = [];
             return new Promise(resolve => {
@@ -3159,6 +5336,79 @@ const Space = {
                     nextPageBut.click();
                 }, 2000);
             });
+        },
+        getHttpDataList(url) {
+            const dataList = [];
+            return new Promise((resolve, reject) => {
+                const promise = HttpUtil.get(url);
+                promise.then(res => {
+                    const json = res.bodyJson;
+                    const mediasArr = json["data"]["medias"];
+                    for (let value of mediasArr) {
+                        const data = {};
+                        const upInfo = value["upper"];
+                        data["作者名"] = upInfo["name"];
+                        data["uid"] = upInfo["mid"];
+                        data["头像"] = upInfo["face"];
+                        data["标题"] = value["title"];
+                        data["封面"] = value["cover"];
+                        data["AV号"] = value["id"];
+                        data["BV号"] = value["bvid"];
+                        data["弹幕量"] = value["cnt_info"]["danmaku"];
+                        data["播放量"] = value["cnt_info"]["play"];
+                        data["收藏量"] = value["cnt_info"]["collect"];
+                        data["投稿时间"] = value["ctime"];
+                        data["收藏于何时"] = value["fav_time"];
+                        dataList.push(data);
+                    }
+                    const hasMore = json["data"]["has_more"];
+                    resolve({state: true, hasMore: hasMore, dataList: dataList});
+                }).catch(error => {
+                    reject({state: false, error: error});
+                });
+            });
+        },
+        /**
+         * 请求自己或他人所建的收藏夹指定页数的列表内容
+         * 该api最大只能获取20个收藏夹内容
+         * 详情参数可查询<a href="https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/fav/list.md">api信息</a>
+         * @param {string}id 收藏夹id
+         * @param page
+         * @return {Promise<unknown>}
+         */
+        getHttpUserCreationDataList(id, page = 1) {
+            return this.getHttpDataList(`https://api.bilibili.com/x/v3/fav/resource/list?media_id=${id}&pn=${page}&ps=20`);
+        },
+        /**
+         * 请求自己或他人所建的收藏夹中指定收藏夹所有item
+         */
+        async getHttpUserCreationAllDataList(id) {
+            let page = 1;
+            const datalist = [];
+
+            async function f() {
+                const data = await this.getHttpUserCreationDataList(id, page);
+                if (!data["state"]) {
+                    return false;
+                }
+                if (!data["hasMore"]) {
+                    return false;
+                }
+                Util.mergeArrays(datalist, data["dataList"]);
+                f();
+            }
+
+            await f();
+            return datalist;
+        },
+        /**
+         *
+         * 请求他人或者自己收藏了他人指定收藏夹列表中所有项目
+         * @param id 收藏夹id
+         * @return {Promise<unknown>}
+         */
+        getHttpCollectOthersDataAllList(id) {
+            return this.getHttpDataList(`https://api.bilibili.com/x/space/fav/season/list?season_id=${id}`);
         }
     },
     followAndFans: {
@@ -3178,12 +5428,13 @@ const Space = {
                     desc = desc.getAttribute("title");
                 }
                 data["desc"] = desc;
-                const uid = /space\.bilibili\.com\/(\d+?)\//.exec(userAddress);
+                let uid = /space\.bilibili\.com\/(\d+?)\//.exec(userAddress);
                 if (uid && uid[1]) {
-                    data["uid"] = uid[1];
+                    uid = uid[1];
                 } else {
-                    data["uid"] = userAddress;
+                    uid = userAddress;
                 }
+                data["uid"] = parseInt(uid);
                 data["fansActionType"] = fansActionText;
                 list.push(data);
             });
@@ -3768,7 +6019,7 @@ const DefVideo = {
         }
     },
     hideCommentArea() {//隐藏评论区
-        if (LocalData.getHideVideoButtonCommentSections()) {
+        if (LocalData.video.isHideVideoButtonCommentSections()) {
             const interval = setInterval(() => {
                 const jqE = $("#comment");
                 if (jqE.length === 0) {
@@ -3796,6 +6047,30 @@ const Search = {
     },
     getTabsItem() {//获取搜索页面当前选中的总选项卡
         return document.querySelector(".vui_tabs--nav.vui_tabs--nav-pl0>.vui_tabs--nav-item-active .vui_tabs--nav-text").textContent;
+    },
+    //TODO 后续需要防抖优化
+    /**
+     * 处理综合搜索页面展示对应用户是否匹配屏蔽规则执行屏蔽处理
+     */
+    blockUserCard() {
+        const interval = setInterval(() => {
+            const jqE = $(".user-list.search-all-list");
+            if (jqE.length === 0) return;
+            clearInterval(interval);
+            const userCrud = jqE.find('.user-name.cs_pointer.v_align_middle');
+            const userAddress = userCrud[0].href;
+            const userName = userCrud.text();
+            const userUid = Util.getSubWebUrlUid(userAddress);
+            if (Matching.arrKey(LocalData.getArrUID(), userUid)) {
+                jqE.remove();
+                Qmsg.success(`已通过黑名单uid规则屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
+                return;
+            }
+            const MA = Matching.arrContent(LocalData.getArrNameKey(), userName);
+            if (MA === null) return;
+            jqE.remove();
+            Qmsg.success(`已通过黑名单用户名模糊规则=【${MA}】 屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
+        }, 1000);
     },
     video: {
         getDataV(v) {
@@ -4239,29 +6514,207 @@ const GreatDemand = {//热门
         if (list.length === 0) {
             list = document.getElementsByClassName("_card_1kuml_6");
             for (let v of list) {
-                if (shieldVideo_userName_uid_title(new VideoClass().setE(v)
+                const data = new VideoClass().setE(v)
                     .setTitle(v.getElementsByClassName("title")[1].textContent)
                     .setUpName(v.getElementsByClassName("upName")[0].textContent)
-                    .setVideoTime(v.getElementsByClassName("time")[0].textContent))) {
+                    .setVideoTime(v.getElementsByClassName("time")[0].textContent);
+                console.log(data);
+                if (shieldVideo_userName_uid_title(data)) {
                     Qmsg.info("屏蔽了视频！！");
                 }
             }
             return;
         }
         for (let v of list) {
-            //页面暂时没法获取uid，可能是我的技术问题，至少暂时先这样
-            const data = {
-                e: v,
-                title: v.getElementsByClassName("video-name")[0].textContent,
-                upName: v.getElementsByClassName("up-name__text")[0].textContent,
-                "播放量": v.getElementsByClassName("play-text")[0].textContent.trim()
-            };
+            //TODO 页面暂时没法获取uid，后续留意
+            const data = new VideoClass().setE(v)
+                .setTitle(v.getElementsByClassName("video-name")[0].textContent)
+                .setUpName(v.getElementsByClassName("up-name__text")[0].textContent)
+                .setPlaybackVolume(v.getElementsByClassName("play-text")[0].textContent.trim());
             if (shieldVideo_userName_uid_title(data)) {
                 Qmsg.info("屏蔽了视频！！");
             }
         }
     }
 }
+Util.addGMMenu('设置锁屏密码', () => LockScreen.setPwdShow());
+Util.addGMMenu('重置锁屏密码', () => LockScreen.resetPwdShow());
+Util.addGMMenu('设置加锁时间', () => LockScreen.setScreenLockTimeShow());
+
+Util.addGMMenu("手动锁屏", () => LockScreen.manualLockScreen());
+
+Util.addGMMenu('开关锁屏功能', () => LockScreen.ioLLockScreenShow());
+Util.addGMMenu('查询锁屏时间', () => LockScreen.lookScreenLockTime());
+
+Util.addGMMenu('禁用脚本快捷键', () => {
+    const input = prompt(`当前脚快捷键状态为：${LocalData.isEnableShortcutKeys() ? "启用" : "禁用"}\n输入1为启用，输入0为禁用`);
+    if (input === null) return;
+    const is = {0: false, 1: true};
+    if (is[input] === undefined) {
+        Qmsg.error(`输入了意外的内容！`);
+        return;
+    }
+    LocalData.setEnableShortcutKeys(is[input]);
+    Qmsg.success(`已设置快捷键状态为：${is[input] ? "启用" : "禁用"}`);
+});
+
+const LockScreen = {
+    screen: LocalData.LockScreen,
+    verifyPwd() {//验证锁屏密码流程
+        const pwd = this.screen.getPwd();
+        if (pwd === null) {
+            return true;
+        }
+        const input = prompt("您需要输入锁屏密码来验证身份")
+        if (input === null) return null;
+        return input === pwd;
+
+    },
+    setPwdShow(isVerifyPod = true) {//设置锁屏密码流程
+        if (isVerifyPod) {
+            const verifyPwd = this.verifyPwd();
+            if (verifyPwd === null) return;
+            if (!verifyPwd) {
+                Qmsg.error("验证失败！");
+                return;
+            }
+        }
+        const oldPwd = this.screen.getPwd();
+        let newPwd = prompt("请输入新的锁屏密码作为锁屏密码");
+        if (newPwd === null) return;
+        newPwd = newPwd.trim();
+        if (newPwd === oldPwd) {
+            alert("旧锁屏密码不能和新密码相同！");
+            return;
+        }
+        this.screen.setPwd(newPwd);
+        const tip = `设置成功！，您当前的锁屏密码为${newPwd}`;
+        Qmsg.success(tip);
+        Print.ln(tip);
+        alert(tip);
+    },
+    resetPwdShow() {//重置锁屏密码流程
+        const verifyPwd = this.verifyPwd();
+        if (verifyPwd === null) return;
+        if (!verifyPwd) {
+            Qmsg.error("验证失败！");
+            return;
+        }
+        this.setPwdShow(false);
+    },
+    ioLLockScreenShow() {//设置锁屏的开关
+        const pwd = this.screen.getPwd();
+        if (pwd === null) {
+            if (!confirm("请先设置锁屏密码先，点击确定设置锁屏密码，取消则取消")) {
+                return;
+            }
+            this.setPwdShow();
+            return;
+        }
+        const verifyPwd = this.verifyPwd();
+        if (verifyPwd === null) return;
+        if (verifyPwd === false) {
+            Qmsg.error("验证失败！");
+            return;
+        }
+        const s = prompt(`输入1为开启，0为关闭，当前为${this.screen.getState() ? "开启" : "关闭"}状态`);
+        if (s === null) return;
+        let boo = null;
+        if (s === "1") {
+            boo = true;
+        }
+        if (s === "0") {
+            boo = false;
+        }
+        if (boo === null) {
+            Qmsg.error("输入错误，请按照格式正确输入！");
+            return;
+        }
+        const state = this.screen.getState();
+        if (state === boo) {
+            alert("相同状态无需设置！");
+            return;
+        }
+        this.screen.setState(boo);
+        const tip = `已设置锁屏开关状态，当前为${boo ? "开启" : "关闭"}状态`;
+        Qmsg.success(tip);
+        Print.ln(tip);
+        alert(tip);
+    },
+    isLockScreen() {
+        if (!this.screen.getState()) {
+            Qmsg.info("未开启锁屏功能");
+            return;
+        }
+        Qmsg.info("开启锁屏功能");
+        const nowTime = Date.now();
+        const screen = this.screen;
+        const intervalTime = screen.getIntervalTime();//锁屏间隔时间戳
+        const tLastTimestamp = screen.getTLastTimestamp();//最后记录的解锁的时间戳
+        const toTLastTimestamp = Util.timestampToTime(tLastTimestamp);
+        if (nowTime - tLastTimestamp < intervalTime) {//当剩下的时间戳小于锁屏间隔时间戳时不锁屏操作，反之进行锁屏
+            return;
+        }
+        const pwd = screen.getPwd();
+        const interval = setInterval(() => {
+            const inputPwd = prompt("锁屏中，请输入锁屏密码进行解锁操作，解锁之后正常访问页面内容");
+            if (inputPwd === null) {
+                return;
+            }
+            if (inputPwd !== pwd) {
+                alert("密码验证失败！");
+                return;
+            }
+            clearInterval(interval);
+            screen.setTLastTimestamp(Date.now());
+            Qmsg.success("已解锁成功！");
+        }, 25);
+
+    },
+    setScreenLockTimeShow() {
+        const verifyPwd = this.verifyPwd();
+        if (verifyPwd === null) return;
+        let time = prompt(`请输入间隔时间戳？
+需使用毫秒为单位的时间戳，如果您需要指定间隔时间，比如下面的一天时间则为86400000，一天之后才会触发自动锁屏，以下仅供参考
+一天的时间戳是 86,400,000 毫秒（24小时 × 60分钟 × 60秒 × 1000毫秒）。
+一小时的时间戳是 3,600,000 毫秒（60分钟 × 60秒 × 1000毫秒）。
+一分钟的时间戳是 60,000 毫秒（60秒 × 1000毫秒）。
+        `);
+        if (time === null) return;
+        time = time.trim();
+        if (isNaN(time)) {
+            Qmsg.error("请填写数字！");
+            return;
+        }
+        time = parseInt(time);
+        if (time < 60000 * 5) {//判断是否小于5分钟
+            Qmsg.error("设置的时间不可小于5分钟！");
+            return;
+        }
+        this.screen.setIntervalTime(time);
+        const tip = `已成功设置间隔时间戳为${time}，单位毫秒，当下次访问超出该时间时会对页面进行锁屏操作，用户需要输入锁屏密码通过之后才可以正常访问页面，且成功之后以当时的时间重新开始统计`;
+        Qmsg.success(tip);
+        alert(tip);
+    },
+    manualLockScreen() {//手动锁屏
+        this.screen.setTLastTimestamp(-1);
+        this.isLockScreen();
+    },
+    lookScreenLockTime() {
+        const lastTimestamp = this.screen.getTLastTimestamp();
+        const intervalTime = this.screen.getIntervalTime();
+        alert(`最后锁屏解锁时间${Util.timestampToTime(lastTimestamp)}
+锁屏间隔时间戳：${intervalTime}
+        
+毫秒为单位的时间戳数值参考：
+一天的时间戳是 86,400,000 毫秒（24小时 × 60分钟 × 60秒 × 1000毫秒）。
+一小时的时间戳是 3,600,000 毫秒（60分钟 × 60秒 × 1000毫秒）。
+一分钟的时间戳是 60,000 毫秒（60秒 × 1000毫秒）。
+        `);
+    }
+
+}
+
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -4366,6 +6819,7 @@ async function bilibili(href) {
 
         if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
             Search.video.searchRules();
+            Search.blockUserCard();
             return;
         }
         return;
@@ -4382,15 +6836,22 @@ async function bilibili(href) {
         frequencyChannel.videoRules();
         frequencyChannel.delDevelop();
         frequencyChannel.cssStyle.backGauge();
-
+    }
+    if (href.includes("www.bilibili.com/v/channel/")) {
+        const interval = setInterval(() => {
+            const jqE = $(".slide-scroll");
+            if (jqE.length === 0) return;
+            clearInterval(interval);
+            jqE.css("flex-wrap", "wrap");
+            document.querySelector(".arrow-btn.arrow-btn--right").remove();
+            Qmsg.success("已调整页面顶部最近观看的频道列表展示效果");
+        }, 1000);
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         GreatDemand.delVideo();
         const interval = setInterval(() => {
             const jqE = $(".international-footer");
-            if (jqE.length === 0) {
-                return;
-            }
+            if (jqE.length === 0) return;
             clearInterval(interval);
             jqE.remove();
         }, 1000);
@@ -4467,46 +6928,41 @@ async function bilibili(href) {
  */
 async function bilibiliOne(href, windowsTitle) {
     const $body = $("body");
-    if (LocalData.getBWebNone()) {
-        Qmsg.success("已执行不可见模式！");
-        $body.append(`<div style="position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: black;z-index: 2022"></div>`);
-        return;
-    }
     const interval01 = setInterval(() => {
         const nav_search_input = $(".nav-search-input,.search-input-el");
-        if (nav_search_input.length === 0) {
-            return;
-        }
+        if (nav_search_input.length === 0) return;
         clearInterval(interval01);
+        const arrContent = Matching.arrContent(LocalData.getArrTitle(), nav_search_input.attr("placeholder"));
+        if (arrContent !== null) {
+            const title = nav_search_input.attr("title");
+            nav_search_input.attr("placeholder", "");
+            nav_search_input.attr("title", "");
+            Qmsg.info(`已通过标题关键词 ${arrContent} 过滤顶部搜索框显示的内容=${title}`);
+        }
         nav_search_input.click(() => {
-            console.log("点击了");
+            console.log("点击了顶部搜索框");
             const interval01 = setInterval(() => {
                 const list = document.querySelectorAll(".trendings-double .trending-item");
-                if (list.length === 0) {
-                    return;
-                }
+                if (list.length === 0) return;
                 clearInterval(interval01);
                 list.forEach((value, key, parent) => {
                     const content = value.querySelector(".trending-text").textContent;
                     const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
-                        const info = `已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`;
-                        Qmsg.info(info);
-                        Print.ln(info);
+                        Qmsg.info("规则屏蔽了相关热搜");
+                        Print.ln(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
-                        const info = `已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`;
-                        Qmsg.info(info);
-                        Print.ln(info);
+                        Qmsg.info("规则屏蔽了相关热搜");
+                        Print.ln(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
-                        const info = `已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`;
-                        Qmsg.info(info);
-                        Print.ln(info);
+                        Qmsg.info("规则屏蔽了相关热搜");
+                        Print.ln(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
                     }
                 });
                 // nav_search_input.unbind();//删除该元素的所有jq添加的事件
@@ -4525,11 +6981,32 @@ async function bilibiliOne(href, windowsTitle) {
 
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
+        const interval03 = setInterval(() => {
+            const jqE = $(".channel-icons");
+            if (jqE.length === 0) {
+                return;
+            }
+            clearInterval(interval03);
+            const jqELast = jqE.children().eq(-1);
+            const jqEa = jqELast.clone();
+            jqEa.attr("href", "https://www.bilibili.com/v/channel");
+            jqEa.find(".icon-title").text("频道");
+            jqEa.find(".icon-bg.icon-bg__popular").html(`<img src="https://img1.imgtp.com/2023/09/18/tR1X1XpA.png" alt="频道">`);
+            jqE.append(jqEa);
+        }, 1000);
+        const interval04 = setInterval(() => {
+            const jqE = $(".header-channel");
+            if (jqE.length === 0) {
+                return;
+            }
+            clearInterval(interval04);
+            jqE.remove();
+            Qmsg.info("已移除页面下滑时，显示顶部的部分导航信息");
+        }, 1000);
         if (!LocalData.getIsMainVideoList()) {
             Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
                 Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
             }); //换一换
-
             return;
         }
 
@@ -4556,11 +7033,11 @@ async function bilibiliOne(href, windowsTitle) {
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
             const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
             const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`, function (res) {
-                const body = JSON.parse(res.responseText);//频道页一次最多加载30条数据
+            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`);
+            promise.then(res => {
+                const body = res.bodyJson;//频道页一次最多加载30条数据
                 if (body["code"] !== 0) {
                     alert("未获取到频道视频数据");
-                    loading.close();
                     return;
                 }
                 const bodyList = body["data"]["list"];
@@ -4572,6 +7049,7 @@ async function bilibiliOne(href, windowsTitle) {
                     ergodicList(bodyList);
                 }
                 frequencyChannel.setOffset(tempChannelId, tempSortType, body["data"]["offset"]);
+            }).finally(() => {
                 loading.close();
             });
         };
@@ -4633,8 +7111,9 @@ async function bilibiliOne(href, windowsTitle) {
 
         function loadingVideoE(ps) {//加载分区视频数据
             const loading = Qmsg.loading("正在加载数据！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`, function (res) {
-                const bodyJson = JSON.parse(res.responseText);
+            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`);
+            promise.then(res => {
+                const bodyJson = res.bodyJson;
                 if (bodyJson["code"] !== 0) {
                     alert("未获取到视频数据！");
                     loading.close();
@@ -4662,6 +7141,7 @@ async function bilibiliOne(href, windowsTitle) {
                         Qmsg.info("过滤了视频！！");
                     }
                 }
+            }).finally(() => {
                 loading.close();
             });
         }
@@ -4736,10 +7216,10 @@ async function bilibiliOne(href, windowsTitle) {
         }
 
         filterQueue.click(() => {
-            butLayEvent.butaddName("userUIDArr", hrefUID);
+            UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", hrefUID);
         });
 
-        getDataListBut.click(() => {
+        getDataListBut.click(async () => {
             const tabName = Space.getTabName();
             let dataList, fileName;
             switch (tabName) {
@@ -4765,11 +7245,36 @@ async function bilibiliOne(href, windowsTitle) {
                     const fav = Space.fav;
                     const favName = fav.getFavName();
                     const authorName = fav.getAuthorName();
+                    const favID = fav.getFavID();
+                    const favtype = fav.getFavtype();
                     if (!confirm(`获取【${authorName}】用户【${favName}】收藏夹当前显示的内容，是要获取吗？`)) {
                         return;
                     }
-                    dataList = fav.getDataList();
+                    const input = prompt(`请选择获取的模式\n输入单个数字0为：页面自动化操作模式进行获取\n1为：网络请求模式获取，比页面自动化操作模式多3个结果参数（头像、uid、弹幕量）`);
+                    if (input === null) return;
                     fileName = `${authorName}的${favName}收藏夹列表`;
+                    if (input === "0") {
+                        dataList = fav.getDataList();
+                        break;
+                    }
+                    if (input === "1") {
+                        const loading = Qmsg.loading("正在获取中！");
+                        if (favtype === "collect") {//用户收藏其他用户收藏夹
+                            alert("暂不支持通过网络请求方式只获取当前页收藏夹列表，如需网络请求方式，请使用【获取收藏的列表数据】功能！或者使用【页面自动化操作模式】");
+                            loading.close();
+                            return;
+                        }
+                        const data = await fav.getHttpUserCreationDataList(favID)
+                        loading.close();
+                        if (!data["state"]) {
+                            Qmsg.error("获取失败!");
+                            return;
+                        }
+                        dataList = data["dataList"];
+                    } else {
+                        Qmsg.error("输入了意外的值！" + input);
+                        return;
+                    }
                     break;
                 case "订阅":
                     const tempTabsName = Space.subscribe.getTabsName();
@@ -4831,13 +7336,41 @@ async function bilibiliOne(href, windowsTitle) {
                     const fav = Space.fav;
                     const favName = fav.getFavName();
                     const authorName = fav.getAuthorName();
+                    const favID = fav.getFavID();
                     if (!confirm(`是要获取收藏夹创建者【${authorName}】用户【${favName}】的收藏夹所有的内容吗？`)) {
                         Space.isFetchingFollowersOrWatchlists = false;
                         loading.close();
                         return;
                     }
-                    dataList = await fav.getAllDataList();
+                    const input = prompt(`请选择获取的模式\n输入单个数字0为：页面自动化操作模式进行获取\n1为：网络请求模式获取，比页面自动化操作模式多3个结果参数（头像、uid、弹幕量）`);
+                    if (input === null) {
+                        loading.close();
+                        return;
+                    }
                     fileName = `${authorName}的${favName}收藏夹列表`;
+                    if (input === "0") {
+                        dataList = await fav.getAllDataList();
+                        break;
+                    }
+                    if (input === "1") {
+                        const favtype = fav.getFavtype();
+                        let data;
+                        if (favtype === "collect") {//用户收藏其他用户收藏夹
+                            data = await fav.getHttpCollectOthersDataAllList(favID);
+                        } else {
+                            data = await fav.getHttpUserCreationAllDataList(favID);
+                        }
+                        if (!data["state"]) {
+                            Qmsg.error("获取失败!");
+                            loading.close();
+                            return;
+                        }
+                        dataList = data["dataList"];
+                    } else {
+                        Qmsg.error("出现意外的值！" + input);
+                        loading.close();
+                        return;
+                    }
                     break;
                 case "订阅":
                     const tempTabsName = Space.subscribe.getTabsName();
@@ -4884,280 +7417,42 @@ async function bilibiliOne(href, windowsTitle) {
         SubjectOfATalk.deltopIC();
         return;
     }
-    if (href.includes("www.bilibili.com/video")) {//视频页
-        const Shielding_UID = layout.panel.getHoverball("屏蔽(uid)", "15%", "96%");
-        const getTheVideoBarrage = layout.panel.getHoverball("获取视频弹幕", "19%", "95%");
-        const getTheVideoAVNumber = layout.panel.getHoverball("获取视频av号", "22%", "95%");
-        const getVideoCommentArea = layout.panel.getHoverball("获取评论区页面可见数据", "25%", "92%");
-        const getLeftTopVideoListBut = layout.panel.getHoverball("获取视频选集列表数据", "30%", "92%");
-        const addLefToWatchedBut = layout.panel.getHoverball("添加进已观看", "33%", "94%");
-        const addLefToLookAtItLaterListBut = layout.panel.getHoverball("添加进稍后再看", "36%", "94%");
-        const isHideButtonLayoutBut = layout.panel.getHoverball("隐藏评论区", "95%", "1%");
-        const isHideRightLayoutBut = layout.panel.getHoverball("隐藏右侧布局", "90%", "1%");
-        const hideTopVideoTitleInfoBut = layout.panel.getHoverball("隐藏顶部视频标题信息", "8%", "1%");
-        $body.append(Shielding_UID);
-        $body.append(getTheVideoBarrage);
-        $body.append(getTheVideoAVNumber);
-        $body.append(getVideoCommentArea);
-        $body.append(getLeftTopVideoListBut);
-        $body.append(addLefToWatchedBut);
-        $body.append(addLefToLookAtItLaterListBut);
-        $body.append(isHideButtonLayoutBut);
-        $body.append(isHideRightLayoutBut);
-        $body.append(hideTopVideoTitleInfoBut);
+    if (href.includes("www.bilibili.com/video") || href.includes("www.bilibili.com/list/watchlater")) {//视频页
+        $body.append(layout.htmlVue.videoPlayVue());
+        const videoPlayVue = VideoPlayVue.returnVue();
 
-        Shielding_UID.click(() => {
-            const userList = DefVideo.getCreativeTeam();
-            if (userList.length === 0) {
-                alert("获取失败！");
-                return;
-            }
-            if (userList.length === 1) {
-                const data = userList[0];
-                const name = data["name"];
-                const uid = data["uid"];
-                if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid=${uid}`)) {
-                    return;
-                }
-                butLayEvent.butaddName("userUIDArr", parseInt(uid));
-                return;
-            }
-            alert("暂不支持屏蔽多作者方式.");
-        });
-        getTheVideoBarrage.click(() => {//打开当前视频弹幕列表
-            const windowUrl = Util.getWindowUrl();
-            if (!windowUrl.includes("www.bilibili.com/video")) {
-                alert("当前不是播放页!");
-                return;
-            }
-            const urlBVID = Util.getUrlBVID(windowUrl);
-            if (urlBVID === null) {
-                alert("获取不到BV号!");
-                return;
-            }
-            if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
-                return;
-            }
-            const loading = Qmsg.loading("正在获取数据中!");
-            HttpUtil.getVideoInfo(urlBVID, (res) => {
-                const body = JSON.parse(res.responseText);
-                const code = body["code"];
-                const message = body["message"];
-                if (code !== 0) {
-                    Qmsg.error("获取失败!" + message);
-                    loading.close();
-                    return;
-                }
-                let data;
-                try {
-                    data = body["data"][0];
-                } catch (e) {
-                    Qmsg.error("获取数据失败!" + e);
-                    loading.close();
-                    return;
-                }
-                if (data === null || data === undefined) {
-                    Qmsg.error("获取到的数据为空的!");
-                    loading.close();
-                    return;
-                }
-                loading.close();
-                const cid = data["cid"];
-                Qmsg.success("cid=" + cid);
-                Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
-            }, (err) => {
-                loading.close();
-                Qmsg.error("错误状态!");
-                Qmsg.error(err);
-            });
-        });
-        getTheVideoAVNumber.click(() => {//获取视频av号
-            const urlBVID = Util.getUrlBVID(Util.getWindowUrl());
-            if (urlBVID === null) {
-                alert("获取不到BV号!");
-                return;
-            }
-            if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
-                return;
-            }
-            alert(Util.BilibiliEncoder.dec(urlBVID));
-        });
-        getVideoCommentArea.click(() => {//获取视频的评论区列表可见的内容
-            const list = document.querySelectorAll(".reply-list>.reply-item");
-            if (list.length === 0) {
-                Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
-                return;
-            }
-            const arr = [];
-            for (let v of list) {
-                const rootName = v.querySelector(".user-name").textContent;
-                const rootUid = v.querySelector(".user-name").getAttribute("data-user-id");
-                const rootContent = v.querySelector(".root-reply .reply-content").textContent;
-                const subList = v.querySelectorAll(".sub-reply-list>.sub-reply-item");
-                const data = {
-                    name: rootName, uid: parseInt(rootUid), content: rootContent,
-                };
-                if (subList.length === 0) {
-                    arr.push(data);
-                    continue;
-                }
-                const subArr = [];
-                for (let j of subList) {
-                    const subName = j.querySelector(".sub-user-name").textContent;
-                    const subUid = j.querySelector(".sub-user-name").getAttribute("data-user-id");
-                    const subContent = j.querySelector(".reply-content").textContent;
-                    const subData = {
-                        name: subName, uid: parseInt(subUid), content: subContent
-                    };
-                    subArr.push(subData);
-                }
-                data["sub"] = subArr;
-                arr.push(data);
-            }
-            Util.fileDownload(JSON.stringify(arr, null, 3), "评论区列表-" + Util.toTimeString());
-            Qmsg.success("已获取成功！");
-        });
-        getLeftTopVideoListBut.click(() => {
-            const videoCollection = DefVideo.videoCollection;
-            if (!videoCollection.isMulti_page()) {
-                alert("并未有视频选集列表！");
-                return;
-            }
-            let dataList;
-            if (videoCollection.isList()) {
-                dataList = videoCollection.getVideoList();
-            } else {
-                dataList = videoCollection.getVIdeoGridList();
-            }
-            Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
-        });
 
-        function localGetVideoInfo() {
-            const upInfo = document.querySelector(".up-name");
-            let data;
-            try {
-                data = {
-                    upName: upInfo.textContent.trim(),
-                    uid: parseInt(Util.getSubWebUrlUid(upInfo.href)),
-                    title: document.querySelector(".video-title").textContent,
-                    bv: Util.getSubWebUrlBV(Util.getWindowUrl())
-                };
-            } catch (e) {
-                console.error("获取视频信息出现错误！", e);
-                return null;
-            }
-            return data;
-        }
-
-        addLefToWatchedBut.click(() => Watched.addWatched(localGetVideoInfo()));
-        addLefToLookAtItLaterListBut.click(() => LookAtItLater.addLookAtItLater(localGetVideoInfo()));
-        hideTopVideoTitleInfoBut.click(() => {
-            clearInterval(interval02);
-            const jqE = $("#viewbox_report");
-            if (jqE.is(":hidden")) {
-                jqE.show();
-                hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
-                return;
-            }
-            jqE.hide();
-            hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
-        });
-        const interval01 = setInterval(() => {
-            if (!LocalData.video.getHideVideoRightLayout()) {
-                clearInterval(interval01);
-                return;
-            }
-            const jqE = $(".right-container.is-in-large-ab");
-            if (jqE.length === 0) {
-                return;
-            }
-            jqE.hide();
-        }, 1200);
-        if (LocalData.video.getHideVideoRightLayout()) {
-            isHideRightLayoutBut.text("显示右侧布局");
-        } else {
-            isHideRightLayoutBut.text("隐藏右侧布局");
-        }
-
-        new Promise(resolve => {
+        if (LocalData.video.isHideVideoRightLayout()) {
             const interval = setInterval(() => {
-                const jqE = $("#comment .reply-loading");
-                if (jqE.length === 0) {
+                const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
+                if (jqE.length === 0) return;
+                if (!LocalData.video.isHideVideoRightLayout() || videoPlayVue().hideRightLayoutButText === "隐藏右侧布局") {
+                    clearInterval(interval)
                     return;
                 }
-                clearInterval(interval);
-                resolve();
-            }, 1000);
-        }).then(() => {
-            if (LocalData.getHideVideoButtonCommentSections()) {
-                $("#comment").hide();
-                isHideButtonLayoutBut.text("显示评论区");
-            } else {
-                isHideButtonLayoutBut.text("隐藏评论区");
-            }
-        });
-
-
-        const interval02 = setInterval(() => {
-            if (!LocalData.video.getHideVideoTopTitleInfoLayout()) {
-                clearInterval(interval02);
-                return;
-            }
-            ;
-            const jqE = $("#viewbox_report");
-            if (jqE.length === 0) {
-                return;
-            }
-            jqE.hide();
-        }, 1500);
-        if (LocalData.video.getHideVideoTopTitleInfoLayout()) {
-            $("#viewbox_report").hide();
-            hideTopVideoTitleInfoBut.text("显示顶部视频标题信息");
-        } else {
-            hideTopVideoTitleInfoBut.text("隐藏顶部视频标题信息");
+                jqE.hide();
+            }, 1600);
+        }
+        if (LocalData.video.isHideVideoButtonCommentSections()) {
+            const interval = setInterval(() => {
+                const jqE = $("#comment,.playlist-comment");
+                if (jqE.length === 0) return;
+                if (!LocalData.video.isHideVideoButtonCommentSections() || videoPlayVue().hideButtonLayoutButText === "隐藏评论区") {
+                    clearInterval(interval)
+                    return;
+                }
+                jqE.hide();
+            }, 1600);
         }
 
-        isHideButtonLayoutBut.click(() => {
-            const e = $("#comment");
-            if (e.is(":hidden")) {
-                e.show();
-                isHideButtonLayoutBut.text("隐藏评论区");
-                return;
-            }
-            e.hide();
-            isHideButtonLayoutBut.text("显示评论区");
-        });
-        isHideRightLayoutBut.click(() => {
-            clearInterval(interval01);
-            const jqE = $(".right-container.is-in-large-ab");
-            if (jqE.length === 0) {
-                alert("获取不到右侧布局！");
-                return;
-            }
-            if (jqE.is(":hidden")) {
-                jqE.show();
-                isHideRightLayoutBut.text("隐藏右侧布局");
-                return;
-            }
-            jqE.hide();
-            isHideRightLayoutBut.text("显示右侧布局");
-        });
-
-        const isSetCollectionMexpContentStyle = false;
-        setInterval(() => {
-            const $collection = document.querySelector(".collection-m-exp>.content");
-            if ($collection === null) {
-                return;
-            }
-            $collection.style.height = "750px";
-            if (isSetCollectionMexpContentStyle) {
-                return;
-            }
-            Util.addStyle(`
-        .collection-m-exp .content .group-list li{
-        padding-bottom:0px
-        }`);
-        }, 1100);
+        if (LocalData.video.isHideVideoTopTitleInfoLayout()) {
+            const interval = setInterval(() => {
+                const jqE = $("#viewbox_report,.video-info-container");
+                if (jqE.length === 0) return;
+                clearInterval(interval);
+                jqE.hide();
+            }, 1500);
+        }
         return;
     }
     if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页
@@ -5257,188 +7552,6 @@ async function bilibiliOne(href, windowsTitle) {
         Trends.topCssDisply.topTar();
         Trends.topCssDisply.rightLayout();
 
-        // trends.layoutCss.items();
-
-
-        const liveLayout = $("#liveLayout");
-        liveLayout.append(HtmlStr.getLiveList("关注列表在中正在直播的用户-"));
-        liveLayout.append(`<hr>`);
-        const okBut = $(`<button>确定</button>`);
-        const openBut = $(`<button>打开页面</button>`);
-        const findBut = $(`<button>查询</button>`);
-        const select_parent_name = $(`<select></select>`);
-        const select_name = $(`<select></select>`);
-        const jsonArr = JSON.parse(`{"手游":[{"parent_name":"手游","parent_id":3,"name":"全部","id":0},{"parent_name":"手游","parent_id":3,"name":"原神","id":321},{"parent_name":"手游","parent_id":3,"name":"欢乐斗地主","id":719},{"parent_name":"手游","parent_id":3,"name":"DNF手游","id":343},{"parent_name":"手游","parent_id":3,"name":"新游评测","id":274},{"parent_name":"手游","parent_id":3,"name":"黎明觉醒：生机","id":479},{"parent_name":"手游","parent_id":3,"name":"宝可梦大集结","id":493},{"parent_name":"手游","parent_id":3,"name":"幻塔","id":550},{"parent_name":"手游","parent_id":3,"name":"三国志战棋版","id":756},{"parent_name":"手游","parent_id":3,"name":"明日之后","id":189},{"parent_name":"手游","parent_id":3,"name":"百闻牌","id":286},{"parent_name":"手游","parent_id":3,"name":"阴阳师","id":36},{"parent_name":"手游","parent_id":3,"name":"第五人格","id":163},{"parent_name":"手游","parent_id":3,"name":"战双帕弥什","id":293},{"parent_name":"手游","parent_id":3,"name":"FIFA足球世界","id":641},{"parent_name":"手游","parent_id":3,"name":"跃迁旅人","id":717},{"parent_name":"手游","parent_id":3,"name":"空之要塞：启航","id":718},{"parent_name":"手游","parent_id":3,"name":"火影忍者手游","id":292},{"parent_name":"手游","parent_id":3,"name":"Fate/GO","id":37},{"parent_name":"手游","parent_id":3,"name":"CF手游","id":333},{"parent_name":"手游","parent_id":3,"name":"游戏王","id":303},{"parent_name":"手游","parent_id":3,"name":"重返未来：1999 ","id":761},{"parent_name":"手游","parent_id":3,"name":"哈利波特：魔法觉醒 ","id":474},{"parent_name":"手游","parent_id":3,"name":"玛娜希斯回响","id":644},{"parent_name":"手游","parent_id":3,"name":" 东方归言录","id":538},{"parent_name":"手游","parent_id":3,"name":"无期迷途","id":675},{"parent_name":"手游","parent_id":3,"name":"光遇","id":687},{"parent_name":"手游","parent_id":3,"name":"少女前线：云图计划","id":525},{"parent_name":"手游","parent_id":3,"name":"黑色沙漠手游","id":615},{"parent_name":"手游","parent_id":3,"name":"雀姬","id":214},{"parent_name":"手游","parent_id":3,"name":"时空猎人3","id":643},{"parent_name":"手游","parent_id":3,"name":"明日方舟","id":255},{"parent_name":"手游","parent_id":3,"name":"猫咪公寓2","id":736},{"parent_name":"手游","parent_id":3,"name":"QQ飞车手游","id":154},{"parent_name":"手游","parent_id":3,"name":"古魂","id":759},{"parent_name":"手游","parent_id":3,"name":"航海王热血航线","id":504},{"parent_name":"手游","parent_id":3,"name":"和平精英","id":256},{"parent_name":"手游","parent_id":3,"name":"暗黑破坏神：不朽","id":492},{"parent_name":"手游","parent_id":3,"name":"蛋仔派对","id":571},{"parent_name":"手游","parent_id":3,"name":"JJ斗地主","id":724},{"parent_name":"手游","parent_id":3,"name":"香肠派对","id":689},{"parent_name":"手游","parent_id":3,"name":"跑跑卡丁车手游","id":265},{"parent_name":"手游","parent_id":3,"name":"梦幻模拟战","id":178},{"parent_name":"手游","parent_id":3,"name":"APEX手游","id":506},{"parent_name":"手游","parent_id":3,"name":"综合棋牌","id":354},{"parent_name":"手游","parent_id":3,"name":"以闪亮之名","id":755},{"parent_name":"手游","parent_id":3,"name":"恋爱养成游戏","id":576},{"parent_name":"手游","parent_id":3,"name":"漫威超级战争","id":478},{"parent_name":"手游","parent_id":3,"name":"暗区突围","id":502},{"parent_name":"手游","parent_id":3,"name":"狼人杀","id":41},{"parent_name":"手游","parent_id":3,"name":"盾之勇者成名录：浪潮","id":704},{"parent_name":"手游","parent_id":3,"name":"荒野乱斗","id":469},{"parent_name":"手游","parent_id":3,"name":"猫和老鼠手游","id":269},{"parent_name":"手游","parent_id":3,"name":"LOL手游","id":395},{"parent_name":"手游","parent_id":3,"name":"战火勋章","id":765},{"parent_name":"手游","parent_id":3,"name":"深空之眼","id":598},{"parent_name":"手游","parent_id":3,"name":"碧蓝航线","id":113},{"parent_name":"手游","parent_id":3,"name":"坎公骑冠剑","id":442},{"parent_name":"手游","parent_id":3,"name":"摩尔庄园手游","id":464},{"parent_name":"手游","parent_id":3,"name":"非人学园","id":212},{"parent_name":"手游","parent_id":3,"name":"崩坏3","id":40},{"parent_name":"手游","parent_id":3,"name":"天地劫：幽城再临","id":448},{"parent_name":"手游","parent_id":3,"name":"弹弹堂","id":734},{"parent_name":"手游","parent_id":3,"name":"300大作战","id":688},{"parent_name":"手游","parent_id":3,"name":"解密游戏","id":42},{"parent_name":"手游","parent_id":3,"name":"使命召唤手游","id":386},{"parent_name":"手游","parent_id":3,"name":"猫之城","id":645},{"parent_name":"手游","parent_id":3,"name":"长安幻想","id":738},{"parent_name":"手游","parent_id":3,"name":"少女前线","id":39},{"parent_name":"手游","parent_id":3,"name":"游戏王：决斗链接","id":407},{"parent_name":"手游","parent_id":3,"name":"梦幻西游手游","id":342},{"parent_name":"手游","parent_id":3,"name":"其他手游","id":98},{"parent_name":"手游","parent_id":3,"name":"决战！平安京","id":140},{"parent_name":"手游","parent_id":3,"name":"三国杀移动版","id":352},{"parent_name":"手游","parent_id":3,"name":"影之诗","id":156},{"parent_name":"手游","parent_id":3,"name":"公主连结Re:Dive","id":330},{"parent_name":"手游","parent_id":3,"name":"王者荣耀","id":35},{"parent_name":"手游","parent_id":3,"name":"忍者必须死3","id":203},{"parent_name":"手游","parent_id":3,"name":"BanG Dream","id":258},{"parent_name":"手游","parent_id":3,"name":"休闲小游戏","id":679},{"parent_name":"手游","parent_id":3,"name":"金铲铲之战","id":514},{"parent_name":"手游","parent_id":3,"name":"环形战争","id":725},{"parent_name":"手游","parent_id":3,"name":"天涯明月刀手游","id":389},{"parent_name":"手游","parent_id":3,"name":"漫威对决","id":511},{"parent_name":"手游","parent_id":3,"name":"奥比岛手游","id":661},{"parent_name":"手游","parent_id":3,"name":"奇点时代","id":762},{"parent_name":"手游","parent_id":3,"name":"部落冲突:皇室战争","id":50},{"parent_name":"手游","parent_id":3,"name":"重返帝国","id":613},{"parent_name":"手游","parent_id":3,"name":"小动物之星","id":473}],"赛事":[{"parent_name":"赛事","parent_id":13,"name":"全部","id":0},{"parent_name":"赛事","parent_id":13,"name":"体育赛事","id":562},{"parent_name":"赛事","parent_id":13,"name":"游戏赛事","id":561},{"parent_name":"赛事","parent_id":13,"name":"赛事综合","id":563}],"生活":[{"parent_name":"生活","parent_id":10,"name":"全部","id":0},{"parent_name":"生活","parent_id":10,"name":"手工绘画","id":627},{"parent_name":"生活","parent_id":10,"name":"时尚","id":378},{"parent_name":"生活","parent_id":10,"name":"影音馆","id":33},{"parent_name":"生活","parent_id":10,"name":"生活分享","id":646},{"parent_name":"生活","parent_id":10,"name":"萌宠","id":369},{"parent_name":"生活","parent_id":10,"name":"美食","id":367},{"parent_name":"生活","parent_id":10,"name":"搞笑","id":624},{"parent_name":"生活","parent_id":10,"name":"运动","id":628}],"娱乐":[{"parent_name":"娱乐","parent_id":1,"name":"全部","id":0},{"parent_name":"娱乐","parent_id":1,"name":"视频唱见","id":21},{"parent_name":"娱乐","parent_id":1,"name":"户外","id":123},{"parent_name":"娱乐","parent_id":1,"name":"萌宅领域","id":530},{"parent_name":"娱乐","parent_id":1,"name":"情感","id":706},{"parent_name":"娱乐","parent_id":1,"name":"视频聊天","id":145},{"parent_name":"娱乐","parent_id":1,"name":"日常","id":399},{"parent_name":"娱乐","parent_id":1,"name":"聊天室","id":740},{"parent_name":"娱乐","parent_id":1,"name":"舞见","id":207}],"电台":[{"parent_name":"电台","parent_id":5,"name":"全部","id":0},{"parent_name":"电台","parent_id":5,"name":"配音","id":193},{"parent_name":"电台","parent_id":5,"name":"唱见电台","id":190},{"parent_name":"电台","parent_id":5,"name":"聊天电台","id":192}],"网游":[{"parent_name":"网游","parent_id":2,"name":"全部","id":0},{"parent_name":"网游","parent_id":2,"name":"诛仙世界","id":654},{"parent_name":"网游","parent_id":2,"name":"街头篮球","id":649},{"parent_name":"网游","parent_id":2,"name":"洛克王国","id":669},{"parent_name":"网游","parent_id":2,"name":"剑灵","id":505},{"parent_name":"网游","parent_id":2,"name":"堡垒之夜","id":164},{"parent_name":"网游","parent_id":2,"name":"枪神纪","id":251},{"parent_name":"网游","parent_id":2,"name":"逃离塔科夫","id":252},{"parent_name":"网游","parent_id":2,"name":"吃鸡行动","id":80},{"parent_name":"网游","parent_id":2,"name":"坦克世界","id":115},{"parent_name":"网游","parent_id":2,"name":"VRChat","id":656},{"parent_name":"网游","parent_id":2,"name":"新游前瞻","id":298},{"parent_name":"网游","parent_id":2,"name":"星际战甲","id":249},{"parent_name":"网游","parent_id":2,"name":"战争雷霆","id":316},{"parent_name":"网游","parent_id":2,"name":"英雄联盟","id":86},{"parent_name":"网游","parent_id":2,"name":"超击突破","id":680},{"parent_name":"网游","parent_id":2,"name":"其他网游","id":107},{"parent_name":"网游","parent_id":2,"name":"创世战车","id":705},{"parent_name":"网游","parent_id":2,"name":"最终幻想14","id":102},{"parent_name":"网游","parent_id":2,"name":"跑跑卡丁车","id":664},{"parent_name":"网游","parent_id":2,"name":"梦三国","id":710},{"parent_name":"网游","parent_id":2,"name":"古剑奇谭OL","id":173},{"parent_name":"网游","parent_id":2,"name":"永恒轮回","id":459},{"parent_name":"网游","parent_id":2,"name":"激战2","id":607},{"parent_name":"网游","parent_id":2,"name":"奇迹MU","id":683},{"parent_name":"网游","parent_id":2,"name":"怀旧网游","id":288},{"parent_name":"网游","parent_id":2,"name":"APEX英雄","id":240},{"parent_name":"网游","parent_id":2,"name":"FIFA ONLINE 4","id":388},{"parent_name":"网游","parent_id":2,"name":"使命召唤:战区","id":318},{"parent_name":"网游","parent_id":2,"name":"反恐精英Online","id":629},{"parent_name":"网游","parent_id":2,"name":"阿尔比恩","id":639},{"parent_name":"网游","parent_id":2,"name":"星际争霸2","id":93},{"parent_name":"网游","parent_id":2,"name":"星际公民","id":658},{"parent_name":"网游","parent_id":2,"name":"CS:GO","id":89},{"parent_name":"网游","parent_id":2,"name":"天涯明月刀","id":596},{"parent_name":"网游","parent_id":2,"name":"炉石传说","id":91},{"parent_name":"网游","parent_id":2,"name":"生死狙击2","id":575},{"parent_name":"网游","parent_id":2,"name":"彩虹岛","id":686},{"parent_name":"网游","parent_id":2,"name":"武装突袭","id":634},{"parent_name":"网游","parent_id":2,"name":"魔兽争霸3","id":181},{"parent_name":"网游","parent_id":2,"name":"问道","id":670},{"parent_name":"网游","parent_id":2,"name":"剑网3","id":82},{"parent_name":"网游","parent_id":2,"name":"造梦西游","id":668},{"parent_name":"网游","parent_id":2,"name":"NBA2KOL2","id":581},{"parent_name":"网游","parent_id":2,"name":"星战前夜：晨曦","id":331},{"parent_name":"网游","parent_id":2,"name":"英魂之刃","id":690},{"parent_name":"网游","parent_id":2,"name":"永恒之塔","id":684},{"parent_name":"网游","parent_id":2,"name":"艾尔之光","id":651},{"parent_name":"网游","parent_id":2,"name":"大话西游","id":652},{"parent_name":"网游","parent_id":2,"name":"洛奇","id":663},{"parent_name":"网游","parent_id":2,"name":"风暴英雄","id":114},{"parent_name":"网游","parent_id":2,"name":"新天龙八部","id":653},{"parent_name":"网游","parent_id":2,"name":"骑士精神2","id":650},{"parent_name":"网游","parent_id":2,"name":"赛尔号","id":667},{"parent_name":"网游","parent_id":2,"name":"300英雄","id":84},{"parent_name":"网游","parent_id":2,"name":"封印者","id":300},{"parent_name":"网游","parent_id":2,"name":"新世界","id":544},{"parent_name":"网游","parent_id":2,"name":"战争与抉择","id":729},{"parent_name":"网游","parent_id":2,"name":"人间地狱","id":677},{"parent_name":"网游","parent_id":2,"name":"剑网3缘起","id":499},{"parent_name":"网游","parent_id":2,"name":"魔兽世界","id":83},{"parent_name":"网游","parent_id":2,"name":"泡泡堂","id":737},{"parent_name":"网游","parent_id":2,"name":"战舰世界","id":248},{"parent_name":"网游","parent_id":2,"name":"Squad战术小队","id":659},{"parent_name":"网游","parent_id":2,"name":"逆战","id":487},{"parent_name":"网游","parent_id":2,"name":"QQ飞车","id":610},{"parent_name":"网游","parent_id":2,"name":"穿越火线","id":88},{"parent_name":"网游","parent_id":2,"name":"洛奇英雄传","id":599},{"parent_name":"网游","parent_id":2,"name":"超激斗梦境","id":519},{"parent_name":"网游","parent_id":2,"name":"龙之谷","id":112},{"parent_name":"网游","parent_id":2,"name":"无畏契约","id":329},{"parent_name":"网游","parent_id":2,"name":"传奇","id":695},{"parent_name":"网游","parent_id":2,"name":"冒险岛","id":574},{"parent_name":"网游","parent_id":2,"name":"猎杀对决","id":600},{"parent_name":"网游","parent_id":2,"name":"流放之路","id":551},{"parent_name":"网游","parent_id":2,"name":"命运方舟","id":590},{"parent_name":"网游","parent_id":2,"name":"综合射击","id":601},{"parent_name":"网游","parent_id":2,"name":"黑色沙漠","id":632},{"parent_name":"网游","parent_id":2,"name":"刀塔自走棋","id":239},{"parent_name":"网游","parent_id":2,"name":"DNF","id":78},{"parent_name":"网游","parent_id":2,"name":"战意","id":383},{"parent_name":"网游","parent_id":2,"name":"守望先锋","id":87},{"parent_name":"网游","parent_id":2,"name":"DOTA2","id":92},{"parent_name":"网游","parent_id":2,"name":"FPS沙盒","id":633},{"parent_name":"网游","parent_id":2,"name":"风暴奇侠","id":648},{"parent_name":"网游","parent_id":2,"name":"幻想全明星","id":176},{"parent_name":"网游","parent_id":2,"name":"铁甲雄兵","id":691},{"parent_name":"网游","parent_id":2,"name":"三国杀","id":81},{"parent_name":"网游","parent_id":2,"name":"永劫无间","id":666},{"parent_name":"网游","parent_id":2,"name":"CFHD ","id":472},{"parent_name":"网游","parent_id":2,"name":"QQ三国","id":685},{"parent_name":"网游","parent_id":2,"name":"装甲战争","id":642}],"虚拟主播":[{"parent_name":"虚拟主播","parent_id":9,"name":"全部","id":0},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟Singer","id":744},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟Gamer","id":745},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟声优","id":746},{"parent_name":"虚拟主播","parent_id":9,"name":"TopStar","id":743},{"parent_name":"虚拟主播","parent_id":9,"name":"虚拟日常","id":371}],"单机游戏":[{"parent_name":"单机游戏","parent_id":6,"name":"全部","id":0},{"parent_name":"单机游戏","parent_id":6,"name":"原子之心","id":750},{"parent_name":"单机游戏","parent_id":6,"name":"以撒","id":219},{"parent_name":"单机游戏","parent_id":6,"name":"荒野大镖客2","id":226},{"parent_name":"单机游戏","parent_id":6,"name":"双人成行","id":446},{"parent_name":"单机游戏","parent_id":6,"name":"刺客信条","id":227},{"parent_name":"单机游戏","parent_id":6,"name":"霍格沃茨之遗","id":747},{"parent_name":"单机游戏","parent_id":6,"name":"狂野之心","id":748},{"parent_name":"单机游戏","parent_id":6,"name":"独立游戏","id":283},{"parent_name":"单机游戏","parent_id":6,"name":"怀旧游戏","id":237},{"parent_name":"单机游戏","parent_id":6,"name":"格斗游戏","id":433},{"parent_name":"单机游戏","parent_id":6,"name":"胡闹厨房","id":507},{"parent_name":"单机游戏","parent_id":6,"name":"怪物猎人","id":578},{"parent_name":"单机游戏","parent_id":6,"name":"重生细胞","id":426},{"parent_name":"单机游戏","parent_id":6,"name":"盗贼之海","id":341},{"parent_name":"单机游戏","parent_id":6,"name":"暖雪","id":582},{"parent_name":"单机游戏","parent_id":6,"name":"NBA2K","id":362},{"parent_name":"单机游戏","parent_id":6,"name":"消逝的光芒2","id":586},{"parent_name":"单机游戏","parent_id":6,"name":"恋爱模拟游戏","id":592},{"parent_name":"单机游戏","parent_id":6,"name":"饥荒","id":218},{"parent_name":"单机游戏","parent_id":6,"name":"策略游戏","id":570},{"parent_name":"单机游戏","parent_id":6,"name":"卧龙：苍天陨落","id":700},{"parent_name":"单机游戏","parent_id":6,"name":"全面坦克战略官","id":758},{"parent_name":"单机游戏","parent_id":6,"name":"弹幕互动玩法","id":460},{"parent_name":"单机游戏","parent_id":6,"name":"暗黑破坏神","id":535},{"parent_name":"单机游戏","parent_id":6,"name":"全境封锁2","id":243},{"parent_name":"单机游戏","parent_id":6,"name":"禁闭求生","id":707},{"parent_name":"单机游戏","parent_id":6,"name":"帝国时代4","id":548},{"parent_name":"单机游戏","parent_id":6,"name":"边境","id":763},{"parent_name":"单机游戏","parent_id":6,"name":"战神","id":579},{"parent_name":"单机游戏","parent_id":6,"name":"全面战争：战锤3","id":594},{"parent_name":"单机游戏","parent_id":6,"name":"无主之地3","id":273},{"parent_name":"单机游戏","parent_id":6,"name":"辐射76","id":220},{"parent_name":"单机游戏","parent_id":6,"name":"红色警戒2","id":693},{"parent_name":"单机游戏","parent_id":6,"name":"不羁联盟","id":764},{"parent_name":"单机游戏","parent_id":6,"name":"糖豆人","id":357},{"parent_name":"单机游戏","parent_id":6,"name":"霓虹序列","id":766},{"parent_name":"单机游戏","parent_id":6,"name":"战锤40K:暗潮","id":723},{"parent_name":"单机游戏","parent_id":6,"name":"Dread Hunger","id":591},{"parent_name":"单机游戏","parent_id":6,"name":"森林之子","id":751},{"parent_name":"单机游戏","parent_id":6,"name":"聚会游戏","id":636},{"parent_name":"单机游戏","parent_id":6,"name":"生化危机","id":721},{"parent_name":"单机游戏","parent_id":6,"name":"方舟","id":295},{"parent_name":"单机游戏","parent_id":6,"name":"艾尔登法环","id":555},{"parent_name":"单机游戏","parent_id":6,"name":"歧路旅人2","id":752},{"parent_name":"单机游戏","parent_id":6,"name":"Roblox","id":753},{"parent_name":"单机游戏","parent_id":6,"name":"只狼","id":245},{"parent_name":"单机游戏","parent_id":6,"name":"风帆纪元","id":739},{"parent_name":"单机游戏","parent_id":6,"name":"其他单机","id":235},{"parent_name":"单机游戏","parent_id":6,"name":"游戏速通","id":678},{"parent_name":"单机游戏","parent_id":6,"name":"恐怖游戏","id":276},{"parent_name":"单机游戏","parent_id":6,"name":"恐鬼症","id":387},{"parent_name":"单机游戏","parent_id":6,"name":"使命召唤19","id":282},{"parent_name":"单机游戏","parent_id":6,"name":"我的世界","id":216},{"parent_name":"单机游戏","parent_id":6,"name":"仁王2","id":313},{"parent_name":"单机游戏","parent_id":6,"name":"THE FINALS","id":754},{"parent_name":"单机游戏","parent_id":6,"name":"FORZA 极限竞速","id":302},{"parent_name":"单机游戏","parent_id":6,"name":"全面战争","id":257},{"parent_name":"单机游戏","parent_id":6,"name":"塞尔达传说","id":308},{"parent_name":"单机游戏","parent_id":6,"name":"鬼泣5","id":244},{"parent_name":"单机游戏","parent_id":6,"name":"法外枭雄:滚石城","id":757},{"parent_name":"单机游戏","parent_id":6,"name":"SIFU","id":587},{"parent_name":"单机游戏","parent_id":6,"name":"FIFA23","id":708},{"parent_name":"单机游戏","parent_id":6,"name":"命运2","id":277},{"parent_name":"单机游戏","parent_id":6,"name":"精灵宝可梦","id":228},{"parent_name":"单机游戏","parent_id":6,"name":"文字游戏","id":583},{"parent_name":"单机游戏","parent_id":6,"name":"主机游戏","id":236},{"parent_name":"单机游戏","parent_id":6,"name":"植物大战僵尸","id":309},{"parent_name":"单机游戏","parent_id":6,"name":"人类一败涂地","id":270},{"parent_name":"单机游戏","parent_id":6,"name":"战地风云","id":597},{"parent_name":"单机游戏","parent_id":6,"name":"骑马与砍杀","id":326},{"parent_name":"单机游戏","parent_id":6,"name":"泰拉瑞亚","id":593},{"parent_name":"单机游戏","parent_id":6,"name":"体育游戏","id":500},{"parent_name":"单机游戏","parent_id":6,"name":"宝可梦集换式卡牌游戏","id":720},{"parent_name":"单机游戏","parent_id":6,"name":"斯普拉遁3","id":694},{"parent_name":"单机游戏","parent_id":6,"name":"枪火重生","id":364}],"知识":[{"parent_name":"知识","parent_id":11,"name":"全部","id":0},{"parent_name":"知识","parent_id":11,"name":"科学科普","id":701},{"parent_name":"知识","parent_id":11,"name":"社科法律心理","id":376},{"parent_name":"知识","parent_id":11,"name":"职场·技能","id":377},{"parent_name":"知识","parent_id":11,"name":"科技","id":375},{"parent_name":"知识","parent_id":11,"name":"人文历史","id":702},{"parent_name":"知识","parent_id":11,"name":"校园学习","id":372}]}`);
-        const parent_nameArr = Object.keys(jsonArr);
-        for (let v of jsonArr["手游"]) {
-            const id = v["id"];
-            const name = v["name"];
-            select_name.append(`<option value="${id}">${name}</option>`);
-        }
-        const map = new Map();
-        for (let v of parent_nameArr) {
-            const id = jsonArr[v][0]["parent_id"];
-            const name = jsonArr[v][0]["parent_name"];
-            map.set(id, name);
-        }
-
-        map.forEach((value, key, map) => {
-            select_parent_name.append($(`<option value=${key}>${value}</option>`));
-        });
-
-        /**
-         * @param {number|string}key 父级分区id
-         */
-        function flushedSelectFun(key) {
-            const tempVar = map.get(parseInt(key));
-            select_name.children().remove();
-            for (let v of jsonArr[tempVar]) {
-                const id = v["id"];
-                const name = v["name"];
-                select_name.append(`<option value="${id}">${name}</option>`);
-            }
-        }
-
-        select_parent_name.change(() => {
-            flushedSelectFun(select_parent_name.val());
-        });
-        okBut.click(() => {
-            const select_parent_ID = select_parent_name.val();
-            const select_name_ID = select_name.val();
-            const select_nameText = select_name.find("option:selected").text();
-            const loading = Qmsg.loading(`正在获取${select_nameText}分区直播列表信息`);
-            const liveListChildren = liveList.children(".bili-dyn-live-users__body").children();
-            if (liveListChildren.length !== 0) {
-                liveListChildren.remove();
-            }
-            tempFunc(select_parent_ID, select_name_ID, loading);
-        });
-        findBut.click(() => {
-            const content = prompt("请输入你要查询的子分区");
-            if (content == null) {
-                return;
-            }
-            if (content === "") {
-                Qmsg.error("请正确输入你的内容");
-                return;
-            }
-            for (let v of parent_nameArr) {
-                for (let j of jsonArr[v]) {
-                    const parent_name = j["parent_name"];
-                    const parent_id = j["parent_id"];
-                    const name = j["name"];
-                    const id = j["id"];
-                    if (!name.includes(content)) {
-                        continue;
-                    }
-                    select_parent_name.val(parent_id);
-                    flushedSelectFun(parent_id);
-                    select_name.val(id);
-                    Qmsg.success(`已找到${parent_name}的${name}`);
-                    console.log(parent_name, parent_id, name, id)
-                    return;
-                }
-            }
-            Qmsg.error(`未找到${content}分区的信息`);
-        });
-        openBut.click(() => {
-            const select_parent_ID = select_parent_name.val();
-            const select_name_ID = select_name.val();
-            Util.openWindow(`https://live.bilibili.com/p/eden/area-tags?areaId=${select_name_ID}&parentAreaId=${select_parent_ID}`);
-        });
-
-        liveLayout.append(select_parent_name);
-        liveLayout.append(select_name);
-        liveLayout.append(okBut);
-        liveLayout.append(findBut);
-        liveLayout.append(openBut);
-        const liveList = HtmlStr.getLiveList("直播分区-");
-        liveLayout.append(liveList);
-        const flushBut = $(`<div style="display: flex;justify-content: center;">
-<div style="display: none">
-<button>加载更多</button>
-</div>
-</div>`);
-        liveLayout.append(flushBut);
-        liveLayout.append(`<hr>`);
-
-        flushBut.click(() => {
-            const select_parent_ID = select_parent_name.val();
-            const select_name_ID = select_name.val();
-            const select_nameText = select_name.find("option:selected").text();
-            const loading = Qmsg.loading(`正在获取${select_nameText}分区直播列表信息`);
-            tempFunc(select_parent_ID, select_name_ID, loading);
-        });
-
-        function tempFunc(parent_id, id, qmLoading) {
-            const tempE = $("#liveLayout .bili-dyn-live-users__body:eq(1)");
-            if (tempE.length === 0) {
-                Qmsg.error("布局异常");
-                qmLoading.close();
-                return;
-            }
-            let partitionPage = Trends.data.getPartitionPage(id);
-            HttpUtil.getLiveList(parent_id, id, partitionPage, "", (res) => {
-                const body = JSON.parse(res.responseText);
-                const code = body["code"];
-                const message = body["message"];
-                if (code !== 0) {
-                    const info = "获取直播分区信息错误！" + message;
-                    Qmsg.error(info);
-                    console.log(info);
-                    qmLoading.close();
-                    return;
-                }
-                const list = body["data"]["list"];
-                if (list.length === 0) {
-                    Trends.data.setPartitionBool(id, true);
-                    qmLoading.close();
-                    Qmsg.success(`累计获取到${Trends.data.partitionEndTypeLiveName}分区的${tempE.children().length}个直播间`);
-                    flushBut.find("div").hide();
-                    return;
-                }
-                for (let v of list) {
-                    const roomid = v["roomid"];
-                    const title = v["title"];
-                    const uname = v["uname"];
-                    const uid = v["uid"];
-                    if (Matching.arrKey(LocalData.getArrUID(), uid)) {
-                        const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
-                        Print.ln(tempInfo);
-                        Qmsg.success(tempInfo);
-                        continue;
-                    }
-                    const face = v["face"];
-                    const cover = v["cover"];//封面
-                    const system_cover = v["system_cover"];//关键帧
-                    const parent_name = v["parent_name"];//父级分区
-                    const area_name = v["area_name"];//子级分区
-                    Trends.data.partitionEndTypeLiveName = `${parent_name}-${area_name}`;
-                    const liveItem = HtmlStr.getLiveItem(uname, uid, roomid, face, title);
-                    tempE.append(liveItem);
-                }
-                qmLoading.close();
-                const tempIndex = tempE.children().length;
-                if (tempIndex === 0) {
-                    Qmsg.info("未获取到指定分区正在直播的用户");
-                    flushBut.find("div").hide();
-                    qmLoading.close();
-                    return;
-                }
-                $("#liveLayout .bili-dyn-live-users__title>span:eq(1)").text(`${tempIndex}`);
-                Qmsg.success(`本轮已获取到${Trends.data.partitionEndTypeLiveName}分区的${list.length}个直播间`);
-                if (list.length < 20) {
-                    flushBut.find("div").hide();
-                } else {
-                    flushBut.find("div").show();
-                    Trends.data.setPartitionPage(id, ++partitionPage);
-                }
-            }, (err) => {
-                Qmsg.error("错误信息" + err);
-                qmLoading.close();
-            });
-        };
-
         function tempLoadIng() {
             const interval01 = setInterval(() => {
                 const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
@@ -5472,6 +7585,8 @@ async function bilibiliOne(href, windowsTitle) {
                 return;
             }
             clearInterval(interval03);
+            Trends.layoutCss.tabUserItems(tempE);
+            $(".bili-dyn-up-list__shadow-right").remove();
             list.click(() => {
                 tempLoadIng();
             });
@@ -5789,54 +7904,7 @@ const GBTGame = {
 
 //主入口
 const Rule = {
-    ruleLength() {
-        const $textRuleInfoDiv = $("#textRuleInfoDiv>div");
-        $textRuleInfoDiv.children().remove();
-        const ruleJson = JSON.parse(Util.getRuleFormatStr());
-        Object.keys(ruleJson).forEach(value => {
-            $textRuleInfoDiv.append(`<p>${value}个数:
-        <span>${ruleJson[value].length}</span>个
-      </p>`);
-        });
-        Util.addStyle(`
-#textRuleInfoDiv>div>p>span{
-color: #ff0000;
-}
-`);
-    },
-    showInfo() {
-        const isAutoPlay = Util.getData("autoPlay");
-        const autoPlayCheckbox = $("#autoPlayCheckbox");
-        if (isAutoPlay === null || isAutoPlay === undefined) {
-            autoPlayCheckbox.attr("checked", false);
-        } else {
-            autoPlayCheckbox.attr("checked", isAutoPlay);
-        }
-        const pushTypeSelect = $("#pushTypeSelect");
-        const videoZoneSelect = $("#video_zoneSelect");
-        const pushType = Home.getPushType();
-        pushTypeSelect.val(pushType);
-        switch (pushType) {
-            case "频道":
-                const tempSortTypeSelect = $("#sort_typeSelect");
-                const tempSortType = frequencyChannel.getSort_type();
-                loadChannel();
-                videoZoneSelect.val(frequencyChannel.getChannel_id());
-                tempSortTypeSelect.val(tempSortType);
-                tempSortTypeSelect.css("display", "inline")
-                break;
-            default:
-                loadPartition();
-                videoZoneSelect.val(LocalData.getVideo_zone());
-                break;
-        }
-        $("#hideVideoTopTitleInfoCheackBox").prop('checked', LocalData.video.getHideVideoTopTitleInfoLayout());
-        $("#hideVideoButtonCheackBox").prop('checked', LocalData.getHideVideoButtonCommentSections());
-        $("#hideVideoRightLayoutCheackBox").prop('checked', LocalData.video.getHideVideoRightLayout());
-        $("#openPrivacyModeCheckbox").prop("checked", LocalData.getPrivacyMode());
-        $("#isMainVideoListCheckbox").prop("checked", LocalData.getIsMainVideoList());
-        $("#openBWebNoneCheckbox").prop("checked", LocalData.getBWebNone());
-    },
+    //TODO 后续把对应关联的变量清除修改
     //视频参数
     videoData: {
         //是否移除播放页右侧的的布局，其中包括【视频作者】【弹幕列表】【视频列表】和右侧相关的广告
@@ -5850,11 +7918,7 @@ color: #ff0000;
         //是否移除视频播放完之后的，推荐视频
         isVideoEndRecommend: true,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
-        isRightVideo: false,
-        //是否点击了水平翻转
-        flipHorizontal: false,
-        //是否点击了垂直翻转
-        flipVertical: false
+        isRightVideo: false
     },
     //动态相关配置信息
     trendsData: {
@@ -5940,7 +8004,6 @@ const Home = {
     myidClickIndex: true,
     //是否初次点击了规则中心按钮
     isFirstRuleCenterLayoutClick: false,
-    isFirstLiveLayoutClick: false,
     /**
      *
      * @return {string}
@@ -6392,55 +8455,6 @@ left: 0;  bottom: 0;">
       </div>
       <button style="position: absolute;top: 0;right: 0;" onclick="document.querySelector('#popDiv').remove()">关闭</button>
     </div>`;
-    },
-    /**
-     * 获取直播列表布局
-     */
-    getLiveList(typeTitle) {
-        return $(`<div class="bili-dyn-live-users">
-        <div class="bili-dyn-live-users__header">
-            <div class="bili-dyn-live-users__title">
-                ${typeTitle}(<span>0</span>)<!--直播人数-->
-            </div>
-        </div>
-        <hr>
-        <div class="bili-dyn-live-users__body" style="display: grid;grid-template-columns: auto auto auto auto auto;">
-        <!--列表中的项目-->
-        </div>
-    </div>`);
-    },
-    /**
-     *
-     * @param name 用户名
-     * @param uid 用户UID
-     * @param liveID 用户直播间房号
-     * @param image 用户头像
-     * @param title 直播间标题
-     * @returns {string}
-     */
-    getLiveItem(name, uid, liveID, image, title) {
-        return $(` <div class="bili-dyn-live-users__item" title="点击用户名打开直播间,点击用户头像打开用户主页">
-                <div class="bili-dyn-live-users__item__left">
-                    <div class="bili-dyn-live-users__item__face-container">
-                        <div class="bili-dyn-live-users__item__face">
-                            <div class="b-img--face b-img">
-                                <picture class="b-img__inner">
-                                <a href="https://space.bilibili.com/${uid}" target="_blank">
-                                <img src="${image}@76w_76h_!web-dynamic.webp"
-                                        loading="lazy" onload="bmgCmptOnload(this)" alt="图片异常">
-                                </a>
-                                </picture>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bili-dyn-live-users__item__right">
-                    <a href="https://live.bilibili.com/${liveID}" target="_blank">
-                        <div class="bili-dyn-live-users__item__uname bili-ellipsis">${name}</div>
-                    </a>
-                    <div class="bili-dyn-live-users__item__title bili-ellipsis" title=${title}>${title}</div>
-                </div>
-            </div>`);
     }
 }
 
@@ -6544,123 +8558,6 @@ function startMonitorTheNetwork() {//监听网络变化
     observer.observe({entryTypes: ['resource']});
 }
 
-const butLayEvent = {
-    butaddName(ruleStr, contentV) {
-        if (contentV === '') {
-            Qmsg.error("请输入正确的内容");
-            return false;
-        }
-        if (!confirm(`您要添加的内容是？ 【${contentV}】 ，类型=${ruleStr}`)) {
-            return false;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            UrleCrud.add([], contentV, ruleStr);
-            return false;
-        }
-        if (arrayList.includes(contentV)) {
-            Qmsg.error("当前已有该值！")
-            return false;
-        }
-        return UrleCrud.add(arrayList, contentV, ruleStr);
-        ;
-    },
-    butaddAllName(ruleStr, contentV) {
-        if (contentV === '') {
-            Print.ln("请输入正确的内容")
-            return;
-        }
-        let tempList;
-        try {
-            tempList = JSON.parse(contentV);
-        } catch (error) {
-            Qmsg.error("内容不正确！内容需要数组或者json格式！错误信息=" + error);
-            return;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            UrleCrud.addAll([], tempList, ruleStr);
-            return;
-        }
-        UrleCrud.addAll(arrayList, tempList, ruleStr);
-    },
-    butDelName(ruleStr, contentV) {
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            Print.ln("没有内容哟")
-            return false;
-        }
-        if (!arrayList.includes(contentV)) {
-            Print.ln("没有该内容哟=" + contentV)
-            return false;
-        }
-        return UrleCrud.del(arrayList, contentV, ruleStr);
-    },
-    butDelAllName(ruleStr) {
-        const list = Util.getData(ruleStr);
-        if (list === null || list === undefined) {
-            Print.ln("没有内容哟")
-            return;
-        }
-        const b = confirm("您确定要全部删除吗？");
-        if (!b) {
-            return;
-        }
-        Util.delData(ruleStr);
-        Print.ln("已全部清除=" + ruleStr);
-        Rule.ruleLength();
-    },
-    //查询
-    butFindKey(ruleStr, contentV) {
-        if (contentV === '') {
-            Print.ln("请输入正确的内容")
-            return;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            Print.ln("找不到该内容！");
-            return;
-        }
-        if (arrayList.includes(contentV)) {
-            const info = `搜索的值【${contentV}】，已存在！`;
-            Print.ln(info);
-            Qmsg.success(info);
-            return;
-        }
-        const info = `找不到该内容！【${contentV}】`;
-        Print.ln(info);
-        Qmsg.error(info);
-    },
-
-    //修改
-    butSetKey(ruleStr, oldKey, newKey) {
-        if (oldKey === '' || oldKey.includes(" ") || newKey === "" || newKey.includes(" ")) {
-            return;
-        }
-        if (oldKey === newKey) {
-            Print.ln("请输入正确的内容，两者内容不能相同")
-            return;
-        }
-        let arrayList = Util.getData(ruleStr);
-        if (arrayList === null || arrayList === undefined) {
-            Print.ln("找不到该内容！");
-            return;
-        }
-        if (!arrayList.includes(oldKey)) {
-            Print.ln("找不到该内容！，无法替换！");
-            return;
-        }
-        const index = arrayList.indexOf(oldKey);
-        if (index === -1) {
-            Print.ln("未有该元素！")
-            return;
-        }
-        arrayList.splice(index, 1, newKey);
-        Util.setData(ruleStr, arrayList);
-        Qmsg.success("替换成功！旧元素=" + oldKey + " 新元素=" + newKey);
-    }
-}
-
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
  * @param element 网页元素
@@ -6698,14 +8595,16 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
  * @param {VideoClass} data - 包含以下属性的数据对象：
+ * @param {string} data.upName 用户名
+ * @param {number} data.uid uid
  *   @return  {Boolean} 是否屏蔽
  */
 function shieldVideo_userName_uid_title(data) {
-    const uid = data.uid;
+    const uid = data.uid || 0;
     const element = data.e;
     const title = data.title;
     const videoHref = data.videoAddress;
-    const name = data.upName;
+    const name = data.upName.trim();
     const videoPlaybackVolume = data.playbackVolume;
     const videoTime = data.videoTime;
     const barrageQuantity = data.barrageQuantity;
@@ -6815,21 +8714,6 @@ const message = {//消息中心
     }
 }
 
-function loadPartition() {//加载下拉框中的分区
-    const tempVar = Home.data.video_zoneList;
-    for (const v in tempVar) {
-        $("#video_zoneSelect").append(`<option value=${v}>${tempVar[v]}</option>`);
-    }
-}
-
-function loadChannel() {//加载下拉框中的频道信息
-    const list = frequencyChannel.data.channel_idList;
-    for (const v in list) {
-        $("#video_zoneSelect").append(`<option value=${v}>${list[v]}</option>`);
-    }
-}
-
-
 let href = Util.getWindowUrl();
 console.log("当前网页url=" + href);
 
@@ -6857,122 +8741,39 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     if (Home.isFirstRuleCenterLayoutClick) {
         return;
     }
-    Home.isFirstRuleCenterLayoutClick = true;
-    const loading = Qmsg.loading("请稍等...");
-    $.ajax({
-        type: "GET",
-        url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
-        data: {
-            model: "ruleCenter"
-        },
-        dataType: "json",
-        success(data) {
-            loading.close();
-            const message = data["message"];
-            if (data["code"] !== 1) {
-                Qmsg.error(message);
-                return;
-            }
-            Qmsg.success(message);
-            const dataList = data["list"];
-            const $ruleCenterLayoutUl = $("#ruleCenterLayout>ul");
-            for (let index in dataList) {
-                const userName = dataList[index]["userName"];
-                const time = dataList[index]["rule"]["time"];
-                const ruleRes = dataList[index]["rule"]["ruleRes"];
-                let centerIndexE = [];
-                for (let key in ruleRes) {
-                    centerIndexE.push(`<div>${key}：<span >${ruleRes[key].length}</span>个</div>`);
-                }
-                const item = `<li value="${index}">
-            <div>
-                <div>
-                    <span>作者：</span><span class="authorNameSpan">${userName}</span>
-                </div>
-                <div>
-                    <span>更新时间：</span><span class="updateTimeSpan">${Util.timestampToTime(time)}</span>
-                </div>
-            </div>
-            <div style="column-count: 4">
-            ${centerIndexE.join("")}
-            </div>
-            <div>
-                <button value="inputLocalRule">导入覆盖本地规则</button>
-                <button value="inputCloudRule">导入覆盖云端规则</button>
-                <button value="lookUserRule">查看该用户的规则</button>
-            </div>
-        </li>`;
-                $ruleCenterLayoutUl.append(item);
-            }
-            Util.addStyle(`
+    Util.addStyle(`
    #ruleCenterLayout>ul li {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap:wrap;
         border: 1px solid rgb(0, 217, 0);
+        
     }
-    #ruleCenterLayout>ul>li>div:nth-child(2) span{
-    color: rgb(255, 255, 26);
-   }
                     `);
-            $ruleCenterLayoutUl.on("click", "button", (e) => {
-                const target = e.target;
-                const li = $(target).closest("li").get(0);
-                const liValue = li.getAttribute("value");
-                const authorName = li.querySelector(".authorNameSpan").textContent;
-                const userRuleData = dataList[liValue];
-                const ruleRes = userRuleData["rule"]["ruleRes"];
-                switch (target.getAttribute("value")) {
-                    case "inputLocalRule"://导入覆盖本地规则
-                        if (!confirm(`您确定要导入该用户 ${authorName} 的规则并覆盖您当前本地规则？`)) {
-                            return;
-                        }
-                        rulesAreImportedLocally(ruleRes);
-                        break;
-                    case "inputCloudRule"://导入覆盖云端规则
-                        alert("暂不支持导入覆盖云端规则！");
-                        break;
-                    case "lookUserRule":
-                        if (!confirm(`您是要查看用户 ${authorName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) {
-                            return;
-                        }
-                        Util.openWindowWriteContent(JSON.stringify(ruleRes, null, 2));
-                        break;
-                    default:
-                        alert("出现错误的选项！");
-                        break;
-                }
-            });
-
-        }, error(xhr, status, error) { //请求失败的回调函数
-            loading.close();
-            console.log(error, status);
-            Qmsg.error(error + " " + status);
-        }
+    Home.isFirstRuleCenterLayoutClick = true;
+    const loading = Qmsg.loading("请稍等...");
+    const promise = RuleCenterLayoutVue.httpGetList();
+    promise.then(dataBody => {
+        Qmsg.success(dataBody.message);
+        ruleCenterLayoutVue().list = dataBody.dataList;
+        ruleCenterLayoutVue().isReloadListButShow = true;
+    }).catch(reason => {
+        Home.isFirstRuleCenterLayoutClick = false;
+        ruleCenterLayoutVue().isReloadListButShow = true;
+        debugger;
+        console.log(reason);
+    }).finally(() => {
+        loading.close();
     });
 });
 
-$("#tabUl>li>button[value='liveLayout']").click(() => {
-    if (!(Util.getWindowUrl().includes("t.bilibili.com") && document.title === "动态首页-哔哩哔哩")) {
-        alert("目前暂时只能在动态首页中展示！");
-        return;
-    }
-    if (Home.isFirstLiveLayoutClick) {
-        return;
-    }
-    const sessdata = LocalData.getSESSDATA();
-    if (sessdata == null) {
-    }
-    Home.isFirstLiveLayoutClick = true;
-    Qmsg.success("用户配置了sessdata");
-    Live.followListLive(sessdata);
-});
-
-Rule.ruleLength();
-Rule.showInfo();
 $("#mybut").click(() => Home.hideDisplayHomeLaylout());
 
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
+    if (!LocalData.isEnableShortcutKeys()) {
+        return;
+    }
     const keycode = event.keyCode;
     switch (keycode) {
         case 192: {//按下`按键显示隐藏面板
@@ -6998,89 +8799,6 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
             vue.isDShieldPanel = !vue.isDShieldPanel;
             break;
         }
-    }
-});
-
-$('#singleDoubleModel').change(() => {//监听模式下拉列表
-    const modelStr = $('#singleDoubleModel').val();
-    const inputTextAreaModel = $('#inputTextAreaModel');
-    const butadd = $('#butadd');
-    const butdel = $('#butdel');
-    const butaddAll = $('#butaddAll');
-    const butdelAll = $('#butdelAll');
-    const butSet = $('#butSet');
-    const butFind = $('#butFind');
-    if (modelStr === "one") {//如果中的是单个
-        inputTextAreaModel.css("display", "none");
-        //暂时显示对应的按钮
-        butadd.css("display", "inline");
-        butdel.css("display", "inline");
-        butSet.css("display", "inline");
-        butFind.css("display", "inline");
-        butaddAll.css("display", "none");
-        butdelAll.css("display", "none");
-        return;
-    }//如果选择的是批量
-    inputTextAreaModel.css("display", "block");
-
-    butaddAll.css("display", "inline");
-    butdelAll.css("display", "inline");
-    //暂时隐藏别的按钮先
-    butadd.css("display", "none");
-    butdel.css("display", "none");
-    butSet.css("display", "none");
-    butFind.css("display", "none");
-});
-
-$("#rangePlaySpeed").bind("input propertychange", function (event) {//监听拖动条值变化-视频播放倍数拖动条
-    const vaule = $("#rangePlaySpeed").val();//获取值
-    Util.setVideoBackSpeed(vaule);
-    $("#playbackSpeedText").text(vaule + "x");//修改对应标签的文本显示
-});
-
-$('#playbackSpeedModel').change(() => {//监听模式下拉列表--下拉列表-视频播放倍数
-    Util.setVideoBackSpeed($('#playbackSpeedModel').val())
-});
-
-$("#preservePlaybackSpeedModel").click(() => {//保存固定值中的播放数据
-    const val = $('#playbackSpeedModel').val();
-    Util.setData("playbackSpeed", parseFloat(val));
-    Print.ln("已保存播放速度数据=" + val);
-});
-
-$("#preservePlaySpeed").click(() => {//保存拖动条中的值的播放数据
-    const val = $("#rangePlaySpeed").val();
-    Util.setData("rangePlaySpeed", parseFloat(val));
-    Print.ln("已保存播放速度数据=" + val);
-});
-
-$("#flipHorizontal").click(function () {//水平翻转视频
-    const videoData = Rule.videoData;
-    if (videoData.flipHorizontal) {
-        if (Util.setVideoRotationAngle("Y", 0)) {
-            videoData.flipHorizontal = false;
-        }
-        return;
-    }
-    if (Util.setVideoRotationAngle("Y", 180)) {
-        videoData.flipHorizontal = true;
-    }
-});
-
-$("#flipVertical").click(function () {//垂直翻转视频
-    const videoV = $("video");
-    if (videoV === null) {
-        return;
-    }
-    const videoData = Rule.videoData;
-    if (videoData.flipVertical) {
-        if (Util.setVideoRotationAngle("X", 0)) {
-            videoData.flipVertical = false;
-        }
-        return;
-    }
-    if (Util.setVideoRotationAngle("X", 180)) {
-        videoData.flipVertical = true;
     }
 });
 
@@ -7144,38 +8862,6 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
 });
 
 
-$("#axleRange").bind("input propertychange", function () {//监听拖动条值变化-视频播放器旋转角度拖动条
-    const value = $("#axleRange").val();//获取值
-    Util.setVideoCenterRotation(value);
-    $("#axleSpan").text(value + "%");//修改对应标签的文本显示
-});
-
-const tempdelBox = $("#hideVideoButtonCheackBox");
-tempdelBox.click(() => LocalData.setHideVideoButtonCommentSections(tempdelBox.is(':checked')));
-const $hideVideoRightLayoutCheackBox = $("#hideVideoRightLayoutCheackBox");
-$hideVideoRightLayoutCheackBox.click(() => LocalData.video.setHideVideoRightLayout($hideVideoRightLayoutCheackBox.is(":checked")));
-const $hideVideoTopTitleInfoCheackBox = $("#hideVideoTopTitleInfoCheackBox");
-$hideVideoTopTitleInfoCheackBox.click(() => LocalData.video.setHideVideoTopTitleInfoLayout($hideVideoTopTitleInfoCheackBox.is(":checked")));
-
-
-$("#autoPlayCheckbox").click(() => {//点击禁止打开b站视频时的自动播放
-    Util.setData("autoPlay", $("#autoPlayCheckbox").is(":checked"));
-});
-
-$("#butSelectVideo").click(function () {//确定时长播放量弹幕
-    const selectVideo = $("#selectVideo");
-    const typeV = selectVideo.val();
-    let inputVideoV = $("#inputVideo").val();
-    if (inputVideoV === "") {
-        return;
-    }
-    const name = selectVideo.find("option:selected").text();
-    Util.setData(typeV, parseInt(inputVideoV));
-    const info = `已设置${name}的具体值【${inputVideoV}】，为0则不生效`;
-    Print.ln(info);
-    Qmsg.success(info);
-});
-
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {
         if (!confirm("是要清空消息吗？")) {
@@ -7185,640 +8871,7 @@ $("#butClearMessage").click(() => {
     document.querySelector('#outputInfo').innerHTML = '';
 });
 
-$("#butadd").click(function () {//增
-    const typeVal = $("#model option:selected").val();
-    const content = prompt("请填写要添加的值");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butaddName(typeVal, parseInt(content));
-        return;
-    }
-    butLayEvent.butaddName(typeVal, content);
-})
-
-$("#butaddAll").click(function () {
-    const typeVal = $("#model option:selected").val();
-    const content = $("#inputTextAreaModel").val();
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        alert("暂不支持uid和白名单uid");
-        return;
-    }
-    butLayEvent.butaddAllName(typeVal, content);
-})
-$("#butdel").click(function () {//删
-    const typeVal = $("#model option:selected").val();
-    const content = prompt("请输入你要删除的单个元素规则");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butDelName(typeVal, parseInt(content));
-        return;
-    }
-    butLayEvent.butDelName(typeVal, content);
-})
-$("#butdelAll").click(function () {//指定规则全删
-    const typeVal = $("#model option:selected").val();
-    butLayEvent.butDelAllName(typeVal);
-})
-
-$("#butSet").click(() => {
-    const oldContent = prompt("请输入你要修改的单个元素规则");
-    const content = prompt("请输入修改之后的值");
-    if (content === null || oldContent === null) {
-        return;
-    }
-    if (content === "" || oldContent === "") {
-        Qmsg.error("请填写正常的内容");
-        return;
-    }
-    const typeVal = $("#model option:selected").val();
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butSetKey(typeVal, parseInt(oldContent), parseInt(content));
-        return;
-    }
-    butLayEvent.butSetKey(typeVal, oldContent, content);
-});
-$("#butFind").click(function () {//查
-    const typeVal = $("#model option:selected").val();
-    const content = prompt("请输入你要查询的单个元素规则");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        Qmsg.error("请输入正确的内容！");
-        return;
-    }
-    if (typeVal === "userUIDArr" || typeVal === "userWhiteUIDArr") {
-        butLayEvent.butFindKey(typeVal, parseInt(content));
-        return;
-    }
-    butLayEvent.butFindKey(typeVal, content);
-});
-
-$("#lookRuleContentBut").click(() => Util.openWindowWriteContent(Util.getRuleFormatStr()));
-
 const bilibiliEncoder = Util.BilibiliEncoder;
-$("#otherLayout div>button[value='bvBut']").click(() => {
-    const content = prompt("bv转av号");
-    if (content === null) {
-        return;
-    }
-    if (content.length <= 5) {
-        alert("请正确填写内容！");
-        return;
-    }
-    const dec = bilibiliEncoder.dec(content);
-    if (isNaN(dec)) {
-        alert("结果错误！");
-        return;
-    }
-    alert("av" + dec);
-});
-
-$("#otherLayout div>button[value='avBut']").click(() => {
-    let content = prompt("av转bv号");
-    if (content === null) {
-        return;
-    }
-    if (content.startsWith("av") || content.startsWith("AV")) {
-        content = content.substring(2, content.length);
-    }
-    if (content.length < 1 || (isNaN(content))) {
-        alert("请正确填写内容！");
-        return;
-    }
-    const dec = bilibiliEncoder.enc(content);
-    if (!dec.startsWith("BV")) {
-        alert("结果错误！");
-        return;
-    }
-    alert(dec);
-});
-
-$("#sgSessdata>button:eq(0)").click(() => {
-    const content = prompt("请输入要保存的SESSDATA值");
-    if (content === null) {
-        return;
-    }
-    if (content === "") {
-        LocalData.setSESSDATA(null);
-        return;
-    }
-    if (content.includes(" ") || content.includes("=")) {
-        Qmsg.error("内容中包含空格或者=，请去除相关符号！");
-        return;
-    }
-    if (!confirm(`要保存的SESSDATA是\n${content}`)) {
-        return;
-    }
-    LocalData.setSESSDATA(content);
-    Qmsg.success("已设置SESSDATA的值！");
-});
-
-$("#bili_jctDiv>button:eq(0)").click(() => {
-    const content = prompt("设置bili_jct值为：");
-    if (content === null) {
-        return;
-    }
-    if (content === "" | content.includes(" ")) {
-        Qmsg.error("内容有误，请正确书写！");
-        return;
-    }
-    LocalData.setBili_jct(content);
-    Qmsg.success(`已设置bili_jct的值为\n${content}`);
-});
-$("#bili_jctDiv>button:eq(1)").click(() => {
-    const data = LocalData.getWebBili_jct();
-    if (data === null) {
-        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
-        return;
-    }
-    if (!confirm("确定要将存储在网页中的bili_jct值并设置存储在油猴脚本bili_jct值吗？")) {
-        return;
-    }
-    LocalData.setBili_jct(data);
-    Qmsg.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
-});
-$("#bili_jctDiv>button:eq(2)").click(() => {
-    const data = LocalData.getWebBili_jct();
-    if (data === null) {
-        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
-        return;
-    }
-    Qmsg.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
-    Print.ln(data);
-});
-$("#bili_jctDiv>button:eq(3)").click(() => {
-    const biliJct = LocalData.getBili_jct();
-    if (biliJct === null) {
-        Qmsg.error(`用户未设置bili_jct值`);
-        return;
-    }
-    Qmsg.success("获取成功！，已将bili_jct值输出到面板上");
-});
-$("#sgSessdata>button:eq(1)").click(() => {
-    const data = LocalData.getSESSDATA();
-    if (data === null) {
-        const tip = '用户未添加SESSDATA或者已删除存储在脚本的SESSDATA';
-        Qmsg.error(tip);
-        alert(tip);
-        return;
-    }
-    Qmsg.success("已将值输出到脚本面板的输出信息上！");
-    Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
-    Print.ln(data);
-});
-
-const openPrivacyModeCheckbox = $("#openPrivacyModeCheckbox");
-openPrivacyModeCheckbox.click(() => {
-    LocalData.setPrivacyMode(openPrivacyModeCheckbox.is(":checked"));
-});
-const JQEOpenBWebNoneCheckbox = $("#openBWebNoneCheckbox");
-JQEOpenBWebNoneCheckbox.click(() => {
-    LocalData.setBWebNone(JQEOpenBWebNoneCheckbox.is(":checked"));
-});
-
-$("#outExport").click(() => {//点击导出规则事件
-    const selectedText = $('#outRuleSelect option:selected').text();
-    switch (selectedText) {
-        case "全部规则到文件":
-            let fileName = "规则-" + Util.toTimeString();
-            const s = prompt("保存为", fileName);
-            if (s === null) {
-                return;
-            }
-            if (!(s.includes(" ") || s === "" || s.length === 0)) {
-                fileName = s;
-            }
-            Util.fileDownload(Util.getRuleFormatStr(), fileName + ".json");
-            break;
-        case "全部规则到剪贴板":
-            Util.copyToClip(Util.getRuleFormatStr());
-            break;
-        case "全部UID规则到文件":
-            const list = LocalData.getArrUID();
-            Util.fileDownload(JSON.stringify(list, null, 3), `UID规则-${list.length}个.json`);
-            break;
-        case "全部UID规则到云端":
-            alert("暂不支持");
-            break;
-        case "全部规则到云端账号":
-            const getInfo = LocalData.AccountCenter.getInfo();
-            if (getInfo === {} || Object.keys(getInfo).length === 0) {
-                alert("请先登录在进行操作.");
-                return;
-            }
-            if (!confirm("确定要将本地规则导出到对应账号的云端上吗")) {
-                return;
-            }
-            const loading = Qmsg.loading("请稍等...");
-            $.ajax({
-                type: "POST",
-                url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
-                data: {
-                    model: "All",
-                    userName: getInfo["userName"],
-                    userPassword: getInfo["userPassword"],
-                    postData: Util.getRuleFormatStr()
-                },
-                dataType: "json",
-                success(data) {
-                    loading.close();
-                    const message = data["message"];
-                    if (data["code"] !== 1) {
-                        Qmsg.error(message);
-                        return;
-                    }
-                    Qmsg.success(message);
-                    console.log(data["dataJson"])
-                }, error(xhr, status, error) { //请求失败的回调函数
-                    loading.close();
-                    console.log(error);
-                    console.log(status);
-                }
-            });
-            break;
-    }
-    if (selectedText === "b站弹幕屏蔽规则") {
-        //已经登录b站账号的前提下，打开该api
-        //https://api.bilibili.com/x/dm/filter/user
-        //即可获取到该账号下的b站云端最新的屏蔽词内容
-        //type类型
-        //0 屏蔽文本
-        //1 屏蔽正则
-        //2 屏蔽用户
-        /**
-         * filter 规则内容
-         */
-        /**
-         *opened 是否启用
-         */
-        const item = window.localStorage.getItem("bpx_player_profile");
-        if (item === null || item === undefined) {
-            alert("找不到当前账号的屏蔽设定规则，请确定进行登录了并进行加载了弹幕的屏蔽设定");
-            return;
-        }
-        const arrList = JSON.parse(item)["blockList"];
-        if (arrList === undefined || arrList === null || arrList.length === 0) {
-            alert("当前账号的屏蔽设定规则没有屏蔽设定规则哟，请确定进行登录了并加载了弹幕的屏蔽设定");
-            return;
-        }
-        const list = [];
-        for (const arrListElement of arrList) {
-            const type = arrListElement["type"];
-            const filter = arrListElement["filter"];
-            const opened = arrListElement["opened"];
-            const id = arrListElement["id"];
-            if (type === 2) {
-                continue;
-            }
-            list.push(arrListElement);
-        }
-        Util.fileDownload(JSON.stringify(list, null, 3), "b站账号弹幕屏蔽设定规则.json");
-    }
-});
-
-function rulesAreImportedLocally(ruleRes) {//规则导入本地
-    let list = ruleRes["用户名黑名单模式(精确匹配)"];
-    LocalData.setArrName(list);
-    list = ruleRes["用户名黑名单模式(模糊匹配)"];
-    LocalData.setArrNameKey(list);
-    list = ruleRes["用户uid黑名单模式(精确匹配)"];
-    LocalData.setArrUID(list)
-    list = ruleRes["用户uid白名单模式(精确匹配)"];
-    LocalData.setArrWhiteUID(list);
-    list = ruleRes["标题黑名单模式(模糊匹配)"];
-    LocalData.setArrTitle(list);
-    list = ruleRes["标题黑名单模式(正则匹配)"];
-    LocalData.setArrTitleKeyCanonical(list);
-    list = ruleRes["评论关键词黑名单模式(模糊匹配)"];
-    LocalData.setCommentOnKeyArr(list);
-    list = ruleRes["评论关键词黑名单模式(正则匹配)"];
-    LocalData.setArrContentOnKeyCanonicalArr(list);
-    list = ruleRes["粉丝牌黑名单模式(精确匹配)"];
-    LocalData.setFanCardArr(list)
-    list = ruleRes["专栏关键词内容黑名单模式(模糊匹配)"];
-    LocalData.setContentColumnKeyArr(list)
-    list = ruleRes["动态关键词内容黑名单模式(模糊匹配)"];
-    LocalData.setDynamicArr(list);
-    list = ruleRes["动态关键词内容黑名单模式(正则匹配)"];
-    LocalData.setDynamicCanonicalArr(list);
-    Rule.ruleLength();
-    alert("已导入");
-}
-
-//导入按钮事件
-$("#inputExport").click(function () {
-    const selectedText = $('#inputRuleSelect option:selected').text();
-    let content = $("#ruleEditorInput").val();
-    switch (selectedText) {
-        case "从云端账号导入覆盖本地规则":
-            const getInfo = LocalData.AccountCenter.getInfo();
-            if (getInfo === {} || Object.keys(getInfo).length === 0) {
-                alert("请先登录在进行操作.");
-                return;
-            }
-            if (!confirm("确定要云端账号对应的规则导入并覆盖到本地吗？")) {
-                return;
-            }
-            const loading = Qmsg.loading("请稍等...");
-            $.ajax({
-                type: "GET",
-                url: "https://vip.mikuchase.ltd/bilibili/shieldRule/",
-                data: {
-                    userName: getInfo["userName"],
-                    userPassword: getInfo["userPassword"]
-                },
-                dataType: "json",
-                success(data) {
-                    loading.close();
-                    const message = data["message"];
-                    if (data["code"] !== 1) {
-                        Qmsg.error(message);
-                        return;
-                    }
-                    Qmsg.success(message);
-                    const time = data["data"]["time"];
-                    const ruleRes = data["data"]["ruleRes"];
-                    console.log(time);
-                    console.log(ruleRes);
-                    rulesAreImportedLocally(ruleRes);
-                }, error(xhr, status, error) { //请求失败的回调函数
-                    loading.close();
-                    console.log(error);
-                    console.log(status);
-                }
-            });
-            break;
-        case "从下面编辑框导入全部规则":
-            if (content === "" || content === " ") {
-                alert("请填写正确的规则样式！");
-                return;
-            }
-            const b = confirm("需要注意的是，这一步操作会覆盖你先前的规则！您确定要导入吗？");
-            if (!b) {
-                return;
-            }
-            let jsonRule = [];
-            try {
-                jsonRule = JSON.parse(content);
-            } catch (error) {
-                alert("内容格式错误！" + error)
-                return;
-            }
-            rulesAreImportedLocally(jsonRule);
-            break;
-        case "从下面编辑框合并导入UID规则":
-            let uidList;
-            try {
-                uidList = JSON.parse(content)
-                if (!(uidList instanceof Array)) {
-                    throw new Error("错误信息，导入的类型不是数组！");
-                }
-            } catch (e) {
-                alert("类型错误，导入的内容不是jsoN")
-                return;
-            }
-            for (let i = 0; i < uidList.length; i++) {
-                try {
-                    uidList[i] = parseInt(uidList[i]);
-                } catch (e) {
-                    alert("数组中存在非数字内容")
-                    return;
-                }
-            }
-            if (uidList.length === 0) {
-                alert("该数组长度为0！")
-                return;
-            }
-            const data = LocalData.getArrUID();
-            if (data === undefined || data === null || !(data instanceof Array) || data.length === 0) {
-                if (confirm("未检测到本地的UID规则，是否要覆盖或者直接添加？")) {
-                    LocalData.setArrUID(uidList);
-                    alert("添加成功！")
-                }
-                return;
-            }
-            let index = 0;
-            for (const v of uidList) {
-                if (data.includes(v)) {
-                    continue;
-                }
-                index++;
-                data.push(v);
-            }
-            if (index === 0) {
-                alert("内容没有变化！，可能是原先的规则里已经有了");
-                return;
-            }
-            alert(`已新增${index}个UID规则`);
-            LocalData.setArrUID(data);
-            break;
-        case "本地b站弹幕屏蔽规则":
-            alert("暂时未写")
-            break;
-        default:
-            alert(`出现超出的条件！selectedText=${selectedText}`);
-            break;
-    }
-});
-
-
-$('#inputRuleSelect').change(() => {//监听模式下拉列表
-    const selectedText = $('#inputRuleSelect option:selected').text();
-    const editorInput = $("#ruleEditorInput");
-    if (selectedText === "从下面编辑框导入全部规则" || selectedText === "从下面编辑框合并导入UID规则") {
-        editorInput.show();
-        return;
-    }
-    editorInput.hide();
-});
-
-$("#fenestruleCheckbox").change(function () {
-    if ($("#fenestruleCheckbox").is(":checked")) {//如果是选中状态
-        try {
-            for (const v of $("video")) {
-                v.requestPictureInPicture();//进入画中画
-            }
-        } catch (e) {
-            alert("未找到视频播放器！")
-        }
-    } else {
-        try {
-            for (const v of $("video")) {
-                v.exitPictureInPicture();//退出画中画
-            }
-        } catch (e) {
-            alert("未找到视频播放器！")
-        }
-    }
-});
-
-const tempPushTypeSelect = $('#pushTypeSelect');
-tempPushTypeSelect.change(() => {//监听模式下拉列表--下拉列表-指定推送类型-分区亦或者频道
-    const tempVar = tempPushTypeSelect.val();
-    const tempSortTypeSelect = $("#sort_typeSelect");
-    $("#video_zoneSelect>option:not(:first)").remove();//清空下拉选择器内的元素（除第一个）
-    if (tempVar === "分区") {
-        loadPartition();
-        tempSortTypeSelect.css("display", "none");
-        return;
-    }
-    tempSortTypeSelect.css("display", "inline");
-    tempSortTypeSelect.val(frequencyChannel.getSort_type());
-    loadChannel();
-});
-
-const tempVideoZoneSelect = $('#video_zoneSelect');
-$("#okButton").click(() => {//确定首页指定推送视频
-    const pushType = $("#pushTypeSelect").val();
-    const selectVar = parseInt(tempVideoZoneSelect.val());
-    Home.setPushType(pushType);
-    if (pushType === "分区") {
-        Print.ln("选择了分区" + Home.data.video_zoneList[selectVar] + " uid=" + selectVar);
-        LocalData.setVideo_zone(selectVar);
-    } else {
-        const tempSortTypeSelect = $("#sort_typeSelect");
-        const tempVar = tempSortTypeSelect.val();
-        Print.ln("选择了" + tempSortTypeSelect.text() + "的频道" + frequencyChannel.data.channel_idList[selectVar] + " uid=" + selectVar);
-        frequencyChannel.setChannel_id(selectVar);
-        frequencyChannel.setSort_type(tempVar)
-    }
-    alert("已设置！")
-});
-
-const tempIdCheckbox = $("#isIdCheckbox");
-$("#findButon").click(() => {
-    const tempContent = prompt("查询的类型关键词");
-    if (tempContent === null || tempContent === "" || tempContent.includes(" ")) {
-        Qmsg.error("请正确输入内容");
-        return;
-    }
-
-    function tempFunc(typeStr, tempContent) {
-        const list = typeStr === "分区" ? Home.data.video_zoneList : frequencyChannel.data.channel_idList;
-        if (tempIdCheckbox.is(":checked")) {//通过ID方式查找
-            if (tempContent in list) {
-                tempVideoZoneSelect.val(tempContent);
-                Print.ln(`通过ID方式找到该值！=${list[tempContent]}`);
-                return;
-            }
-        } else {
-            for (let v in list) {//通过遍历字典中的value，该值包含于tempContent时成立
-                if (!list[v].includes(tempContent)) {
-                    continue;
-                }
-                tempVideoZoneSelect.val(v);
-                Print.ln(`通过value找到该值！=${tempContent}`);
-                return;
-            }
-        }
-        Qmsg.error("未找到该值！");
-    }
-
-    if (tempPushTypeSelect.val() === "分区") {
-        tempFunc("分区", tempContent);
-    } else {
-        tempFunc("频道", tempContent);
-    }
-});
-
-
-$("#GBTLSGameDetails>button[value='open']").click(() => {
-    if (Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
-        alert("当前网站就是GBT乐赏游戏空间");
-        return;
-    }
-    Util.openWindow("http://gbtgame.ysepan.com/");
-});
-
-$("#GBTLSGameDetails>button").click((e) => {
-    switch (e.target.value) {
-        case "getPageDataInfo":
-            GBTGame.init();
-            break;
-        case "getData":
-            GBTGame.getData();
-            break;
-        case "getFildKeys":
-            const key = prompt("请输入您要搜索的内容");
-            if (key === null) {
-                return;
-            }
-            if (key.includes(" ") || key === "") {
-                alert("请正确填写您要搜索的内容！");
-                return;
-            }
-            const findList = GBTGame.find(key);
-            const filter = Object.keys(findList);
-            if (filter.length === 0) {
-                const info = "并未搜索到您想要的资源，key=" + key;
-                Print.ln(info);
-                Qmsg.info(info);
-                alert(info);
-                return;
-            }
-            const info = `已找到了${filter.length}个资源，并输出到控制台上，且用户接下来可以将其保存在电脑上！`;
-            alert(info);
-            const findJsonListStr = JSON.stringify(findList, null, 3);
-            console.log(findList);
-            console.log(findJsonListStr);
-            Qmsg.success(info);
-            Util.fileDownload(findJsonListStr, `搜索GBT乐赏游戏空间关键词为【${key}】 的资源${filter.length}个.json`);
-            break;
-    }
-});
-
-const $isTrendsItemsTwoColumnCheackbox = $("#isTrendsItemsTwoColumnCheackbox");
-const $isMainVideoListCheckbox = $("#isMainVideoListCheckbox");
-$isMainVideoListCheckbox.click(() => LocalData.setIsMainVideoList($isMainVideoListCheckbox.prop("checked")));
-$isTrendsItemsTwoColumnCheackbox.click(() => Trends.data.setTrendsItemsTwoColumnCheackbox($isTrendsItemsTwoColumnCheackbox.prop("checked")));
-
-$("#openWebBiliBliUrlAddress>button").click((e) => {
-    const target = e.target;
-    const name = target.textContent;
-    let url;
-    switch (target.value) {
-        case "watchlaterList":
-            url = "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list";
-            break;
-        case "watchlaterPlayerList":
-            url = "https://www.bilibili.com/watchlater";
-            break;
-        case "liveCenter":
-            url = "https://link.bilibili.com/p/center/index";
-            break;
-        case "coolHome":
-            url = "https://cool.bilibili.com/";
-            break;
-        default:
-            alert("出现未知的参数？");
-            return;
-    }
-    if (!confirm(`是要前往 ${name} 吗？`)) {
-        return;
-    }
-    Util.openWindow(url);
-});
-
 
 const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
     el: "#suspensionDiv",
@@ -7832,7 +8885,8 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
         videoData: {
             title: "",
             bv: "",
-            av: ""
+            av: "",
+            show: false
         },
     },
     methods: {
@@ -7851,11 +8905,10 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             LookAtItLater.addLookAtItLater(this.getVideoData());
         },
         addShieldName() {
-            butLayEvent.butaddName("userNameArr", this.upName);
+            UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", this.upName);
         },
         addShieldUid() {
-            const tempLoop = butLayEvent.butaddName("userUIDArr", parseInt(this.uid));
-            if (!tempLoop) {
+            if (!UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", this.uid)) {
                 return;
             }
             const title = document.title;
@@ -7875,14 +8928,13 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
         },
         findUserInfo() {
             const loading = Qmsg.loading("正在获取中！");
-            HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`, (res) => {
-                const body = JSON.parse(res.responseText);
+            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`);
+            promise.then(res => {
+                const body = res.bodyJson;
                 if (body["code"] !== 0) {
                     Qmsg.error("请求失败！");
-                    loading.close();
                     return;
                 }
-                loading.close();
                 const cradInfo = body["data"]["card"];
                 const uid = cradInfo["mid"];//uid
                 const sex = cradInfo["sex"];//性别
@@ -7903,6 +8955,8 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
                     $("body").append(userCardHtml);
                 }
                 tempJq.css("display", "inline");
+            }).finally(() => {
+                loading.close();
             });
         },
         move(value, func) {
@@ -7968,14 +9022,45 @@ const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
 });
 
 Watched.WatchedListVue();
+const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
+ruleCRUDLlayoutVue().updateRuleIndex();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
+const videoParamsLayoutVue = Video_params_layout.returnVue();
+const liveLayoutVue = LiveLayoutVue.returnVue();
+{//初始化一些配置
+    const data = liveLayoutVue()._data;
+    data.sPartitionObjList = data.partitionObjList[data.mainPartitionSelect];
+    data.sPartitionSelect = data.sPartitionObjList[0];
+}
+OtherLayoutVue.returnVue();
+DonateLayoutVue.returnVue();
+const homePageLayoutVue = HomePageLayoutVue.returnVue();
+{
+    let list;
+    let id;
+    switch (Home.getPushType()) {
+        case "频道":
+            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
+            list = HomePageLayoutVue.getChannel_idList();
+            id = frequencyChannel.getChannel_id();
+            homePageLayoutVue().isChannelSelect = true;
+            break;
+        default:
+            list = HomePageLayoutVue.getVideo_zoneList();
+            id = LocalData.getVideo_zone();
+            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
+            break;
+    }
+    homePageLayoutVue().showList = list;
+    homePageLayoutVue().showListSelect = id;
+}
 
+const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
 
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
-//每秒监听网页标题URL
-setInterval(function () {//每秒监听网页中的url
+setInterval(() => {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
     if (href === tempUrl) {//没有变化就结束本轮
         return;
@@ -7986,10 +9071,8 @@ setInterval(function () {//每秒监听网页中的url
 }, 500);
 
 if (href.includes("bilibili.com")) {
+    LockScreen.isLockScreen();
     bilibiliOne(href, document.title);
     bilibili(href);
     startMonitorTheNetwork();
-}
-if (href.includes("gbtgame.ysepan.com")) {
-    $("#GBTLSGameDetails").attr("open", true);
 }
