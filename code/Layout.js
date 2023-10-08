@@ -396,7 +396,7 @@ border: 0.5px solid green;
     <input type="text" placeholder="密码" id="userPasswordInput">
     <div>
         <button>
-            <a href="https://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+            <a href="http://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
         </button>
         <button id="loginBut">登录</button>
     </div>
