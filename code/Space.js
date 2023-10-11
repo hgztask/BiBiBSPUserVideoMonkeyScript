@@ -109,13 +109,15 @@ const Space = {
                     for (let value of mediasArr) {
                         const data = {};
                         const upInfo = value["upper"];
+                        const bvId = value["bvid"];
                         data["作者名"] = upInfo["name"];
                         data["uid"] = upInfo["mid"];
                         data["头像"] = upInfo["face"];
                         data["标题"] = value["title"];
                         data["封面"] = value["cover"];
                         data["AV号"] = value["id"];
-                        data["BV号"] = value["bvid"];
+                        data["BV号"] = bvId;
+                        data["视频地址"] = `https://www.bilibili.com/video/${bvId}`;
                         data["弹幕量"] = value["cnt_info"]["danmaku"];
                         data["播放量"] = value["cnt_info"]["play"];
                         data["收藏量"] = value["cnt_info"]["collect"];
