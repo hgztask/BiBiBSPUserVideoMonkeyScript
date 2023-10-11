@@ -1,0 +1,1 @@
+const defApi = "https://api.mikuchase.ltd";

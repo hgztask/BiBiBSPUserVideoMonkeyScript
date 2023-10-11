@@ -212,7 +212,7 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "POST",
-                                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                                url: `${defApi}/bilibili/shieldRule/`,
                                 data: {
                                     model: "All",
                                     userName: getInfo["userName"],
@@ -292,7 +292,7 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "GET",
-                                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                                url: `${defApi}/bilibili/shieldRule/`,
                                 data: {
                                     userName: getInfo["userName"],
                                     userPassword: getInfo["userPassword"]

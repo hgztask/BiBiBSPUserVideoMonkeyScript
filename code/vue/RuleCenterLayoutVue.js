@@ -8,7 +8,7 @@ const RuleCenterLayoutVue = {
             //TODO 后续对下面代码进行调整
             $.ajax({
                 type: "GET",
-                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                url: `${defApi}/bilibili/shieldRule/`,
                 data: {
                     model: "ruleCenter"
                 },
