@@ -1,3 +1,8 @@
+//拼接直播地址
+Vue.filter("joinRoomAddress", (roomId) => {
+    return `https://live.bilibili.com/${roomId}`;
+})
+
 //定义自定义组件
 Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，无封面信息
     props: ["upAddress", "face", "roomId", "title", "upName"],
@@ -9,19 +14,14 @@ Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，�
             </a>
         </div>
         <div style="display: flex;flex-direction: column;justify-content: space-around;">
-            <a :href="joinRoomAddress(roomId)" target="_blank">
+            <a :href="roomId|joinRoomAddress" target="_blank">
                 <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
             </a>
             <a>
                 <div :title="upName">{{ upName }}</div>
             </a>
         </div>
-        </div>`,
-    methods: {
-        joinRoomAddress(roomId) {
-            return `https://live.bilibili.com/${roomId}`;
-        }
-    }
+        </div>`
 })
 
 Vue.component("liveRoomFrontCoverItem", {
@@ -38,7 +38,7 @@ Vue.component("liveRoomFrontCoverItem", {
                 </a>
             </div>
             <div style="display: flex;flex-direction: column;justify-content: space-around;">
-                <a :href="roomId" target="_blank">
+                <a :href="roomId|joinRoomAddress" target="_blank">
                     <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
                 </a>
                 <a>
@@ -53,9 +53,6 @@ Vue.component("liveRoomFrontCoverItem", {
         };
     },
     methods: {
-        joinRoomAddress(roomId) {
-            return `https://live.bilibili.com/${roomId}`;
-        },
         setVideoFrameImg() {
             this.videoCover = this.videoFrameImg;
         },
