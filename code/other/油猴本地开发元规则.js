@@ -17,6 +17,7 @@
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\DonateLayoutVue.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\HomePageLayoutVue.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\RuleCenterLayoutVue.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\vue\SuspensionDivVue.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\matching.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\UrleCrud.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\code\Perf_observer.js

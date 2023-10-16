@@ -495,8 +495,8 @@ const Util = {
         const x = e.clientX;
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
-        suspensionDivVue.xy.x = x;
-        suspensionDivVue.xy.y = y;
+        suspensionDivVue().xy.x = x;
+        suspensionDivVue().xy.y = y;
         if (!($("#quickLevitationShield").is(':checked'))) {
             return;
         }
@@ -539,19 +539,21 @@ const Util = {
         if ($("#fixedPanelValueCheckbox").is(':checked')) {
             return;
         }
-        suspensionDivVue.upName = name;
-        suspensionDivVue.uid = uid;
-        suspensionDivVue.videoData.title = title;
-        suspensionDivVue.videoData.bv = bv;
-        suspensionDivVue.videoData.av = av;
+        suspensionDivVue().upName = name;
+        suspensionDivVue().uid = uid;
+        suspensionDivVue().videoData.title = title;
+        suspensionDivVue().videoData.bv = bv;
+        suspensionDivVue().videoData.av = av;
+        suspensionDivVue().videoData.frontCover = data["frontCover"];
+        console.log(data["frontCover"]);
         if (title === undefined) {
-            suspensionDivVue.videoData.show = false;
+            suspensionDivVue().videoData.show = false;
         } else {
-            suspensionDivVue.videoData.show = true;
+            suspensionDivVue().videoData.show = true;
             if (bv === undefined) {
                 return;
             }
-            suspensionDivVue.videoData.av = Util.BilibiliEncoder.dec(bv);
+            suspensionDivVue().videoData.av = Util.BilibiliEncoder.dec(bv);
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");

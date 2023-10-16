@@ -348,6 +348,7 @@ border: 0.5px solid green;
         <p>标题:{{videoData.title}}</span></p>
         <p>视频BV号:{{videoData.bv}}</span></p>
         <p>视频AV号:{{videoData.av}}</p>
+        <img :src="videoData.frontCover" alt="图片显示异常" style="width: 100%;">
         <button @click="addToWatchedBut">添加进已观看</button>
         <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>
@@ -516,6 +517,7 @@ border: 0.5px solid green;
   :uid="item.uid"
   :bv="item.bv"
   :obj-item="item"
+  :front_cover="item.frontCover"
   @del-item-click="delListItem"
   @set-item-click="setListItem"
   ></list-item>
@@ -538,11 +540,11 @@ border: 0.5px solid green;
   <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
 </template>
 <template #center>
-  <div>
-<input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}
-<select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select>
-<button @click="okOutOrInputClick">执行</button>
-</div>
+      <div>
+        <input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}
+        <select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select>
+        <button @click="okOutOrInputClick">执行</button>
+    </div>
   <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
 </template>
 <template #button-list="data">
@@ -553,6 +555,7 @@ border: 0.5px solid green;
   :uid="item.uid"
   :bv="item.bv"
   :obj-item="item"
+  :front_cover="item.frontCover"
   v-on:del-item-click="delListItem"
   v-on:set-item-click="setListItem"></list-item>
 </ol>

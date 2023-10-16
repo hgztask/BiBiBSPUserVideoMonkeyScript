@@ -121,17 +121,22 @@ Vue.component("ruleCenterItem", {
 Vue.component("list-item", {
     template: `
         <li style="border: 1px solid green">
-        <div>Title：<a v-bind:href=splicingVideoAddress(bv) target="_blank">{{ title }}</a></div>
-        <div>UP：<a v-bind:href=splicingUserAddress(uid) target="_blank">{{ upName }}</a></div>
-        <button @click="delItem">删除该项</button>
-        <button @click="setItem('upName','用户名',upName)">修改用户名</button>
-        <button @click="setItem('uid','uid',uid)">修改uid</button>
-        <button @click="setItem('title','标题',title)">修改标题</button>
-        <button @click="setItem('bv','BV号',bv)">修改bv</button>
-        <div>
+        <div style="display: flex">
+            <div style="height: 144px; width: 256px;">
+                <img :src="front_cover|setFrontCover" alt="显示失败" style="height: 100%;">
+            </div>
+            <div>
+                <div>Title：<a v-bind:href=splicingVideoAddress(bv) target="_blank">{{ title }}</a></div>
+                <div>UP：<a v-bind:href=splicingUserAddress(uid) target="_blank">{{ upName }}</a></div>
+                <button @click="delItem">删除该项</button>
+                <button @click="setItem('upName','用户名',upName)">修改用户名</button>
+                <button @click="setItem('uid','uid',uid)">修改uid</button>
+                <button @click="setItem('title','标题',title)">修改标题</button>
+                <button @click="setItem('bv','BV号',bv)">修改bv</button>
+            </div>
         </div>
         </li>`,
-    props: ["objItem", "title", "upName", "bv", "uid",],
+    props: ["objItem", "title", "upName", "bv", "uid", "front_cover"],
     methods: {
         delItem() {
             this.$emit("del-item-click", this.objItem);
@@ -145,6 +150,13 @@ Vue.component("list-item", {
         splicingUserAddress(str) {//拼接用户地址
             return "https://space.bilibili.com/" + str;
         },
+    },
+    filters: {
+        setFrontCover(img) {
+            const defImg = "http://i2.hdslb.com/bfs/archive/43276436b25529ae0e2c6e3dc896ec8a66ef4d60.jpg";
+            if (img === null || img === undefined) return defImg;
+            return img;
+        }
     }
 });
 
