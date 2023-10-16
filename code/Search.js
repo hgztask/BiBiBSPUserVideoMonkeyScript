@@ -45,6 +45,7 @@ const Search = {
             let videOHref;
             const topInfo = v.querySelectorAll(".bili-video-card__stats--left>.bili-video-card__stats--item");//1播放量2弹幕数
             const tempE = info.querySelector("a[href*='www.bilibili.com/video/']");
+            const v_img = v.querySelector(".v-img>img");
             if (tempE == null) {
                 v.remove();
                 console.log("视频地址非video，故删除");
@@ -62,6 +63,7 @@ const Search = {
                 uid: Util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
                 //视频的时间
                 videoTime: v.querySelector(".bili-video-card__stats__duration").textContent,
+                frontCover: v_img === null ? null : v_img.getAttribute("src"),
                 //播放量
                 playbackVolume: topInfo[0],
                 //弹幕量
