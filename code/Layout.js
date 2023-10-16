@@ -499,29 +499,55 @@ border: 0.5px solid green;
   <!-- 直播列表布局 -->
 </div>
   <div class="tab" id="watchedListLayout">
-  <h3>已观看视频个数{{watchedList.length}}个</h3>
- <div v-for="item in watchedList">
- <p>{{item.upName}}</p>
-</div>
+  <def-list-layout list-layout-name="已观看视频列表"
+  :type-list="typeList"
+  find-list-type="title"
+  :list="watchedList"
+  @set-sub-this="setSubThis"
+   @search-key-event="searchKey"
+  @clear-but="clearWatchedArr"
+  @renovate-list-event="renovateLayoutItemList"
+  >
+  <template #button-list="data">
+  <ol>
+  <list-item v-for="(item,key) in data.showList"
+  :title="item.title"
+  :up-name="item.upName"
+  :uid="item.uid"
+  :bv="item.bv"
+  :obj-item="item"
+  @del-item-click="delListItem"
+  @set-item-click="setListItem"
+  ></list-item>
+</ol>
+</template>
+</def-list-layout>
 </div><!-- 已观看列表布局 -->
   <div class="tab" id="lookAtItLaterListLayout">
-  <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
-  <button @click="renovateLayoutItemList">刷新列表</button>
-  <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
-  <button @click="listInversion">列表反转</button>
-  <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
+  <def-list-layout
+  list-layout-name="稍后再看列表"
+  :type-list="typeList"
+  find-list-type="title"
+  :list="lookAtItLaterList"
+  @set-sub-this="setSubThis"
+  @search-key-event="searchKey"
+  @clear-but="clearLookAtItLaterArr"
+  @renovate-list-event="renovateLayoutItemList">
+  <template #top-right>
+    <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
   <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
+</template>
+<template #center>
   <div>
 <input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}
 <select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select>
 <button @click="okOutOrInputClick">执行</button>
 </div>
   <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
-  <div>
-  搜索<input type="text" v-model.trim="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
-</div>
-  <ol>
-  <list-item v-for="(item,key) in lookAtItLaterList"
+</template>
+<template #button-list="data">
+<ol>
+  <list-item v-for="(item,key) in data.showList"
   :title="item.title"
   :up-name="item.upName"
   :uid="item.uid"
@@ -530,6 +556,8 @@ border: 0.5px solid green;
   v-on:del-item-click="delListItem"
   v-on:set-item-click="setListItem"></list-item>
 </ol>
+</template>
+</def-list-layout>
   <!-- 稍后再看列表布局 --></div>
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
   <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>

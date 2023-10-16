@@ -153,70 +153,48 @@ Vue.component("def-list-layout", {
     template: `
         <div>
         <h3>{{ listLayoutName }}项目共{{ showList.length }}个</h3>
-        <button @click="renovateLayoutItemList">刷新列表</button>
-        <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
+        <button @click="renovateList">刷新列表</button>
+        <button @click="clearShowListBut">清空列表数据(不删除实际数据)</button>
+        <button @click="clearListBut">清空列表数据(影响实际数据)</button>
         <button @click="listInversion">列表反转</button>
-        <slot name="topRight"></slot>
-        <!--        <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a>-->
-        <!--        </button>-->
-        <!--        <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>-->
+        <slot name="top-right"></slot>
+        <slot name="center"></slot>
         <div>
-            <slot name="findLeft"></slot>
-            <!--            <input type="checkbox" v-model="isAddToInput">{{ isAddToInputTxt }}-->
-            <select v-model="tempModelSelect">
-                <option v-for="item in modelSelectArr" :key="item" :value="item">{{ item }}</option>
-            </select>
-            <button @click="okBut">执行</button>
-        </div>
-        <textarea v-model.trim="inputEditContent" v-show="isInputSelect"
-                  placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"
-                  style="width: 80%;height: 400px"></textarea>
-        <div>
-            搜索<input type="text" v-model.trim="searchKey">
+            搜索<input type="text" v-model.trim="tempSearchKey">
             搜索条件<select v-model="tempFindListType">
             <option v-for="item in typeList" :key="item">{{ item }}</option>
         </select>
         </div>
         <ol>
-            <slot name="buttonList" :showList="showList"></slot>
-            <!--            <list-item v-for="(item,key) in showList"-->
-            <!--                       :title="item.title"-->
-            <!--                       :up-name="item.upName"-->
-            <!--                       :uid="item.uid"-->
-            <!--                       :bv="item.bv"-->
-            <!--                       :obj-item="item"-->
-            <!--                       v-on:del-item-click="delListItem"-->
-            <!--                       v-on:set-item-click="setListItem"></list-item>-->
+            <slot name="button-list" :showList="showList"></slot>
         </ol>
-
         </div>
     `,
     props: {
-        list: null,
+        list: {
+            default: []
+        },
         listLayoutName: {
             default: "列表",
-
         },
-        modelSelectArr: {},
-        modelSelect: {},
         typeList: {},
         findListType: {}
     },
     data() {
         return {
-            inputEditContent: "",
-            isInputSelect: false,
-            tempModelSelect: this.modelSelect,//模式下拉框model
-            searchKey: "",
+            tempSearchKey: "",
             tempFindListType: this.findListType,//监听搜索条件下拉框model
             showList: this.list
         }
     },
     methods: {
-        renovateLayoutItemList() {//刷新
-            this.showList = this.list;
+        renovateList() {//刷新
+            this.$emit("renovate-list-event");
         },
-        clearLookAtItLaterArr() {//清空
+        clearShowListBut() {
+            this.showList = [];
+        },
+        clearListBut() {//清空列表
             this.$emit("clear-but");
         },
         listInversion() {//列表反转
@@ -227,14 +205,11 @@ Vue.component("def-list-layout", {
         }
     },
     watch: {
-        tempModelSelect(newVal) {
-            this.$emit("model-select-event", newVal);
-        },
-        tempFindListType(newVal) {
-            this.$emit("find-list-type-event", newVal);
+        tempSearchKey(newVal, oldVal) {
+            this.$emit("search-key-event", newVal, oldVal);
         }
     },
     created() {
-        // console.log("声明周期函数created()")
+        this.$emit("set-sub-this", this);
     }
 });

@@ -3,10 +3,9 @@ const LookAtItLater = {
         const listVue = new Vue({
             el: "#lookAtItLaterListLayout",
             data: {
-                searchKey: "",
+                subThis: null,
                 lookAtItLaterList: LocalData.getLookAtItLaterArr(),
                 typeList: ["upName", "uid", "title", "bv"],
-                typeListShowValue: "title",
                 inputOutSelect: "导出稍后再看列表",
                 inputOutSelectArr: ["导出稍后再看列表", "导入稍后再看列表"],
                 inputEditContent: "",
@@ -15,12 +14,26 @@ const LookAtItLater = {
                 isAddToInputTxt: "追加导入"
             },
             methods: {
-                renovateLayoutItemList() {//刷新列表
-                    this.lookAtItLaterList = [];
+                setSubThis(val) {
+                    this.subThis = val;
+                },
+                searchKey(newValue, oldValue) {
+                    if (newValue === oldValue || newValue === "") return;
+                    const tempList = [];
                     for (const value of LocalData.getLookAtItLaterArr()) {
-                        this.lookAtItLaterList.push(value);
+                        if (!value[this.subThis.tempFindListType].toString().includes(newValue)) {
+                            continue;
+                        }
+                        tempList.push(value);
                     }
-                    Qmsg.success("已刷新了列表！");
+                    const length = tempList.length;
+                    if (length === 0) {
+                        Qmsg.error("未搜索到指定内容的元素");
+                        return;
+                    }
+                    this.subThis.showList = [];
+                    tempList.forEach(value => this.subThis.showList.push(value));
+                    Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
                 },
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
@@ -89,6 +102,9 @@ const LookAtItLater = {
                     console.table(parse);
                     return true;
                 },
+                renovateLayoutItemList() {
+                    this.subThis.showList = LocalData.getLookAtItLaterArr();
+                },
                 okOutOrInputClick() {
                     if (this.inputOutSelect === "导出稍后再看列表") {
                         this.outLookAtItLaterArr();
@@ -106,16 +122,10 @@ const LookAtItLater = {
                     }
                 },
                 clearLookAtItLaterArr() {
-                    if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) {
-                        Qmsg.info("操作结束了.");
-                        return;
-                    }
+                    if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) return;
                     LocalData.setLookAtItLaterArr([]);
-                    this.lookAtItLaterList = [];
-                    Qmsg.success("已清空本地脚本存储的稍后再看列表数据了");
-                },
-                listInversion() {
-                    this.lookAtItLaterList.reverse();
+                    this.subThis.showList = this.lookAtItLaterList = [];
+                    Qmsg.success("已清空本地脚本存储的稍后再看列表数据");
                 },
                 getItemFindIndex(data) {
                     const index = this.lookAtItLaterList.findIndex(value => value === data);
@@ -202,25 +212,6 @@ const LookAtItLater = {
                 }
             },
             watch: {
-                searchKey(newValue, oldValue) {
-                    if (newValue === oldValue) return;
-                    const tempList = [];
-                    const type = this.typeListShowValue;
-                    for (const value of LocalData.getLookAtItLaterArr()) {
-                        if (!value[type].toString().includes(newValue)) {
-                            continue;
-                        }
-                        tempList.push(value);
-                    }
-                    const length = tempList.length;
-                    if (length === 0) {
-                        Qmsg.error("未搜索到指定内容的元素");
-                        return;
-                    }
-                    this.lookAtItLaterList = [];
-                    tempList.forEach(value => this.lookAtItLaterList.push(value));
-                    Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
-                },
                 inputOutSelect(newVal) {
                     if (newVal === "导出稍后再看列表") {
                         this.isInputSelect = false;
