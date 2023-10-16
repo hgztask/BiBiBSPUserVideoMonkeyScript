@@ -176,12 +176,14 @@ async function bilibiliOne(href, windowsTitle) {
                 const videoAddress = tempInfo.querySelector("a").href;
                 const userInfo = element.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;
+                const v_img = element.querySelector(".v-img>img");
                 const data = {
                     upName: element.querySelector(".bili-video-card__info--author").textContent,
                     uid: Util.getSubWebUrlUid(userHref),
                     title: title,
                     videoAddress: videoAddress,
-                    bv: Util.getSubWebUrlBV(videoAddress)
+                    bv: Util.getSubWebUrlBV(videoAddress),
+                    frontCover: v_img === null ? null : v_img.getAttribute("src")
                 };
                 Util.showSDPanel(e, data);
             });
@@ -260,7 +262,9 @@ async function bilibiliOne(href, windowsTitle) {
                 loadingVideoZE();
             }
             // //首页
-            Home.stypeBody();
+            if (!LocalData.getIsMainVideoList()) {
+                Home.stypeBody();
+            }
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
             setTimeout(() => {
                 $(".feed-roll-btn").remove();//移除换一换
