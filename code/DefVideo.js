@@ -69,10 +69,12 @@ const DefVideo = {
                 $(v).mouseenter((e) => {
                     const domElement = e.delegateTarget;
                     const upSpatialAddress = domElement.querySelector(".upname>a").href;
+                    const v_img = domElement.querySelector(".b-img__inner>img");
                     const data = {
                         upName: domElement.querySelector(".name").textContent,
                         title: domElement.querySelector(".title").textContent,
-                        uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)
+                        uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1),
+                        frontCover: v_img === null ? null : v_img.getAttribute("src")
                     };
                     Util.showSDPanel(e, data);
                 });
