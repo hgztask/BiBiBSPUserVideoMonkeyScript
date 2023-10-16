@@ -39,6 +39,8 @@ class VideoClass extends UserClass {
     videoTime;
     playbackVolume;
     barrageQuantity;
+    //封面
+    frontCover;
     e;
 
     setTitle(title) {
@@ -74,6 +76,11 @@ class VideoClass extends UserClass {
 
     setE(element) {//元素
         this.e = element;
+        return this;
+    }
+
+    setFrontCover(frontCover) {
+        this.frontCover = frontCover;
         return this;
     }
 

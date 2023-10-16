@@ -152,6 +152,7 @@ const frequencyChannel = {//频道
         const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
         const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
         const videoHref = videoInfo.href;
+        const v_img = element.querySelector(".cover-picture>img");
         return new VideoClass()
             .setE(element)
             .setUpName(element.querySelector(".up-name__text").textContent)
@@ -161,6 +162,7 @@ const frequencyChannel = {//频道
             .setBv(Util.getSubWebUrlBV(videoHref))
             .setPlaybackVolume(topInfo[0].textContent.trim())
             .setVideoTime(element.getElementsByClassName("play-duraiton")[0].textContent)
-            .setBarrageQuantity(topInfo[1].textContent.trim());
+            .setBarrageQuantity(topInfo[1].textContent.trim())
+            .setFrontCover(v_img === null ? null : v_img.getAttribute("src"));
     }
 }
