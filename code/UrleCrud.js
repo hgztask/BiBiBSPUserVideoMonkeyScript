@@ -65,7 +65,7 @@ const UrleCrud = {//规则的增删改查
     addAll(ruleList, contentList, ruleType) {
         let tempLenSize = 0;
         const set = new Set(ruleList);
-        for (const value of set) {
+        for (const value of contentList) {
             set.add(value);
         }
         if (set.size === ruleList.length) {
