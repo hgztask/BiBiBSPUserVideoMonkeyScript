@@ -212,7 +212,7 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "POST",
-                                url: `${defApi}/bilibili/shieldRule/`,
+                                url: `${defApi}/bilibili/`,
                                 data: {
                                     model: "All",
                                     userName: getInfo["userName"],
@@ -220,15 +220,14 @@ const RuleCRUDLayout = {
                                     postData: this.getOutRuleDataFormat()
                                 },
                                 dataType: "json",
-                                success(data) {
+                                success({code, message}) {
+                                    debugger;
                                     loading.close();
-                                    const message = data["message"];
-                                    if (data["code"] !== 1) {
+                                    if (code !== 1) {
                                         Qmsg.error(message);
                                         return;
                                     }
                                     Qmsg.success(message);
-                                    console.log(data["dataJson"])
                                 }, error(xhr, status, error) { //请求失败的回调函数
                                     loading.close();
                                     console.log(error);
