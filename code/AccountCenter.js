@@ -1,5 +1,6 @@
 /**
  *
+ * 设置规则共享
  * @param userName
  * @param userPassword
  * @param {boolean}shareBool 共享状态
@@ -9,19 +10,18 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
     const loading = Qmsg.loading("请稍等...");
     $.ajax({
         type: "POST",
-        url: `${defApi}/bilibili/shieldRule/`,
+        url: `${defApi}/bilibili`,
         data: {
             model: "setShare",
             userName: userName,
             userPassword: userPassword,
-            postData: shareBool,
+            share: shareBool,
             anonymity: anonymityBool
         },
         dataType: "json",
-        success(data) {
+        success({message, code}) {
             loading.close();
-            const message = data["message"];
-            if (data["code"] !== 1) {
+            if (code !== 1) {
                 Qmsg.error(message);
                 return;
             }
@@ -74,18 +74,19 @@ const AccountCenter = {//账号中心
                 return;
             }
             const loading = Qmsg.loading("正在登录中...");
-            const promise = HttpUtil.get(`${defApi}/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`);
-            promise.then(res => {
-                const body = res.bodyJson;
-                const code = body["code"];
-                const message = body["message"];
+            const promise = HttpUtil.get(`${defApi}/bilibili/signInToRegister.php?userName=${userName}&userPassword=${userPass}&model=logIn`);
+            promise.then(({bodyJson: body}) => {
+                const {code, message} = body;
                 if (code !== 1) {
                     Qmsg.error(message);
                     return;
                 }
-                const ruleData = body["ruleData"];
-                LocalData.AccountCenter.setInfo(body["userInfo"]);
-                Qmsg.success("登录成功！");
+                // const ruleData = body["ruleData"];
+                //TODO 由于api接口变动，需要适配接口的变化，相关代码需要修正后续需要调整为登录之后顺带提示用户是否要覆盖本地的规则！
+                LocalData.AccountCenter.setInfo({
+                    userName: userName, userPassword: userPass
+                });
+                Qmsg.success(message);
                 $("#accountCenterLayout>*").remove();
                 this.haveLanded();
             }).catch((error) => {
@@ -119,7 +120,7 @@ const AccountCenter = {//账号中心
     <hr>
     <div style="display: flex;justify-content: center;">
      <button>
-     <a href="${defApi}/bilibili/shieldRule/enroll/" target="_blank">注册</a>
+     <a href="https://www.mikuchase.ltd/web/#/registerAndLogIn" target="_blank">注册</a>
      </button>
         <button id="exitSignBut">退出登录</button>
     </div>
