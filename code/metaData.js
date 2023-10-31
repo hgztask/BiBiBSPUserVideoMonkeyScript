@@ -32,7 +32,6 @@
 // @require      https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
-// @require      http://code.jquery.com/ui/1.10.4/jquery-ui.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
 // @connect      api.mikuchase.ltd
