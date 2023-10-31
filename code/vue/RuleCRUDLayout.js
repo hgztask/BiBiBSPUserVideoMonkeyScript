@@ -292,25 +292,22 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "GET",
-                                url: `${defApi}/bilibili/shieldRule/`,
+                                url: `${defApi}/bilibili/`,
                                 data: {
+                                    model: "getUsers",
                                     userName: getInfo["userName"],
                                     userPassword: getInfo["userPassword"]
                                 },
                                 dataType: "json",
-                                success(data) {
+                                success({message, code, data}) {
                                     loading.close();
-                                    const message = data["message"];
-                                    if (data["code"] !== 1) {
+                                    if (code !== 1) {
                                         Qmsg.error(message);
                                         return;
                                     }
                                     Qmsg.success(message);
-                                    const time = data["data"]["time"];
-                                    const ruleRes = data["data"]["ruleRes"];
-                                    console.log(time);
-                                    console.log(ruleRes);
-                                    ruleCRUDLlayoutVue().inputRuleLocalData(ruleRes);
+                                    const {rule_content} = data;
+                                    ruleCRUDLlayoutVue().inputRuleLocalData(JSON.parse(rule_content));
                                 }, error(xhr, status, error) { //请求失败的回调函数
                                     loading.close();
                                     console.log(error);
