@@ -8,14 +8,12 @@ const RuleCenterLayoutVue = {
             //TODO 后续对下面代码进行调整
             $.ajax({
                 type: "GET",
-                url: `${defApi}/bilibili/shieldRule/`,
+                url: `${defApi}/bilibili/`,
                 data: {
                     model: "ruleCenter"
                 },
                 dataType: "json",
-                success(body) {
-                    const message = body["message"];
-                    const code = body["code"];
+                success({message, code, dataList}) {//上面已声明了json，之后响应体会自动转成json处理
                     data.message = message;
                     data.code = code;
                     if (code !== 1) {
@@ -23,14 +21,15 @@ const RuleCenterLayoutVue = {
                         return;
                     }
                     const tempDataList = [];
-                    for (const v of body["list"]) {
-                        const name = v["userName"];
-                        const time = v["rule"]["time"];
-                        const ruleList = v["rule"]["ruleRes"];
-                        tempDataList.push({name: name, time: time, ruleList: ruleList});
+                    for (const {name, rule_content, first_push_time, update_time} of dataList) {
+                        tempDataList.push({
+                            name: name,
+                            ruleList: JSON.parse(rule_content),
+                            update_time: update_time,
+                            first_push_time: first_push_time
+                        });
                     }
                     data["dataList"] = tempDataList;
-                    data["body"] = body;
                     resolve(data);
                 }, error(xhr, status, error) { //请求失败的回调函数
                     data["xhr"] = xhr;

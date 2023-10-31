@@ -64,26 +64,29 @@ Vue.component("liveRoomFrontCoverItem", {
 
 //规则中心的项目item
 Vue.component("ruleCenterItem", {
-        props: ["userName", "time", "ruleList"],
-        template: `
-            <li>
+    props: ["userName", "update_time", "ruleList", "first_push_time"],
+    template: `
+        <li>
+        <div>
             <div>
-                <div>
-                    <span>作者：</span><span class="authorNameSpan">{{ userName }}</span>
-                </div>
-                <div>
-                    <span>更新时间：</span><span class="updateTimeSpan">{{ formatTIme(time) }}</span>
-                </div>
-            </div>
-            <div style="column-count: 4">
-                <div v-for="(item,key) in ruleList">
-                    {{ key }}<span style="color: rgb(217, 217, 37)">{{ item.length }}</span>个
-                    <button @click="lookKeyRuleBut(item,key)">查询</button>
-                </div>
+                <span>作者：</span><span class="authorNameSpan">{{ userName }}</span>
             </div>
             <div>
-                <button @click="inputLocalRuleBut">导入覆盖本地规则</button>
-                <button @click="inputCloudRuleBut">导入覆盖云端规则</button>
+                <span>更新时间：</span><span>{{ formatTIme(update_time) }}</span>
+            </div>
+            <div>
+                <span>创建时间：</span><span>{{ formatTIme(first_push_time) }}</span>
+            </div>
+        </div>
+        <div style="column-count: 4">
+            <div v-for="(item,key) in ruleList">
+                {{ key }}<span style="color: rgb(217, 217, 37)">{{ item.length }}</span>个
+                <button @click="lookKeyRuleBut(item,key)">查询</button>
+            </div>
+        </div>
+        <div>
+            <button @click="inputLocalRuleBut">导入覆盖本地规则</button>
+            <button @click="inputCloudRuleBut">导入覆盖云端规则</button>
                 <button @click="lookUserRuleBut">查看该用户的规则</button>
             </div>
             </li>`,

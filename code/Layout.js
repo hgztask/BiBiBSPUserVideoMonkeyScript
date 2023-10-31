@@ -572,7 +572,8 @@ border: 0.5px solid green;
 <rule-center-item v-for="item in list"
 :user-name="item.name"
 :rule-list="item.ruleList"
-:time="item.time"
+:update_time="item.update_time"
+:first_push_time="item.first_push_time"
 ></rule-center-item>
 </ul>
 <!-- 规则中心布局 -->
