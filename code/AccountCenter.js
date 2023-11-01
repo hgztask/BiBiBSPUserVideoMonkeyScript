@@ -10,7 +10,7 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
     const loading = Qmsg.loading("请稍等...");
     $.ajax({
         type: "POST",
-        url: `${defApi}/bilibili`,
+        url: `${defApi}/bilibili/`,
         data: {
             model: "setShare",
             userName: userName,
@@ -19,19 +19,21 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
             anonymity: anonymityBool
         },
         dataType: "json",
-        success({message, code}) {
+        success({message, code, share}) {
             loading.close();
             if (code !== 1) {
                 Qmsg.error(message);
                 return;
             }
-            $("#ruleSharingDiv>span").text(shareBool);
+            // $("#ruleSharingDiv>span").text(share);
+            //TODO 这里需要调整，是否匿名公布布尔值显示效果，不需要为0，要求为false或者true
             const getInfo = LocalData.AccountCenter.getInfo();
             if (Object.keys(getInfo).length === 0) {
                 Qmsg.error("更新本地账户信息错误！");
                 return;
             }
-            getInfo["share"] = shareBool;
+            //TODO 待调整，有关于该share的布尔值字符串问题
+            getInfo["share"] = share;
             LocalData.AccountCenter.setInfo(getInfo);
             Qmsg.success(message);
         }, error(xhr, status, error) {
@@ -76,16 +78,27 @@ const AccountCenter = {//账号中心
             const loading = Qmsg.loading("正在登录中...");
             const promise = HttpUtil.get(`${defApi}/bilibili/signInToRegister.php?userName=${userName}&userPassword=${userPass}&model=logIn`);
             promise.then(({bodyJson: body}) => {
-                const {code, message} = body;
+                const {code, message, userData} = body;
                 if (code !== 1) {
                     Qmsg.error(message);
                     return;
                 }
                 // const ruleData = body["ruleData"];
                 //TODO 由于api接口变动，需要适配接口的变化，相关代码需要修正后续需要调整为登录之后顺带提示用户是否要覆盖本地的规则！
-                LocalData.AccountCenter.setInfo({
-                    userName: userName, userPassword: userPass
-                });
+                let {rule_content} = userData;
+                rule_content = JSON.parse(rule_content);
+                debugger;
+                try {
+                    // delete userData["share"];
+                    // delete userData["anonymity"];
+                    delete userData["rule_content"];
+                } catch (e) {
+                    console.error("登录时出错！", e);
+                }
+                if (confirm("是要将云端规则导入覆盖本地规则吗？")) {
+                    ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
+                }
+                LocalData.AccountCenter.setInfo(userData);
                 Qmsg.success(message);
                 $("#accountCenterLayout>*").remove();
                 this.haveLanded();
@@ -125,13 +138,11 @@ const AccountCenter = {//账号中心
         <button id="exitSignBut">退出登录</button>
     </div>
 </div>`);
-        const getInfo = LocalData.AccountCenter.getInfo();
-        const infoName = getInfo["userName"];
-        const infoAddTime = getInfo["addTime"];
-        const share = getInfo["share"] === true;
+        let {name: infoName, pwd, share, addTime: infoAddTime} = LocalData.AccountCenter.getInfo();
         $("#userNameSpan").text(infoName);
         $("#asideuserAddTimeSpan").text(Util.timestampToTime(infoAddTime));
-        $("#ruleSharingDiv>span:eq(0)").text(share);
+        //TODO 这里需要调整，是否匿名公布布尔值显示效果，不需要为0，要求为false或者true
+        // $("#ruleSharingDiv>span:eq(0)").text(share);
         $("#exitSignBut").click(() => {
             if (!confirm("您确定要退出登录吗")) {
                 return;
@@ -146,13 +157,13 @@ const AccountCenter = {//账号中心
             if (!confirm("确定要公开自己的规则吗？\n匿名状态=" + isAnonymity)) {
                 return;
             }
-            ruleSharingSet(infoName, getInfo["userPassword"], true, isAnonymity);
+            ruleSharingSet(infoName, pwd, true, isAnonymity);
         });
         $("#ruleSharingDiv>button[value='notPublic']").click(() => {
             if (!confirm("确定不公开自己的规则吗？")) {
                 return;
             }
-            ruleSharingSet(infoName, getInfo["userPassword"], false, false);
+            ruleSharingSet(infoName, pwd, false, false);
         });
     }
 }
