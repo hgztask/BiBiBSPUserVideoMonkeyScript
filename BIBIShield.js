@@ -2,8 +2,8 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1.63
-// @description  根据规则进行相关屏蔽操作：动态内容屏蔽：评论区根据uid、用户名、发言内容进行过滤屏蔽；视频根据标题关键词、视频时长、用户名和uid等进行屏蔽；直播间右侧弹幕栏根据uid、用户名、发言内容和粉丝牌进行过滤屏蔽；面板的规则中心选项卡还能查看其他用户上传过来的；首页支持指定专区或者频道视频推送视频；支持控制页面视频播放速度，最小0.1最大16倍数播放；支持画面旋转和镜像垂直翻转；支持对稍后再看列表快捷增删改查操作；支持可选对视频播放页的视频标题信息、其评论区和右侧布局进行隐藏；支持获取b站相关数据并导出为json(用户收藏夹，历史记录、关注和粉丝列表、稍后再看、历史记录)(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开【欢迎加入qq群876295632催更】
+// @version      1.1.64
+// @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理，支持获取b站相关数据并导出为json(用户收藏夹导出，历史记录导出、关注列表导出、粉丝列表导出)(详情看脚本主页描述)，针对github站内所有的链接都从新的标签页打开，而不从当前页面打开
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
 // @exclude      *://message.bilibili.com/pages/nav/index_new_pc_sync
@@ -32,7 +32,6 @@
 // @require      https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
-// @require      http://code.jquery.com/ui/1.10.4/jquery-ui.js
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
 // @connect      api.mikuchase.ltd
@@ -47,7 +46,6 @@
 // ==/UserScript==
 
 'use strict';
-
 /**
  * 用户基本信息
  */
@@ -89,6 +87,8 @@ class VideoClass extends UserClass {
     videoTime;
     playbackVolume;
     barrageQuantity;
+    //封面
+    frontCover;
     e;
 
     setTitle(title) {
@@ -124,6 +124,11 @@ class VideoClass extends UserClass {
 
     setE(element) {//元素
         this.e = element;
+        return this;
+    }
+
+    setFrontCover(frontCover) {
+        this.frontCover = frontCover;
         return this;
     }
 
@@ -183,6 +188,15 @@ class LiveRoom extends UserClass {
 }
 
 
+const defApi = "https://api.mikuchase.ltd";
+/**
+ * 踩坑记录，如果在ajax中使用地址时，后面记得加/
+ */
+//拼接直播地址
+Vue.filter("joinRoomAddress", (roomId) => {
+    return `https://live.bilibili.com/${roomId}`;
+})
+
 //定义自定义组件
 Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，无封面信息
     props: ["upAddress", "face", "roomId", "title", "upName"],
@@ -194,19 +208,14 @@ Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，�
             </a>
         </div>
         <div style="display: flex;flex-direction: column;justify-content: space-around;">
-            <a :href="joinRoomAddress(roomId)" target="_blank">
+            <a :href="roomId|joinRoomAddress" target="_blank">
                 <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
             </a>
             <a>
                 <div :title="upName">{{ upName }}</div>
             </a>
         </div>
-        </div>`,
-    methods: {
-        joinRoomAddress(roomId) {
-            return `https://live.bilibili.com/${roomId}`;
-        }
-    }
+        </div>`
 })
 
 Vue.component("liveRoomFrontCoverItem", {
@@ -223,7 +232,7 @@ Vue.component("liveRoomFrontCoverItem", {
                 </a>
             </div>
             <div style="display: flex;flex-direction: column;justify-content: space-around;">
-                <a :href="roomId" target="_blank">
+                <a :href="roomId|joinRoomAddress" target="_blank">
                     <div :title="title" style="font-size: 17px;font-weight: bold">{{ title }}</div>
                 </a>
                 <a>
@@ -238,9 +247,6 @@ Vue.component("liveRoomFrontCoverItem", {
         };
     },
     methods: {
-        joinRoomAddress(roomId) {
-            return `https://live.bilibili.com/${roomId}`;
-        },
         setVideoFrameImg() {
             this.videoCover = this.videoFrameImg;
         },
@@ -252,46 +258,49 @@ Vue.component("liveRoomFrontCoverItem", {
 
 //规则中心的项目item
 Vue.component("ruleCenterItem", {
-        props: ["userName", "time", "ruleList"],
-        template: `
-            <li>
+    props: ["userName", "update_time", "ruleList", "first_push_time"],
+    template: `
+        <li>
+        <div>
             <div>
-                <div>
-                    <span>作者：</span><span class="authorNameSpan">{{ userName }}</span>
-                </div>
-                <div>
-                    <span>更新时间：</span><span class="updateTimeSpan">{{ formatTIme(time) }}</span>
-                </div>
-            </div>
-            <div style="column-count: 4">
-                <div v-for="(item,key) in ruleList">
-                    {{ key }}<span style="color: rgb(217, 217, 37)">{{ item.length }}</span>个
-                    <button @click="lookKeyRuleBut(item,key)">查询</button>
-                </div>
+                <span>作者：</span><span class="authorNameSpan">{{ userName }}</span>
             </div>
             <div>
-                <button @click="inputLocalRuleBut">导入覆盖本地规则</button>
-                <button @click="inputCloudRuleBut">导入覆盖云端规则</button>
-                <button @click="lookUserRuleBut">查看该用户的规则</button>
+                <span>更新时间：</span><span>{{ formatTIme(update_time) }}</span>
             </div>
-            </li>`,
-        methods: {
-            lookKeyRuleBut(keyData, keyName) {
-                if (!confirm(`是要查询用户 ${this.userName} 的${keyName} 规则吗？`)) {
-                    return;
-                }
-                Util.openWindowWriteContent(JSON.stringify(keyData, null, 3));
-            },
-            inputLocalRuleBut() {
-                if (!confirm(`您确定要导入该用户 ${this.userName} 的规则并覆盖您当前本地已有的规则？`)) {
-                    return;
-                }
-                ruleCRUDLlayoutVue().inputRuleLocalData(this.ruleList);
-            },
-            inputCloudRuleBut() {//导入覆盖云端规则
-                alert("暂不支持导入覆盖云端规则！");
-            },
-            lookUserRuleBut() {
+            <div>
+                <span>创建时间：</span><span>{{ formatTIme(first_push_time) }}</span>
+            </div>
+        </div>
+        <div style="column-count: 4">
+            <div v-for="(item,key) in ruleList">
+                {{ key }}<span style="color: rgb(217, 217, 37)">{{ item.length }}</span>个
+                <button @click="lookKeyRuleBut(item,key)">查询</button>
+            </div>
+        </div>
+        <div>
+            <button @click="inputLocalRuleBut">导入覆盖本地规则</button>
+            <button @click="inputCloudRuleBut">导入覆盖云端规则</button>
+            <button @click="lookUserRuleBut">查看该用户的规则</button>
+        </div>
+        </li>`,
+    methods: {
+        lookKeyRuleBut(keyData, keyName) {
+            if (!confirm(`是要查询用户 ${this.userName} 的${keyName} 规则吗？`)) {
+                return;
+            }
+            Util.openWindowWriteContent(JSON.stringify(keyData, null, 3));
+        },
+        inputLocalRuleBut() {
+            if (!confirm(`您确定要导入该用户 ${this.userName} 的规则并覆盖您当前本地已有的规则？`)) {
+                return;
+            }
+            ruleCRUDLlayoutVue().inputRuleLocalData(this.ruleList);
+        },
+        inputCloudRuleBut() {//导入覆盖云端规则
+            alert("暂不支持导入覆盖云端规则！");
+        },
+        lookUserRuleBut() {
                 if (!confirm(`您是要查看用户 ${this.userName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) {
                     return;
                 }
@@ -309,17 +318,22 @@ Vue.component("ruleCenterItem", {
 Vue.component("list-item", {
     template: `
         <li style="border: 1px solid green">
-        <div>Title：<a v-bind:href=splicingVideoAddress(bv) target="_blank">{{ title }}</a></div>
-        <div>UP：<a v-bind:href=splicingUserAddress(uid) target="_blank">{{ upName }}</a></div>
-        <button @click="delItem">删除该项</button>
-        <button @click="setItem('upName','用户名',upName)">修改用户名</button>
-        <button @click="setItem('uid','uid',uid)">修改uid</button>
-        <button @click="setItem('title','标题',title)">修改标题</button>
-        <button @click="setItem('bv','BV号',bv)">修改bv</button>
-        <div>
+        <div style="display: flex">
+            <div style="height: 144px; width: 256px;">
+                <img :src="front_cover|setFrontCover" alt="显示失败" style="height: 100%;">
+            </div>
+            <div>
+                <div>Title：<a v-bind:href=splicingVideoAddress(bv) target="_blank">{{ title }}</a></div>
+                <div>UP：<a v-bind:href=splicingUserAddress(uid) target="_blank">{{ upName }}</a></div>
+                <button @click="delItem">删除该项</button>
+                <button @click="setItem('upName','用户名',upName)">修改用户名</button>
+                <button @click="setItem('uid','uid',uid)">修改uid</button>
+                <button @click="setItem('title','标题',title)">修改标题</button>
+                <button @click="setItem('bv','BV号',bv)">修改bv</button>
+            </div>
         </div>
         </li>`,
-    props: ["objItem", "title", "upName", "bv", "uid",],
+    props: ["objItem", "title", "upName", "bv", "uid", "front_cover"],
     methods: {
         delItem() {
             this.$emit("del-item-click", this.objItem);
@@ -333,14 +347,81 @@ Vue.component("list-item", {
         splicingUserAddress(str) {//拼接用户地址
             return "https://space.bilibili.com/" + str;
         },
+    },
+    filters: {
+        setFrontCover(img) {
+            const defImg = "http://i2.hdslb.com/bfs/archive/43276436b25529ae0e2c6e3dc896ec8a66ef4d60.jpg";
+            if (img === null || img === undefined) return defImg;
+            return img;
+        }
     }
 });
 
 //TODO 后续完善下面的def-list-layout，用于稍后再看和已观看列表的默认布局
-// Vue.component("def-list-layout", {
-//     template: ``,
-//     props: []
-// });
+Vue.component("def-list-layout", {
+    template: `
+        <div>
+        <h3>{{ listLayoutName }}项目共{{ showList.length }}个</h3>
+        <button @click="renovateList">刷新列表</button>
+        <button @click="clearShowListBut">清空列表数据(不删除实际数据)</button>
+        <button @click="clearListBut">清空列表数据(影响实际数据)</button>
+        <button @click="listInversion">列表反转</button>
+        <slot name="top-right"></slot>
+        <slot name="center"></slot>
+        <div>
+            搜索<input type="text" v-model.trim="tempSearchKey">
+            搜索条件<select v-model="tempFindListType">
+            <option v-for="item in typeList" :key="item">{{ item }}</option>
+        </select>
+        </div>
+        <ol>
+            <slot name="button-list" :showList="showList"></slot>
+        </ol>
+        </div>
+    `,
+    props: {
+        list: {
+            default: []
+        },
+        listLayoutName: {
+            default: "列表",
+        },
+        typeList: {},
+        findListType: {}
+    },
+    data() {
+        return {
+            tempSearchKey: "",
+            tempFindListType: this.findListType,//监听搜索条件下拉框model
+            showList: this.list
+        }
+    },
+    methods: {
+        renovateList() {//刷新
+            this.$emit("renovate-list-event");
+        },
+        clearShowListBut() {
+            this.showList = [];
+        },
+        clearListBut() {//清空列表
+            this.$emit("clear-but");
+        },
+        listInversion() {//列表反转
+            this.showList.reverse();
+        },
+        okBut() {
+            this.$emit("okBut");
+        }
+    },
+    watch: {
+        tempSearchKey(newVal, oldVal) {
+            this.$emit("search-key-event", newVal, oldVal);
+        }
+    },
+    created() {
+        this.$emit("set-sub-this", this);
+    }
+});
 /**
  * 工具类
  */
@@ -838,8 +919,8 @@ const Util = {
         const x = e.clientX;
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
-        suspensionDivVue.xy.x = x;
-        suspensionDivVue.xy.y = y;
+        suspensionDivVue().xy.x = x;
+        suspensionDivVue().xy.y = y;
         if (!($("#quickLevitationShield").is(':checked'))) {
             return;
         }
@@ -882,19 +963,21 @@ const Util = {
         if ($("#fixedPanelValueCheckbox").is(':checked')) {
             return;
         }
-        suspensionDivVue.upName = name;
-        suspensionDivVue.uid = uid;
-        suspensionDivVue.videoData.title = title;
-        suspensionDivVue.videoData.bv = bv;
-        suspensionDivVue.videoData.av = av;
+        suspensionDivVue().upName = name;
+        suspensionDivVue().uid = uid;
+        suspensionDivVue().videoData.title = title;
+        suspensionDivVue().videoData.bv = bv;
+        suspensionDivVue().videoData.av = av;
+        suspensionDivVue().videoData.frontCover = data["frontCover"];
+        console.log(data["frontCover"]);
         if (title === undefined) {
-            suspensionDivVue.videoData.show = false;
+            suspensionDivVue().videoData.show = false;
         } else {
-            suspensionDivVue.videoData.show = true;
+            suspensionDivVue().videoData.show = true;
             if (bv === undefined) {
                 return;
             }
-            suspensionDivVue.videoData.av = Util.BilibiliEncoder.dec(bv);
+            suspensionDivVue().videoData.av = Util.BilibiliEncoder.dec(bv);
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
@@ -1412,9 +1495,6 @@ border: 0.5px solid green;
         getFilter_queue() {//个人主页悬浮屏蔽按钮
             return this.getHoverball("屏蔽", "15%", "4%");
         },
-        getFollowersOrWatchlists() {
-            return this.getHoverball("获取xxx列表", "22%", "4%");
-        }
     },
     getRuleCRUDLayout() {
         return `
@@ -1529,6 +1609,9 @@ border: 0.5px solid green;
 <h1>播放器</h1>
 <div>
 <input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
+</div>
+<div>
+<input type="checkbox" v-model="videoEndRecommendCheckbox">播放完视频后移除视频推荐
 </div>
 <div>
 <button @click="VideoPIPicture">视频画中画</button>
@@ -1670,6 +1753,7 @@ border: 0.5px solid green;
         <p>标题:{{videoData.title}}</span></p>
         <p>视频BV号:{{videoData.bv}}</span></p>
         <p>视频AV号:{{videoData.av}}</p>
+        <img :src="videoData.frontCover" alt="图片显示异常" style="width: 100%;">
         <button @click="addToWatchedBut">添加进已观看</button>
         <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>
@@ -1710,20 +1794,8 @@ border: 0.5px solid green;
         <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>
     </div>
 `);
-    },
-    getLogin() {//登录账号界面
-        return $(`<div style="display: flex;flex-direction: column;align-items: center;">
-    <h1>登录账号</h1>
-    <input type="text" placeholder="用户名" id="userNameInput">
-    <input type="text" placeholder="密码" id="userPasswordInput">
-    <div>
-        <button>
-            <a href="http://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
-        </button>
-        <button id="loginBut">登录</button>
-    </div>
-</div>`);
-    }, loading: {
+    }
+    , loading: {
         home() {
             const bodyJQE = $("body");
             bodyJQE.prepend(`
@@ -1821,35 +1893,67 @@ border: 0.5px solid green;
   <!-- 直播列表布局 -->
 </div>
   <div class="tab" id="watchedListLayout">
-  <h3>已观看视频个数{{watchedList.length}}个</h3>
- <div v-for="item in watchedList">
- <p>{{item.upName}}</p>
-</div>
-</div><!-- 已观看列表布局 -->
-  <div class="tab" id="lookAtItLaterListLayout">
-  <h3>稍后再看项目共{{lookAtItLaterList.length}}个</h3>
-  <button @click="renovateLayoutItemList">刷新列表</button>
-  <button @click="clearLookAtItLaterArr">清空脚本稍后再看列表数据</button>
-  <button @click="listInversion">列表反转</button>
-  <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
-  <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
-  <div>
-<input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}<select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select><button @click="okOutOrInputClick">执行</button>
-</div>
-  <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
-  <div>
-  搜索<input type="text" v-model.trim="searchKey">搜索条件<select v-model="typeListShowValue"><option v-for="item in typeList">{{item}}</option></select>
-</div>
+  <def-list-layout list-layout-name="已观看视频列表"
+  :type-list="typeList"
+  find-list-type="title"
+  :list="watchedList"
+  @set-sub-this="setSubThis"
+   @search-key-event="searchKey"
+  @clear-but="clearWatchedArr"
+  @renovate-list-event="renovateLayoutItemList"
+  >
+  <template #button-list="data">
   <ol>
-  <list-item v-for="(item,key) in lookAtItLaterList"
+  <list-item v-for="(item,key) in data.showList"
   :title="item.title"
   :up-name="item.upName"
   :uid="item.uid"
   :bv="item.bv"
   :obj-item="item"
+  :front_cover="item.frontCover"
+  @del-item-click="delListItem"
+  @set-item-click="setListItem"
+  ></list-item>
+</ol>
+</template>
+</def-list-layout>
+</div><!-- 已观看列表布局 -->
+  <div class="tab" id="lookAtItLaterListLayout">
+  <def-list-layout
+  list-layout-name="稍后再看列表"
+  :type-list="typeList"
+  find-list-type="title"
+  :list="lookAtItLaterList"
+  @set-sub-this="setSubThis"
+  @search-key-event="searchKey"
+  @clear-but="clearLookAtItLaterArr"
+  @renovate-list-event="renovateLayoutItemList">
+  <template #top-right>
+    <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
+  <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
+</template>
+<template #center>
+      <div>
+        <input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}
+        <select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select>
+        <button @click="okOutOrInputClick">执行</button>
+    </div>
+  <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
+</template>
+<template #button-list="data">
+<ol>
+  <list-item v-for="(item,key) in data.showList"
+  :title="item.title"
+  :up-name="item.upName"
+  :uid="item.uid"
+  :bv="item.bv"
+  :obj-item="item"
+  :front_cover="item.frontCover"
   v-on:del-item-click="delListItem"
   v-on:set-item-click="setListItem"></list-item>
 </ol>
+</template>
+</def-list-layout>
   <!-- 稍后再看列表布局 --></div>
   <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
   <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
@@ -1861,12 +1965,15 @@ border: 0.5px solid green;
 <rule-center-item v-for="item in list"
 :user-name="item.name"
 :rule-list="item.ruleList"
-:time="item.time"
+:update_time="item.update_time"
+:first_push_time="item.first_push_time"
 ></rule-center-item>
 </ul>
 <!-- 规则中心布局 -->
 </div>
-  <div class="tab" id="accountCenterLayout"><!-- 账户中心布局 --></div>
+  <div class="tab" id="accountCenterLayout">
+        <component v-bind:is="isTab" @tab-click="getTabName"></component>
+  <!-- 账户中心布局 --></div>
       </div>
 <!-- 分割home_layout -->
     `);
@@ -1876,7 +1983,6 @@ border: 0.5px solid green;
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
             $("#donateLayout").append(layout.getDonateLayout());
-            AccountCenter.info();
             bodyJQE.append(layout.getSuspensionDiv());
         }
     },
@@ -2047,6 +2153,12 @@ const LocalData = {
         },
         setRangePlaySpeed(v) {
             Util.setData("rangePlaySpeed", v);
+        },
+        isVideoEndRecommend() {//是否播放完视频后移除视频推荐
+            return Util.getData("videoEndRecommend", false);
+        },
+        setVideoEndRecommend(bool) {//设置是否播放完视频后移除视频推荐
+            Util.setData("videoEndRecommend", bool);
         }
 
     },
@@ -2145,10 +2257,9 @@ const LookAtItLater = {
         const listVue = new Vue({
             el: "#lookAtItLaterListLayout",
             data: {
-                searchKey: "",
+                subThis: null,
                 lookAtItLaterList: LocalData.getLookAtItLaterArr(),
                 typeList: ["upName", "uid", "title", "bv"],
-                typeListShowValue: "title",
                 inputOutSelect: "导出稍后再看列表",
                 inputOutSelectArr: ["导出稍后再看列表", "导入稍后再看列表"],
                 inputEditContent: "",
@@ -2157,12 +2268,26 @@ const LookAtItLater = {
                 isAddToInputTxt: "追加导入"
             },
             methods: {
-                renovateLayoutItemList() {//刷新列表
-                    this.lookAtItLaterList = [];
+                setSubThis(val) {
+                    this.subThis = val;
+                },
+                searchKey(newValue, oldValue) {
+                    if (newValue === oldValue || newValue === "") return;
+                    const tempList = [];
                     for (const value of LocalData.getLookAtItLaterArr()) {
-                        this.lookAtItLaterList.push(value);
+                        if (!value[this.subThis.tempFindListType].toString().includes(newValue)) {
+                            continue;
+                        }
+                        tempList.push(value);
                     }
-                    Qmsg.success("已刷新了列表！");
+                    const length = tempList.length;
+                    if (length === 0) {
+                        Qmsg.error("未搜索到指定内容的元素");
+                        return;
+                    }
+                    this.subThis.showList = [];
+                    tempList.forEach(value => this.subThis.showList.push(value));
+                    Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
                 },
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
@@ -2231,6 +2356,9 @@ const LookAtItLater = {
                     console.table(parse);
                     return true;
                 },
+                renovateLayoutItemList() {
+                    this.subThis.showList = LocalData.getLookAtItLaterArr();
+                },
                 okOutOrInputClick() {
                     if (this.inputOutSelect === "导出稍后再看列表") {
                         this.outLookAtItLaterArr();
@@ -2248,16 +2376,10 @@ const LookAtItLater = {
                     }
                 },
                 clearLookAtItLaterArr() {
-                    if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) {
-                        Qmsg.info("操作结束了.");
-                        return;
-                    }
+                    if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) return;
                     LocalData.setLookAtItLaterArr([]);
-                    this.lookAtItLaterList = [];
-                    Qmsg.success("已清空本地脚本存储的稍后再看列表数据了");
-                },
-                listInversion() {
-                    this.lookAtItLaterList.reverse();
+                    this.subThis.showList = this.lookAtItLaterList = [];
+                    Qmsg.success("已清空本地脚本存储的稍后再看列表数据");
                 },
                 getItemFindIndex(data) {
                     const index = this.lookAtItLaterList.findIndex(value => value === data);
@@ -2344,25 +2466,6 @@ const LookAtItLater = {
                 }
             },
             watch: {
-                searchKey(newValue, oldValue) {
-                    if (newValue === oldValue) return;
-                    const tempList = [];
-                    const type = this.typeListShowValue;
-                    for (const value of LocalData.getLookAtItLaterArr()) {
-                        if (!value[type].toString().includes(newValue)) {
-                            continue;
-                        }
-                        tempList.push(value);
-                    }
-                    const length = tempList.length;
-                    if (length === 0) {
-                        Qmsg.error("未搜索到指定内容的元素");
-                        return;
-                    }
-                    this.lookAtItLaterList = [];
-                    tempList.forEach(value => this.lookAtItLaterList.push(value));
-                    Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
-                },
                 inputOutSelect(newVal) {
                     if (newVal === "导出稍后再看列表") {
                         this.isInputSelect = false;
@@ -2415,14 +2518,48 @@ const Watched = {
         return new Vue({
             el: "#watchedListLayout",
             data: {
-                watchedList: LocalData.getWatchedArr()
+                subThis: null,
+                watchedList: LocalData.getWatchedArr(),
+                typeList: ["upName", "uid", "title", "bv"],
             },
-            methods: {}
+            methods: {
+                setSubThis(val) {
+                    this.subThis = val;
+                },
+                searchKey(newValue, oldValue) {
+                    if (newValue === oldValue || newValue === "") return;
+                    const tempList = [];
+                    for (const value of LocalData.getWatchedArr()) {
+                        if (!value[this.subThis.tempFindListType].toString().includes(newValue)) {
+                            continue;
+                        }
+                        tempList.push(value);
+                    }
+                    const length = tempList.length;
+                    if (length === 0) {
+                        Qmsg.error("未搜索到指定内容的元素");
+                        return;
+                    }
+                    this.subThis.showList = [];
+                    tempList.forEach(value => this.subThis.showList.push(value));
+                },
+                clearWatchedArr() {
+                    if (!confirm("您确定要进行清空本地脚本存储的已观看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) return;
+                    LocalData.setWatchedArr([]);
+                    this.subThis.showList = this.lookAtItLaterList = [];
+                    Qmsg.success("已清空本地脚本存储的已观看列表数据");
+                },
+                renovateLayoutItemList() {
+                    this.subThis.showList = LocalData.getWatchedArr();
+                },
+                delListItem() {
+                    //TODO 待开发
+                },
+                setListItem() {
+                    //TODO 待开发
+                },
+            }
         })
-    },
-    dataVue: {
-        watchedList: LocalData.getWatchedArr(),//已观看视频个数,
-
     },
     addWatched(data) {//添加视频到已观看列表流程
         if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
@@ -2656,7 +2793,7 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "POST",
-                                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                                url: `${defApi}/bilibili/`,
                                 data: {
                                     model: "All",
                                     userName: getInfo["userName"],
@@ -2664,15 +2801,14 @@ const RuleCRUDLayout = {
                                     postData: this.getOutRuleDataFormat()
                                 },
                                 dataType: "json",
-                                success(data) {
+                                success({code, message}) {
+                                    debugger;
                                     loading.close();
-                                    const message = data["message"];
-                                    if (data["code"] !== 1) {
+                                    if (code !== 1) {
                                         Qmsg.error(message);
                                         return;
                                     }
                                     Qmsg.success(message);
-                                    console.log(data["dataJson"])
                                 }, error(xhr, status, error) { //请求失败的回调函数
                                     loading.close();
                                     console.log(error);
@@ -2736,25 +2872,22 @@ const RuleCRUDLayout = {
                             const loading = Qmsg.loading("请稍等...");
                             $.ajax({
                                 type: "GET",
-                                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                                url: `${defApi}/bilibili/`,
                                 data: {
+                                    model: "getUsers",
                                     userName: getInfo["userName"],
                                     userPassword: getInfo["userPassword"]
                                 },
                                 dataType: "json",
-                                success(data) {
+                                success({message, code, data}) {
                                     loading.close();
-                                    const message = data["message"];
-                                    if (data["code"] !== 1) {
+                                    if (code !== 1) {
                                         Qmsg.error(message);
                                         return;
                                     }
                                     Qmsg.success(message);
-                                    const time = data["data"]["time"];
-                                    const ruleRes = data["data"]["ruleRes"];
-                                    console.log(time);
-                                    console.log(ruleRes);
-                                    ruleCRUDLlayoutVue().inputRuleLocalData(ruleRes);
+                                    const {rule_content} = data;
+                                    ruleCRUDLlayoutVue().inputRuleLocalData(JSON.parse(rule_content));
                                 }, error(xhr, status, error) { //请求失败的回调函数
                                     loading.close();
                                     console.log(error);
@@ -2909,6 +3042,9 @@ const RuleCRUDLayout = {
                     if (!this.debugATestOInput) return;
                     this.debugRule();
                 }
+            },
+            created() {
+                this.updateRuleIndex();
             }
         });
         return function () {
@@ -3149,6 +3285,7 @@ const Video_params_layout = {
             el: "#video_params_layout",
             data: {
                 autoPlayCheckbox: LocalData.video.isAutoPlay(),
+                videoEndRecommendCheckbox: LocalData.video.isVideoEndRecommend(),
                 rangePlaySpeed: LocalData.video.getRangePlaySpeed(),
                 playbackSpeedSelect: LocalData.video.getRangePlaySpeed(),
                 playbackSpeedList: [0.25, 0.5, 0.75, 0.9, 1, 1.25, 1.35, 1.5, 2],
@@ -3192,6 +3329,9 @@ const Video_params_layout = {
             watch: {
                 autoPlayCheckbox(newVal) {
                     LocalData.video.setAutoPlay(newVal);
+                },
+                videoEndRecommendCheckbox(newVal) {
+                    LocalData.video.setVideoEndRecommend(newVal);
                 },
                 rangePlaySpeed(newVal) {
                     Util.setVideoBackSpeed(newVal);
@@ -3449,6 +3589,10 @@ const LiveLayoutVue = {
                     this.otherLiveRoomList = tempList;
                     Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 }
+            },
+            created() {
+                this.sPartitionObjList = this.partitionObjList[this.mainPartitionSelect];
+                this.sPartitionSelect = this.sPartitionObjList[0];
             }
         });
         return function () {
@@ -3765,6 +3909,21 @@ const HomePageLayoutVue = {
                         this.sort_typeSelect = frequencyChannel.getSort_type();
                     }
                 }
+            },
+            created() {
+                switch (Home.getPushType()) {
+                    case "频道":
+                        this.sort_typeSelect = frequencyChannel.getSort_type();
+                        this.showList = HomePageLayoutVue.getChannel_idList();
+                        this.showListSelect = frequencyChannel.getChannel_id();
+                        this.isChannelSelect = true;
+                        break;
+                    default:
+                        this.showList = HomePageLayoutVue.getVideo_zoneList();
+                        this.showListSelect = LocalData.getVideo_zone();
+                        this.sort_typeSelect = frequencyChannel.getSort_type();
+                        break;
+                }
             }
         });
         return function () {
@@ -3782,14 +3941,12 @@ const RuleCenterLayoutVue = {
             //TODO 后续对下面代码进行调整
             $.ajax({
                 type: "GET",
-                url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
+                url: `${defApi}/bilibili/`,
                 data: {
                     model: "ruleCenter"
                 },
                 dataType: "json",
-                success(body) {
-                    const message = body["message"];
-                    const code = body["code"];
+                success({message, code, dataList}) {//上面已声明了json，之后响应体会自动转成json处理
                     data.message = message;
                     data.code = code;
                     if (code !== 1) {
@@ -3797,14 +3954,15 @@ const RuleCenterLayoutVue = {
                         return;
                     }
                     const tempDataList = [];
-                    for (const v of body["list"]) {
-                        const name = v["userName"];
-                        const time = v["rule"]["time"];
-                        const ruleList = v["rule"]["ruleRes"];
-                        tempDataList.push({name: name, time: time, ruleList: ruleList});
+                    for (const {name, rule_content, first_push_time, update_time} of dataList) {
+                        tempDataList.push({
+                            name: name,
+                            ruleList: JSON.parse(rule_content),
+                            update_time: update_time,
+                            first_push_time: first_push_time
+                        });
                     }
                     data["dataList"] = tempDataList;
-                    data["body"] = body;
                     resolve(data);
                 }, error(xhr, status, error) { //请求失败的回调函数
                     data["xhr"] = xhr;
@@ -3846,6 +4004,368 @@ const RuleCenterLayoutVue = {
         }
     }
 }
+const SuspensionDivVue = {
+    returnVue() {
+        const vue = new Vue({//快捷悬浮屏蔽面板的vue
+            el: "#suspensionDiv",
+            data: {
+                moveLayoutValue: 5,
+                xy: {
+                    x: 0, y: 0
+                },
+                upName: "",
+                uid: "",
+                videoData: {
+                    title: "",
+                    bv: "",
+                    av: "",
+                    show: false,
+                    frontCover: null
+                },
+            },
+            methods: {
+                getVideoData() {
+                    return {
+                        upName: this.upName,
+                        uid: this.uid,
+                        title: this.videoData.title,
+                        bv: this.videoData.bv,
+                        frontCover: this.videoData.frontCover
+                    };
+                },
+                addToWatchedBut() {
+                    Watched.addWatched(this.getVideoData());
+                },
+                addLookAtItLater() {
+                    LookAtItLater.addLookAtItLater(this.getVideoData());
+                },
+                addShieldName() {
+                    UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", this.upName);
+                },
+                addShieldUid() {
+                    if (!UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", this.uid)) {
+                        return;
+                    }
+                    const title = document.title;
+                    const url = Util.getWindowUrl();
+                    if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
+                        Home.startShieldMainVideo(".bili-video-card.is-rcmd");
+                        return;
+                    }
+                    if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
+                        Search.video.searchRules();
+                        return;
+                    }
+                    if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
+                        Live.shield($("#chat-items").children());
+
+                    }
+                },
+                findUserInfo() {
+                    const loading = Qmsg.loading("正在获取中！");
+                    const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`);
+                    promise.then(res => {
+                        const body = res.bodyJson;
+                        if (body["code"] !== 0) {
+                            Qmsg.error("请求失败！");
+                            return;
+                        }
+                        const cradInfo = body["data"]["card"];
+                        const uid = cradInfo["mid"];//uid
+                        const sex = cradInfo["sex"];//性别
+                        const userName = cradInfo["name"];
+                        const fans = cradInfo["fans"];//粉丝数
+                        const sign = cradInfo["sign"];//个性签名信息
+                        const face = cradInfo["face"];//头像
+                        const current_level = cradInfo["level_info"]["current_level"];//当前用户b站等级
+                        const friend = cradInfo["friend"];//关注量
+                        const follower = body["data"]["follower"];//粉丝量
+                        const like_num = body["data"]["like_num"];//点赞量
+                        const userCardHtml = HtmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
+                        const tempJq = $("#popDiv");
+                        if (tempJq.length === 0) {
+                            $("body").append(userCardHtml);
+                        } else {
+                            $("#popDiv").remove();
+                            $("body").append(userCardHtml);
+                        }
+                        tempJq.css("display", "inline");
+                    }).finally(() => {
+                        loading.close();
+                    });
+                },
+                move(value, func) {
+                    const jqE = $("#suspensionDiv");
+                    const moveLayoutValue = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
+                    let moveIndex = func(moveLayoutValue, this.moveLayoutValue);
+                    const width = document.documentElement.clientWidth - parseInt(jqE.css("width"));
+                    const height = document.documentElement.clientHeight - parseInt(jqE.css("height"));
+                    if (value === "top" && 0 >= moveIndex) {
+                        moveIndex = 0;
+                    }
+                    if (value === "top" && moveIndex > height) {
+                        moveIndex = height;
+                    }
+                    if (value === "left" && moveIndex <= 0) {
+                        moveIndex = 0;
+                    }
+                    if (value === "left" && moveIndex > width) {
+                        moveIndex = width;
+                    }
+                    if (value === "top") {
+                        this.xy.y = moveIndex;
+                    } else {
+                        this.xy.x = moveIndex;
+                    }
+                    jqE.css(value, `${moveIndex}px`);
+                },
+                moveTop() {
+                    this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
+                },
+                moveLrft() {
+                    this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
+                },
+                moveRight() {
+                    this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
+                },
+                moveButton() {
+                    this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
+                },
+                handleToggle(event) {//处理监听details展开关闭事件
+                    if (event.target.open === false) {
+                        return;
+                    }
+                    this.correctedPosition();
+                },
+                correctedPosition() {//修正位置
+                    const jqE = $("#suspensionDiv");
+                    const jqHeight = parseInt(jqE.css("height"));//面板本身面积高度
+                    const panelTop = jqE.offset().top;//面板左上角的坐标y
+                    const height = jqHeight + panelTop;//面板在页面高度中所占用的高度大小
+                    const remainHeight = document.documentElement.clientHeight - height;//剩余的高度
+                    const maxHeight = document.documentElement.clientHeight - jqHeight;//允许的最低位置
+                    if (jqHeight < remainHeight) {
+                        return;
+                    }
+                    if (remainHeight > maxHeight) {
+                        return;
+                    }
+                    jqE.css("top", `${maxHeight}px`);
+                }
+            },
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+const AccountCenterVue = {
+    returnVue() {
+        const vue = new Vue({
+            el: "#accountCenterLayout",
+            components: {
+                login: {//已登录状态
+                    template: `
+                        <div>
+                        <h1>个人信息</h1>
+                        <div style="display: flex">
+                            <img src="https://hangexi.gitee.io/datafile/img/defaultAvatar.png"
+                                 style="border-radius: 50%; height: 100px;" alt="图片加载不出来">
+                            <div
+                                style="display: flex;align-items: flex-start;padding-left: 10px;flex-direction: column;justify-content: center;">
+                                <div>
+                                    <span>用户名：</span><span>{{ userName }}</span>
+                                </div>
+                                <div>
+                                    <span>注册时间：</span><span>{{ addTime }}</span>
+                                </div>
+                                <div id="ruleSharingDiv">
+                                    规则共享状态：<span>{{ sharedState }}</span>
+                                    <button @click="publicStateBut">公开我的规则</button>
+                                    <button @click="notPublicStateBut">不公开我的规则</button>
+                                    <input type="checkbox" v-model="isAnonymityCheckbox"><span
+                                    title="选中为匿名公布，反之不匿名公布，每次提交会覆盖上一次的匿名状态">是否匿名公布(鼠标悬停我提示信息)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div style="display: flex;justify-content: center;">
+                            <button>
+                                <a href="https://www.mikuchase.ltd/web/#/registerAndLogIn" target="_blank">注册</a>
+                            </button>
+                            <button @click="exitSignBut">退出登录</button>
+                        </div>
+                        </div>`,
+                    data() {
+                        return {
+                            userName: "我是用户名占位符",
+                            addTime: "我是注册时间占位符",
+                            pwd: "",
+                            sharedState: false,
+                            isAnonymityCheckbox: false
+
+                        }
+                    },
+                    methods: {
+                        exitSignBut() {
+                            if (!confirm("您确定要退出登录吗")) return;
+                            LocalData.AccountCenter.setInfo({});
+                            Qmsg.success("已退出登录！");
+                            this.$emit("tab-click", "notLogin");
+                        },
+                        publicStateBut() {
+                            if (!confirm("确定要公开自己的规则吗？\n匿名状态=" + this.isAnonymityCheckbox)) return;
+                            ruleSharingSet(this.userName, this.pwd, true, this.isAnonymityCheckbox);
+                        },
+                        notPublicStateBut() {
+                            if (!confirm("确定不公开自己的规则吗？")) return;
+                            ruleSharingSet(this.userName, this.pwd, false, false);
+                        }
+                    },
+                    created() {
+                        let {name, pwd, share, addTime} = LocalData.AccountCenter.getInfo();
+                        debugger;
+                        this.userName = name;
+                        this.addTime = Util.timestampToTime(addTime);
+                        this.sharedState = share;
+                        this.pwd = pwd;
+                    }
+                },
+                notLogin: {
+                    template: `
+                        <div style="display: flex;flex-direction: column;align-items: center;">
+                        <h1>登录账号</h1>
+                        <input type="text" placeholder="用户名" v-model.trim="userName">
+                        <input type="text" placeholder="密码" v-model.trim="userPwd">
+                        <div>
+                            <button>
+                                <a href="https://www.mikuchase.ltd/web/#/registerAndLogIn" target="_blank">注册</a>
+                            </button>
+                            <button @click="loginBut">登录</button>
+                        </div>
+                        </div>`,
+                    data() {
+                        return {userName: "", userPwd: ""}
+                    },
+                    methods: {
+                        loginBut() {
+                            const captcha = Util.randomNum(1000, 9999);
+                            const s = prompt("请输入验证码\n" + captcha);
+                            if (s === null) return;
+                            if (s !== (captcha + "")) {
+                                alert("验证码错误！");
+                                return;
+                            }
+                            if (this.userName === "" || this.userPwd === "") {
+                                alert("请正常填写账号信息！");
+                                return;
+                            }
+                            if (this.userPwd.length < 6) {
+                                alert("密码长度需要大于或登录6位");
+                                return;
+                            }
+                            const loading = Qmsg.loading("正在登录中...");
+                            const promise = HttpUtil.get(`${defApi}/bilibili/signInToRegister.php?userName=${this.userName}&userPassword=${this.userPwd}&model=logIn`);
+                            promise.then(({bodyJson: body}) => {
+                                const {code, message, userData} = body;
+                                if (code !== 1) {
+                                    Qmsg.error(message);
+                                    return;
+                                }
+                                let {rule_content} = userData;
+                                rule_content = JSON.parse(rule_content);
+                                debugger;
+                                try {
+                                    delete userData["rule_content"];
+                                } catch (e) {
+                                    console.error("登录时出错！", e);
+                                }
+                                if (confirm("是要将云端规则导入覆盖本地规则吗？")) {
+                                    ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
+                                }
+                                LocalData.AccountCenter.setInfo(userData);
+                                Qmsg.success(message);
+                                this.$emit("tab-click", "login");
+
+                            }).catch((error) => {
+                                console.log(error);
+                            }).finally(() => {
+                                loading.close();
+                            });
+                        }
+                    }
+                }
+            },
+            data() {
+                return {
+                    isTab: "login",
+                }
+            },
+            methods: {
+                getTabName(tabName) {
+                    this.isTab = tabName;
+                }
+            },
+            created() {
+                const getInfo = LocalData.AccountCenter.getInfo();
+                if (getInfo === {} || Object.keys(getInfo).length === 0) {//没有就进入非登录页面
+                    this.isTab = "notLogin";
+                } else {//有就进入已登录页面
+                    this.isTab = "login";
+                }
+            }
+
+        });
+        return function () {
+            return vue;
+        }
+    }
+}
+
+
+/**
+ *
+ * 设置规则共享
+ * @param userName
+ * @param userPassword
+ * @param {boolean}shareBool 共享状态
+ * @param {boolean}anonymityBool 匿名状态
+ */
+function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
+    const loading = Qmsg.loading("请稍等...");
+    $.ajax({
+        type: "POST",
+        url: `${defApi}/bilibili/`,
+        data: {
+            model: "setShare",
+            userName: userName,
+            userPassword: userPassword,
+            share: shareBool,
+            anonymity: anonymityBool
+        },
+        dataType: "json",
+        success({message, code, share}) {
+            loading.close();
+            if (code !== 1) {
+                Qmsg.error(message);
+                return;
+            }
+            const getInfo = LocalData.AccountCenter.getInfo();
+            if (Object.keys(getInfo).length === 0) {
+                Qmsg.error("更新本地账户信息错误！");
+                return;
+            }
+            getInfo["share"] = share;
+            LocalData.AccountCenter.setInfo(getInfo);
+            Qmsg.success(message);
+        }, error(xhr, status, error) {
+            loading.close();
+            console.log(error);
+            console.log(status);
+        }
+    });
+}
+
 //匹配数组元素
 const Matching = {
     /**
@@ -3993,7 +4513,7 @@ const UrleCrud = {//规则的增删改查
     addAll(ruleList, contentList, ruleType) {
         let tempLenSize = 0;
         const set = new Set(ruleList);
-        for (const value of set) {
+        for (const value of contentList) {
             set.add(value);
         }
         if (set.size === ruleList.length) {
@@ -4320,163 +4840,6 @@ async function perf_observer() {
     performance.clearResourceTimings();//清除资源时间
 }
 /**
- *
- * @param userName
- * @param userPassword
- * @param {boolean}shareBool 共享状态
- * @param {boolean}anonymityBool 匿名状态
- */
-function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
-    const loading = Qmsg.loading("请稍等...");
-    $.ajax({
-        type: "POST",
-        url: "http://api.mikuchase.ltd/bilibili/shieldRule/",
-        data: {
-            model: "setShare",
-            userName: userName,
-            userPassword: userPassword,
-            postData: shareBool,
-            anonymity: anonymityBool
-        },
-        dataType: "json",
-        success(data) {
-            loading.close();
-            const message = data["message"];
-            if (data["code"] !== 1) {
-                Qmsg.error(message);
-                return;
-            }
-            $("#ruleSharingDiv>span").text(shareBool);
-            const getInfo = LocalData.AccountCenter.getInfo();
-            if (Object.keys(getInfo).length === 0) {
-                Qmsg.error("更新本地账户信息错误！");
-                return;
-            }
-            getInfo["share"] = shareBool;
-            LocalData.AccountCenter.setInfo(getInfo);
-            Qmsg.success(message);
-        }, error(xhr, status, error) {
-            loading.close();
-            console.log(error);
-            console.log(status);
-        }
-    });
-}
-
-const AccountCenter = {//账号中心
-    info() {//加载配置信息
-        const getInfo = LocalData.AccountCenter.getInfo();
-        if (getInfo === {} || Object.keys(getInfo).length === 0) {
-            this.login();
-            return;
-        }
-        this.haveLanded();
-    },
-    login() {//未登录
-        $("#accountCenterLayout").append(layout.getLogin());
-        $("#loginBut").click(() => {
-            const captcha = Util.randomNum(1000, 9999);
-            const s = prompt("请输入验证码\n" + captcha);
-            if (s === null) {
-                return;
-            }
-            if (s !== (captcha + "")) {
-                alert("验证码错误！");
-                return;
-            }
-            const userName = $("#userNameInput").val();
-            const userPass = $("#userPasswordInput").val();
-            if (userName === "" || userName.includes(" ") || userPass === "" || userPass.includes(" ")) {
-                alert("请正常填写账号信息！");
-                return;
-            }
-            if (userPass.length < 6) {
-                alert("密码长度需要大于或登录6位");
-                return;
-            }
-            const loading = Qmsg.loading("正在登录中...");
-            const promise = HttpUtil.get(`http://api.mikuchase.ltd/bilibili/shieldRule/SignInToRegister?userName=${userName}&userPassword=${userPass}`);
-            promise.then(res => {
-                const body = res.bodyJson;
-                const code = body["code"];
-                const message = body["message"];
-                if (code !== 1) {
-                    Qmsg.error(message);
-                    return;
-                }
-                const ruleData = body["ruleData"];
-                LocalData.AccountCenter.setInfo(body["userInfo"]);
-                Qmsg.success("登录成功！");
-                $("#accountCenterLayout>*").remove();
-                this.haveLanded();
-            }).catch((error) => {
-                console.log(error);
-            }).finally(() => {
-                loading.close();
-            });
-        });
-    },
-    haveLanded() {//已登录
-        $("#accountCenterLayout").append(`<div>
-    <h1>个人信息</h1>
-    <div style="display: flex">
-        <img src="https://hangexi.gitee.io/datafile/img/defaultAvatar.png"
-             style="border-radius: 50%; height: 100px;">
-        <div style="display: flex;align-items: flex-start;padding-left: 10px;flex-direction: column;justify-content: center;">
-            <div>
-                <span>用户名：</span><span id="userNameSpan">我是用户名占位符</span>
-            </div>
-            <div>
-            <span>注册时间：</span><span id="asideuserAddTimeSpan">我是注册时间占位符</span>
-            </div>
-            <div id="ruleSharingDiv">
-           规则共享状态：<span>我是规则共享状态占位符</span>
-            <button value="public">公开我的规则</button>
-            <button value="notPublic">不公开我的规则</button>
-            <input type="checkbox" id="isAnonymityCheckbox"><span title="选中为匿名公布，反之不匿名公布，每次提交会覆盖上一次的匿名状态">是否匿名公布(鼠标悬停我提示信息)</span> 
-            </div>
-        </div>
-    </div>
-    <hr>
-    <div style="display: flex;justify-content: center;">
-     <button>
-     <a href="http://api.mikuchase.ltd/bilibili/shieldRule/enroll/" target="_blank">注册</a>
-     </button>
-        <button id="exitSignBut">退出登录</button>
-    </div>
-</div>`);
-        const getInfo = LocalData.AccountCenter.getInfo();
-        const infoName = getInfo["userName"];
-        const infoAddTime = getInfo["addTime"];
-        const share = getInfo["share"] === true;
-        $("#userNameSpan").text(infoName);
-        $("#asideuserAddTimeSpan").text(Util.timestampToTime(infoAddTime));
-        $("#ruleSharingDiv>span:eq(0)").text(share);
-        $("#exitSignBut").click(() => {
-            if (!confirm("您确定要退出登录吗")) {
-                return;
-            }
-            LocalData.AccountCenter.setInfo({});
-            Qmsg.success("已退出登录！");
-            $("#accountCenterLayout>*").remove();
-            this.login();
-        });
-        $("#ruleSharingDiv>button[value='public']").click(() => {
-            const isAnonymity = $('#isAnonymityCheckbox').prop('checked');
-            if (!confirm("确定要公开自己的规则吗？\n匿名状态=" + isAnonymity)) {
-                return;
-            }
-            ruleSharingSet(infoName, getInfo["userPassword"], true, isAnonymity);
-        });
-        $("#ruleSharingDiv>button[value='notPublic']").click(() => {
-            if (!confirm("确定不公开自己的规则吗？")) {
-                return;
-            }
-            ruleSharingSet(infoName, getInfo["userPassword"], false, false);
-        });
-    }
-}
-/**
  * 频道
  */
 const frequencyChannel = {//频道
@@ -4630,6 +4993,7 @@ const frequencyChannel = {//频道
         const lastIndexOf = upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1);
         const topInfo = element.getElementsByClassName("video-card__info")[0].getElementsByClassName("count");
         const videoHref = videoInfo.href;
+        const v_img = element.querySelector(".cover-picture>img");
         return new VideoClass()
             .setE(element)
             .setUpName(element.querySelector(".up-name__text").textContent)
@@ -4639,7 +5003,8 @@ const frequencyChannel = {//频道
             .setBv(Util.getSubWebUrlBV(videoHref))
             .setPlaybackVolume(topInfo[0].textContent.trim())
             .setVideoTime(element.getElementsByClassName("play-duraiton")[0].textContent)
-            .setBarrageQuantity(topInfo[1].textContent.trim());
+            .setBarrageQuantity(topInfo[1].textContent.trim())
+            .setFrontCover(v_img === null ? null : v_img.getAttribute("src"));
     }
 }
 //直播
@@ -5347,13 +5712,15 @@ const Space = {
                     for (let value of mediasArr) {
                         const data = {};
                         const upInfo = value["upper"];
+                        const bvId = value["bvid"];
                         data["作者名"] = upInfo["name"];
                         data["uid"] = upInfo["mid"];
                         data["头像"] = upInfo["face"];
                         data["标题"] = value["title"];
                         data["封面"] = value["cover"];
                         data["AV号"] = value["id"];
-                        data["BV号"] = value["bvid"];
+                        data["BV号"] = bvId;
+                        data["视频地址"] = `https://www.bilibili.com/video/${bvId}`;
                         data["弹幕量"] = value["cnt_info"]["danmaku"];
                         data["播放量"] = value["cnt_info"]["play"];
                         data["收藏量"] = value["cnt_info"]["collect"];
@@ -5911,10 +6278,16 @@ const DefVideo = {
                 $(v).mouseenter((e) => {
                     const domElement = e.delegateTarget;
                     const upSpatialAddress = domElement.querySelector(".upname>a").href;
+                    const videoAddress = domElement.querySelector(".video-awesome-img");
+                    const bv = videoAddress === null ? null : Util.getSubWebUrlBV(videoAddress.href);
+                    const v_img = domElement.querySelector(".b-img__inner>img");
                     const data = {
                         upName: domElement.querySelector(".name").textContent,
                         title: domElement.querySelector(".title").textContent,
-                        uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1)
+                        uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1),
+                        frontCover: v_img === null ? null : v_img.getAttribute("src"),
+                        bv: bv,
+                        av: bilibiliEncoder.dec(bv)
                     };
                     Util.showSDPanel(e, data);
                 });
@@ -6030,6 +6403,16 @@ const DefVideo = {
                 Qmsg.success("已隐藏评论区");
             }, 500);
         }
+    },
+    setVideoSpeedInfo(videoElement) {
+        {
+            const data = Util.getData("playbackSpeed");
+            if (data === undefined) return;
+            if (data === 0 || data < 0.1) return;
+            //播放视频速度
+            videoElement.playbackRate = data;
+            Print.ln("已设置播放器的速度=" + data);
+        }
     }
 
 }
@@ -6081,6 +6464,7 @@ const Search = {
             let videOHref;
             const topInfo = v.querySelectorAll(".bili-video-card__stats--left>.bili-video-card__stats--item");//1播放量2弹幕数
             const tempE = info.querySelector("a[href*='www.bilibili.com/video/']");
+            const v_img = v.querySelector(".v-img>img");
             if (tempE == null) {
                 v.remove();
                 console.log("视频地址非video，故删除");
@@ -6098,6 +6482,7 @@ const Search = {
                 uid: Util.getSubUid(upSpatialAddress.substring(upSpatialAddress.lastIndexOf("/") + 1)),
                 //视频的时间
                 videoTime: v.querySelector(".bili-video-card__stats__duration").textContent,
+                frontCover: v_img === null ? null : v_img.getAttribute("src"),
                 //播放量
                 playbackVolume: topInfo[0],
                 //弹幕量
@@ -6714,7 +7099,6 @@ const LockScreen = {
     }
 
 }
-
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -6727,21 +7111,16 @@ async function bilibili(href) {
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
         const videoData = Rule.videoData;
+        const videoElement = document.getElementsByTagName("video");
         const interval = setInterval(() => {
             try {
-                const videoElement = document.getElementsByTagName("video")[0];
-                if (videoElement === undefined) {
-                    return;
-                }
+                if (videoElement.length === 0) return;
                 clearInterval(interval);
-                const autoPlay = Util.getData("autoPlay");
-                if (autoPlay === true) {
+                if (LocalData.video.isAutoPlay() === true) {
                     const intervalAutoPlay = setInterval(() => {
                         const au = $("input[aria-label='自动开播']");
-                        if (au.length === 0) {
-                            return;
-                        }
-                        videoElement.pause();
+                        if (au.length === 0) return;
+                        for (const videoTag of videoElement) videoTag.pause();
                         if (au.is(":checked")) {
                             au.attr("checked", false);
                             console.log(au.is(":checked"));
@@ -6752,28 +7131,18 @@ async function bilibili(href) {
                         }
                     }, 800);
                 }
-
-                function setVideoSpeedInfo() {
-                    const data = Util.getData("playbackSpeed");
-                    if (data === undefined) {
-                        return;
-                    }
-                    if (data === 0 || data < 0.1) {
-                        return;
-                    }
-                    //播放视频速度
-                    videoElement.playbackRate = data;
-                    Print.ln("已设置播放器的速度=" + data);
+                for (const videoTag of videoElement) {
+                    DefVideo.setVideoSpeedInfo(videoTag);
+                    videoTag.addEventListener('ended', () => {//播放器结束之后事件
+                        Print.ln("播放结束");
+                        if (LocalData.video.isVideoEndRecommend()) {
+                            Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
+                        }
+                    }, false);
                 }
 
-                setVideoSpeedInfo();
-                videoElement.addEventListener('ended', () => {//播放器结束之后事件
-                    Print.ln("播放结束");
-                    if (videoData.isVideoEndRecommend) {
-                        Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
-                    }
-                }, false);
             } catch (e) {
+                console.error("播放页调整播放器出错！", e);
             }
         }, 1000);
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
@@ -7098,12 +7467,14 @@ async function bilibiliOne(href, windowsTitle) {
                 const videoAddress = tempInfo.querySelector("a").href;
                 const userInfo = element.querySelector(".bili-video-card__info--owner");
                 const userHref = userInfo.href;
+                const v_img = element.querySelector(".v-img>img");
                 const data = {
                     upName: element.querySelector(".bili-video-card__info--author").textContent,
                     uid: Util.getSubWebUrlUid(userHref),
                     title: title,
                     videoAddress: videoAddress,
-                    bv: Util.getSubWebUrlBV(videoAddress)
+                    bv: Util.getSubWebUrlBV(videoAddress),
+                    frontCover: v_img === null ? null : v_img.getAttribute("src")
                 };
                 Util.showSDPanel(e, data);
             });
@@ -7182,7 +7553,9 @@ async function bilibiliOne(href, windowsTitle) {
                 loadingVideoZE();
             }
             // //首页
-            Home.stypeBody();
+            if (!LocalData.getIsMainVideoList()) {
+                Home.stypeBody();
+            }
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
             setTimeout(() => {
                 $(".feed-roll-btn").remove();//移除换一换
@@ -7915,8 +8288,6 @@ const Rule = {
         isTag: false,
         //是否移除视频页播放器下面的简介
         isDesc: false,
-        //是否移除视频播放完之后的，推荐视频
-        isVideoEndRecommend: true,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
         isRightVideo: false
     },
@@ -8088,12 +8459,13 @@ const Home = {
                         const info = domElement.querySelector(".bili-video-card__info--right");
                         const videoAddress = info.querySelector(".bili-video-card__info--tit>a").getAttribute("href");
                         const href = info.querySelector(".bili-video-card__info--owner").href;
+                        const v_img = domElement.querySelector(".v-img>img");
                         Util.showSDPanel(e, {
                             upName: info.querySelector(".bili-video-card__info--author").textContent,
                             uid: Util.getSubWebUrlUid(href),
                             title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
                             bv: Util.getSubWebUrlBV(videoAddress),
-
+                            frontCover: v_img === null ? null : v_img.getAttribute("src")
                         });
                     });
                 }
@@ -8873,190 +9245,20 @@ $("#butClearMessage").click(() => {
 
 const bilibiliEncoder = Util.BilibiliEncoder;
 
-const suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
-    el: "#suspensionDiv",
-    data: {
-        moveLayoutValue: 5,
-        xy: {
-            x: 0, y: 0
-        },
-        upName: "",
-        uid: "",
-        videoData: {
-            title: "",
-            bv: "",
-            av: "",
-            show: false
-        },
-    },
-    methods: {
-        getVideoData() {
-            return {
-                upName: suspensionDivVue.upName,
-                uid: suspensionDivVue.uid,
-                title: suspensionDivVue.videoData.title,
-                bv: suspensionDivVue.videoData.bv
-            };
-        },
-        addToWatchedBut() {
-            Watched.addWatched(this.getVideoData());
-        },
-        addLookAtItLater() {
-            LookAtItLater.addLookAtItLater(this.getVideoData());
-        },
-        addShieldName() {
-            UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", this.upName);
-        },
-        addShieldUid() {
-            if (!UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", this.uid)) {
-                return;
-            }
-            const title = document.title;
-            const url = Util.getWindowUrl();
-            if (title === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") {
-                Home.startShieldMainVideo(".bili-video-card.is-rcmd");
-                return;
-            }
-            if (title.includes("-哔哩哔哩_Bilibili") && (url.includes("search.bilibili.com/all") || url.includes("search.bilibili.com/video"))) {//用于避免个别情况搜索界面屏蔽不生效问题
-                Search.video.searchRules();
-                return;
-            }
-            if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
-                Live.shield($("#chat-items").children());
-
-            }
-        },
-        findUserInfo() {
-            const loading = Qmsg.loading("正在获取中！");
-            const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`);
-            promise.then(res => {
-                const body = res.bodyJson;
-                if (body["code"] !== 0) {
-                    Qmsg.error("请求失败！");
-                    return;
-                }
-                const cradInfo = body["data"]["card"];
-                const uid = cradInfo["mid"];//uid
-                const sex = cradInfo["sex"];//性别
-                const userName = cradInfo["name"];
-                const fans = cradInfo["fans"];//粉丝数
-                const sign = cradInfo["sign"];//个性签名信息
-                const face = cradInfo["face"];//头像
-                const current_level = cradInfo["level_info"]["current_level"];//当前用户b站等级
-                const friend = cradInfo["friend"];//关注量
-                const follower = body["data"]["follower"];//粉丝量
-                const like_num = body["data"]["like_num"];//点赞量
-                const userCardHtml = HtmlStr.getUserCard(uid, userName, current_level, sign, face, friend, follower, like_num);
-                const tempJq = $("#popDiv");
-                if (tempJq.length === 0) {
-                    $("body").append(userCardHtml);
-                } else {
-                    $("#popDiv").remove();
-                    $("body").append(userCardHtml);
-                }
-                tempJq.css("display", "inline");
-            }).finally(() => {
-                loading.close();
-            });
-        },
-        move(value, func) {
-            const jqE = $("#suspensionDiv");
-            const moveLayoutValue = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
-            let moveIndex = func(moveLayoutValue, this.moveLayoutValue);
-            const width = document.documentElement.clientWidth - parseInt(jqE.css("width"));
-            const height = document.documentElement.clientHeight - parseInt(jqE.css("height"));
-            if (value === "top" && 0 >= moveIndex) {
-                moveIndex = 0;
-            }
-            if (value === "top" && moveIndex > height) {
-                moveIndex = height;
-            }
-            if (value === "left" && moveIndex <= 0) {
-                moveIndex = 0;
-            }
-            if (value === "left" && moveIndex > width) {
-                moveIndex = width;
-            }
-            if (value === "top") {
-                this.xy.y = moveIndex;
-            } else {
-                this.xy.x = moveIndex;
-            }
-            jqE.css(value, `${moveIndex}px`);
-        },
-        moveTop() {
-            this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
-        },
-        moveLrft() {
-            this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
-        },
-        moveRight() {
-            this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
-        },
-        moveButton() {
-            this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
-        },
-        handleToggle(event) {//处理监听details展开关闭事件
-            if (event.target.open === false) {
-                return;
-            }
-            this.correctedPosition();
-        },
-        correctedPosition() {//修正位置
-            const jqE = $("#suspensionDiv");
-            const jqHeight = parseInt(jqE.css("height"));//面板本身面积高度
-            const panelTop = jqE.offset().top;//面板左上角的坐标y
-            const height = jqHeight + panelTop;//面板在页面高度中所占用的高度大小
-            const remainHeight = document.documentElement.clientHeight - height;//剩余的高度
-            const maxHeight = document.documentElement.clientHeight - jqHeight;//允许的最低位置
-            if (jqHeight < remainHeight) {
-                return;
-            }
-            if (remainHeight > maxHeight) {
-                return;
-            }
-            jqE.css("top", `${maxHeight}px`);
-        }
-    },
-    watch: {}
-});
 
 Watched.WatchedListVue();
 const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
-ruleCRUDLlayoutVue().updateRuleIndex();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
-const videoParamsLayoutVue = Video_params_layout.returnVue();
-const liveLayoutVue = LiveLayoutVue.returnVue();
-{//初始化一些配置
-    const data = liveLayoutVue()._data;
-    data.sPartitionObjList = data.partitionObjList[data.mainPartitionSelect];
-    data.sPartitionSelect = data.sPartitionObjList[0];
-}
+Video_params_layout.returnVue();
+LiveLayoutVue.returnVue();
 OtherLayoutVue.returnVue();
 DonateLayoutVue.returnVue();
-const homePageLayoutVue = HomePageLayoutVue.returnVue();
-{
-    let list;
-    let id;
-    switch (Home.getPushType()) {
-        case "频道":
-            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
-            list = HomePageLayoutVue.getChannel_idList();
-            id = frequencyChannel.getChannel_id();
-            homePageLayoutVue().isChannelSelect = true;
-            break;
-        default:
-            list = HomePageLayoutVue.getVideo_zoneList();
-            id = LocalData.getVideo_zone();
-            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
-            break;
-    }
-    homePageLayoutVue().showList = list;
-    homePageLayoutVue().showListSelect = id;
-}
-
+HomePageLayoutVue.returnVue();
 const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
+const suspensionDivVue = SuspensionDivVue.returnVue();
+
+AccountCenterVue.returnVue();
 
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
