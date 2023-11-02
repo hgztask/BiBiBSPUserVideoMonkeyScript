@@ -22,7 +22,6 @@ async function bilibili(href) {
                         for (const videoTag of videoElement) videoTag.pause();
                         if (au.is(":checked")) {
                             au.attr("checked", false);
-                            console.log(au.is(":checked"));
                         } else {
                             clearInterval(intervalAutoPlay);
                             console.log("退出intervalAutoPlay")

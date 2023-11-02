@@ -63,7 +63,6 @@ const AccountCenterVue = {
                     },
                     created() {
                         let {name, pwd, share, addTime} = LocalData.AccountCenter.getInfo();
-                        debugger;
                         this.userName = name;
                         this.addTime = Util.timestampToTime(addTime);
                         this.sharedState = share;
