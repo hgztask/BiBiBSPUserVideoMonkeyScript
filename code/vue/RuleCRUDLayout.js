@@ -461,6 +461,9 @@ const RuleCRUDLayout = {
                     if (!this.debugATestOInput) return;
                     this.debugRule();
                 }
+            },
+            created() {
+                this.updateRuleIndex();
             }
         });
         return function () {

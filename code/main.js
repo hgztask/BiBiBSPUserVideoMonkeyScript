@@ -971,39 +971,13 @@ const bilibiliEncoder = Util.BilibiliEncoder;
 
 Watched.WatchedListVue();
 const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
-ruleCRUDLlayoutVue().updateRuleIndex();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
-const videoParamsLayoutVue = Video_params_layout.returnVue();
-const liveLayoutVue = LiveLayoutVue.returnVue();
-{//初始化一些配置
-    const data = liveLayoutVue()._data;
-    data.sPartitionObjList = data.partitionObjList[data.mainPartitionSelect];
-    data.sPartitionSelect = data.sPartitionObjList[0];
-}
+Video_params_layout.returnVue();
+LiveLayoutVue.returnVue();
 OtherLayoutVue.returnVue();
 DonateLayoutVue.returnVue();
-const homePageLayoutVue = HomePageLayoutVue.returnVue();
-{
-    let list;
-    let id;
-    switch (Home.getPushType()) {
-        case "频道":
-            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
-            list = HomePageLayoutVue.getChannel_idList();
-            id = frequencyChannel.getChannel_id();
-            homePageLayoutVue().isChannelSelect = true;
-            break;
-        default:
-            list = HomePageLayoutVue.getVideo_zoneList();
-            id = LocalData.getVideo_zone();
-            homePageLayoutVue().sort_typeSelect = frequencyChannel.getSort_type();
-            break;
-    }
-    homePageLayoutVue().showList = list;
-    homePageLayoutVue().showListSelect = id;
-}
-
+HomePageLayoutVue.returnVue();
 const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
 const suspensionDivVue = SuspensionDivVue.returnVue();
 

@@ -78,6 +78,21 @@ const HomePageLayoutVue = {
                         this.sort_typeSelect = frequencyChannel.getSort_type();
                     }
                 }
+            },
+            created() {
+                switch (Home.getPushType()) {
+                    case "频道":
+                        this.sort_typeSelect = frequencyChannel.getSort_type();
+                        this.showList = HomePageLayoutVue.getChannel_idList();
+                        this.showListSelect = frequencyChannel.getChannel_id();
+                        this.isChannelSelect = true;
+                        break;
+                    default:
+                        this.showList = HomePageLayoutVue.getVideo_zoneList();
+                        this.showListSelect = LocalData.getVideo_zone();
+                        this.sort_typeSelect = frequencyChannel.getSort_type();
+                        break;
+                }
             }
         });
         return function () {

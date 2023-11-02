@@ -229,6 +229,10 @@ const LiveLayoutVue = {
                     this.otherLiveRoomList = tempList;
                     Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 }
+            },
+            created() {
+                this.sPartitionObjList = this.partitionObjList[this.mainPartitionSelect];
+                this.sPartitionSelect = this.sPartitionObjList[0];
             }
         });
         return function () {
