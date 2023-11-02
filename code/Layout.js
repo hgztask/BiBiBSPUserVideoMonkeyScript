@@ -90,9 +90,6 @@ border: 0.5px solid green;
         getFilter_queue() {//个人主页悬浮屏蔽按钮
             return this.getHoverball("屏蔽", "15%", "4%");
         },
-        getFollowersOrWatchlists() {
-            return this.getHoverball("获取xxx列表", "22%", "4%");
-        }
     },
     getRuleCRUDLayout() {
         return `
@@ -392,20 +389,8 @@ border: 0.5px solid green;
         <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>
     </div>
 `);
-    },
-    getLogin() {//登录账号界面
-        return $(`<div style="display: flex;flex-direction: column;align-items: center;">
-    <h1>登录账号</h1>
-    <input type="text" placeholder="用户名" id="userNameInput">
-    <input type="text" placeholder="密码" id="userPasswordInput">
-    <div>
-        <button>
-            <a href="https://www.mikuchase.ltd/web/#/registerAndLogIn" target="_blank">注册</a>
-        </button>
-        <button id="loginBut">登录</button>
-    </div>
-</div>`);
-    }, loading: {
+    }
+    , loading: {
         home() {
             const bodyJQE = $("body");
             bodyJQE.prepend(`
@@ -581,7 +566,9 @@ border: 0.5px solid green;
 </ul>
 <!-- 规则中心布局 -->
 </div>
-  <div class="tab" id="accountCenterLayout"><!-- 账户中心布局 --></div>
+  <div class="tab" id="accountCenterLayout">
+        <component v-bind:is="isTab" @tab-click="getTabName"></component>
+  <!-- 账户中心布局 --></div>
       </div>
 <!-- 分割home_layout -->
     `);
@@ -591,7 +578,6 @@ border: 0.5px solid green;
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
             $("#donateLayout").append(layout.getDonateLayout());
-            AccountCenter.info();
             bodyJQE.append(layout.getSuspensionDiv());
         }
     },

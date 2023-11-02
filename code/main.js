@@ -1007,6 +1007,8 @@ const homePageLayoutVue = HomePageLayoutVue.returnVue();
 const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
 const suspensionDivVue = SuspensionDivVue.returnVue();
 
+AccountCenterVue.returnVue();
+
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 
 setInterval(() => {//每秒监听网页中的url
