@@ -11,8 +11,6 @@ const Rule = {
         isTag: false,
         //是否移除视频页播放器下面的简介
         isDesc: false,
-        //是否移除视频播放完之后的，推荐视频
-        isVideoEndRecommend: true,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
         isRightVideo: false
     },

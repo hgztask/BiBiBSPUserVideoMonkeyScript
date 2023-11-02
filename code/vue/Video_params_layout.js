@@ -4,6 +4,7 @@ const Video_params_layout = {
             el: "#video_params_layout",
             data: {
                 autoPlayCheckbox: LocalData.video.isAutoPlay(),
+                videoEndRecommendCheckbox: LocalData.video.isVideoEndRecommend(),
                 rangePlaySpeed: LocalData.video.getRangePlaySpeed(),
                 playbackSpeedSelect: LocalData.video.getRangePlaySpeed(),
                 playbackSpeedList: [0.25, 0.5, 0.75, 0.9, 1, 1.25, 1.35, 1.5, 2],
@@ -47,6 +48,9 @@ const Video_params_layout = {
             watch: {
                 autoPlayCheckbox(newVal) {
                     LocalData.video.setAutoPlay(newVal);
+                },
+                videoEndRecommendCheckbox(newVal) {
+                    LocalData.video.setVideoEndRecommend(newVal);
                 },
                 rangePlaySpeed(newVal) {
                     Util.setVideoBackSpeed(newVal);

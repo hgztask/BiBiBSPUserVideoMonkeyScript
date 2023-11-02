@@ -10,21 +10,16 @@ async function bilibili(href) {
     }
     if (href.includes("https://www.bilibili.com/video")) {//如果是视频播放页的话
         const videoData = Rule.videoData;
+        const videoElement = document.getElementsByTagName("video");
         const interval = setInterval(() => {
             try {
-                const videoElement = document.getElementsByTagName("video")[0];
-                if (videoElement === undefined) {
-                    return;
-                }
+                if (videoElement.length === 0) return;
                 clearInterval(interval);
-                const autoPlay = Util.getData("autoPlay");
-                if (autoPlay === true) {
+                if (LocalData.video.isAutoPlay() === true) {
                     const intervalAutoPlay = setInterval(() => {
                         const au = $("input[aria-label='自动开播']");
-                        if (au.length === 0) {
-                            return;
-                        }
-                        videoElement.pause();
+                        if (au.length === 0) return;
+                        for (const videoTag of videoElement) videoTag.pause();
                         if (au.is(":checked")) {
                             au.attr("checked", false);
                             console.log(au.is(":checked"));
@@ -35,28 +30,18 @@ async function bilibili(href) {
                         }
                     }, 800);
                 }
-
-                function setVideoSpeedInfo() {
-                    const data = Util.getData("playbackSpeed");
-                    if (data === undefined) {
-                        return;
-                    }
-                    if (data === 0 || data < 0.1) {
-                        return;
-                    }
-                    //播放视频速度
-                    videoElement.playbackRate = data;
-                    Print.ln("已设置播放器的速度=" + data);
+                for (const videoTag of videoElement) {
+                    DefVideo.setVideoSpeedInfo(videoTag);
+                    videoTag.addEventListener('ended', () => {//播放器结束之后事件
+                        Print.ln("播放结束");
+                        if (LocalData.video.isVideoEndRecommend()) {
+                            Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
+                        }
+                    }, false);
                 }
 
-                setVideoSpeedInfo();
-                videoElement.addEventListener('ended', () => {//播放器结束之后事件
-                    Print.ln("播放结束");
-                    if (videoData.isVideoEndRecommend) {
-                        Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
-                    }
-                }, false);
             } catch (e) {
+                console.error("播放页调整播放器出错！", e);
             }
         }, 1000);
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了

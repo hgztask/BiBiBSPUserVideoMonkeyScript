@@ -194,6 +194,16 @@ const DefVideo = {
                 Qmsg.success("已隐藏评论区");
             }, 500);
         }
+    },
+    setVideoSpeedInfo(videoElement) {
+        {
+            const data = Util.getData("playbackSpeed");
+            if (data === undefined) return;
+            if (data === 0 || data < 0.1) return;
+            //播放视频速度
+            videoElement.playbackRate = data;
+            Print.ln("已设置播放器的速度=" + data);
+        }
     }
 
 }

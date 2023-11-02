@@ -209,6 +209,9 @@ border: 0.5px solid green;
 <input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
 </div>
 <div>
+<input type="checkbox" v-model="videoEndRecommendCheckbox">播放完视频后移除视频推荐
+</div>
+<div>
 <button @click="VideoPIPicture">视频画中画</button>
 </div>
 <h3>视频播放速度</h3>

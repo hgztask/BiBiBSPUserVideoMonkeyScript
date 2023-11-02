@@ -139,6 +139,12 @@ const LocalData = {
         },
         setRangePlaySpeed(v) {
             Util.setData("rangePlaySpeed", v);
+        },
+        isVideoEndRecommend() {//是否播放完视频后移除视频推荐
+            return Util.getData("videoEndRecommend", false);
+        },
+        setVideoEndRecommend(bool) {//设置是否播放完视频后移除视频推荐
+            Util.setData("videoEndRecommend", bool);
         }
 
     },
