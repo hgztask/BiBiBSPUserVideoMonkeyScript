@@ -111,14 +111,10 @@ const AccountCenterVue = {
                                     Qmsg.error(message);
                                     return;
                                 }
-                                // const ruleData = body["ruleData"];
-                                //TODO 由于api接口变动，需要适配接口的变化，相关代码需要修正后续需要调整为登录之后顺带提示用户是否要覆盖本地的规则！
                                 let {rule_content} = userData;
                                 rule_content = JSON.parse(rule_content);
                                 debugger;
                                 try {
-                                    // delete userData["share"];
-                                    // delete userData["anonymity"];
                                     delete userData["rule_content"];
                                 } catch (e) {
                                     console.error("登录时出错！", e);
@@ -193,14 +189,11 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
                 Qmsg.error(message);
                 return;
             }
-            // $("#ruleSharingDiv>span").text(share);
-            //TODO 这里需要调整，是否匿名公布布尔值显示效果，不需要为0，要求为false或者true
             const getInfo = LocalData.AccountCenter.getInfo();
             if (Object.keys(getInfo).length === 0) {
                 Qmsg.error("更新本地账户信息错误！");
                 return;
             }
-            //TODO 待调整，有关于该share的布尔值字符串问题
             getInfo["share"] = share;
             LocalData.AccountCenter.setInfo(getInfo);
             Qmsg.success(message);
