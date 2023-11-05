@@ -40,6 +40,7 @@ const LiveLayoutVue = {
                     }
                     Qmsg.success("用户配置了sessdata");
                     this.isLoadFollowLstDisabled = true;
+                    this.listOfFollowers = [];//清空列表
                     const promise = Live.loadAddAllFollowDataList(this.listOfFollowers, sessdata);
                     promise.then(() => {
                         LiveLayoutVue.listOfFollowers = this.listOfFollowers;
