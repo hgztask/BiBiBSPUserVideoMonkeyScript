@@ -25,7 +25,7 @@ const Search = {
             const userAddress = userCrud[0].href;
             const userName = userCrud.text();
             const userUid = Util.getSubWebUrlUid(userAddress);
-            if (Matching.arrKey(LocalData.getArrUID(), userUid)) {
+            if (Matching.arrKey(LocalData.getArrUID(), parseInt(userUid))) {
                 jqE.remove();
                 Qmsg.success(`已通过黑名单uid规则屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
                 return;
