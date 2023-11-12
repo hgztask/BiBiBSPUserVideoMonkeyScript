@@ -30,7 +30,7 @@ const AccountCenterVue = {
                         <hr>
                         <div style="display: flex;justify-content: center;">
                             <button>
-                                <a href="https://www.mikuchase.ltd/web/#/registerAndLogIn" target="_blank">注册</a>
+                                <a href="${registeredAddress}" target="_blank">注册</a>
                             </button>
                             <button @click="exitSignBut">退出登录</button>
                         </div>
@@ -77,7 +77,7 @@ const AccountCenterVue = {
                         <input type="text" placeholder="密码" v-model.trim="userPwd">
                         <div>
                             <button>
-                                <a href="https://www.mikuchase.ltd/web/#/registerAndLogIn" target="_blank">注册</a>
+                                <a href="${registeredAddress}" target="_blank">注册</a>
                             </button>
                             <button @click="loginBut">登录</button>
                         </div>
