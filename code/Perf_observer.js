@@ -157,6 +157,27 @@ async function perf_observer() {
                 Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
             });
         }
+        if (url.includes("https://api.bilibili.com/x/web-interface/ranking/v2")) {
+            console.log("热门排行榜api");
+            const interval = setInterval(() => {
+                const elList = document.querySelectorAll(".rank-list>.rank-item");
+                if (elList.length === 0) {
+                    return;
+                }
+                clearInterval(interval);
+                elList.forEach(e => {
+                    const info = e.querySelector(".info");
+                    const videoInfo = info.querySelector(".title");
+                    const title = videoInfo.textContent;
+                    const address = videoInfo.href;
+                    const userInfo = info.querySelector(".detail>a");
+                    const name = userInfo.textContent.trim();
+                    const href = userInfo.href;
+                    debugger;
+                    //TODO 待开发处理屏蔽
+                });
+            }, 1000);
+        }
 
     }
     performance.clearResourceTimings();//清除资源时间
