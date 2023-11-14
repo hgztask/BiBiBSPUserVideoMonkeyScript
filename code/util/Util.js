@@ -538,7 +538,6 @@ const Util = {
         suspensionDivVue().videoData.bv = bv;
         suspensionDivVue().videoData.av = av;
         suspensionDivVue().videoData.frontCover = data["frontCover"];
-        console.log(data["frontCover"]);
         if (title === undefined) {
             suspensionDivVue().videoData.show = false;
         } else {
