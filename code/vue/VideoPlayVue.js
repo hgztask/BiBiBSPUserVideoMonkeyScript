@@ -135,7 +135,6 @@ const VideoPlayVue = {
                         dataList = videoCollection.getVIdeoGridList();
                     }
                     Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
-
                 },
                 localGetVideoInfo() {
                     const upInfo = document.querySelector(".up-name");
@@ -223,5 +222,4 @@ const VideoPlayVue = {
     showHideTopVideoTitleInfoButText() {
         return LocalData.video.isHideVideoTopTitleInfoLayout() ? "显示顶部视频标题信息" : "隐藏顶部视频标题信息";
     }
-
 }

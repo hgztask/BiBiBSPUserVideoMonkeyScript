@@ -90,8 +90,6 @@ const Trends = {
                 bili_dyn_ads.remove();
                 console.log("已移除话题上面的广告");
             }, 1000);
-
-
         }
     }, layoutCss: {
         items() {//调整动态列表的布局方式为类似网格

@@ -93,7 +93,6 @@ const LookAtItLater = {
                         alert(`数组内容对应的项目缺少了相关属性\n项目：\n${JSON.stringify(value)}`);
                         return false;
                     }
-
                     if (!confirm("是否要保存本轮覆盖操作结果？")) {
                         return false;
                     }

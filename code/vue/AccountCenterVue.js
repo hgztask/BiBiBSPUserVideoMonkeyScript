@@ -42,7 +42,6 @@ const AccountCenterVue = {
                             pwd: "",
                             sharedState: false,
                             isAnonymityCheckbox: false
-
                         }
                     },
                     methods: {
@@ -124,7 +123,6 @@ const AccountCenterVue = {
                                 LocalData.AccountCenter.setInfo(userData);
                                 Qmsg.success(message);
                                 this.$emit("tab-click", "login");
-
                             }).catch((error) => {
                                 console.log(error);
                             }).finally(() => {
@@ -152,15 +150,12 @@ const AccountCenterVue = {
                     this.isTab = "login";
                 }
             }
-
         });
         return function () {
             return vue;
         }
     }
 }
-
-
 /**
  *
  * 设置规则共享

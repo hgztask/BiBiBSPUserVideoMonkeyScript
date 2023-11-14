@@ -81,7 +81,6 @@ const Util = {
             arrCookie[tempV[0].trimStart()] = tempV[1];
         }
         return arrCookie;
-
     },
     /**
      * 分割时分秒字符串
@@ -256,13 +255,11 @@ const Util = {
             endEvt = "mouseup";
         }
         // 获取元素
-
         dragId.style.position = "fixed";
         dragId.style.cursor = "move";
         // 标记是拖曳还是点击
         let isClick = true;
         let disX, disY, left, top, starX, starY;
-
         dragId.addEventListener(startEvt, function (e) {
             // 阻止页面的滚动，缩放
             e.preventDefault();
@@ -279,7 +276,6 @@ const Util = {
             document.addEventListener(moveEvt, moveFun);
             document.addEventListener(endEvt, endFun);
         });
-
         function moveFun(e) {
             // 兼容IE浏览器
             e = e || window.event;
@@ -314,7 +310,6 @@ const Util = {
             dragId.style.left = left + "px";
             dragId.style.top = top + "px";
         }
-
         function endFun() {
             document.removeEventListener(moveEvt, moveFun);
             document.removeEventListener(endEvt, endFun);
@@ -426,7 +421,6 @@ const Util = {
                 this.autoPictureInPicture(video);
             }
         }
-
     },
     /**
      *
@@ -445,7 +439,6 @@ const Util = {
         videoV.css("transform", "rotateX(" + index + "deg)");
         return true;
     },
-
     /**
      * 中心旋转视频画面
      * @param {String|number}index 角度
@@ -802,7 +795,6 @@ const Util = {
                     clearTimeout(timeout);
                 }, time);
             });
-
         }
     },
     /**

@@ -226,5 +226,4 @@ const UrleCrud = {//规则的增删改查
         }
         Qmsg.error(`修改${ruleName}规则失败！`);
     }
-
 }

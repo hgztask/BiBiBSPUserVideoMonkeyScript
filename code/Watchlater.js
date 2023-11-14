@@ -79,13 +79,10 @@ const Watchlater = {
                     alert(`脚本的稍后再看列表包含了当前列表项目或者未获取到！`);
                     return;
                 }
-
                 alert(`已成功导入了${tempIndex}个内容到脚本的稍后再看列表！`);
                 LocalData.setLookAtItLaterArr(lookAtItLaterArr);
                 returnVue.renovateLayoutItemList();
             }, 1550);
-
-
         });
     },
     /**

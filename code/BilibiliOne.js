@@ -56,7 +56,6 @@ async function bilibiliOne(href, windowsTitle) {
             tempE01.style.visibility = "hidden";//隐藏元素继续占位
         }, 1100);
     }
-
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
         const interval03 = setInterval(() => {
@@ -87,7 +86,6 @@ async function bilibiliOne(href, windowsTitle) {
             }); //换一换
             return;
         }
-
         function ergodicList(list) { //针对频道api中的数据遍历处理并添加进去网页元素
             for (const v of list) {
                 const av = v["id"];//视频av号
@@ -105,7 +103,6 @@ async function bilibiliOne(href, windowsTitle) {
                 }
             }
         };
-
         function loadingVideoZE() { //加载频道视频数据
             const tempChannelId = frequencyChannel.getChannel_id();
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
@@ -131,7 +128,6 @@ async function bilibiliOne(href, windowsTitle) {
                 loading.close();
             });
         };
-
         /**
          * @param uid uid
          * @param videoTitle 标题
@@ -165,7 +161,6 @@ async function bilibiliOne(href, windowsTitle) {
             }
             const jqE = addElement.homeVideoE.getHtmlStr(videoTitle, "https://www.bilibili.com/video/" + bvid, pic, uid, userName, duration, ctimeStr, Util.getNumberFormat(view), Util.getNumberFormat(danmaku));
             $(".container.is-version8").append(jqE);
-
             if (Util.isEventJq(jqE, "mouseover")) {
                 return false;
             }
@@ -188,7 +183,6 @@ async function bilibiliOne(href, windowsTitle) {
                 Util.showSDPanel(e, data);
             });
         }
-
         function loadingVideoE(ps) {//加载分区视频数据
             const loading = Qmsg.loading("正在加载数据！");
             const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`);
@@ -225,7 +219,6 @@ async function bilibiliOne(href, windowsTitle) {
                 loading.close();
             });
         }
-
         const interval01 = setInterval(() => {
             const recommended = $(".recommended-container_floor-aside");
             if (recommended.length === 0) {
@@ -248,7 +241,6 @@ async function bilibiliOne(href, windowsTitle) {
                 }
             });
         }, 1000);
-
         const interval02 = setInterval(() => {
             const homeGrid = $(".container.is-version8");
             if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) {
@@ -289,18 +281,15 @@ async function bilibiliOne(href, windowsTitle) {
         $body.append(getAllDataListBut);
         getDataListBut.attr("id", "getDataListBut");
         getAllDataListBut.attr("id", "getAllDataListBut");
-
         if (Space.isH_action()) {
             console.log("当前登录账号的个人空间主页");
         } else {
             console.log("非个人空间主页")
             $body.append(filterQueue);
         }
-
         filterQueue.click(() => {
             UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", hrefUID);
         });
-
         getDataListBut.click(async () => {
             const tabName = Space.getTabName();
             let dataList, fileName;
@@ -384,7 +373,6 @@ async function bilibiliOne(href, windowsTitle) {
             alert(info);
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
         });
-
         getAllDataListBut.click(async () => {
             const tabName = Space.getTabName();
             if (Space.isFetchingFollowersOrWatchlists) {
@@ -491,10 +479,8 @@ async function bilibiliOne(href, windowsTitle) {
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
             Space.isFetchingFollowersOrWatchlists = false;
         });
-
         return;
     }
-
     if (href.includes("www.bilibili.com/v/topic/detail/?topic_id=")) {//话题
         SubjectOfATalk.deltopIC();
         return;
@@ -502,8 +488,6 @@ async function bilibiliOne(href, windowsTitle) {
     if (href.includes("www.bilibili.com/video") || href.includes("www.bilibili.com/list/watchlater")) {//视频页
         $body.append(layout.htmlVue.videoPlayVue());
         const videoPlayVue = VideoPlayVue.returnVue();
-
-
         if (LocalData.video.isHideVideoRightLayout()) {
             const interval = setInterval(() => {
                 const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
@@ -526,7 +510,6 @@ async function bilibiliOne(href, windowsTitle) {
                 jqE.hide();
             }, 1600);
         }
-
         if (LocalData.video.isHideVideoTopTitleInfoLayout()) {
             const interval = setInterval(() => {
                 const jqE = $("#viewbox_report,.video-info-container");
@@ -568,7 +551,6 @@ async function bilibiliOne(href, windowsTitle) {
                     }
                 }, 2000);
             }
-
         }, 800);
         return;
     }
@@ -588,7 +570,6 @@ async function bilibiliOne(href, windowsTitle) {
                 return;
             }
             clearInterval(interval01);
-
             chat_items.bind("DOMNodeInserted", () => {
                 const list = $("#chat-items").children();
                 if (list.length === 0) {
@@ -607,8 +588,6 @@ async function bilibiliOne(href, windowsTitle) {
         }, 1000);
         return;
     }
-
-
     if (href.includes("t.bilibili.com") && windowsTitle === "动态首页-哔哩哔哩") {
         console.log("动态页面");
         const interval01 = setInterval(() => {
@@ -633,7 +612,6 @@ async function bilibiliOne(href, windowsTitle) {
         Trends.topCssDisply.body();
         Trends.topCssDisply.topTar();
         Trends.topCssDisply.rightLayout();
-
         function tempLoadIng() {
             const interval01 = setInterval(() => {
                 const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
@@ -655,7 +633,6 @@ async function bilibiliOne(href, windowsTitle) {
                 Trends.shrieDynamicItems(tempE01.children());
             });
         }
-
         tempLoadIng();
         const interval03 = setInterval(() => {
             const tempE = $(".bili-dyn-up-list__content");
@@ -677,13 +654,10 @@ async function bilibiliOne(href, windowsTitle) {
     if (href.includes("search.bilibili.com")) {
         const getDataListBut = layout.panel.getHoverball("get(当前页)", "15%", "94%");
         const getAllDataListBut = layout.panel.getHoverball("get(全部页)", "20%", "94%");
-
         $body.append(getDataListBut);
         $body.append(getAllDataListBut);
-
         getDataListBut.attr("id", "getDataListBut");
         getAllDataListBut.attr("id", "getAllDataListBut");
-
         getDataListBut.click(() => {
             let dataList, fileName;
             const tabsItem = Search.getTabsItem();
@@ -734,7 +708,6 @@ async function bilibiliOne(href, windowsTitle) {
             Qmsg.success(`获取当前页的${tabsItem}列表成功！`);
             Util.fileDownload(JSON.stringify(dataList, null, 3), fileName);
         });
-
         getAllDataListBut.click(async () => {
             if (Search.isGetLoadIngData) {
                 Qmsg.error("请等待，获取完成！");
@@ -792,7 +765,6 @@ async function bilibiliOne(href, windowsTitle) {
             Qmsg.success(`获取${tabsItem}的关键词${keyword}的数据成功!个数为：${dataList.length}个`);
             Util.fileDownload(JSON.stringify(dataList, null, 3), fileName);
         });
-
         $("#biliMainFooter").remove();
         console.log("已清空底部信息");
         $(".side-buttons.flex_col_end.p_absolute").remove();

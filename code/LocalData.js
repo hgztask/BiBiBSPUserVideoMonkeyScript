@@ -146,7 +146,6 @@ const LocalData = {
         setVideoEndRecommend(bool) {//设置是否播放完视频后移除视频推荐
             Util.setData("videoEndRecommend", bool);
         }
-
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息
@@ -197,7 +196,6 @@ const LocalData = {
     setEnableShortcutKeys(is) {
         Util.setData("enableShortcutKeys", is);
     },
-
     isEnableShortcutKeys() {//获取是否启用了快捷键功能
         return Util.getData("enableShortcutKeys", true);
     }

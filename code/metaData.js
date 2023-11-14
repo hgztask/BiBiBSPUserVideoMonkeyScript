@@ -44,5 +44,4 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // ==/UserScript==
-
 'use strict';

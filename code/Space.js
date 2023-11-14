@@ -149,7 +149,6 @@ const Space = {
         async getHttpUserCreationAllDataList(id) {
             let page = 1;
             const datalist = [];
-
             async function f() {
                 const data = await this.getHttpUserCreationDataList(id, page);
                 if (!data["state"]) {
@@ -161,7 +160,6 @@ const Space = {
                 Util.mergeArrays(datalist, data["dataList"]);
                 f();
             }
-
             await f();
             return datalist;
         },
@@ -227,7 +225,6 @@ const Space = {
                     nextPageBut.click();
                 }, 2000);
             });
-
         }
     },
     dynamic: {
@@ -241,7 +238,6 @@ const Space = {
             })
             console.log(list);
         }
-
     },
     video: {//投稿中的视频
         getLeftTabTypeName() {
@@ -418,5 +414,4 @@ const Space = {
             }
         }
     },
-
 }

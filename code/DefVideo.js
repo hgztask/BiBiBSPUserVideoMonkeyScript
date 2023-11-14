@@ -44,7 +44,6 @@ const DefVideo = {
                 Util.circulateID("v_desc", 2000, "已移除播放器底部的简介");
             }
         },
-
     },
     //针对视频播放页右侧的视频进行过滤处理。该界面无需用时长过滤，视频数目较少
     rightVideo() {
@@ -115,7 +114,6 @@ const DefVideo = {
             }, 1000);
         }
     },
-
     getVIdeoTitle() {//获取当前页面视频标题
         return document.querySelector("#viewbox_report>.video-title").title;
     },
@@ -205,5 +203,4 @@ const DefVideo = {
             Print.ln("已设置播放器的速度=" + data);
         }
     }
-
 }

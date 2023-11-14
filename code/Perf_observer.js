@@ -31,7 +31,6 @@ async function perf_observer() {
                     }
                     clearInterval(i1);
                     resolve(document.querySelectorAll(".reply-list>.reply-item"));
-
                 }, 1000);
             });
             const list = await p;
@@ -141,7 +140,6 @@ async function perf_observer() {
             continue;
         }
         if (url.includes("api.bilibili.com/x/web-interface/wbi/search/type?") || url.includes("api.bilibili.com/x/web-interface/wbi/search/all/v2")) {//搜索界面
-
             if (windowUrl.includes("search.bilibili.com/video") || windowUrl.includes("search.bilibili.com/all")) {
                 Search.video.searchRules();
             }
@@ -173,7 +171,9 @@ async function perf_observer() {
                             .setBv(Util.getUrlBVID(videoInfo.href))
                             .setTitle(videoInfo.textContent.trim());
                         video.setUid(Util.getSubWebUrlUid(userInfo.href))
-                        shieldVideo_userName_uid_title(video);
+                        if (shieldVideo_userName_uid_title(video)) {
+                            Qmsg.success("屏蔽了视频！");
+                        }
                     });
                 } catch (e) {
                     console.error(e);
@@ -181,7 +181,6 @@ async function perf_observer() {
                 }
             }, 1000);
         }
-
     }
     performance.clearResourceTimings();//清除资源时间
 }

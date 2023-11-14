@@ -42,7 +42,6 @@ const GBTGame = {
                 });
             });
         }, 1000);
-
     },
     find(key) {
         const tempArrList = this.data.tempArrList;

@@ -8,7 +8,6 @@ const LockScreen = {
         const input = prompt("您需要输入锁屏密码来验证身份")
         if (input === null) return null;
         return input === pwd;
-
     },
     setPwdShow(isVerifyPod = true) {//设置锁屏密码流程
         if (isVerifyPod) {
@@ -109,7 +108,6 @@ const LockScreen = {
             screen.setTLastTimestamp(Date.now());
             Qmsg.success("已解锁成功！");
         }, 25);
-
     },
     setScreenLockTimeShow() {
         const verifyPwd = this.verifyPwd();
@@ -152,5 +150,4 @@ const LockScreen = {
 一分钟的时间戳是 60,000 毫秒（60秒 × 1000毫秒）。
         `);
     }
-
 }

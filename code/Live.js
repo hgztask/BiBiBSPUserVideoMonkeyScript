@@ -88,7 +88,6 @@ const Live = {
                 Qmsg.error(err);
             });
         });
-
     },
     async loadAddAllFollowDataList(dataList, sessdata) {
         let page = 1;

@@ -268,7 +268,6 @@ const Search = {
                 }, 2110);
             });
         }
-
     },
     bangumi: {
         getDataList() {

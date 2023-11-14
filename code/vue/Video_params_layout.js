@@ -43,7 +43,6 @@ const Video_params_layout = {
                     Util.setVideoRotationAngle("X", 180)
                     this.isFlipVertical = true;
                 }
-
             },
             watch: {
                 autoPlayCheckbox(newVal) {

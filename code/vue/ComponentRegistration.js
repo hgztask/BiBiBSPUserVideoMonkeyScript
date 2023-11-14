@@ -2,7 +2,6 @@
 Vue.filter("joinRoomAddress", (roomId) => {
     return `https://live.bilibili.com/${roomId}`;
 })
-
 //定义自定义组件
 Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，无封面信息
     props: ["upAddress", "face", "roomId", "title", "upName"],
@@ -23,7 +22,6 @@ Vue.component("liveRoomItem", {//用于显示直播列表中默认的项目，�
         </div>
         </div>`
 })
-
 Vue.component("liveRoomFrontCoverItem", {
     props: ["upAddress", "face", "roomId", "title", "upName", "videoFrameImg", "frontCoverImg"],
     template: `
@@ -61,7 +59,6 @@ Vue.component("liveRoomFrontCoverItem", {
         }
     }
 });
-
 //规则中心的项目item
 Vue.component("ruleCenterItem", {
     props: ["userName", "update_time", "ruleList", "first_push_time"],
@@ -111,7 +108,6 @@ Vue.component("ruleCenterItem", {
                     return;
                 }
                 Util.openWindowWriteContent(JSON.stringify(this.ruleList, null, 2));
-
             },
             formatTIme(time) {
                 return Util.timestampToTime(time);
@@ -119,7 +115,6 @@ Vue.component("ruleCenterItem", {
         }
     }
 );
-
 //用于稍后再看和已观看列表item项组件
 Vue.component("list-item", {
     template: `
@@ -162,7 +157,6 @@ Vue.component("list-item", {
         }
     }
 });
-
 //TODO 后续完善下面的def-list-layout，用于稍后再看和已观看列表的默认布局
 Vue.component("def-list-layout", {
     template: `

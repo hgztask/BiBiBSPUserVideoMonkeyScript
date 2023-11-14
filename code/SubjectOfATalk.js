@@ -17,7 +17,6 @@ const SubjectOfATalk = {//话题
                 }
                 continue;
             }//如果内容是视频样式
-
             const videoInfo = info.querySelector(".bili-dyn-card-video");
             if (shieldVideo_userName_uid_title(new VideoClass()
                 .setE(v)

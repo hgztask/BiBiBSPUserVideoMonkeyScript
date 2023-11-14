@@ -38,7 +38,6 @@ async function bilibili(href) {
                         }
                     }, false);
                 }
-
             } catch (e) {
                 console.error("播放页调整播放器出错！", e);
             }
@@ -52,7 +51,6 @@ async function bilibili(href) {
                 DefVideo.rightVideo();
                 console.log("检测到右侧视频列表中符合条件");
                 clearInterval(interval)
-
             }, 2000);
         }
         DefVideo.delLayout.delRightE();
@@ -66,7 +64,6 @@ async function bilibili(href) {
         const $getAllDataListBut = $("#getAllDataListBut");
         $getDataListBut.text(`获取${tabsItem}数据(当前页)`);
         $getAllDataListBut.text(`获取${tabsItem}数据(全部页)`);
-
         if (tabsItem === "直播") {
             const liveTabItems = Search.live.getTabsItem();
             if (liveTabItems === "全部") {
@@ -82,8 +79,6 @@ async function bilibili(href) {
             $getDataListBut.show();
             $getAllDataListBut.show();
         }
-
-
         if (href.includes("search.bilibili.com/all") || href.includes("search.bilibili.com/video")) {//搜索页面-综合-搜索界面-视频
             Search.video.searchRules();
             Search.blockUserCard();
@@ -176,14 +171,10 @@ async function bilibili(href) {
                 }, 1000);
                 break;
         }
-
         if (LocalData.getPrivacyMode() && Space.isH_action()) {
             $(".h-inner").hide();
             $("#navigator-fixed .n-tab-links .n-fans").hide();
             Qmsg.success(`检测到当前页面是用户自己的个人空间，由于开启了隐私模式，故隐藏该信息`);
         }
-
-
     }
-
 }

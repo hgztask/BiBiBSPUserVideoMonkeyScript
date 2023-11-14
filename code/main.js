@@ -77,10 +77,8 @@ const Rule = {
         isRightSuspenBotton: true,
         //是否移除直播水印
         isLiveRoomWatermark: true
-
     }
 }
-
 const Home = {
     //首页下拉底部时依次加载视频的个数
     videoIndex: 20,
@@ -124,7 +122,6 @@ const Home = {
                 headerChannelE.style.padding = 0;//调整-首页header按钮栏
                 headerChannelE.style.height = "auto";//调整其与下面控件的距离
                 document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
-
                 document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__bar").style.position = "inherit";//调整顶栏样式
                 document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").remove();//调整往下滑动之后顶部的悬浮栏
                 clearInterval(interval)
@@ -195,7 +192,6 @@ const Home = {
                 resolve(true);
             }, 250);
         });
-
     },
     hideDisplayHomeLaylout() {//隐藏显示面板
         const home_layout = document.getElementById("home_layout");
@@ -228,7 +224,6 @@ const Home = {
         tempE.classList.add("active");
     }
 }
-
 //针对内容符合规则的删除元素并返回状态值
 const Remove = {
     //是否是白名单用户
@@ -450,7 +445,6 @@ const Remove = {
         return false;
     }
 }
-
 /**
  * 根据规则删除专栏和动态的评论区
  * 针对于专栏和动态内容下面的评论区
@@ -515,7 +509,6 @@ function delDReplay() {
         }
     }, 60);
 }
-
 const HtmlStr = {
     /**
      *返回用户卡片基础信息面板布局
@@ -552,7 +545,6 @@ left: 0;  bottom: 0;">
     </div>`;
     }
 }
-
 const Print = {
     ln(content) {
         Util.printElement("#outputInfo", `<dd>${content}</dd>`);
@@ -570,7 +562,6 @@ const Print = {
 </dd>`);
     }
 };
-
 //添加元素
 const addElement = {
     homeVideoE: {
@@ -647,12 +638,10 @@ const addElement = {
         }
     }
 }
-
 function startMonitorTheNetwork() {//监听网络变化
     const observer = new PerformanceObserver(perf_observer);
     observer.observe({entryTypes: ['resource']});
 }
-
 /**
  * 针对言论内容根据name和uid进行屏蔽并打印消息
  * @param element 网页元素
@@ -685,7 +674,6 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
     }
     return false;
 }
-
 /**
  *  屏蔽视频元素
  *  针对用户名、用户uid，视频标题
@@ -764,7 +752,6 @@ function shieldVideo_userName_uid_title({
     }
     return false;
 }
-
 //消息中心
 const message = {//消息中心
     /**
@@ -805,10 +792,8 @@ const message = {//消息中心
         }
     }
 }
-
 let href = Util.getWindowUrl();
 console.log("当前网页url=" + href);
-
 if (href.includes("github.com")) {
     github(href);
     throw new Error();
@@ -817,9 +802,7 @@ if (href.includes("github.com")) {
 layout.loading.home();
 $("body").prepend('<button id="mybut">按钮</button>');
 layout.css.home();
-
 Util.BilibiliEncoder.init();
-
 $("#tabUl>li>button").click((e) => {
     const domElement = e.delegateTarget;
     document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
@@ -828,7 +811,6 @@ $("#tabUl>li>button").click((e) => {
     domElement.style.color = "#1b00ff";
     Home.openTab(domElement.value);
 });
-
 $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     if (Home.isFirstRuleCenterLayoutClick) {
         return;
@@ -859,9 +841,7 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
         loading.close();
     });
 });
-
 $("#mybut").click(() => Home.hideDisplayHomeLaylout());
-
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     if (!LocalData.isEnableShortcutKeys()) {
         return;
@@ -893,7 +873,6 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
         }
     }
 });
-
 $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列表-需要用户先展开高能用户列表才可以识别到
     const title = document.title;
     const url = Util.getWindowUrl();
@@ -913,7 +892,6 @@ $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列�
     }
     Util.fileDownload(JSON.stringify(array, null, 3), Util.toTimeString() + "直播间高能用户列表.json");
 });
-
 $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
     if (!(document.title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && Util.getWindowUrl().includes("live.bilibili.com"))) {
         Qmsg.error("错误的引用了该功能！");
@@ -952,8 +930,6 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
     Util.fileDownload(JSON.stringify(arrData, null, 3), Util.toTimeString() + "_直播间弹幕内容.json");
     Qmsg.success("获取成功并执行导出内容");
 });
-
-
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {
         if (!confirm("是要清空消息吗？")) {
@@ -962,10 +938,7 @@ $("#butClearMessage").click(() => {
     }
     document.querySelector('#outputInfo').innerHTML = '';
 });
-
 const bilibiliEncoder = Util.BilibiliEncoder;
-
-
 Watched.WatchedListVue();
 const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
 const returnVue = LookAtItLater.returnVue();
@@ -977,11 +950,8 @@ DonateLayoutVue.returnVue();
 HomePageLayoutVue.returnVue();
 const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
 const suspensionDivVue = SuspensionDivVue.returnVue();
-
 AccountCenterVue.returnVue();
-
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
-
 setInterval(() => {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
     if (href === tempUrl) {//没有变化就结束本轮
@@ -991,7 +961,6 @@ setInterval(() => {//每秒监听网页中的url
     href = tempUrl;//更新url
     bilibili(href);//网页url发生变化时执行
 }, 500);
-
 if (href.includes("bilibili.com")) {
     LockScreen.isLockScreen();
     bilibiliOne(href, document.title);

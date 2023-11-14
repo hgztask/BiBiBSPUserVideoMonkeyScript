@@ -52,7 +52,6 @@ const SuspensionDivVue = {
                     }
                     if (href.includes("//live.bilibili.com/") && title.includes("哔哩哔哩直播，二次元弹幕直播平台")) {
                         Live.shield($("#chat-items").children());
-
                     }
                 },
                 findUserInfo() {

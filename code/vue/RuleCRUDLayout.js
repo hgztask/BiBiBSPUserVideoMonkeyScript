@@ -384,8 +384,6 @@ const RuleCRUDLayout = {
                             alert(`出现超出的条件！inputType=${inputType}`);
                             break;
                     }
-
-
                 },
                 lookLocalRUleContent() {
                     Util.openWindowWriteContent(this.getOutRuleDataFormat(3));

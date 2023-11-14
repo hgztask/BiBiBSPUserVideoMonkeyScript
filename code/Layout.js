@@ -13,7 +13,6 @@ const layout = {
     overflow-y: auto;
     border: 3px solid green;
 }
-
 /* 隐藏标签布局，除了“active”的标签布局 */
 .tab {
     display: none;
@@ -51,7 +50,6 @@ ul {
 #suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover {
     background-color: #3E8E41;
 }
-
 #mybut {
     position: fixed;
     z-index: 2025;
@@ -191,7 +189,6 @@ border: 0.5px solid green;
             <option v-for="(item,key) in showList" :value="key">{{item}}</option>
           </select>
       </div>
-
       <div>
       <input type="checkbox" v-model="isIdCheckbox">id
       <button @click="findBut">查询</button>
@@ -600,8 +597,6 @@ border: 0.5px solid green;
 <button @click="VideoPIPicture">播放器画中画</button>
 <button @click="openVideoSubtitle">字幕开关</button>
 </div>
-
-
 </div>
 </div>`);
         }
