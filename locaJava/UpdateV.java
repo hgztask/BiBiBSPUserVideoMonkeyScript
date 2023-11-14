@@ -22,7 +22,7 @@ public class UpdateV {
     public static void main(String[] args) {
 
 
-        List<File> jsOrder = getJsOrder(new File(PROJECT_ABSOLUTE_PATH + "/code/other/油猴本地开发元规则.js"));
+        List<File> jsOrder = getJsOrder(new File(PROJECT_ABSOLUTE_PATH + "/src/other/油猴本地开发元规则.js"));
         StringBuilder stringBuilder = new StringBuilder();
         for (File v : jsOrder) {
             String content = FileUtil.readUtf8String(v);
