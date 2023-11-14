@@ -82,10 +82,10 @@ const LockScreen = {
     },
     isLockScreen() {
         if (!this.screen.getState()) {
-            Qmsg.info("未开启锁屏功能");
+            console.log("未开启锁屏功能");
             return;
         }
-        Qmsg.info("开启锁屏功能");
+        console.log("开启锁屏功能");
         const nowTime = Date.now();
         const screen = this.screen;
         const intervalTime = screen.getIntervalTime();//锁屏间隔时间戳
