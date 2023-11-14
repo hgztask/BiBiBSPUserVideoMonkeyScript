@@ -98,22 +98,18 @@ const Trends = {
             }
             `);
         },
-        tabUserItems(jqE) {//调整切换用户展示动态的按钮列表样式
-            let index = 0;
-            jqE.css("display", "flex");
-            jqE.css("flex-flow", "row wrap");
-            const interval = setInterval(() => {
-                if (index === 5) {
-                    clearInterval(interval);
-                    Qmsg.info("结束定时器");
+        setStyleRichTextarea() {
+            const i1 = setInterval(() => {
+                const richTextArea = document.querySelector(".bili-rich-textarea");
+                if (richTextArea === null) return;
+                clearInterval(i1);
+                try {
+                    $(richTextArea).css("max-height", "");
+                    Qmsg.success("已解锁发动态编辑框的最大可视内容！");
+                } catch (e) {
+                    console.error("修改编辑框最大可视内容时出错！", e);
                 }
-                if (jqE.css("flex-flow") === "row wrap") {
-                    index++;
-                    return;
-                }
-                jqE.css("display", "flex");
-                jqE.css("flex-flow", "row wrap");
-            }, 2500);
+            }, 1000);
         }
     },
     getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
@@ -157,5 +153,24 @@ const Trends = {
             imgeUrlList.push(src.split("@")[0]);
         });
         return imgeUrlList;
+    },
+    tempLoadIng() {
+        const interval01 = setInterval(() => {
+            const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
+            if (tempList.length === 0) return;
+            clearInterval(interval01);
+            Trends.shrieDynamicItems(tempList);
+            if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) return;
+            Trends.layoutCss.items();
+        }, 1000);
+        try {
+            const tempE01 = $(".bili-dyn-list__items");
+            if (Util.isEventJq(tempE01, "DOMNodeInserted")) return;
+            tempE01.bind("DOMNodeInserted", () => {
+                Trends.shrieDynamicItems(tempE01.children());
+            });
+        } catch (e) {
+            console.error("出现错误！", e);
+        }
     }
 };

@@ -80,6 +80,7 @@ async function bilibiliOne(href, windowsTitle) {
             }); //换一换
             return;
         }
+
         function ergodicList(list) { //针对频道api中的数据遍历处理并添加进去网页元素
             for (const v of list) {
                 const av = v["id"];//视频av号
@@ -97,6 +98,7 @@ async function bilibiliOne(href, windowsTitle) {
                 }
             }
         };
+
         function loadingVideoZE() { //加载频道视频数据
             const tempChannelId = frequencyChannel.getChannel_id();
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
@@ -122,6 +124,7 @@ async function bilibiliOne(href, windowsTitle) {
                 loading.close();
             });
         };
+
         /**
          * @param uid uid
          * @param videoTitle 标题
@@ -177,6 +180,7 @@ async function bilibiliOne(href, windowsTitle) {
                 Util.showSDPanel(e, data);
             });
         }
+
         function loadingVideoE(ps) {//加载分区视频数据
             const loading = Qmsg.loading("正在加载数据！");
             const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`);
@@ -213,6 +217,7 @@ async function bilibiliOne(href, windowsTitle) {
                 loading.close();
             });
         }
+
         const interval01 = setInterval(() => {
             const recommended = $(".recommended-container_floor-aside");
             if (recommended.length === 0) return;
@@ -583,43 +588,25 @@ async function bilibiliOne(href, windowsTitle) {
             login.remove();
             console.log("已移除动态页面中的提示登录");
         }, 1000);
-        const interval02 = setInterval(() => {
-            const jqE = $(".bili-rich-textarea");
-            if (jqE.length === 0) return;
-            clearInterval(interval02);
-            jqE.css("max-height", "");
-            Qmsg.success("已解锁发动态编辑框的最大可视内容！");
-        }, 1000);
-        //.bili-dyn-ads
         Trends.topCssDisply.body();
         Trends.topCssDisply.topTar();
         Trends.topCssDisply.rightLayout();
-        function tempLoadIng() {
-            const interval01 = setInterval(() => {
-                const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
-                if (tempList.length === 0) return;
-                clearInterval(interval01);
-                Trends.shrieDynamicItems(tempList);
-                if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) return;
-                Trends.layoutCss.items();
-            }, 1000);
-            const tempE01 = $(".bili-dyn-list__items");
-            if (Util.isEventJq(tempE01, "DOMNodeInserted")) return;
-            tempE01.bind("DOMNodeInserted", () => {
-                Trends.shrieDynamicItems(tempE01.children());
-            });
-        }
-        tempLoadIng();
+        Trends.tempLoadIng();
+        Trends.layoutCss.setStyleRichTextarea();
         const interval03 = setInterval(() => {
-            const tempE = $(".bili-dyn-up-list__content");
-            if (tempE.length === 0) return;
-            const list = tempE.children();
-            if (list === null || list.length === 0) return;
+            const tab = document.querySelector(".bili-dyn-up-list__content");
+            if (tab === null) return;
             clearInterval(interval03);
-            Trends.layoutCss.tabUserItems(tempE);
-            $(".bili-dyn-up-list__shadow-right").remove();
-            list.click(() => {
-                tempLoadIng();
+            Util.addStyle(`
+            .bili-dyn-up-list__content{
+            display:flex;
+            flex-flow:row wrap;
+            }`);
+            document.querySelector(".bili-dyn-up-list__shadow-right")?.remove();
+            debugger;
+            $(tab).children(".bili-dyn-up-list__item").click(() => {
+                debugger;
+                Trends.tempLoadIng();
             });
         }, 1000);
     }
