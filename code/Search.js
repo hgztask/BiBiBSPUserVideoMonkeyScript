@@ -99,7 +99,7 @@ const Search = {
                 }
                 const userAddress = userInfo.getAttribute("href");
                 data["name"] = userInfo.querySelector(".bili-video-card__info--author").textContent;
-                data["uid"] = parseInt(Util.getSubWebUrlUid(userAddress));
+                data["uid"] = Util.getSubWebUrlUid(userAddress);
                 data["userAddress"] = userAddress;
                 let tempDate;
                 try {
@@ -245,7 +245,7 @@ const Search = {
                 const userInfo = v.querySelector("h2>a");
                 data["name"] = userInfo.getAttribute("title");
                 const address = userInfo.getAttribute("href");
-                data["uid"] = parseInt(Util.getSubWebUrlUid(address));
+                data["uid"] = Util.getSubWebUrlUid(address);
                 const lvSvgVar = v.querySelector("h2>.level-icon>use").getAttribute("xlink:href");
                 data["lv"] = parseInt(lvSvgVar.replace("#lv_", ""));
                 data["address"] = address;

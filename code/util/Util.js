@@ -579,7 +579,7 @@ const Util = {
         if (isNaN(sub)) {
             return null;
         }
-        return sub;
+        return parseInt(sub);
     },
     getSubWebUrlBV(address) {//截取地址中的bv号
         const match = address.match(/\/video\/(.*?)[?\/]/);

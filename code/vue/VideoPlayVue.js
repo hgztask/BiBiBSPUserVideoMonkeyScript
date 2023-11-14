@@ -143,7 +143,7 @@ const VideoPlayVue = {
                     try {
                         data = {
                             upName: upInfo.textContent.trim(),
-                            uid: parseInt(Util.getSubWebUrlUid(upInfo.href)),
+                            uid: Util.getSubWebUrlUid(upInfo.href),
                             title: document.querySelector(".video-title").textContent,
                             bv: Util.getSubWebUrlBV(Util.getWindowUrl())
                         };

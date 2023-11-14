@@ -130,7 +130,7 @@ const DefVideo = {
                 const data = {};
                 data["name"] = value.textContent.trim();
                 const userAddress = value.getAttribute("href");
-                data ["uid"] = parseInt(Util.getSubWebUrlUid(userAddress));
+                data ["uid"] = Util.getSubWebUrlUid(userAddress);
                 data["e"] = value;
                 userList.push(data);
             })
