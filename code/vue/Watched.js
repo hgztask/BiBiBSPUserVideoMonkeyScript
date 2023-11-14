@@ -47,9 +47,7 @@ const Watched = {
         })
     },
     addWatched(data) {//添加视频到已观看列表流程
-        if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) {
-            return;
-        }
+        if (!confirm(`是要将【${data["title"]}】添加进已观看列表吗？`)) return;
         const arr = LocalData.getWatchedArr();
         for (const v of arr) {
             const tempTitle = data["title"];

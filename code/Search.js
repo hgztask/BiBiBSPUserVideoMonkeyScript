@@ -80,9 +80,7 @@ const Search = {
                 const data = {};
                 const info = v.querySelector(".bili-video-card__info--right");
                 const title = info.querySelector("h3").getAttribute("title");
-                if (title === null) {
-                    return;
-                }
+                if (title === null) return;
                 data["title"] = title.trim();
                 const tempHref = info.querySelector("a[href*='www.bilibili.com/video/']");
                 if (tempHref == null) {
@@ -94,9 +92,7 @@ const Search = {
                 data["bv"] = Util.getSubWebUrlBV(videoAddress);
                 data["videoAddress"] = videoAddress;
                 const userInfo = info.querySelector(".bili-video-card__info--owner");
-                if (userInfo === null) {
-                    return;
-                }
+                if (userInfo === null) return;
                 const userAddress = userInfo.getAttribute("href");
                 data["name"] = userInfo.querySelector(".bili-video-card__info--author").textContent;
                 data["uid"] = Util.getSubWebUrlUid(userAddress);
@@ -168,9 +164,7 @@ const Search = {
                     return;
                 }
                 const jqE = $(v["e"]);
-                if (Util.isEventJq(jqE, "mouseover")) {
-                    return;
-                }
+                if (Util.isEventJq(jqE, "mouseover")) return;
                 jqE.mouseenter((e) => {
                     const domElement = e.delegateTarget;
                     const data = Search.video.getDataV(domElement);
@@ -385,9 +379,7 @@ const Search = {
     searchColumn() {//根据规则屏蔽搜索专栏项目
         const interval = setInterval(() => {
             const list = $(".media-list.row.mt_lg").children();
-            if (list.length === 0) {
-                return;
-            }
+            if (list.length === 0) return;
             clearInterval(interval);
             for (let v of list) {
                 const userInfo = v.querySelector(".flex_start.flex_inline.text3");

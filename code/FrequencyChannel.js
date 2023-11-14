@@ -135,9 +135,7 @@ const frequencyChannel = {//频道
             backGaugeBool: false,
         },
         backGauge() {
-            if (this.tempVar.backGaugeBool) {
-                return;
-            }
+            if (this.tempVar.backGaugeBool) return;
             this.tempVar.backGaugeBool = true;
             document.getElementsByClassName("detail-panels")[0].style.width = "auto";//调整其页面左右边距
             Print.ln("已调整频道界面的左右边距")

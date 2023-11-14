@@ -44,9 +44,7 @@ const LockScreen = {
     ioLLockScreenShow() {//设置锁屏的开关
         const pwd = this.screen.getPwd();
         if (pwd === null) {
-            if (!confirm("请先设置锁屏密码先，点击确定设置锁屏密码，取消则取消")) {
-                return;
-            }
+            if (!confirm("请先设置锁屏密码先，点击确定设置锁屏密码，取消则取消")) return;
             this.setPwdShow();
             return;
         }
@@ -97,9 +95,7 @@ const LockScreen = {
         const pwd = screen.getPwd();
         const interval = setInterval(() => {
             const inputPwd = prompt("锁屏中，请输入锁屏密码进行解锁操作，解锁之后正常访问页面内容");
-            if (inputPwd === null) {
-                return;
-            }
+            if (inputPwd === null) return;
             if (inputPwd !== pwd) {
                 alert("密码验证失败！");
                 return;

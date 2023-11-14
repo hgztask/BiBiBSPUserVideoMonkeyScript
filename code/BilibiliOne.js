@@ -50,9 +50,7 @@ async function bilibiliOne(href, windowsTitle) {
     if (LocalData.getPrivacyMode()) {
         const interval02 = setInterval(() => {
             const tempE01 = document.querySelector(".right-entry") || document.querySelector(".nav-user-center");
-            if (tempE01 === null) {
-                return;
-            }
+            if (tempE01 === null) return;
             tempE01.style.visibility = "hidden";//隐藏元素继续占位
         }, 1100);
     }
@@ -60,9 +58,7 @@ async function bilibiliOne(href, windowsTitle) {
         console.log("进入了首页");
         const interval03 = setInterval(() => {
             const jqE = $(".channel-icons");
-            if (jqE.length === 0) {
-                return;
-            }
+            if (jqE.length === 0) return;
             clearInterval(interval03);
             const jqELast = jqE.children().eq(-1);
             const jqEa = jqELast.clone();
@@ -73,9 +69,7 @@ async function bilibiliOne(href, windowsTitle) {
         }, 1000);
         const interval04 = setInterval(() => {
             const jqE = $(".header-channel");
-            if (jqE.length === 0) {
-                return;
-            }
+            if (jqE.length === 0) return;
             clearInterval(interval04);
             jqE.remove();
             Qmsg.info("已移除页面下滑时，显示顶部的部分导航信息");
@@ -221,9 +215,7 @@ async function bilibiliOne(href, windowsTitle) {
         }
         const interval01 = setInterval(() => {
             const recommended = $(".recommended-container_floor-aside");
-            if (recommended.length === 0) {
-                return;
-            }
+            if (recommended.length === 0) return;
             clearInterval(interval01);
             recommended.prepend(`<div style="display: flex; flex-direction: row-reverse">
 <button class="primary-btn roll-btn" id="replaceItBut" style="  height: 38px;position: fixed;    z-index: 100; background-color: #17181A; "><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""><path d="M8.624933333333333 13.666666666666666C8.624933333333333 14.011849999999999 8.345125 14.291666666666666 7.999933333333333 14.291666666666666C4.525166666666666 14.291666666666666 1.7082933333333332 11.474791666666665 1.7082933333333332 8C1.7082933333333332 6.013308333333333 2.629825 4.2414233333333335 4.066321666666667 3.089385C4.335603333333333 2.8734283333333335 4.728959999999999 2.9166533333333335 4.944915 3.1859349999999997C5.160871666666666 3.4552099999999997 5.1176466666666665 3.848573333333333 4.848366666666666 4.0645283333333335C3.694975 4.98953 2.9582933333333328 6.40852 2.9582933333333328 8C2.9582933333333328 10.784416666666667 5.215528333333333 13.041666666666666 7.999933333333333 13.041666666666666C8.345125 13.041666666666666 8.624933333333333 13.321483333333333 8.624933333333333 13.666666666666666zM11.060475 12.810558333333333C10.844225000000002 12.541558333333331 10.887033333333335 12.148125 11.156041666666667 11.931875C12.306858333333333 11.006775 13.041599999999999 9.589424999999999 13.041599999999999 8C13.041599999999999 5.215561666666666 10.784408333333332 2.958333333333333 7.999933333333333 2.958333333333333C7.6548083333333325 2.958333333333333 7.374933333333333 2.6785083333333333 7.374933333333333 2.333333333333333C7.374933333333333 1.9881533333333332 7.6548083333333325 1.7083333333333333 7.999933333333333 1.7083333333333333C11.474725000000001 1.7083333333333333 14.291599999999999 4.525206666666667 14.291599999999999 8C14.291599999999999 9.984108333333333 13.372483333333332 11.753958333333332 11.939225 12.906125C11.670166666666663 13.122375 11.276725 13.079625 11.060475 12.810558333333333z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M1.375 3.4130866666666666C1.375 3.0679066666666666 1.654825 2.7880866666666666 2 2.7880866666666666L4.333333333333333 2.7880866666666666C4.862608333333333 2.7880866666666666 5.291666666666666 3.2171449999999995 5.291666666666666 3.7464199999999996L5.291666666666666 6.079753333333334C5.291666666666666 6.424928333333334 5.011841666666666 6.704736666666666 4.666666666666666 6.704736666666666C4.321491666666667 6.704736666666666 4.041666666666666 6.424928333333334 4.041666666666666 6.079753333333334L4.041666666666666 4.038086666666667L2 4.038086666666667C1.654825 4.038086666666667 1.375 3.7582616666666664 1.375 3.4130866666666666z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path><path d="M14.625 12.5864C14.625 12.931591666666666 14.345183333333333 13.2114 14 13.2114L11.666666666666666 13.2114C11.137408333333335 13.2114 10.708333333333332 12.782383333333332 10.708333333333332 12.253066666666665L10.708333333333332 9.919733333333333C10.708333333333332 9.574608333333334 10.98815 9.294733333333333 11.333333333333332 9.294733333333333C11.678516666666667 9.294733333333333 11.958333333333332 9.574608333333334 11.958333333333332 9.919733333333333L11.958333333333332 11.9614L14 11.9614C14.345183333333333 11.9614 14.625 12.241275000000002 14.625 12.5864z" fill="currentColor" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path></svg>
@@ -243,9 +235,7 @@ async function bilibiliOne(href, windowsTitle) {
         }, 1000);
         const interval02 = setInterval(() => {
             const homeGrid = $(".container.is-version8");
-            if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) {
-                return;
-            }
+            if (homeGrid === null || homeGrid === undefined || homeGrid.children().length === 0) return;
             clearInterval(interval02);
             homeGrid.html("");//先清空该标签的内容
             if (Home.getPushType() === "分区") {
@@ -566,15 +556,11 @@ async function bilibiliOne(href, windowsTitle) {
         Live.liveDel.delOtherE();
         const interval01 = setInterval(() => {
             const chat_items = $("#chat-items");
-            if (chat_items.length === 0) {
-                return;
-            }
+            if (chat_items.length === 0) return;
             clearInterval(interval01);
             chat_items.bind("DOMNodeInserted", () => {
                 const list = $("#chat-items").children();
-                if (list.length === 0) {
-                    return;
-                }
+                if (list.length === 0) return;
                 if (list.length >= 100) {
                     for (let i = 0; i < 50; i++) {
                         list[i].remove();
@@ -592,18 +578,14 @@ async function bilibiliOne(href, windowsTitle) {
         console.log("动态页面");
         const interval01 = setInterval(() => {
             const login = $(".bili-dyn-login-register");
-            if (login.length === 0) {
-                return;
-            }
+            if (login.length === 0) return;
             clearInterval(interval01);
             login.remove();
             console.log("已移除动态页面中的提示登录");
         }, 1000);
         const interval02 = setInterval(() => {
             const jqE = $(".bili-rich-textarea");
-            if (jqE.length === 0) {
-                return;
-            }
+            if (jqE.length === 0) return;
             clearInterval(interval02);
             jqE.css("max-height", "");
             Qmsg.success("已解锁发动态编辑框的最大可视内容！");
@@ -615,20 +597,14 @@ async function bilibiliOne(href, windowsTitle) {
         function tempLoadIng() {
             const interval01 = setInterval(() => {
                 const tempList = document.querySelectorAll(".bili-dyn-list__items>.bili-dyn-list__item");
-                if (tempList.length === 0) {
-                    return;
-                }
+                if (tempList.length === 0) return;
                 clearInterval(interval01);
                 Trends.shrieDynamicItems(tempList);
-                if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) {
-                    return;
-                }
+                if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) return;
                 Trends.layoutCss.items();
             }, 1000);
             const tempE01 = $(".bili-dyn-list__items");
-            if (Util.isEventJq(tempE01, "DOMNodeInserted")) {
-                return;
-            }
+            if (Util.isEventJq(tempE01, "DOMNodeInserted")) return;
             tempE01.bind("DOMNodeInserted", () => {
                 Trends.shrieDynamicItems(tempE01.children());
             });
@@ -636,13 +612,9 @@ async function bilibiliOne(href, windowsTitle) {
         tempLoadIng();
         const interval03 = setInterval(() => {
             const tempE = $(".bili-dyn-up-list__content");
-            if (tempE.length === 0) {
-                return;
-            }
+            if (tempE.length === 0) return;
             const list = tempE.children();
-            if (list === null || list.length === 0) {
-                return;
-            }
+            if (list === null || list.length === 0) return;
             clearInterval(interval03);
             Trends.layoutCss.tabUserItems(tempE);
             $(".bili-dyn-up-list__shadow-right").remove();
@@ -774,9 +746,7 @@ async function bilibiliOne(href, windowsTitle) {
     if (href.includes("www.bilibili.com/v/channel")) {
         const interval01 = setInterval(() => {
             const nav_link_ulMini = $(".nav-link-ul.mini");
-            if (nav_link_ulMini.length === 0) {
-                return;
-            }
+            if (nav_link_ulMini.length === 0) return;
             clearInterval(interval01);
             const item = $(".nav-link-item:contains('下载'),.nav-link-item:contains('赛事'),.nav-link-item:contains('漫画'),.nav-link-item:contains('会员购')");
             console.log(item);
@@ -790,9 +760,7 @@ async function bilibiliOne(href, windowsTitle) {
         let size = -1;
         setInterval(() => {
             const tempSize = document.querySelectorAll(".bili-video-card");
-            if (tempSize.length === size) {
-                return;
-            }
+            if (tempSize.length === size) return;
             size = tempSize.length;
             Home.startShieldMainVideo(".bili-video-card");
         }, 1000);
@@ -801,18 +769,14 @@ async function bilibiliOne(href, windowsTitle) {
     if ((href.includes("www.bilibili.com") && windowsTitle === "哔哩哔哩 (゜-゜)つロ 干杯~-bilibili") || (href.includes("t.bilibili.com") & windowsTitle === "动态首页-哔哩哔哩")) {
         const interval01 = setInterval(() => {
             const login = $(".lt-col>.login-tip:contains('立即登录')");
-            if (login.length === 0) {
-                return;
-            }
+            if (login.length === 0) return;
             clearInterval(interval01);
             login.remove();
             console.log("已移除页面右下角的提示登录");
         }, 1000);
         const interval02 = setInterval(() => {
             const login = $(".login-panel-popover");
-            if (login.length === 0) {
-                return;
-            }
+            if (login.length === 0) return;
             clearInterval(interval02);
             login.remove();
             console.log("已移除页面的提示登录信息");
@@ -846,9 +810,7 @@ async function bilibiliOne(href, windowsTitle) {
                 alert("请等待获取完成！");
                 return;
             }
-            if (!confirm("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！是否继续？")) {
-                return;
-            }
+            if (!confirm("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！是否继续？")) return;
             History.isGetLoadIngData = true;
             const loading = Qmsg.loading("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！");
             History.getAllDataHistory().then(() => {

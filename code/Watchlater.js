@@ -8,9 +8,7 @@ const Watchlater = {
         $body.append(paneLooked);
         $body.append(leadingInLookAtItLaterBut);
         panel.click(() => {
-            if (!confirm("仅获取页面可见的列表了内容并导出为json，是要继续吗？")) {
-                return;
-            }
+            if (!confirm("仅获取页面可见的列表了内容并导出为json，是要继续吗？")) return;
             Util.bufferBottom();
             setTimeout(() => {
                 const dataList = this.getDataList();
@@ -26,9 +24,7 @@ const Watchlater = {
             }, 1550);
         });
         paneLooked.click(() => {
-            if (!confirm("仅获取页面可见的列表中【已观看】了的内容并导出为json，是要继续吗？")) {
-                return;
-            }
+            if (!confirm("仅获取页面可见的列表中【已观看】了的内容并导出为json，是要继续吗？")) return;
             Util.bufferBottom();
             ;
             setTimeout(() => {
@@ -45,9 +41,7 @@ const Watchlater = {
             }, 1550);
         });
         leadingInLookAtItLaterBut.click(() => {
-            if (!confirm("是要获取页面可见的列表了内容并导入到脚本中的稍后再看列表吗，是要继续吗？")) {
-                return;
-            }
+            if (!confirm("是要获取页面可见的列表了内容并导入到脚本中的稍后再看列表吗，是要继续吗？")) return;
             Util.bufferBottom();
             setTimeout(() => {
                 const dataList = this.getDataList();
@@ -106,9 +100,7 @@ const Watchlater = {
             data["userImg"] = userInfo.querySelector(".lazy-img>img").getAttribute("src");
             if (isV) {
                 const looked = v.querySelector(".looked");
-                if (looked === null) {
-                    return;
-                }
+                if (looked === null) return;
                 dataList.push(data);
                 return;
             }

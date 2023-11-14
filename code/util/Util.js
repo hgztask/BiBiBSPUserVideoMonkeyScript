@@ -276,6 +276,7 @@ const Util = {
             document.addEventListener(moveEvt, moveFun);
             document.addEventListener(endEvt, endFun);
         });
+
         function moveFun(e) {
             // 兼容IE浏览器
             e = e || window.event;
@@ -310,13 +311,12 @@ const Util = {
             dragId.style.left = left + "px";
             dragId.style.top = top + "px";
         }
+
         function endFun() {
             document.removeEventListener(moveEvt, moveFun);
             document.removeEventListener(endEvt, endFun);
             // 点击
-            if (func === undefined) {
-                return;
-            }
+            if (func === undefined) return;
             if (isClick) {
                 func();
             }
@@ -365,9 +365,7 @@ const Util = {
     forIntervalDelE(elementCss, tip, time = 1000) {//定时检查指定元素，执行删除
         const i = setInterval(() => {
             const e = document.querySelector(elementCss);
-            if (e === null) {
-                return;
-            }
+            if (e === null) return;
             clearInterval(i);
             e.remove();
             Qmsg.success(tip);
@@ -389,9 +387,7 @@ const Util = {
      */
     setVideoBackSpeed(index) {
         const videoTag = $("video");
-        if (videoTag.length === 0) {
-            return;
-        }
+        if (videoTag.length === 0) return;
         try {
             for (const v of videoTag) {
                 v.playbackRate = index;
@@ -476,9 +472,7 @@ const Util = {
         document.body.removeChild(aux);
         if (message == null) {
             alert("复制成功");
-        } else {
-            alert(message);
-        }
+        } else alert(message);
     },
     /**
      * 更新悬浮按钮的坐标
@@ -490,9 +484,7 @@ const Util = {
         //获取当前鼠标悬停的坐标轴
         suspensionDivVue().xy.x = x;
         suspensionDivVue().xy.y = y;
-        if (!($("#quickLevitationShield").is(':checked'))) {
-            return;
-        }
+        if (!($("#quickLevitationShield").is(':checked'))) return;
         const suspensionDiv = $("#suspensionDiv");
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
@@ -507,9 +499,7 @@ const Util = {
             const domain = url.split("/");
             if (domain[2]) {
                 return domain[2];
-            } else {
-                return null;
-            }
+            } else return null;
         } catch (e) {
             return null;
         }
@@ -526,12 +516,8 @@ const Util = {
         let bv = data["bv"];
         let av = data["av"];
         const newVar = LocalData.isDShieldPanel();
-        if (newVar) {
-            return;
-        }
-        if ($("#fixedPanelValueCheckbox").is(':checked')) {
-            return;
-        }
+        if (newVar) return;
+        if ($("#fixedPanelValueCheckbox").is(':checked')) return;
         suspensionDivVue().upName = name;
         suspensionDivVue().uid = uid;
         suspensionDivVue().videoData.title = title;
@@ -542,9 +528,7 @@ const Util = {
             suspensionDivVue().videoData.show = false;
         } else {
             suspensionDivVue().videoData.show = true;
-            if (bv === undefined) {
-                return;
-            }
+            if (bv === undefined) return;
             suspensionDivVue().videoData.av = Util.BilibiliEncoder.dec(bv);
         }
         this.updateLocation(e);

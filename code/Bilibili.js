@@ -45,9 +45,7 @@ async function bilibili(href) {
         if (!videoData.isrigthVideoList && !videoData.isRhgthlayout && !videoData.isRightVideo) {//如果删除了右侧视频列表和右侧布局就不用监听该位置的元素了
             const interval = setInterval(() => {
                 const list = document.querySelectorAll(".video-page-card-small");
-                if (list.length === 0) {
-                    return;
-                }
+                if (list.length === 0) return;
                 DefVideo.rightVideo();
                 console.log("检测到右侧视频列表中符合条件");
                 clearInterval(interval)

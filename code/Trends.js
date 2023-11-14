@@ -32,9 +32,7 @@ const Trends = {
             });
             const interval02 = setInterval(() => {
                 const e = document.querySelectorAll(".bili-dyn-sidebar>*:nth-child(-n+2)");
-                if (e.length === 0) {
-                    return;
-                }
+                if (e.length === 0) return;
                 clearInterval(interval02);
                 e.forEach((value, key) => {
                     value.remove();
@@ -83,9 +81,7 @@ const Trends = {
             //移除话题上面的广告
             const interval01 = setInterval(() => {
                 const bili_dyn_ads = $(".bili-dyn-ads");
-                if (bili_dyn_ads.length === 0) {
-                    return;
-                }
+                if (bili_dyn_ads.length === 0) return;
                 clearInterval(interval01);
                 bili_dyn_ads.remove();
                 console.log("已移除话题上面的广告");

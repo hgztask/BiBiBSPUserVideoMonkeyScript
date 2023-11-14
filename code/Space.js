@@ -12,9 +12,7 @@ const Space = {
         return new Promise(resolve => {
             const interval = setInterval(() => {
                 const e = $("#h-name");
-                if (e.length === 0) {
-                    return;
-                }
+                if (e.length === 0) return;
                 clearInterval(interval);
                 resolve(e.text());
             }, 100);

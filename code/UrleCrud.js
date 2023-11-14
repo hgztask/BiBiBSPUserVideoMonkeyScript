@@ -133,9 +133,7 @@ const UrleCrud = {//规则的增删改查
         return true;
     },
     delItemShow(ruleType, ruleName) {
-        if (!confirm(`是要删除指定项目${ruleName}的规则吗？`)) {
-            return;
-        }
+        if (!confirm(`是要删除指定项目${ruleName}的规则吗？`)) return;
         if (this.delItem(ruleType)) {
             Qmsg.success(`已删除${ruleName}的规则内容！`);
         } else {

@@ -49,9 +49,7 @@ const DefVideo = {
     rightVideo() {
         const interval = setInterval(() => {
             let list = document.querySelectorAll(".video-page-card-small");
-            if (list.length === 0) {
-                return;
-            }
+            if (list.length === 0) return;
             clearInterval(interval);
             list.forEach(v => {//获取右侧的页面的视频列表
                 const upSpatialAddress = v.querySelector(".upname>a").href;
@@ -88,9 +86,7 @@ const DefVideo = {
         fullScreenOnThePlayerPage() {//点击播放器的网页全屏按钮
             const interval = setInterval(() => {
                 const jqE = $(".bpx-player-ctrl-btn.bpx-player-ctrl-web");
-                if (jqE.length === 0) {
-                    return;
-                }
+                if (jqE.length === 0) return;
                 clearInterval(interval);
                 jqE.click();
                 const info = `已自动点击播放器的网页全屏`;
@@ -102,9 +98,7 @@ const DefVideo = {
         thePlayerGoesToGullScreen() {//点击播放器的进入全屏按钮
             const interval = setInterval(() => {
                 const jqE = $(".bpx-player-ctrl-btn.bpx-player-ctrl-full");
-                if (jqE.length === 0) {
-                    return;
-                }
+                if (jqE.length === 0) return;
                 clearInterval(interval);
                 jqE.click();
                 const info = "已自动点击播放器的进入全屏按钮";
@@ -184,9 +178,7 @@ const DefVideo = {
         if (LocalData.video.isHideVideoButtonCommentSections()) {
             const interval = setInterval(() => {
                 const jqE = $("#comment");
-                if (jqE.length === 0) {
-                    return;
-                }
+                if (jqE.length === 0) return;
                 clearInterval(interval);
                 jqE.hide();
                 Qmsg.success("已隐藏评论区");

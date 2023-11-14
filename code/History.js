@@ -20,9 +20,7 @@ const History = {
         const historyEList = document.querySelectorAll("#history_list>li");
         const dataList = [];
         historyEList.forEach(value => {
-            if (value.querySelector(".endpic") !== null) {
-                return;
-            }
+            if (value.querySelector(".endpic") !== null) return;
             const data = {};
             const textInfo = value.querySelector(".r-txt");
             data["itemImg"] = value.querySelector(".cover-contain>.preview>.lazy-img>img").getAttribute("src");//项目中的封面，如视频封面番剧封面等

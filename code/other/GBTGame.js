@@ -53,9 +53,7 @@ const GBTGame = {
         }
         const newArray = {};
         keys.forEach(value => {
-            if (!value.includes(key)) {
-                return;
-            }
+            if (!value.includes(key)) return;
             newArray[value] = tempArrList[value];
         });
         return newArray;

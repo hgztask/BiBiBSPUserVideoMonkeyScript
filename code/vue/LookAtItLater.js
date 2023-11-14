@@ -241,9 +241,7 @@ const LookAtItLater = {
         return false;
     },
     addLookAtItLater(data) {//添加视频到稍后再看列表流程
-        if (!confirm(`是要将【${data["title"]}】添加进稍后再看列表吗？`)) {
-            return;
-        }
+        if (!confirm(`是要将【${data["title"]}】添加进稍后再看列表吗？`)) return;
         const arr = LocalData.getLookAtItLaterArr();
         for (const v of arr) {
             const tempTitle = data["title"];

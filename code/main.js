@@ -138,9 +138,7 @@ const Home = {
         return new Promise((resolve, reject) => {
             const interval = setInterval(() => {
                 let list = document.querySelectorAll(str);
-                if (list.length === 0) {
-                    return;
-                }
+                if (list.length === 0) return;
                 clearInterval(interval);
                 $(".floor-single-card").remove();
                 $(".bili-live-card").remove();
@@ -159,21 +157,15 @@ const Home = {
                             .setVideoTime(v.querySelector(".bili-video-card__stats__duration").textContent)
                             .setPlaybackVolume(topInfo[0].textContent)
                             .setE(v);
-                        if (topInfo[1] !== undefined) {
-                            videoClass.setBarrageQuantity(topInfo[1].textContent)
-                        }
+                        if (topInfo[1] !== undefined) videoClass.setBarrageQuantity(topInfo[1].textContent)
                     } catch (e) {
                         v.remove();
-                        console.error("清理异常元素", e);
+                        Qmsg.error("清理异常元素");
                         continue;
                     }
-                    if (shieldVideo_userName_uid_title(videoClass)) {
-                        continue;
-                    }
+                    if (shieldVideo_userName_uid_title(videoClass)) continue;
                     const jqE = $(v);
-                    if (Util.isEventJq(jqE, "mouseover")) {
-                        continue;
-                    }
+                    if (Util.isEventJq(jqE, "mouseover")) continue;
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
                         const info = domElement.querySelector(".bili-video-card__info--right");
@@ -452,9 +444,7 @@ const Remove = {
 function delDReplay() {
     const interval = setInterval(() => {
         const list = document.querySelectorAll(".comment-list.has-limit>*");
-        if (list.length === 0) {
-            return;
-        }
+        if (list.length === 0) return;
         clearInterval(interval);
         for (let v of list) {
             const rootUserinfo = v.querySelector(".user>.name");
@@ -932,9 +922,7 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
 });
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {
-        if (!confirm("是要清空消息吗？")) {
-            return;
-        }
+        if (!confirm("是要清空消息吗？")) return;
     }
     document.querySelector('#outputInfo').innerHTML = '';
 });
@@ -954,9 +942,8 @@ AccountCenterVue.returnVue();
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 setInterval(() => {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
-    if (href === tempUrl) {//没有变化就结束本轮
-        return;
-    }//有变化就执行对应事件
+    if (href === tempUrl) return;//没有变化就结束本轮
+    // 有变化就执行对应事件
     console.log("页面url发生变化了，原=" + href + " 现=" + tempUrl);
     href = tempUrl;//更新url
     bilibili(href);//网页url发生变化时执行
