@@ -24,7 +24,7 @@ const SubjectOfATalk = {//话题
                 .setUid(uid)
                 .setTitle(videoInfo.querySelector(".bili-dyn-card-video__title.bili-ellipsis").textContent)
                 .setVideoTime(videoInfo.querySelector(".bili-dyn-card-video__duration").textContent))) {
-                Qmsg.info("屏蔽了视频！！");
+                Qmsg.success("屏蔽了视频");
             }
         }
     }

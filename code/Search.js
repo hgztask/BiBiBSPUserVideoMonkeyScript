@@ -164,7 +164,7 @@ const Search = {
                     .setUid(v["uid"])
                     .setTitle(v["title"])
                     .setVideoAddress(v["videoAddress"]))) {
-                    Qmsg.info("屏蔽了视频！！");
+                    Qmsg.success("屏蔽了视频");
                     return;
                 }
                 const jqE = $(v["e"]);

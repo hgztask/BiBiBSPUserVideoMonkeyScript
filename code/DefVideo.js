@@ -62,7 +62,7 @@ const DefVideo = {
                     .setTitle(v.querySelector(".title").textContent)
                     .setE(v)
                 )) {
-                    Qmsg.info("屏蔽了视频！！");
+                    Qmsg.success("屏蔽了视频");
                     return;
                 }
                 $(v).mouseenter((e) => {
