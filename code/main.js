@@ -694,18 +694,17 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
  * @param {number} data.uid uid
  *   @return  {Boolean} 是否屏蔽
  */
-function shieldVideo_userName_uid_title(data) {
-    const uid = data.uid || 0;
-    const element = data.e;
-    const title = data.title;
-    const videoHref = data.videoAddress;
-    const name = data.upName.trim();
-    const videoPlaybackVolume = data.playbackVolume;
-    const videoTime = data.videoTime;
-    const barrageQuantity = data.barrageQuantity;
-    if (Remove.isWhiteUserUID(uid)) {
-        return false;
-    }
+function shieldVideo_userName_uid_title({
+                                            uid = 0,
+                                            e: element,
+                                            title,
+                                            videoAddress: videoHref,
+                                            upName: name,
+                                            playbackVolume: videoPlaybackVolume,
+                                            videoTime: videoTime,
+                                            barrageQuantity
+                                        }) {
+    if (Remove.isWhiteUserUID(uid)) return false;
     if (uid !== null) {
         const isUid = Remove.uid(element, uid);
         if (isUid) {
@@ -753,9 +752,7 @@ function shieldVideo_userName_uid_title(data) {
             return true;
         }
     }
-    if (videoTime === undefined) {
-        return false;
-    }
+    if (videoTime === undefined) return false;
     const timeTotalSeconds = Util.getTimeTotalSeconds(videoTime);
     if (Remove.videoMinFilterS(element, timeTotalSeconds)) {
         Print.video(null, `已通过视频时长过滤时长小于=【${LocalData.video.getFilterSMin()}】秒的视频`, name, uid, title, videoHref);

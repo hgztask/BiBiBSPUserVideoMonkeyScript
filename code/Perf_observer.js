@@ -161,21 +161,24 @@ async function perf_observer() {
             console.log("热门排行榜api");
             const interval = setInterval(() => {
                 const elList = document.querySelectorAll(".rank-list>.rank-item");
-                if (elList.length === 0) {
-                    return;
-                }
+                if (elList.length === 0) return;
                 clearInterval(interval);
-                elList.forEach(e => {
-                    const info = e.querySelector(".info");
-                    const videoInfo = info.querySelector(".title");
-                    const title = videoInfo.textContent;
-                    const address = videoInfo.href;
-                    const userInfo = info.querySelector(".detail>a");
-                    const name = userInfo.textContent.trim();
-                    const href = userInfo.href;
-                    debugger;
-                    //TODO 待开发处理屏蔽
-                });
+                try {
+                    elList.forEach(e => {
+                        const info = e.querySelector(".info");
+                        const videoInfo = info.querySelector(".title");
+                        const userInfo = info.querySelector(".detail>a");
+                        const video = new VideoClass().setE(e)
+                            .setUpName(userInfo.textContent.trim())
+                            .setBv(Util.getUrlBVID(videoInfo.href))
+                            .setTitle(videoInfo.textContent.trim());
+                        video.setUid(Util.getSubWebUrlUid(userInfo.href))
+                        shieldVideo_userName_uid_title(video);
+                    });
+                } catch (e) {
+                    console.error(e);
+                    Qmsg.error("检测时出现错误！，请查询控制台信息！");
+                }
             }, 1000);
         }
 
