@@ -179,7 +179,7 @@ async function perf_observer() {
                     console.error(e);
                     Qmsg.error("检测时出现错误！，请查询控制台信息！");
                 }
-            }, 1000);
+            }, 100);
         }
     }
     performance.clearResourceTimings();//清除资源时间
