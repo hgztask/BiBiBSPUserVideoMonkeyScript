@@ -198,5 +198,11 @@ const LocalData = {
     },
     isEnableShortcutKeys() {//获取是否启用了快捷键功能
         return Util.getData("enableShortcutKeys", true);
+    },
+    isMyButSHow() {//获取显示控制面板悬浮球值
+        return Util.getData("isMyButShow", true);
+    },
+    setMyButShow(bool) {//设置显示控制面板悬浮球值
+        Util.setData("isMyButShow", bool === true)
     }
 }

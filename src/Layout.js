@@ -50,13 +50,13 @@ ul {
 #suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover {
     background-color: #3E8E41;
 }
-#mybut {
+#myBut {
     position: fixed;
     z-index: 2025;
     width: 50px;
     height: 50px;
     left: 96%;
-    bottom: 85%;
+    bottom: 80%;
     background: rgb(67, 67, 124);
     color: white;
     border: none;
@@ -427,6 +427,14 @@ border: 0.5px solid green;
         <span>{{widthRangeText}}</span>
       </div>
     </div>
+    <hr>
+     <div>
+          <h1>控制面板悬浮球</h1>
+          <div :title="titleContent">
+           显示隐藏<input type="checkbox" v-model="isMyButShow">
+          </div>
+      </div>
+      <hr>
     <h1>快捷悬浮面板</h1>
     <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>
 </div><!-- 面板设置布局 -->
