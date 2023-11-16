@@ -5,7 +5,7 @@ const UrleCrud = {//规则的增删改查
             if (content === null) return false;
             content = content.trim();
             if (content === "") {
-               Tip.error("请输入正确的内容！");
+                Tip.error("请输入正确的内容！");
                 return false;
             }
         }
@@ -23,13 +23,10 @@ const UrleCrud = {//规则的增删改查
         return this.add(ruleDataList, content, ruleType);
     },
     addAllShow(ruleType, ruleName, jsonStrContent) {
-        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
-            alert("暂不支持uid和白名单uid批量添加");
-            return false;
-        }
         let json;
         if (typeof jsonStrContent !== "string") {
-            return false;
+            Tip.error("内容非字符串！");
+            return;
         }
         jsonStrContent = jsonStrContent.trim();
         try {
@@ -37,10 +34,28 @@ const UrleCrud = {//规则的增删改查
         } catch (e) {
             Tip.error(`内容不正确！内容需要数组或者json格式！错误信息=${e}`);
             console.error("内容不正确！内容需要数组或者json格式！错误信息", e);
-            return false;
+            return;
+        }
+        if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {//效验数组内元素是否是整数
+            let tempLoop = false;
+            for (let v of json) {
+                if (typeof v !== "number" && Number.isInteger(v)) {
+                    tempLoop = true;
+                    break;
+                }
+            }
+            if (tempLoop) {
+                Tip.error(json, "数组中有个元素非数字或非整数！");
+                return;
+            }
         }
         const ruleList = Util.getData(ruleType, []);
-        return this.addAll(ruleList, json, ruleType);
+        const res = this.addAll(ruleList, json, ruleType);
+        if (res.code) {
+            Tip.success(`已批量插入${ruleName}的规则`);
+        } else {
+            Tip.error(res.msg);
+        }
     },
     /**
      * 单个元素进行添加
@@ -65,18 +80,21 @@ const UrleCrud = {//规则的增删改查
     addAll(ruleList, contentList, ruleType) {
         let tempLenSize = 0;
         const set = new Set(ruleList);
+        tempLenSize = set.size;
         for (const value of contentList) {
             set.add(value);
         }
-        if (set.size === ruleList.length) {
-            Print.ln("内容长度无变化，可能是已经有了的值")
-            return false;
+        if (set.size === tempLenSize) {
+            return {
+                code: false,
+                msg: "内容长度无变化，可能是已经有了的值",
+            };
         }
         const fromList = Array.from(set);
         Util.setData(ruleType, fromList);
         console.log(`已更新${ruleType}的数组`, fromList);
         ruleCRUDLlayoutVue().updateRuleIndex();
-        return true;
+        return {code: true};
     },
     /**
      *
