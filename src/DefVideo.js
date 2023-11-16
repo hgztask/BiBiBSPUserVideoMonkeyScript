@@ -60,7 +60,7 @@ const DefVideo = {
                     .setTitle(v.querySelector(".title").textContent)
                     .setE(v)
                 )) {
-                    Tip.success("屏蔽了视频");
+                    Tip.videoBlock("屏蔽了视频");
                     return;
                 }
                 $(v).mouseenter((e) => {

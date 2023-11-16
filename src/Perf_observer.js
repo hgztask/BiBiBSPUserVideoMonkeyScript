@@ -172,7 +172,7 @@ async function perf_observer() {
                             .setTitle(videoInfo.textContent.trim());
                         video.setUid(Util.getSubWebUrlUid(userInfo.href))
                         if (shieldVideo_userName_uid_title(video)) {
-                            Tip.success("屏蔽了视频");
+                            Tip.videoBlock("屏蔽了视频");
                         }
                     });
                 } catch (e) {

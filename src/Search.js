@@ -160,7 +160,7 @@ const Search = {
                     .setUid(v["uid"])
                     .setTitle(v["title"])
                     .setVideoAddress(v["videoAddress"]))) {
-                    Tip.success("屏蔽了视频");
+                    Tip.videoBlock("屏蔽了视频");
                     return;
                 }
                 const jqE = $(v["e"]);

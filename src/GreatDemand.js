@@ -10,7 +10,7 @@ const GreatDemand = {//热门
                     .setVideoTime(v.getElementsByClassName("time")[0].textContent);
                 console.log(data);
                 if (shieldVideo_userName_uid_title(data)) {
-                    Tip.success("屏蔽了视频");
+                    Tip.videoBlock("屏蔽了视频");
                 }
             }
             return;
@@ -22,7 +22,7 @@ const GreatDemand = {//热门
                 .setUpName(v.getElementsByClassName("up-name__text")[0].textContent)
                 .setPlaybackVolume(v.getElementsByClassName("play-text")[0].textContent.trim());
             if (shieldVideo_userName_uid_title(data)) {
-                Tip.success("屏蔽了视频");
+                Tip.videoBlock("屏蔽了视频");
             }
         }
     }

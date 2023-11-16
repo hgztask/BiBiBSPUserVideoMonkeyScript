@@ -63,7 +63,7 @@ const frequencyChannel = {//频道
     listRules() {
         let list = document.getElementsByClassName("rank-video-card");
         if (list.length !== 0 && frequencyChannel.startExtracted(list)) {
-            Tip.success("屏蔽了视频");
+            Tip.videoBlock("屏蔽了视频");
             console.log("已检测到频道综合的排行榜")
         }
     },
@@ -79,7 +79,7 @@ const frequencyChannel = {//频道
                 break;
             }
             if (frequencyChannel.startExtracted(list)) {
-                Tip.success("屏蔽了视频");
+                Tip.videoBlock("屏蔽了视频");
             }
             if (list.length === tempLength) {
                 //Print.ln("页面元素没有变化了，故退出循环")
