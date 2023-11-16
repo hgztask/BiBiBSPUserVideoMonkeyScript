@@ -105,7 +105,7 @@ const Trends = {
                 clearInterval(i1);
                 try {
                     $(richTextArea).css("max-height", "");
-                    Qmsg.success("已解锁发动态编辑框的最大可视内容！");
+                    Tip.success("已解锁发动态编辑框的最大可视内容！");
                 } catch (e) {
                     console.error("修改编辑框最大可视内容时出错！", e);
                 }
@@ -133,7 +133,7 @@ const Trends = {
             if (contentKey !== null) {
                 const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
                 v.remove();
-                Qmsg.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+                Tip.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
                 Print.ln(tempInfo);
                 continue;
             }
@@ -141,7 +141,7 @@ const Trends = {
             if (arrContentCanonical != null) {
                 const tempInfo = `已通过动态正则关键词【${arrContentCanonical}】屏蔽了动态【${tempContent}】`;
                 v.remove();
-                Qmsg.success(`已通过动态正则关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
+                Tip.success(`已通过动态正则关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
                 Print.ln(tempInfo);
             }
         }

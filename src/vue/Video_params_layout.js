@@ -11,6 +11,7 @@ const Video_params_layout = {
                 isFlipHorizontal: false,
                 isFlipVertical: false,
                 axleRange: 0,
+                setAutoSubItemButShow: false,
                 hideVideoTopTitleInfoCheackBox: LocalData.video.isHideVideoTopTitleInfoLayout(),
                 hideVideoButtonCheackBox: LocalData.video.isHideVideoButtonCommentSections(),
                 hideVideoRightLayoutCheackBox: LocalData.video.isHideVideoRightLayout()
@@ -23,7 +24,7 @@ const Video_params_layout = {
                     const data = this.rangePlaySpeed;
                     if (!confirm(`是要保存视频的播放速度值吗？\n${data}x`)) return;
                     LocalData.video.setRangePlaySpeed(data);
-                    Qmsg.success(`已保存视频的播放速度值=${data}x`);
+                    Tip.success(`已保存视频的播放速度值=${data}x`);
                 },
                 okFlipHorizontal() {//水平翻转
                     if (this.isFlipHorizontal) {
@@ -68,7 +69,13 @@ const Video_params_layout = {
                 },
                 hideVideoButtonCheackBox(newVal) {
                     LocalData.video.setHideVideoButtonCommentSections(newVal);
+                },
+                setAutoSubItemButShow(newBool) {
+                    LocalData.video.setSubItemButShow(newBool);
                 }
+            },
+            created() {
+                this.setAutoSubItemButShow = LocalData.video.isSubItemButShow();
             }
         });
         return function () {

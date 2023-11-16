@@ -49,11 +49,11 @@ const RuleCenterLayoutVue = {
             },
             methods: {
                 reloadListBut() {
-                    const loading = Qmsg.loading("正在重新加载，请稍等...");
+                    const loading = Tip.loading("正在重新加载，请稍等...");
                     this.isReloadListButShow = false;
                     const promise = RuleCenterLayoutVue.httpGetList();
                     promise.then(dataBody => {
-                        Qmsg.success(dataBody.message);
+                        Tip.success(dataBody.message);
                         this.list = dataBody.dataList;
                         this.isReloadListButShow = true;
                     }).catch(reason => {

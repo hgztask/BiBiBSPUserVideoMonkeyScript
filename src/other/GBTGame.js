@@ -7,7 +7,7 @@ const GBTGame = {
             alert("当前网站不是GBT乐赏游戏空间");
             return;
         }
-        const loading = Qmsg.loading("正在获取中，请不要对当前网页进行其他操作！");
+        const loading = Tip.loading("正在获取中，请不要对当前网页进行其他操作！");
         const arrList = document.querySelectorAll("#menuList>*");
         let chickTempIndex = 0;
         this.data.tempArrList = {};
@@ -23,7 +23,7 @@ const GBTGame = {
             const filesTime = a.text;
             a.click();
             const info = `已点击${filesTime}`;
-            Qmsg.success(info);
+            Tip.success(info);
             const p = new Promise((resolve) => {
                 const interval01 = setInterval(() => {
                     let menuItem = tempE.querySelectorAll(".menu>*:not(.lxts)");
@@ -48,7 +48,7 @@ const GBTGame = {
         const keys = Object.keys(tempArrList);
         if (keys.length === 0) {
             const info = "请先获取页面所有游戏资源先！";
-            Qmsg.error(info);
+            Tip.error(info);
             throw Error(info);
         }
         const newArray = {};
@@ -64,13 +64,13 @@ const GBTGame = {
         if (keys.length === 0) {
             const info = "请先获取页面所有游戏资源先！";
             alert(info);
-            Qmsg.error(info);
+            Tip.error(info);
             return;
         }
         const info = `已获取到${keys.length}个资源，并将其打印在控制台和输出面板上！`;
         alert(info);
         Print.ln(info);
-        Qmsg.success(info);
+        Tip.success(info);
         Util.fileDownload(JSON.stringify(tempArrList, null, 3), `GBT乐赏游戏空间游戏磁力地址${keys.length}个资源(${Util.toTimeString()}).json`);
     }
 }

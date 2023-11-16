@@ -14,7 +14,7 @@ const Live = {
                 .setUpName(userName)
                 .setUid(uid)
                 .setContent(content))) {
-                Qmsg.info("屏蔽了言论！！");
+               Tip.info("屏蔽了言论！！");
                 continue;
             }
             if (Remove.fanCard(v, fansMeda)) {
@@ -44,7 +44,7 @@ const Live = {
                 const message = body["message"];
                 if (code !== 0) {
                     const info = "获取当前用户正在直播的用户错误！" + message;
-                    Qmsg.error(info);
+                    Tip.error(info);
                     console.log(info);
                     return;
                 }
@@ -55,7 +55,7 @@ const Live = {
                 const list = body["data"]["list"];
                 if (list === undefined || list === null || list.length === 0) {
                     const info = "未获取到当前用户关注的直播用户列表信息";
-                    Qmsg.info(info);
+                    Tip.info(info);
                     console.log(info);
                     return;
                 }
@@ -84,8 +84,8 @@ const Live = {
                 resolve({live_status: live_status, dataList: followDataList});
             }).catch(err => {
                 reject(err);
-                Qmsg.error("出现错误");
-                Qmsg.error(err);
+                Tip.error("出现错误");
+                Tip.error(err);
             });
         });
     },
@@ -98,7 +98,7 @@ const Live = {
             if (liveStatus === 1) {
                 Util.mergeArrays(dataList, data.dataList);
                 await Util.Thread.sleep(500);
-                Qmsg.success(`正在获取关注列表中正在直播列表`);
+                Tip.success(`正在获取关注列表中正在直播列表`);
                 continue;
             }
             if (liveStatus === 0 || liveStatus === -1) {
@@ -106,7 +106,7 @@ const Live = {
                 break;
             }
         } while (true);
-        Qmsg.success(`已获取完成！`);
+        Tip.success(`已获取完成！`);
         return Promise.resolve();
     },
     getOthersAreWorkingLiveDataList(parent_id, id, page = 1) {//获取其他正在直播中的直播列表
@@ -138,7 +138,7 @@ const Live = {
                     if (Matching.arrKey(LocalData.getArrUID(), uid)) {
                         const tempInfo = `已通过UID，过滤用户【${uname}】 uid【${uid}】`;
                         Print.ln(tempInfo);
-                        Qmsg.success(tempInfo);
+                        Tip.success(tempInfo);
                         continue;
                     }
                     const face = v["face"];

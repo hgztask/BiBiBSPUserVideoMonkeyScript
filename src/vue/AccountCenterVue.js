@@ -48,7 +48,7 @@ const AccountCenterVue = {
                         exitSignBut() {
                             if (!confirm("您确定要退出登录吗")) return;
                             LocalData.AccountCenter.setInfo({});
-                            Qmsg.success("已退出登录！");
+                            Tip.success("已退出登录！");
                             this.$emit("tab-click", "notLogin");
                         },
                         publicStateBut() {
@@ -101,12 +101,12 @@ const AccountCenterVue = {
                                 alert("密码长度需要大于或登录6位");
                                 return;
                             }
-                            const loading = Qmsg.loading("正在登录中...");
+                            const loading = Tip.loading("正在登录中...");
                             const promise = HttpUtil.get(`${defApi}/bilibili/signInToRegister.php?userName=${this.userName}&userPassword=${this.userPwd}&model=logIn`);
                             promise.then(({bodyJson: body}) => {
                                 const {code, message, userData} = body;
                                 if (code !== 1) {
-                                    Qmsg.error(message);
+                                    Tip.error(message);
                                     return;
                                 }
                                 let {rule_content} = userData;
@@ -121,7 +121,7 @@ const AccountCenterVue = {
                                     ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
                                 }
                                 LocalData.AccountCenter.setInfo(userData);
-                                Qmsg.success(message);
+                                Tip.success(message);
                                 this.$emit("tab-click", "login");
                             }).catch((error) => {
                                 console.log(error);
@@ -165,7 +165,7 @@ const AccountCenterVue = {
  * @param {boolean}anonymityBool 匿名状态
  */
 function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
-    const loading = Qmsg.loading("请稍等...");
+    const loading = Tip.loading("请稍等...");
     $.ajax({
         type: "POST",
         url: `${defApi}/bilibili/`,
@@ -180,17 +180,17 @@ function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
         success({message, code, share}) {
             loading.close();
             if (code !== 1) {
-                Qmsg.error(message);
+                Tip.error(message);
                 return;
             }
             const getInfo = LocalData.AccountCenter.getInfo();
             if (Object.keys(getInfo).length === 0) {
-                Qmsg.error("更新本地账户信息错误！");
+                Tip.error("更新本地账户信息错误！");
                 return;
             }
             getInfo["share"] = share;
             LocalData.AccountCenter.setInfo(getInfo);
-            Qmsg.success(message);
+            Tip.success(message);
         }, error(xhr, status, error) {
             loading.close();
             console.log(error);

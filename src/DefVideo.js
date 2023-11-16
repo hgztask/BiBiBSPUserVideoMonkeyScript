@@ -60,7 +60,7 @@ const DefVideo = {
                     .setTitle(v.querySelector(".title").textContent)
                     .setE(v)
                 )) {
-                    Qmsg.success("屏蔽了视频");
+                    Tip.success("屏蔽了视频");
                     return;
                 }
                 $(v).mouseenter((e) => {
@@ -91,7 +91,7 @@ const DefVideo = {
                 jqE.click();
                 const info = `已自动点击播放器的网页全屏`;
                 Print.ln(info);
-                Qmsg.success(info);
+                Tip.success(info);
                 console.log(info);
             }, 1000);
         },
@@ -102,7 +102,7 @@ const DefVideo = {
                 clearInterval(interval);
                 jqE.click();
                 const info = "已自动点击播放器的进入全屏按钮";
-                Qmsg.success(info);
+                Tip.success(info);
                 Print.ln(info);
                 console.log(info);
             }, 1000);
@@ -181,7 +181,7 @@ const DefVideo = {
                 if (jqE.length === 0) return;
                 clearInterval(interval);
                 jqE.hide();
-                Qmsg.success("已隐藏评论区");
+                Tip.success("已隐藏评论区");
             }, 500);
         }
     },

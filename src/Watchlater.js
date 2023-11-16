@@ -17,7 +17,7 @@ const Watchlater = {
                     return;
                 }
                 const info = `已获取到${dataList.length}个稍后再看的记录`;
-                Qmsg.success(info);
+                Tip.success(info);
                 Print.ln(info);
                 alert(info);
                 Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的稍后再看记录${dataList.length}个.json`);
@@ -34,7 +34,7 @@ const Watchlater = {
                     return;
                 }
                 const info = `已获取到${dataList.length}【已观看的】稍后再看的记录`;
-                Qmsg.success(info);
+                Tip.success(info);
                 Print.ln(info);
                 alert(info);
                 Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的【已观看】稍后再看记录${dataList.length}个.json`);
@@ -56,7 +56,7 @@ const Watchlater = {
                         continue;
                     }
                     if (v.videoAddress === null) {
-                        Qmsg.error(`title=${v.title}的视频出现问题，可能是失效了，故排除该视频`);
+                        Tip.error(`title=${v.title}的视频出现问题，可能是失效了，故排除该视频`);
                         continue;
                     }
                     lookAtItLaterArr.push({

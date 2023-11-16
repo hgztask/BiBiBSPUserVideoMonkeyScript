@@ -145,7 +145,13 @@ const LocalData = {
         },
         setVideoEndRecommend(bool) {//设置是否播放完视频后移除视频推荐
             Util.setData("videoEndRecommend", bool);
-        }
+        },
+        isSubItemButShow() {//是否要展开视频页右侧的相关悬浮按钮
+            return Util.getData("subItemButShow", true);
+        },
+        setSubItemButShow(bool) {//展开视频页右侧的相关悬浮按钮
+            Util.setData("subItemButShow", bool === true);
+        },
     },
     AccountCenter: {
         getInfo() {//读取本地账户信息

@@ -13,7 +13,7 @@ const SubjectOfATalk = {//话题
                     .setUpName(name)
                     .setUid(uid)
                     .setContent(content))) {
-                    Qmsg.info("屏蔽了言论！！");
+                   Tip.info("屏蔽了言论！！");
                 }
                 continue;
             }//如果内容是视频样式
@@ -24,7 +24,7 @@ const SubjectOfATalk = {//话题
                 .setUid(uid)
                 .setTitle(videoInfo.querySelector(".bili-dyn-card-video__title.bili-ellipsis").textContent)
                 .setVideoTime(videoInfo.querySelector(".bili-dyn-card-video__duration").textContent))) {
-                Qmsg.success("屏蔽了视频");
+                Tip.success("屏蔽了视频");
             }
         }
     }

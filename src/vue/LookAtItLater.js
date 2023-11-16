@@ -28,12 +28,12 @@ const LookAtItLater = {
                     }
                     const length = tempList.length;
                     if (length === 0) {
-                        Qmsg.error("未搜索到指定内容的元素");
+                       Tip.error("未搜索到指定内容的元素");
                         return;
                     }
                     this.subThis.showList = [];
                     tempList.forEach(value => this.subThis.showList.push(value));
-                    Qmsg.success(`已搜索到${length}个符合搜索关键词的项目！`);
+                    Tip.success(`已搜索到${length}个符合搜索关键词的项目！`);
                 },
                 outLookAtItLaterArr() {//导出稍后再看列表数据
                     Util.fileDownload(JSON.stringify(LocalData.getLookAtItLaterArr(), null, 3), `稍后再看列表${Util.toTimeString()}.json`);
@@ -42,12 +42,12 @@ const LookAtItLater = {
                     if (strArray.startsWith("[") && strArray.endsWith("]")) {
                         const parse = JSON.parse(strArray);
                         if (parse.length === 0) {
-                            Qmsg.error("数组未有内容！");
+                            Tip.error("数组未有内容！");
                             return null;
                         }
                         return parse;
                     }
-                    Qmsg.error("内容不是json数组！");
+                    Tip.error("内容不是json数组！");
                     return null;
                 },
                 inputAddToLookAtItLaterArr() {//追加导入稍后再看列表数据
@@ -77,7 +77,7 @@ const LookAtItLater = {
                         return false;
                     }
                     LocalData.setLookAtItLaterArr(tempList);
-                    Qmsg.success("追加数据成功！");
+                    Tip.success("追加数据成功！");
                     console.table(tempList);
                     return true;
                 },
@@ -97,7 +97,7 @@ const LookAtItLater = {
                         return false;
                     }
                     LocalData.setLookAtItLaterArr(parse);
-                    Qmsg.success("覆盖数据成功！");
+                    Tip.success("覆盖数据成功！");
                     console.table(parse);
                     return true;
                 },
@@ -124,12 +124,12 @@ const LookAtItLater = {
                     if (!confirm("您确定要进行清空本地脚本存储的稍后再看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) return;
                     LocalData.setLookAtItLaterArr([]);
                     this.subThis.showList = this.lookAtItLaterList = [];
-                    Qmsg.success("已清空本地脚本存储的稍后再看列表数据");
+                    Tip.success("已清空本地脚本存储的稍后再看列表数据");
                 },
                 getItemFindIndex(data) {
                     const index = this.lookAtItLaterList.findIndex(value => value === data);
                     if (index === -1) {
-                        Qmsg.error(`查找列表中指定item失败!-1`);
+                        Tip.error(`查找列表中指定item失败!-1`);
                         return null;
                     }
                     if (!confirm(`是要对 ${data.title} 选项进行操作吗？\nbv:${data.bv}`)) {
@@ -145,12 +145,12 @@ const LookAtItLater = {
                     const tempLookAtItLaterArr = LocalData.getLookAtItLaterArr();
                     const tempIndex = tempLookAtItLaterArr.findIndex(value => Util.objEquals(value, data, isKeyArr));
                     if (tempIndex === -1) {
-                        Qmsg.error("查找数据组列表中要删除的item失败！-1");
+                        Tip.error("查找数据组列表中要删除的item失败！-1");
                         return;
                     }
                     tempLookAtItLaterArr.splice(tempIndex, 1);
                     LocalData.setLookAtItLaterArr(tempLookAtItLaterArr);
-                    Qmsg.success(`已删除 ${data.title} 选项，bv=${data.bv}`);
+                    Tip.success(`已删除 ${data.title} 选项，bv=${data.bv}`);
                 },
                 /**
                  *
@@ -164,16 +164,16 @@ const LookAtItLater = {
                     if (input === null) return;
                     input = input.trim();
                     if (input.length < 1) {
-                        Qmsg.error("输入的字符不可小于1！");
+                        Tip.error("输入的字符不可小于1！");
                         return;
                     }
                     if (value === input) {
-                        Qmsg.error("输入的值不能和原有的值相同！");
+                        Tip.error("输入的值不能和原有的值相同！");
                         return;
                     }
                     if (key === "uid") {
                         if (isNaN(value)) {
-                            Qmsg.error(`输入的uid不是一个数字！`);
+                            Tip.error(`输入的uid不是一个数字！`);
                             return;
                         }
                         value = parseInt(value);
@@ -182,14 +182,14 @@ const LookAtItLater = {
                     const isKeyArr = ["upName", "uid", "title", "bv"];
                     const tempIndex = tempLookAtItLaterArr.findIndex(value => Util.objEquals(value, item, isKeyArr));
                     if (tempIndex === -1) {
-                        Qmsg.error("查找数据组列表中要修改的item失败！-1");
+                        Tip.error("查找数据组列表中要修改的item失败！-1");
                         return;
                     }
                     item[key] = input;
                     tempLookAtItLaterArr.splice(tempIndex, 1, item);
                     LocalData.setLookAtItLaterArr(tempLookAtItLaterArr);
                     const tip = `已将${keyName}的值=${value}\n改成=${input}`;
-                    Qmsg.success(tip);
+                    Tip.success(tip);
                     alert(tip);
                 },
                 getBWebLookAtItLaterListBut() {
@@ -252,7 +252,7 @@ const LookAtItLater = {
         }
         arr.push(data);
         LocalData.setLookAtItLaterArr(arr);
-        Qmsg.success("添加成功！")
+        Tip.success("添加成功！")
         alert(`已添加视频【${data["title"]}】至稍后再看列表！`);
     }
 }

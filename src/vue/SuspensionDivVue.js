@@ -55,12 +55,12 @@ const SuspensionDivVue = {
                     }
                 },
                 findUserInfo() {
-                    const loading = Qmsg.loading("正在获取中！");
+                    const loading = Tip.loading("正在获取中！");
                     const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/card?mid=${this.uid}&photo=false`);
                     promise.then(res => {
                         const body = res.bodyJson;
                         if (body["code"] !== 0) {
-                            Qmsg.error("请求失败！");
+                            Tip.error("请求失败！");
                             return;
                         }
                         const cradInfo = body["data"]["card"];

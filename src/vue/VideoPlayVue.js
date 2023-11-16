@@ -45,33 +45,33 @@ const VideoPlayVue = {
                     if (!confirm(`当前视频BV号是 ${urlBVID} 吗`)) {
                         return;
                     }
-                    const loading = Qmsg.loading("正在获取数据中!");
+                    const loading = Tip.loading("正在获取数据中!");
                     const promise = HttpUtil.getVideoInfo(urlBVID);
                     promise.then(res => {
                         const body = res.bodyJson;
                         const code = body["code"];
                         const message = body["message"];
                         if (code !== 0) {
-                            Qmsg.error("获取失败!" + message);
+                            Tip.error("获取失败!" + message);
                             return;
                         }
                         let data;
                         try {
                             data = body["data"][0];
                         } catch (e) {
-                            Qmsg.error("获取数据失败!" + e);
+                            Tip.error("获取数据失败!" + e);
                             return;
                         }
                         if (data === null || data === undefined) {
-                            Qmsg.error("获取到的数据为空的!");
+                            Tip.error("获取到的数据为空的!");
                             return;
                         }
                         const cid = data["cid"];
-                        Qmsg.success("cid=" + cid);
+                        Tip.success("cid=" + cid);
                         Util.openWindow(`https://comment.bilibili.com/${cid}.xml`);
                     }).catch(err => {
-                        Qmsg.error("错误状态!");
-                        Qmsg.error(err);
+                        Tip.error("错误状态!");
+                        Tip.error(err);
                     }).finally(() => {
                         loading.close();
                     });
@@ -90,7 +90,7 @@ const VideoPlayVue = {
                 getVideoCommentArea() {//获取视频的评论区列表可见的内容
                     const list = document.querySelectorAll(".reply-list>.reply-item");
                     if (list.length === 0) {
-                        Qmsg.error("未获取评论区内容，可能是当前并未有人评论！");
+                        Tip.error("未获取评论区内容，可能是当前并未有人评论！");
                         return;
                     }
                     const arr = [];
@@ -120,7 +120,7 @@ const VideoPlayVue = {
                         arr.push(data);
                     }
                     Util.fileDownload(JSON.stringify(arr, null, 3), `评论区列表-${Util.toTimeString()}.json`);
-                    Qmsg.success("已获取成功！");
+                    Tip.success("已获取成功！");
                 },
                 getLeftTopVideoListBut() {
                     const videoCollection = DefVideo.videoCollection;
@@ -207,6 +207,9 @@ const VideoPlayVue = {
                 subItemButShow(newVal) {
                     this.subItemButText = newVal ? "收起" : "展开";
                 }
+            },
+            created() {
+                this.subItemButShow = LocalData.video.isSubItemButShow();
             }
         });
         return function () {

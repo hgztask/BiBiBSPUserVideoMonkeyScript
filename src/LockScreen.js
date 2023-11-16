@@ -14,7 +14,7 @@ const LockScreen = {
             const verifyPwd = this.verifyPwd();
             if (verifyPwd === null) return;
             if (!verifyPwd) {
-                Qmsg.error("验证失败！");
+               Tip.error("验证失败！");
                 return;
             }
         }
@@ -28,7 +28,7 @@ const LockScreen = {
         }
         this.screen.setPwd(newPwd);
         const tip = `设置成功！，您当前的锁屏密码为${newPwd}`;
-        Qmsg.success(tip);
+        Tip.success(tip);
         Print.ln(tip);
         alert(tip);
     },
@@ -36,7 +36,7 @@ const LockScreen = {
         const verifyPwd = this.verifyPwd();
         if (verifyPwd === null) return;
         if (!verifyPwd) {
-            Qmsg.error("验证失败！");
+            Tip.error("验证失败！");
             return;
         }
         this.setPwdShow(false);
@@ -51,7 +51,7 @@ const LockScreen = {
         const verifyPwd = this.verifyPwd();
         if (verifyPwd === null) return;
         if (verifyPwd === false) {
-            Qmsg.error("验证失败！");
+            Tip.error("验证失败！");
             return;
         }
         const s = prompt(`输入1为开启，0为关闭，当前为${this.screen.getState() ? "开启" : "关闭"}状态`);
@@ -64,7 +64,7 @@ const LockScreen = {
             boo = false;
         }
         if (boo === null) {
-            Qmsg.error("输入错误，请按照格式正确输入！");
+            Tip.error("输入错误，请按照格式正确输入！");
             return;
         }
         const state = this.screen.getState();
@@ -74,7 +74,7 @@ const LockScreen = {
         }
         this.screen.setState(boo);
         const tip = `已设置锁屏开关状态，当前为${boo ? "开启" : "关闭"}状态`;
-        Qmsg.success(tip);
+        Tip.success(tip);
         Print.ln(tip);
         alert(tip);
     },
@@ -102,7 +102,7 @@ const LockScreen = {
             }
             clearInterval(interval);
             screen.setTLastTimestamp(Date.now());
-            Qmsg.success("已解锁成功！");
+            Tip.success("已解锁成功！");
         }, 25);
     },
     setScreenLockTimeShow() {
@@ -117,17 +117,17 @@ const LockScreen = {
         if (time === null) return;
         time = time.trim();
         if (isNaN(time)) {
-            Qmsg.error("请填写数字！");
+            Tip.error("请填写数字！");
             return;
         }
         time = parseInt(time);
         if (time < 60000 * 5) {//判断是否小于5分钟
-            Qmsg.error("设置的时间不可小于5分钟！");
+            Tip.error("设置的时间不可小于5分钟！");
             return;
         }
         this.screen.setIntervalTime(time);
         const tip = `已成功设置间隔时间戳为${time}，单位毫秒，当下次访问超出该时间时会对页面进行锁屏操作，用户需要输入锁屏密码通过之后才可以正常访问页面，且成功之后以当时的时间重新开始统计`;
-        Qmsg.success(tip);
+        Tip.success(tip);
         alert(tip);
     },
     manualLockScreen() {//手动锁屏

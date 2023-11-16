@@ -32,24 +32,24 @@ const OtherLayoutVue = {
                         return;
                     }
                     if (content.includes(" ") || content.includes("=")) {
-                        Qmsg.error("内容中包含空格或者=，请去除相关符号！");
+                       Tip.error("内容中包含空格或者=，请去除相关符号！");
                         return;
                     }
                     if (!confirm(`要保存的SESSDATA是\n${content}`)) {
                         return;
                     }
                     LocalData.setSESSDATA(content);
-                    Qmsg.success("已设置SESSDATA的值！");
+                    Tip.success("已设置SESSDATA的值！");
                 },
                 getSgSessdataBut() {
                     const data = LocalData.getSESSDATA();
                     if (data === null) {
                         const tip = '用户未添加SESSDATA或者已删除存储在脚本的SESSDATA';
-                        Qmsg.error(tip);
+                        Tip.error(tip);
                         alert(tip);
                         return;
                     }
-                    Qmsg.success("已将值输出到脚本面板的输出信息上！");
+                    Tip.success("已将值输出到脚本面板的输出信息上！");
                     Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
                     Print.ln(data);
                 },
@@ -59,40 +59,40 @@ const OtherLayoutVue = {
                         return;
                     }
                     if (content === "" | content.includes(" ")) {
-                        Qmsg.error("内容有误，请正确书写！");
+                        Tip.error("内容有误，请正确书写！");
                         return;
                     }
                     LocalData.setBili_jct(content);
-                    Qmsg.success(`已设置bili_jct的值为\n${content}`);
+                    Tip.success(`已设置bili_jct的值为\n${content}`);
                 },
                 setLogInBili_jctBut() {
                     const data = LocalData.getWebBili_jct();
                     if (data === null) {
-                        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
+                        Tip.error(`获取不到存储在网页中的bili_jct值:`);
                         return;
                     }
                     if (!confirm("确定要将存储在网页中的bili_jct值并设置存储在油猴脚本bili_jct值吗？")) {
                         return;
                     }
                     LocalData.setBili_jct(data);
-                    Qmsg.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
+                    Tip.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
                 },
                 getLogInBili_jctBut() {
                     const data = LocalData.getWebBili_jct();
                     if (data === null) {
-                        Qmsg.error(`获取不到存储在网页中的bili_jct值:`);
+                        Tip.error(`获取不到存储在网页中的bili_jct值:`);
                         return;
                     }
-                    Qmsg.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
+                    Tip.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
                     Print.ln(data);
                 },
                 getBili_jctBut() {
                     const biliJct = LocalData.getBili_jct();
                     if (biliJct === null) {
-                        Qmsg.error(`用户未设置bili_jct值`);
+                        Tip.error(`用户未设置bili_jct值`);
                         return;
                     }
-                    Qmsg.success("获取成功！，已将bili_jct值输出到面板上");
+                    Tip.success("获取成功！，已将bili_jct值输出到面板上");
                 },
                 bvToAvBut() {
                     const content = prompt("bv转av号");
@@ -154,7 +154,7 @@ const OtherLayoutVue = {
                     if (filter.length === 0) {
                         const info = "并未搜索到您想要的资源，key=" + key;
                         Print.ln(info);
-                        Qmsg.info(info);
+                        Tip.info(info);
                         alert(info);
                         return;
                     }
@@ -163,7 +163,7 @@ const OtherLayoutVue = {
                     const findJsonListStr = JSON.stringify(findList, null, 3);
                     console.log(findList);
                     console.log(findJsonListStr);
-                    Qmsg.success(info);
+                    Tip.success(info);
                     Util.fileDownload(findJsonListStr, `搜索GBT乐赏游戏空间关键词为【${key}】 的资源${filter.length}个.json`);
                 },
                 openBWeb(item, name) {
@@ -174,18 +174,18 @@ const OtherLayoutVue = {
                     const requestUrl = this.requestUrl;
                     const cookie = this.requestCookie;
                     if (!(requestUrl.startsWith("https://") || requestUrl.startsWith("http://"))) {
-                        Qmsg.error("请正确填写请求地址！");
+                        Tip.error("请正确填写请求地址！");
                         return;
                     }
                     const requestType = this.requestTypeSelect;
                     const promise = HttpUtil.getCookie(requestUrl, cookie);
-                    const loading = Qmsg.loading(`正在使用${requestType}请求 请求地址${requestUrl}中！`);
+                    const loading = Tip.loading(`正在使用${requestType}请求 请求地址${requestUrl}中！`);
                     promise.then(data => {
-                        Qmsg.success("请求成功！");
+                        Tip.success("请求成功！");
                         this.responseResult = data.body;
                         console.log(data);
                     }).catch(reason => {
-                        Qmsg.error("相应失败！");
+                        Tip.error("相应失败！");
                         console.error(reason);
                     }).finally(() => {
                         loading.close();

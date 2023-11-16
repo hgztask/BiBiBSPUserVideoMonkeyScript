@@ -22,7 +22,7 @@ const Watched = {
                     }
                     const length = tempList.length;
                     if (length === 0) {
-                        Qmsg.error("未搜索到指定内容的元素");
+                       Tip.error("未搜索到指定内容的元素");
                         return;
                     }
                     this.subThis.showList = [];
@@ -32,7 +32,7 @@ const Watched = {
                     if (!confirm("您确定要进行清空本地脚本存储的已观看列表数据吗，清空之后无法复原，除非您有导出过清空前的数据，请谨慎考虑，是要继续执行清空操作吗？")) return;
                     LocalData.setWatchedArr([]);
                     this.subThis.showList = this.lookAtItLaterList = [];
-                    Qmsg.success("已清空本地脚本存储的已观看列表数据");
+                    Tip.success("已清空本地脚本存储的已观看列表数据");
                 },
                 renovateLayoutItemList() {
                     this.subThis.showList = LocalData.getWatchedArr();
@@ -58,7 +58,7 @@ const Watched = {
         }
         arr.push(data);
         LocalData.setWatchedArr(arr);
-        Qmsg.success("添加成功")
+        Tip.success("添加成功")
         alert(`已添加视频【${data["title"]}】至已观看列表！`);
     }
 }

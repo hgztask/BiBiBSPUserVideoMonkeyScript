@@ -5,13 +5,13 @@ const UrleCrud = {//规则的增删改查
             if (content === null) return false;
             content = content.trim();
             if (content === "") {
-                Qmsg.error("请输入正确的内容！");
+               Tip.error("请输入正确的内容！");
                 return false;
             }
         }
         if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
             if (isNaN(content)) {
-                Qmsg.error(`输入的内容不是一个数字！value=${content}`);
+                Tip.error(`输入的内容不是一个数字！value=${content}`);
                 return false;
             }
             content = parseInt(content);
@@ -35,7 +35,7 @@ const UrleCrud = {//规则的增删改查
         try {
             json = JSON.parse(jsonStrContent);
         } catch (e) {
-            Qmsg.error(`内容不正确！内容需要数组或者json格式！错误信息=${e}`);
+            Tip.error(`内容不正确！内容需要数组或者json格式！错误信息=${e}`);
             console.error("内容不正确！内容需要数组或者json格式！错误信息", e);
             return false;
         }
@@ -52,7 +52,7 @@ const UrleCrud = {//规则的增删改查
         if (arr.includes(key)) return false;
         arr.push(key);
         Util.setData(ruleType, arr);
-        Qmsg.success(`添加${ruleType}的值成功=${key}`);
+        Tip.success(`添加${ruleType}的值成功=${key}`);
         ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
     },
@@ -102,13 +102,13 @@ const UrleCrud = {//规则的增删改查
             if (content === null) return false;
             content = content.trim();
             if (content === "") {
-                Qmsg.error("请输入正确的内容！");
+                Tip.error("请输入正确的内容！");
                 return false;
             }
         }
         if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
             if (isNaN(content)) {
-                Qmsg.error(`输入的内容不是一个数字！value=${content}`);
+                Tip.error(`输入的内容不是一个数字！value=${content}`);
                 return false;
             }
             content = parseInt(content);
@@ -119,9 +119,9 @@ const UrleCrud = {//规则的增删改查
         let ruleDataList = Util.getData(ruleType, []);
         const isDel = this.del(ruleDataList, content, ruleType);
         if (isDel) {
-            Qmsg.success(`删除指定规则内容成功！content=${content}`);
+            Tip.success(`删除指定规则内容成功！content=${content}`);
         } else {
-            Qmsg.error(`删除失败，未找到该规则！content=${content}`);
+            Tip.error(`删除失败，未找到该规则！content=${content}`);
         }
         return isDel;
     },
@@ -135,9 +135,9 @@ const UrleCrud = {//规则的增删改查
     delItemShow(ruleType, ruleName) {
         if (!confirm(`是要删除指定项目${ruleName}的规则吗？`)) return;
         if (this.delItem(ruleType)) {
-            Qmsg.success(`已删除${ruleName}的规则内容！`);
+            Tip.success(`已删除${ruleName}的规则内容！`);
         } else {
-            Qmsg.error(`删除失败！可能是不存在指定项目${ruleName}的规则内容！`);
+            Tip.error(`删除失败！可能是不存在指定项目${ruleName}的规则内容！`);
         }
         ruleCRUDLlayoutVue().updateRuleIndex();
     },
@@ -171,7 +171,7 @@ const UrleCrud = {//规则的增删改查
         }
         if (ruleType === "userUIDArr" || ruleType === "userWhiteUIDArr") {
             if (isNaN(key)) {
-                Qmsg.error(`输入的内容不是一个数字！value=${key}`);
+                Tip.error(`输入的内容不是一个数字！value=${key}`);
                 return false;
             }
             key = parseInt(key);
@@ -179,13 +179,13 @@ const UrleCrud = {//规则的增删改查
         let tip;
         if (this.findKey(ruleType, key, [])) {
             tip = `搜索的${ruleName}规则值已存在！find=${key}`;
-            Qmsg.success(tip);
+            Tip.success(tip);
             console.log(tip, key);
             Print.ln(tip);
             return;
         }
         tip = `搜索的${ruleName}规则值不存在！find=${key}`;
-        Qmsg.error(tip);
+        Tip.error(tip);
         console.log(tip, key);
         Print.ln(tip);
     },
@@ -219,9 +219,9 @@ const UrleCrud = {//规则的增删改查
             newValue = newVal;
         }
         if (this.setKey(ruleType, oldValue, newValue)) {
-            Qmsg.success(`修改${ruleName}规则成功！,已将 ${oldValue} 修改成 ${newValue}的值！`);
+            Tip.success(`修改${ruleName}规则成功！,已将 ${oldValue} 修改成 ${newValue}的值！`);
             return;
         }
-        Qmsg.error(`修改${ruleName}规则失败！`);
+        Tip.error(`修改${ruleName}规则失败！`);
     }
 }

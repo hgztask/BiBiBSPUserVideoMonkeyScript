@@ -58,7 +58,7 @@ const RuleCRUDLayout = {
                 add() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155532');
+                       Tip.error('出现了意外的类型bug:155532');
                         return;
                     }
                     UrleCrud.addShow(selectRUleItem.ruleType, selectRUleItem.ruleName)
@@ -66,13 +66,13 @@ const RuleCRUDLayout = {
                 addAll() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155533');
+                        Tip.error('出现了意外的类型bug:155533');
                         return;
                     }
                     const content = this.ruleEditBox;
                     if (content === null) return;
                     if (content === "") {
-                        Qmsg.error("请输入正确的内容！");
+                        Tip.error("请输入正确的内容！");
                         return;
                     }
                     UrleCrud.addAllShow(selectRUleItem.ruleType, selectRUleItem.ruleName, content);
@@ -102,7 +102,7 @@ const RuleCRUDLayout = {
                 delItem() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155535');
+                        Tip.error('出现了意外的类型bug:155535');
                         return;
                     }
                     UrleCrud.delItemShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
@@ -110,7 +110,7 @@ const RuleCRUDLayout = {
                 delKey() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155537');
+                        Tip.error('出现了意外的类型bug:155537');
                         return;
                     }
                     UrleCrud.delShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
@@ -118,7 +118,7 @@ const RuleCRUDLayout = {
                 findKey() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155536');
+                        Tip.error('出现了意外的类型bug:155536');
                         return;
                     }
                     UrleCrud.findKeyShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
@@ -126,7 +126,7 @@ const RuleCRUDLayout = {
                 setKey() {
                     const selectRUleItem = this.getSelectRUleItem();
                     if (selectRUleItem.ruleName === undefined || selectRUleItem.ruleName === null) {
-                        Qmsg.error('出现了意外的类型bug:155537');
+                        Tip.error('出现了意外的类型bug:155537');
                         return;
                     }
                     UrleCrud.setKeyShow(selectRUleItem.ruleType, selectRUleItem.ruleName);
@@ -139,7 +139,7 @@ const RuleCRUDLayout = {
                     Util.setData(videoSelectType, parseInt(contentInput));
                     const info = `已设置${videoSelectName}的具体值【${contentInput}】，为0则不生效`;
                     Print.ln(info);
-                    Qmsg.success(info);
+                    Tip.success(info);
                 },
                 getSelectRUleItem() {//返回defaultSelect中选中的规则项
                     const ruleType = this.defaultSelect;
@@ -209,7 +209,7 @@ const RuleCRUDLayout = {
                                 return;
                             }
                             if (!confirm("确定要将本地规则导出到对应账号的云端上吗")) return;
-                            const loading = Qmsg.loading("请稍等...");
+                            const loading = Tip.loading("请稍等...");
                             $.ajax({
                                 type: "POST",
                                 url: `${defApi}/bilibili/`,
@@ -224,10 +224,10 @@ const RuleCRUDLayout = {
                                     debugger;
                                     loading.close();
                                     if (code !== 1) {
-                                        Qmsg.error(message);
+                                        Tip.error(message);
                                         return;
                                     }
-                                    Qmsg.success(message);
+                                    Tip.success(message);
                                 }, error(xhr, status, error) { //请求失败的回调函数
                                     loading.close();
                                     console.log(error);
@@ -288,7 +288,7 @@ const RuleCRUDLayout = {
                             if (!confirm("确定要云端账号对应的规则导入并覆盖到本地已有的规则吗？")) {
                                 return;
                             }
-                            const loading = Qmsg.loading("请稍等...");
+                            const loading = Tip.loading("请稍等...");
                             $.ajax({
                                 type: "GET",
                                 url: `${defApi}/bilibili/`,
@@ -301,10 +301,10 @@ const RuleCRUDLayout = {
                                 success({message, code, data}) {
                                     loading.close();
                                     if (code !== 1) {
-                                        Qmsg.error(message);
+                                        Tip.error(message);
                                         return;
                                     }
-                                    Qmsg.success(message);
+                                    Tip.success(message);
                                     const {rule_content} = data;
                                     ruleCRUDLlayoutVue().inputRuleLocalData(JSON.parse(rule_content));
                                 }, error(xhr, status, error) { //请求失败的回调函数
@@ -393,14 +393,14 @@ const RuleCRUDLayout = {
                     if (!confirm(`是要查询${item.ruleName}的规则内容吗？`)) return;
                     const data = Util.getData(item.ruleType, []);
                     if (data.length === 0) {
-                        Qmsg.info(`${item.ruleName}规则内容为空的！`);
+                        Tip.info(`${item.ruleName}规则内容为空的！`);
                         return;
                     }
                     Util.openWindowWriteContent(JSON.stringify(data, null, 3));
                 },
                 debugRule() {
                     if (this.debugText.length === 0 || this.debugRuleVal.length === 0) {
-                        Qmsg.error("请正确书写内容！");
+                        Tip.error("请正确书写内容！");
                         return;
                     }
                     const mpSelect = this.defaultMPSelect;
@@ -421,13 +421,13 @@ const RuleCRUDLayout = {
                             loop = Matching.arrContentCanonical([this.debugRuleVal], this.debugText) || false;
                             break;
                         default:
-                            Qmsg.error("出现了意外的值!" + mpSelect);
+                            Tip.error("出现了意外的值!" + mpSelect);
                             break;
                     }
                     if (loop) {
-                        Qmsg.success(`规则测试匹配成功!${mpSelect}模式`);
+                        Tip.success(`规则测试匹配成功!${mpSelect}模式`);
                     } else {
-                        Qmsg.error(`规则测试匹配失败了!${mpSelect}模式`);
+                        Tip.error(`规则测试匹配失败了!${mpSelect}模式`);
                     }
                 },
                 okDebugRule() {

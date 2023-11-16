@@ -199,15 +199,15 @@ border: 0.5px solid green;
         return `<div>
 <div>
 <h1>播放器</h1>
-<div>
-<input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
-</div>
-<div>
-<input type="checkbox" v-model="videoEndRecommendCheckbox">播放完视频后移除视频推荐
-</div>
-<div>
-<button @click="VideoPIPicture">视频画中画</button>
-</div>
+    <div>
+        <input type="checkbox" v-model="autoPlayCheckbox">禁止打开b站视频时的自动播放
+    </div>
+    <div>
+        <input type="checkbox" v-model="videoEndRecommendCheckbox">播放完视频后移除视频推荐
+    </div>
+    <div>
+        <button @click="VideoPIPicture">视频画中画</button>
+    </div>
 <h3>视频播放速度</h3>
  <div>固定视频播放速度值
    <select v-model="playbackSpeedSelect">
@@ -228,11 +228,13 @@ border: 0.5px solid green;
    </div>
    <hr>
    <h3>播放页界面元素显隐</h3>
-   <div style="display: flex;">
-       <input type="checkbox" v-model="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
-       <input type="checkbox" v-model="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
-       <input type="checkbox" v-model="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局
-   </div>`;
+   <div>
+       <div><input type="checkbox" v-model="setAutoSubItemButShow">默认展开右侧悬浮功能栏列表</div>
+       <div><input type="checkbox" v-model="hideVideoTopTitleInfoCheackBox">默认隐藏视频播放页顶部标题信息布局</div>
+       <div><input type="checkbox" v-model="hideVideoButtonCheackBox">默认隐藏视频播放页的评论区</div>
+       <div><input type="checkbox" v-model="hideVideoRightLayoutCheackBox">默认隐藏视频播放页播放器的右侧布局</div>
+    </div>
+  </div>`;
     },
     getOutputInfoLayout() {
         return `<div>

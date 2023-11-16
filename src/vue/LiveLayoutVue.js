@@ -35,16 +35,16 @@ const LiveLayoutVue = {
                 loadFollowLst() {//加载关注列表中正在直播的用户列表api数据
                     const sessdata = LocalData.getSESSDATA();
                     if (sessdata === null) {
-                        Qmsg.error("用户未配置sessdata！");
+                       Tip.error("用户未配置sessdata！");
                         return;
                     }
-                    Qmsg.success("用户配置了sessdata");
+                    Tip.success("用户配置了sessdata");
                     this.isLoadFollowLstDisabled = true;
                     this.listOfFollowers = [];//清空列表
                     const promise = Live.loadAddAllFollowDataList(this.listOfFollowers, sessdata);
                     promise.then(() => {
                         LiveLayoutVue.listOfFollowers = this.listOfFollowers;
-                        Qmsg.success(`已临时保存关注列表中正在直播的用户列表，可使用搜索对其进行筛选`);
+                        Tip.success(`已临时保存关注列表中正在直播的用户列表，可使用搜索对其进行筛选`);
                     }).finally(() => {
                         this.loadFollowButText = "重新加载";
                         this.isLoadFollowLstDisabled = false;
@@ -52,7 +52,7 @@ const LiveLayoutVue = {
                 },
                 hRecoveryListOfFollowersBut() {
                     this.listOfFollowers = LiveLayoutVue.listOfFollowers;
-                    Qmsg.success(`已恢复关注中正在直播的用户列表`);
+                    Tip.success(`已恢复关注中正在直播的用户列表`);
                 },
                 //其他分区直播列表
                 loadOtherPartitionLiveListBut() {//加载其他分区直播列表
@@ -60,7 +60,7 @@ const LiveLayoutVue = {
                     const sPartition = this.getSPartitionSelect(id);
                     const parentId = sPartition["parent_id"];
                     if (!confirm(`是要加载${sPartition["parent_name"]} 的子分区 ${sPartition.name} 吗？`)) return;
-                    const loading = Qmsg.loading(`正在获取中！`);
+                    const loading = Tip.loading(`正在获取中！`);
                     const promise = Live.getOthersAreWorkingLiveDataList(parentId, id);
                     promise.then(value => {
                         if (!value.partitionBool) {
@@ -70,14 +70,14 @@ const LiveLayoutVue = {
                         this.loadedPartition = sPartition;
                         const info = value["info"];
                         if (info) {
-                            Qmsg.error(`info:${info}`);
+                            Tip.error(`info:${info}`);
                         }
                         const tempList = value.dataList;
                         this.otherLiveRoomList = tempList;//清空列表并赋予新表
                         LiveLayoutVue.otherLiveRoomList = tempList;
-                        Qmsg.success(`获取成功！已获取到${tempList.length}个直播间`);
+                        Tip.success(`获取成功！已获取到${tempList.length}个直播间`);
                     }).catch(reason => {
-                        Qmsg.error(reason.errorText);
+                        Tip.error(reason.errorText);
                         console.log(reason.err);
                     }).finally(() => {
                         loading.close();
@@ -87,7 +87,7 @@ const LiveLayoutVue = {
                     const id = this.sPartitionSelectID;
                     const sPartition = this.getSPartitionSelect(id);
                     const parentId = sPartition["parent_id"];
-                    const loading = Qmsg.loading(`正在获取更多！`);
+                    const loading = Tip.loading(`正在获取更多！`);
                     const promise = Live.getOthersAreWorkingLiveDataList(parentId, id, this.partitionPage);
                     promise.then(value => {
                         if (value.partitionBool) {
@@ -101,7 +101,7 @@ const LiveLayoutVue = {
                         }
                         const info = value["info"];
                         if (info) {
-                            Qmsg.error(`info:${info}`);
+                            Tip.error(`info:${info}`);
                         }
                         /**
                          * 当两者数组长度不相同说明otherLiveRoomList应该是用户搜索过后过滤显示的内容
@@ -114,9 +114,9 @@ const LiveLayoutVue = {
                         //这里合并新数组的内容
                         Util.mergeArrays(this.otherLiveRoomList, dataList);
                         LiveLayoutVue.otherLiveRoomList = this.otherLiveRoomList;
-                        Qmsg.success(`获取成功！已获取到${dataList.length}个直播间，累计${this.otherLiveRoomList.length}个直播间`);
+                        Tip.success(`获取成功！已获取到${dataList.length}个直播间，累计${this.otherLiveRoomList.length}个直播间`);
                     }).catch(reason => {
-                        Qmsg.error(reason.errorText);
+                        Tip.error(reason.errorText);
                         console.log(reason.err);
                     }).finally(() => {
                         loading.close();
@@ -124,7 +124,7 @@ const LiveLayoutVue = {
                 },
                 hRecoveryOtherLiveRoomListBut() {
                     this.otherLiveRoomList = LiveLayoutVue.otherLiveRoomList;
-                    Qmsg.success(`已恢复其他分区正在直播的列表`);
+                    Tip.success(`已恢复其他分区正在直播的列表`);
                 },
                 godchildPartitionsSpecifiedParentPartition(parentPartitionName, title) {//查找指定父分区的子分区
                     const list = this.partitionObjList[parentPartitionName];
@@ -142,7 +142,7 @@ const LiveLayoutVue = {
                     if (input === null) return;
                     input = input.trim();
                     if (input === "") {
-                        Qmsg.error("请正确书写！");
+                        Tip.error("请正确书写！");
                         return;
                     }
                     const subPartition = this.godchildPartitionsSpecifiedParentPartition(parentName, input);
@@ -152,14 +152,14 @@ const LiveLayoutVue = {
                     }
                     this.sPartitionSelect = subPartition;
                     this.sPartitionSelectID = subPartition.id;
-                    Qmsg.success(`已在父分区${parentName}查询到子分区${subPartition.name} ！`);
+                    Tip.success(`已在父分区${parentName}查询到子分区${subPartition.name} ！`);
                 },
                 findSubPartitionBut() {
                     let input = prompt(`请输入您要查询的子分区名是什么(可模糊匹配，仅匹配第一个)`);
                     if (input === null) return;
                     input = input.trim();
                     if (input === "") {
-                        Qmsg.error("请正确书写！");
+                        Tip.error("请正确书写！");
                         return;
                     }
                     const objList = this.partitionObjList;
@@ -174,7 +174,7 @@ const LiveLayoutVue = {
                         alert(`未查询到子分区 ${input} ！`);
                         return;
                     }
-                    Qmsg.success(`已在父分区${obj["parent_name"]}查询到子分区${obj.name} ！`);
+                    Tip.success(`已在父分区${obj["parent_name"]}查询到子分区${obj.name} ！`);
                     this.mainPartitionSelect = obj["parent_name"];
                     this.sPartitionSelect = obj;
                     //代码在延迟 50 毫秒后执行，为了确保在 Vue.js 的下一个渲染周期中更新这个数据属性的值。这样做是为了避免在同一个渲染周期中进行数据修改，以确保 Vue.js 的响应式系统能够正确地追踪数据的变化并更新视图。
@@ -198,12 +198,12 @@ const LiveLayoutVue = {
                     }
                     const tempSize = tempList.length;
                     if (tempSize === 0) {
-                        Qmsg.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
+                        Tip.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
                         return;
                     }
                     this.listOfFollowers = tempList;
                     this.hRecoveryListOfFollowersIf = true;
-                    Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
+                    Tip.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 },
                 mainPartitionSelect(newVal) {
                     this.sPartitionObjList = this.partitionObjList[newVal];
@@ -223,12 +223,12 @@ const LiveLayoutVue = {
                     }
                     const tempSize = tempList.length;
                     if (tempSize === 0) {
-                        Qmsg.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
+                        Tip.error(`未搜索到正在直播中用户名包含关键词 ${newVal} 的用户！`);
                         return;
                     }
                     this.hRecoveryOtherLiveListIf = true;
                     this.otherLiveRoomList = tempList;
-                    Qmsg.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
+                    Tip.success(`已搜索到${tempSize}个符合搜索关键词的项目！`);
                 }
             },
             created() {

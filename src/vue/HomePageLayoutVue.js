@@ -25,25 +25,25 @@ const HomePageLayoutVue = {
                     const inputs = prompt("查询的类型关键词");
                     if (inputs === null) return;
                     if (inputs === "" || inputs.includes(" ")) {
-                        Qmsg.error("请正确输入内容");
+                       Tip.error("请正确输入内容");
                         return;
                     }
                     const listMap = this.showList;
                     if (this.isIdCheckbox) {
                         if (inputs in listMap) {
                             this.showListSelect = inputs;
-                            Qmsg.success(`通过ID的方式找到该值！id=${inputs} 值=${listMap[inputs]}`);
+                            Tip.success(`通过ID的方式找到该值！id=${inputs} 值=${listMap[inputs]}`);
                             return;
                         }
                     } else {
                         for (let v in listMap) {//通过遍历字典中的value，该值包含于tempContent时成立
                             if (!listMap[v].includes(inputs)) continue;
                             this.showListSelect = v;
-                            Qmsg.success(`通过value找到该值！=${inputs}`);
+                            Tip.success(`通过value找到该值！=${inputs}`);
                             return;
                         }
                     }
-                    Qmsg.error("未找到该值！");
+                    Tip.error("未找到该值！");
                 },
                 okBut() {
                     const pushType = this.pushTypeSelect;

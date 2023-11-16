@@ -158,7 +158,7 @@ const Home = {
                         if (topInfo[1] !== undefined) videoClass.setBarrageQuantity(topInfo[1].textContent)
                     } catch (e) {
                         v.remove();
-                        Qmsg.error("清理异常元素");
+                        Tip.error("清理异常元素");
                         continue;
                     }
                     if (shieldVideo_userName_uid_title(videoClass)) continue;
@@ -452,7 +452,7 @@ function delDReplay() {
                 .setUpName(rootName)
                 .setUid(parseInt(rootUid))
                 .setContent(rootContent))) {
-                Qmsg.info("屏蔽了言论！！");
+                Tip.info("屏蔽了言论！！");
                 continue;
             }
             const jqE = $(rootUserinfo);
@@ -478,7 +478,7 @@ function delDReplay() {
                     .setUpName(subName)
                     .setUid(parseInt(subUid))
                     .setContent(subContent))) {
-                    Qmsg.info("屏蔽了言论！！");
+                    Tip.info("屏蔽了言论！！");
                     continue;
                 }
                 const jqE = $(j);
@@ -716,7 +716,7 @@ function shieldVideo_userName_uid_title({
         if (Matching.arrObjKey(LocalData.getWatchedArr(), "bv", bv)) {
             element.remove();
             Print.video("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
-            Qmsg.success(`已过滤已观看的视频`);
+            Tip.success(`已过滤已观看的视频`);
             return true;
         }
     }
@@ -761,7 +761,7 @@ const message = {//消息中心
                 .setUpName(name)
                 .setUid(uid)
                 .setContent(content))) {
-                Qmsg.info("屏蔽了言论！！");
+                Tip.info("屏蔽了言论！！");
             }
         }
     },
@@ -779,7 +779,7 @@ const message = {//消息中心
                 .setUpName(userName)
                 .setUid(uid)
                 .setContent(content))) {
-                Qmsg.info("屏蔽了言论！！");
+                Tip.info("屏蔽了言论！！");
             }
         }
     }
@@ -818,10 +818,10 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     }
                     `);
     Home.isFirstRuleCenterLayoutClick = true;
-    const loading = Qmsg.loading("请稍等...");
+    const loading = Tip.loading("请稍等...");
     const promise = RuleCenterLayoutVue.httpGetList();
     promise.then(dataBody => {
-        Qmsg.success(dataBody.message);
+        Tip.success(dataBody.message);
         ruleCenterLayoutVue().list = dataBody.dataList;
         ruleCenterLayoutVue().isReloadListButShow = true;
     }).catch(reason => {
@@ -868,12 +868,12 @@ $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列�
     const title = document.title;
     const url = Util.getWindowUrl();
     if (!(title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && url.includes("live.bilibili.com"))) {
-        Qmsg.error("错误的引用了该功能！");
+        Tip.error("错误的引用了该功能！");
         return;
     }
     const list = document.querySelectorAll(".list-body>.list>*>.name");
     if (list.length === 0) {
-        Qmsg.info("未获取到高能用户列表，当前长度微0，说明没有高能用户存在！");
+        Tip.info("未获取到高能用户列表，当前长度微0，说明没有高能用户存在！");
         return;
     }
     const array = [];
@@ -885,12 +885,12 @@ $("#getLiveHighEnergyListBut").click(() => {//获取直播间的高能用户列�
 });
 $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显示的弹幕列表
     if (!(document.title.includes("- 哔哩哔哩直播，二次元弹幕直播平台") && Util.getWindowUrl().includes("live.bilibili.com"))) {
-        Qmsg.error("错误的引用了该功能！");
+        Tip.error("错误的引用了该功能！");
         return;
     }
     const list = document.querySelectorAll("#chat-items>*");
     if (list.length === 0) {
-        Qmsg.error("未检测到弹幕内容！");
+        Tip.error("未检测到弹幕内容！");
         return;
     }
     const arrData = [];
@@ -919,7 +919,7 @@ $("#getLiveDisplayableBarrageListBut").click(() => {//获取可直播间可显�
         arrData.push(data);
     }
     Util.fileDownload(JSON.stringify(arrData, null, 3), Util.toTimeString() + "_直播间弹幕内容.json");
-    Qmsg.success("获取成功并执行导出内容");
+    Tip.success("获取成功并执行导出内容");
 });
 $("#butClearMessage").click(() => {
     if ($("#butClearMessage+input:first").is(":checked")) {

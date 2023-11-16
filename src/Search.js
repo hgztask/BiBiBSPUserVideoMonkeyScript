@@ -27,13 +27,13 @@ const Search = {
             const userUid = Util.getSubWebUrlUid(userAddress);
             if (Matching.arrKey(LocalData.getArrUID(), parseInt(userUid))) {
                 jqE.remove();
-                Qmsg.success(`已通过黑名单uid规则屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
+                Tip.success(`已通过黑名单uid规则屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
                 return;
             }
             const MA = Matching.arrContent(LocalData.getArrNameKey(), userName);
             if (MA === null) return;
             jqE.remove();
-            Qmsg.success(`已通过黑名单用户名模糊规则=【${MA}】 屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
+            Tip.success(`已通过黑名单用户名模糊规则=【${MA}】 屏蔽${userUid} 屏蔽用户【${userName}】uid=${userUid} -搜索优先级匹配显示的用户内容`);
         }, 1000);
     },
     video: {
@@ -160,7 +160,7 @@ const Search = {
                     .setUid(v["uid"])
                     .setTitle(v["title"])
                     .setVideoAddress(v["videoAddress"]))) {
-                    Qmsg.success("屏蔽了视频");
+                    Tip.success("屏蔽了视频");
                     return;
                 }
                 const jqE = $(v["e"]);
@@ -202,7 +202,7 @@ const Search = {
             return new Promise((resolve, reject) => {
                 const interval = setInterval(() => {
                     if (document.querySelector(".loading-text.b_text.text3.p_center") !== null) {
-                        Qmsg.info("加载中...");
+                        Tip.info("加载中...");
                         return;
                     }
                     const tempList = Search.article.getDataList();

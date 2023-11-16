@@ -15,7 +15,7 @@ async function bilibiliOne(href, windowsTitle) {
             const title = nav_search_input.attr("title");
             nav_search_input.attr("placeholder", "");
             nav_search_input.attr("title", "");
-            Qmsg.info(`已通过标题关键词 ${arrContent} 过滤顶部搜索框显示的内容=${title}`);
+            Tip.info(`已通过标题关键词 ${arrContent} 过滤顶部搜索框显示的内容=${title}`);
         }
         nav_search_input.click(() => {
             console.log("点击了顶部搜索框");
@@ -27,19 +27,19 @@ async function bilibiliOne(href, windowsTitle) {
                     const content = value.querySelector(".trending-text").textContent;
                     const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
-                        Qmsg.info("规则屏蔽了相关热搜");
+                        Tip.info("规则屏蔽了相关热搜");
                         Print.ln(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
-                        Qmsg.info("规则屏蔽了相关热搜");
+                        Tip.info("规则屏蔽了相关热搜");
                         Print.ln(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
-                        Qmsg.info("规则屏蔽了相关热搜");
+                        Tip.info("规则屏蔽了相关热搜");
                         Print.ln(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
                     }
                 });
@@ -72,7 +72,7 @@ async function bilibiliOne(href, windowsTitle) {
             if (jqE.length === 0) return;
             clearInterval(interval04);
             jqE.remove();
-            Qmsg.info("已移除页面下滑时，显示顶部的部分导航信息");
+            Tip.info("已移除页面下滑时，显示顶部的部分导航信息");
         }, 1000);
         if (!LocalData.getIsMainVideoList()) {
             Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
@@ -94,7 +94,7 @@ async function bilibiliOne(href, windowsTitle) {
                 const author_id = v["author_id"];//用户UID
                 const bvid = v["bvid"];//视频bv号
                 if (tempFunc(author_id, title, author_name, bvid, duration, "", view_count, danmaku === undefined ? 0 : danmaku, cover)) {
-                    Qmsg.info("过滤了视频！！");
+                    Tip.info("过滤了视频！！");
                 }
             }
         };
@@ -103,7 +103,7 @@ async function bilibiliOne(href, windowsTitle) {
             const tempChannelId = frequencyChannel.getChannel_id();
             const tempSortType = frequencyChannel.getSort_type();//频道推送的类型，热门还是以播放量亦或者最新
             const tempOffset = frequencyChannel.getOffset(tempChannelId, tempSortType);//视频列表偏移量
-            const loading = Qmsg.loading("正在加载数据！");
+            const loading = Tip.loading("正在加载数据！");
             const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/web/channel/multiple/list?channel_id=${tempChannelId}&sort_type=${tempSortType}&offset=${tempOffset}&page_size=30`);
             promise.then(res => {
                 const body = res.bodyJson;//频道页一次最多加载30条数据
@@ -182,7 +182,7 @@ async function bilibiliOne(href, windowsTitle) {
         }
 
         function loadingVideoE(ps) {//加载分区视频数据
-            const loading = Qmsg.loading("正在加载数据！");
+            const loading = Tip.loading("正在加载数据！");
             const promise = HttpUtil.get(`https://api.bilibili.com/x/web-interface/dynamic/region?ps=${ps}&rid=${LocalData.getVideo_zone()}`);
             promise.then(res => {
                 const bodyJson = res.bodyJson;
@@ -210,7 +210,7 @@ async function bilibiliOne(href, windowsTitle) {
                     const bvidSub = bvid.substring(0, bvid.indexOf("?"));
                     bvid = (bvidSub === "" ? bvid : bvidSub);
                     if (tempFunc(uid, videoTitle, name, bvid, Util.formateTime(duration), ctimeStr, view, danmaku, picUil)) {
-                        Qmsg.info("过滤了视频！！");
+                        Tip.info("过滤了视频！！");
                     }
                 }
             }).finally(() => {
@@ -324,7 +324,7 @@ async function bilibiliOne(href, windowsTitle) {
                         break;
                     }
                     if (input === "1") {
-                        const loading = Qmsg.loading("正在获取中！");
+                        const loading = Tip.loading("正在获取中！");
                         if (favtype === "collect") {//用户收藏其他用户收藏夹
                             alert("暂不支持通过网络请求方式只获取当前页收藏夹列表，如需网络请求方式，请使用【获取收藏的列表数据】功能！或者使用【页面自动化操作模式】");
                             loading.close();
@@ -333,12 +333,12 @@ async function bilibiliOne(href, windowsTitle) {
                         const data = await fav.getHttpUserCreationDataList(favID)
                         loading.close();
                         if (!data["state"]) {
-                            Qmsg.error("获取失败!");
+                            Tip.error("获取失败!");
                             return;
                         }
                         dataList = data["dataList"];
                     } else {
-                        Qmsg.error("输入了意外的值！" + input);
+                        Tip.error("输入了意外的值！" + input);
                         return;
                     }
                     break;
@@ -362,7 +362,7 @@ async function bilibiliOne(href, windowsTitle) {
                     return;
             }
             const info = "获取到个数：" + dataList.length;
-            Qmsg.success(info);
+            Tip.success(info);
             console.log(info);
             console.log(dataList);
             alert(info);
@@ -371,11 +371,11 @@ async function bilibiliOne(href, windowsTitle) {
         getAllDataListBut.click(async () => {
             const tabName = Space.getTabName();
             if (Space.isFetchingFollowersOrWatchlists) {
-                Qmsg.error("请等待获取完！");
+                Tip.error("请等待获取完！");
                 return;
             }
             Space.isFetchingFollowersOrWatchlists = true;
-            const loading = Qmsg.loading(`正在获取 ${userName} 的${tabName}列表数据中，请不要轻易动当前页面内容`);
+            const loading = Tip.loading(`正在获取 ${userName} 的${tabName}列表数据中，请不要轻易动当前页面内容`);
             let fileName, dataList;
             switch (tabName) {
                 case "投稿":
@@ -426,13 +426,13 @@ async function bilibiliOne(href, windowsTitle) {
                             data = await fav.getHttpUserCreationAllDataList(favID);
                         }
                         if (!data["state"]) {
-                            Qmsg.error("获取失败!");
+                            Tip.error("获取失败!");
                             loading.close();
                             return;
                         }
                         dataList = data["dataList"];
                     } else {
-                        Qmsg.error("出现意外的值！" + input);
+                        Tip.error("出现意外的值！" + input);
                         loading.close();
                         return;
                     }
@@ -442,7 +442,7 @@ async function bilibiliOne(href, windowsTitle) {
                     if (tempTabsName === "标签") {
                         Space.isFetchingFollowersOrWatchlists = false;
                         loading.close();
-                        Qmsg.error("意外的结果!");
+                        Tip.error("意外的结果!");
                         return;
                     }
                     dataList = await Space.subscribe.bangumiAndCinema.getAllDataList();
@@ -468,7 +468,7 @@ async function bilibiliOne(href, windowsTitle) {
             }
             loading.close();
             const info = "最终结果个数：" + dataList.length;
-            Qmsg.success(info);
+            Tip.success(info);
             console.log(info);
             console.log(dataList);
             Util.fileDownload(JSON.stringify(dataList, null, 3), `${fileName}[${dataList.length}个].json`);
@@ -570,7 +570,7 @@ async function bilibiliOne(href, windowsTitle) {
                     for (let i = 0; i < 50; i++) {
                         list[i].remove();
                     }
-                    Qmsg.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
+                    Tip.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
                     return;
                 }
                 Live.shield(list);
@@ -664,18 +664,18 @@ async function bilibiliOne(href, windowsTitle) {
                 alert(`未获取到关键词【${keyword}】相关${tabsItem}列表数据！`);
                 return;
             }
-            Qmsg.success(`获取当前页的${tabsItem}列表成功！`);
+            Tip.success(`获取当前页的${tabsItem}列表成功！`);
             Util.fileDownload(JSON.stringify(dataList, null, 3), fileName);
         });
         getAllDataListBut.click(async () => {
             if (Search.isGetLoadIngData) {
-                Qmsg.error("请等待，获取完成！");
+                Tip.error("请等待，获取完成！");
                 return;
             }
             Search.isGetLoadIngData = true;
             const tabsItem = Search.getTabsItem();
             const keyword = Search.getKeyword();
-            const loading = Qmsg.loading(`正在获取关键词【${keyword}】的相关${tabsItem}数据，请耐心等待！`);
+            const loading = Tip.loading(`正在获取关键词【${keyword}】的相关${tabsItem}数据，请耐心等待！`);
             let dataList, fileName;
             switch (tabsItem) {
                 case "综合":
@@ -721,7 +721,7 @@ async function bilibiliOne(href, windowsTitle) {
                 alert(`未获取到相关${tabsItem}列表数据！`);
                 return;
             }
-            Qmsg.success(`获取${tabsItem}的关键词${keyword}的数据成功!个数为：${dataList.length}个`);
+            Tip.success(`获取${tabsItem}的关键词${keyword}的数据成功!个数为：${dataList.length}个`);
             Util.fileDownload(JSON.stringify(dataList, null, 3), fileName);
         });
         $("#biliMainFooter").remove();
@@ -799,7 +799,7 @@ async function bilibiliOne(href, windowsTitle) {
             }
             if (!confirm("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！是否继续？")) return;
             History.isGetLoadIngData = true;
-            const loading = Qmsg.loading("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！");
+            const loading = Tip.loading("温馨提示，此功能会持续模拟滚动到页面的底部使其加载更多的历史记录内容，直到到b站历史记录保留的最早的记录内容，可能会比较耗时，请耐心等待！");
             History.getAllDataHistory().then(() => {
                 loading.close();
                 const dataHistory = History.getDataHistory();

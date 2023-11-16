@@ -38,7 +38,7 @@ async function perf_observer() {
                 const usercontentWarp = v.querySelector(".content-warp");
                 const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
                 if (startPrintShieldNameOrUIDOrContent(v, data)) {
-                    Qmsg.success("屏蔽了言论！！");
+                    Tip.success("屏蔽了言论！！");
                     continue;
                 }
                 const jqE = $(usercontentWarp);
@@ -56,7 +56,7 @@ async function perf_observer() {
                 for (let j of subReplyList) {
                     const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
                     if (startPrintShieldNameOrUIDOrContent(j, data)) {
-                        Qmsg.success("屏蔽了言论！！");
+                        Tip.success("屏蔽了言论！！");
                         continue;
                     }
                     const jqE = $(j);
@@ -146,7 +146,7 @@ async function perf_observer() {
             if (windowUrl.includes("search.bilibili.com/all")) {
                 Search.blockUserCard();
             }
-            Qmsg.info("检测到搜索的接口");
+            Tip.info("检测到搜索的接口");
             //search.searchRules();
             continue;
         }
@@ -172,12 +172,12 @@ async function perf_observer() {
                             .setTitle(videoInfo.textContent.trim());
                         video.setUid(Util.getSubWebUrlUid(userInfo.href))
                         if (shieldVideo_userName_uid_title(video)) {
-                            Qmsg.success("屏蔽了视频");
+                            Tip.success("屏蔽了视频");
                         }
                     });
                 } catch (e) {
                     console.error(e);
-                    Qmsg.error("检测时出现错误！，请查询控制台信息！");
+                    Tip.error("检测时出现错误！，请查询控制台信息！");
                 }
             }, 100);
         }
