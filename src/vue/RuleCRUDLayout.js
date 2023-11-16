@@ -215,8 +215,8 @@ const RuleCRUDLayout = {
                                 url: `${defApi}/bilibili/`,
                                 data: {
                                     model: "All",
-                                    userName: getInfo["userName"],
-                                    userPassword: getInfo["userPassword"],
+                                    userName: getInfo["name"],
+                                    userPassword: getInfo["pwd"],
                                     postData: this.getOutRuleDataFormat()
                                 },
                                 dataType: "json",
@@ -294,8 +294,8 @@ const RuleCRUDLayout = {
                                 url: `${defApi}/bilibili/`,
                                 data: {
                                     model: "getUsers",
-                                    userName: getInfo["userName"],
-                                    userPassword: getInfo["userPassword"]
+                                    userName: getInfo["name"],
+                                    userPassword: getInfo["pwd"]
                                 },
                                 dataType: "json",
                                 success({message, code, data}) {
