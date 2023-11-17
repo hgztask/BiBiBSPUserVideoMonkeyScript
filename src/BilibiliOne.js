@@ -56,10 +56,10 @@ async function bilibiliOne(href, windowsTitle) {
     }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
-        const interval03 = setInterval(() => {
+        const i1 = setInterval(() => {
             const jqE = $(".channel-icons");
             if (jqE.length === 0) return;
-            clearInterval(interval03);
+            clearInterval(i1);
             const jqELast = jqE.children().eq(-1);
             const jqEa = jqELast.clone();
             jqEa.attr("href", "https://www.bilibili.com/v/channel");
@@ -67,14 +67,17 @@ async function bilibiliOne(href, windowsTitle) {
             jqEa.find(".icon-bg.icon-bg__popular").html(`<img src="https://img1.imgtp.com/2023/09/18/tR1X1XpA.png" alt="频道">`);
             jqE.append(jqEa);
         }, 1000);
-        const interval04 = setInterval(() => {
+        const i2 = setInterval(() => {
             const jqE = $(".header-channel");
             if (jqE.length === 0) return;
-            clearInterval(interval04);
+            clearInterval(i2);
             jqE.remove();
             Tip.info("已移除页面下滑时，显示顶部的部分导航信息");
         }, 1000);
-        if (!LocalData.getIsMainVideoList()) {
+        if (LocalData.home.isSetHomeStyle()) {
+            Home.stypeBody();
+        }
+        if (!LocalData.home.isMainVideoList()) {
             Home.startShieldMainVideo(".container.is-version8>.feed-card").then(() => {
                 Home.startShieldMainVideo(".container.is-version8>.bili-video-card");//换一换下面的视频
             }); //换一换
@@ -247,10 +250,6 @@ async function bilibiliOne(href, windowsTitle) {
                 loadingVideoE(25);
             } else {
                 loadingVideoZE();
-            }
-            // //首页
-            if (!LocalData.getIsMainVideoList()) {
-                Home.stypeBody();
             }
             document.getElementsByClassName("left-entry")[0].style.visibility = "hidden"//删除首页左上角的导航栏，并继续占位
             setTimeout(() => {

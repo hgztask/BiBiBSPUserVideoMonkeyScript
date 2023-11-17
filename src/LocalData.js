@@ -160,12 +160,19 @@ const LocalData = {
             Util.setData("AccountCenterInfo", key);
         }
     },
-    getIsMainVideoList() {//获取是否使用脚本自带的针对于首页的处理效果状态值
-        const data = Util.getData("isMainVideoList", false);
-        return Util.isBoolean(data);
-    },
-    setIsMainVideoList(bool) {//设置是否使用脚本自带的针对于首页的处理效果状态值
-        Util.setData("isMainVideoList", Util.isBoolean(bool));
+    home: {
+        isSetHomeStyle() {//返回是否针对于首页调整样式
+            return Util.getData("isSetHomeStyle", false) === true;
+        },
+        setHomeStyle(bool) {//设置
+            Util.setData("isSetHomeStyle", bool === true);
+        },
+        isMainVideoList() {//获取是否针对于首页进行视频推送处理
+            return Util.getData("isMainVideoList", false) === true;
+        },
+        setMainVideoList(bool) {//设置是否针对于首页进行视频推送处理
+            Util.setData("isMainVideoList", bool === true);
+        }
     },
     isDShieldPanel() {//是否开启禁用快捷悬浮屏蔽面板自动显示
         return Util.getData("isDShieldPanel") === true;

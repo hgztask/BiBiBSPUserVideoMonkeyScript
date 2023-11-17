@@ -9,7 +9,8 @@ const HomePageLayoutVue = {
         const vue = new Vue({
             el: "#homePageLayout",
             data: {
-                isMainVideoListCheckbox: LocalData.getIsMainVideoList(),
+                isSetHomeStyle: LocalData.home.isSetHomeStyle(),
+                isMainVideoListCheckbox: LocalData.home.isMainVideoList(),
                 pushTypeSelect: Home.getPushType(),
                 pushTypeList: ["分区", "频道"],
                 sort_typeSelect: "hot",
@@ -25,7 +26,7 @@ const HomePageLayoutVue = {
                     const inputs = prompt("查询的类型关键词");
                     if (inputs === null) return;
                     if (inputs === "" || inputs.includes(" ")) {
-                       Tip.error("请正确输入内容");
+                        Tip.error("请正确输入内容");
                         return;
                     }
                     const listMap = this.showList;
@@ -64,7 +65,10 @@ const HomePageLayoutVue = {
             },
             watch: {
                 isMainVideoListCheckbox(newVal) {
-                    LocalData.setIsMainVideoList(newVal);
+                    LocalData.home.setMainVideoList(newVal);
+                },
+                isSetHomeStyle(newBool) {
+                    LocalData.home.setHomeStyle(newBool);
                 },
                 pushTypeSelect(newVal) {
                     if (newVal === "分区") {

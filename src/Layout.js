@@ -177,10 +177,14 @@ border: 0.5px solid green;
     },
     getHomePageLayout() {
         return `
-      <h3>首页推荐视频</h3>
+      <h1>首页样式调整</h1>
       <div>
-          <span>指定推送</span>
+      <input type="checkbox" v-model="isSetHomeStyle">首页视频项目左右边框调整
+      </div>
+      <h1>首页推荐视频</h1>
+      <div>
           <input type="checkbox" v-model="isMainVideoListCheckbox">
+          <span>指定推送</span>
           <select v-model="pushTypeSelect"><option v-for="item in pushTypeList" :value="item">{{item}}</option></select>
            <select v-model="sort_typeSelect" v-if="isChannelSelect">
             <option v-for="(item,key) in sort_typeList" :value="key">{{item}}</option>

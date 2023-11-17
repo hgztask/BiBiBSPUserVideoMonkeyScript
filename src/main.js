@@ -124,8 +124,15 @@ const Home = {
                 document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").remove();//调整往下滑动之后顶部的悬浮栏
                 clearInterval(interval)
             } catch (e) {
-                Print.ln("样式修改失败")
+                Print.ln("样式修改失败");
             }
+        }, 500);
+        const i2 = setInterval(() => {
+            const isE = document.querySelector(".bili-feed4-layout");
+            if (isE === null) return;
+            clearInterval(i2);
+            $(isE).css("padding", "");
+            Tip.success("调整首页布局");
         }, 500);
     },
     /**
