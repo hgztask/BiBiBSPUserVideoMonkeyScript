@@ -116,15 +116,19 @@ const Home = {
         document.querySelector(".bili-header__banner").remove()//删除首页顶部的图片位置的布局
         const interval = setInterval(() => {
             try {
-                const headerChannelE = document.getElementsByClassName("bili-header__channel")[0];
+                const headerChannelE = document.querySelector(".bili-header__channel");
                 headerChannelE.style.padding = 0;//调整-首页header按钮栏
                 headerChannelE.style.height = "auto";//调整其与下面控件的距离
-                document.getElementsByClassName("bili-feed4-layout")[0].style.padding = 0;//调整视频列表左右边距为0
+                const videoListLayout = document.querySelector(".bili-feed4-layout");
+                if (videoListLayout === null) return;
+                videoListLayout.style.padding = 0;//调整视频列表左右边距为0
                 document.querySelector("#i_cecream > div.bili-feed4 > div.bili-header.large-header > div.bili-header__bar").style.position = "inherit";//调整顶栏样式
-                document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel").remove();//调整往下滑动之后顶部的悬浮栏
+                const headerC = document.querySelector("#i_cecream > div.bili-feed4 > div.header-channel");//调整往下滑动之后顶部的悬浮栏
+                if (headerC === null) return;
+                headerC.remove();
                 clearInterval(interval)
             } catch (e) {
-                Print.ln("样式修改失败");
+                console.error("样式修改失败", e);
             }
         }, 500);
         const i2 = setInterval(() => {
