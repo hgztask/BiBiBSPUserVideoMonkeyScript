@@ -31,7 +31,6 @@ public class build {
         String content = String.valueOf(stringBuilder);
         content = content.trim();
         File file = FileUtil.writeUtf8String(content, System.getProperty("user.dir") + "\\BIBIShield.js");
-        System.out.println(content);
         System.out.println("已整合js代码保存在" + file);
 
     }
