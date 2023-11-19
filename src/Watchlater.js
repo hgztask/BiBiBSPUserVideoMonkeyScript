@@ -8,7 +8,7 @@ const Watchlater = {
         $body.append(paneLooked);
         $body.append(leadingInLookAtItLaterBut);
         panel.click(() => {
-            if (!confirm("仅获取页面可见的列表了内容并导出为json，是要继续吗？")) return;
+            if (!confirm("仅获取页面可见的列表了内容并导出为json，是要继续吗？\n为了获取更完整的内容，请使用鼠标自行滚动，使其页面内容完全加载出来！")) return;
             Util.bufferBottom();
             setTimeout(() => {
                 const dataList = this.getDataList();
@@ -21,12 +21,11 @@ const Watchlater = {
                 Print.ln(info);
                 alert(info);
                 Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的稍后再看记录${dataList.length}个.json`);
-            }, 1550);
+            }, 2000);
         });
         paneLooked.click(() => {
-            if (!confirm("仅获取页面可见的列表中【已观看】了的内容并导出为json，是要继续吗？")) return;
+            if (!confirm("仅获取页面可见的列表中【已观看】了的内容并导出为json，是要继续吗？\n为了获取更完整的内容，请使用鼠标自行滚动，使其页面内容完全加载出来！")) return;
             Util.bufferBottom();
-            ;
             setTimeout(() => {
                 const dataList = this.getDataList(true);
                 if (dataList.length === 0) {
@@ -38,10 +37,10 @@ const Watchlater = {
                 Print.ln(info);
                 alert(info);
                 Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的【已观看】稍后再看记录${dataList.length}个.json`);
-            }, 1550);
+            }, 2000);
         });
         leadingInLookAtItLaterBut.click(() => {
-            if (!confirm("是要获取页面可见的列表了内容并导入到脚本中的稍后再看列表吗，是要继续吗？")) return;
+            if (!confirm("是要获取页面可见的列表了内容并导入到脚本中的稍后再看列表吗，是要继续吗？\n为了获取更完整的内容，请使用鼠标自行滚动，使其页面内容完全加载出来！")) return;
             Util.bufferBottom();
             setTimeout(() => {
                 const dataList = this.getDataList();
@@ -63,7 +62,8 @@ const Watchlater = {
                         upName: v.upName,
                         uid: v.uid,
                         title: v.title,
-                        bv: Util.Str.lastForwardSlashEnd(v.videoAddress)
+                        bv: Util.Str.lastForwardSlashEnd(v.videoAddress),
+                        frontCover: v.frontCover
                     });
                     tempIndex++;
                 }
@@ -76,7 +76,7 @@ const Watchlater = {
                 alert(`已成功导入了${tempIndex}个内容到脚本的稍后再看列表！`);
                 LocalData.setLookAtItLaterArr(lookAtItLaterArr);
                 returnVue.renovateLayoutItemList();
-            }, 1550);
+            }, 2000);
         });
     },
     /**
@@ -87,7 +87,7 @@ const Watchlater = {
     getDataList(isV = false) {
         const eList = document.querySelectorAll(".list-box>span>*");
         const dataList = [];
-        eList.forEach(v => {
+        for (let v of eList) {
             const data = {};
             const videoInfo = v.querySelector(".av-about");
             data["title"] = videoInfo.querySelector(".t").textContent.trim();
@@ -97,15 +97,20 @@ const Watchlater = {
             data["uid"] = Util.getSubWebUrlUid(userAddress);
             data["userAddress"] = userAddress;
             data["videoAddress"] = videoInfo.querySelector(".t").getAttribute("href");
-            data["userImg"] = userInfo.querySelector(".lazy-img>img").getAttribute("src");
+            const userImg = data["userImg"] = userInfo.querySelector(".lazy-img>img").getAttribute("src");
+            const frontCover = data["frontCover"] = v.querySelector(".lazy-img>img").getAttribute("src");
+            if (frontCover.trim() === "" || userImg.trim() === "") {
+                Tip.error("未获取到封面或用户头像！");
+                continue;
+            }
             if (isV) {
                 const looked = v.querySelector(".looked");
-                if (looked === null) return;
+                if (looked === null) continue;
                 dataList.push(data);
-                return;
+                continue;
             }
             dataList.push(data);
-        });
+        }
         return dataList;
     }
 }
