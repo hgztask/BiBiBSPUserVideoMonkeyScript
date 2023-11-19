@@ -3,15 +3,12 @@ const IsShowVue = {
         const vue = new Vue({
             el: "#myBut",
             data: {
-                show: true,
+                show: LocalData.isMyButSHow(),
             },
             methods: {
                 showBut() {
                     Home.hideDisplayHomeLaylout();
                 }
-            },
-            created() {
-                this.show = LocalData.isMyButSHow();
             }
         });
         return function () {

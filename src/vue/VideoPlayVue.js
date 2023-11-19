@@ -4,7 +4,7 @@ const VideoPlayVue = {
             el: "#rightLayout",
             data: {
                 hideButtonLayoutButText: this.showHideButtonLayoutButText(),
-                subItemButShow: true,
+                subItemButShow: LocalData.video.isSubItemButShow(),
                 subItemButText: "收起",
                 hideRightLayoutButText: this.showHideRightLayoutButText(),
                 hideTopVideoTitleInfoButText: this.showHideTopVideoTitleInfoButText()
@@ -207,9 +207,6 @@ const VideoPlayVue = {
                 subItemButShow(newVal) {
                     this.subItemButText = newVal ? "收起" : "展开";
                 }
-            },
-            created() {
-                this.subItemButShow = LocalData.video.isSubItemButShow();
             }
         });
         return function () {

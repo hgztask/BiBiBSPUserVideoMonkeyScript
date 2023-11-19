@@ -9,7 +9,7 @@ const PanelSetsTheLayout = {//面板设置
                 widthRange: 100,
                 widthRangeText: "100%",
                 isDShieldPanel: LocalData.isDShieldPanel(),
-                isMyButShow: true,
+                isMyButShow: LocalData.isMyButSHow(),
                 titleContent: "可通过快捷键~显示控制面板，右击页面和左键油猴插件选择本脚本的【显示隐藏控制面板】"
             },
             watch: {
@@ -33,9 +33,6 @@ const PanelSetsTheLayout = {//面板设置
                     LocalData.setMyButShow(newVal);
                     isShowVue().show = newVal;
                 }
-            },
-            created() {
-                this.isMyButShow = LocalData.isMyButSHow();
             }
         });
         return function () {

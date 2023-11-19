@@ -11,7 +11,7 @@ const Video_params_layout = {
                 isFlipHorizontal: false,
                 isFlipVertical: false,
                 axleRange: 0,
-                setAutoSubItemButShow: false,
+                setAutoSubItemButShow: LocalData.video.isSubItemButShow(),
                 hideVideoTopTitleInfoCheackBox: LocalData.video.isHideVideoTopTitleInfoLayout(),
                 hideVideoButtonCheackBox: LocalData.video.isHideVideoButtonCommentSections(),
                 hideVideoRightLayoutCheackBox: LocalData.video.isHideVideoRightLayout()
@@ -73,9 +73,6 @@ const Video_params_layout = {
                 setAutoSubItemButShow(newBool) {
                     LocalData.video.setSubItemButShow(newBool);
                 }
-            },
-            created() {
-                this.setAutoSubItemButShow = LocalData.video.isSubItemButShow();
             }
         });
         return function () {
