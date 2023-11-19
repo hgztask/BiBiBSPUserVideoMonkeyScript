@@ -14,6 +14,10 @@ const LookAtItLater = {
                 isAddToInputTxt: "追加导入"
             },
             methods: {
+                addVideoItemDataBut() {
+                    //TODO 后续开发
+                    alert("未开发");
+                },
                 setSubThis(val) {
                     this.subThis = val;
                 },

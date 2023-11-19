@@ -537,6 +537,7 @@ border: 0.5px solid green;
   <template #top-right>
     <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
   <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
+  <button @click="addVideoItemDataBut">添加视频数据</button>
 </template>
 <template #center>
       <div>
