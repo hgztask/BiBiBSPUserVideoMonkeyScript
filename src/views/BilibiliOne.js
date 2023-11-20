@@ -269,8 +269,8 @@ async function bilibiliOne(href, windowsTitle) {
             return;
         }
         const filterQueue = layout.panel.getFilter_queue();
-        const getDataListBut = layout.panel.getHoverball("get(当前页)", "5%", "85%");
-        const getAllDataListBut = layout.panel.getHoverball("get(全部页)", "9%", "85%");
+        const getDataListBut = layout.panel.getHoverBallBut("get(当前页)", "5%", "85%");
+        const getAllDataListBut = layout.panel.getHoverBallBut("get(全部页)", "9%", "85%");
         $body.append(getDataListBut);
         $body.append(getAllDataListBut);
         getDataListBut.attr("id", "getDataListBut");
@@ -610,8 +610,8 @@ async function bilibiliOne(href, windowsTitle) {
         }, 1000);
     }
     if (href.includes("search.bilibili.com")) {
-        const getDataListBut = layout.panel.getHoverball("get(当前页)", "15%", "94%");
-        const getAllDataListBut = layout.panel.getHoverball("get(全部页)", "20%", "94%");
+        const getDataListBut = layout.panel.getHoverBallBut("get(当前页)", "15%", "94%");
+        const getAllDataListBut = layout.panel.getHoverBallBut("get(全部页)", "20%", "94%");
         $body.append(getDataListBut);
         $body.append(getAllDataListBut);
         getDataListBut.attr("id", "getDataListBut");
@@ -770,8 +770,8 @@ async function bilibiliOne(href, windowsTitle) {
         return;
     }
     if (href.includes("www.bilibili.com/account/history") && windowsTitle === "历史记录") {
-        const getPageShowHistoryBut = layout.panel.getHoverball("获取页面可见的历史记录", "18%", "5%");
-        const getAllPageHistoryBut = layout.panel.getHoverball("获取页面全部的历史记录", "28%", "5%");
+        const getPageShowHistoryBut = layout.panel.getHoverBallBut("获取页面可见的历史记录", "18%", "5%");
+        const getAllPageHistoryBut = layout.panel.getHoverBallBut("获取页面全部的历史记录", "28%", "5%");
         $body.append(getPageShowHistoryBut);
         $body.append(getAllPageHistoryBut);
         History.delLayout.footer();

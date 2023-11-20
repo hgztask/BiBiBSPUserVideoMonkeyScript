@@ -36,8 +36,8 @@
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\GreatDemand.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\Menu.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\LockScreen.js
-// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\Bilibili.js
-// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\BilibiliOne.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\views\Bilibili.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\views\BilibiliOne.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\other\Github.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\other\GBTGame.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\main.js
