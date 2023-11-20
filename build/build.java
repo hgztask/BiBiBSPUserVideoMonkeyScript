@@ -50,7 +50,7 @@ public class build {
             throw new RuntimeException(e);
         }
         for (String linePath : lines) {
-            String path = linePath.replace("// @require      file:///", "");
+            String path = linePath.replaceAll("// @require.*.file:///", "");
             if (excludeFileName(path)) {
                 continue;
             }
