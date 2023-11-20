@@ -1,4 +1,3 @@
-// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\metaData.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\Class.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\other\Api.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\vue\ComponentRegistration.js
@@ -38,6 +37,6 @@
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\LockScreen.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\views\Bilibili.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\views\BilibiliOne.js
-// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\other\Github.js
-// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\other\GBTGame.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\views\Github.js
+// @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\views\GBTGame.js
 // @require      file:///D:\DataFile\other\idea\project\BiBiBSPUserVideoMonkeyScript\src\main.js
