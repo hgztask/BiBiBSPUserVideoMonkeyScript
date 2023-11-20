@@ -74,19 +74,27 @@ border: 0.5px solid green;
          * @param text 显示内容
          * @param top
          * @param left
+         * @param isVue
          * @param position
-         * @returns {*|jQuery|HTMLElement}
+         * @returns {jQuery}
          */
-        getHoverball(text, top, left, position = "fixed") {
-            return $(`<button style=" position: ${position};margin-top: 10px;z-index: 2000;left: ${left};top: ${top};
-    padding: 5px 10px;
-    border: none;
-    background-color: #4CAF50;
-    color: #fff;
-    cursor: pointer;">${text}</button>`);
+        getHoverBallBut(text, top, left, isVue = false, position = "fixed") {
+            let jqE;
+            if (isVue) {
+                jqE = $(`<button class="jb-button" style="margin-top: 10px; padding: 5px 10px; border: none;cursor: pointer;" @click="okBut" v-if="show">${text}</button>`);
+            } else {
+                jqE = $(`<button style="margin-top: 10px; padding: 5px 10px; border: none;cursor: pointer;">${text}</button>`);
+            }
+            jqE.css("position", position);
+            jqE.css("left", left);
+            jqE.css("z-index", 2000);
+            jqE.css("top", top);
+            jqE.css("background-color", "#4CAF50");
+            jqE.css("color", "#fff");
+            return jqE;
         },
         getFilter_queue() {//个人主页悬浮屏蔽按钮
-            return this.getHoverball("屏蔽", "15%", "4%");
+            return this.getHoverBallBut("屏蔽", "15%", "4%");
         },
     },
     getRuleCRUDLayout() {

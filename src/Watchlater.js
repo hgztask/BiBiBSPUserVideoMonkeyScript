@@ -1,8 +1,8 @@
 const Watchlater = {
     initLayout() {
-        const panel = layout.panel.getHoverball("获取稍后再看列表数据", "32%", "5%");
-        const paneLooked = layout.panel.getHoverball("获取稍后再看列表数据(已观看)", "42%", "5%");
-        const leadingInLookAtItLaterBut = layout.panel.getHoverball("导入脚本的稍后再看列表", "52%", "5%");
+        const panel = layout.panel.getHoverBallBut("获取稍后再看列表数据", "32%", "5%");
+        const paneLooked = layout.panel.getHoverBallBut("获取稍后再看列表数据(已观看)", "42%", "5%");
+        const leadingInLookAtItLaterBut = layout.panel.getHoverBallBut("导入脚本的稍后再看列表", "52%", "5%");
         const $body = $("body");
         $body.append(panel);
         $body.append(paneLooked);
