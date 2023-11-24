@@ -17,12 +17,21 @@ async function bilibiliOne(href, windowsTitle) {
             nav_search_input.attr("title", "");
             Tip.info(`已通过标题关键词 ${arrContent} 过滤顶部搜索框显示的内容=${title}`);
         }
+        const i2 = setInterval(() => {
+            const element = document.querySelectorAll(".bili-header .histories .history-item .history-text,.search-input-wrap .histories .history-item .history-text");
+            if (element.length === 0) return;
+            clearInterval(i2);
+            $(element).css("white-space", "break-spaces");
+            const msg = "已调整搜索结果中历史记录样式";
+            console.log(msg);
+            Tip.success(msg);
+        }, 100);
         nav_search_input.click(() => {
             console.log("点击了顶部搜索框");
-            const interval01 = setInterval(() => {
+            const i1 = setInterval(() => {
                 const list = document.querySelectorAll(".trendings-double .trending-item");
                 if (list.length === 0) return;
-                clearInterval(interval01);
+                clearInterval(i1);
                 list.forEach((value, key, parent) => {
                     const content = value.querySelector(".trending-text").textContent;
                     const titleKey = Remove.titleKey(value, content);
@@ -45,6 +54,7 @@ async function bilibiliOne(href, windowsTitle) {
                 });
                 // nav_search_input.unbind();//删除该元素的所有jq添加的事件
             }, 50);
+
         });
     }, 1000);
     if (LocalData.getPrivacyMode()) {
