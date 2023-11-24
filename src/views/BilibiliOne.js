@@ -18,7 +18,7 @@ async function bilibiliOne(href, windowsTitle) {
             Tip.info(`已通过标题关键词 ${arrContent} 过滤顶部搜索框显示的内容=${title}`);
         }
         const i2 = setInterval(() => {
-            const element = document.querySelectorAll(".bili-header .histories .history-item .history-text,.search-input-wrap .histories .history-item .history-text");
+            const element = document.querySelectorAll(".history-text");
             if (element.length === 0) return;
             clearInterval(i2);
             $(element).css("white-space", "break-spaces");
