@@ -730,6 +730,12 @@ function shieldVideo_userName_uid_title({
             Tip.success(`已过滤已观看的视频`);
             return true;
         }
+        //TODO 后续适配所有需要过滤的地方
+        if (Matching.arrKey(LocalData.getBvBlacklistArr(), bv)) {
+            element.remove();
+            Print.video("#66CCCC", `已根据bv号过滤视频=${title}`, name, uid, title, videoHref);
+            return true;
+        }
     }
     if (videoPlaybackVolume !== undefined) {
         const change = Util.changeFormat(videoPlaybackVolume);

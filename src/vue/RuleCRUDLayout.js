@@ -13,6 +13,7 @@ const RuleCRUDLayout = {
                 isBatchShow: false,//是否对批量相关按钮进行显示处理
                 ruleKeyList: {
                     userNameArr: {name: "用户名黑名单模式(精确匹配)", size: 0},
+                    bvBlacklistArr: {name: "BV号黑名单模式(精确匹配)", size: 0},
                     userNameKeyArr: {name: "用户名黑名单模式(模糊匹配)", size: 0},
                     userUIDArr: {name: "用户uid黑名单模式(精确匹配)", size: 0},
                     userWhiteUIDArr: {name: "用户uid白名单模式(精确匹配)", size: 0},

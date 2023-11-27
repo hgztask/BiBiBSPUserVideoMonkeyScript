@@ -52,6 +52,9 @@ const LocalData = {
     getFanCardArr() {
         return Util.getData("fanCardArr", []);
     },
+    getBvBlacklistArr() {
+        return Util.getData("bvBlacklistArr", []);
+    },
 //专栏关键词内容黑名单模式(模糊匹配)
     getContentColumnKeyArr() {
         return Util.getData("contentColumnKeyArr", []);
