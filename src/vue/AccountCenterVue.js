@@ -20,8 +20,8 @@ const AccountCenterVue = {
                                 </div>
                                 <div id="ruleSharingDiv">
                                     规则共享状态：<span>{{ sharedState }}</span>
-                                    <button @click="publicStateBut">公开我的规则</button>
-                                    <button @click="notPublicStateBut">不公开我的规则</button>
+                                    <button @click="ruleSharingSet(true)">公开我的规则</button>
+                                    <button @click="ruleSharingSet(false)">不公开我的规则</button>
                                     <input type="checkbox" v-model="isAnonymityCheckbox"><span
                                     title="选中为匿名公布，反之不匿名公布，每次提交会覆盖上一次的匿名状态">是否匿名公布(鼠标悬停我提示信息)</span>
                                 </div>
@@ -39,7 +39,6 @@ const AccountCenterVue = {
                         return {
                             userName: "我是用户名占位符",
                             addTime: "我是注册时间占位符",
-                            pwd: "",
                             sharedState: false,
                             isAnonymityCheckbox: false
                         }
@@ -51,21 +50,53 @@ const AccountCenterVue = {
                             Tip.success("已退出登录！");
                             this.$emit("tab-click", "notLogin");
                         },
-                        publicStateBut() {
-                            if (!confirm("确定要公开自己的规则吗？\n匿名状态=" + this.isAnonymityCheckbox)) return;
-                            ruleSharingSet(this.userName, this.pwd, true, this.isAnonymityCheckbox);
-                        },
-                        notPublicStateBut() {
-                            if (!confirm("确定不公开自己的规则吗？")) return;
-                            ruleSharingSet(this.userName, this.pwd, false, false);
+                        //设置规则共享
+                        ruleSharingSet(isPublic) {
+                            const userInfo = LocalData.AccountCenter.getInfo();
+                            if (Object.keys(userInfo).length === 0) {
+                                Tip.error("未登录！");
+                                return;
+                            }
+                            const {name, pwd} = userInfo;
+                            const loading = Tip.loading("请稍等...");
+                            if (!confirm(`确定${isPublic ? "公开" : "不公开"}自己的规则吗？\n匿名状态=${this.anonymity}`)) return;
+                            $.ajax({
+                                type: "POST",
+                                url: `${defApi}/bilibili/`,
+                                data: {
+                                    model: "setShare",
+                                    userName: name,
+                                    userPassword: pwd,
+                                    share: isPublic,
+                                    anonymity: this.anonymity
+                                },
+                                dataType: "json",
+                                success({code, message, share, anonymity}) {
+                                    loading.close();
+                                    if (code !== 1) {
+                                        Tip.error(message);
+                                        return;
+                                    }
+                                    userInfo["share"] = this.sharedState = share;
+                                    userInfo["anonymity"] = this.anonymity = anonymity;
+                                    LocalData.AccountCenter.setInfo(userInfo);
+                                    Tip.success(message);
+                                },
+                                error(xhr, status, error) {
+                                    loading.close();
+                                    console.log(error);
+                                    console.log(status);
+                                }
+                            })
+                            ;
                         }
                     },
                     created() {
-                        let {name, pwd, share, addTime} = LocalData.AccountCenter.getInfo();
+                        let {name, share, addTime, anonymity} = LocalData.AccountCenter.getInfo();
                         this.userName = name;
                         this.addTime = Util.timestampToTime(addTime);
-                        this.sharedState = share;
-                        this.pwd = pwd;
+                        this.sharedState = share === 1;
+                        this.isAnonymityCheckbox = anonymity === 1;
                     }
                 },
                 notLogin: {
@@ -103,25 +134,25 @@ const AccountCenterVue = {
                             }
                             const loading = Tip.loading("正在登录中...");
                             const promise = HttpUtil.get(`${defApi}/bilibili/signInToRegister.php?userName=${this.userName}&userPassword=${this.userPwd}&model=logIn`);
-                            promise.then(({bodyJson: body}) => {
-                                const {code, message, userData} = body;
+                            promise.then(({bodyJson}) => {
+                                const {code, message, userInfo, userRule} = bodyJson;
                                 if (code !== 1) {
                                     Tip.error(message);
                                     return;
                                 }
-                                let {rule_content} = userData;
-                                rule_content = JSON.parse(rule_content);
-                                debugger;
-                                try {
-                                    delete userData["rule_content"];
-                                } catch (e) {
-                                    console.error("登录时出错！", e);
-                                }
-                                if (confirm("是要将云端规则导入覆盖本地规则吗？")) {
-                                    ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
-                                }
-                                LocalData.AccountCenter.setInfo(userData);
                                 Tip.success(message);
+                                if (userRule === null) {
+                                    LocalData.AccountCenter.setInfo(userInfo);
+                                } else {
+                                    userInfo["first_push_time"] = userRule["first_push_time"];
+                                    userInfo["anonymity"] = userRule["anonymity"];
+                                    userInfo["share"] = userRule["share"];
+                                    LocalData.AccountCenter.setInfo(userInfo);
+                                    const rule_content = JSON.parse(userRule["rule_content"]);
+                                    if (confirm("是要将云端规则导入覆盖本地规则吗？")) {
+                                        ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
+                                    }
+                                }
                                 this.$emit("tab-click", "login");
                             }).catch((error) => {
                                 console.log(error);
@@ -155,46 +186,4 @@ const AccountCenterVue = {
             return vue;
         }
     }
-}
-/**
- *
- * 设置规则共享
- * @param userName
- * @param userPassword
- * @param {boolean}shareBool 共享状态
- * @param {boolean}anonymityBool 匿名状态
- */
-function ruleSharingSet(userName, userPassword, shareBool, anonymityBool) {
-    const loading = Tip.loading("请稍等...");
-    $.ajax({
-        type: "POST",
-        url: `${defApi}/bilibili/`,
-        data: {
-            model: "setShare",
-            userName: userName,
-            userPassword: userPassword,
-            share: shareBool,
-            anonymity: anonymityBool
-        },
-        dataType: "json",
-        success({message, code, share}) {
-            loading.close();
-            if (code !== 1) {
-                Tip.error(message);
-                return;
-            }
-            const getInfo = LocalData.AccountCenter.getInfo();
-            if (Object.keys(getInfo).length === 0) {
-                Tip.error("更新本地账户信息错误！");
-                return;
-            }
-            getInfo["share"] = share;
-            LocalData.AccountCenter.setInfo(getInfo);
-            Tip.success(message);
-        }, error(xhr, status, error) {
-            loading.close();
-            console.log(error);
-            console.log(status);
-        }
-    });
 }

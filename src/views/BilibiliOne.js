@@ -614,7 +614,6 @@ async function bilibiliOne(href, windowsTitle) {
             document.querySelector(".bili-dyn-up-list__shadow-right")?.remove();
             debugger;
             $(tab).children(".bili-dyn-up-list__item").click(() => {
-                debugger;
                 Trends.tempLoadIng();
             });
         }, 1000);
