@@ -69,7 +69,7 @@ const GBTGame = {
         }
         const info = `已获取到${keys.length}个资源，并将其打印在控制台和输出面板上！`;
         alert(info);
-        Print.ln(info);
+        Tip.printLn(info);
         Tip.success(info);
         Util.fileDownload(JSON.stringify(tempArrList, null, 3), `GBT乐赏游戏空间游戏磁力地址${keys.length}个资源(${Util.toTimeString()}).json`);
     }

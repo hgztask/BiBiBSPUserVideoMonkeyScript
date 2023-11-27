@@ -29,6 +29,22 @@ const Tip = {
             console.error(e);
             this.error("loading关闭失败！");
         }
+    },
+    printLn(content) {
+        Util.printElement("#outputInfo", `<dd>${content}</dd>`);
+    },
+    printVideo(color, content, name, uid, title, videoHref) {
+        Util.printElement("#outputInfo", `
+        <dd><b
+            style="color: ${color}; ">${Util.toTimeString()}${content}屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>标题【<a href="${videoHref}" target="_blank">${title}</a>】</b>
+        </dd>`);
+    },
+    printCommentOn(color, content, name, uid, primaryContent) {
+        Util.printElement("#outputInfo", `
+        <dd>
+        <b  style="color: ${color}; ">${Util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
+   原言论=【${primaryContent}】</b>
+</dd>`);
     }
 };
 

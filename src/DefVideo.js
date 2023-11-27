@@ -24,7 +24,7 @@ const DefVideo = {
             if (!video.isRightVideo) {
                 setTimeout(() => {
                     document.getElementsByClassName("rec-footer")[0].addEventListener("click", () => {
-                        Print.ln("用户点击了右侧的展开")
+                        Tip.printLn("用户点击了右侧的展开")
                         DefVideo.rightVideo();
                     })
                 }, 4000);
@@ -90,7 +90,7 @@ const DefVideo = {
                 clearInterval(interval);
                 jqE.click();
                 const info = `已自动点击播放器的网页全屏`;
-                Print.ln(info);
+                Tip.printLn(info);
                 Tip.success(info);
                 console.log(info);
             }, 1000);
@@ -103,7 +103,7 @@ const DefVideo = {
                 jqE.click();
                 const info = "已自动点击播放器的进入全屏按钮";
                 Tip.success(info);
-                Print.ln(info);
+                Tip.printLn(info);
                 console.log(info);
             }, 1000);
         }
@@ -192,7 +192,7 @@ const DefVideo = {
             if (data === 0 || data < 0.1) return;
             //播放视频速度
             videoElement.playbackRate = data;
-            Print.ln("已设置播放器的速度=" + data);
+            Tip.printLn("已设置播放器的速度=" + data);
         }
     }
 }

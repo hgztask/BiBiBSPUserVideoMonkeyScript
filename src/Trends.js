@@ -25,7 +25,7 @@ const Trends = {
                     } else {
                         document.querySelector("main").style.width = "70%";
                     }
-                    Print.ln("已调整动态界面布局");
+                    Tip.printLn("已调整动态界面布局");
                     clearInterval(interval)
                 } catch (e) {
                 }
@@ -62,7 +62,7 @@ const Trends = {
                         document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
                         document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
                         clearInterval(interval);
-                        Print.ln("已移除右侧布局并调整中间动态容器布局宽度")
+                        Tip.printLn("已移除右侧布局并调整中间动态容器布局宽度")
                     } catch (e) {
                     }
                 }, 1000);
@@ -72,7 +72,7 @@ const Trends = {
                 const interval = setInterval(() => {
                     try {
                         document.getElementsByClassName("bili-dyn-banner")[0].style.display = "none";
-                        Print.ln("已移除公告栏布局")
+                        Tip.printLn("已移除公告栏布局")
                         clearInterval(interval)
                     } catch (e) {
                     }
@@ -134,7 +134,7 @@ const Trends = {
                 const tempInfo = `已通过动态关键词【${contentKey}】屏蔽了动态【${tempContent}】`;
                 v.remove();
                 Tip.success(`已通过动态关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
-                Print.ln(tempInfo);
+                Tip.printLn(tempInfo);
                 continue;
             }
             const arrContentCanonical = Matching.arrContentCanonical(LocalData.getDynamicCanonicalArr(), tempContent);
@@ -142,7 +142,7 @@ const Trends = {
                 const tempInfo = `已通过动态正则关键词【${arrContentCanonical}】屏蔽了动态【${tempContent}】`;
                 v.remove();
                 Tip.success(`已通过动态正则关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
-                Print.ln(tempInfo);
+                Tip.printLn(tempInfo);
             }
         }
     },

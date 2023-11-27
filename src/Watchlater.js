@@ -18,7 +18,7 @@ const Watchlater = {
                 }
                 const info = `已获取到${dataList.length}个稍后再看的记录`;
                 Tip.success(info);
-                Print.ln(info);
+                Tip.printLn(info);
                 alert(info);
                 Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的稍后再看记录${dataList.length}个.json`);
             }, 2000);
@@ -34,7 +34,7 @@ const Watchlater = {
                 }
                 const info = `已获取到${dataList.length}【已观看的】稍后再看的记录`;
                 Tip.success(info);
-                Print.ln(info);
+                Tip.printLn(info);
                 alert(info);
                 Util.fileDownload(JSON.stringify(dataList, null, 3), `b站用户的【已观看】稍后再看记录${dataList.length}个.json`);
             }, 2000);

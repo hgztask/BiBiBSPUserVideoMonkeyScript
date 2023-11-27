@@ -37,19 +37,19 @@ async function bilibiliOne(href, windowsTitle) {
                     const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
                         Tip.info("规则屏蔽了相关热搜");
-                        Print.ln(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
+                        Tip.printLn(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
                         Tip.info("规则屏蔽了相关热搜");
-                        Print.ln(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
+                        Tip.printLn(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
                         Tip.info("规则屏蔽了相关热搜");
-                        Print.ln(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
+                        Tip.printLn(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
                     }
                 });
                 // nav_search_input.unbind();//删除该元素的所有jq添加的事件
@@ -151,22 +151,22 @@ async function bilibiliOne(href, windowsTitle) {
          */
         function tempFunc(uid, videoTitle, userName, bvid, duration, ctimeStr, view, danmaku, pic) {
             if (Matching.arrKey(LocalData.getArrUID(), uid)) {
-                Print.video("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
+                Tip.printVideo("yellow", "已通过UID屏蔽", userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
             const isNameKey = Matching.arrContent(LocalData.getArrNameKey(), userName);
             if (isNameKey != null) {
-                Print.video(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
+                Tip.printVideo(null, `已通过用户名模糊屏蔽规则【${isNameKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`)
                 return true;
             }
             const isTitleKey = Matching.arrContent(LocalData.getArrTitle(), videoTitle);
             if (isTitleKey != null) {
-                Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
+                Tip.printVideo("#66CCCC", `已通过标题模糊屏蔽规则=【${isTitleKey}】`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
             const isTitleKeyCanonical = Matching.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), videoTitle);
             if (isTitleKeyCanonical != null) {
-                Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
+                Tip.printVideo("#66CCCC", `已通过标题正则表达式屏蔽规则=${isTitleKeyCanonical}`, userName, uid, videoTitle, `https://www.bilibili.com/${bvid}`);
                 return true;
             }
             const jqE = addElement.homeVideoE.getHtmlStr(videoTitle, "https://www.bilibili.com/video/" + bvid, pic, uid, userName, duration, ctimeStr, Util.getNumberFormat(view), Util.getNumberFormat(danmaku));
@@ -541,7 +541,7 @@ async function bilibiliOne(href, windowsTitle) {
                 const classNameElement = document.getElementsByClassName("link-footer-ctnr")[0];
                 if (classNameElement) {
                     classNameElement.remove();
-                    Print.ln("已移除页脚信息")
+                    Tip.printLn("已移除页脚信息")
                     clearInterval(interval02);
                 }
             }, 2000);
@@ -551,7 +551,7 @@ async function bilibiliOne(href, windowsTitle) {
                     if (classNameElement) {
                         clearInterval(interval);
                         classNameElement.remove();
-                        Print.ln("已移除直播首页右侧的悬浮按钮");
+                        Tip.printLn("已移除直播首页右侧的悬浮按钮");
                     }
                 }, 2000);
             }

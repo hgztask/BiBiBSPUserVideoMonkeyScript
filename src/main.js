@@ -544,23 +544,7 @@ left: 0;  bottom: 0;">
     </div>`;
     }
 }
-const Print = {
-    ln(content) {
-        Util.printElement("#outputInfo", `<dd>${content}</dd>`);
-    },
-    video(color, content, name, uid, title, videoHref) {
-        Util.printElement("#outputInfo", `
-        <dd><b
-            style="color: ${color}; ">${Util.toTimeString()}${content}屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>标题【<a href="${videoHref}" target="_blank">${title}</a>】</b>
-        </dd>`);
-    }, commentOn(color, content, name, uid, primaryContent) {
-        Util.printElement("#outputInfo", `
-        <dd>
-        <b  style="color: ${color}; ">${Util.toTimeString()}${content} 屏蔽用户【${name}】uid=<a href="https://space.bilibili.com/${uid}" target="_blank">【${uid}】</a>
-   原言论=【${primaryContent}】</b>
-</dd>`);
-    }
-};
+
 //添加元素
 const addElement = {
     homeVideoE: {
@@ -655,22 +639,22 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
     }
     const key = Remove.contentKey(element, contentCLass.content);
     if (key != null) {
-        Print.commentOn("#00BFFF", `已通过言论关键词了【${key}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
+        Tip.printCommentOn("#00BFFF", `已通过言论关键词了【${key}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     const isUid = Remove.uid(element, contentCLass.uid);
     if (isUid) {
-        Print.commentOn("#yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
+        Tip.printCommentOn("#yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     const isName = Remove.name(element, contentCLass.upName);
     if (isName) {
-        Print.commentOn(null, `已通过指定用户名【${isName}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
+        Tip.printCommentOn(null, `已通过指定用户名【${isName}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     const isNameKey = Remove.nameKey(element, contentCLass.upName);
     if (isNameKey != null) {
-        Print.commentOn(null, `已通过指定用户名模糊规则【${isNameKey}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
+        Tip.printCommentOn(null, `已通过指定用户名模糊规则【${isNameKey}】`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     return false;
@@ -698,64 +682,64 @@ function shieldVideo_userName_uid_title({
     if (uid !== null) {
         const isUid = Remove.uid(element, uid);
         if (isUid) {
-            Print.video("yellow", "已通过UID屏蔽", name, uid, title, videoHref);
+            Tip.printVideo("yellow", "已通过UID屏蔽", name, uid, title, videoHref);
             return true;
         }
     }
     const isName = Remove.name(element, name);
     if (isName) {
-        Print.video(null, "已通过用户名屏蔽", name, uid, title, videoHref);
+        Tip.printVideo(null, "已通过用户名屏蔽", name, uid, title, videoHref);
         return true;
     }
     const isNameKey = Remove.nameKey(element, name);
     if (isNameKey != null) {
-        Print.video(null, `已通过用户名模糊屏蔽规则=【${isNameKey}】`, name, uid, title, videoHref)
+        Tip.printVideo(null, `已通过用户名模糊屏蔽规则=【${isNameKey}】`, name, uid, title, videoHref)
         return true;
     }
     const videoTitle = Remove.titleKey(element, title);
     if (videoTitle != null) {
-        Print.video("#66CCCC", `已通过标题模糊屏蔽规则=【${videoTitle}】`, name, uid, title, videoHref);
+        Tip.printVideo("#66CCCC", `已通过标题模糊屏蔽规则=【${videoTitle}】`, name, uid, title, videoHref);
         return true;
     }
     const titleKeyCanonical = Remove.titleKeyCanonical(element, title);
     if (titleKeyCanonical != null) {
-        Print.video("#66CCCC", `已通过标题正则表达式屏蔽规则=${titleKeyCanonical}`, name, uid, title, videoHref);
+        Tip.printVideo("#66CCCC", `已通过标题正则表达式屏蔽规则=${titleKeyCanonical}`, name, uid, title, videoHref);
         return true;
     }
     if (videoHref !== undefined) {
         const bv = Util.getSubWebUrlBV(videoHref);
         if (Matching.arrObjKey(LocalData.getWatchedArr(), "bv", bv)) {
             element.remove();
-            Print.video("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
+            Tip.printVideo("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
             Tip.success(`已过滤已观看的视频`);
             return true;
         }
         //TODO 后续适配所有需要过滤的地方
         if (Matching.arrKey(LocalData.getBvBlacklistArr(), bv)) {
             element.remove();
-            Print.video("#66CCCC", `已根据bv号过滤视频=${title}`, name, uid, title, videoHref);
+            Tip.printVideo("#66CCCC", `已根据bv号过滤视频=${title}`, name, uid, title, videoHref);
             return true;
         }
     }
     if (videoPlaybackVolume !== undefined) {
         const change = Util.changeFormat(videoPlaybackVolume);
         if (Remove.videoMinPlaybackVolume(element, change)) {
-            Print.video(null, `已过滤视频播放量小于=【${LocalData.video.getBroadcastMin()}】的视频`, name, uid, title, videoHref);
+            Tip.printVideo(null, `已过滤视频播放量小于=【${LocalData.video.getBroadcastMin()}】的视频`, name, uid, title, videoHref);
             return true;
         }
         if (Remove.videoMaxPlaybackVolume(element, change)) {
-            Print.video(null, `已过滤视频播放量大于=【${LocalData.video.getBroadcastMax()}】的视频`, name, uid, title, videoHref);
+            Tip.printVideo(null, `已过滤视频播放量大于=【${LocalData.video.getBroadcastMax()}】的视频`, name, uid, title, videoHref);
             return true;
         }
     }
     if (videoTime === undefined) return false;
     const timeTotalSeconds = Util.getTimeTotalSeconds(videoTime);
     if (Remove.videoMinFilterS(element, timeTotalSeconds)) {
-        Print.video(null, `已通过视频时长过滤时长小于=【${LocalData.video.getFilterSMin()}】秒的视频`, name, uid, title, videoHref);
+        Tip.printVideo(null, `已通过视频时长过滤时长小于=【${LocalData.video.getFilterSMin()}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     if (Remove.videoMaxFilterS(element, timeTotalSeconds)) {
-        Print.video(null, `已过滤时长大于=【${LocalData.video.getfilterSMax()}】秒的视频`, name, uid, title, videoHref);
+        Tip.printVideo(null, `已过滤时长大于=【${LocalData.video.getfilterSMax()}】秒的视频`, name, uid, title, videoHref);
         return true;
     }
     return false;

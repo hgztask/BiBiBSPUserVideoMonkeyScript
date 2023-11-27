@@ -29,7 +29,7 @@ const LockScreen = {
         this.screen.setPwd(newPwd);
         const tip = `设置成功！，您当前的锁屏密码为${newPwd}`;
         Tip.success(tip);
-        Print.ln(tip);
+        Tip.printLn(tip);
         alert(tip);
     },
     resetPwdShow() {//重置锁屏密码流程
@@ -75,7 +75,7 @@ const LockScreen = {
         this.screen.setState(boo);
         const tip = `已设置锁屏开关状态，当前为${boo ? "开启" : "关闭"}状态`;
         Tip.success(tip);
-        Print.ln(tip);
+        Tip.printLn(tip);
         alert(tip);
     },
     isLockScreen() {

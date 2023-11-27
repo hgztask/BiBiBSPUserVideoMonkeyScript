@@ -126,13 +126,13 @@ async function perf_observer() {
                     const title = q.querySelector("[title]").textContent;
                     const isTitle = Matching.arrContent(LocalData.getArrTitle(), title);
                     if (isTitle != null) {
-                        Print.ln(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
+                        Tip.printLn(`已通过标题黑名单关键词屏蔽【${isTitle}】标题【${title}】`);
                         q.remove();
                         continue;
                     }
                     const isTitleCanonical = Matching.arrContentCanonical(LocalData.getArrTitleKeyCanonical(), title);
                     if (isTitleCanonical != null) {
-                        Print.ln(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
+                        Tip.printLn(`已通过标题正则黑名单关键词屏蔽【${isTitleCanonical}】标题【${title}】`);
                         q.remove();
                     }
                 }

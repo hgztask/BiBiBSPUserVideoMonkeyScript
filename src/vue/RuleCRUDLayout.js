@@ -139,7 +139,7 @@ const RuleCRUDLayout = {
                     if (contentInput === "") return;
                     Util.setData(videoSelectType, parseInt(contentInput));
                     const info = `已设置${videoSelectName}的具体值【${contentInput}】，为0则不生效`;
-                    Print.ln(info);
+                    Tip.printLn(info);
                     Tip.success(info);
                 },
                 getSelectRUleItem() {//返回defaultSelect中选中的规则项

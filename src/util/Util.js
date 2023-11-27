@@ -218,7 +218,7 @@ const Util = {
             if (elementById) {
                 elementById.remove();
                 clearInterval(interval);
-                Print.ln(tip);
+                Tip.printLn(tip);
             }
         }, time);
     },
@@ -235,7 +235,7 @@ const Util = {
             const byElement = document.getElementById(elementStr);
             if (byElement) {
                 byElement.remove();
-                Print.ln(tip);
+                Tip.printLn(tip);
             }
             if (++tempIndex === index) {
                 clearInterval(interval);
@@ -337,7 +337,7 @@ const Util = {
             if (byElement) {
                 byElement.remove();
                 clearInterval(interval);
-                Print.ln(tip);
+                Tip.printLn(tip);
             }
         }, time);
     },
@@ -355,7 +355,7 @@ const Util = {
             const byElement = document.getElementsByClassName(elementStr)[elementIndex];
             if (byElement) {
                 byElement.remove();
-                Print.ln(tip);
+                Tip.printLn(tip);
             }
             if (++tempIndex === index) {
                 clearInterval(interval);

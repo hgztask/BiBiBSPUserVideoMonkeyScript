@@ -110,7 +110,7 @@ const UrleCrud = {//规则的增删改查
         }
         ruleList.splice(index, 1);
         Util.setData(ruleType, ruleList);
-        Print.ln("已经删除该元素=" + content);
+        Tip.printLn("已经删除该元素=" + content);
         ruleCRUDLlayoutVue().updateRuleIndex();
         return true;
     },
@@ -199,13 +199,13 @@ const UrleCrud = {//规则的增删改查
             tip = `搜索的${ruleName}规则值已存在！find=${key}`;
             Tip.success(tip);
             console.log(tip, key);
-            Print.ln(tip);
+            Tip.printLn(tip);
             return;
         }
         tip = `搜索的${ruleName}规则值不存在！find=${key}`;
         Tip.error(tip);
         console.log(tip, key);
-        Print.ln(tip);
+        Tip.printLn(tip);
     },
     setKey(ruleType, oldValue, newValue) {
         if (oldValue === newValue) return false;

@@ -50,8 +50,8 @@ const OtherLayoutVue = {
                         return;
                     }
                     Tip.success("已将值输出到脚本面板的输出信息上！");
-                    Print.ln("用户存储在脚本中的SESSDATA，如上一条：");
-                    Print.ln(data);
+                    Tip.printLn("用户存储在脚本中的SESSDATA，如上一条：");
+                    Tip.printLn(data);
                 },
                 setBili_jctBut() {
                     const content = prompt("设置bili_jct值为：");
@@ -84,7 +84,7 @@ const OtherLayoutVue = {
                         return;
                     }
                     Tip.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
-                    Print.ln(data);
+                    Tip.printLn(data);
                 },
                 getBili_jctBut() {
                     const biliJct = LocalData.getBili_jct();
@@ -153,7 +153,7 @@ const OtherLayoutVue = {
                     const filter = Object.keys(findList);
                     if (filter.length === 0) {
                         const info = "并未搜索到您想要的资源，key=" + key;
-                        Print.ln(info);
+                        Tip.printLn(info);
                         Tip.info(info);
                         alert(info);
                         return;

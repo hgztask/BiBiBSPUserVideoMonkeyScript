@@ -32,7 +32,7 @@ async function bilibili(href) {
                 for (const videoTag of videoElement) {
                     DefVideo.setVideoSpeedInfo(videoTag);
                     videoTag.addEventListener('ended', () => {//播放器结束之后事件
-                        Print.ln("播放结束");
+                        Tip.printLn("播放结束");
                         if (LocalData.video.isVideoEndRecommend()) {
                             Util.circulateClassName("bpx-player-ending-content", 2000, "已移除播放完视频之后的视频推荐");
                         }

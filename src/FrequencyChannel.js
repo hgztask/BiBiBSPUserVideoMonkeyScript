@@ -82,7 +82,7 @@ const frequencyChannel = {//频道
                 Tip.videoBlock("屏蔽了视频");
             }
             if (list.length === tempLength) {
-                //Print.ln("页面元素没有变化了，故退出循环")
+                //Tip.printLn("页面元素没有变化了，故退出循环")
                 break;
             }
         }
@@ -98,7 +98,7 @@ const frequencyChannel = {//频道
                     toggleClass.remove();
                     clearInterval(interval);
                     this.data.develop = true;
-                    Print.ln("已点击展开列表并移除收起按钮")
+                    Tip.printLn("已点击展开列表并移除收起按钮")
                 }
             } catch (e) {
                 clearInterval(interval);
@@ -138,7 +138,7 @@ const frequencyChannel = {//频道
             if (this.tempVar.backGaugeBool) return;
             this.tempVar.backGaugeBool = true;
             document.getElementsByClassName("detail-panels")[0].style.width = "auto";//调整其页面左右边距
-            Print.ln("已调整频道界面的左右边距")
+            Tip.printLn("已调整频道界面的左右边距")
         }
     },
     getVideoRules(element) {//获取频道界面单个的视频信息
