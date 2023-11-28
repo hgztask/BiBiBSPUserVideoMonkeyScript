@@ -115,6 +115,9 @@ async function bilibili(href) {
             clearInterval(interval);
             jqE.remove();
         }, 1000);
+        if (href.includes("v/popular/all")) {
+            Tip.info("综合热门因获取不到uid，故uid屏蔽方式不生效", {position: "topleft"});
+        }
         return;
     }
     if (href.includes("www.bilibili.com/v/")) {//通过URL变动执行屏蔽首页分区视频
