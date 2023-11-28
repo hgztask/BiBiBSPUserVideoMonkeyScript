@@ -279,38 +279,8 @@ async function bilibiliOne(href, windowsTitle) {
         return;
     }
     if (href.includes("www.bilibili.com/video") || href.includes("www.bilibili.com/list/watchlater")) {//视频页
-        $body.append(layout.htmlVue.videoPlayVue());
-        const videoPlayVue = VideoPlayVue.returnVue();
-        if (LocalData.video.isHideVideoRightLayout()) {
-            const interval = setInterval(() => {
-                const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
-                if (jqE.length === 0) return;
-                if (!LocalData.video.isHideVideoRightLayout() || videoPlayVue().hideRightLayoutButText === "隐藏右侧布局") {
-                    clearInterval(interval)
-                    return;
-                }
-                jqE.hide();
-            }, 1600);
-        }
-        if (LocalData.video.isHideVideoButtonCommentSections()) {
-            const interval = setInterval(() => {
-                const jqE = $("#comment,.playlist-comment");
-                if (jqE.length === 0) return;
-                if (!LocalData.video.isHideVideoButtonCommentSections() || videoPlayVue().hideButtonLayoutButText === "隐藏评论区") {
-                    clearInterval(interval)
-                    return;
-                }
-                jqE.hide();
-            }, 1600);
-        }
-        if (LocalData.video.isHideVideoTopTitleInfoLayout()) {
-            const interval = setInterval(() => {
-                const jqE = $("#viewbox_report,.video-info-container");
-                if (jqE.length === 0) return;
-                clearInterval(interval);
-                jqE.hide();
-            }, 1500);
-        }
+        VideoPlayVue.addHtml();
+        VideoPlayVue.returnVue();
         return;
     }
     if ((href.includes("https://live.bilibili.com/?spm_id_from") || href === "https://live.bilibili.com/") && windowsTitle === "哔哩哔哩直播，二次元弹幕直播平台") {//直播首页

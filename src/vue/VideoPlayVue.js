@@ -3,11 +3,19 @@ const VideoPlayVue = {
         const vue = new Vue({
             el: "#rightLayout",
             data: {
-                hideButtonLayoutButText: this.showHideButtonLayoutButText(),
+                leftVal: "1%",
+                topVal: "15%",
                 subItemButShow: LocalData.video.isSubItemButShow(),
                 subItemButText: "收起",
-                hideRightLayoutButText: this.showHideRightLayoutButText(),
-                hideTopVideoTitleInfoButText: this.showHideTopVideoTitleInfoButText()
+                //是否隐藏右侧布局
+                hideRightLayout: false,
+                //是否隐藏顶部标题
+                hideTopVideoTitleInfo: false,
+                //是否隐藏底部评论区
+                hideButtonLayout: false,
+                hideButtonLayoutButText: "隐藏评论区",
+                hideRightLayoutButText: "隐藏右侧布局",
+                hideTopVideoTitleInfoButText: "隐藏顶部视频标题信息"
             },
             methods: {
                 subItemShowBut() {
@@ -162,35 +170,35 @@ const VideoPlayVue = {
                     const e = $("#comment,.playlist-comment");
                     if (e.is(":hidden")) {
                         e.show();
-                        this.hideButtonLayoutButText = "隐藏评论区";
+                        this.hideButtonLayout = false;
                         return;
                     }
                     e.hide();
-                    this.hideButtonLayoutButText = "显示评论区";
+                    this.hideButtonLayout = true;
                 },
                 isHideRightLayoutBut() {
                     const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
                     if (jqE.length === 0) {
-                        alert("获取不到右侧布局！");
+                        Tip.error("获取不到右侧布局！");
                         return;
                     }
                     if (jqE.is(":hidden")) {
                         jqE.show();
-                        this.hideRightLayoutButText = "隐藏右侧布局";
+                        this.hideRightLayout = false;
                         return;
                     }
                     jqE.hide();
-                    this.hideRightLayoutButText = "显示右侧布局";
+                    this.hideRightLayout = true;
                 },
                 isHideTopVideoTitleInfoBut() {
                     const jqE = $("#viewbox_report,.video-info-container");
                     if (jqE.is(":hidden")) {
                         jqE.show();
-                        this.hideTopVideoTitleInfoButText = "隐藏顶部视频标题信息";
+                        this.hideTopVideoTitleInfo = false;
                         return;
                     }
                     jqE.hide();
-                    this.hideTopVideoTitleInfoButText = "显示顶部视频标题信息";
+                    this.hideTopVideoTitleInfo = true;
                 },
                 VideoPIPicture() {
                     Util.video.autoAllPictureInPicture();
@@ -206,6 +214,61 @@ const VideoPlayVue = {
             watch: {
                 subItemButShow(newVal) {
                     this.subItemButText = newVal ? "收起" : "展开";
+                },
+                hideRightLayout(newVal) {
+                    this.hideRightLayoutButText = newVal ? "显示右侧布局" : "隐藏右侧布局";
+                    let tempLeft;
+                    let tempTop;
+                    if (newVal) {
+                        tempLeft = "1%";
+                        tempTop = "15%";
+                    } else {
+                        tempLeft = "90%";
+                        tempTop = "20%";
+                    }
+                    this.leftVal = tempLeft;
+                    this.topVal = tempTop;
+                },
+                hideTopVideoTitleInfo(newVal) {
+                    this.hideTopVideoTitleInfoButText = newVal ? "显示顶部视频标题信息" : "隐藏顶部视频标题信息";
+                },
+                hideButtonLayout(newVal) {
+                    this.hideButtonLayoutButText = newVal ? "显示评论区" : "隐藏评论区";
+                }
+            },
+            created() {
+                const tempRightBool = this.hideRightLayout = LocalData.video.isHideVideoRightLayout();
+                if (tempRightBool) {
+                    const interval = setInterval(() => {
+                        const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
+                        if (jqE.length === 0) return;
+                        if (!tempRightBool || !this.hideRightLayout) {
+                            clearInterval(interval)
+                            return;
+                        }
+                        jqE.hide();
+                    }, 1600);
+                }
+                const tempButtinBool = this.hideButtonLayout = LocalData.video.isHideVideoButtonCommentSections();
+                if (tempButtinBool) {
+                    const interval = setInterval(() => {
+                        const jqE = $("#comment,.playlist-comment");
+                        if (jqE.length === 0) return;
+                        if (!tempButtinBool || !this.hideButtonLayout) {
+                            clearInterval(interval)
+                            return;
+                        }
+                        jqE.hide();
+                    }, 1600);
+                }
+                const tempTopBool = this.hideTopVideoTitleInfo = LocalData.video.isHideVideoTopTitleInfoLayout();
+                if (tempTopBool) {
+                    const interval = setInterval(() => {
+                        const jqE = $("#viewbox_report,.video-info-container");
+                        if (jqE.length === 0) return;
+                        clearInterval(interval);
+                        jqE.hide();
+                    }, 1500);
                 }
             }
         });
@@ -213,13 +276,25 @@ const VideoPlayVue = {
             return vue;
         }
     },
-    showHideButtonLayoutButText() {
-        return LocalData.video.isHideVideoButtonCommentSections() ? "显示评论区" : "隐藏评论区";
-    },
-    showHideRightLayoutButText() {
-        return LocalData.video.isHideVideoRightLayout() ? "显示右侧布局" : "隐藏右侧布局";
-    },
-    showHideTopVideoTitleInfoButText() {
-        return LocalData.video.isHideVideoTopTitleInfoLayout() ? "显示顶部视频标题信息" : "隐藏顶部视频标题信息";
+    addHtml() {
+        $("body").append(`<div id="rightLayout" :style="{left:leftVal,top:topVal}" style="position: fixed;">
+<div style="display: flex; flex-direction: column;">
+<button @click="subItemShowBut">{{subItemButText}}</button>
+    <div v-show="subItemButShow" style="display: flex; flex-direction: column;">
+        <button @click="addUid">屏蔽(uid)</button>
+        <button @click="getTheVideoBarrage">获取视频弹幕</button>
+        <button @click="getTheVideoAVNumber">获取视频av号</button>
+        <button @click="getVideoCommentArea">获取评论区页面可见数据</button>
+        <button @click="getLeftTopVideoListBut">获取视频选集列表数据</button>
+        <button @click="addLefToWatchedBut">添加进已观看</button>
+        <button @click="addLefToLookAtItLaterListBut">添加进稍后再看</button>
+        <button @click="isHideButtonLayoutBut">{{hideButtonLayoutButText}}</button>
+        <button @click="isHideRightLayoutBut">{{hideRightLayoutButText}}</button>
+        <button @click="isHideTopVideoTitleInfoBut">{{hideTopVideoTitleInfoButText}}</button>
+        <button @click="VideoPIPicture">播放器画中画</button>
+        <button @click="openVideoSubtitle">字幕开关</button>
+    </div>
+</div>
+</div>`);
     }
 }
