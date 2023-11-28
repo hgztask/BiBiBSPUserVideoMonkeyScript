@@ -18,16 +18,22 @@ const Space = {
             }, 100);
         });
     },
-    getTabName() {
-        let typeE = document.querySelector(".n-statistics>.router-link-active>.n-data-k");//关注或粉丝页
-        if (typeE !== null) {
-            return typeE.textContent;
-        }
-        typeE = document.querySelector(".n-tab-links>.active>.n-text");
-        if (typeE === null) {
-            return null;
-        }
-        return typeE.textContent;
+    async getTabName() {
+        return new Promise(resolve => {
+            const i1 = setInterval(() => {
+                let typeE = document.querySelector(".n-statistics>.router-link-active>.n-data-k");//关注或粉丝页
+                if (typeE !== null) {
+                    resolve(typeE.textContent);
+                    clearInterval(i1);
+                    return;
+                }
+                typeE = document.querySelector(".n-tab-links>.active>.n-text");
+                if (typeE === null) return;
+                resolve(typeE.textContent);
+                clearInterval(i1);
+            }, 50);
+        });
+
     },
     fav: {
         getFavName() {//获取收藏选项卡中对应展示的收藏夹名
@@ -57,8 +63,7 @@ const Space = {
                 return favUpName.textContent.replace("合集 · UP主：", "");
             }
             return "不确定的用户名";
-        }
-        ,
+        },
         getDataList() {//获取获取收藏选项卡中对应展示的收藏夹项目内容
             const elementList = document.querySelectorAll(".fav-video-list.clearfix.content>li");
             const dataList = [];
@@ -147,6 +152,7 @@ const Space = {
         async getHttpUserCreationAllDataList(id) {
             let page = 1;
             const datalist = [];
+
             async function f() {
                 const data = await this.getHttpUserCreationDataList(id, page);
                 if (!data["state"]) {
@@ -158,6 +164,7 @@ const Space = {
                 Util.mergeArrays(datalist, data["dataList"]);
                 f();
             }
+
             await f();
             return datalist;
         },
