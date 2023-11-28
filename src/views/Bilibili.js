@@ -123,56 +123,36 @@ async function bilibili(href) {
         return;
     }
     if (href.includes("space.bilibili.com")) {
-        const userName = await Space.getUserName();
-        const $getDataListBut = $("#getDataListBut");
-        const $getAllDataListBut = $("#getAllDataListBut");
-        const getTabName = Space.getTabName();
-        if (getTabName === "主页") {
-            $getDataListBut.hide();
-            $getAllDataListBut.hide();
-        } else {
-            $getDataListBut.show();
-            $getAllDataListBut.show();
-        }
+        const getTabName = await Space.getTabName();
+        window.spaceControlPanelVue.tabsItemName = getTabName;
         if (getTabName === "投稿") {
             const name = Space.video.getLeftTabTypeName();
-            $getDataListBut.text(`获取当前${getTabName}页的${name}列表数据`);
-            $getAllDataListBut.text(`获取${getTabName}的${name}列表数据`);
+            window.spaceControlPanelVue.setDataListButText(`获取当前${getTabName}页的${name}列表数据`);
+            window.spaceControlPanelVue.setAllDataListButText(`获取${getTabName}的${name}列表数据`);
         } else if (getTabName === "订阅") {
             const tabsName = Space.subscribe.getTabsName();
-            $getDataListBut.text(`获取当前${tabsName}页的列表数据`);
-            $getAllDataListBut.text(`获取${tabsName}的列表数据`);
+            window.spaceControlPanelVue.setDataListButText(`获取当前${tabsName}页的列表数据`);
+            window.spaceControlPanelVue.setAllDataListButText(`获取${tabsName}的列表数据`);
         } else {
-            $getDataListBut.text(`获取当前${getTabName}页的列表数据`);
-            $getAllDataListBut.text(`获取${getTabName}的列表数据`);
+            window.spaceControlPanelVue.setDataListButText(`获取当前${getTabName}页的列表数据`);
+            window.spaceControlPanelVue.setAllDataListButText(`获取${getTabName}的列表数据`);
         }
-        switch (getTabName) {
-            case "动态":
-                const interval01 = setInterval(() => {
-                    const tempE = $(".bili-dyn-list__items");
-                    if (tempE.length === 0) {
-                        return;
-                    }
-                    const list = tempE.children();
-                    if (list.length === 0) {
-                        return;
-                    }
+        if (getTabName === "动态") {
+            const interval01 = setInterval(() => {
+                const tempE = $(".bili-dyn-list__items");
+                if (tempE.length === 0) return;
+                const list = tempE.children();
+                if (list.length === 0) return;
+                clearInterval(interval01);
+                Trends.shrieDynamicItems(list);
+                if (Util.isEventJq(tempE, "DOMNodeInserted")) {
                     clearInterval(interval01);
-                    Trends.shrieDynamicItems(list);
-                    if (Util.isEventJq(tempE, "DOMNodeInserted")) {
-                        clearInterval(interval01);
-                        return;
-                    }
-                    tempE.bind("DOMNodeInserted", () => {
-                        Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
-                    });
-                }, 1000);
-                break;
-        }
-        if (LocalData.getPrivacyMode() && Space.isH_action()) {
-            $(".h-inner").hide();
-            $("#navigator-fixed .n-tab-links .n-fans").hide();
-            Tip.success(`检测到当前页面是用户自己的个人空间，由于开启了隐私模式，故隐藏该信息`);
+                    return;
+                }
+                tempE.bind("DOMNodeInserted", () => {
+                    Trends.shrieDynamicItems($(".bili-dyn-list__items").children());
+                });
+            }, 1000);
         }
     }
 }

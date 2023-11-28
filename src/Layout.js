@@ -39,7 +39,7 @@ ul {
 #suspensionDiv p {
     margin-top: 10px;
 }
-#suspensionDiv .center button,#home_layout button,#rightLayout button{
+#suspensionDiv .center button,#home_layout button,#rightLayout button,#id13315 button{
     margin-top: 10px;
     padding: 5px 10px;
     border: none;
@@ -47,7 +47,7 @@ ul {
     color: #fff;
     cursor: pointer;
 }
-#suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover {
+#suspensionDiv .center button:hover,#home_layout button:hover,#rightLayout button:hover,#id13315 button:hover {
     background-color: #3E8E41;
 }
 #myBut {
@@ -92,9 +92,6 @@ border: 0.5px solid green;
             jqE.css("background-color", "#4CAF50");
             jqE.css("color", "#fff");
             return jqE;
-        },
-        getFilter_queue() {//个人主页悬浮屏蔽按钮
-            return this.getHoverBallBut("屏蔽", "15%", "4%");
         },
     },
     getRuleCRUDLayout() {
