@@ -39,6 +39,23 @@ const VideoPlayVue = {
                     }
                     alert("暂不支持屏蔽多作者方式.");
                 },
+                addNameBut() {
+                    const userList = DefVideo.getCreativeTeam();
+                    if (userList.length === 0) {
+                        alert("获取失败！");
+                        return;
+                    }
+                    if (userList.length === 1) {
+                        const data = userList[0];
+                        const name = data["name"];
+                        if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为用户名(精确)`)) {
+                            return;
+                        }
+                        UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", name);
+                        return;
+                    }
+                    alert("暂不支持屏蔽多作者方式.");
+                },
                 getTheVideoBarrage() {
                     const windowUrl = Util.getWindowUrl();
                     if (!windowUrl.includes("www.bilibili.com/video")) {
@@ -282,6 +299,7 @@ const VideoPlayVue = {
 <button @click="subItemShowBut">{{subItemButText}}</button>
     <div v-show="subItemButShow" style="display: flex; flex-direction: column;">
         <button @click="addUid">屏蔽(uid)</button>
+        <button @click="addNameBut">屏蔽用户名(精确)</button>
         <button @click="getTheVideoBarrage">获取视频弹幕</button>
         <button @click="getTheVideoAVNumber">获取视频av号</button>
         <button @click="getVideoCommentArea">获取评论区页面可见数据</button>
