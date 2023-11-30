@@ -25,12 +25,6 @@ const RuleCRUDLayout = {
                     contentColumnKeyArr: {name: "专栏关键词内容黑名单模式(模糊匹配)", size: 0},
                     dynamicArr: {name: "动态关键词内容黑名单模式(模糊匹配)", size: 0},
                 },
-                MPSList: ["精确", "模糊", "正则"],
-                defaultMPSelect: "模糊",
-                debugText: "",
-                debugRuleVal: "",
-                debugSeC: true,
-                debugATestOInput: false,
                 videoRuleList: {
                     filterSMin: "时长最小值(单位秒)",
                     filterSMax: "时长最大值(单位秒)",
@@ -398,41 +392,6 @@ const RuleCRUDLayout = {
                         return;
                     }
                     Util.openWindowWriteContent(JSON.stringify(data, null, 3));
-                },
-                debugRule() {
-                    if (this.debugText.length === 0 || this.debugRuleVal.length === 0) {
-                        Tip.error("请正确书写内容！");
-                        return;
-                    }
-                    const mpSelect = this.defaultMPSelect;
-                    if (this.debugSeC) {
-                        if (!confirm(`当前选中的是${mpSelect}模式，是要进行调试测试吗，用于测试是否能匹配上，如匹配上说明，对应规则可以被处理(屏蔽)`)) {
-                            return;
-                        }
-                    }
-                    let loop = false;
-                    switch (mpSelect) {
-                        case "精确":
-                            loop = Matching.arrKey([this.debugRuleVal], this.debugText);
-                            break;
-                        case "模糊":
-                            loop = Matching.arrContent([this.debugRuleVal], this.debugText) || false;
-                            break;
-                        case "正则":
-                            loop = Matching.arrContentCanonical([this.debugRuleVal], this.debugText) || false;
-                            break;
-                        default:
-                            Tip.error("出现了意外的值!" + mpSelect);
-                            break;
-                    }
-                    if (loop) {
-                        Tip.success(`规则测试匹配成功!${mpSelect}模式`);
-                    } else {
-                        Tip.error(`规则测试匹配失败了!${mpSelect}模式`);
-                    }
-                },
-                okDebugRule() {
-                    this.debugRule();
                 }
             },
             watch: {
@@ -450,16 +409,6 @@ const RuleCRUDLayout = {
                     if (newVal === oldVal) return;
                     this.isInputEditShow = newVal !== "从云端账号导入覆盖本地规则";
                 },
-                debugSeC(newVal) {
-                    if (newVal) this.debugATestOInput = false;
-                },
-                debugATestOInput(newVal) {
-                    if (newVal) this.debugSeC = false;
-                },
-                debugRuleVal() {
-                    if (!this.debugATestOInput) return;
-                    this.debugRule();
-                }
             },
             created() {
                 this.updateRuleIndex();

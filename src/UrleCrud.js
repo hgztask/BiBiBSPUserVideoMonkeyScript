@@ -16,6 +16,7 @@ const UrleCrud = {//规则的增删改查
             }
             content = parseInt(content);
         }
+        debugger;
         if (!confirm(`是要添加的${ruleName}规则为：\n${content}\n类型为：${typeof content}`)) {
             return false;
         }
