@@ -1,7 +1,7 @@
 const DonateLayoutVue = {
     returnVue() {
         const vue = new Vue({
-            el: "#donateLayout",
+            el: "#home_layout #donateLayout",
             data: {
                 list: [
                     {

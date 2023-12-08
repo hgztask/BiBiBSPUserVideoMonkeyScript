@@ -7,13 +7,6 @@ async function perf_observer() {
         if (initiatorType === "img" || initiatorType === "css" || initiatorType === "link" || initiatorType === "beacon") {
             continue;
         }
-        //只要json类的
-        if (url.includes("api.bilibili.com/x/web-interface/web/channel") && windowUrl.includes("www.bilibili.com/v/channel")) {
-            //针对于频道界面的综合视频和频道界面的精选视频
-            frequencyChannel.videoRules();
-            frequencyChannel.listRules();
-            continue;
-        }
         if (url.includes("api.bilibili.com/x/v2/reply/wbi/main?oid=") || url.includes("api.bilibili.com/x/v2/reply/reply?") ||
             url.includes("api.bilibili.com/x/web-interface/wbi/view/detail?aid=") || url.includes("api.bilibili.com/x/v2/reply/reply?oid=")) {
             /**

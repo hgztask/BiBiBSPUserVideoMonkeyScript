@@ -14,10 +14,10 @@ const layout = {
     border: 3px solid green;
 }
 /* 隐藏标签布局，除了“active”的标签布局 */
-.tab {
+#home_layout .tab {
     display: none;
 }
-.tab.active {
+#home_layout .tab.active {
     display: block;
 }
 ul {
@@ -171,22 +171,6 @@ border: 0.5px solid green;
       <div>
       <input type="checkbox" v-model="isSetHomeStyle">首页视频项目左右边框调整
       </div>
-      <h1>首页推荐视频</h1>
-      <div>
-          <input type="checkbox" v-model="isMainVideoListCheckbox">
-          <span>指定推送</span>
-          <select v-model="pushTypeSelect"><option v-for="item in pushTypeList" :value="item">{{item}}</option></select>
-           <select v-model="sort_typeSelect" v-if="isChannelSelect">
-            <option v-for="(item,key) in sort_typeList" :value="key">{{item}}</option>
-          </select>
-          <select v-model="showListSelect">
-            <option v-for="(item,key) in showList" :value="key">{{item}}</option>
-          </select>
-      </div>
-      <div>
-      <input type="checkbox" v-model="isIdCheckbox">id
-      <button @click="findBut">查询</button>
-      <button @click="okBut">确定</button>
       </div>`;
     },
     getVideo_params_layout() {
@@ -579,7 +563,7 @@ border: 0.5px solid green;
             $("#video_params_layout").append(layout.getVideo_params_layout());
             $("#outputInfoLayout").append(layout.getOutputInfoLayout());
             $("#otherLayout").append(layout.getOtherLayout());
-            $("#donateLayout").append(layout.getDonateLayout());
+            $("#home_layout #donateLayout").append(layout.getDonateLayout());
             bodyJQE.append(layout.getSuspensionDiv());
         }
     }

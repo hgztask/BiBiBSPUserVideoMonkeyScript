@@ -80,8 +80,6 @@ const Rule = {
     }
 }
 const Home = {
-    //首页下拉底部时依次加载视频的个数
-    videoIndex: 20,
     background: {//主面板背景颜色及透明度
         r: 255,
         g: 255,
@@ -94,20 +92,6 @@ const Home = {
     },
     //是否初次点击了规则中心按钮
     isFirstRuleCenterLayoutClick: false,
-    /**
-     *
-     * @return {string}
-     */
-    getPushType() {
-        const data = Util.getData("pushType");
-        if (data === null || data === undefined) {
-            return "分区";
-        }
-        return data;
-    },
-    setPushType(key) {
-        Util.setData("pushType", key);
-    },
     getBackgroundStr() {
         return Util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
     },
@@ -212,13 +196,13 @@ const Home = {
     },
     openTab(e) {// 点击标签时执行此函数
         // 获取所有标签布局
-        const tabs = document.querySelectorAll(".tab");
+        const tabs = document.querySelectorAll("#home_layout .tab");
         // 循环遍历每个标签布局
         for (let v of tabs) {
             // 从所有标签布局中删除“active”类，使它们不可见
             v.classList.remove("active");
         }
-        const tempE = document.querySelector(`#${e}`);
+        const tempE = document.querySelector(`#home_layout #${e}`);
         // 将指定的标签布局添加到“active”类，使它可见
         tempE.classList.add("active");
     }
@@ -542,83 +526,6 @@ left: 0;  bottom: 0;">
       </div>
       <button style="position: absolute;top: 0;right: 0;" onclick="document.querySelector('#popDiv').remove()">关闭</button>
     </div>`;
-    }
-}
-
-//添加元素
-const addElement = {
-    homeVideoE: {
-        /**
-         * @param {string}title 视频标题
-         * @param {string}videoAddess
-         * @param {string}videoImage 视频封面
-         * @param {string}userID 用户uid
-         * @param {string}userName 用户名
-         * @param {string}timeLong 视频时长
-         * @param {string}ctime 发布时间
-         * @param {string}view 播放量
-         * @param {string}danmaku 弹幕量
-         */
-        getHtmlStr(title, videoAddess, videoImage, userID, userName, timeLong, ctime, view, danmaku) {
-            return $(`<div class="bili-video-card is-rcmd" data-report="tianma.7-1-23.click" data-v-45e09777="">
-    <div class="bili-video-card__skeleton hide">
-        <div class="bili-video-card__skeleton--cover"></div>
-        <div class="bili-video-card__skeleton--info">
-            <div class="bili-video-card__skeleton--right"><p class="bili-video-card__skeleton--text"></p>
-                <p class="bili-video-card__skeleton--text short"></p>
-                <p class="bili-video-card__skeleton--light"></p></div>
-        </div>
-    </div>
-    <div class="bili-video-card__wrap __scale-wrap"><a href=${videoAddess}
-                                                       target="_blank" data-spmid="333.1007" data-mod="tianma.7-1-23"
-                                                       data-idx="click">
-        <div class="bili-video-card__image __scale-player-wrap">
-            <div class="bili-video-card__image--wrap">
-                <div class="bili-watch-later" style="display: none;">
-                    <svg class="bili-watch-later__icon">
-                        <use xlink:href="#widget-watch-later"></use>
-                    </svg>
-                    <span class="bili-watch-later__tip" style="display: none;"></span></div>
-                <picture class="v-img bili-video-card__cover"><!---->
-                    <source srcset=${videoImage.substring(videoImage.indexOf("//")) + "@672w_378h_1c_!web-home-common-cover.avif"}
-                            type="image/avif">
-                    <source srcset=${videoImage.substring(videoImage.indexOf("//")) + "@672w_378h_1c_!web-home-common-cover.webp"}
-                            type="image/webp">
-                    <img src=${videoImage.substring(videoImage.indexOf("//")) + "@672w_378h_1c_!web-home-common-cover"}
-                         alt=${title} loading="eager" onload=""></picture>
-                <div class="v-inline-player"></div>
-            </div>
-            <div class="bili-video-card__mask">
-                <div class="bili-video-card__stats">
-                    <div class="bili-video-card__stats--left"><span class="bili-video-card__stats--item"><svg
-                            class="bili-video-card__stats--icon"><use xlink:href="#widget-video-play-count"></use></svg><span
-                            class="bili-video-card__stats--text">${view}</span></span><span
-                            class="bili-video-card__stats--item"><svg class="bili-video-card__stats--icon"><use
-                            xlink:href="#widget-video-danmaku"></use></svg><span class="bili-video-card__stats--text">${danmaku}</span></span>
-                    </div>
-                    <span class="bili-video-card__stats__duration">${timeLong}</span></div>
-            </div>
-        </div>
-    </a>
-        <div class="bili-video-card__info __scale-disable"><!---->
-            <div class="bili-video-card__info--right"><h3 class="bili-video-card__info--tit"
-                                                          title=${title}><a
-                    href=${videoAddess} target="_blank" data-spmid="333.1007"
-                    data-mod="tianma.7-1-23" data-idx="click">${title}</a></h3>
-                <div class="bili-video-card__info--bottom"><!----><a class="bili-video-card__info--owner"
-                                                                     href=${"https://space.bilibili.com/" + userID}
-                                                                     target="_blank" data-spmid="333.1007"
-                                                                     data-mod="tianma.7-1-23" data-idx="click">
-                    <svg class="bili-video-card__info--owner__up">
-                        <use xlink:href="#widget-up"></use>
-                    </svg>
-                    <span class="bili-video-card__info--author" title=${userName}>-${userName}-</span><span
-                        class="bili-video-card__info--date">· ${ctime}</span></a></div>
-            </div>
-        </div>
-    </div>
-</div>`);
-        }
     }
 }
 

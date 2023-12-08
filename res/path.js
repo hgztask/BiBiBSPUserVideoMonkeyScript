@@ -25,7 +25,6 @@
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\matching.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\UrleCrud.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\Perf_observer.js
-// @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\FrequencyChannel.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\Live.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\Trends.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\Space.js

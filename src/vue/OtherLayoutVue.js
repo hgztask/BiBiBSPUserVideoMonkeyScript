@@ -18,7 +18,6 @@ const OtherLayoutVue = {
                     "稍后再看播放列表": "https://www.bilibili.com/watchlater",
                     "直播中心": "https://link.bilibili.com/p/center/index",
                     "素材库平台": "coolHome",
-                    "频道": "https://www.bilibili.com/v/channel",
                 }
             },
             methods: {
