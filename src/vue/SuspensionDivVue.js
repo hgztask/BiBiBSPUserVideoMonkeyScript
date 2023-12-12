@@ -27,9 +27,6 @@ const SuspensionDivVue = {
                         frontCover: this.videoData.frontCover
                     };
                 },
-                addToWatchedBut() {
-                    Watched.addWatched(this.getVideoData());
-                },
                 addLookAtItLater() {
                     LookAtItLater.addLookAtItLater(this.getVideoData());
                 },

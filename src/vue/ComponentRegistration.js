@@ -109,7 +109,7 @@ Vue.component("ruleCenterItem", {
         }
     }
 );
-//用于稍后再看和已观看列表item项组件
+//用于稍后再看item项组件
 Vue.component("list-item", {
     template: `
         <li style="border: 1px solid green">
@@ -151,7 +151,7 @@ Vue.component("list-item", {
         }
     }
 });
-//TODO 后续完善下面的def-list-layout，用于稍后再看和已观看列表的默认布局
+//TODO 后续完善下面的def-list-layout，用于稍后再看的默认布局
 Vue.component("def-list-layout", {
     template: `
         <div>

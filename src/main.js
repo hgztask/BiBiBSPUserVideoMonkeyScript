@@ -615,12 +615,6 @@ function shieldVideo_userName_uid_title({
     }
     if (videoHref !== undefined) {
         const bv = Util.getSubWebUrlBV(videoHref);
-        if (Matching.arrObjKey(LocalData.getWatchedArr(), "bv", bv)) {
-            element.remove();
-            Tip.printVideo("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
-            Tip.success(`已过滤已观看的视频`);
-            return true;
-        }
         //TODO 后续适配所有需要过滤的地方
         if (Matching.arrKey(LocalData.getBvBlacklistArr(), bv)) {
             element.remove();
@@ -836,7 +830,6 @@ $("#butClearMessage").click(() => {
     document.querySelector('#outputInfo').innerHTML = '';
 });
 const bilibiliEncoder = Util.BilibiliEncoder;
-Watched.WatchedListVue();
 const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
 const returnVue = LookAtItLater.returnVue();
 const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();

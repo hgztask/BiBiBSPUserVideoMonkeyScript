@@ -177,9 +177,6 @@ const VideoPlayVue = {
                     }
                     return data;
                 },
-                addLefToWatchedBut() {
-                    Watched.addWatched(this.localGetVideoInfo())
-                },
                 addLefToLookAtItLaterListBut() {
                     LookAtItLater.addLookAtItLater(this.localGetVideoInfo())
                 },
@@ -304,7 +301,6 @@ const VideoPlayVue = {
         <button @click="getTheVideoAVNumber">获取视频av号</button>
         <button @click="getVideoCommentArea">获取评论区页面可见数据</button>
         <button @click="getLeftTopVideoListBut">获取视频选集列表数据</button>
-        <button @click="addLefToWatchedBut">添加进已观看</button>
         <button @click="addLefToLookAtItLaterListBut">添加进稍后再看</button>
         <button @click="isHideButtonLayoutBut">{{hideButtonLayoutButText}}</button>
         <button @click="isHideRightLayoutBut">{{hideRightLayoutButText}}</button>

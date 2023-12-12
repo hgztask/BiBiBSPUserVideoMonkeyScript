@@ -326,7 +326,6 @@ border: 0.5px solid green;
         <p>视频BV号:{{videoData.bv}}</span></p>
         <p>视频AV号:{{videoData.av}}</p>
         <img :src="videoData.frontCover" alt="图片显示异常" style="width: 100%;">
-        <button @click="addToWatchedBut">添加进已观看</button>
         <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>
         <button @click="addShieldName">add屏蔽用户名</button>
@@ -380,7 +379,6 @@ border: 0.5px solid green;
     <li><button value="homePageLayout">首页</button></li>
     <li><button value="video_params_layout">视频参数</button></li>
     <li><button value="liveLayout">直播列表</button></li>
-    <li><button value="watchedListLayout">已观看列表</button></li>
     <li><button value="lookAtItLaterListLayout">稍后再看列表</button></li>
     <li><button value="outputInfoLayout">输出信息</button></li>
     <li><button value="otherLayout">其他</button></li>
@@ -472,32 +470,6 @@ border: 0.5px solid green;
 </div>
   <!-- 直播列表布局 -->
 </div>
-  <div class="tab" id="watchedListLayout">
-  <def-list-layout list-layout-name="已观看视频列表"
-  :type-list="typeList"
-  find-list-type="title"
-  :list="watchedList"
-  @set-sub-this="setSubThis"
-   @search-key-event="searchKey"
-  @clear-but="clearWatchedArr"
-  @renovate-list-event="renovateLayoutItemList"
-  >
-  <template #button-list="data">
-  <ol>
-  <list-item v-for="(item,key) in data.showList"
-  :title="item.title"
-  :up-name="item.upName"
-  :uid="item.uid"
-  :bv="item.bv"
-  :obj-item="item"
-  :front_cover="item.frontCover"
-  @del-item-click="delListItem"
-  @set-item-click="setListItem"
-  ></list-item>
-</ol>
-</template>
-</def-list-layout>
-</div><!-- 已观看列表布局 -->
   <div class="tab" id="lookAtItLaterListLayout">
   <def-list-layout
   list-layout-name="稍后再看列表"

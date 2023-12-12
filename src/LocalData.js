@@ -68,12 +68,6 @@ const LocalData = {
     setVideo_zone(key) {
         Util.setData("video_zone", key);
     },
-    getWatchedArr() {//获取已观看的视频数组
-        return Util.getData("watchedArr", []);
-    },
-    setWatchedArr(key) {//设置已观看的视频
-        Util.setData("watchedArr", key);
-    },
     getLookAtItLaterArr() {//获取稍后再看列表
         return Util.getData("lookAtItLaterArr", []);
     },
