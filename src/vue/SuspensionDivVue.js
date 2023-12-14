@@ -1,6 +1,6 @@
 const SuspensionDivVue = {
     returnVue() {
-        const vue = new Vue({//快捷悬浮屏蔽面板的vue
+        window.suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             el: "#suspensionDiv",
             data: {
                 moveLayoutValue: 5,
@@ -144,8 +144,5 @@ const SuspensionDivVue = {
                 }
             },
         });
-        return function () {
-            return vue;
-        }
     }
 }

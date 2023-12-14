@@ -1,6 +1,6 @@
 const RuleCRUDLayout = {
     returnVue() {
-        const vue = new Vue({
+        window.RuleCRUDLayoutVue = new Vue({
             el: "#ruleCRUDLayout",
             data: {
                 modelList: {
@@ -301,7 +301,7 @@ const RuleCRUDLayout = {
                                     }
                                     Tip.success(message);
                                     const {rule_content} = data;
-                                    ruleCRUDLlayoutVue().inputRuleLocalData(JSON.parse(rule_content));
+                                    window.RuleCRUDLayoutVue.inputRuleLocalData(JSON.parse(rule_content));
                                 }, error(xhr, status, error) { //请求失败的回调函数
                                     loading.close();
                                     console.log(error);
@@ -414,8 +414,5 @@ const RuleCRUDLayout = {
                 this.updateRuleIndex();
             }
         });
-        return function () {
-            return vue;
-        }
     }
 }

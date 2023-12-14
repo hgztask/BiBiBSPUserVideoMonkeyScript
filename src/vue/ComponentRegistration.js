@@ -94,7 +94,7 @@ Vue.component("ruleCenterItem", {
             },
             inputLocalRuleBut() {
                 if (!confirm(`您确定要导入该用户 ${this.userName} 的规则并覆盖您当前本地已有的规则？`)) return;
-                ruleCRUDLlayoutVue().inputRuleLocalData(this.ruleList);
+                window.RuleCRUDLayoutVue.inputRuleLocalData(this.ruleList);
             },
             inputCloudRuleBut() {//导入覆盖云端规则
                 alert("暂不支持导入覆盖云端规则！");

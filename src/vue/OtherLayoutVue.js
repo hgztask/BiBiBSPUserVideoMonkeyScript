@@ -1,6 +1,6 @@
 const OtherLayoutVue = {
     returnVue() {
-        const vue = new Vue({
+        window.otherLayoutVue = new Vue({
             el: "#otherLayout",
             data: {
                 isPrivacyModeCheckbox: LocalData.getPrivacyMode(),
@@ -102,7 +102,7 @@ const OtherLayoutVue = {
                         alert("请正确填写内容！");
                         return;
                     }
-                    const dec = bilibiliEncoder.dec(content);
+                    const dec = window.bilibiliEncoder.dec(content);
                     if (isNaN(dec)) {
                         alert("结果错误！");
                         return;
@@ -121,7 +121,7 @@ const OtherLayoutVue = {
                         alert("请正确填写内容！");
                         return;
                     }
-                    const dec = bilibiliEncoder.enc(content);
+                    const dec = window.bilibiliEncoder.enc(content);
                     if (!dec.startsWith("BV")) {
                         alert("结果错误！");
                         return;
@@ -200,8 +200,5 @@ const OtherLayoutVue = {
                 }
             }
         });
-        return function () {
-            return vue;
-        }
     }
 };

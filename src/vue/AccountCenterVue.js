@@ -150,7 +150,7 @@ const AccountCenterVue = {
                                     LocalData.AccountCenter.setInfo(userInfo);
                                     const rule_content = JSON.parse(userRule["rule_content"]);
                                     if (confirm("是要将云端规则导入覆盖本地规则吗？")) {
-                                        ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
+                                        window.RuleCRUDLayoutVue.inputRuleLocalData(rule_content);
                                     }
                                 }
                                 this.$emit("tab-click", "login");

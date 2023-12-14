@@ -1,6 +1,6 @@
 const PanelSetsTheLayout = {//面板设置
     returnVue() {
-        const vue = new Vue({
+        window.panelSetsTheLayoutVue = new Vue({
             el: "#panelSetsTheLayout",
             data: {
                 backgroundPellucidRange: 1,
@@ -31,12 +31,9 @@ const PanelSetsTheLayout = {//面板设置
                 },
                 isMyButShow(newVal) {
                     LocalData.setMyButShow(newVal);
-                    isShowVue().show = newVal;
+                    window.isShowVue.show = newVal;
                 }
             }
         });
-        return function () {
-            return vue;
-        };
     }
 }

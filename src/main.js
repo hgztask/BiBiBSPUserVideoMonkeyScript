@@ -724,11 +724,11 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     const promise = RuleCenterLayoutVue.httpGetList();
     promise.then(dataBody => {
         Tip.success(dataBody.message);
-        ruleCenterLayoutVue().list = dataBody.dataList;
-        ruleCenterLayoutVue().isReloadListButShow = true;
+        window.window.ruleCenterLayoutVue.list = dataBody.dataList;
+        window.ruleCenterLayoutVue.isReloadListButShow = true;
     }).catch(reason => {
         Home.isFirstRuleCenterLayoutClick = false;
-        ruleCenterLayoutVue().isReloadListButShow = true;
+        window.ruleCenterLayoutVue.isReloadListButShow = true;
         debugger;
         console.log(reason);
     }).finally(() => {
@@ -760,7 +760,7 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
             break;
         }
         case 52: {//选中或取消面板中面板设置禁用快捷悬浮屏蔽面板自动显示
-            const vue = panelSetsTheLayoutVue();
+            const vue = window.panelSetsTheLayoutVue;
             vue.isDShieldPanel = !vue.isDShieldPanel;
             break;
         }
@@ -829,19 +829,19 @@ $("#butClearMessage").click(() => {
     }
     document.querySelector('#outputInfo').innerHTML = '';
 });
-const bilibiliEncoder = Util.BilibiliEncoder;
-const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
-const returnVue = LookAtItLater.returnVue();
-const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
+window.bilibiliEncoder = Util.BilibiliEncoder;
+RuleCRUDLayout.returnVue();
+LookAtItLater.returnVue();
+PanelSetsTheLayout.returnVue();
 Video_params_layout.returnVue();
 LiveLayoutVue.returnVue();
 OtherLayoutVue.returnVue();
 DonateLayoutVue.returnVue();
 HomePageLayoutVue.returnVue();
-const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
-const suspensionDivVue = SuspensionDivVue.returnVue();
+RuleCenterLayoutVue.returnVue();
+SuspensionDivVue.returnVue();
 AccountCenterVue.returnVue();
-const isShowVue = IsShowVue.returnVUe();
+IsShowVue.returnVUe();
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 setInterval(() => {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
