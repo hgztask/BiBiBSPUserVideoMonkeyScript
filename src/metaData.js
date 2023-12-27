@@ -43,5 +43,6 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @noframes
 // ==/UserScript==
 'use strict';
