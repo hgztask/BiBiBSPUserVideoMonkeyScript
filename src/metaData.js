@@ -43,5 +43,7 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // @noframes
+// @downloadURL https://update.greasyfork.org/scripts/461382/b站屏蔽增强器.user.js
+// @updateURL https://update.greasyfork.org/scripts/461382/b站屏蔽增强器.meta.js
 // ==/UserScript==
 'use strict';
