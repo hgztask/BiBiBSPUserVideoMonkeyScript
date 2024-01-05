@@ -1,6 +1,6 @@
 const DonateLayoutVue = {
     returnVue() {
-        const vue = new Vue({
+        new Vue({
             el: "#home_layout #donateLayout",
             template: `
               <div id="donateLayout" class="tab">
@@ -36,8 +36,5 @@ const DonateLayoutVue = {
                 ]
             }
         });
-        return function () {
-            return vue;
-        }
     }
 }
