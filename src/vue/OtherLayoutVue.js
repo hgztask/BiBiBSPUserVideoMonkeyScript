@@ -4,14 +4,6 @@ const OtherLayoutVue = {
             el: "#otherLayout",
             data: {
                 isPrivacyModeCheckbox: LocalData.getPrivacyMode(),
-                //网络请求Url
-                requestUrl: "",
-                requestTypeSelect: "get",
-                requestType: ["get",
-                    // "post"
-                ],
-                responseResult: "",
-                requestCookie: "",
                 isTrendsItemsTwoColumnCheackbox: Trends.data.getTrendsItemsTwoColumnCheackbox(),
                 BWebOpenList: {
                     "稍后再看列表": "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list",
@@ -133,27 +125,6 @@ const OtherLayoutVue = {
                 openBWeb(item, name) {
                     if (!confirm(`是要前往 ${name} 吗？`)) return;
                     Util.openWindow(item);
-                },
-                sendRequestBut() {
-                    const requestUrl = this.requestUrl;
-                    const cookie = this.requestCookie;
-                    if (!(requestUrl.startsWith("https://") || requestUrl.startsWith("http://"))) {
-                        Tip.error("请正确填写请求地址！");
-                        return;
-                    }
-                    const requestType = this.requestTypeSelect;
-                    const promise = HttpUtil.getCookie(requestUrl, cookie);
-                    const loading = Tip.loading(`正在使用${requestType}请求 请求地址${requestUrl}中！`);
-                    promise.then(data => {
-                        Tip.success("请求成功！");
-                        this.responseResult = data.body;
-                        console.log(data);
-                    }).catch(reason => {
-                        Tip.error("相应失败！");
-                        console.error(reason);
-                    }).finally(() => {
-                        loading.close();
-                    });
                 }
             },
             watch: {

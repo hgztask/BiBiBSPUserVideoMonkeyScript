@@ -256,20 +256,6 @@ border: 0.5px solid green;
     <input type="checkbox" v-model="isPrivacyModeCheckbox">开启隐私模式
     </div>
     <div>
-    <h1>网络请求</h1>
-    <p>默认仅仅只能请求b站的顶级域，如需请求其他的网站，请在油猴中打开本脚本的设置，在XHR安全选项卡中，针对性添加域名白名单，pan.baidu.com，和baidu.com，后者范围更大，前者无法请求到其他百度的子域名。</p>
-    请求Url：
-    <input type="text" v-model.trim="requestUrl" style="width: 100%">
-    Cookie：
-    <input type="text" v-model.trim="requestCookie" style="width: 100%">
-    <div><select v-model="requestTypeSelect"><option  v-for="item in requestType" :value="item">{{item}}</option></select></div>
-    <div><button @click="sendRequestBut">发送请求</button></div>
-    <details>
-    <summary>相应结果</summary>
-    <textarea style="width: 100%;height: 500px" readonly>{{responseResult}}</textarea>
-    </details>
-    </div>
-    <div>
     <h1>其他</h1>
     <button @click="bvToAvBut">bv号转av号</button>
     <button @click="avTObvBut">av号转bv号</button>
