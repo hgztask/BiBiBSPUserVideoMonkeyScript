@@ -97,16 +97,16 @@ Vue.component("ruleCenterItem", {
             window.RuleCRUDLayoutVue.inputRuleLocalData(this.ruleList);
         },
         inputCloudRuleBut() {//导入覆盖云端规则
-                alert("暂不支持导入覆盖云端规则！");
-            },
-            lookUserRuleBut() {
-                if (!confirm(`您是要查看用户 ${this.userName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) return;
-                Util.openWindowWriteContent(JSON.stringify(this.ruleList, null, 2));
-            },
-            formatTIme(time) {
-                return Util.timestampToTime(time);
-            }
+            alert("暂不支持导入覆盖云端规则！");
+        },
+        lookUserRuleBut() {
+            if (!confirm(`您是要查看用户 ${this.userName} 的规则内容吗，需要注意的是，在某些浏览器中，由于安全原因，脚本不能使用 window.open() 创建新窗口。对于这些浏览器，如果您出现打不开的情况，用户必须将浏览器设置为允许弹出窗口才能打开新窗口`)) return;
+            Util.openWindowWriteContent(JSON.stringify(this.ruleList, null, 2));
+        },
+        formatTIme(time) {
+            return Util.timestampToTime(time);
         }
+    }
     }
 );
 //用于稍后再看item项组件
@@ -224,23 +224,41 @@ Vue.component("footer_layout", {
       作者相关群聊：
       <div v-for="item in group" :key="item.name">
         {{ item.name }}<a :href="item.url" target="_blank"><img :alt="item.name"
-                                                                :title="item.title"
+                                                                :title="item.name"
                                                                 src="//pub.idqqimg.com/wpa/images/group.png"></a>
       </div>
       <div>
         作者其他作品：
-        <button><a href="https://greasyfork.org/zh-CN/scripts/481719" target="_blank">b站频道生成器</a></button>
-        <div>开源地址：<a href="https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript" target="_blank">gitee</a></div>
+        <div v-for="v in works" :key="v.label">
+          <button><a :href="v.url" target="_blank">{{ v.label }}</a></button>
+          开源地址：<a :href="v.openSourceUrl" target="_blank">{{ v.openSourceLabel }}</a>
+        </div>
+        <div> 作者b站：
+          <button><a href="https://space.bilibili.com/473239155">传送门地址</a></button>
+        </div>
       </div>
       </div>`,
     data() {
         return {
             group: [
                 {
-                    name: "b站屏蔽增强器油猴脚本官方群",
-                    title: "其中也包括当前脚本",
+                    name: "桐子酱的油猴脚本官方群",
                     url: "//qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=zD3QMvs1ssNugrHekhe16Y1p6ofNtFaA&authKey=FpgEzNW82mhUYUa74jcb8Y2dVkSd4Qh%2FgxflxdUBJ9VohHQlM26PxZ0Fl6E6qfnq&noverify=0&group_code=876295632"
                 },
+            ],
+            works: [
+                {
+                    label: "b站屏蔽增强器油猴脚本",
+                    url: "https://greasyfork.org/zh-CN/scripts/461382",
+                    openSourceUrl: "https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript",
+                    openSourceLabel: "gitee"
+                },
+                {
+                    label: "b站频道生成器",
+                    url: "https://greasyfork.org/zh-CN/scripts/481719",
+                    openSourceUrl: "https://gitee.com/hangexi/bilibili-channel-viewer",
+                    openSourceLabel: "gitee"
+                }
             ]
         }
     }

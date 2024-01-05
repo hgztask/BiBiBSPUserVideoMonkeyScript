@@ -9,6 +9,7 @@ Vue.component("main_layout", {
       <div>
         <div v-for="v in tabList" :key=v.id v-bind:id="v.id" :class="{tab:true}"></div>
       </div>
+      <hr>
       <footer_layout/>
       </div>`,
     data() {
