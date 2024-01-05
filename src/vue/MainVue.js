@@ -19,10 +19,10 @@ Vue.component("main_layout", {
                 {id: "ruleCRUDLayout", label: "规则增删改查-信息-备份与恢复(导出与导入)"},
                 {id: "homePageLayout", label: "首页"},
                 {id: "video_params_layout", label: "视频参数"},
-                {id: "liveLayout", label: "直播列表",},
+                {id: "liveLayout", label: "直播列表"},
                 {id: "lookAtItLaterListLayout", label: "稍后再看列表"},
                 {id: "outputInfoLayout", label: "输出信息"},
-                {id: "otherLayout", label: "其他",},
+                {id: "otherLayout", label: "其他"},
                 {id: "donateLayout", label: "支持打赏作者"},
                 {id: "ruleCenterLayout", label: "规则中心"},
                 {id: "accountCenterLayout", label: "账户中心"}
