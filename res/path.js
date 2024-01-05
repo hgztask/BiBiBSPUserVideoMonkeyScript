@@ -38,5 +38,4 @@
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\views\Bilibili.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\views\BilibiliOne.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\views\Github.js
-// @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\views\GBTGame.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\main.js

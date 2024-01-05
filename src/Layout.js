@@ -275,13 +275,7 @@ border: 0.5px solid green;
     <button @click="avTObvBut">av号转bv号</button>
     </div>
     <hr>
-<details open>
-    <summary>GBT乐赏游戏空间</summary>
-    <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
-    <button @click="getGBTPageDataInfoBut">初始化页面资源信息</button>
-    <button @click="getGBTDataBut">获取页面资源</button>
-    <button @click="getGBTFildKeysBut">获取指定key的项目</button>
-</details>
+   <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
 <details title="设置之后加载其他动态内容或者刷新页面才生效" open>
 <summary>动态</summary>
 <input type="checkbox" v-model="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示

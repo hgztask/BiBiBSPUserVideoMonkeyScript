@@ -16,7 +16,6 @@ const OtherLayoutVue = {
                 BWebOpenList: {
                     "稍后再看列表": "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list",
                     "稍后再看播放列表": "https://www.bilibili.com/watchlater",
-                    "直播中心": "https://link.bilibili.com/p/center/index",
                     "素材库平台": "coolHome",
                 }
             },
@@ -129,41 +128,7 @@ const OtherLayoutVue = {
                     alert(dec);
                 },
                 openGBTWebBut() {
-                    if (Util.getWindowUrl().includes("http://gbtgame.ysepan.com")) {
-                        alert("当前网站就是GBT乐赏游戏空间");
-                        return;
-                    }
                     Util.openWindow("http://gbtgame.ysepan.com/");
-                },
-                getGBTPageDataInfoBut() {
-                    GBTGame.init();
-                },
-                getGBTDataBut() {
-                    GBTGame.getData();
-                },
-                getGBTFildKeysBut() {
-                    const key = prompt("请输入您要搜索的内容");
-                    if (key === null) return;
-                    if (key.includes(" ") || key === "") {
-                        alert("请正确填写您要搜索的内容！");
-                        return;
-                    }
-                    const findList = GBTGame.find(key);
-                    const filter = Object.keys(findList);
-                    if (filter.length === 0) {
-                        const info = "并未搜索到您想要的资源，key=" + key;
-                        Tip.printLn(info);
-                        Tip.info(info);
-                        alert(info);
-                        return;
-                    }
-                    const info = `已找到了${filter.length}个资源，并输出到控制台上，且用户接下来可以将其保存在电脑上！`;
-                    alert(info);
-                    const findJsonListStr = JSON.stringify(findList, null, 3);
-                    console.log(findList);
-                    console.log(findJsonListStr);
-                    Tip.success(info);
-                    Util.fileDownload(findJsonListStr, `搜索GBT乐赏游戏空间关键词为【${key}】 的资源${filter.length}个.json`);
                 },
                 openBWeb(item, name) {
                     if (!confirm(`是要前往 ${name} 吗？`)) return;

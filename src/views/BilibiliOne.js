@@ -113,47 +113,7 @@ async function bilibiliOne(href, windowsTitle) {
                     clearInterval(interval02);
                 }
             }, 2000);
-            if (Rule.liveData.rightSuspendButton) {
-                const interval = setInterval(() => {
-                    const classNameElement = document.getElementsByClassName("live-sidebar-ctnr a-move-in-left ts-dot-4")[0];
-                    if (classNameElement) {
-                        clearInterval(interval);
-                        classNameElement.remove();
-                        Tip.printLn("已移除直播首页右侧的悬浮按钮");
-                    }
-                }, 2000);
-            }
         }, 800);
-        return;
-    }
-    if (href.includes("//live.bilibili.com/") && windowsTitle.includes("哔哩哔哩直播，二次元弹幕直播平台")) {//直播间房间-该判断要低于上面的直播首页判断
-        console.log("当前界面疑似是直播间");
-        $("#getLiveHighEnergyListBut").css("display", "inline");//显示获取高能用户列表按钮
-        $("#getLiveDisplayableBarrageListBut").css("display", "inline");//显示获取当前可显示的弹幕列表
-        Live.liveDel.topElement();
-        Live.liveDel.hreadElement();
-        Live.liveDel.bottomElement();
-        Live.liveDel.delGiftBar();
-        Live.liveDel.delRightChatLayout();
-        Live.liveDel.delOtherE();
-        const interval01 = setInterval(() => {
-            const chat_items = $("#chat-items");
-            if (chat_items.length === 0) return;
-            clearInterval(interval01);
-            chat_items.bind("DOMNodeInserted", () => {
-                const list = $("#chat-items").children();
-                if (list.length === 0) return;
-                if (list.length >= 100) {
-                    for (let i = 0; i < 50; i++) {
-                        list[i].remove();
-                    }
-                    Tip.info("当前弹幕内容达到100个，已自动进行截取，保留50个");
-                    return;
-                }
-                Live.shield(list);
-            });
-            console.log("定义了监听器!");
-        }, 1000);
         return;
     }
     if (href.includes("t.bilibili.com") && windowsTitle === "动态首页-哔哩哔哩") {

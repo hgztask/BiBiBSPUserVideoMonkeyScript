@@ -22,61 +22,6 @@ const Rule = {
         isRightLayout: false,
         //是覅移除话题布局上面的公告栏
         isBiliDynBanner: true,
-    },
-    /**
-     *直播间的相关配置信息
-     */
-    liveData: {
-        //是否移除直播间底部的全部信息，包括动态和主播公告和简介及荣誉
-        bottomElement: true,
-        //是否移除直播间顶部的信息（包括顶部标题栏）
-        topElement: true,
-        //是否移除直播间播放器头部的用户信息以及直播间基础信息
-        isheadInfoVm: true,
-        //是否移除直播间右侧的聊天布局
-        isRightChatLayout: false,
-        //是否移除直播间右侧的聊天内容
-        isChatHistoryPanel: false,
-        //是否移除右侧的聊天内容中的红色的系统提示
-        isSystemRedTip: true,
-        //是否移除右侧聊天内容中的用户进入房间提示
-        isEnterLiveRoomTip: true,
-        //是否移除左上角的b站直播logo
-        topLeftLogo: true,
-        //是否移除左上角的首页项目
-        topLeftHomeTitle: true,
-        //是否移除直播间底部的的简介和主播荣誉
-        bottomIntroduction: false,
-        //是否移除直播间的主播公告布局
-        container: false,
-        //是否移除直播首页右侧的悬浮按钮
-        rightSuspendButton: true,
-        //是否移除提示购物车
-        isShoppingCartTip: true,
-        //是否移除购物车
-        isShoppingCart: true,
-        //是否移除直播间的背景图
-        isDelbackground: true,
-        /**
-         * 是否屏蔽直播间底部动态
-         */
-        liveFeed: false,
-        //要移除顶部左侧的选项（不包括右侧），但必须要有该选项，比如下面例子的，赛事，就移除其，如需要添加别的在该数组后面添加即可，如["赛事","生活"]
-        topLeftBar: ["赛事", "购物", "知识", "生活", "电台", "娱乐"],
-        //是否移除礼物栏
-        delGiftLayout: true,
-        //是否移除立即上舰
-        isEmbark: true,
-        //是否移除礼物栏的的礼物部分
-        isGift: true,
-        //直播分区时屏蔽的类型，比如在手游直播界面里的全部中，会屏蔽对应的类型房间号
-        classify: ["和平精英"],
-        //是否移除悬浮的233娘
-        is233Ma: true,
-        //是否移除右侧悬浮靠边按钮-如实验-关注
-        isRightSuspenBotton: true,
-        //是否移除直播水印
-        isLiveRoomWatermark: true
     }
 }
 const Home = {
