@@ -634,11 +634,9 @@ layout.addMainLayout();
 $("body").prepend('<button id="myBut" v-show="show" @click="showBut">按钮</button>');
 layout.css.home();
 Util.BilibiliEncoder.init();
-$("#tabUl>li>button").click((e) => {
+$("#home_layout #tabUl>li>button").click((e) => {
     const domElement = e.delegateTarget;
-    document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
-        $(value).css("color", "");
-    })
+    document.querySelectorAll("#home_layout #tabUl>li>button").forEach((value) => $(value).css("color", ""))
     domElement.style.color = "#1b00ff";
     Home.openTab(domElement.value);
 });

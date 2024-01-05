@@ -5,7 +5,7 @@ const layout = {
 #home_layout {
     background: ${Home.getBackgroundStr()};
     margin: 0px;
-    height: 100%;
+    height: auto;
     width: 100%;
     max-height: 100%;
     position: fixed;
