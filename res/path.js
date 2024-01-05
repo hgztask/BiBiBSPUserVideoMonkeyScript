@@ -5,6 +5,7 @@
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\util\Util.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\util\HttpUtil.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\util\Tip.js
+// @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\vue\MainVue.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\Layout.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\LocalData.js
 // @require      file:///D:\DataFile\other\WebStorm\project\BiBiBSPUserVideoMonkeyScript\src\vue\PanelSetsTheLayout.js

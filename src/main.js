@@ -120,12 +120,8 @@ const Home = {
         });
     },
     hideDisplayHomeLaylout() {//隐藏显示面板
-        const $homeLayout = $("#home_layout");
-        if ($homeLayout.is(":hidden")) {
-            $homeLayout.show();
-        } else {
-            $homeLayout.hide();
-        }
+        const vue = window.mainVue
+        vue.show = !vue.show;
     },
     homePrefecture() {//针对于分区的广告页脚信息屏蔽
         Util.circulateID("biliMainFooter", 2000, "已移除底部信息");
@@ -634,7 +630,7 @@ if (href.includes("github.com")) {
     throw new Error();
 }
 //加载布局
-layout.loading.home();
+layout.addMainLayout();
 $("body").prepend('<button id="myBut" v-show="show" @click="showBut">按钮</button>');
 layout.css.home();
 Util.BilibiliEncoder.init();
