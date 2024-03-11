@@ -26,7 +26,6 @@
 // @match        *://www.bilibili.com/opus/*
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
-// @match        *://github.com/*
 // @require      https://cdn.jsdelivr.net/npm/vue@2
 // @require      https://code.jquery.com/jquery-3.5.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
