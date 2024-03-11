@@ -265,6 +265,12 @@ Vue.component("footer_layout", {
                     url: "https://greasyfork.org/zh-CN/scripts/489538",
                     openSourceUrl: "https://gitee.com/hangexi/github_new_tab_open",
                     openSourceLabel: "gitee"
+                },
+                {
+                    label: "b站动态设置",
+                    url: "https://greasyfork.org/zh-CN/scripts/489577",
+                    openSourceUrl: "https://gitee.com/hangexi/bilibili_dynamic_set_js",
+                    openSourceLabel: "gitee"
                 }
             ]
         }
