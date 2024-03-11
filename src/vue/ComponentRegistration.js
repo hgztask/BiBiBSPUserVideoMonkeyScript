@@ -259,6 +259,12 @@ Vue.component("footer_layout", {
                     url: "https://greasyfork.org/zh-CN/scripts/481719",
                     openSourceUrl: "https://gitee.com/hangexi/bilibili-channel-viewer",
                     openSourceLabel: "gitee"
+                },
+                {
+                    label: "github链接新标签打开",
+                    url: "https://greasyfork.org/zh-CN/scripts/489538",
+                    openSourceUrl: "https://gitee.com/hangexi/github_new_tab_open",
+                    openSourceLabel: "gitee"
                 }
             ]
         }
