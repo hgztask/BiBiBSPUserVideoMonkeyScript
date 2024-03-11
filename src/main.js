@@ -767,7 +767,6 @@ Video_params_layout.returnVue();
 LiveLayoutVue.returnVue();
 OtherLayoutVue.returnVue();
 DonateLayoutVue.returnVue();
-HomePageLayoutVue.returnVue();
 RuleCenterLayoutVue.returnVue();
 SuspensionDivVue.returnVue();
 AccountCenterVue.returnVue();

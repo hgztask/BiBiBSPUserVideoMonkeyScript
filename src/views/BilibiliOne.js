@@ -67,9 +67,6 @@ async function bilibiliOne(href, windowsTitle) {
             jqE.remove();
             Tip.info("已移除页面下滑时，显示顶部的部分导航信息");
         }, 1000);
-        if (LocalData.home.isSetHomeStyle()) {
-            Home.stypeBody();
-        }
         return;
     }
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页

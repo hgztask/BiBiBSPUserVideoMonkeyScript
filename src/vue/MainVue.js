@@ -18,7 +18,6 @@ Vue.component("main_layout", {
             tabList: [
                 {id: "panelSetsTheLayout", label: "面板设置"},
                 {id: "ruleCRUDLayout", label: "规则增删改查-信息-备份与恢复(导出与导入)"},
-                {id: "homePageLayout", label: "首页"},
                 {id: "video_params_layout", label: "视频参数"},
                 {id: "liveLayout", label: "直播列表"},
                 {id: "lookAtItLaterListLayout", label: "稍后再看列表"},

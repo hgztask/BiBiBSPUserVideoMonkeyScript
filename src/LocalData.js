@@ -122,16 +122,6 @@ const LocalData = {
         setAutoPlay(v) {
             Util.setData("autoPlay", v === true)
         },
-        getRangePlaySpeed() {
-            const data = Util.getData("rangePlaySpeed", 1);
-            if (isNaN(data)) {
-                return 1;
-            }
-            return data;
-        },
-        setRangePlaySpeed(v) {
-            Util.setData("rangePlaySpeed", v);
-        },
         isVideoEndRecommend() {//是否播放完视频后移除视频推荐
             return Util.getData("videoEndRecommend", false);
         },
@@ -150,20 +140,6 @@ const LocalData = {
             return Util.getData("AccountCenterInfo", {});
         }, setInfo(key) {//设置本地账户信息
             Util.setData("AccountCenterInfo", key);
-        }
-    },
-    home: {
-        isSetHomeStyle() {//返回是否针对于首页调整样式
-            return Util.getData("isSetHomeStyle", false) === true;
-        },
-        setHomeStyle(bool) {//设置
-            Util.setData("isSetHomeStyle", bool === true);
-        },
-        isMainVideoList() {//获取是否针对于首页进行视频推送处理
-            return Util.getData("isMainVideoList", false) === true;
-        },
-        setMainVideoList(bool) {//设置是否针对于首页进行视频推送处理
-            Util.setData("isMainVideoList", bool === true);
         }
     },
     isDShieldPanel() {//是否开启禁用快捷悬浮屏蔽面板自动显示

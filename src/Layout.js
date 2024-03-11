@@ -166,14 +166,6 @@ border: 0.5px solid green;
 </div>
 `;
     },
-    getHomePageLayout() {
-        return `
-      <h1>首页样式调整</h1>
-      <div>
-      <input type="checkbox" v-model="isSetHomeStyle">首页视频项目左右边框调整
-      </div>
-      </div>`;
-    },
     getVideo_params_layout() {
         return `<div>
 <div>
@@ -187,15 +179,6 @@ border: 0.5px solid green;
     <div>
         <button @click="VideoPIPicture">视频画中画</button>
     </div>
-<h3>视频播放速度</h3>
- <div>固定视频播放速度值
-   <select v-model="playbackSpeedSelect">
-   <option v-for="item in playbackSpeedList" :value="item">{{item}}x</option>
-    </select>
-  </div>
-拖动更改页面视频播放速度<input v-model="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
- <span>{{rangePlaySpeed}}x</span>
- <button @click="preservePlaySpeed">保存</button>
 <hr>
 </div>
     <h3>播放画面翻转</h3>
@@ -447,7 +430,6 @@ border: 0.5px solid green;
       </ul>`);
         $("#accountCenterLayout").append(`<component v-bind:is="isTab" @tab-click="getTabName"></component>`);
         $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
-        $("#homePageLayout").append(layout.getHomePageLayout());
         $("#video_params_layout").append(layout.getVideo_params_layout());
         $("#outputInfoLayout").append(layout.getOutputInfoLayout());
         $("#otherLayout").append(layout.getOtherLayout());
