@@ -228,12 +228,6 @@ border: 0.5px solid green;
         <button title="为空字符串则取消" @click="setSgSessdataBut">设置SESSDATA</button>
         <button @click="getSgSessdataBut">读取SESSDATA</button>
       </div>
-      <div>
-        <button @click="setBili_jctBut">设置bili_jct</button>
-        <button @click="setLogInBili_jctBut">设置b站登录的bili_jct</button>
-        <button @click="getLogInBili_jctBut">读取b站登录的bili_jct</button>
-        <button @click="getBili_jctBut">读取bili_jct</button>
-      </div>
     </details>
     <div>
     <h1>其他</h1>

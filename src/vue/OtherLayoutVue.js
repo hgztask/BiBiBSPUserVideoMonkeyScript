@@ -43,47 +43,6 @@ const OtherLayoutVue = {
                     Tip.printLn("用户存储在脚本中的SESSDATA，如上一条：");
                     Tip.printLn(data);
                 },
-                setBili_jctBut() {
-                    const content = prompt("设置bili_jct值为：");
-                    if (content === null) {
-                        return;
-                    }
-                    if (content === "" | content.includes(" ")) {
-                        Tip.error("内容有误，请正确书写！");
-                        return;
-                    }
-                    LocalData.setBili_jct(content);
-                    Tip.success(`已设置bili_jct的值为\n${content}`);
-                },
-                setLogInBili_jctBut() {
-                    const data = LocalData.getWebBili_jct();
-                    if (data === null) {
-                        Tip.error(`获取不到存储在网页中的bili_jct值:`);
-                        return;
-                    }
-                    if (!confirm("确定要将存储在网页中的bili_jct值并设置存储在油猴脚本bili_jct值吗？")) {
-                        return;
-                    }
-                    LocalData.setBili_jct(data);
-                    Tip.success(`已读取存储在网页中的bili_jct值并设置存储在脚本bili_jct的值为\n${data}`);
-                },
-                getLogInBili_jctBut() {
-                    const data = LocalData.getWebBili_jct();
-                    if (data === null) {
-                        Tip.error(`获取不到存储在网页中的bili_jct值:`);
-                        return;
-                    }
-                    Tip.success("已获取到存储在网页中的bili_jct值，已输出到面板上");
-                    Tip.printLn(data);
-                },
-                getBili_jctBut() {
-                    const biliJct = LocalData.getBili_jct();
-                    if (biliJct === null) {
-                        Tip.error(`用户未设置bili_jct值`);
-                        return;
-                    }
-                    Tip.success("获取成功！，已将bili_jct值输出到面板上");
-                },
                 bvToAvBut() {
                     const content = prompt("bv转av号");
                     if (content === null) {

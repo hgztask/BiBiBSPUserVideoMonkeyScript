@@ -8,17 +8,6 @@ const LocalData = {
     setSESSDATA(key) {
         Util.setData("SESSDATA", key);
     },
-    getWebBili_jct() {
-        const data = Util.getCookieList()["bili_jct"];
-        if (data === undefined) return null;
-        return data;
-    },
-    getBili_jct() {
-        return Util.getData("bili_jct", null);
-    },
-    setBili_jct(key) {
-        Util.setData("bili_jct", key);
-    },
     getArrUID() {
         return Util.getData("userUIDArr", []);
     },
