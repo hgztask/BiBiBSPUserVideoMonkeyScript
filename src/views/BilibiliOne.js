@@ -266,19 +266,6 @@ async function bilibiliOne(href, windowsTitle) {
         console.log("已移除bilibili右侧悬浮按钮");
         return;
     }
-    if (href.includes("www.bilibili.com/v/channel")) {
-        const interval01 = setInterval(() => {
-            const nav_link_ulMini = $(".nav-link-ul.mini");
-            if (nav_link_ulMini.length === 0) return;
-            clearInterval(interval01);
-            const item = $(".nav-link-item:contains('下载'),.nav-link-item:contains('赛事'),.nav-link-item:contains('漫画'),.nav-link-item:contains('会员购')");
-            console.log(item);
-            item.remove();
-            $(".navbar_logo").remove();//移除左上角的bilibili的LOGO
-            console.log("已移除坐上顶栏部分项目");
-        }, 1000);
-        return;
-    }
     if (href.includes("www.bilibili.com/v")) {//首页分区页,该判断要低于频道等其他页面，主要是因为地址有相似的地方
         let size = -1;
         setInterval(() => {

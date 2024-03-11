@@ -10,10 +10,8 @@
 // @exclude      *://live.bilibili.com/blackboard/dropdown-menu.html
 // @exclude      *://live.bilibili.com/p/html/live-web-mng/*
 // @exclude      *://www.bilibili.com/correspond/*
-// @match        https://www.bilibili.com/v/channel/*?tab=multiple
 // @match        *://search.bilibili.com/*
 // @match        *://www.bilibili.com/v/food/*
-// @match        *://www.bilibili.com/v/channel/*
 // @match        *://message.bilibili.com/*
 // @match        *://www.bilibili.com/read/*
 // @match        *://www.bilibili.com/v/topic/detail/?topic_id=*
