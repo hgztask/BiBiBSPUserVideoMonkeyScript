@@ -116,22 +116,12 @@ async function bilibiliOne(href, windowsTitle) {
             login.remove();
             console.log("已移除动态页面中的提示登录");
         }, 1000);
-        Trends.topCssDisply.body();
-        Trends.topCssDisply.topTar();
-        Trends.topCssDisply.rightLayout();
         Trends.tempLoadIng();
-        Trends.layoutCss.setStyleRichTextarea();
         const interval03 = setInterval(() => {
             const tab = document.querySelector(".bili-dyn-up-list__content");
             if (tab === null) return;
             clearInterval(interval03);
-            Util.addStyle(`
-            .bili-dyn-up-list__content{
-            display:flex;
-            flex-flow:row wrap;
-            }`);
             document.querySelector(".bili-dyn-up-list__shadow-right")?.remove();
-            debugger;
             $(tab).children(".bili-dyn-up-list__item").click(() => {
                 Trends.tempLoadIng();
             });

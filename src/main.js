@@ -14,15 +14,6 @@ const Rule = {
         isDesc: false,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
         isRightVideo: false
-    },
-    //动态相关配置信息
-    trendsData: {
-        //是否移除顶栏
-        isTop: false,
-        //是否移除右侧布局
-        isRightLayout: false,
-        //是覅移除话题布局上面的公告栏
-        isBiliDynBanner: true,
     }
 }
 const Home = {

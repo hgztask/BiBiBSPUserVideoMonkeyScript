@@ -236,10 +236,6 @@ border: 0.5px solid green;
     </div>
     <hr>
    <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
-<details title="设置之后加载其他动态内容或者刷新页面才生效" open>
-<summary>动态</summary>
-<input type="checkbox" v-model="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
-</details>
 <details open>
 <summary>b站页面传送门</summary>
 <button v-for="(item,keyName) in BWebOpenList" :value="item" @click="openBWeb(item,keyName)">{{keyName}}</button>

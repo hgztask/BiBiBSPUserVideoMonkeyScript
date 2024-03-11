@@ -1,118 +1,7 @@
 //{"weight":2}
 //动态
 const Trends = {
-    data: {
-        setTrendsItemsTwoColumnCheackbox(bool) {
-            Util.setData("isTrendsItemsTwoColumnCheackbox", bool);
-        },
-        getTrendsItemsTwoColumnCheackbox() {
-            return Util.isBoolean(Util.getData("isTrendsItemsTwoColumnCheackbox", false));
-        },
-    }, topCssDisply: {
-        //针对于整体布局的细调整
-        body() {
-            const sessdata = LocalData.getSESSDATA();
-            const interval = setInterval(() => {
-                try {
-                    document.querySelector(".bili-dyn-home--member").style.justifyContent = 'space-between';
-                    document.querySelector(".bili-dyn-my-info").style.display = "none";//移除左侧中的个人基础面板信息
-                    if (sessdata !== null) {
-                        const leftLiveLay = document.querySelector(".left");
-                        if (leftLiveLay.length === 0) {
-                            return;
-                        }
-                        leftLiveLay.style.display = "none";//当用户已经设置了sessdata值时，隐藏右侧的直播列表
-                        document.querySelector("main").style.width = "84%";
-                    } else {
-                        document.querySelector("main").style.width = "70%";
-                    }
-                    Tip.printLn("已调整动态界面布局");
-                    clearInterval(interval)
-                } catch (e) {
-                }
-            });
-            const interval02 = setInterval(() => {
-                const e = document.querySelectorAll(".bili-dyn-sidebar>*:nth-child(-n+2)");
-                if (e.length === 0) return;
-                clearInterval(interval02);
-                e.forEach((value, key) => {
-                    value.remove();
-                });
-                console.log("已尝试移除个别多余的悬浮按钮");
-            }, 500);
-        },
-        //针对顶部的处理
-        topTar() {
-            const trends = Rule.trendsData;
-            if (trends.isTop) {
-                const interval = setInterval(() => {
-                        try {
-                            document.getElementById("bili-header-container").remove();//移除顶部栏
-                            clearInterval(interval);
-                        } catch (e) {
-                        }
-                    }
-                );
-            }
-        },
-        rightLayout() {
-            const trendsData = Rule.trendsData;
-            if (trendsData.isRightLayout) {
-                const interval = setInterval(() => {
-                    try {
-                        document.getElementsByClassName("right")[0].style.display = "none";//隐藏右侧布局
-                        document.getElementsByTagName("main")[0].style.width = "85%";//调整中间动态容器布局宽度
-                        clearInterval(interval);
-                        Tip.printLn("已移除右侧布局并调整中间动态容器布局宽度")
-                    } catch (e) {
-                    }
-                }, 1000);
-                return;
-            }
-            if (trendsData.isBiliDynBanner) {
-                const interval = setInterval(() => {
-                    try {
-                        document.getElementsByClassName("bili-dyn-banner")[0].style.display = "none";
-                        Tip.printLn("已移除公告栏布局")
-                        clearInterval(interval)
-                    } catch (e) {
-                    }
-                });
-            }
-            //移除话题上面的广告
-            const interval01 = setInterval(() => {
-                const bili_dyn_ads = $(".bili-dyn-ads");
-                if (bili_dyn_ads.length === 0) return;
-                clearInterval(interval01);
-                bili_dyn_ads.remove();
-                console.log("已移除话题上面的广告");
-            }, 1000);
-        }
-    }, layoutCss: {
-        items() {//调整动态列表的布局方式为类似网格
-            Util.addStyle(`
-            .bili-dyn-list__items{
-           column-count: 2;
-            }
-            .bili-dyn-list__items>*{
-            page-break-inside: avoid;
-            }
-            `);
-        },
-        setStyleRichTextarea() {
-            const i1 = setInterval(() => {
-                const richTextArea = document.querySelector(".bili-rich-textarea");
-                if (richTextArea === null) return;
-                clearInterval(i1);
-                try {
-                    $(richTextArea).css("max-height", "");
-                    Tip.success("已解锁发动态编辑框的最大可视内容！");
-                } catch (e) {
-                    console.error("修改编辑框最大可视内容时出错！", e);
-                }
-            }, 1000);
-        }
-    },
+
     getVideoCommentAreaOrTrendsLandlord(v) {//获取动态页面-评论区信息-单个元素信息-楼主
         return new ContentCLass().setUpName(v.querySelector(".user-name").textContent).setUid(v.querySelector(".user-name").getAttribute("data-user-id"))
             .setContent(v.querySelector(".reply-content").parentNode.textContent);
@@ -144,6 +33,7 @@ const Trends = {
                 v.remove();
                 Tip.success(`已通过动态正则关键词屏蔽相关动态，详情屏蔽内容可看面板输出信息`);
                 Tip.printLn(tempInfo);
+                Rule.trendsData
             }
         }
     },
@@ -161,8 +51,6 @@ const Trends = {
             if (tempList.length === 0) return;
             clearInterval(interval01);
             Trends.shrieDynamicItems(tempList);
-            if (!Trends.data.getTrendsItemsTwoColumnCheackbox()) return;
-            Trends.layoutCss.items();
         }, 1000);
         try {
             const tempE01 = $(".bili-dyn-list__items");
