@@ -1,3 +1,4 @@
+//{"weight":-1}
 // ==UserScript==
 // @name         b站屏蔽增强器
 // @namespace    https://greasyfork.org/zh-CN/scripts/461382

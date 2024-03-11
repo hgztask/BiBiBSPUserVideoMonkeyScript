@@ -1,3 +1,4 @@
+//{"weight":1}
 async function perf_observer() {
     const entries = performance.getEntriesByType('resource');
     const windowUrl = Util.getWindowUrl();

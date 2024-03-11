@@ -1,3 +1,4 @@
+//{"weight":2}
 const LockScreen = {
     screen: LocalData.LockScreen,
     verifyPwd() {//验证锁屏密码流程

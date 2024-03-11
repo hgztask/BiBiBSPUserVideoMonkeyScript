@@ -1,3 +1,4 @@
+//{"weight":4}
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接

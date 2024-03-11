@@ -1,3 +1,4 @@
+//{"weight":2}
 const Space = {
     //是否正在获取粉丝或关注列表
     isFetchingFollowersOrWatchlists: false,

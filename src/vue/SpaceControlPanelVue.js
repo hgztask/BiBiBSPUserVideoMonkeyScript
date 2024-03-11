@@ -1,3 +1,4 @@
+//{"weight":2}
 const SpaceControlPanelVue = {//空间主页左侧控制面板
     returnVue() {
         const vue = new Vue({

@@ -1,3 +1,4 @@
+//{"weight":1}
 const LocalData = {
     getSESSDATA() {
         const data = Util.getData("SESSDATA", null);

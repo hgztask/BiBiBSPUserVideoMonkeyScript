@@ -1,3 +1,4 @@
+//{"weight":2}
 const RuleCRUDLayout = {
     returnVue() {
         window.RuleCRUDLayoutVue = new Vue({

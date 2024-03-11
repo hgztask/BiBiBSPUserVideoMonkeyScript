@@ -1,3 +1,4 @@
+//{"weight":0}
 const defApi = "https://api.mikuchase.ltd";
 const registeredAddress = "https://www.mikuchase.ltd/web/#/registerAndLogIn";
 /**

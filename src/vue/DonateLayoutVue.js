@@ -1,3 +1,4 @@
+//{"weight":2}
 const DonateLayoutVue = {
     returnVue() {
         new Vue({

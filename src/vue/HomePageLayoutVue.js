@@ -1,3 +1,4 @@
+//{"weight":2}
 const HomePageLayoutVue = {
     returnVue() {
         window.homePageLayoutVue = new Vue({

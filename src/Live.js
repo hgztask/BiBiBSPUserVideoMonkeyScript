@@ -1,3 +1,4 @@
+//{"weight":2}
 //直播
 const Live = {
     shield(list) {

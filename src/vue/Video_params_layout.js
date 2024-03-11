@@ -1,3 +1,4 @@
+//{"weight":2}
 const Video_params_layout = {
     returnVue() {
         const vue = new Vue({

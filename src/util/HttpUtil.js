@@ -1,3 +1,4 @@
+//{"weight":1}
 const HttpUtil = {
     httpRequest(method, url, headers, resolve, reject) {
         let tempHraders = {

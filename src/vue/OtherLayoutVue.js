@@ -1,3 +1,4 @@
+//{"weight":2}
 const OtherLayoutVue = {
     returnVue() {
         window.otherLayoutVue = new Vue({

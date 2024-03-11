@@ -1,3 +1,4 @@
+//{"weight":2}
 const VideoPlayVue = {
     returnVue() {
         const vue = new Vue({

@@ -1,3 +1,4 @@
+//{"weight":2}
 const LookAtItLater = {
     returnVue() {
         const listVue = new Vue({

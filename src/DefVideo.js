@@ -1,3 +1,4 @@
+//{"weight":1}
 const DefVideo = {
     delLayout: {
         //移除右侧悬浮按钮
