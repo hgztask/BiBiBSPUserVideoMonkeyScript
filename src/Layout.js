@@ -226,7 +226,6 @@ border: 0.5px solid green;
     },
     getOtherLayout() {
         return `<div>
-      <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
     </div>
     <details>
       <summary>快捷键</summary>
