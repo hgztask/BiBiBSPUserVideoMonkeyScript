@@ -236,11 +236,6 @@ const SpaceControlPanelVue = {//空间主页左侧控制面板
                 Space.getUserName().then(value => {
                     this.userName = value;
                 });
-                if (LocalData.getPrivacyMode() && this.isHAction) {
-                    $(".h-inner").hide();
-                    $("#navigator-fixed .n-tab-links .n-fans").hide();
-                    Tip.success(`检测到当前页面是用户自己的个人空间，由于开启了隐私模式，故隐藏该信息`);
-                }
             },
             watch: {
                 tabsItemName(getTabName) {

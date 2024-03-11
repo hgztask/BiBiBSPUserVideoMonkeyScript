@@ -252,9 +252,6 @@ border: 0.5px solid green;
         <button @click="getBili_jctBut">读取bili_jct</button>
       </div>
     </details>
-    <div style="display: flex">
-    <input type="checkbox" v-model="isPrivacyModeCheckbox">开启隐私模式
-    </div>
     <div>
     <h1>其他</h1>
     <button @click="bvToAvBut">bv号转av号</button>

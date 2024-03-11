@@ -75,12 +75,6 @@ const LocalData = {
     setLookAtItLaterArr(arr) {//设置稍后再看列表
         Util.setData("lookAtItLaterArr", arr)
     },
-    setPrivacyMode(key) {
-        Util.setData("isPrivacyMode", key === true);
-    },
-    getPrivacyMode() {//隐私模式
-        return Util.getData("isPrivacyMode") === true;
-    },
     getVideoInt(rule) {
         const data = Util.getData(rule, 0);
         return parseInt(data);

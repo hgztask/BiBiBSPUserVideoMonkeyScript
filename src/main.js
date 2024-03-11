@@ -626,10 +626,6 @@ const message = {//消息中心
 }
 let href = Util.getWindowUrl();
 console.log("当前网页url=" + href);
-if (href.includes("github.com")) {
-    github(href);
-    throw new Error();
-}
 //加载布局
 layout.addMainLayout();
 $("body").prepend('<button id="myBut" v-show="show" @click="showBut">按钮</button>');
@@ -672,9 +668,7 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     });
 });
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
-    if (!LocalData.isEnableShortcutKeys()) {
-        return;
-    }
+    if (!LocalData.isEnableShortcutKeys()) return;
     const keycode = event.keyCode;
     switch (keycode) {
         case 192: {//按下`按键显示隐藏面板

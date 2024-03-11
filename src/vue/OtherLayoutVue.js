@@ -4,7 +4,6 @@ const OtherLayoutVue = {
         window.otherLayoutVue = new Vue({
             el: "#otherLayout",
             data: {
-                isPrivacyModeCheckbox: LocalData.getPrivacyMode(),
                 isTrendsItemsTwoColumnCheackbox: Trends.data.getTrendsItemsTwoColumnCheackbox(),
                 BWebOpenList: {
                     "稍后再看列表": "https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list",
@@ -129,9 +128,6 @@ const OtherLayoutVue = {
                 }
             },
             watch: {
-                isPrivacyModeCheckbox(newVal) {
-                    LocalData.setPrivacyMode(newVal);
-                },
                 isTrendsItemsTwoColumnCheackbox(newVal) {
                     Trends.data.setTrendsItemsTwoColumnCheackbox(newVal);
                 }

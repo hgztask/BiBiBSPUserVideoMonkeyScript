@@ -58,13 +58,6 @@ async function bilibiliOne(href, windowsTitle) {
 
         });
     }, 1000);
-    if (LocalData.getPrivacyMode()) {
-        const interval02 = setInterval(() => {
-            const tempE01 = document.querySelector(".right-entry") || document.querySelector(".nav-user-center");
-            if (tempE01 === null) return;
-            tempE01.style.visibility = "hidden";//隐藏元素继续占位
-        }, 1100);
-    }
     if (href === "https://www.bilibili.com/" || href.includes("www.bilibili.com/?spm_id_from") || href.includes("www.bilibili.com/index.html")) {//首页
         console.log("进入了首页");
         const i2 = setInterval(() => {
