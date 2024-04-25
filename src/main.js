@@ -772,7 +772,6 @@ setInterval(() => {//每秒监听网页中的url
     bilibili(href);//网页url发生变化时执行
 }, 500);
 if (href.includes("bilibili.com")) {
-    LockScreen.isLockScreen();
     bilibiliOne(href, document.title);
     bilibili(href);
     startMonitorTheNetwork();
