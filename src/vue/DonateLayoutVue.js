@@ -30,10 +30,10 @@ const DonateLayoutVue = {
                     {
                         name: "支付宝赞助",
                         alt: "支付宝支持",
-                        src: "https://hangexi.gitee.io/datafile/img/paymentCodeZFB.png"
+                        src: "https://tc.dhmip.cn/imgs/2024/04/30/ae79193e00011c74.png"
                     },
-                    {name: "微信赞助", alt: "微信支持", src: "https://hangexi.gitee.io/datafile/img/paymentCodeWX.png"},
-                    {name: "QQ赞助", alt: "QQ支持", src: "https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png"},
+                    {name: "微信赞助", alt: "微信支持", src: "https://tc.dhmip.cn/imgs/2024/04/30/8498fb1b0838370f.png"},
+                    {name: "QQ赞助", alt: "QQ支持", src: "https://tc.dhmip.cn/imgs/2024/04/30/232cabb892576d6d.png"},
                 ]
             }
         });

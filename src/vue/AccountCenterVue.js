@@ -9,7 +9,7 @@ const AccountCenterVue = {
                         <div>
                         <h1>个人信息</h1>
                         <div style="display: flex">
-                            <img src="https://hangexi.gitee.io/datafile/img/defaultAvatar.png"
+                            <img src="https://tc.dhmip.cn/imgs/2024/04/30/7247e547a33ce1ed.png"
                                  style="border-radius: 50%; height: 100px;" alt="图片加载不出来">
                             <div
                                 style="display: flex;align-items: flex-start;padding-left: 10px;flex-direction: column;justify-content: center;">
