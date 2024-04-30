@@ -1,3 +1,4 @@
+//{"weight":2}
 const layout = {
     css: {
         home() {
@@ -5,7 +6,7 @@ const layout = {
 #home_layout {
     background: ${Home.getBackgroundStr()};
     margin: 0px;
-    height: 100%;
+    height: auto;
     width: 100%;
     max-height: 100%;
     position: fixed;
@@ -14,10 +15,10 @@ const layout = {
     border: 3px solid green;
 }
 /* 隐藏标签布局，除了“active”的标签布局 */
-.tab {
+#home_layout .tab {
     display: none;
 }
-.tab.active {
+#home_layout .tab.active {
     display: block;
 }
 ul {
@@ -165,30 +166,6 @@ border: 0.5px solid green;
 </div>
 `;
     },
-    getHomePageLayout() {
-        return `
-      <h1>首页样式调整</h1>
-      <div>
-      <input type="checkbox" v-model="isSetHomeStyle">首页视频项目左右边框调整
-      </div>
-      <h1>首页推荐视频</h1>
-      <div>
-          <input type="checkbox" v-model="isMainVideoListCheckbox">
-          <span>指定推送</span>
-          <select v-model="pushTypeSelect"><option v-for="item in pushTypeList" :value="item">{{item}}</option></select>
-           <select v-model="sort_typeSelect" v-if="isChannelSelect">
-            <option v-for="(item,key) in sort_typeList" :value="key">{{item}}</option>
-          </select>
-          <select v-model="showListSelect">
-            <option v-for="(item,key) in showList" :value="key">{{item}}</option>
-          </select>
-      </div>
-      <div>
-      <input type="checkbox" v-model="isIdCheckbox">id
-      <button @click="findBut">查询</button>
-      <button @click="okBut">确定</button>
-      </div>`;
-    },
     getVideo_params_layout() {
         return `<div>
 <div>
@@ -202,15 +179,6 @@ border: 0.5px solid green;
     <div>
         <button @click="VideoPIPicture">视频画中画</button>
     </div>
-<h3>视频播放速度</h3>
- <div>固定视频播放速度值
-   <select v-model="playbackSpeedSelect">
-   <option v-for="item in playbackSpeedList" :value="item">{{item}}x</option>
-    </select>
-  </div>
-拖动更改页面视频播放速度<input v-model="rangePlaySpeed" type="range" value="1.0" min="0.1" max="16" step="0.01">
- <span>{{rangePlaySpeed}}x</span>
- <button @click="preservePlaySpeed">保存</button>
 <hr>
 </div>
     <h3>播放画面翻转</h3>
@@ -241,7 +209,6 @@ border: 0.5px solid green;
     },
     getOtherLayout() {
         return `<div>
-      <button onclick="document.documentElement.scrollTop=0;">页面置顶</button>
     </div>
     <details>
       <summary>快捷键</summary>
@@ -261,47 +228,14 @@ border: 0.5px solid green;
         <button title="为空字符串则取消" @click="setSgSessdataBut">设置SESSDATA</button>
         <button @click="getSgSessdataBut">读取SESSDATA</button>
       </div>
-      <div>
-        <button @click="setBili_jctBut">设置bili_jct</button>
-        <button @click="setLogInBili_jctBut">设置b站登录的bili_jct</button>
-        <button @click="getLogInBili_jctBut">读取b站登录的bili_jct</button>
-        <button @click="getBili_jctBut">读取bili_jct</button>
-      </div>
     </details>
-    <div style="display: flex">
-    <input type="checkbox" v-model="isPrivacyModeCheckbox">开启隐私模式
-    </div>
-    <div>
-    <h1>网络请求</h1>
-    <p>默认仅仅只能请求b站的顶级域，如需请求其他的网站，请在油猴中打开本脚本的设置，在XHR安全选项卡中，针对性添加域名白名单，pan.baidu.com，和baidu.com，后者范围更大，前者无法请求到其他百度的子域名。</p>
-    请求Url：
-    <input type="text" v-model.trim="requestUrl" style="width: 100%">
-    Cookie：
-    <input type="text" v-model.trim="requestCookie" style="width: 100%">
-    <div><select v-model="requestTypeSelect"><option  v-for="item in requestType" :value="item">{{item}}</option></select></div>
-    <div><button @click="sendRequestBut">发送请求</button></div>
-    <details>
-    <summary>相应结果</summary>
-    <textarea style="width: 100%;height: 500px" readonly>{{responseResult}}</textarea>
-    </details>
-    </div>
     <div>
     <h1>其他</h1>
     <button @click="bvToAvBut">bv号转av号</button>
     <button @click="avTObvBut">av号转bv号</button>
     </div>
     <hr>
-<details open>
-    <summary>GBT乐赏游戏空间</summary>
-    <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
-    <button @click="getGBTPageDataInfoBut">初始化页面资源信息</button>
-    <button @click="getGBTDataBut">获取页面资源</button>
-    <button @click="getGBTFildKeysBut">获取指定key的项目</button>
-</details>
-<details title="设置之后加载其他动态内容或者刷新页面才生效" open>
-<summary>动态</summary>
-<input type="checkbox" v-model="isTrendsItemsTwoColumnCheackbox">动态首页动态展示双列显示
-</details>
+   <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
 <details open>
 <summary>b站页面传送门</summary>
 <button v-for="(item,keyName) in BWebOpenList" :value="item" @click="openBWeb(item,keyName)">{{keyName}}</button>
@@ -342,7 +276,6 @@ border: 0.5px solid green;
         <p>视频BV号:{{videoData.bv}}</span></p>
         <p>视频AV号:{{videoData.av}}</p>
         <img :src="videoData.frontCover" alt="图片显示异常" style="width: 100%;">
-        <button @click="addToWatchedBut">添加进已观看</button>
         <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>
         <button @click="addShieldName">add屏蔽用户名</button>
@@ -361,226 +294,135 @@ border: 0.5px solid green;
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
     },
-    getDonateLayout() {//捐赠页面
-        return $(`
-   <div style="border: 3px solid #000;">
-            <div style="display: flex;align-items: center;">
-                <h2>零钱赞助</h2>
-                <ul>
-                    <li>1元不嫌少，10元不嫌多哦！感谢支持！</li>
-                    <li>生活不易，作者叹息</li>
-                    <li>您的支持是我最大的更新动力</li>
-                </ul>
-            </div>
-            <hr>
-        <div style="display: flex;justify-content: center;">
-                <div v-for="item in list" :title="item.name"><img :src="item.src" :alt="item.alt" style="max-height: 500px;">
-                <span style="display: flex;justify-content: center;">{{item.name}}</span>
-                </div>
+    addMainLayout() {
+        const bodyJQE = $("body");
+        bodyJQE.prepend(`<div id="home_layout" v-show="show"><main_layout></main_layout></div>`);
+        MainVue.addVue();
+        $("#panelSetsTheLayout").append(`<div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
+        <div>
+          <span>背景透明度</span>
+          <input type="range" value="1" min="0.1" max="1" step="0.1" v-model="backgroundPellucidRange">
+          <span>{{backgroundPellucidRange}}</span>
         </div>
-        <hr>
-        <h1 style=" display: flex; justify-content: center;">打赏点猫粮</h1>
-    </div>
-`);
-    }
-    , loading: {
-        home() {
-            const bodyJQE = $("body");
-            bodyJQE.prepend(`
-      <div id="home_layout" style="display: none">
-        <!-- 标签栏 -->
-  <ul style="display: flex;justify-content: space-around;padding-top: 10px;" id="tabUl">
-    <!-- 每个标签都有一个唯一的ID，可以在后面的标签布局中使用 -->
-    <li><button value="panelSetsTheLayout">面板设置</button></li>
-    <li><button value="ruleCRUDLayout">规则增删改查-信息-备份与恢复(导出与导入)</button></li>
-    <li><button value="homePageLayout">首页</button></li>
-    <li><button value="video_params_layout">视频参数</button></li>
-    <li><button value="liveLayout">直播列表</button></li>
-    <li><button value="watchedListLayout">已观看列表</button></li>
-    <li><button value="lookAtItLaterListLayout">稍后再看列表</button></li>
-    <li><button value="outputInfoLayout">输出信息</button></li>
-    <li><button value="otherLayout">其他</button></li>
-    <li><button value="donateLayout">支持打赏作者</button></li>
-    <li><button value="ruleCenterLayout">规则中心</button></li>
-    <li><button value="accountCenterLayout">账户中心</button></li>
-  </ul>
-  <!-- 标签布局 -->
-  <div class="tab" id="panelSetsTheLayout">
-  <div style="display: flex;flex-wrap: wrap;justify-content: flex-start;">
-      <div>
-        <span>背景透明度</span>
-        <input type="range" value="1" min="0.1" max="1" step="0.1" v-model="backgroundPellucidRange">
-        <span>{{backgroundPellucidRange}}</span>
-      </div>
-      <div>
-        <span>高度</span>
-        <input type="range" value="100" min="20" max="100" step="0.1" v-model="heightRange">
-        <span>{{heightRangeText}}</span>
-      </div>
-      <div>
-        <span>宽度</span>
-        <input type="range" value="100" min="20" max="100" step="0.1" v-model="widthRange">
-        <span>{{widthRangeText}}</span>
-      </div>
-    </div>
-    <hr>
-     <div>
-          <h1>控制面板悬浮球</h1>
-          <div :title="titleContent">
-           显示隐藏<input type="checkbox" v-model="isMyButShow">
-          </div>
+        <div>
+          <span>高度</span>
+          <input type="range" value="100" min="20" max="100" step="0.1" v-model="heightRange">
+          <span>{{heightRangeText}}</span>
+        </div>
+        <div>
+          <span>宽度</span>
+          <input type="range" value="100" min="20" max="100" step="0.1" v-model="widthRange">
+          <span>{{widthRangeText}}</span>
+        </div>
       </div>
       <hr>
-    <h1>快捷悬浮面板</h1>
-    <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>
-</div><!-- 面板设置布局 -->
-  <div class="tab" id="ruleCRUDLayout"></div><!-- 规则增删改查布局 -->
-  <div class="tab" id="homePageLayout"></div><!-- 首页布局 -->
-  <div class="tab active" id="outputInfoLayout"></div><!-- 输出信息布局 -->
-  <div class="tab" id="otherLayout"></div><!-- 其他布局 -->
-  <div class="tab" id="liveLayout">
-  点击用户名打开直播间,点击用户头像打开用户主页
-  <div></div>
-  <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
-  <button @click="loadFollowLst" :disabled="isLoadFollowLstDisabled">{{loadFollowButText}}</button>
-  <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowersIf">恢复列表</button>
-  </div>
-  <div>
-  搜索：<input type="text" v-model.trim="findFollowListRoomKey">
-  搜索条件<select v-model="siftTypeSelect"><option v-for="item in siftTypeList" :value="item">{{item}}</option></select>
-  </div>
-  <hr>
-   <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
-        <live-room-item v-for="item in listOfFollowers"
-        :title="item.title"
-        :up-address="item.upAddress"
-        :face="item.face"
-        :up-name="item.upName"
-        :room-id="item.roomId"
-        ></live-room-item>
-    </div>
-    <hr>
-    <div>其他分区直播列表{{otherLiveRoomList.length}}个</div>
-    <select v-model="mainPartitionSelect"><option  v-for="(item,key) in partitionObjList" :value="key">{{key}}</option></select>
-    <select v-model="sPartitionSelectID"><option v-for="item in sPartitionObjList" :value="item.id">{{item.name}}</option></select>
-    <button @click="loadOtherPartitionLiveListBut">加载</button>
-    <button @click="hRecoveryOtherLiveRoomListBut" v-if="hRecoveryOtherLiveListIf">恢复列表</button>
-    <button @click="findThisSubPartitionBut">从{{mainPartitionSelect}}查询子分区</button>
-    <button @click="findSubPartitionBut">查询子分区</button>
-    <button @click="openPartitionWebAddressBut">打开页面</button>
-    <div>
-   <div>
-  搜索：<input type="text" v-model.trim="findOtherListRoomKey">
-  搜索条件<select v-model="siftOtherLiveTypeSelect"><option v-for="item in siftOtherLiveTypeList" :value="item">{{item}}</option></select>
-  </div>
-   <div style="display: grid;grid-template-columns: auto auto auto auto auto;margin: 0px 12px;justify-items: stretch;">
-    <live-room-front-cover-item v-for="item in otherLiveRoomList"
-        :title="item.title"
-         :up-address="item.upAddress"
-        :face="item.face"
-        :up-name="item.upName"
-        :room-id="item.roomId"
-        :video-frame-img="item.videoFrame"
-       :front-cover-img="item.frontCover"
-        ></live-room-front-cover-item>
-    </div>
-    <div style="display: flex;justify-content:center" v-if="otherLoadMoreIf"><button @click="otherLoadMoreBut">加载更多</button></div>
-</div>
-  <!-- 直播列表布局 -->
-</div>
-  <div class="tab" id="watchedListLayout">
-  <def-list-layout list-layout-name="已观看视频列表"
-  :type-list="typeList"
-  find-list-type="title"
-  :list="watchedList"
-  @set-sub-this="setSubThis"
-   @search-key-event="searchKey"
-  @clear-but="clearWatchedArr"
-  @renovate-list-event="renovateLayoutItemList"
-  >
-  <template #button-list="data">
-  <ol>
-  <list-item v-for="(item,key) in data.showList"
-  :title="item.title"
-  :up-name="item.upName"
-  :uid="item.uid"
-  :bv="item.bv"
-  :obj-item="item"
-  :front_cover="item.frontCover"
-  @del-item-click="delListItem"
-  @set-item-click="setListItem"
-  ></list-item>
-</ol>
-</template>
-</def-list-layout>
-</div><!-- 已观看列表布局 -->
-  <div class="tab" id="lookAtItLaterListLayout">
-  <def-list-layout
-  list-layout-name="稍后再看列表"
-  :type-list="typeList"
-  find-list-type="title"
-  :list="lookAtItLaterList"
-  @set-sub-this="setSubThis"
-  @search-key-event="searchKey"
-  @clear-but="clearLookAtItLaterArr"
-  @renovate-list-event="renovateLayoutItemList">
-  <template #top-right>
-    <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
-  <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
-  <button @click="addVideoItemDataBut">添加视频数据</button>
-</template>
-<template #center>
       <div>
-        <input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}
-        <select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select>
-        <button @click="okOutOrInputClick">执行</button>
-    </div>
-  <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
-</template>
-<template #button-list="data">
-<ol>
-  <list-item v-for="(item,key) in data.showList"
-  :title="item.title"
-  :up-name="item.upName"
-  :uid="item.uid"
-  :bv="item.bv"
-  :obj-item="item"
-  :front_cover="item.frontCover"
-  v-on:del-item-click="delListItem"
-  v-on:set-item-click="setListItem"></list-item>
-</ol>
-</template>
-</def-list-layout>
-  <!-- 稍后再看列表布局 --></div>
-  <div class="tab" id="video_params_layout"><!-- 视频参数布局 --></div>
-  <div class="tab" id="donateLayout"><!-- 捐赠布局 --></div>
-  <div class="tab" id="ruleCenterLayout">
-<!-- 规则中心布局 -->
-<button disabled><a href="https://www.bilibili.com/read/cv25025973" target="_blank">提示error解决方案</a></button>
-<button @click="reloadListBut" v-if="isReloadListButShow">重新加载</button>
-<ul style="margin: 0;padding-left: 0">
-<rule-center-item v-for="item in list"
-:user-name="item.name"
-:rule-list="item.ruleList"
-:update_time="item.update_time"
-:first_push_time="item.first_push_time"
-></rule-center-item>
-</ul>
-<!-- 规则中心布局 -->
-</div>
-  <div class="tab" id="accountCenterLayout">
-        <component v-bind:is="isTab" @tab-click="getTabName"></component>
-  <!-- 账户中心布局 --></div>
+        <h1>控制面板悬浮球</h1>
+        <div :title="titleContent">
+          显示隐藏<input type="checkbox" v-model="isMyButShow">
+        </div>
       </div>
-<!-- 分割home_layout -->
-    `);
-            $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
-            $("#homePageLayout").append(layout.getHomePageLayout());
-            $("#video_params_layout").append(layout.getVideo_params_layout());
-            $("#outputInfoLayout").append(layout.getOutputInfoLayout());
-            $("#otherLayout").append(layout.getOtherLayout());
-            $("#donateLayout").append(layout.getDonateLayout());
-            bodyJQE.append(layout.getSuspensionDiv());
-        }
+      <hr>
+      <h1>快捷悬浮面板</h1>
+      <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>`);
+        $("#liveLayout").append(`点击用户名打开直播间,点击用户头像打开用户主页
+      <div></div>
+      <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
+        <button @click="loadFollowLst" :disabled="isLoadFollowLstDisabled">{{loadFollowButText}}</button>
+        <button @click="hRecoveryListOfFollowersBut" v-if="hRecoveryListOfFollowersIf">恢复列表</button>
+      </div>
+      <div>
+        搜索：<input type="text" v-model.trim="findFollowListRoomKey">
+        搜索条件<select v-model="siftTypeSelect"><option v-for="item in siftTypeList" :value="item">{{item}}</option></select>
+      </div>
+      <hr>
+      <div style="display: grid;grid-template-columns: auto auto auto auto auto; margin:0 12px">
+        <live-room-item v-for="item in listOfFollowers"
+                        :title="item.title"
+                        :up-address="item.upAddress"
+                        :face="item.face"
+                        :up-name="item.upName"
+                        :room-id="item.roomId"
+        ></live-room-item>
+      </div>
+      <hr>
+      <div>其他分区直播列表{{otherLiveRoomList.length}}个</div>
+      <select v-model="mainPartitionSelect"><option  v-for="(item,key) in partitionObjList" :value="key">{{key}}</option></select>
+      <select v-model="sPartitionSelectID"><option v-for="item in sPartitionObjList" :value="item.id">{{item.name}}</option></select>
+      <button @click="loadOtherPartitionLiveListBut">加载</button>
+      <button @click="hRecoveryOtherLiveRoomListBut" v-if="hRecoveryOtherLiveListIf">恢复列表</button>
+      <button @click="findThisSubPartitionBut">从{{mainPartitionSelect}}查询子分区</button>
+      <button @click="findSubPartitionBut">查询子分区</button>
+      <button @click="openPartitionWebAddressBut">打开页面</button>
+      <div>
+        <div>
+          搜索：<input type="text" v-model.trim="findOtherListRoomKey">
+          搜索条件<select v-model="siftOtherLiveTypeSelect"><option v-for="item in siftOtherLiveTypeList" :value="item">{{item}}</option></select>
+        </div>
+        <div style="display: grid;grid-template-columns: auto auto auto auto auto;margin: 0px 12px;justify-items: stretch;">
+          <live-room-front-cover-item v-for="item in otherLiveRoomList"
+                                      :title="item.title"
+                                      :up-address="item.upAddress"
+                                      :face="item.face"
+                                      :up-name="item.upName"
+                                      :room-id="item.roomId"
+                                      :video-frame-img="item.videoFrame"
+                                      :front-cover-img="item.frontCover"
+          ></live-room-front-cover-item>
+        </div>
+        <div style="display: flex;justify-content:center" v-if="otherLoadMoreIf"><button @click="otherLoadMoreBut">加载更多</button></div>
+      </div>`);
+        $("#lookAtItLaterListLayout").append(`<def-list-layout
+          list-layout-name="稍后再看列表"
+          :type-list="typeList"
+          find-list-type="title"
+          :list="lookAtItLaterList"
+          @set-sub-this="setSubThis"
+          @search-key-event="searchKey"
+          @clear-but="clearLookAtItLaterArr"
+          @renovate-list-event="renovateLayoutItemList">
+        <template #top-right>
+          <button><a href="https://www.bilibili.com/watchlater/?spm_id_from=333.1007.0.0#/list" target="_blank">前往b站网页端的稍后再看页面</a></button>
+          <button @click="getBWebLookAtItLaterListBut">获取b站账号的稍后再看列表(需SESSDATA)</button>
+          <button @click="addVideoItemDataBut">添加视频数据</button>
+        </template>
+        <template #center>
+          <div>
+            <input type="checkbox" v-model="isAddToInput">{{isAddToInputTxt}}
+            <select v-model="inputOutSelect"><option v-for="item in inputOutSelectArr" :value="item">{{item}}</option></select>
+            <button @click="okOutOrInputClick">执行</button>
+          </div>
+          <textarea v-model.trim="inputEditContent" v-show="isInputSelect" placeholder="请输入导出时的格式json（本轮操作为追加数据操作）"style="width: 80%;height: 400px"></textarea>
+        </template>
+        <template #button-list="data">
+          <ol>
+            <list-item v-for="(item,key) in data.showList"
+                       :title="item.title"
+                       :up-name="item.upName"
+                       :uid="item.uid"
+                       :bv="item.bv"
+                       :obj-item="item"
+                       :front_cover="item.frontCover"
+                       v-on:del-item-click="delListItem"
+                       v-on:set-item-click="setListItem"></list-item>
+          </ol>
+        </template>
+      </def-list-layout>`);
+        $("#ruleCenterLayout").append(`<button disabled><a href="https://www.bilibili.com/read/cv25025973" target="_blank">提示error解决方案</a></button>
+      <button @click="reloadListBut" v-if="isReloadListButShow">重新加载</button>
+      <ul style="margin: 0;padding-left: 0">
+        <rule-center-item v-for="item in list"
+                          :user-name="item.name"
+                          :rule-list="item.ruleList"
+                          :update_time="item.update_time"
+                          :first_push_time="item.first_push_time"
+        ></rule-center-item>
+      </ul>`);
+        $("#accountCenterLayout").append(`<component v-bind:is="isTab" @tab-click="getTabName"></component>`);
+        $("#ruleCRUDLayout").append(layout.getRuleCRUDLayout());
+        $("#video_params_layout").append(layout.getVideo_params_layout());
+        $("#outputInfoLayout").append(layout.getOutputInfoLayout());
+        $("#otherLayout").append(layout.getOtherLayout());
+        bodyJQE.append(layout.getSuspensionDiv());
     }
 }

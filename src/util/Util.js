@@ -1,3 +1,4 @@
+//{"weight":0}
 /**
  * 工具类
  */
@@ -482,8 +483,8 @@ const Util = {
         const x = e.clientX;
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
-        suspensionDivVue().xy.x = x;
-        suspensionDivVue().xy.y = y;
+        window.suspensionDivVue.xy.x = x;
+        window.suspensionDivVue.xy.y = y;
         if (!($("#quickLevitationShield").is(':checked'))) return;
         const suspensionDiv = $("#suspensionDiv");
         suspensionDiv.css("left", x + "px");
@@ -518,18 +519,18 @@ const Util = {
         const newVar = LocalData.isDShieldPanel();
         if (newVar) return;
         if ($("#fixedPanelValueCheckbox").is(':checked')) return;
-        suspensionDivVue().upName = name;
-        suspensionDivVue().uid = uid;
-        suspensionDivVue().videoData.title = title;
-        suspensionDivVue().videoData.bv = bv;
-        suspensionDivVue().videoData.av = av;
-        suspensionDivVue().videoData.frontCover = data["frontCover"];
+        window.suspensionDivVue.upName = name;
+        window.suspensionDivVue.uid = uid;
+        window.suspensionDivVue.videoData.title = title;
+        window.suspensionDivVue.videoData.bv = bv;
+        window.suspensionDivVue.videoData.av = av;
+        window.suspensionDivVue.videoData.frontCover = data["frontCover"];
         if (title === undefined) {
-            suspensionDivVue().videoData.show = false;
+            window.suspensionDivVue.videoData.show = false;
         } else {
-            suspensionDivVue().videoData.show = true;
+            window.suspensionDivVue.videoData.show = true;
             if (bv === undefined) return;
-            suspensionDivVue().videoData.av = Util.BilibiliEncoder.dec(bv);
+            window.suspensionDivVue.videoData.av = Util.BilibiliEncoder.dec(bv);
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");

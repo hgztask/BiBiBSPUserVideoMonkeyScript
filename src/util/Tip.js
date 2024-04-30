@@ -1,5 +1,5 @@
+//{"weight":1}
 //对Qmsg工具进行二次封装
-
 const Tip = {
     success(text, config) {//成功
         Qmsg.success(text, config);

@@ -1,6 +1,7 @@
+//{"weight":2}
 const SuspensionDivVue = {
     returnVue() {
-        const vue = new Vue({//快捷悬浮屏蔽面板的vue
+        window.suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             el: "#suspensionDiv",
             data: {
                 moveLayoutValue: 5,
@@ -26,9 +27,6 @@ const SuspensionDivVue = {
                         bv: this.videoData.bv,
                         frontCover: this.videoData.frontCover
                     };
-                },
-                addToWatchedBut() {
-                    Watched.addWatched(this.getVideoData());
                 },
                 addLookAtItLater() {
                     LookAtItLater.addLookAtItLater(this.getVideoData());
@@ -147,8 +145,5 @@ const SuspensionDivVue = {
                 }
             },
         });
-        return function () {
-            return vue;
-        }
     }
 }

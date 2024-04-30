@@ -1,3 +1,4 @@
+//{"weight":1}
 const GreatDemand = {//热门
     delVideo() {
         let list = document.getElementsByClassName("video-card");

@@ -1,3 +1,4 @@
+//{"weight":2}
 const RuleCenterLayoutVue = {
     httpGetList() {
         return new Promise((resolve, reject) => {
@@ -41,7 +42,7 @@ const RuleCenterLayoutVue = {
         })
     },
     returnVue() {
-        const vue = new Vue({
+        window.ruleCenterLayoutVue = new Vue({
             el: "#ruleCenterLayout",
             data: {
                 list: [],
@@ -66,8 +67,5 @@ const RuleCenterLayoutVue = {
                 }
             }
         });
-        return function () {
-            return vue;
-        }
     }
 }

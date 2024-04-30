@@ -1,3 +1,4 @@
+//{"weight":4}
 /**
  * 根据网页url指定不同的逻辑
  * @param href{String} url链接
@@ -91,21 +92,6 @@ async function bilibili(href) {
     if (href.includes("message.bilibili.com/#/reply") || href.includes("message.bilibili.com/?spm_id_from=..0.0#/reply")) {
         message.delMessageReply();
         return;
-    }
-    if (href.search("www.bilibili.com/v/channel/.*?tab=.*") !== -1) {//频道 匹配到频道的精选列表，和综合的普通列表
-        frequencyChannel.videoRules();
-        frequencyChannel.delDevelop();
-        frequencyChannel.cssStyle.backGauge();
-    }
-    if (href.includes("www.bilibili.com/v/channel/")) {
-        const interval = setInterval(() => {
-            const jqE = $(".slide-scroll");
-            if (jqE.length === 0) return;
-            clearInterval(interval);
-            jqE.css("flex-wrap", "wrap");
-            document.querySelector(".arrow-btn.arrow-btn--right").remove();
-            Tip.success("已调整页面顶部最近观看的频道列表展示效果");
-        }, 1000);
     }
     if (href.includes("www.bilibili.com/v/popular")) {//热门
         GreatDemand.delVideo();

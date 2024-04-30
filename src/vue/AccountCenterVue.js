@@ -1,3 +1,4 @@
+//{"weight":2}
 const AccountCenterVue = {
     returnVue() {
         const vue = new Vue({
@@ -8,7 +9,7 @@ const AccountCenterVue = {
                         <div>
                         <h1>个人信息</h1>
                         <div style="display: flex">
-                            <img src="https://hangexi.gitee.io/datafile/img/defaultAvatar.png"
+                            <img src="https://tc.dhmip.cn/imgs/2024/04/30/7247e547a33ce1ed.png"
                                  style="border-radius: 50%; height: 100px;" alt="图片加载不出来">
                             <div
                                 style="display: flex;align-items: flex-start;padding-left: 10px;flex-direction: column;justify-content: center;">
@@ -150,7 +151,7 @@ const AccountCenterVue = {
                                     LocalData.AccountCenter.setInfo(userInfo);
                                     const rule_content = JSON.parse(userRule["rule_content"]);
                                     if (confirm("是要将云端规则导入覆盖本地规则吗？")) {
-                                        ruleCRUDLlayoutVue().inputRuleLocalData(rule_content);
+                                        window.RuleCRUDLayoutVue.inputRuleLocalData(rule_content);
                                     }
                                 }
                                 this.$emit("tab-click", "login");

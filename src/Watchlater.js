@@ -1,3 +1,4 @@
+//{"weight":0}
 const Watchlater = {
     initLayout() {
         const panel = layout.panel.getHoverBallBut("获取稍后再看列表数据", "32%", "5%");
@@ -75,7 +76,7 @@ const Watchlater = {
                 }
                 alert(`已成功导入了${tempIndex}个内容到脚本的稍后再看列表！`);
                 LocalData.setLookAtItLaterArr(lookAtItLaterArr);
-                returnVue.renovateLayoutItemList();
+                window.otherLayoutVue.renovateLayoutItemList();
             }, 2000);
         });
     },

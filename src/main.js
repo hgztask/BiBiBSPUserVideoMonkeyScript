@@ -1,3 +1,4 @@
+//{"weight":3}
 //主入口
 const Rule = {
     //TODO 后续把对应关联的变量清除修改
@@ -13,101 +14,17 @@ const Rule = {
         isDesc: false,
         //是否取消对播放页右侧列表的视频内容过滤屏蔽处理，如果播放页出现，加载不出页面图片，情况建议开启该功能
         isRightVideo: false
-    },
-    //动态相关配置信息
-    trendsData: {
-        //是否移除顶栏
-        isTop: false,
-        //是否移除右侧布局
-        isRightLayout: false,
-        //是覅移除话题布局上面的公告栏
-        isBiliDynBanner: true,
-    },
-    /**
-     *直播间的相关配置信息
-     */
-    liveData: {
-        //是否移除直播间底部的全部信息，包括动态和主播公告和简介及荣誉
-        bottomElement: true,
-        //是否移除直播间顶部的信息（包括顶部标题栏）
-        topElement: true,
-        //是否移除直播间播放器头部的用户信息以及直播间基础信息
-        isheadInfoVm: true,
-        //是否移除直播间右侧的聊天布局
-        isRightChatLayout: false,
-        //是否移除直播间右侧的聊天内容
-        isChatHistoryPanel: false,
-        //是否移除右侧的聊天内容中的红色的系统提示
-        isSystemRedTip: true,
-        //是否移除右侧聊天内容中的用户进入房间提示
-        isEnterLiveRoomTip: true,
-        //是否移除左上角的b站直播logo
-        topLeftLogo: true,
-        //是否移除左上角的首页项目
-        topLeftHomeTitle: true,
-        //是否移除直播间底部的的简介和主播荣誉
-        bottomIntroduction: false,
-        //是否移除直播间的主播公告布局
-        container: false,
-        //是否移除直播首页右侧的悬浮按钮
-        rightSuspendButton: true,
-        //是否移除提示购物车
-        isShoppingCartTip: true,
-        //是否移除购物车
-        isShoppingCart: true,
-        //是否移除直播间的背景图
-        isDelbackground: true,
-        /**
-         * 是否屏蔽直播间底部动态
-         */
-        liveFeed: false,
-        //要移除顶部左侧的选项（不包括右侧），但必须要有该选项，比如下面例子的，赛事，就移除其，如需要添加别的在该数组后面添加即可，如["赛事","生活"]
-        topLeftBar: ["赛事", "购物", "知识", "生活", "电台", "娱乐"],
-        //是否移除礼物栏
-        delGiftLayout: true,
-        //是否移除立即上舰
-        isEmbark: true,
-        //是否移除礼物栏的的礼物部分
-        isGift: true,
-        //直播分区时屏蔽的类型，比如在手游直播界面里的全部中，会屏蔽对应的类型房间号
-        classify: ["和平精英"],
-        //是否移除悬浮的233娘
-        is233Ma: true,
-        //是否移除右侧悬浮靠边按钮-如实验-关注
-        isRightSuspenBotton: true,
-        //是否移除直播水印
-        isLiveRoomWatermark: true
     }
 }
 const Home = {
-    //首页下拉底部时依次加载视频的个数
-    videoIndex: 20,
     background: {//主面板背景颜色及透明度
         r: 255,
         g: 255,
         b: 255,
         a: 1
     },
-    data: {
-        //分区rid对应的类型
-        video_zoneList: JSON.parse(`{"1":"动画(主分区)","3":"音乐(主分区)","4":"游戏(主分区)","5":"娱乐(主分区)","11":"电视剧(主分区)","13":"番剧(主分区)","17":"单机游戏","19":"Mugen","20":"宅舞","21":"日常","22":"鬼畜调教","23":"电影(主分区)","24":"MAD·AMV","25":"MMD·3D","26":"音MAD","27":"综合","28":"原创音乐","29":"音乐现场","30":"VOCALOID·UTAU","31":"翻唱","32":"完结动画","33":"连载动画","36":"知识(主分区)","37":"人文·历史","47":"短片·手书·配音","51":"资讯","59":"演奏","65":"网络游戏","71":"综艺","75":"动物综合","76":"美食制作( 原[生活]->[美食圈] )","83":"其他国家","85":"小剧场","86":"特摄","95":"数码( 原手机平板 )","119":"鬼畜(主分区)","121":"GMV","122":"野生技术协会","124":"社科·法律·心理( 原社科人文、原趣味科普人文 )","126":"人力VOCALOID","127":"教程演示","129":"舞蹈(主分区)","130":"音乐综合","136":"音游","137":"明星综合","138":"搞笑","145":"欧美电影","146":"日本电影","147":"华语电影","152":"官方延伸","153":"国产动画","154":"舞蹈综合","155":"时尚(主分区)","156":"舞蹈教程","157":"美妆护肤","158":"穿搭","159":"时尚潮流","160":"生活(主分区)","161":"手工","162":"绘画","164":"健身","167":"国创(主分区)","168":"国产原创相关","169":"布袋戏","170":"资讯","171":"电子竞技","172":"手机游戏","173":"桌游棋牌","176":"汽车生活","177":"纪录片(主分区)","178":"科学·探索·自然","179":"军事","180":"社会·美食·旅行","181":"影视(主分区)","182":"影视杂谈","183":"影视剪辑","184":"预告·资讯","185":"国产剧","187":"海外剧","188":"科技(主分区)","193":"MV","195":"动态漫·广播剧","198":"街舞","199":"明星舞蹈","200":"中国舞","201":"科学科普","202":"资讯(主分区)","203":"热点","204":"环球","205":"社会","206":"综合","207":"财经商业","208":"校园学习","209":"职业职场","210":"手办·模玩","211":"美食(主分区)","212":"美食侦探","213":"美食测评","214":"田园美食","215":"美食记录","216":"鬼畜剧场","217":"动物圈(主分区)","218":"喵星人","219":"汪星人","220":"大熊猫","221":"野生动物","222":"爬宠","223":"汽车(主分区)","227":"购车攻略","228":"人文历史","229":"设计·创意","230":"软件应用","231":"计算机技术","232":"科工机械 ( 原工业·工程·机械 )","233":"极客DIY","234":"运动(主分区)","235":"篮球","236":"竞技体育","237":"运动文化","238":"运动综合","239":"家居房产","240":"摩托车","241":"娱乐杂谈","242":"粉丝创作","243":"乐评盘点","244":"音乐教学","245":"赛车","246":"改装玩车","247":"新能源车","248":"房车","249":"足球","250":"出行","251":"三农","252":"仿妆cos","253":"动漫杂谈"}`)
-    },
     //是否初次点击了规则中心按钮
     isFirstRuleCenterLayoutClick: false,
-    /**
-     *
-     * @return {string}
-     */
-    getPushType() {
-        const data = Util.getData("pushType");
-        if (data === null || data === undefined) {
-            return "分区";
-        }
-        return data;
-    },
-    setPushType(key) {
-        Util.setData("pushType", key);
-    },
     getBackgroundStr() {
         return Util.getRGBA(this.background.r, this.background.g, this.background.b, this.background.a);
     },
@@ -195,12 +112,8 @@ const Home = {
         });
     },
     hideDisplayHomeLaylout() {//隐藏显示面板
-        const $homeLayout = $("#home_layout");
-        if ($homeLayout.is(":hidden")) {
-            $homeLayout.show();
-        } else {
-            $homeLayout.hide();
-        }
+        const vue = window.mainVue
+        vue.show = !vue.show;
     },
     homePrefecture() {//针对于分区的广告页脚信息屏蔽
         Util.circulateID("biliMainFooter", 2000, "已移除底部信息");
@@ -212,13 +125,13 @@ const Home = {
     },
     openTab(e) {// 点击标签时执行此函数
         // 获取所有标签布局
-        const tabs = document.querySelectorAll(".tab");
+        const tabs = document.querySelectorAll("#home_layout .tab");
         // 循环遍历每个标签布局
         for (let v of tabs) {
             // 从所有标签布局中删除“active”类，使它们不可见
             v.classList.remove("active");
         }
-        const tempE = document.querySelector(`#${e}`);
+        const tempE = document.querySelector(`#home_layout #${e}`);
         // 将指定的标签布局添加到“active”类，使它可见
         tempE.classList.add("active");
     }
@@ -545,83 +458,6 @@ left: 0;  bottom: 0;">
     }
 }
 
-//添加元素
-const addElement = {
-    homeVideoE: {
-        /**
-         * @param {string}title 视频标题
-         * @param {string}videoAddess
-         * @param {string}videoImage 视频封面
-         * @param {string}userID 用户uid
-         * @param {string}userName 用户名
-         * @param {string}timeLong 视频时长
-         * @param {string}ctime 发布时间
-         * @param {string}view 播放量
-         * @param {string}danmaku 弹幕量
-         */
-        getHtmlStr(title, videoAddess, videoImage, userID, userName, timeLong, ctime, view, danmaku) {
-            return $(`<div class="bili-video-card is-rcmd" data-report="tianma.7-1-23.click" data-v-45e09777="">
-    <div class="bili-video-card__skeleton hide">
-        <div class="bili-video-card__skeleton--cover"></div>
-        <div class="bili-video-card__skeleton--info">
-            <div class="bili-video-card__skeleton--right"><p class="bili-video-card__skeleton--text"></p>
-                <p class="bili-video-card__skeleton--text short"></p>
-                <p class="bili-video-card__skeleton--light"></p></div>
-        </div>
-    </div>
-    <div class="bili-video-card__wrap __scale-wrap"><a href=${videoAddess}
-                                                       target="_blank" data-spmid="333.1007" data-mod="tianma.7-1-23"
-                                                       data-idx="click">
-        <div class="bili-video-card__image __scale-player-wrap">
-            <div class="bili-video-card__image--wrap">
-                <div class="bili-watch-later" style="display: none;">
-                    <svg class="bili-watch-later__icon">
-                        <use xlink:href="#widget-watch-later"></use>
-                    </svg>
-                    <span class="bili-watch-later__tip" style="display: none;"></span></div>
-                <picture class="v-img bili-video-card__cover"><!---->
-                    <source srcset=${videoImage.substring(videoImage.indexOf("//")) + "@672w_378h_1c_!web-home-common-cover.avif"}
-                            type="image/avif">
-                    <source srcset=${videoImage.substring(videoImage.indexOf("//")) + "@672w_378h_1c_!web-home-common-cover.webp"}
-                            type="image/webp">
-                    <img src=${videoImage.substring(videoImage.indexOf("//")) + "@672w_378h_1c_!web-home-common-cover"}
-                         alt=${title} loading="eager" onload=""></picture>
-                <div class="v-inline-player"></div>
-            </div>
-            <div class="bili-video-card__mask">
-                <div class="bili-video-card__stats">
-                    <div class="bili-video-card__stats--left"><span class="bili-video-card__stats--item"><svg
-                            class="bili-video-card__stats--icon"><use xlink:href="#widget-video-play-count"></use></svg><span
-                            class="bili-video-card__stats--text">${view}</span></span><span
-                            class="bili-video-card__stats--item"><svg class="bili-video-card__stats--icon"><use
-                            xlink:href="#widget-video-danmaku"></use></svg><span class="bili-video-card__stats--text">${danmaku}</span></span>
-                    </div>
-                    <span class="bili-video-card__stats__duration">${timeLong}</span></div>
-            </div>
-        </div>
-    </a>
-        <div class="bili-video-card__info __scale-disable"><!---->
-            <div class="bili-video-card__info--right"><h3 class="bili-video-card__info--tit"
-                                                          title=${title}><a
-                    href=${videoAddess} target="_blank" data-spmid="333.1007"
-                    data-mod="tianma.7-1-23" data-idx="click">${title}</a></h3>
-                <div class="bili-video-card__info--bottom"><!----><a class="bili-video-card__info--owner"
-                                                                     href=${"https://space.bilibili.com/" + userID}
-                                                                     target="_blank" data-spmid="333.1007"
-                                                                     data-mod="tianma.7-1-23" data-idx="click">
-                    <svg class="bili-video-card__info--owner__up">
-                        <use xlink:href="#widget-up"></use>
-                    </svg>
-                    <span class="bili-video-card__info--author" title=${userName}>-${userName}-</span><span
-                        class="bili-video-card__info--date">· ${ctime}</span></a></div>
-            </div>
-        </div>
-    </div>
-</div>`);
-        }
-    }
-}
-
 function startMonitorTheNetwork() {//监听网络变化
     const observer = new PerformanceObserver(perf_observer);
     observer.observe({entryTypes: ['resource']});
@@ -708,12 +544,6 @@ function shieldVideo_userName_uid_title({
     }
     if (videoHref !== undefined) {
         const bv = Util.getSubWebUrlBV(videoHref);
-        if (Matching.arrObjKey(LocalData.getWatchedArr(), "bv", bv)) {
-            element.remove();
-            Tip.printVideo("#66CCCC", `已过滤已观看的视频=${title}`, name, uid, title, videoHref);
-            Tip.success(`已过滤已观看的视频`);
-            return true;
-        }
         //TODO 后续适配所有需要过滤的地方
         if (Matching.arrKey(LocalData.getBvBlacklistArr(), bv)) {
             element.remove();
@@ -787,20 +617,14 @@ const message = {//消息中心
 }
 let href = Util.getWindowUrl();
 console.log("当前网页url=" + href);
-if (href.includes("github.com")) {
-    github(href);
-    throw new Error();
-}
 //加载布局
-layout.loading.home();
+layout.addMainLayout();
 $("body").prepend('<button id="myBut" v-show="show" @click="showBut">按钮</button>');
 layout.css.home();
 Util.BilibiliEncoder.init();
-$("#tabUl>li>button").click((e) => {
+$("#home_layout #tabUl>li>button").click((e) => {
     const domElement = e.delegateTarget;
-    document.querySelectorAll("#tabUl>li>button").forEach((value, key, parent) => {
-        $(value).css("color", "");
-    })
+    document.querySelectorAll("#home_layout #tabUl>li>button").forEach((value) => $(value).css("color", ""))
     domElement.style.color = "#1b00ff";
     Home.openTab(domElement.value);
 });
@@ -823,11 +647,11 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     const promise = RuleCenterLayoutVue.httpGetList();
     promise.then(dataBody => {
         Tip.success(dataBody.message);
-        ruleCenterLayoutVue().list = dataBody.dataList;
-        ruleCenterLayoutVue().isReloadListButShow = true;
+        window.window.ruleCenterLayoutVue.list = dataBody.dataList;
+        window.ruleCenterLayoutVue.isReloadListButShow = true;
     }).catch(reason => {
         Home.isFirstRuleCenterLayoutClick = false;
-        ruleCenterLayoutVue().isReloadListButShow = true;
+        window.ruleCenterLayoutVue.isReloadListButShow = true;
         debugger;
         console.log(reason);
     }).finally(() => {
@@ -835,9 +659,7 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
     });
 });
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
-    if (!LocalData.isEnableShortcutKeys()) {
-        return;
-    }
+    if (!LocalData.isEnableShortcutKeys()) return;
     const keycode = event.keyCode;
     switch (keycode) {
         case 192: {//按下`按键显示隐藏面板
@@ -859,7 +681,7 @@ $(document).keyup(function (event) {//单按键监听-按下之后松开事件
             break;
         }
         case 52: {//选中或取消面板中面板设置禁用快捷悬浮屏蔽面板自动显示
-            const vue = panelSetsTheLayoutVue();
+            const vue = window.panelSetsTheLayoutVue;
             vue.isDShieldPanel = !vue.isDShieldPanel;
             break;
         }
@@ -928,20 +750,18 @@ $("#butClearMessage").click(() => {
     }
     document.querySelector('#outputInfo').innerHTML = '';
 });
-const bilibiliEncoder = Util.BilibiliEncoder;
-Watched.WatchedListVue();
-const ruleCRUDLlayoutVue = RuleCRUDLayout.returnVue();
-const returnVue = LookAtItLater.returnVue();
-const panelSetsTheLayoutVue = PanelSetsTheLayout.returnVue();
+window.bilibiliEncoder = Util.BilibiliEncoder;
+RuleCRUDLayout.returnVue();
+LookAtItLater.returnVue();
+PanelSetsTheLayout.returnVue();
 Video_params_layout.returnVue();
 LiveLayoutVue.returnVue();
 OtherLayoutVue.returnVue();
 DonateLayoutVue.returnVue();
-HomePageLayoutVue.returnVue();
-const ruleCenterLayoutVue = RuleCenterLayoutVue.returnVue();
-const suspensionDivVue = SuspensionDivVue.returnVue();
+RuleCenterLayoutVue.returnVue();
+SuspensionDivVue.returnVue();
 AccountCenterVue.returnVue();
-const isShowVue = IsShowVue.returnVUe();
+IsShowVue.returnVUe();
 Util.suspensionBall(document.querySelector("#suspensionDiv"));
 setInterval(() => {//每秒监听网页中的url
     const tempUrl = Util.getWindowUrl();
@@ -952,7 +772,6 @@ setInterval(() => {//每秒监听网页中的url
     bilibili(href);//网页url发生变化时执行
 }, 500);
 if (href.includes("bilibili.com")) {
-    LockScreen.isLockScreen();
     bilibiliOne(href, document.title);
     bilibili(href);
     startMonitorTheNetwork();

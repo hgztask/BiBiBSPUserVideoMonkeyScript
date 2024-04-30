@@ -1,0 +1,4 @@
+默认头像外链(defaultAvatar)：https://tc.dhmip.cn/imgs/2024/04/30/7247e547a33ce1ed.png
+wx_zsm(paymentCodeWX)：https://tc.dhmip.cn/imgs/2024/04/30/8498fb1b0838370f.png
+zfb_skm(paymentCodeZFB)：https://tc.dhmip.cn/imgs/2024/04/30/ae79193e00011c74.png
+qq_skm(paymentCodeQQ)：https://tc.dhmip.cn/imgs/2024/04/30/232cabb892576d6d.png

@@ -1,3 +1,4 @@
+//{"weight":1}
 const UrleCrud = {//规则的增删改查
     addShow(ruleType, ruleName, content = null) {
         if (content === null) {
@@ -69,7 +70,7 @@ const UrleCrud = {//规则的增删改查
         arr.push(key);
         Util.setData(ruleType, arr);
         Tip.success(`添加${ruleType}的值成功=${key}`);
-        ruleCRUDLlayoutVue().updateRuleIndex();
+        window.RuleCRUDLayoutVue.updateRuleIndex();
         return true;
     },
     /**
@@ -94,7 +95,7 @@ const UrleCrud = {//规则的增删改查
         const fromList = Array.from(set);
         Util.setData(ruleType, fromList);
         console.log(`已更新${ruleType}的数组`, fromList);
-        ruleCRUDLlayoutVue().updateRuleIndex();
+        window.RuleCRUDLayoutVue.updateRuleIndex();
         return {code: true};
     },
     /**
@@ -112,7 +113,7 @@ const UrleCrud = {//规则的增删改查
         ruleList.splice(index, 1);
         Util.setData(ruleType, ruleList);
         Tip.printLn("已经删除该元素=" + content);
-        ruleCRUDLlayoutVue().updateRuleIndex();
+        window.RuleCRUDLayoutVue.updateRuleIndex();
         return true;
     },
     delShow(ruleType, ruleName, content = null) {
@@ -158,7 +159,7 @@ const UrleCrud = {//规则的增删改查
         } else {
             Tip.error(`删除失败！可能是不存在指定项目${ruleName}的规则内容！`);
         }
-        ruleCRUDLlayoutVue().updateRuleIndex();
+        window.RuleCRUDLayoutVue.updateRuleIndex();
     },
     /**
      *根据数组中的每一项rule名，删除对应存储在油猴脚本中的数据

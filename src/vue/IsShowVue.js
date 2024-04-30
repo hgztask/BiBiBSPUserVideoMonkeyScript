@@ -1,6 +1,7 @@
+//{"weight":2}
 const IsShowVue = {
     returnVUe() {
-        const vue = new Vue({
+        window.isShowVue = new Vue({
             el: "#myBut",
             data: {
                 show: LocalData.isMyButSHow(),
@@ -11,8 +12,5 @@ const IsShowVue = {
                 }
             }
         });
-        return function () {
-            return vue;
-        };
     }
 };
