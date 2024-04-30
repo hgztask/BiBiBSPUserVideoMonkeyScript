@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         b站屏蔽增强器
-// @namespace    https://greasyfork.org/zh-CN/scripts/461382
+// @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.2
+// @version      1.2.1
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理，支持获取b站相关数据并导出为json(用户收藏夹导出，历史记录导出、关注列表导出、粉丝列表导出)(详情看脚本主页描述)
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -4120,7 +4120,7 @@ const AccountCenterVue = {
                         <div>
                         <h1>个人信息</h1>
                         <div style="display: flex">
-                            <img src="https://hangexi.gitee.io/datafile/img/defaultAvatar.png"
+                            <img src="https://tc.dhmip.cn/imgs/2024/04/30/7247e547a33ce1ed.png"
                                  style="border-radius: 50%; height: 100px;" alt="图片加载不出来">
                             <div
                                 style="display: flex;align-items: flex-start;padding-left: 10px;flex-direction: column;justify-content: center;">
@@ -4331,10 +4331,10 @@ const DonateLayoutVue = {
                     {
                         name: "支付宝赞助",
                         alt: "支付宝支持",
-                        src: "https://hangexi.gitee.io/datafile/img/paymentCodeZFB.png"
+                        src: "https://tc.dhmip.cn/imgs/2024/04/30/ae79193e00011c74.png"
                     },
-                    {name: "微信赞助", alt: "微信支持", src: "https://hangexi.gitee.io/datafile/img/paymentCodeWX.png"},
-                    {name: "QQ赞助", alt: "QQ支持", src: "https://hangexi.gitee.io/datafile/img/paymentCodeQQ.png"},
+                    {name: "微信赞助", alt: "微信支持", src: "https://tc.dhmip.cn/imgs/2024/04/30/8498fb1b0838370f.png"},
+                    {name: "QQ赞助", alt: "QQ支持", src: "https://tc.dhmip.cn/imgs/2024/04/30/232cabb892576d6d.png"},
                 ]
             }
         });
