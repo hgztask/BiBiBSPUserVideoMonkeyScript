@@ -65,7 +65,7 @@ async function bilibiliOne(href, windowsTitle) {
             if (jqE.length === 0) return;
             clearInterval(i2);
             jqE.remove();
-            Tip.info("已移除页面下滑时，显示顶部的部分导航信息");
+            Tip.infoBottomRight("已移除页面下滑时，显示顶部的部分导航信息");
         }, 1000);
         return;
     }

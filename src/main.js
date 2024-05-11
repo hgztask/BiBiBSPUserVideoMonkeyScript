@@ -86,7 +86,7 @@ const Home = {
                         if (topInfo[1] !== undefined) videoClass.setBarrageQuantity(topInfo[1].textContent)
                     } catch (e) {
                         v.remove();
-                        Tip.error("清理异常元素");
+                        Tip.successBottomRight("清理异常元素");
                         continue;
                     }
                     if (shieldVideo_userName_uid_title(videoClass)) continue;

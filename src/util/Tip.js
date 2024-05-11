@@ -1,25 +1,34 @@
 //{"weight":1}
 //对Qmsg工具进行二次封装
 const Tip = {
-    success(text, config) {//成功
+    success(text, config) {
         Qmsg.success(text, config);
+    },
+    successBottomRight(text) {
+        this.success(text, {position: "bottomright"});
     },
     videoBlock(text) {//屏蔽了视频的提示
         this.success(text, {position: "bottomright"});
     },
-    info(text, config) {//信息
+    info(text, config) {
         Qmsg.info(text, config);
     },
-    error(text, config) {//错误
+    infoBottomRight(text) {
+        this.info(text, {position: "bottomright"});
+    },
+    error(text, config) {
         Qmsg.error(text, config);
     },
-    warning(text, config) {//警告
+    errorBottomRight(text) {
+        this.error(text, {position: "bottomright"});
+    },
+    warning(text, config) {
         Qmsg.warning(text, config);
     },
     config(cfg) {//设置全局Tip配置
         Qmsg.config(cfg);
     },
-    loading(text, config) {//加载进度条
+    loading(text, config) {
         return Qmsg.loading(text, config);
     },
     close(loading) {
