@@ -25,7 +25,7 @@ async function bilibiliOne(href, windowsTitle) {
             $(element).css("white-space", "break-spaces");
             const msg = "已调整搜索结果中历史记录样式";
             console.log(msg);
-            Tip.success(msg);
+            Tip.successBottomRight(msg);
         }, 100);
         nav_search_input.click(() => {
             console.log("点击了顶部搜索框");
@@ -37,19 +37,19 @@ async function bilibiliOne(href, windowsTitle) {
                     const content = value.querySelector(".trending-text").textContent;
                     const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
-                        Tip.info("规则屏蔽了相关热搜");
+                        Tip.infoBottomRight("规则屏蔽了相关热搜");
                         Tip.printLn(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
-                        Tip.info("规则屏蔽了相关热搜");
+                        Tip.infoBottomRight("规则屏蔽了相关热搜");
                         Tip.printLn(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
-                        Tip.info("规则屏蔽了相关热搜");
+                        Tip.infoBottomRight("规则屏蔽了相关热搜");
                         Tip.printLn(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
                     }
                 });
