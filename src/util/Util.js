@@ -168,15 +168,16 @@ const Util = {
      * @returns {number}
      */
     changeFormat(str) {
-        if (str.includes("万")) {
-            str = str.replace("万", "");
-            if (str.includes(".")) {
-                str = str.replace(".", "");
-                return parseInt(str + "000");//已知b站视频的播放量或者弹幕量的播放量达到万以上时如果有小数点必然是一个数的，比如10.5万
-            }
-            return parseInt(str + "0000");//没有小数点却带有万字的情况下，直接在后面+四个零
-        }//数字在1万以下的值
-        return parseInt(str);
+        if (!str.includes("万")) {
+            //数字在1万以下的值
+            return parseInt(str);
+        }
+        str = str.replace("万", "");
+        if (str.includes(".")) {
+            str = str.replace(".", "");
+            return parseInt(str + "000");//已知b站视频的播放量或者弹幕量的播放量达到万以上时如果有小数点必然是一个数的，比如10.5万
+        }
+        return parseInt(str + "0000");//没有小数点却带有万字的情况下，直接在后面+四个零
     },
     /**
      * 将视频播放量和弹幕量格式化输出
