@@ -168,7 +168,7 @@ const Util = {
      * @returns {number}
      */
     changeFormat(str) {
-        if (str = "".includes("万")) {
+        if (str.includes("万")) {
             str = str.replace("万", "");
             if (str.includes(".")) {
                 str = str.replace(".", "");
