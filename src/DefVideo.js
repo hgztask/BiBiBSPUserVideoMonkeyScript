@@ -195,5 +195,38 @@ const DefVideo = {
             videoElement.playbackRate = data;
             Tip.printLn("已设置播放器的速度=" + data);
         }
-    }
+    },
+    //获取视频页面-评论区信息-单个元素信息-楼主
+    getOuterCommentInfo(e) {
+        const tempE = e.shadowRoot.querySelector("bili-comment-user-info").shadowRoot;
+        const userNameE = tempE.querySelector("#user-name");
+        const name = userNameE.textContent.trim(); //姓名
+        const uid =userNameE.getAttribute("data-user-profile-id");
+        const userLevel = tempE.querySelector("#user-level>img").src;
+        const content = e.shadowRoot.querySelector("bili-rich-text")
+            .shadowRoot.querySelector("#contents")
+            .textContent;
+        return new ContentCLass()
+            .setUpName(name)
+            .setUid(uid)
+            .setLevel(userLevel)
+            .setContent(content);
+    },
+    //获取视频页面-评论区信息-单个元素信息-楼层
+    getInnerCommentInfo(e) {
+        const tempE = e.shadowRoot.querySelector("#main");
+        const userInfoE = tempE.querySelector("bili-comment-user-info")
+            .shadowRoot.querySelector("#info");
+        const userNameE = userInfoE.querySelector("#user-name");
+        const name = userNameE.textContent.trim();
+        const uid = userNameE.getAttribute("data-user-profile-id");
+        const userLevel = userInfoE.querySelector("#user-level>img").src;
+        const content = tempE.querySelector("bili-rich-text")
+            .shadowRoot.querySelector("#contents").textContent.trim();
+        return new ContentCLass()
+            .setUpName(name)
+            .setUid(uid)
+            .setLevel(userLevel)
+            .setContent(content);
+    },
 }
