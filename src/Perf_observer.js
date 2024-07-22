@@ -24,13 +24,27 @@ async function perf_observer() {
                         return;
                     }
                     clearInterval(i1);
-                    resolve(document.querySelectorAll(".reply-list>.reply-item"));
+                    let replyList;
+                    if (windowUrl.includes("https://www.bilibili.com/video")) {
+                        const tempE = document.querySelector("bili-comments");
+                        replyList = tempE.shadowRoot.querySelectorAll("bili-comment-thread-renderer")
+                    } else {
+                        replyList = document.querySelectorAll(".reply-list>.reply-item")
+                    }
+                    resolve(replyList);
                 }, 1000);
             });
             const list = await p;
             for (let v of list) {//针对于评论区
-                const usercontentWarp = v.querySelector(".content-warp");
-                const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
+                let usercontentWarp, data;
+                //适配新版b站视频评论区
+                if (windowUrl.includes("https://www.bilibili.com/video")) {
+                    usercontentWarp = v.shadowRoot.querySelector("#comment");
+                    data = DefVideo.getOuterCommentInfo(usercontentWarp);
+                } else {
+                    usercontentWarp = v.querySelector(".content-warp");
+                    data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
+                }
                 if (startPrintShieldNameOrUIDOrContent(v, data)) {
                     Tip.success("屏蔽了言论！！");
                     continue;
@@ -38,17 +52,34 @@ async function perf_observer() {
                 const jqE = $(usercontentWarp);
                 if (!Util.isEventJq(jqE, "mouseover")) {
                     jqE.mouseenter((e) => {
-                        const domElement = e.delegateTarget;
-                        const data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
+                        let domElement = e.delegateTarget;
+                        let data;
+                        if (windowUrl.includes("https://www.bilibili.com/video")) {
+                            data = DefVideo.getOuterCommentInfo(domElement);
+                        } else {
+                            data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
+                        }
                         Util.showSDPanel(e, data);
                     });
                 }
-                const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
+                let subReplyList;//楼层中的评论列表
+                if (windowUrl.includes("https://www.bilibili.com/video")) {
+                    subReplyList = v.shadowRoot
+                        .querySelector("bili-comment-replies-renderer").shadowRoot
+                        .querySelectorAll("bili-comment-reply-renderer")
+                } else {
+                    subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
+                }
                 if (subReplyList.length === 0) {
                     continue;
                 }
                 for (let j of subReplyList) {
-                    const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
+                    let data;
+                    if (windowUrl.includes("https://www.bilibili.com/video")) {
+                        data = DefVideo.getInnerCommentInfo(j);
+                    } else {
+                        data = Trends.getVideoCommentAreaOrTrendsStorey(j);
+                    }
                     if (startPrintShieldNameOrUIDOrContent(j, data)) {
                         Tip.success("屏蔽了言论！！");
                         continue;
@@ -59,7 +90,12 @@ async function perf_observer() {
                     }
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
-                        Util.showSDPanel(e, Trends.getVideoCommentAreaOrTrendsStorey(domElement));
+                        if (windowUrl.includes("https://www.bilibili.com/video")) {
+                            data = DefVideo.getInnerCommentInfo(domElement);
+                        } else {
+                            data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
+                        }
+                        Util.showSDPanel(e, data);
                     });
                 }
             }
