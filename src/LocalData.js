@@ -206,5 +206,13 @@ const LocalData = {
         setDTQFSPToTriggerDisplay_KC(keyCode) {//设置触发显示快捷屏蔽面板的ASCII值
             return this.__defSet(keyCode, "DTQFSPToTriggerDisplay_KC");
         }
+    },
+    disableKeyboardShortcuts: {//禁用快捷键配置
+        getHSMainPanel() {//获取禁用显隐主面板按键
+            return Util.getData("HSMainPanel_DK", false);
+        },
+        getDShieldPanel() {//获取禁用快捷悬浮屏蔽面板自动显示
+            return Util.getData("DShieldPanel_DK", false);
+        },
     }
 }
