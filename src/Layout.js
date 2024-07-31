@@ -210,15 +210,6 @@ border: 0.5px solid green;
     getOtherLayout() {
         return `<div>
     </div>
-    <details>
-      <summary>快捷键</summary>
-      <div>
-        <p> 显示隐藏面板 快捷键\`</p>
-        <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
-        <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
-        <p>隐藏快捷悬浮屏蔽面板 快捷键3</p>
-      </div>
-    </details>
     <hr>
     <details open>
       <summary>b站SESSDATA</summary>
@@ -311,7 +302,7 @@ border: 0.5px solid green;
         </div>
         <div>
           <span>宽度</span>
-          <input type="range" value="100" min="20" max="100" step="0.1" v-model="widthRange">
+          <input type="range" value="100" min="40" max="100" step="0.1" v-model="widthRange">
           <span>{{widthRangeText}}</span>
         </div>
       </div>
