@@ -480,7 +480,7 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
     }
     const isUid = Remove.uid(element, contentCLass.uid);
     if (isUid) {
-        Tip.printCommentOn("#yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
+        Tip.printCommentOn("yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     const isName = Remove.name(element, contentCLass.upName);
