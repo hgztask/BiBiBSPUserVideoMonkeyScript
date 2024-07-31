@@ -660,27 +660,28 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
 });
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     if (!LocalData.isEnableShortcutKeys()) return;
-    const keycode = event.keyCode;
-    switch (keycode) {
-        case 192: {//按下`按键显示隐藏面板
+    const key = event.key;
+    switch (key) {
+        case LocalData.localKeyCode.getDHMainPanel_KC(): {
             Home.hideDisplayHomeLaylout();
             break;
         }
-        case 49: {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
-            const q = $("#quickLevitationShield");
-            q.prop("checked", !q.is(':checked'));
+        case LocalData.localKeyCode.getQFlBBFollowsTheMouse_KC(): {
+            debugger;
+            const is = VueData.panelSetsTheLayout.isDShieldPanelFollowMouse();
+            VueData.panelSetsTheLayout.setDShieldPanelFollowMouse(!is);
             break;
         }
-        case 50: {//固定快捷悬浮面板值 键盘上的2
-            const q = $("#fixedPanelValueCheckbox");
-            q.prop("checked", !q.is(':checked'));
+        case LocalData.localKeyCode.getFixedQuickSuspensionPanelValue_KC(): {//固定快捷悬浮面板值
+            const q = VueData.panelSetsTheLayout.isFixedPanelValueCheckbox();
+            VueData.panelSetsTheLayout.setFixedPanelValueCheckbox(!q);
             break;
         }
-        case 51: {//隐藏快捷悬浮屏蔽按钮 键盘上的3
+        case LocalData.localKeyCode.getHideQuickSuspensionBlockButton_KC(): {
             $("#suspensionDiv").hide();
             break;
         }
-        case 52: {//选中或取消面板中面板设置禁用快捷悬浮屏蔽面板自动显示
+        case LocalData.localKeyCode.getDTQFSPToTriggerDisplay_KC(): {
             const vue = window.panelSetsTheLayoutVue;
             vue.isDShieldPanel = !vue.isDShieldPanel;
             break;

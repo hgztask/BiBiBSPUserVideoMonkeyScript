@@ -486,7 +486,7 @@ const Util = {
         //获取当前鼠标悬停的坐标轴
         window.suspensionDivVue.xy.x = x;
         window.suspensionDivVue.xy.y = y;
-        if (!($("#quickLevitationShield").is(':checked'))) return;
+        if (!VueData.panelSetsTheLayout.isDShieldPanelFollowMouse()) return;
         const suspensionDiv = $("#suspensionDiv");
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
@@ -519,7 +519,7 @@ const Util = {
         let av = data["av"];
         const newVar = LocalData.isDShieldPanel();
         if (newVar) return;
-        if ($("#fixedPanelValueCheckbox").is(':checked')) return;
+        if (VueData.panelSetsTheLayout.isFixedPanelValueCheckbox()) return;
         window.suspensionDivVue.upName = name;
         window.suspensionDivVue.uid = uid;
         window.suspensionDivVue.videoData.title = title;

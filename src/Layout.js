@@ -251,13 +251,7 @@ border: 0.5px solid green;
        <div class="center">
        <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="1000" v-model="moveLayoutValue"></div>
       坐标:x{{xy.x}}|y:{{xy.y}}
-        <div>
-          <span>按钮跟随鼠标</span>
-          <input id="quickLevitationShield" type="checkbox">
-        </div>
        <div>
-       <span>固定面板值</span>
-       <input id="fixedPanelValueCheckbox" type="checkbox">
        </div>
         <p>用户名：{{upName}}</p>
         <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
@@ -307,15 +301,52 @@ border: 0.5px solid green;
         </div>
       </div>
       <hr>
-      <div>
-        <h1>控制面板悬浮球</h1>
-        <div :title="titleContent">
-          显示隐藏<input type="checkbox" v-model="isMyButShow">
+<div style="display: flex; flex-wrap: wrap;">
+    <div>
+        <div>
+        <label><input type="checkbox" v-model="isMyButShow">右上角悬浮球显示隐藏</label>
         </div>
-      </div>
-      <hr>
-      <h1>快捷悬浮面板</h1>
-      <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>`);
+        <div title="可通过快捷键显示控制面板，右击页面和左键油猴插件选择本脚本的【显示隐藏控制面板】">
+            <label>
+            <input type="checkbox" v-model="isDShowHidePanel">禁用显示隐藏主面板快捷键
+            </label>
+            <button @click="setDHMPKCBut">修改显示隐藏切换快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.dHMainPanel_KC_text}}</span></label>
+        </div>
+        <div>
+            <label title="支持设置可隐藏该快捷悬浮屏蔽面板快捷键，支持设置切换此开关的快捷键">
+            <input type="checkbox" v-model="isDShieldPanel">禁用快捷悬浮屏蔽面板自动显示
+            <button @click="setDTQFSPToTDKCBut">修改该功能状态快捷键</button>
+            </label>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.dTQFSPToTriggerDisplay_KC_text}}</span></label>
+            <button @click="setHQSBlockButton_KCBut">修改主动隐藏快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.hideQuickSuspensionBlockButton_KC_text}}</span></label>
+        </div>
+        <div>
+            <label>
+            <input  type="checkbox" v-model="isDShieldPanelFollowMouse">快捷悬浮屏蔽面板跟随鼠标快捷键
+            </label>
+            <button @click="setQFlBBFTMouseKCBut">修改快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.qFlBBFollowsTheMouse_KC_text}}</span></label>
+        </div>
+        <div>
+            <label>
+            <input type="checkbox" v-model="isFixedPanelValueCheckbox">固定悬浮屏蔽面板数据值
+            </label>
+            <button @click="setsetFixedQuickSPanelValue_KCBut">修改快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.fixedQuickSuspensionPanelValue_KC_text}}</span></label>
+        </div>
+    </div>
+    <div>
+    <p>快捷键不可重复</p>
+    <p>如果修改了快捷键，左侧当前快捷键文本需要刷新页面才会更新</p>
+    <p>修改了快捷键马上生效</p>
+    <button><a href="https://www.bejson.com/othertools/keycodes/" target="_blank">键盘按键参考地址-在线获取键盘按键值(keycode,ascii码)-BeJSON.com</a></button>
+    </div>
+</div>
+    
+`);
+
         $("#liveLayout").append(`点击用户名打开直播间,点击用户头像打开用户主页
       <div></div>
       <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
