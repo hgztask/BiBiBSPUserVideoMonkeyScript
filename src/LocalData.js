@@ -148,5 +148,63 @@ const LocalData = {
     },
     setMyButShow(bool) {//设置显示控制面板悬浮球值
         Util.setData("isMyButShow", bool === true)
+    },
+    localKeyCode: {//获取设置按键值
+        data: {
+            KCArr: []
+        },
+        __getKCArr() {
+            const tempKCArr = this.data.KCArr;
+            if (tempKCArr.length !== 0) return tempKCArr;
+            tempKCArr.push(this.getDHMainPanel_KC());
+            tempKCArr.push(this.getQFlBBFollowsTheMouse_KC());
+            tempKCArr.push(this.getFixedQuickSuspensionPanelValue_KC());
+            tempKCArr.push(this.getHideQuickSuspensionBlockButton_KC());
+            tempKCArr.push(this.getDTQFSPToTriggerDisplay_KC());
+            return tempKCArr;
+        },
+        __defGet(defValue, key) {
+            const data = Util.getData(key, defValue);
+            if (isNaN(data) || data < 0 || data > 127) return defValue;
+            return parseInt(data);
+        },
+        __defSet(keyCode, key) {
+            if (isNaN(keyCode) || keyCode < 0 || keyCode > 127) return false;
+            if (this.__getKCArr().includes(keyCode)) {
+                return false;
+            }
+            Util.setData(key, parseInt(keyCode));
+            return true;
+        },
+        getDHMainPanel_KC() {//获取显隐主面板ASCII值
+            return this.__defGet(192, "DHMainPanel_KC");
+        },
+        setDHMainPanel_KC(keyCode) {//设置显隐主面板ASCII值
+            return this.__defSet(keyCode, "DHMainPanel_KC");
+        },
+        getQFlBBFollowsTheMouse_KC() {//获取悬浮球跟随鼠标移动的ASCII值
+            return this.__defGet(49, "QFlBBFollowsTheMouse_KC");
+        },
+        setQFlBBFollowsTheMouse_KC(keyCode) {//设置悬浮球跟随鼠标移动的ASCII值
+            return this.__defSet(keyCode, "QFlBBFollowsTheMouse_KC");
+        },
+        getFixedQuickSuspensionPanelValue_KC() {//获取固定悬浮屏蔽面板值的ASCII值
+            return this.__defGet(50, "FixedQuickSuspensionPanelValue_KC");
+        },
+        setFixedQuickSuspensionPanelValue_KC(keyCode) {//设置固定悬浮屏蔽面板值的ASCII值
+            return this.__defSet(keyCode, "FixedQuickSuspensionPanelValue_KC");
+        },
+        getHideQuickSuspensionBlockButton_KC() {//获取隐藏快捷屏蔽按钮的ASCII值
+            return this.__defGet(51, "HideQuickSuspensionBlockButton_KC");
+        },
+        setHideQuickSuspensionBlockButton_KC(keyCode) {//设置隐藏快捷屏蔽按钮的ASCII值
+            return this.__defSet(keyCode, "HideQuickSuspensionBlockButton_KC");
+        },
+        getDTQFSPToTriggerDisplay_KC() {//获取触发显示快捷屏蔽面板的ASCII值
+            return this.__defGet(52, "DTQFSPToTriggerDisplay_KC");
+        },
+        setDTQFSPToTriggerDisplay_KC(keyCode) {//设置触发显示快捷屏蔽面板的ASCII值
+            return this.__defSet(keyCode, "DTQFSPToTriggerDisplay_KC");
+        }
     }
 }
