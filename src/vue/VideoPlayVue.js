@@ -292,7 +292,7 @@ const VideoPlayVue = {
         }
     },
     addHtml() {
-        $("body").append(`<div id="rightLayout" :style="{left:leftVal,top:topVal}" style="position: fixed;">
+        $("body").append(`<div id="rightLayout" :style="{left:leftVal,top:topVal}" style="position: fixed;z-index: 2023">
 <div style="display: flex; flex-direction: column;">
 <button @click="subItemShowBut">{{subItemButText}}</button>
     <div v-show="subItemButShow" style="display: flex; flex-direction: column;">
