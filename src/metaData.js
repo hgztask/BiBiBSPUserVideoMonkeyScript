@@ -27,7 +27,7 @@
 // @match        *://www.bilibili.com/*
 // @match        *://www.youtube.com/*
 // @require      https://cdn.jsdelivr.net/npm/vue@2
-// @require      https://code.jquery.com/jquery-3.5.1.min.js
+// @require      https://code.jquery.com/jquery-3.7.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
