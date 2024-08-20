@@ -2,7 +2,7 @@
 // @name         b站屏蔽增强器
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.2.1
+// @version      1.2.2
 // @description  支持动态屏蔽、评论区过滤屏蔽，视频屏蔽（标题、用户、uid等）、蔽根据用户名、uid、视频关键词、言论关键词和视频时长进行屏蔽和精简处理，支持获取b站相关数据并导出为json(用户收藏夹导出，历史记录导出、关注列表导出、粉丝列表导出)(详情看脚本主页描述)
 // @author       byhgz
 // @exclude      *://message.bilibili.com/pages/nav/header_sync
@@ -24,9 +24,8 @@
 // @match        *://live.bilibili.com/*
 // @match        *://www.bilibili.com/opus/*
 // @match        *://www.bilibili.com/*
-// @match        *://www.youtube.com/*
 // @require      https://cdn.jsdelivr.net/npm/vue@2
-// @require      https://code.jquery.com/jquery-3.5.1.min.js
+// @require      https://code.jquery.com/jquery-3.7.1.min.js
 // @require      https://greasyfork.org/scripts/462234-message/code/Message.js?version=1170653
 // @icon         https://static.hdslb.com/images/favicon.ico
 // @connect      bilibili.com
@@ -52,6 +51,8 @@ class UserClass {
     upName;
     uid;
     upAddress;
+    level;
+
     /**
      *
      * @param {string}upName
@@ -61,16 +62,29 @@ class UserClass {
         this.upName = upName.trim();
         return this;
     }
+
     setUpAddress(upAddress) {
         this.upAddress = upAddress;
         return this;
     }
+
     setUid(uid) {
         this.uid = uid;
         this.setUpAddress(`https://space.bilibili.com/${uid}`)
         return this;
     }
+
+    setLevel(level) {
+        const tempLevelMatch = level.match(/level_(.*).svg/);
+        if (tempLevelMatch === null) {
+            this.level = -1;
+            return this;
+        }
+        this.level = tempLevelMatch[1];
+        return this;
+    }
 }
+
 /**
  * 视频基本信息
  */
@@ -85,54 +99,66 @@ class VideoClass extends UserClass {
     //封面
     frontCover;
     e;
+
     setTitle(title) {
         this.title = title;
         return this;
     }
+
     setBv(bv) {
         this.bv = bv;
         return this;
     }
+
     setAv(av) {
         this.av = av;
         return this;
     }
+
     setVideoAddress(videoAddress) {//设置视频地址
         this.videoAddress = videoAddress;
         return this;
     }
+
     setVideoTime(videoTime) {//设置时长
         this.videoTime = videoTime;
         return this;
     }
+
     //设置播放量
     setPlaybackVolume(playbackVolume) {
         this.playbackVolume = playbackVolume;
         return this;
     }
+
     setE(element) {//元素
         this.e = element;
         return this;
     }
+
     setFrontCover(frontCover) {
         this.frontCover = frontCover;
         return this;
     }
+
     setBarrageQuantity(value) {//弹幕量
         this.barrageQuantity = value;
         return this;
     }
 }
+
 /**
  * 用户评论内容
  */
 class ContentCLass extends UserClass {
     content;
+
     setContent(content) {
         this.content = content;
         return this;
     }
 }
+
 class LiveRoom extends UserClass {
     roomId;
     title;
@@ -142,22 +168,27 @@ class LiveRoom extends UserClass {
     frontCover;
     //视频帧
     videoFrame;
+
     setRoomId(roomId) {
         this.roomId = roomId;
         return this;
     }
+
     setTitle(title) {
         this.title = title;
         return this;
     }
+
     setFace(face) {
         this.face = face;
         return this;
     }
+
     setFrontCover(frontCover) {
         this.frontCover = frontCover;
         return this;
     }
+
     setVideoFrame(videoFrame) {
         this.videoFrame = videoFrame;
         return this;
@@ -339,15 +370,16 @@ const Util = {
      * @returns {number}
      */
     changeFormat(str) {
-        if (str = "".includes("万")) {
-            str = str.replace("万", "");
-            if (str.includes(".")) {
-                str = str.replace(".", "");
-                return parseInt(str + "000");//已知b站视频的播放量或者弹幕量的播放量达到万以上时如果有小数点必然是一个数的，比如10.5万
-            }
-            return parseInt(str + "0000");//没有小数点却带有万字的情况下，直接在后面+四个零
-        }//数字在1万以下的值
-        return parseInt(str);
+        if (!str.includes("万")) {
+            //数字在1万以下的值
+            return parseInt(str);
+        }
+        str = str.replace("万", "");
+        if (str.includes(".")) {
+            str = str.replace(".", "");
+            return parseInt(str + "000");//已知b站视频的播放量或者弹幕量的播放量达到万以上时如果有小数点必然是一个数的，比如10.5万
+        }
+        return parseInt(str + "0000");//没有小数点却带有万字的情况下，直接在后面+四个零
     },
     /**
      * 将视频播放量和弹幕量格式化输出
@@ -656,7 +688,7 @@ const Util = {
         //获取当前鼠标悬停的坐标轴
         window.suspensionDivVue.xy.x = x;
         window.suspensionDivVue.xy.y = y;
-        if (!($("#quickLevitationShield").is(':checked'))) return;
+        if (!VueData.panelSetsTheLayout.isDShieldPanelFollowMouse()) return;
         const suspensionDiv = $("#suspensionDiv");
         suspensionDiv.css("left", x + "px");
         suspensionDiv.css("top", y + "px");
@@ -689,7 +721,7 @@ const Util = {
         let av = data["av"];
         const newVar = LocalData.isDShieldPanel();
         if (newVar) return;
-        if ($("#fixedPanelValueCheckbox").is(':checked')) return;
+        if (VueData.panelSetsTheLayout.isFixedPanelValueCheckbox()) return;
         window.suspensionDivVue.upName = name;
         window.suspensionDivVue.uid = uid;
         window.suspensionDivVue.videoData.title = title;
@@ -1285,7 +1317,40 @@ const DefVideo = {
             videoElement.playbackRate = data;
             Tip.printLn("已设置播放器的速度=" + data);
         }
-    }
+    },
+    //获取视频页面-评论区信息-单个元素信息-楼主
+    getOuterCommentInfo(e) {
+        const tempE = e.shadowRoot.querySelector("bili-comment-user-info").shadowRoot;
+        const userNameE = tempE.querySelector("#user-name");
+        const name = userNameE.textContent.trim(); //姓名
+        const uid =userNameE.getAttribute("data-user-profile-id");
+        const userLevel = tempE.querySelector("#user-level>img").src;
+        const content = e.shadowRoot.querySelector("bili-rich-text")
+            .shadowRoot.querySelector("#contents")
+            .textContent;
+        return new ContentCLass()
+            .setUpName(name)
+            .setUid(uid)
+            .setLevel(userLevel)
+            .setContent(content);
+    },
+    //获取视频页面-评论区信息-单个元素信息-楼层
+    getInnerCommentInfo(e) {
+        const tempE = e.shadowRoot.querySelector("#main");
+        const userInfoE = tempE.querySelector("bili-comment-user-info")
+            .shadowRoot.querySelector("#info");
+        const userNameE = userInfoE.querySelector("#user-name");
+        const name = userNameE.textContent.trim();
+        const uid = userNameE.getAttribute("data-user-profile-id");
+        const userLevel = userInfoE.querySelector("#user-level>img").src;
+        const content = tempE.querySelector("bili-rich-text")
+            .shadowRoot.querySelector("#contents").textContent.trim();
+        return new ContentCLass()
+            .setUpName(name)
+            .setUid(uid)
+            .setLevel(userLevel)
+            .setContent(content);
+    },
 }
 
 const GreatDemand = {//热门
@@ -1467,6 +1532,65 @@ const LocalData = {
     },
     setMyButShow(bool) {//设置显示控制面板悬浮球值
         Util.setData("isMyButShow", bool === true)
+    },
+    localKeyCode: {//获取设置按键值
+        __getKCArr() {
+            const tempKCArr = [];
+            if (tempKCArr.length !== 0) return tempKCArr;
+            tempKCArr.push(this.getDHMainPanel_KC());
+            tempKCArr.push(this.getQFlBBFollowsTheMouse_KC());
+            tempKCArr.push(this.getFixedQuickSuspensionPanelValue_KC());
+            tempKCArr.push(this.getDTQFSPToTriggerDisplay_KC());
+            return tempKCArr;
+        },
+        __defGet(defValue, key) {
+            return Util.getData(key, defValue);
+        },
+        __defSet(key, name) {
+            if (this.__getKCArr().includes(key)) {
+                return false;
+            }
+            Util.setData(name, key);
+            return true;
+        },
+        getDHMainPanel_KC() {//获取显隐主面板按键
+            return this.__defGet(`\``, "DHMainPanel_KC");
+        },
+        setDHMainPanel_KC(keyCode) {//设置显隐主面板按键
+            return this.__defSet(keyCode, "DHMainPanel_KC");
+        },
+        getQFlBBFollowsTheMouse_KC() {//获取悬浮球跟随鼠标移动的按键
+            return this.__defGet("1", "QFlBBFollowsTheMouse_KC");
+        },
+        setQFlBBFollowsTheMouse_KC(keyCode) {//设置悬浮球跟随鼠标移动的按键
+            return this.__defSet(keyCode, "QFlBBFollowsTheMouse_KC");
+        },
+        getFixedQuickSuspensionPanelValue_KC() {//获取固定悬浮屏蔽面板值的按键
+            return this.__defGet("2", "FixedQuickSuspensionPanelValue_KC");
+        },
+        setFixedQuickSuspensionPanelValue_KC(keyCode) {//设置固定悬浮屏蔽面板值的按键
+            return this.__defSet(keyCode, "FixedQuickSuspensionPanelValue_KC");
+        },
+        getHideQuickSuspensionBlockButton_KC() {//获取主动隐藏隐藏快捷悬浮面板的按键
+            return this.__defGet("3", "HideQuickSuspensionBlockButton_KC");
+        },
+        setHideQuickSuspensionBlockButton_KC(key) {//设置主动隐藏快捷悬浮面板的按键
+            return this.__defSet(key, "HideQuickSuspensionBlockButton_KC");
+        },
+        getDTQFSPToTriggerDisplay_KC() {//获取切换快捷悬浮屏蔽面板自动显示状态的按键
+            return this.__defGet("4", "DTQFSPToTriggerDisplay_KC");
+        },
+        setDTQFSPToTriggerDisplay_KC(keyCode) {//设置切换快捷悬浮屏蔽面板自动显示状态的按键
+            return this.__defSet(keyCode, "DTQFSPToTriggerDisplay_KC");
+        }
+    },
+    disableKeyboardShortcuts: {//禁用快捷键配置
+        getHSMainPanel() {//获取禁用显隐主面板按键
+            return Util.getData("HSMainPanel_DK", false);
+        },
+        getDShieldPanel() {//获取禁用快捷悬浮屏蔽面板自动显示
+            return Util.getData("DShieldPanel_DK", false);
+        },
     }
 }
 
@@ -1576,13 +1700,27 @@ async function perf_observer() {
                         return;
                     }
                     clearInterval(i1);
-                    resolve(document.querySelectorAll(".reply-list>.reply-item"));
+                    let replyList;
+                    if (windowUrl.includes("https://www.bilibili.com/video")) {
+                        const tempE = document.querySelector("bili-comments");
+                        replyList = tempE.shadowRoot.querySelectorAll("bili-comment-thread-renderer")
+                    } else {
+                        replyList = document.querySelectorAll(".reply-list>.reply-item")
+                    }
+                    resolve(replyList);
                 }, 1000);
             });
             const list = await p;
             for (let v of list) {//针对于评论区
-                const usercontentWarp = v.querySelector(".content-warp");
-                const data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
+                let usercontentWarp, data;
+                //适配新版b站视频评论区
+                if (windowUrl.includes("https://www.bilibili.com/video")) {
+                    usercontentWarp = v.shadowRoot.querySelector("#comment");
+                    data = DefVideo.getOuterCommentInfo(usercontentWarp);
+                } else {
+                    usercontentWarp = v.querySelector(".content-warp");
+                    data = Trends.getVideoCommentAreaOrTrendsLandlord(usercontentWarp);
+                }
                 if (startPrintShieldNameOrUIDOrContent(v, data)) {
                     Tip.success("屏蔽了言论！！");
                     continue;
@@ -1590,17 +1728,34 @@ async function perf_observer() {
                 const jqE = $(usercontentWarp);
                 if (!Util.isEventJq(jqE, "mouseover")) {
                     jqE.mouseenter((e) => {
-                        const domElement = e.delegateTarget;
-                        const data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
+                        let domElement = e.delegateTarget;
+                        let data;
+                        if (windowUrl.includes("https://www.bilibili.com/video")) {
+                            data = DefVideo.getOuterCommentInfo(domElement);
+                        } else {
+                            data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
+                        }
                         Util.showSDPanel(e, data);
                     });
                 }
-                const subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
+                let subReplyList;//楼层中的评论列表
+                if (windowUrl.includes("https://www.bilibili.com/video")) {
+                    subReplyList = v.shadowRoot
+                        .querySelector("bili-comment-replies-renderer").shadowRoot
+                        .querySelectorAll("bili-comment-reply-renderer")
+                } else {
+                    subReplyList = v.querySelectorAll(".sub-reply-container>.sub-reply-list>.sub-reply-item");//楼主下面的评论区
+                }
                 if (subReplyList.length === 0) {
                     continue;
                 }
                 for (let j of subReplyList) {
-                    const data = Trends.getVideoCommentAreaOrTrendsStorey(j);
+                    let data;
+                    if (windowUrl.includes("https://www.bilibili.com/video")) {
+                        data = DefVideo.getInnerCommentInfo(j);
+                    } else {
+                        data = Trends.getVideoCommentAreaOrTrendsStorey(j);
+                    }
                     if (startPrintShieldNameOrUIDOrContent(j, data)) {
                         Tip.success("屏蔽了言论！！");
                         continue;
@@ -1611,7 +1766,12 @@ async function perf_observer() {
                     }
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
-                        Util.showSDPanel(e, Trends.getVideoCommentAreaOrTrendsStorey(domElement));
+                        if (windowUrl.includes("https://www.bilibili.com/video")) {
+                            data = DefVideo.getInnerCommentInfo(domElement);
+                        } else {
+                            data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
+                        }
+                        Util.showSDPanel(e, data);
                     });
                 }
             }
@@ -2170,25 +2330,34 @@ const HttpUtil = {
 
 //对Qmsg工具进行二次封装
 const Tip = {
-    success(text, config) {//成功
+    success(text, config) {
         Qmsg.success(text, config);
+    },
+    successBottomRight(text) {
+        this.success(text, {position: "bottomright"});
     },
     videoBlock(text) {//屏蔽了视频的提示
         this.success(text, {position: "bottomright"});
     },
-    info(text, config) {//信息
+    info(text, config) {
         Qmsg.info(text, config);
     },
-    error(text, config) {//错误
+    infoBottomRight(text) {
+        this.info(text, {position: "bottomright"});
+    },
+    error(text, config) {
         Qmsg.error(text, config);
     },
-    warning(text, config) {//警告
+    errorBottomRight(text) {
+        this.error(text, {position: "bottomright"});
+    },
+    warning(text, config) {
         Qmsg.warning(text, config);
     },
     config(cfg) {//设置全局Tip配置
         Qmsg.config(cfg);
     },
-    loading(text, config) {//加载进度条
+    loading(text, config) {
         return Qmsg.loading(text, config);
     },
     close(loading) {
@@ -2768,15 +2937,6 @@ border: 0.5px solid green;
     getOtherLayout() {
         return `<div>
     </div>
-    <details>
-      <summary>快捷键</summary>
-      <div>
-        <p> 显示隐藏面板 快捷键\`</p>
-        <p>选中取消快捷悬浮屏蔽面板跟随鼠标 快捷键1</p>
-        <p>选中固定快捷相符屏蔽面板的固定面板值 快捷键2</p>
-        <p>隐藏快捷悬浮屏蔽面板 快捷键3</p>
-      </div>
-    </details>
     <hr>
     <details open>
       <summary>b站SESSDATA</summary>
@@ -2818,13 +2978,7 @@ border: 0.5px solid green;
        <div class="center">
        <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="1000" v-model="moveLayoutValue"></div>
       坐标:x{{xy.x}}|y:{{xy.y}}
-        <div>
-          <span>按钮跟随鼠标</span>
-          <input id="quickLevitationShield" type="checkbox">
-        </div>
        <div>
-       <span>固定面板值</span>
-       <input id="fixedPanelValueCheckbox" type="checkbox">
        </div>
         <p>用户名：{{upName}}</p>
         <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
@@ -2869,20 +3023,57 @@ border: 0.5px solid green;
         </div>
         <div>
           <span>宽度</span>
-          <input type="range" value="100" min="20" max="100" step="0.1" v-model="widthRange">
+          <input type="range" value="100" min="40" max="100" step="0.1" v-model="widthRange">
           <span>{{widthRangeText}}</span>
         </div>
       </div>
       <hr>
-      <div>
-        <h1>控制面板悬浮球</h1>
-        <div :title="titleContent">
-          显示隐藏<input type="checkbox" v-model="isMyButShow">
+<div style="display: flex; flex-wrap: wrap;">
+    <div>
+        <div>
+        <label><input type="checkbox" v-model="isMyButShow">右上角悬浮球显示隐藏</label>
         </div>
-      </div>
-      <hr>
-      <h1>快捷悬浮面板</h1>
-      <input type="checkbox" v-model="isDShieldPanel"><span title="快捷键3可隐藏该快捷悬浮屏蔽面板，快捷键4可切换此开关">禁用快捷悬浮屏蔽面板自动显示</span>`);
+        <div title="可通过快捷键显示控制面板，右击页面和左键油猴插件选择本脚本的【显示隐藏控制面板】">
+            <label>
+            <input type="checkbox" v-model="isDShowHidePanel">禁用显示隐藏主面板快捷键
+            </label>
+            <button @click="setDHMPKCBut">修改显示隐藏切换快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.dHMainPanel_KC_text}}</span></label>
+        </div>
+        <div>
+            <label title="支持设置可隐藏该快捷悬浮屏蔽面板快捷键，支持设置切换此开关的快捷键">
+            <input type="checkbox" v-model="isDShieldPanel">禁用快捷悬浮屏蔽面板自动显示
+            <button @click="setDTQFSPToTDKCBut">修改该功能状态快捷键</button>
+            </label>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.dTQFSPToTriggerDisplay_KC_text}}</span></label>
+            <button @click="setHQSBlockButton_KCBut">修改主动隐藏快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.hideQuickSuspensionBlockButton_KC_text}}</span></label>
+        </div>
+        <div>
+            <label>
+            <input  type="checkbox" v-model="isDShieldPanelFollowMouse">快捷悬浮屏蔽面板跟随鼠标快捷键
+            </label>
+            <button @click="setQFlBBFTMouseKCBut">修改快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.qFlBBFollowsTheMouse_KC_text}}</span></label>
+        </div>
+        <div>
+            <label>
+            <input type="checkbox" v-model="isFixedPanelValueCheckbox">固定悬浮屏蔽面板数据值
+            </label>
+            <button @click="setsetFixedQuickSPanelValue_KCBut">修改快捷键</button>
+            <label>当前快捷键<span style="color: brown">{{showKCMap.fixedQuickSuspensionPanelValue_KC_text}}</span></label>
+        </div>
+    </div>
+    <div>
+    <p>快捷键不可重复</p>
+    <p>如果修改了快捷键，左侧当前快捷键文本需要刷新页面才会更新</p>
+    <p>修改了快捷键马上生效</p>
+    <button><a href="https://www.bejson.com/othertools/keycodes/" target="_blank">键盘按键参考地址-在线获取键盘按键值(keycode,ascii码)-BeJSON.com</a></button>
+    </div>
+</div>
+    
+`);
+
         $("#liveLayout").append(`点击用户名打开直播间,点击用户头像打开用户主页
       <div></div>
       <div>关注列表在中正在直播的用户-({{listOfFollowers.length}})个
@@ -5008,11 +5199,80 @@ const PanelSetsTheLayout = {//面板设置
                 heightRangeText: "100%",
                 widthRange: 100,
                 widthRangeText: "100%",
-                isDShieldPanel: LocalData.isDShieldPanel(),
                 isMyButShow: LocalData.isMyButSHow(),
-                titleContent: "可通过快捷键~显示控制面板，右击页面和左键油猴插件选择本脚本的【显示隐藏控制面板】"
+                isDShieldPanel: LocalData.isDShieldPanel(),//是否禁用快捷悬浮屏蔽面板自动显示
+                isDShowHidePanel: false,//是否禁用显示隐藏主面板快捷键
+                isDShieldPanelFollowMouse: false,//快捷悬浮屏蔽面板是否跟随鼠标
+                isFixedPanelValueCheckbox: false,//是否固定快捷悬浮屏蔽面板的值，也有该复选框是否选中的意思
+                showKCMap: {
+                    dHMainPanel_KC_text: LocalData.localKeyCode.getDHMainPanel_KC(),
+                    dTQFSPToTriggerDisplay_KC_text: LocalData.localKeyCode.getDTQFSPToTriggerDisplay_KC(),
+                    hideQuickSuspensionBlockButton_KC_text: LocalData.localKeyCode.getHideQuickSuspensionBlockButton_KC(),
+                    qFlBBFollowsTheMouse_KC_text: LocalData.localKeyCode.getQFlBBFollowsTheMouse_KC(),
+                    fixedQuickSuspensionPanelValue_KC_text: LocalData.localKeyCode.getFixedQuickSuspensionPanelValue_KC()
+                }
+
+            },
+            methods: {
+                __showInputKC(text) {
+                    let input = prompt(text, "");
+                    if (input === null) return null;
+                    input = input.trim();
+                    if (input === "") {
+                        Tip.error("请输入正确的快捷键");
+                        return null;
+                    }
+                    return input;
+                },
+                __isPrintKC(kcData, fun) {//临时将就着用的
+                    if (!kcData) return;
+                    let msg;
+                    if (fun) {
+                        msg = `已修改快捷键：${kcData}`;
+                        Tip.success(msg);
+                    } else {
+                        msg = "快捷键已被占用，请重新设置！";
+                        Tip.error(msg);
+                    }
+                    console.log(msg);
+                    alert(msg);
+                },
+                setDHMPKCBut() {
+                    const kc = this.__showInputKC("请输入显示隐藏主面板的快捷键");
+                    this.__isPrintKC(kc, LocalData.localKeyCode.setDHMainPanel_KC(kc));
+                },
+                setDTQFSPToTDKCBut() {//有用
+                    const kc = this.__showInputKC("请输入切换快捷悬浮屏蔽面板自动显示状态的按键");
+                    this.__isPrintKC(kc, LocalData.localKeyCode.setDTQFSPToTriggerDisplay_KC(kc));
+                },
+                setQFlBBFTMouseKCBut() {
+                    const kc = this.__showInputKC("请输入快捷悬浮屏蔽面板是否跟随鼠标的快捷键");
+                    this.__isPrintKC(kc, LocalData.localKeyCode.setQFlBBFollowsTheMouse_KC(kc));
+                },
+                setHQSBlockButton_KCBut() {
+                    const kc = this.__showInputKC("请输入隐藏快捷悬浮面板的按键");
+                    this.__isPrintKC(kc, LocalData.localKeyCode.setHideQuickSuspensionBlockButton_KC(kc));
+                },
+                setsetFixedQuickSPanelValue_KCBut() {
+                    const kc = this.__showInputKC("请输入固定快捷悬浮屏蔽面板的快捷键");
+                    this.__isPrintKC(kc, LocalData.localKeyCode.setFixedQuickSuspensionPanelValue_KC(kc));
+                }
             },
             watch: {
+                isMyButShow(newVal) {
+                    LocalData.setMyButShow(newVal);
+                    window.isShowVue.show = newVal;
+                },
+                isDShieldPanel(newVal) {
+                    LocalData.setDShieldPanel(newVal);
+                    Tip.success(`您更改了【禁用快捷悬浮屏蔽面板自动显示】的状态，当前为：${newVal ? "启用" : "不启用"}状态`);
+                },
+                isDShowHidePanel(newVal) {
+
+                },
+                isDShieldPanelFollowMouse(newVal) {
+                    Tip.infoBottomRight(`${newVal ? '启动' : '禁用'}快捷悬浮屏蔽面板跟随鼠标`);
+                },
                 backgroundPellucidRange(newVal) {
                     const back = Home.background;
                     $("#home_layout").css("background", Util.getRGBA(back.r, back.g, back.b, newVal));
@@ -5024,14 +5284,6 @@ const PanelSetsTheLayout = {//面板设置
                 widthRange(newVal) {
                     this.widthRangeText = newVal + "%";
                     $("#home_layout").css("width", `${newVal}%`);
-                },
-                isDShieldPanel(newVal) {
-                    LocalData.setDShieldPanel(newVal);
-                    Tip.success(`您更改了【禁用快捷悬浮屏蔽面板自动显示】的状态，当前为：${newVal ? "启用" : "不启用"}状态`);
-                },
-                isMyButShow(newVal) {
-                    LocalData.setMyButShow(newVal);
-                    window.isShowVue.show = newVal;
                 }
             }
         });
@@ -6239,7 +6491,7 @@ const VideoPlayVue = {
         }
     },
     addHtml() {
-        $("body").append(`<div id="rightLayout" :style="{left:leftVal,top:topVal}" style="position: fixed;">
+        $("body").append(`<div id="rightLayout" :style="{left:leftVal,top:topVal}" style="position: fixed;z-index: 2023">
 <div style="display: flex; flex-direction: column;">
 <button @click="subItemShowBut">{{subItemButText}}</button>
     <div v-show="subItemButShow" style="display: flex; flex-direction: column;">
@@ -6325,6 +6577,24 @@ const Video_params_layout = {
         });
         return function () {
             return vue;
+        }
+    }
+}
+
+
+const VueData = {//vue组件数据获取与设置
+    panelSetsTheLayout: {//面板设置布局
+        isDShieldPanelFollowMouse() {//是否跟随鼠标
+            return window.panelSetsTheLayoutVue.isDShieldPanelFollowMouse;
+        },
+        setDShieldPanelFollowMouse(boolVal) {//设置是否跟随鼠标
+            window.panelSetsTheLayoutVue.isDShieldPanelFollowMouse = boolVal;
+        },
+        isFixedPanelValueCheckbox(){//是否固定面板值
+            return window.panelSetsTheLayoutVue.isFixedPanelValueCheckbox;
+        },
+        setFixedPanelValueCheckbox(boolVal) {//设置是否固定面板值
+            window.panelSetsTheLayoutVue.isFixedPanelValueCheckbox = boolVal;
         }
     }
 }
@@ -6416,7 +6686,7 @@ const Home = {
                         if (topInfo[1] !== undefined) videoClass.setBarrageQuantity(topInfo[1].textContent)
                     } catch (e) {
                         v.remove();
-                        Tip.error("清理异常元素");
+                        Tip.successBottomRight("清理异常元素");
                         continue;
                     }
                     if (shieldVideo_userName_uid_title(videoClass)) continue;
@@ -6810,7 +7080,7 @@ function startPrintShieldNameOrUIDOrContent(element, contentCLass) {
     }
     const isUid = Remove.uid(element, contentCLass.uid);
     if (isUid) {
-        Tip.printCommentOn("#yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
+        Tip.printCommentOn("yellow", `已通过UID屏蔽`, contentCLass.upName, contentCLass.uid, contentCLass.content);
         return true;
     }
     const isName = Remove.name(element, contentCLass.upName);
@@ -6990,27 +7260,28 @@ $("#tabUl>li>button[value='ruleCenterLayout']").click(() => {
 });
 $(document).keyup(function (event) {//单按键监听-按下之后松开事件
     if (!LocalData.isEnableShortcutKeys()) return;
-    const keycode = event.keyCode;
-    switch (keycode) {
-        case 192: {//按下`按键显示隐藏面板
+    const key = event.key;
+    switch (key) {
+        case LocalData.localKeyCode.getDHMainPanel_KC(): {
             Home.hideDisplayHomeLaylout();
             break;
         }
-        case 49: {//选中快捷悬浮屏蔽按钮跟随鼠标 键盘上的1
-            const q = $("#quickLevitationShield");
-            q.prop("checked", !q.is(':checked'));
+        case LocalData.localKeyCode.getQFlBBFollowsTheMouse_KC(): {
+            debugger;
+            const is = VueData.panelSetsTheLayout.isDShieldPanelFollowMouse();
+            VueData.panelSetsTheLayout.setDShieldPanelFollowMouse(!is);
             break;
         }
-        case 50: {//固定快捷悬浮面板值 键盘上的2
-            const q = $("#fixedPanelValueCheckbox");
-            q.prop("checked", !q.is(':checked'));
+        case LocalData.localKeyCode.getFixedQuickSuspensionPanelValue_KC(): {//固定快捷悬浮面板值
+            const q = VueData.panelSetsTheLayout.isFixedPanelValueCheckbox();
+            VueData.panelSetsTheLayout.setFixedPanelValueCheckbox(!q);
             break;
         }
-        case 51: {//隐藏快捷悬浮屏蔽按钮 键盘上的3
+        case LocalData.localKeyCode.getHideQuickSuspensionBlockButton_KC(): {
             $("#suspensionDiv").hide();
             break;
         }
-        case 52: {//选中或取消面板中面板设置禁用快捷悬浮屏蔽面板自动显示
+        case LocalData.localKeyCode.getDTQFSPToTriggerDisplay_KC(): {
             const vue = window.panelSetsTheLayoutVue;
             vue.isDShieldPanel = !vue.isDShieldPanel;
             break;
@@ -7293,7 +7564,7 @@ async function bilibiliOne(href, windowsTitle) {
             $(element).css("white-space", "break-spaces");
             const msg = "已调整搜索结果中历史记录样式";
             console.log(msg);
-            Tip.success(msg);
+            Tip.successBottomRight(msg);
         }, 100);
         nav_search_input.click(() => {
             console.log("点击了顶部搜索框");
@@ -7305,19 +7576,19 @@ async function bilibiliOne(href, windowsTitle) {
                     const content = value.querySelector(".trending-text").textContent;
                     const titleKey = Remove.titleKey(value, content);
                     if (titleKey !== null) {
-                        Tip.info("规则屏蔽了相关热搜");
+                        Tip.infoBottomRight("规则屏蔽了相关热搜");
                         Tip.printLn(`已通过标题关键词【${titleKey}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const titleKeyCanonical = Remove.titleKeyCanonical(value, content);
                     if (titleKeyCanonical !== null) {
-                        Tip.info("规则屏蔽了相关热搜");
+                        Tip.infoBottomRight("规则屏蔽了相关热搜");
                         Tip.printLn(`已通过标题正则关键词【${titleKeyCanonical}】屏蔽热搜榜项目内容【${content}】`);
                         return;
                     }
                     const contentKey = Remove.contentKey(value, content);
                     if (contentKey !== null) {
-                        Tip.info("规则屏蔽了相关热搜");
+                        Tip.infoBottomRight("规则屏蔽了相关热搜");
                         Tip.printLn(`已通过标内容关键词【${contentKey}】屏蔽热搜榜项目内容【${content}】`);
                     }
                 });
@@ -7333,7 +7604,7 @@ async function bilibiliOne(href, windowsTitle) {
             if (jqE.length === 0) return;
             clearInterval(i2);
             jqE.remove();
-            Tip.info("已移除页面下滑时，显示顶部的部分导航信息");
+            Tip.infoBottomRight("已移除页面下滑时，显示顶部的部分导航信息");
         }, 1000);
         return;
     }
