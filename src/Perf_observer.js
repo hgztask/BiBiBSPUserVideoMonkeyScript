@@ -19,7 +19,8 @@ async function perf_observer() {
             }
             //是否是新版评论区
             //适配9月4日的动态页评论区
-            const isNewComments = windowUrl.includes("https://www.bilibili.com/video") || windowUrl.includes("www.bilibili.com/opus/");
+            const isNewComments = windowUrl.includes("https://www.bilibili.com/video") ||
+                windowUrl.includes("www.bilibili.com/opus/")||windowUrl.includes("t.bilibili.com");
             console.log("视频api");
             const p = new Promise(resolve => {
                 const i1 = setInterval(() => {
