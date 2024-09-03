@@ -17,6 +17,9 @@ async function perf_observer() {
             if (windowUrl.includes("https://www.bilibili.com/video") && LocalData.video.isHideVideoButtonCommentSections()) {
                 continue;
             }
+            //是否是新版评论区
+            //适配9月4日的动态页评论区
+            const isNewComments = windowUrl.includes("https://www.bilibili.com/video") || windowUrl.includes("www.bilibili.com/opus/");
             console.log("视频api");
             const p = new Promise(resolve => {
                 const i1 = setInterval(() => {
@@ -25,7 +28,8 @@ async function perf_observer() {
                     }
                     clearInterval(i1);
                     let replyList;
-                    if (windowUrl.includes("https://www.bilibili.com/video")) {
+
+                    if (isNewComments) {
                         const tempE = document.querySelector("bili-comments");
                         replyList = tempE.shadowRoot.querySelectorAll("bili-comment-thread-renderer")
                     } else {
@@ -37,8 +41,7 @@ async function perf_observer() {
             const list = await p;
             for (let v of list) {//针对于评论区
                 let usercontentWarp, data;
-                //适配新版b站视频评论区
-                if (windowUrl.includes("https://www.bilibili.com/video")) {
+                if (isNewComments) {
                     usercontentWarp = v.shadowRoot.querySelector("#comment");
                     data = DefVideo.getOuterCommentInfo(usercontentWarp);
                 } else {
@@ -54,7 +57,7 @@ async function perf_observer() {
                     jqE.mouseenter((e) => {
                         let domElement = e.delegateTarget;
                         let data;
-                        if (windowUrl.includes("https://www.bilibili.com/video")) {
+                        if (isNewComments) {
                             data = DefVideo.getOuterCommentInfo(domElement);
                         } else {
                             data = Trends.getVideoCommentAreaOrTrendsLandlord(domElement);
@@ -63,7 +66,7 @@ async function perf_observer() {
                     });
                 }
                 let subReplyList;//楼层中的评论列表
-                if (windowUrl.includes("https://www.bilibili.com/video")) {
+                if (isNewComments) {
                     subReplyList = v.shadowRoot
                         .querySelector("bili-comment-replies-renderer").shadowRoot
                         .querySelectorAll("bili-comment-reply-renderer")
@@ -75,7 +78,7 @@ async function perf_observer() {
                 }
                 for (let j of subReplyList) {
                     let data;
-                    if (windowUrl.includes("https://www.bilibili.com/video")) {
+                    if (isNewComments) {
                         data = DefVideo.getInnerCommentInfo(j);
                     } else {
                         data = Trends.getVideoCommentAreaOrTrendsStorey(j);
@@ -90,7 +93,7 @@ async function perf_observer() {
                     }
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
-                        if (windowUrl.includes("https://www.bilibili.com/video")) {
+                        if (isNewComments) {
                             data = DefVideo.getInnerCommentInfo(domElement);
                         } else {
                             data = Trends.getVideoCommentAreaOrTrendsStorey(domElement);
