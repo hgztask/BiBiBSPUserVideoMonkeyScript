@@ -244,10 +244,8 @@ border: 0.5px solid green;
         return `<!-- 悬浮屏蔽布局 -->
       <div id="suspensionDiv">
        <div style="display: flex;justify-content: center;">
-        <button value="上" @click="moveTop" >↑</button>
     </div>
         <div style="display: flex;justify-content: space-between;">
-        <button value="左" @click="moveLrft">←</button>
        <div class="center">
        <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="1000" v-model="moveLayoutValue"></div>
       坐标:x{{xy.x}}|y:{{xy.y}}
@@ -269,13 +267,9 @@ border: 0.5px solid green;
         <button id="getLiveHighEnergyListBut" style="display: none">获取高能用户列表</button>
         <button id="getLiveDisplayableBarrageListBut" style="display: none">获取当前可显示的弹幕列表</button>
        </div>
-        <button value="右" @click="moveRight">→</button>
     </div>
     <div style="display: flex;justify-content: center;">
-        <button value="下" @click="moveButton">↓</button>
     </div>
-    
-    
       </div>
      <!-- 悬浮屏蔽按钮 -->`;
     },

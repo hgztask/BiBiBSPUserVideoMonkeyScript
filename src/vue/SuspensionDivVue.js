@@ -85,43 +85,6 @@ const SuspensionDivVue = {
                         loading.close();
                     });
                 },
-                move(value, func) {
-                    const jqE = $("#suspensionDiv");
-                    const moveLayoutValue = parseInt(Util.Str.lastIndexSub(jqE.css(value), 2));
-                    let moveIndex = func(moveLayoutValue, this.moveLayoutValue);
-                    const width = document.documentElement.clientWidth - parseInt(jqE.css("width"));
-                    const height = document.documentElement.clientHeight - parseInt(jqE.css("height"));
-                    if (value === "top" && 0 >= moveIndex) {
-                        moveIndex = 0;
-                    }
-                    if (value === "top" && moveIndex > height) {
-                        moveIndex = height;
-                    }
-                    if (value === "left" && moveIndex <= 0) {
-                        moveIndex = 0;
-                    }
-                    if (value === "left" && moveIndex > width) {
-                        moveIndex = width;
-                    }
-                    if (value === "top") {
-                        this.xy.y = moveIndex;
-                    } else {
-                        this.xy.x = moveIndex;
-                    }
-                    jqE.css(value, `${moveIndex}px`);
-                },
-                moveTop() {
-                    this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
-                },
-                moveLrft() {
-                    this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex - moveLayoutValue);
-                },
-                moveRight() {
-                    this.move("left", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
-                },
-                moveButton() {
-                    this.move("top", (layoutIndex, moveLayoutValue) => layoutIndex + moveLayoutValue);
-                },
                 handleToggle(event) {//处理监听details展开关闭事件
                     if (event.target.open === false) {
                         return;
