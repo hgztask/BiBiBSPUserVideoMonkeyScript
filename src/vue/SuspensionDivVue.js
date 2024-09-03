@@ -4,10 +4,6 @@ const SuspensionDivVue = {
         window.suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue
             el: "#suspensionDiv",
             data: {
-                moveLayoutValue: 5,
-                xy: {
-                    x: 0, y: 0
-                },
                 upName: "",
                 uid: "",
                 videoData: {

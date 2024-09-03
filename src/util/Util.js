@@ -484,8 +484,6 @@ const Util = {
         const x = e.clientX;
         const y = e.clientY;
         //获取当前鼠标悬停的坐标轴
-        window.suspensionDivVue.xy.x = x;
-        window.suspensionDivVue.xy.y = y;
         if (!VueData.panelSetsTheLayout.isDShieldPanelFollowMouse()) return;
         const suspensionDiv = $("#suspensionDiv");
         suspensionDiv.css("left", x + "px");

@@ -247,10 +247,6 @@ border: 0.5px solid green;
     </div>
         <div style="display: flex;justify-content: space-between;">
        <div class="center">
-       <div>移动步长：{{moveLayoutValue}}<input type="range" value="5" min="1" max="1000" v-model="moveLayoutValue"></div>
-      坐标:x{{xy.x}}|y:{{xy.y}}
-       <div>
-       </div>
         <p>用户名：{{upName}}</p>
         <p>UID：<a v-bind:href="'https://space.bilibili.com/'+uid" target="_blank">{{uid}}</a></p>
         <details v-show="videoData.show" :open="videoData.show" @toggle="handleToggle">
