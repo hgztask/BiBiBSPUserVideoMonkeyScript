@@ -67,6 +67,15 @@ async function bilibiliOne(href, windowsTitle) {
             jqE.remove();
             Tip.infoBottomRight("已移除页面下滑时，显示顶部的部分导航信息");
         }, 1000);
+        const i3 = setInterval(() => {
+            const el = document.querySelector(".desktop-download-tip");
+            if (el === null) return;
+            clearInterval(i3);
+            el.remove();
+            const msg = "已移除下载提示";
+            console.log(msg);
+            Tip.successBottomRight(msg);
+        }, 500);
         return;
     }
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页
