@@ -514,7 +514,6 @@ const Util = {
         const uid = Util.getSubUid(data["uid"]);
         const title = data["title"];
         let bv = data["bv"];
-        let av = data["av"];
         const newVar = LocalData.isDShieldPanel();
         if (newVar) return;
         if (VueData.panelSetsTheLayout.isFixedPanelValueCheckbox()) return;
@@ -522,14 +521,11 @@ const Util = {
         window.suspensionDivVue.uid = uid;
         window.suspensionDivVue.videoData.title = title;
         window.suspensionDivVue.videoData.bv = bv;
-        window.suspensionDivVue.videoData.av = av;
         window.suspensionDivVue.videoData.frontCover = data["frontCover"];
         if (title === undefined) {
             window.suspensionDivVue.videoData.show = false;
         } else {
             window.suspensionDivVue.videoData.show = true;
-            if (bv === undefined) return;
-            window.suspensionDivVue.videoData.av = Util.BilibiliEncoder.dec(bv);
         }
         this.updateLocation(e);
         $("#suspensionDiv").css("display", "inline-block");
@@ -645,41 +641,6 @@ const Util = {
         element.click();
         // 清理dom
         document.body.removeChild(element);
-    },
-    /**
-     * bv号与av号互转
-     * 使用之前请初始化init先，如下
-     * 使用例子
-     * BilibiliEncoder.init();//先初始化
-     * console.log(BilibiliEncoder.dec('BV1ms4y1e7B8'));//bv转av
-     * console.log(BilibiliEncoder.enc(170001));//av转bv
-     */
-    BilibiliEncoder: {
-        table: "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF",
-        tr: {},
-        s: [11, 10, 3, 8, 4, 6],
-        xor: 177451812,
-        add: 8728348608,
-        init() {//初始化
-            for (let i = 0; i < 58; i++) {
-                this.tr[this.table[i]] = i;
-            }
-        },
-        dec(x) {//bv转av
-            let r = 0;
-            for (let i = 0; i < 6; i++) {
-                r += this.tr[x[this.s[i]]] * Math.pow(58, i);
-            }
-            return (r - this.add) ^ this.xor;
-        },
-        enc(x) {//av转bv
-            x = (x ^ this.xor) + this.add;
-            const r = "BV1  4 1 7  ".split("");
-            for (let i = 0; i < 6; i++) {
-                r[this.s[i]] = this.table[Math.floor(x / Math.pow(58, i)) % 58];
-            }
-            return r.join("");
-        }
     },
     openWindowWriteContent(content) {//打开一个标签页并写入内容至页面
         try {

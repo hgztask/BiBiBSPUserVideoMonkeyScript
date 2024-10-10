@@ -621,7 +621,6 @@ console.log("当前网页url=" + href);
 layout.addMainLayout();
 $("body").prepend('<button id="myBut" v-show="show" @click="showBut">按钮</button>');
 layout.css.home();
-Util.BilibiliEncoder.init();
 $("#home_layout #tabUl>li>button").click((e) => {
     const domElement = e.delegateTarget;
     document.querySelectorAll("#home_layout #tabUl>li>button").forEach((value) => $(value).css("color", ""))
@@ -751,7 +750,6 @@ $("#butClearMessage").click(() => {
     }
     document.querySelector('#outputInfo').innerHTML = '';
 });
-window.bilibiliEncoder = Util.BilibiliEncoder;
 RuleCRUDLayout.returnVue();
 LookAtItLater.returnVue();
 PanelSetsTheLayout.returnVue();

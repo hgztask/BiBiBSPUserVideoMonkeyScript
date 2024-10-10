@@ -42,41 +42,6 @@ const OtherLayoutVue = {
                     Tip.printLn("用户存储在脚本中的SESSDATA，如上一条：");
                     Tip.printLn(data);
                 },
-                bvToAvBut() {
-                    const content = prompt("bv转av号");
-                    if (content === null) {
-                        return;
-                    }
-                    if (content.length <= 5) {
-                        alert("请正确填写内容！");
-                        return;
-                    }
-                    const dec = window.bilibiliEncoder.dec(content);
-                    if (isNaN(dec)) {
-                        alert("结果错误！");
-                        return;
-                    }
-                    alert("av" + dec);
-                },
-                avTObvBut() {
-                    let content = prompt("av转bv号");
-                    if (content === null) {
-                        return;
-                    }
-                    if (content.startsWith("av") || content.startsWith("AV")) {
-                        content = content.substring(2, content.length);
-                    }
-                    if (content.length < 1 || (isNaN(content))) {
-                        alert("请正确填写内容！");
-                        return;
-                    }
-                    const dec = window.bilibiliEncoder.enc(content);
-                    if (!dec.startsWith("BV")) {
-                        alert("结果错误！");
-                        return;
-                    }
-                    alert(dec);
-                },
                 openGBTWebBut() {
                     Util.openWindow("http://gbtgame.ysepan.com/");
                 },

@@ -9,7 +9,6 @@ const SuspensionDivVue = {
                 videoData: {
                     title: "",
                     bv: "",
-                    av: "",
                     show: false,
                     frontCover: null
                 },

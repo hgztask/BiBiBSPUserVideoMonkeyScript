@@ -102,17 +102,6 @@ const VideoPlayVue = {
                         loading.close();
                     });
                 },
-                getTheVideoAVNumber() {
-                    const urlId = Util.getUrlBVID(Util.getWindowUrl());
-                    if (urlId === null) {
-                        alert("获取不到BV号!");
-                        return;
-                    }
-                    if (!confirm(`当前视频BV号是 ${urlId} 吗`)) {
-                        return;
-                    }
-                    alert(Util.BilibiliEncoder.dec(urlId));
-                },
                 getVideoCommentArea() {//获取视频的评论区列表可见的内容
                     const list = document.querySelectorAll(".reply-list>.reply-item");
                     if (list.length === 0) {
@@ -299,7 +288,6 @@ const VideoPlayVue = {
         <button @click="addUid">屏蔽(uid)</button>
         <button @click="addNameBut">屏蔽用户名(精确)</button>
         <button @click="getTheVideoBarrage">获取视频弹幕</button>
-        <button @click="getTheVideoAVNumber">获取视频av号</button>
         <button @click="getVideoCommentArea">获取评论区页面可见数据</button>
         <button @click="getLeftTopVideoListBut">获取视频选集列表数据</button>
         <button @click="addLefToLookAtItLaterListBut">添加进稍后再看</button>

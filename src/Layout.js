@@ -222,8 +222,6 @@ border: 0.5px solid green;
     </details>
     <div>
     <h1>其他</h1>
-    <button @click="bvToAvBut">bv号转av号</button>
-    <button @click="avTObvBut">av号转bv号</button>
     </div>
     <hr>
    <button @click="openGBTWebBut">前往GBT乐赏游戏空间地址</button>
@@ -253,7 +251,6 @@ border: 0.5px solid green;
         <summary>视频信息</summary>
         <p>标题:{{videoData.title}}</span></p>
         <p>视频BV号:{{videoData.bv}}</span></p>
-        <p>视频AV号:{{videoData.av}}</p>
         <img :src="videoData.frontCover" alt="图片显示异常" style="width: 100%;">
         <button @click="addLookAtItLater">添加进稍后再看</button>
 </details>

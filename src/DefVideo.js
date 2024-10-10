@@ -76,7 +76,6 @@ const DefVideo = {
                         uid: upSpatialAddress.substring(upSpatialAddress.lastIndexOf("com/") + 4, upSpatialAddress.length - 1),
                         frontCover: v_img === null ? null : v_img.getAttribute("src"),
                         bv: bv,
-                        av: window.bilibiliEncoder.dec(bv)
                     };
                     Util.showSDPanel(e, data);
                 });

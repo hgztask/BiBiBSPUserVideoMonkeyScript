@@ -73,7 +73,6 @@ const Space = {
                 data["标题"] = value.querySelector(".title").textContent;
                 const bvID = value.getAttribute("data-aid");
                 data["BV号"] = bvID;
-                data["AV号"] = Util.BilibiliEncoder.dec(bvID);
                 data["收藏于何时"] = value.querySelector(".meta.pubdate").textContent.trim();//收藏于何时
                 data["视频的时长"] = value.querySelector("a>.length").textContent;//对象的时长
                 const videoInfo = value.querySelector(".meta-mask>.meta-info");

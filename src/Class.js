@@ -46,7 +46,6 @@ class UserClass {
 class VideoClass extends UserClass {
     title;
     bv;
-    av;
     videoAddress;
     videoTime;
     playbackVolume;
@@ -62,11 +61,6 @@ class VideoClass extends UserClass {
 
     setBv(bv) {
         this.bv = bv;
-        return this;
-    }
-
-    setAv(av) {
-        this.av = av;
         return this;
     }
 
