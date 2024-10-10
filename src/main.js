@@ -69,15 +69,23 @@ const Home = {
                 $(".floor-single-card").remove();
                 $(".bili-live-card").remove();
                 for (let v of list) {
-                    let videoInfo, title, upName, upSpatialAddress, videoAddress, videoTime, playbackVolume;//可以一排定义
+                    let videoInfo, upSpatialAddress, videoUrl;
                     const videoClass = new VideoClass();
                     try {
                         videoInfo = v.querySelector(".bili-video-card__info--right");
                         const titleInfo = videoInfo.querySelector(".bili-video-card__info--tit");
                         upSpatialAddress = videoInfo.querySelector(".bili-video-card__info--owner").getAttribute("href");//用户空间地址
                         const topInfo = v.querySelectorAll(".bili-video-card__stats--left .bili-video-card__stats--item");//1播放量2弹幕数
+                        const titleAE = titleInfo.querySelector("a");
+                        const tempVideoUrl = titleAE.href;
+                        if (tempVideoUrl.includes("www.bilibili.com/video/")) {
+                            videoUrl = tempVideoUrl;
+                        } else {
+                            console.log("疑似推广视频！或广告！")
+                            videoUrl = titleAE.getAttribute("data-target-url");
+                        }
                         videoClass.setTitle(titleInfo.getAttribute("title"))
-                            .setVideoAddress(titleInfo.querySelector("a").href)
+                            .setVideoAddress(videoUrl)
                             .setUpName(videoInfo.querySelector(".bili-video-card__info--author").title)
                             .setUid(Util.getSubWebUrlUid(upSpatialAddress))
                             .setVideoTime(v.querySelector(".bili-video-card__stats__duration").textContent)
@@ -95,14 +103,27 @@ const Home = {
                     jqE.mouseenter((e) => {
                         const domElement = e.delegateTarget;
                         const info = domElement.querySelector(".bili-video-card__info--right");
-                        const videoAddress = info.querySelector(".bili-video-card__info--tit>a").getAttribute("href");
+                        const videoInfoAE = info.querySelector(".bili-video-card__info--tit>a");
+                        let videoAddress = videoInfoAE.getAttribute("href");
+                        let tempBV;
+                        let uid;
                         const href = info.querySelector(".bili-video-card__info--owner").href;
+                        if (videoAddress.includes("www.bilibili.com/video/")) {
+                            uid = Util.getSubWebUrlUid(href);
+                            tempBV = Util.getSubWebUrlBV(videoAddress);
+                        } else {
+                            // 不是视频链接，疑似是推广视频
+                            console.log("疑似推广视频！或广告！")
+                            const tempUrl = videoInfoAE.getAttribute("data-target-url");
+                            tempBV = Util.getSubWebUrlBV(tempUrl);
+                            uid = href.match(/space_mid=(\d+)/)[1];
+                        }
                         const v_img = domElement.querySelector(".v-img>img");
                         Util.showSDPanel(e, {
                             upName: info.querySelector(".bili-video-card__info--author").textContent,
-                            uid: Util.getSubWebUrlUid(href),
+                            uid: uid,
                             title: info.querySelector(".bili-video-card__info--tit").getAttribute("title"),
-                            bv: Util.getSubWebUrlBV(videoAddress),
+                            bv: tempBV,
                             frontCover: v_img === null ? null : v_img.getAttribute("src")
                         });
                     });
