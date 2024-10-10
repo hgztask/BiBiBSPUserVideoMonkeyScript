@@ -76,6 +76,27 @@ async function bilibiliOne(href, windowsTitle) {
             console.log(msg);
             Tip.successBottomRight(msg);
         }, 500);
+        const i4 = setInterval(() => {
+            const el = document.querySelector(".recommended-swipe.grid-anchor");
+            if (el === null) return;
+            clearInterval(i4);
+            el.remove();
+            const msg = "已移除首页轮播大图区域";
+            console.log(msg);
+            Tip.successBottomRight(msg);
+        }, 500);
+        setInterval(() => {
+            const els = document.querySelectorAll(".feed-card");
+            if (els.length === 0) return;
+            els.forEach(el => {
+                const mTop = $(el).css("margin-top");
+                if (mTop === "0px") return;
+                $(el).css("margin-top", "0px");
+                const msg = "已移除首页推荐视频区域中的顶部空白";
+                console.log(msg);
+                Tip.successBottomRight(msg);
+            })
+        }, 500);
         return;
     }
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页
