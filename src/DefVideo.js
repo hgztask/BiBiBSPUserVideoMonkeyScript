@@ -111,33 +111,35 @@ const DefVideo = {
     getVIdeoTitle() {//获取当前页面视频标题
         return document.querySelector("#viewbox_report>.video-title").title;
     },
-    isCreativeTeam() {//判断是否是创作团队
-        return document.querySelector(".header") !== null;
-    },
+
+    /**
+     * 获取视频页面的创作团队，
+     * 当为个人创作者时数组仅有一个个人信息，
+     * 当为团队创作者时数组包含多个团队成员信息
+     * @returns {Array}
+     */
     getCreativeTeam() {//获取创作团队
         const userList = [];
-        if (this.isCreativeTeam()) {
-            const list = document.querySelectorAll(".container .membersinfo-upcard-wrap .staff-name.is-vip");
-            list.forEach(value => {
-                const data = {};
-                data["name"] = value.textContent.trim();
-                const userAddress = value.getAttribute("href");
-                data ["uid"] = Util.getSubWebUrlUid(userAddress);
-                data["e"] = value;
-                userList.push(data);
+        const upEArr = document.querySelectorAll(".membersinfo-upcard-wrap");
+        if (upEArr.length === 0) {
+            const userE = document.querySelector(".up-name.vip");
+            if (userE === null) {
+                return userList;
+            }
+            userList.push({
+                name: userE.textContent.trim(),
+                uid: userE.href.match(/space.bilibili.com\/(\d+)/)[1],
+            });
+            return userList;
+        }
+        upEArr.forEach(e => {
+            const userInfoE = e.querySelector(".staff-info .staff-name");
+            userList.push({
+                name: userInfoE.textContent.trim(),
+                uid: userInfoE.href.match(/space.bilibili.com\/(\d+)/)[1],
+                e: e
             })
-            return userList;
-        }
-        const userInfo = document.querySelector(".up-name");
-        if (userInfo === null) {
-            return userList;
-        }
-        const data = {};
-        data["name"] = userInfo.textContent.trim();
-        const userAddress = userInfo.getAttribute("href");
-        data["uid"] = Util.getSubWebUrlUid(userAddress);
-        data["e"] = userInfo;
-        userList.push(data);
+        });
         return userList;
     },
     videoCollection: {
@@ -200,7 +202,7 @@ const DefVideo = {
         const tempE = e.shadowRoot.querySelector("bili-comment-user-info").shadowRoot;
         const userNameE = tempE.querySelector("#user-name");
         const name = userNameE.textContent.trim(); //姓名
-        const uid =userNameE.getAttribute("data-user-profile-id");
+        const uid = userNameE.getAttribute("data-user-profile-id");
         const userLevel = tempE.querySelector("#user-level>img").src;
         const content = e.shadowRoot.querySelector("bili-rich-text")
             .shadowRoot.querySelector("#contents")

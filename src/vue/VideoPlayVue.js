@@ -28,17 +28,17 @@ const VideoPlayVue = {
                         alert("获取失败！");
                         return;
                     }
-                    if (userList.length === 1) {
-                        const data = userList[0];
-                        const name = data["name"];
-                        const uid = data["uid"];
-                        if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid=${uid}`)) {
-                            return;
-                        }
-                        UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", uid);
-                        return;
+                    const data = userList[0];
+                    const name = data["name"];
+                    const uid = data["uid"];
+                    if (userList.length > 1) {
+                        if (!confirm(`是要屏蔽创作团队中的up【${name}】吗？屏蔽方式为uid精确\n该用户uid=${uid}`)) return;
+                    } else {
+                        if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为uid精确\n该用户uid=${uid}`)) return;
                     }
-                    alert("暂不支持屏蔽多作者方式.");
+                    UrleCrud.addShow("userUIDArr", "用户uid黑名单模式(精确匹配)", uid);
+                    //todo 后续支持屏蔽多作者
+                    Tip.infoBottomRight("暂不支持屏蔽多作者方式，后续版本将支持。");
                 },
                 addNameBut() {
                     const userList = DefVideo.getCreativeTeam();
@@ -46,16 +46,16 @@ const VideoPlayVue = {
                         alert("获取失败！");
                         return;
                     }
-                    if (userList.length === 1) {
-                        const data = userList[0];
-                        const name = data["name"];
-                        if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为用户名(精确)`)) {
-                            return;
-                        }
-                        UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", name);
-                        return;
+                    const data = userList[0];
+                    const name = data["name"];
+                    if (userList.length > 1) {
+                        if (!confirm(`是要屏蔽创作团队中的up【${name}】吗？屏蔽方式为用户名(精确)`)) return;
+                    } else {
+                        if (!confirm(`是要屏蔽用户【${name}】吗？屏蔽方式为用户名(精确)`)) return;
                     }
-                    alert("暂不支持屏蔽多作者方式.");
+                    UrleCrud.addShow("userNameArr", "用户名黑名单模式(精确匹配)", name);
+                    //todo 后续支持屏蔽多作者
+                    Tip.infoBottomRight("暂不支持屏蔽多作者方式，后续版本将支持。");
                 },
                 getTheVideoBarrage() {
                     const windowUrl = Util.getWindowUrl();
@@ -101,7 +101,8 @@ const VideoPlayVue = {
                     }).finally(() => {
                         loading.close();
                     });
-                },
+                }
+                ,
                 getVideoCommentArea() {//获取视频的评论区列表可见的内容
                     const list = document.querySelectorAll(".reply-list>.reply-item");
                     if (list.length === 0) {
@@ -136,7 +137,8 @@ const VideoPlayVue = {
                     }
                     Util.fileDownload(JSON.stringify(arr, null, 3), `评论区列表-${Util.toTimeString()}.json`);
                     Tip.success("已获取成功！");
-                },
+                }
+                ,
                 getLeftTopVideoListBut() {
                     const videoCollection = DefVideo.videoCollection;
                     if (!videoCollection.isMulti_page()) {
@@ -150,7 +152,8 @@ const VideoPlayVue = {
                         dataList = videoCollection.getVIdeoGridList();
                     }
                     Util.fileDownload(JSON.stringify(dataList, null, 3), `${DefVideo.getVIdeoTitle()}的视频选集列表(${dataList.length})个.json`);
-                },
+                }
+                ,
                 localGetVideoInfo() {
                     const upInfo = document.querySelector(".up-name");
                     let data;
@@ -166,10 +169,12 @@ const VideoPlayVue = {
                         return null;
                     }
                     return data;
-                },
+                }
+                ,
                 addLefToLookAtItLaterListBut() {
                     LookAtItLater.addLookAtItLater(this.localGetVideoInfo())
-                },
+                }
+                ,
                 isHideButtonLayoutBut() {//隐藏评论区
                     const e = $("#comment,.playlist-comment");
                     if (e.is(":hidden")) {
@@ -179,7 +184,8 @@ const VideoPlayVue = {
                     }
                     e.hide();
                     this.hideButtonLayout = true;
-                },
+                }
+                ,
                 isHideRightLayoutBut() {
                     const jqE = $(".right-container.is-in-large-ab,.playlist-container--right");
                     if (jqE.length === 0) {
@@ -193,7 +199,8 @@ const VideoPlayVue = {
                     }
                     jqE.hide();
                     this.hideRightLayout = true;
-                },
+                }
+                ,
                 isHideTopVideoTitleInfoBut() {
                     const jqE = $("#viewbox_report,.video-info-container");
                     if (jqE.is(":hidden")) {
@@ -203,10 +210,12 @@ const VideoPlayVue = {
                     }
                     jqE.hide();
                     this.hideTopVideoTitleInfo = true;
-                },
+                }
+                ,
                 VideoPIPicture() {
                     Util.video.autoAllPictureInPicture();
-                },
+                }
+                ,
                 openVideoSubtitle() {
                     const ariaE = document.querySelector("[aria-label='字幕'] span");
                     if (ariaE === null) {
