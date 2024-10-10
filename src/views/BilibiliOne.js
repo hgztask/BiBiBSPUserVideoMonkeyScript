@@ -85,17 +85,18 @@ async function bilibiliOne(href, windowsTitle) {
             console.log(msg);
             Tip.successBottomRight(msg);
         }, 500);
-        setInterval(() => {
+        const i5 = setInterval(() => {
             const els = document.querySelectorAll(".feed-card");
             if (els.length === 0) return;
-            els.forEach(el => {
-                const mTop = $(el).css("margin-top");
-                if (mTop === "0px") return;
-                $(el).css("margin-top", "0px");
-                const msg = "已移除首页推荐视频区域中的顶部空白";
-                console.log(msg);
-                Tip.successBottomRight(msg);
-            })
+            clearInterval(i5);
+            Util.addStyle(`@media (min-width: 1560px) and (max-width: 2059.9px) {
+    .recommended-container_floor-aside .container > *:nth-of-type(n + 8) {
+        margin-top: 0 !important;
+    }
+}`);
+            const msg = "已移除首页推荐视频区域中的顶部空白";
+            console.log(msg);
+            Tip.successBottomRight(msg);
         }, 500);
         return;
     }
