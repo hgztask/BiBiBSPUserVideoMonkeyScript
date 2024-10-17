@@ -1,4 +1,3 @@
-//{"weight":2}
 const RuleCenterLayoutVue = {
     httpGetList() {
         return new Promise((resolve, reject) => {

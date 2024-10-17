@@ -1,4 +1,3 @@
-//{"weight":2}
 const layout = {
     css: {
         home() {

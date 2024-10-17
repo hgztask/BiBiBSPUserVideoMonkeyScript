@@ -1,4 +1,3 @@
-//{"weight":1}
 //拼接直播地址
 Vue.filter("joinRoomAddress", (roomId) => {
     return `https://live.bilibili.com/${roomId}`;

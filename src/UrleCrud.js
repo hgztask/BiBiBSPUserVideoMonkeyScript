@@ -1,4 +1,3 @@
-//{"weight":1}
 const UrleCrud = {//规则的增删改查
     addShow(ruleType, ruleName, content = null) {
         if (content === null) {

@@ -1,4 +1,3 @@
-//{"weight":3}
 Util.addGMMenu('禁用脚本快捷键', () => {
     const input = prompt(`当前脚快捷键状态为：${LocalData.isEnableShortcutKeys() ? "启用" : "禁用"}\n输入1为启用，输入0为禁用`);
     if (input === null) return;

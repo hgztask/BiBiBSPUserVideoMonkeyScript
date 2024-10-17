@@ -1,4 +1,3 @@
-//{"weight":2}
 Vue.component("main_layout", {
     template: `
       <div>

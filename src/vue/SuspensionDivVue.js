@@ -1,4 +1,3 @@
-//{"weight":2}
 const SuspensionDivVue = {
     returnVue() {
         window.suspensionDivVue = new Vue({//快捷悬浮屏蔽面板的vue

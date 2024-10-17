@@ -1,4 +1,3 @@
-//{"weight":2}
 const AccountCenterVue = {
     returnVue() {
         const vue = new Vue({

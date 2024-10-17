@@ -1,4 +1,3 @@
-//{"weight":2}
 const IsShowVue = {
     returnVUe() {
         window.isShowVue = new Vue({

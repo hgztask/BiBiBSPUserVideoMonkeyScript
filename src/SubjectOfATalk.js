@@ -1,4 +1,3 @@
-//{"weight":1}
 const SubjectOfATalk = {//话题
     /**
      * 针对b站话题

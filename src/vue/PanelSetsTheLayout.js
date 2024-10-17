@@ -1,4 +1,3 @@
-//{"weight":2}
 const PanelSetsTheLayout = {//面板设置
     returnVue() {
         window.panelSetsTheLayoutVue = new Vue({

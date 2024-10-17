@@ -1,4 +1,3 @@
-//{"weight":0}
 const Watchlater = {
     initLayout() {
         const panel = layout.panel.getHoverBallBut("获取稍后再看列表数据", "32%", "5%");

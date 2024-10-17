@@ -1,4 +1,3 @@
-//{"weight":2}
 //动态
 const Trends = {
 

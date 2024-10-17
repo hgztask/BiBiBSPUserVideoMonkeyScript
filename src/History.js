@@ -1,4 +1,3 @@
-//{"weight":2}
 const History = {
     //是否正在执行获取操作
     isGetLoadIngData: false,

@@ -1,4 +1,3 @@
-//{"weight":1}
 //匹配数组元素
 const Matching = {
     /**
