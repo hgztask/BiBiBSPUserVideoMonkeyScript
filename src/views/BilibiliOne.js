@@ -84,19 +84,7 @@ async function bilibiliOne(href, windowsTitle) {
             console.log(msg);
             Tip.successBottomRight(msg);
         }, 500);
-        const i5 = setInterval(() => {
-            const els = document.querySelectorAll(".feed-card");
-            if (els.length === 0) return;
-            clearInterval(i5);
-            Util.addStyle(`@media (min-width: 1560px) and (max-width: 2059.9px) {
-    .recommended-container_floor-aside .container > *:nth-of-type(n + 8) {
-        margin-top: 0 !important;
-    }
-}`);
-            const msg = "已移除首页推荐视频区域中的顶部空白";
-            console.log(msg);
-            Tip.successBottomRight(msg);
-        }, 500);
+
         return;
     }
     if (href.includes("space.bilibili.com/")) {//b站用户空间主页
