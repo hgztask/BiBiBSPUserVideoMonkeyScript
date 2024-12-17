@@ -57,7 +57,6 @@ const findTheExpandButtonForTheListOnTheRightAndBindTheEvent = () => {
     setTimeout(() => {
         elUtil.findElementUntilFound(".rec-footer", {interval: 2000}).then((el) => {
             el.addEventListener("click", () => {
-                debugger;
                 startShieldingVideoList();
             })
         })
