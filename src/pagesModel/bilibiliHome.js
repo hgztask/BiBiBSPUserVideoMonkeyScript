@@ -2,6 +2,7 @@ import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding.js";
 import {Tip} from "../utils/Tip.js";
 import defUtil from "../utils/defUtil.js";
+import sFormatUtil from '../utils/sFormatUtil.js'
 import localMKData from "../data/localMKData.js";
 
 
@@ -40,8 +41,8 @@ const getChangeTheVideoElList = async () => {
     const list = [];
     for (let el of elList) {
         try {
-            const title = el.querySelector(".bili-video-card__info--tit").title;
-            const userUrl = el.querySelector(".bili-video-card__info--owner").getAttribute("href");
+            const tempData = getVideoData(el)
+            const {userUrl} = tempData
             const videoUrl = el.querySelector(".bili-video-card__info--tit>a").href;
             //过滤非视频内容
             if (!userUrl.includes("//space.bilibili.com/")) {
@@ -51,17 +52,13 @@ const getChangeTheVideoElList = async () => {
                 console.log(log, el);
                 continue;
             }
-            const uid = elUtil.getUrlUID(userUrl);
-            const name = el.querySelector(".bili-video-card__info--author").textContent.trim();
             list.push({
-                title,
-                userUrl,
-                name,
-                uid,
-                videoUrl,
-                el,
-                insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
-                explicitSubjectEl: el.querySelector(".bili-video-card__info.__scale-disable")
+                ...tempData, ...{
+                    videoUrl,
+                    el,
+                    insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
+                    explicitSubjectEl: el.querySelector(".bili-video-card__info")
+                }
             });
         } catch (e) {
             el.remove();
@@ -71,14 +68,43 @@ const getChangeTheVideoElList = async () => {
     return list
 }
 
+
+/**
+ * 获取视频数据
+ * @param el
+ * @returns {{title, userUrl, name, uid, videoUrl, nPlayCount, nBulletChat, nDuration}}
+ */
+const getVideoData = (el) => {
+    const title = el.querySelector(".bili-video-card__info--tit").title;
+    const name = el.querySelector(".bili-video-card__info--author").textContent.trim();
+    let nPlayCount = el.querySelector('.bili-video-card__stats--text')?.textContent.trim()
+    nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+    let nBulletChat = el.querySelector('.bili-video-card__stats--text')?.textContent.trim()
+    nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+    let nDuration = el.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
+    nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+    const userUrl = el.querySelector(".bili-video-card__info--owner").getAttribute("href");
+    const uid = elUtil.getUrlUID(userUrl);
+    return {
+        title,
+        name,
+        uid,
+        nPlayCount,
+        nBulletChat,
+        nDuration,
+        userUrl
+    }
+}
+
+
 //首页中的视频列表，不包括换一换中的视频列表
 const getHomeVideoELList = async () => {
     const elList = await elUtil.findElementsUntilFound(".container.is-version8>.bili-video-card");
     let list = [];
     for (let el of elList) {
         try {
-            const title = el.querySelector(".bili-video-card__info--tit").title;
-            const userUrl = el.querySelector(".bili-video-card__info--owner").getAttribute("href");
+            const tempData = getVideoData(el);
+            const {userUrl} = tempData
             //过滤非视频内容
             if (!userUrl.includes("//space.bilibili.com/")) {
                 el?.remove();
@@ -87,17 +113,13 @@ const getHomeVideoELList = async () => {
                 console.log(log, el);
                 continue;
             }
-            const uid = elUtil.getUrlUID(userUrl);
-            const name = el.querySelector(".bili-video-card__info--author").textContent.trim();
             list.push({
-                title,
-                userUrl,
-                name,
-                uid,
-                videoUrl: el.querySelector(".bili-video-card__info--tit>a").href,
-                el,
-                insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
-                explicitSubjectEl: el.querySelector(".bili-video-card__info.__scale-disable")
+                ...tempData, ...{
+                    videoUrl: el.querySelector(".bili-video-card__info--tit>a").href,
+                    el,
+                    insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
+                    explicitSubjectEl: el.querySelector(".bili-video-card__info")
+                }
             })
         } catch (e) {
             el?.remove();
@@ -126,21 +148,16 @@ const getGateDataList = async () => {
     const elList = await elUtil.findElementsUntilFound(".bilibili-gate-video-grid>[data-bvid].bili-video-card")
     const list = [];
     for (let el of elList) {
+        const tempData = getVideoData(el)
         const videoUrl = el.querySelector("a.css-feo88y").href;
-        const name = el.querySelector(".bili-video-card__info--author").textContent.trim();
-        const title = el.querySelector(".bili-video-card__info--tit").textContent.trim();
         const insertionPositionEl = el.querySelector(".bili-video-card__info--owner");
-        const userUrl = insertionPositionEl.href;
-        const uid = elUtil.getUrlUID(userUrl);
         list.push({
-            title,
-            userUrl,
-            name,
-            uid,
-            videoUrl,
-            el,
-            insertionPositionEl,
-            explicitSubjectEl: el
+            ...tempData, ...{
+                videoUrl,
+                el,
+                insertionPositionEl,
+                explicitSubjectEl: el
+            }
         })
     }
     return list;
@@ -149,7 +166,7 @@ const getGateDataList = async () => {
 const startShieldingGateVideoList = async () => {
     const list = await getGateDataList()
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData,"hide")) {
+        if (shielding.shieldingVideoDecorated(videoData, "hide")) {
             continue;
         }
         shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingGateVideoList});
