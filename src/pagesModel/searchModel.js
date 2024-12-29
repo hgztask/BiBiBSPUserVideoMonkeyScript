@@ -54,6 +54,7 @@ const getVideoList = async (css) => {
             explicitSubjectEl: el.querySelector(".bili-video-card__info")
         })
     }
+    debugger
     return list;
 }
 
