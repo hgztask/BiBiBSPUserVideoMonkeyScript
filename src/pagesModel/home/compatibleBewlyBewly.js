@@ -16,7 +16,7 @@ const getBewlyEl = async () => {
  * @param url {string}
  */
 const isBEWLYPage = (url) => {
-    return url.includes('www.bilibili.com/?spm_id_from=333.788.0.0&page=');
+    return url.includes('www.bilibili.com/?spm_id_from=333.788.0.0&page=') || url.includes('https://www.bilibili.com/?page=');
 }
 
 
