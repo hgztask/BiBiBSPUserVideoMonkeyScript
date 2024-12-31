@@ -1,0 +1,53 @@
+{
+    "@name": "哔哩哔哩屏蔽增强器",
+    "alias": "BIBIShield_v2",
+    "@namespace": "http://tampermonkey.net/",
+    "@license": "Apache-2.0",
+    "@version": "2.0beta02",
+    "@author": "byhgz",
+    "@description": "对B站视频或评论进行屏蔽，支持关键词模糊正则等，支持时长播放弹幕过滤等，如视频、评论、动态、直播间的评论等，详情可看下面支持的屏蔽类型",
+    "@icon": "https://static.hdslb.com/images/favicon.ico",
+    "noFrames": true,
+    "@grant": [
+        "GM_setValue",
+        "GM_getValue",
+        "GM_deleteValue",
+        "GM_addStyle",
+        "GM_unregisterMenuCommand",
+        "GM_registerMenuCommand"
+    ],
+    "@exclude": [
+        "*://message.bilibili.com/pages/nav/header_sync",
+        "*://message.bilibili.com/pages/nav/index_new_pc_sync",
+        "*://live.bilibili.com/blackboard/dropdown-menu.html",
+        "*://live.bilibili.com/p/html/live-web-mng/*",
+        "*://www.bilibili.com/correspond/*"
+    ],
+    "@match": [
+        "*://search.bilibili.com/*",
+        "*://www.bilibili.com/v/food/*",
+        "*://message.bilibili.com/*",
+        "*://www.bilibili.com/read/*",
+        "*://www.bilibili.com/v/topic/detail/?topic_id=*",
+        "*://www.bilibili.com/v/kichiku/*",
+        "*://t.bilibili.com/*",
+        "*://space.bilibili.com/*",
+        "*://www.bilibili.com/video/*",
+        "*://live.bilibili.com/?spm_id_from=*",
+        "*://live.bilibili.com/p/eden/area-tags?*",
+        "*://live.bilibili.com/*",
+        "*://www.bilibili.com/opus/*",
+        "*://www.bilibili.com/*"
+    ],
+    "@require": [
+        "https://cdn.jsdelivr.net/npm/vue@2",
+        "https://update.greasyfork.org/scripts/517928/gz_ui_css-v1.js",
+        "https://update.greasyfork.org/scripts/521941/about_and_feedback_components.js",
+        "https://greasyfork.org/scripts/462234-message/code/Message.js",
+        "https://update.greasyfork.org/scripts/449512/Xtiper.js",
+        "https://update.greasyfork.org/scripts/516282/Drawer_gz%E9%A1%B5%E9%9D%A2%E4%BE%A7%E8%BE%B9%E6%8A%BD%E5%B1%89%E7%BB%84%E4%BB%B6.js",
+        "https://update.greasyfork.org/scripts/517538/DynamicTabs_gz.js"
+    ],
+    "@downloadURL": "https://update.greasyfork.org/scripts/461382/b站屏蔽增强器.user.js",
+    "@updateURL": "https://update.greasyfork.org/scripts/461382/b站屏蔽增强器.meta.js"
+}
