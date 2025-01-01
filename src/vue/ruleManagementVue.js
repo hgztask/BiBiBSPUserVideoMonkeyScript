@@ -3,6 +3,7 @@ import defUtil from "../utils/defUtil.js";
 import ruleUtil from '../utils/ruleUtil.js'
 import localMKData from "../data/localMKData.js";
 import Vue from "vue";
+import ruleConversion from "../model/ruleConversion.js";
 
 
 const returnVue = () => {
@@ -20,13 +21,16 @@ const returnVue = () => {
                 <li>如果用户要添加自己的正则匹配相关的规则时，建议先去该网址进行测试再添加，避免浪费时间
                   <a href="https://www.jyshare.com/front-end/854/" target="_blank">>>>正则表达式在线测试<<<</a>
                 </li>
+                <li>
+                  如果更新脚本之后规则全吗，没了请点击下面的【旧规则自动转新规则】按钮，进行转换，如不行请通过关于和问题反馈选项卡中的反馈渠道联系作者
+                </li>
               </ol>
               <div>
-<!--                <h3>指定类型批量添加</h3>-->
-<!--                <span>指定类型批量添加，每个规则空格分割</span>-->
-<!--                <textarea-->
-<!--                    style="width: 100%"-->
-<!--                    cols="30" rows="5" placeholder="匹配添加内容时规则内容" v-model="inputVal"/>-->
+                <!--                <h3>指定类型批量添加</h3>-->
+                <!--                <span>指定类型批量添加，每个规则空格分割</span>-->
+                <!--                <textarea-->
+                <!--                    style="width: 100%"-->
+                <!--                    cols="30" rows="5" placeholder="匹配添加内容时规则内容" v-model="inputVal"/>-->
               </div>
               <div>
                 <label>
@@ -70,6 +74,7 @@ const returnVue = () => {
                 <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
                 <button gz_type @click="appendImportRulesBut">追加导入规则</button>
                 <button gz_type @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</button>
+                <button gz_type @click="ruleOldToNewBut">旧规则自动转新规则</button>
                 <div>
                   <textarea cols="30" rows="10" placeholder="要导入的规则内容" style="width: 100%"
                             v-model="ruleContentImport"></textarea>
@@ -207,6 +212,11 @@ const returnVue = () => {
             xtipAlertBut(content, title) {
                 xtip.alert(content,
                     {title: title})
+            },
+            ruleOldToNewBut() {
+                ruleConversion.oldToNewRule()
+                this.refreshInfoBut();
+                xtip.msg('已转换成功！', {icon: 's'})
             }
         },
         watch: {
