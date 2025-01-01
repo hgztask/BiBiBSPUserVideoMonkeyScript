@@ -471,6 +471,36 @@ const shieldingLiveRoomDecorated = (liveRoomData) => {
     return state;
 }
 
+/**
+ * 惰性函数，间隔执行屏蔽视频列表
+ * @param {function} func 执行屏蔽的函数
+ * @param name {string} 执行的名称
+ * @returns {{stop: stop, start: start}}
+ */
+const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
+    let i1 = -1;
+    const start = () => {
+        if (i1 !== -1) {
+            return
+        }
+        console.log('开始执行屏蔽' + name)
+        i1 = setInterval(() => {
+            func()
+            console.log(`执行屏蔽${name}列表-定时器正在执行`)
+        }, 1500);
+    }
+    const stop = () => {
+        if (i1 === -1) {
+            return
+        }
+        clearInterval(i1)
+        console.log(`已停止执行屏蔽${name}列表`)
+        i1 = -1
+    }
+    return {start, stop}
+}
+
+
 
 export default {
     shieldingVideoDecorated,
@@ -485,5 +515,6 @@ export default {
     addPopularVideoBlockButton,
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,
+    intervalExecutionStartShieldingVideoInert,
     addBlockButton
 }

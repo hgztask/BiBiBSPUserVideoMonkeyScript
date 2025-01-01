@@ -12,6 +12,7 @@ import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 import localMKData from "./data/localMKData.js";
 import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
+import newHistory from "./pagesModel/history/newHistory.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -84,6 +85,9 @@ const staticRoute = (title, url) => {
     if (liveHome.isLiveHomePage(url)) {
         liveHome.startShieldingLiveRoom();
         liveHome.startShieldingTopLiveRoom();
+    }
+    if (newHistory.isNewHistoryPage(url)) {
+        newHistory.startRun()
     }
 }
 

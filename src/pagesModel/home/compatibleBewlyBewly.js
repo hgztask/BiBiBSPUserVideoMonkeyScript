@@ -50,7 +50,6 @@ const getVideoList = async () => {
         let nDuration = el.querySelector('[class*="group-hover:opacity-0"]')?.textContent.trim() || null;
         nDuration = sFormatUtil.timeStringToSeconds(nDuration)
         const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href || null;
-        // let insertionPositionEl = el.querySelector('[flex="~ gap-1 justify-between items-start"]')
         const insertionPositionEl = el.querySelector('[class="group/desc"]')
         list.push({
             title,
@@ -66,26 +65,6 @@ const getVideoList = async () => {
             explicitSubjectEl: parentElement
         })
     }
-    return list
-}
-
-
-/**
- * 获取bewly首页中顶部右侧列表展示方式选项卡
- * @returns {Promise<*[]>}
- */
-const getHomeTopRightTabs = async () => {
-    const beEl = await getBewlyEl();
-    const el = beEl.querySelector('.grid-layout-item-activated')
-    const children = el.parentElement.children;
-    const list = [];
-    for (let el of children) {
-        const active = el.classList.contains('grid-layout-item-activated')
-        list.push({el, active})
-    }
-    list[0].label = '网格'
-    list[1].label = '2列'
-    list[1].label = '1列'
     return list
 }
 
@@ -139,35 +118,6 @@ const getHistoryVideoDataList = async () => {
     return list
 }
 
-/**
- * 惰性函数，间隔执行屏蔽视频列表
- * @param {function} func 执行屏蔽的函数
- * @param name {string} 执行的名称
- * @returns {{stop: stop, start: start}}
- */
-const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
-    let i1 = -1;
-    const start = () => {
-        if (i1 !== -1) {
-            return
-        }
-        console.log('开始执行屏蔽' + name)
-        i1 = setInterval(() => {
-            func()
-            console.log(`执行屏蔽${name}列表-定时器正在执行`)
-        }, 1500);
-    }
-    const stop = () => {
-        if (i1 === -1) {
-            return
-        }
-        clearInterval(i1)
-        console.log(`已停止执行屏蔽${name}列表`)
-        i1 = -1
-    }
-    return {start, stop}
-}
-
 
 //执行屏蔽历史记录中的视频
 const startShieldingHistoryVideoList = async () => {
@@ -198,7 +148,7 @@ const startShieldingVideoList = async () => {
  * @returns {function(): {stop: stop, start: start}}
  */
 const intervalExecutionStartShieldingVideo = () => {
-    const res = intervalExecutionStartShieldingVideoInert(startShieldingVideoList, '视频');
+    const res =shielding.intervalExecutionStartShieldingVideoInert(startShieldingVideoList, '视频');
     return () => {
         return res
     }
@@ -209,7 +159,7 @@ const intervalExecutionStartShieldingVideo = () => {
  * @type function
  */
 const intervalExecutionStartShieldingHistoryVideo = () => {
-    const res = intervalExecutionStartShieldingVideoInert(startShieldingHistoryVideoList, '历史记录');
+    const res = shielding.intervalExecutionStartShieldingVideoInert(startShieldingHistoryVideoList, '历史记录');
     return () => {
         return res
     }
@@ -384,6 +334,7 @@ const startRun = async (url) => {
         homeTopTabsInsertListener()
     }
     if (page === 'History') {
+
         startShieldingHistoryVideo().start()
         searchBoxInsertListener()
     }

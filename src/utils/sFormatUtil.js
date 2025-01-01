@@ -26,6 +26,7 @@ const toPlayCountOrBulletChat = (str) => {
 /**
  * 将时间字符串转换为秒，如果时间字符串为空，则返回 -1
  * @param timeStr {string}
+ * @returns number
  */
 const timeStringToSeconds = (timeStr) => {
     if (!timeStr) {
