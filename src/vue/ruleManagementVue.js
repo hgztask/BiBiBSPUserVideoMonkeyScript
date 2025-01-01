@@ -34,11 +34,6 @@ const returnVue = () => {
                 </label>
               </div>
               <div>
-                <label>
-                  <input type="checkbox" v-model="bOnlyTheHomepageIsBlocked">仅首页屏蔽生效屏蔽
-                </label>
-              </div>
-              <div>
                 <select v-model="selectVal">
                   <option v-for="item in ruleInfoArr" :value="item.type">{{ item.name }}</option>
                 </select>

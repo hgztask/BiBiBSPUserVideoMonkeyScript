@@ -13,6 +13,7 @@ import liveHome from "./pagesModel/live/liveHome.js";
 import localMKData from "./data/localMKData.js";
 import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
+import oldHistory from "./pagesModel/history/oldHistory.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -88,6 +89,9 @@ const staticRoute = (title, url) => {
     }
     if (newHistory.isNewHistoryPage(url)) {
         newHistory.startRun()
+    }
+    if (oldHistory.isOldHistory(url)) {
+        oldHistory.intervalExecutionStartShieldingVideo()
     }
 }
 
