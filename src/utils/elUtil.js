@@ -1,13 +1,20 @@
+import defUtil from "./defUtil.js";
+
 /**
  *获取url中的uid
  * @param url{string}
  * @return {number}
  */
 const getUrlUID = (url) => {
+    let uid;
+    if (url.startsWith('http')) {
+        const parseUrl = defUtil.parseUrl(url);
+        uid = parseUrl.pathSegments[0]?.trim()
+        return parseInt(uid)
+    }
     //是否有参数
     const isDoYouHaveAnyParameters = url.indexOf('?');
     const lastIndexOf = url.lastIndexOf("/");
-    let uid;
     if (isDoYouHaveAnyParameters === -1) {
         if (url.endsWith('/')) {
             // 当url以/结尾时，取倒数第二个/
@@ -127,7 +134,7 @@ function findElementsByAttempts(selector, config) {
  * @param config{Object} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @returns {Promise<Element>} - 返回找到的元素
+ * @returns {Promise<Element|Document>} - 返回找到的元素
  */
 function findElementUntilFound(selector, config = {}) {
     const defConfig = {doc: document, interval: 1000}
@@ -149,7 +156,7 @@ function findElementUntilFound(selector, config = {}) {
  * @param config{Object} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @returns {Promise<NodeListOf<Element>>} - 返回找到的 Element列表
+ * @returns {Promise<NodeListOf<Element|Document>>} - 返回找到的 Element列表
  */
 function findElementsUntilFound(selector, config = {}) {
     const defConfig = {doc: document, interval: 1000}
