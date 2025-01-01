@@ -1,6 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import shielding from "../../model/shielding.js";
+import defUtil from "../../utils/defUtil.js";
 
 /**
  * 获取bewly的shadowRoot元素
@@ -13,10 +14,12 @@ const getBewlyEl = async () => {
 
 /**
  * 是否是bewly插件主要页面
- * @param url {string}
+ * @param {string} url
  */
 const isBEWLYPage = (url) => {
-    return url.includes('www.bilibili.com/?spm_id_from=333.788.0.0&page=') || url.includes('https://www.bilibili.com/?page=');
+    return url.includes('www.bilibili.com/?spm_id_from=333.788.0.0&page=')
+        || url.includes('www.bilibili.com/?page=')
+        || url === 'https://www.bilibili.com/'
 }
 
 
@@ -366,10 +369,17 @@ const searchBoxInsertListener = async () => {
     });
 }
 
-const startRun = async (parseUrl) => {
+/**
+ *
+ * @param url
+ * @returns null
+ */
+const startRun = async (url) => {
+    const parseUrl = defUtil.parseUrl(url);
     const {page} = parseUrl.queryParams
     installBEWLStyle()
-    if (page === 'Home') {
+    debugger
+    if (page === 'Home' || url === 'https://www.bilibili.com/') {
         startShieldingVideo().start()
         homeTopTabsInsertListener()
     }

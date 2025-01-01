@@ -12,7 +12,6 @@ import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 import localMKData from "./data/localMKData.js";
 import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
-import defUtil from "./utils/defUtil.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -29,8 +28,7 @@ const compatible_BEWLY_BEWLY = localMKData.isCompatible_BEWLY_BEWLY()
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
     if (compatible_BEWLY_BEWLY && compatibleBewlyBewly.isBEWLYPage(url)) {
-        const parseUrl = defUtil.parseUrl(url);
-        compatibleBewlyBewly.startRun(parseUrl)
+        compatibleBewlyBewly.startRun(url)
         return;
     }
     if (bilibiliHome.isHome(url, title)) {
