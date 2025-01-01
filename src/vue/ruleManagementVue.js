@@ -46,8 +46,8 @@ const returnVue = () => {
               </div>
               <button gz_type @click="operationBut('add')">添加{{ selectText }}</button>
               <button gz_type @click="operationBut('del')">移除{{ selectText }}</button>
+              <button gz_type @click="operationBut('set')">修改{{ selectText }}</button>
               <button gz_type="info" @click="operationBut('del_all')">全部移除</button>
-              <button gz_type @click="operationBut('set')">移除{{ selectText }}</button>
               <div>
                 <h2>导出规则</h2>
                 <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
