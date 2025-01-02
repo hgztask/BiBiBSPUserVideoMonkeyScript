@@ -173,32 +173,32 @@ const shieldingVideo = (videoData) => {
     //限制时长
     if (nDuration !== -1) {
         const min = gmUtil.getData('nMinimumDuration', -1);
-        if (min > nDuration) {
+        if (min > nDuration && min!==-1) {
             return {state: true, type: '最小时长', matching: min}
         }
         const max = gmUtil.getData('nMaximumDuration', -1)
-        if (max > nDuration) {
+        if (max < nDuration && max!==-1) {
             return {state: true, type: '最大时长', matching: max}
         }
     }
     //限制弹幕数
     if (nBulletChat !== -1) {
         const min = gmUtil.getData('nMinimumBarrage', -1);
-        if (min > nBulletChat) {
+        if (min > nBulletChat && min!==-1) {
             return {state: true, type: '最小弹幕数', matching: min}
         }
         const max = gmUtil.getData('nMaximumBarrage', -1)
-        if (max > nBulletChat) {
+        if (max < nBulletChat && max!==-1) {
             return {state: true, type: '最大弹幕数', matching: max}
         }
     }
     if (nPlayCount !== -1) {
         const min = gmUtil.getData('nMinimumPlay', -1);
-        if (min > nPlayCount) {
+        if (min > nPlayCount && min!==-1) {
             return {state: true, type: '最小播放量', matching: min}
         }
         const max = gmUtil.getData('nMaximumPlayback', -1)
-        if (max > nPlayCount) {
+        if (max < nPlayCount && max!==-1) {
             return {state: true, type: '最大播放量', matching: max}
         }
     }
