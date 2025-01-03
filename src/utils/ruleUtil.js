@@ -233,6 +233,32 @@ const overwriteImportRulesV1 = (content) => {
     return true;
 }
 
+/**
+ * 添加精确uid
+ * @param uid
+ * @returns {Promise<void>}
+ */
+const addRulePreciseUid = (uid) => {
+    return addRule(uid, "precise_uid").then(msg => {
+        xtip.msg(msg, {icon: 's'});
+    }).catch(msg => {
+        xtip.msg(msg, {icon: 'e'});
+    })
+}
+
+/**
+ * 添加精确name
+ * @param name {string}
+ * @returns null
+ */
+const addRulePreciseName= (name) => {
+    return addRule(name, "precise_name").then(msg => {
+        xtip.msg(msg, {icon: 's'});
+    }).catch(msg => {
+        xtip.msg(msg, {icon: 'e'});
+    })
+}
+
 
 export default {
     addRule,
@@ -244,4 +270,6 @@ export default {
     appendImportRules,
     overwriteImportRulesV1,
     getNewRuleKeyList,
+    addRulePreciseUid,
+    addRulePreciseName
 }
