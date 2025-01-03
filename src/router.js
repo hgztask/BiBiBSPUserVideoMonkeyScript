@@ -53,6 +53,7 @@ const staticRoute = (title, url) => {
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.startShieldingVideoList();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
+        videoPlayModel.execAuthorAddBlockButton()
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.startShieldingVideoList();
@@ -109,6 +110,7 @@ const dynamicRouting = (title, url) => {
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.startShieldingVideoList();
+        videoPlayModel.execAuthorAddBlockButton()
     }
     if (popular.isPopularAllPage(url) || popular.isPopularHistory(url)) {
         popularAll.startShieldingVideoList();

@@ -39,39 +39,35 @@ const addBlockButton = (data, tagCss, position = []) => {
         }
     }
     buttonEL.style.display = "none";
-    elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "block");
+    elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
     elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseout", () => buttonEL.style.display = "none");
     insertionPositionEl.appendChild(buttonEL);
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
-        const tempData = data.data;
+        const {uid, name} = data.data;
         console.log("该选项数据:", data);
         xtip.sheet({
-            btn: ['uid精确屏蔽(推荐)', '用户名精确屏蔽(不推荐)'],
+            btn: [`uid精确屏蔽-用户uid=${uid}-name=${name}`, `用户名精确屏蔽(不推荐)-用户name=${name}`],
             btn1: () => {
-                const tipContent = `uid精确屏蔽\n
-用户${tempData.name}\n
-uid:${tempData.uid}`;
-                xtip.confirm(tipContent, {
-                    title: "添加规则",
-                    icon: "a",
-                    btn1: () => {
-                        if (tempData.uid === -1) {
-                            Tip.error("该页面数据不存在uid字段");
-                            return;
-                        }
-                        ruleUtil.addRule(tempData.uid, "precise_uid").then(msg => {
-                            xtip.alert(msg, {icon: 's'});
-                            data.maskingFunc();
-                        }).catch(msg => {
-                            xtip.alert(msg, {icon: 'e'});
-                        })
-                    }
-                });
+                if (uid === -1) {
+                    Tip.error("该页面数据不存在uid字段");
+                    return;
+                }
+                ruleUtil.addRule(uid, "precise_uid").then(msg => {
+                    xtip.alert(msg, {icon: 's'});
+                    data.maskingFunc();
+                }).catch(msg => {
+                    xtip.alert(msg, {icon: 'e'});
+                })
             },
             btn2: () => {
-                xtip.msg('暂未开放.')
+                if (!name) {
+                    alert("该页面数据不存在name字段" + name)
+                    return;
+                }
+                if (!window.confirm('不推荐用户使用精确用户名来屏蔽，确定继续吗？')) return
+                ruleUtil.addRulePreciseName(name)
             },
         });
     })
@@ -173,32 +169,32 @@ const shieldingVideo = (videoData) => {
     //限制时长
     if (nDuration !== -1) {
         const min = gmUtil.getData('nMinimumDuration', -1);
-        if (min > nDuration && min!==-1) {
+        if (min > nDuration && min !== -1) {
             return {state: true, type: '最小时长', matching: min}
         }
         const max = gmUtil.getData('nMaximumDuration', -1)
-        if (max < nDuration && max!==-1) {
+        if (max < nDuration && max !== -1) {
             return {state: true, type: '最大时长', matching: max}
         }
     }
     //限制弹幕数
     if (nBulletChat !== -1) {
         const min = gmUtil.getData('nMinimumBarrage', -1);
-        if (min > nBulletChat && min!==-1) {
+        if (min > nBulletChat && min !== -1) {
             return {state: true, type: '最小弹幕数', matching: min}
         }
         const max = gmUtil.getData('nMaximumBarrage', -1)
-        if (max < nBulletChat && max!==-1) {
+        if (max < nBulletChat && max !== -1) {
             return {state: true, type: '最大弹幕数', matching: max}
         }
     }
     if (nPlayCount !== -1) {
         const min = gmUtil.getData('nMinimumPlay', -1);
-        if (min > nPlayCount && min!==-1) {
+        if (min > nPlayCount && min !== -1) {
             return {state: true, type: '最小播放量', matching: min}
         }
         const max = gmUtil.getData('nMaximumPlayback', -1)
-        if (max < nPlayCount && max!==-1) {
+        if (max < nPlayCount && max !== -1) {
             return {state: true, type: '最大播放量', matching: max}
         }
     }
@@ -499,7 +495,6 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
     }
     return {start, stop}
 }
-
 
 
 export default {
