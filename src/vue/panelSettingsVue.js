@@ -1,6 +1,7 @@
 import localMKData from "../data/localMKData.js";
 import Vue from "vue";
 import mainDrawer from "../layout/drawer/mainDrawer.js";
+import {eventEmitter} from "../model/EventEmitter.js";
 
 const returnVue = () => {
     return new Vue({
@@ -13,10 +14,18 @@ const returnVue = () => {
             <button gz_type @click="setDefFontColorForOutputInformationBut">设置输出信息默认字体色</button>
             <button gz_type @click="setTheFontColorForOutputInformationBut">设置输出信息高亮字体色</button>
             <button title="刷新页面生效" gz_type @click="setDefInfoBut">恢复默认</button>
-            <hr>
-            <label>
-              <input type="checkbox" v-model="hideMainButSwitch">隐藏主面板开关按钮
-            </label>
+            <div gz_bezel>
+              <div>
+                <label>
+                  <input type="checkbox" v-model="hideMainButSwitch">隐藏主面板开关按钮
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" v-model="hideRightTopMainButSwitch">隐藏右上角圆形主面板开关按钮
+                </label>
+              </div>
+            </div>
             <hr>
             <div>
               <h4>说明</h4>
@@ -29,7 +38,8 @@ const returnVue = () => {
         data() {
             return {
                 input_color: "",
-                hideMainButSwitch: localMKData.isHideMainButSwitch()
+                hideMainButSwitch: localMKData.isHideMainButSwitch(),
+                hideRightTopMainButSwitch: localMKData.isHideRightTopMainButSwitch()
             }
         },
         methods: {
@@ -70,6 +80,11 @@ const returnVue = () => {
             hideMainButSwitch(newVal) {
                 localMKData.setHideMainButSwitch(newVal);
                 mainDrawer.externalButtonShow(!newVal)
+            },
+            hideRightTopMainButSwitch(newVal) {
+                localMKData.setHideRightTopMainButSwitch(newVal);
+                debugger
+                eventEmitter.emit('右上角开关按钮显隐', newVal)
             }
         }
     });

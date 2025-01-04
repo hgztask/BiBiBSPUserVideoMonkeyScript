@@ -8,6 +8,7 @@ import compatibleSettingVue from '../vue/compatibleSettingVue.js'
 import './output_informationTab.js'
 import gmUtil from "../utils/gmUtil.js";
 import localMKData from "../data/localMKData.js";
+import externalHoverSwitchPanelButton from "./externalHoverSwitchPanelButton.js";
 
 panelSettingsVue();
 ruleManagementVue();
@@ -28,4 +29,6 @@ gmUtil.addStyle(`
 border:1px solid ${localMKData.getBorderColor()}
 }
 `);
+
+externalHoverSwitchPanelButton.addLayout()
 

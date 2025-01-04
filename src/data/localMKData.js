@@ -98,24 +98,25 @@ const getAdaptationBAppCommerce = () => {
 export const setAdaptationBAppCommerce = (bool) => {
     gmUtil.setData("adaptation-b-app-recommend", bool === true)
 }
-
-
-/**
- * 获取是否隐藏主面板按钮开关
- * @returns {boolean}
- */
-const isHideMainButSwitch=()=>{
+//获取是否隐藏主面板按钮开关
+const isHideMainButSwitch = () => {
     return gmUtil.getData("hideMainButSwitch", false) === true;
 }
 
-/**
- * 设置是否隐藏主面板按钮开关
- * @param bool
- */
-const setHideMainButSwitch=(bool)=>{
+//设置是否隐藏主面板按钮开关
+const setHideMainButSwitch = (bool) => {
     gmUtil.setData("hideMainButSwitch", bool === true)
 }
 
+// 是否隐藏右上角主面板按钮开关，默认为true
+const isHideRightTopMainButSwitch = () => {
+    return gmUtil.getData("hideRightTopMainButSwitch", true) === true;
+}
+
+// 设置是否隐藏右上角主面板按钮开关
+const setHideRightTopMainButSwitch = (bool) => {
+    gmUtil.setData("hideRightTopMainButSwitch", bool === true)
+}
 
 /**
  * 获取是否兼容BewlyBewly插件

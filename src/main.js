@@ -10,8 +10,8 @@ watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
     router.dynamicRouting(title, newUrl);
 })
 
-watch.addEventListenerNetwork((url, windowUrl,winTitle, initiatorType) => {
-    observeNetwork.observeNetwork(url, windowUrl, winTitle,initiatorType)
+watch.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
+    observeNetwork.observeNetwork(url, windowUrl, winTitle, initiatorType)
 })
 
 document.addEventListener('keydown', function (event) {
