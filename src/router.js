@@ -14,6 +14,7 @@ import localMKData from "./data/localMKData.js";
 import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
 import oldHistory from "./pagesModel/history/oldHistory.js";
+import space from "./pagesModel/space/space.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -93,6 +94,9 @@ const staticRoute = (title, url) => {
     }
     if (oldHistory.isOldHistory(url)) {
         oldHistory.intervalExecutionStartShieldingVideo()
+    }
+    if (space.isSpacePage(url)) {
+        space.initializePageBlockingButton()
     }
 }
 

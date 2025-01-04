@@ -115,7 +115,7 @@ const getNameCanonical = () => {
 
 /**
  * 获取用户uid黑名单数组(精确匹配)
- * @returns {string[]}
+ * @returns {number[]}
  */
 const getPreciseUidArr = () => {
     return gmUtil.getData("precise_uid", []);
