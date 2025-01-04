@@ -192,7 +192,7 @@ const getOldCommentSectionList = async () => {
 const startShieldingComments = async () => {
     let list;
     const href = window.location.href;
-    if (localMKData.isCompatibleNewCommentArea()) {
+    if (localMKData.isDiscardOldCommentAreas()) {
         //新版评论区
         list = await getCommentSectionList();
     } else if (href.includes("https://space.bilibili.com/") || topicDetail.isTopicDetailPage(href)) {

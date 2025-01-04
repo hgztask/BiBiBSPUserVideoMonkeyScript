@@ -134,19 +134,20 @@ const setCompatible_BEWLY_BEWLY = (bool) => {
 }
 
 /**
- * 设置是否兼容新评论区
+ * 设置弃用旧版评论区处理
  * @param bool {boolean}
  */
-const setCompatibleNewCommentArea = (bool) => {
-    gmUtil.setData("compatibleNewCommentArea", bool === true)
+const setDiscardOldCommentAreas = (bool) => {
+    gmUtil.setData("discardOldCommentAreas", bool === true)
 }
 
+
 /**
- * 获取是否兼容新评论区
+ * 是否弃用旧版评论区处理
  * @returns {boolean}
  */
-const isCompatibleNewCommentArea = () => {
-    return gmUtil.getData("compatibleNewCommentArea", false) === true;
+const isDiscardOldCommentAreas = () => {
+    return gmUtil.getData("discardOldCommentAreas", false) === true;
 }
 
 export default {
@@ -165,8 +166,8 @@ export default {
     setHideMainButSwitch,
     isCompatible_BEWLY_BEWLY,
     setCompatible_BEWLY_BEWLY,
-    setCompatibleNewCommentArea,
-    isCompatibleNewCommentArea,
+    setDiscardOldCommentAreas,
+    isDiscardOldCommentAreas,
     isHideRightTopMainButSwitch,
     setHideRightTopMainButSwitch
 }

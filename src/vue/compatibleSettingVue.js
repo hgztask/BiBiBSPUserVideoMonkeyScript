@@ -16,9 +16,9 @@ const returnVue = () => {
               <label>
                 <input type="checkbox" v-model="compatible_BEWLY_BEWLY">兼容BewlyBewly插件
               </label>
-              <div title="使用之后需刷新对应页面才可生效，勾选即所欲评论区使用新版获取方式">
+              <div title="使用之后需刷新对应页面才可生效，勾选即评论区使用新版获取方式，不再使用旧版方式">
                 <label>
-                  <input type="checkbox" v-model="newCommentArea">评论区适配新版
+                  <input type="checkbox" v-model="discardOldCommentAreasV">弃用旧版评论区处理
                 </label>
               </div>
             </div>
@@ -30,7 +30,7 @@ const returnVue = () => {
                 //是否兼容BewlyBewly插件
                 compatible_BEWLY_BEWLY: localMKData.isCompatible_BEWLY_BEWLY(),
                 //是否全部兼容新版评论区
-                newCommentArea:localMKData.isCompatibleNewCommentArea()
+                discardOldCommentAreasV:localMKData.isDiscardOldCommentAreas()
             }
         },
         watch:{
@@ -40,8 +40,8 @@ const returnVue = () => {
             compatible_BEWLY_BEWLY(newVal) {
                 localMKData.setCompatible_BEWLY_BEWLY(newVal)
             },
-            newCommentArea(newVal) {
-                localMKData.setCompatibleNewCommentArea(newVal)
+            discardOldCommentAreasV(newVal) {
+                localMKData.setDiscardOldCommentAreas(newVal)
             }
         }
     })
