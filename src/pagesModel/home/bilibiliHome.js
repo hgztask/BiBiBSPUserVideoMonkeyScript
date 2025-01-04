@@ -14,7 +14,7 @@ const isHome = (url, title) => {
     if (url === 'https://www.bilibili.com/') {
         return true
     }
-    return url === 'https://www.bilibili.com/?spm_id_from=333.1007.0.0'
+    return url.includes('https://www.bilibili.com/?spm_id_from=')
 }
 
 // 是否适配BAppcommerce脚本
