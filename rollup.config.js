@@ -5,7 +5,9 @@ export default [
         input: 'src/main.js',
         external: ['vue'],
         plugins: [
-            importContent()
+            importContent({
+                fileName:['.css']
+            })
         ],
         output: {
             file: 'dist/local_build.js',
