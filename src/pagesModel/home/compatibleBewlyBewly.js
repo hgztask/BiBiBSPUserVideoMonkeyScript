@@ -17,9 +17,9 @@ const getBewlyEl = async () => {
  * @param {string} url
  */
 const isBEWLYPage = (url) => {
-    return url.includes('www.bilibili.com/?spm_id_from=333.788.0.0&page=')
-        || url.includes('www.bilibili.com/?page=')
-        || url === 'https://www.bilibili.com/'
+    return url.includes('www.bilibili.com/?page=') ||
+        url === 'https://www.bilibili.com/'
+        || url.startsWith('https://www.bilibili.com/?spm_id_from=')
 }
 
 
@@ -148,7 +148,7 @@ const startShieldingVideoList = async () => {
  * @returns {function(): {stop: stop, start: start}}
  */
 const intervalExecutionStartShieldingVideo = () => {
-    const res =shielding.intervalExecutionStartShieldingVideoInert(startShieldingVideoList, '视频');
+    const res = shielding.intervalExecutionStartShieldingVideoInert(startShieldingVideoList, '视频');
     return () => {
         return res
     }

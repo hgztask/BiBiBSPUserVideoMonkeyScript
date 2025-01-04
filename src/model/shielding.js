@@ -55,7 +55,7 @@ const addBlockButton = (data, tagCss, position = []) => {
                     return;
                 }
                 ruleUtil.addRule(uid, "precise_uid").then(msg => {
-                    xtip.alert(msg, {icon: 's'});
+                    xtip.msg(msg);
                     data.maskingFunc();
                 }).catch(msg => {
                     xtip.alert(msg, {icon: 'e'});
