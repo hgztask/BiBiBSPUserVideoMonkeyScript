@@ -9,7 +9,7 @@ const setBorderColor = (color) => {
 }
 
 
-const defBorderColor="rgb(0, 243, 255)"
+const defBorderColor = "rgb(0, 243, 255)"
 
 /**
  * 获取边框颜色
@@ -27,7 +27,7 @@ const setOutputInformationFontColor = (color) => {
     gmUtil.setData("output_information_font_color", color);
 }
 
-const defOutputInformationFontColor="rgb(119,128,248)";
+const defOutputInformationFontColor = "rgb(119,128,248)";
 /**
  * 获取输出信息字体颜色
  * @returns {string}
@@ -44,7 +44,7 @@ const setHighlightInformationColor = (color) => {
     gmUtil.setData("highlight_information_color", color);
 }
 
-const defHighlightInformationColor="rgb(234, 93, 93)";
+const defHighlightInformationColor = "rgb(234, 93, 93)";
 
 /**
  * 获取高亮信息颜色
@@ -58,12 +58,11 @@ const getHighlightInformationColor = () => {
 /**
  * 设置配置默认颜色
  */
-const setDefaultColorInfo=()=>{
+const setDefaultColorInfo = () => {
     setBorderColor(defBorderColor);
     setOutputInformationFontColor(defOutputInformationFontColor);
     setHighlightInformationColor(defHighlightInformationColor);
 }
-
 
 
 /**
@@ -122,7 +121,7 @@ const setHideRightTopMainButSwitch = (bool) => {
  * 获取是否兼容BewlyBewly插件
  * @returns {boolean}
  */
-const isCompatible_BEWLY_BEWLY=()=>{
+const isCompatible_BEWLY_BEWLY = () => {
     return gmUtil.getData("compatible_BEWLY_BEWLY", false) === true;
 }
 
@@ -130,10 +129,25 @@ const isCompatible_BEWLY_BEWLY=()=>{
  * 设置是否兼容BewlyBewly插件
  * @param bool
  */
-const setCompatible_BEWLY_BEWLY=(bool)=>{
+const setCompatible_BEWLY_BEWLY = (bool) => {
     gmUtil.setData("compatible_BEWLY_BEWLY", bool === true)
 }
 
+/**
+ * 设置是否兼容新评论区
+ * @param bool {boolean}
+ */
+const setCompatibleNewCommentArea = (bool) => {
+    gmUtil.setData("compatibleNewCommentArea", bool === true)
+}
+
+/**
+ * 获取是否兼容新评论区
+ * @returns {boolean}
+ */
+const isCompatibleNewCommentArea = () => {
+    return gmUtil.getData("compatibleNewCommentArea", false) === true;
+}
 
 export default {
     setBorderColor,
@@ -150,5 +164,9 @@ export default {
     isHideMainButSwitch,
     setHideMainButSwitch,
     isCompatible_BEWLY_BEWLY,
-    setCompatible_BEWLY_BEWLY
+    setCompatible_BEWLY_BEWLY,
+    setCompatibleNewCommentArea,
+    isCompatibleNewCommentArea,
+    isHideRightTopMainButSwitch,
+    setHideRightTopMainButSwitch
 }

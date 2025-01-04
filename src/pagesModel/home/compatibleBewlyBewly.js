@@ -185,7 +185,6 @@ const rightTabsInsertListener = () => {
                 el.addEventListener('click', () => {
                         console.log('右侧选项卡栏点击了' + label, active)
                         if (label === '首页') {
-                            debugger
                             homeTopTabsInsertListener()
                             startShieldingVideo().start();
                         } else {
@@ -328,7 +327,6 @@ const startRun = async (url) => {
     const parseUrl = defUtil.parseUrl(url);
     const {page} = parseUrl.queryParams
     installBEWLStyle()
-    debugger
     if (page === 'Home' || url === 'https://www.bilibili.com/') {
         startShieldingVideo().start()
         homeTopTabsInsertListener()

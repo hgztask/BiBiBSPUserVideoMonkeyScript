@@ -2,6 +2,7 @@ import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding.js";
 import defUtil from "../utils/defUtil.js";
 import topicDetail from "./topicDetail.js";
+import localMKData from "../data/localMKData.js";
 //评论区模型
 
 
@@ -93,14 +94,16 @@ const getCommentSectionList = async () => {
             .shadowRoot.querySelectorAll("bili-comment-reply-renderer");
         for (let inTheBuildingEl of inTheBuildingEls) {
             const inTheContentEl = inTheBuildingEl.shadowRoot;
-            const inTheBuildingUserInfo = inTheContentEl.querySelector("bili-comment-user-info")
-                .shadowRoot.getElementById("info");
+            const biliCommentUserInfo = inTheContentEl.querySelector("bili-comment-user-info");
+            biliCommentUserInfo.style.display = 'block'
+            const inTheBuildingUserInfo = biliCommentUserInfo.shadowRoot.getElementById("info");
             const inTheBuildingUserNameEl = inTheBuildingUserInfo.querySelector("#user-name>a");
             const inTheBuildingUserName = inTheBuildingUserNameEl.textContent.trim();
             const inTheBuildingUserUrl = inTheBuildingUserNameEl.href;
             const inTheBuildingUid = elUtil.getUrlUID(inTheBuildingUserUrl);
-            const inTheBuildingContent = inTheContentEl.querySelector("bili-rich-text")
-                .shadowRoot.getElementById("contents").textContent.trim();
+            //评论内容元素
+            const biliRichTextEL = inTheContentEl.querySelector("bili-rich-text");
+            const inTheBuildingContent = biliRichTextEL.shadowRoot.getElementById("contents").textContent.trim();
             const userLevelSrc = inTheBuildingUserInfo.querySelector('#user-level>img')?.src || null;
             const level = getUrlUserLevel(userLevelSrc)
             replies.push({
@@ -143,7 +146,7 @@ const getOldCommentSectionList = async () => {
         const theOPContent = theOPEl.querySelector(".reply-content").textContent.trim();
         const userInfoEl = el.querySelector(".user-info");
         const iEl = userInfoEl.querySelector('i');
-        const level =getOldUserLevel(iEl)
+        const level = getOldUserLevel(iEl)
         const replies = [];
         commentsData.push({
             name: userName,
@@ -166,7 +169,9 @@ const getOldCommentSectionList = async () => {
             const subContent = inTheBuildingEl.querySelector(".reply-content").textContent.trim();
             const subUserInfoEl = inTheBuildingEl.querySelector(".sub-user-info");
             const iEl = subUserInfoEl.querySelector('i');
-            const level =getOldUserLevel(iEl)
+            const level = getOldUserLevel(iEl)
+            const replyContentContainerEl = inTheBuildingEl.querySelector('span.reply-content-container');
+            replyContentContainerEl.style.display = 'block'
             replies.push({
                 name: userName,
                 userUrl,
@@ -179,7 +184,6 @@ const getOldCommentSectionList = async () => {
             })
         }
     }
-    debugger
     return commentsData;
 }
 
@@ -188,7 +192,10 @@ const getOldCommentSectionList = async () => {
 const startShieldingComments = async () => {
     let list;
     const href = window.location.href;
-    if (href.includes("https://space.bilibili.com/") || topicDetail.isTopicDetailPage(href)) {
+    if (localMKData.isCompatibleNewCommentArea()) {
+        //新版评论区
+        list = await getCommentSectionList();
+    } else if (href.includes("https://space.bilibili.com/") || topicDetail.isTopicDetailPage(href)) {
         //评论_旧版本，适用于部分旧版评论区
         list = await getOldCommentSectionList();
     } else {

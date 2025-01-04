@@ -128,7 +128,6 @@ const returnVue = () => {
         },
         methods: {
             operationBut(model) {
-                debugger
                 const type = this.selectVal;
                 if (model === "add") {
                     ruleUtil.showAddRuleInput(type).then((msg) => {

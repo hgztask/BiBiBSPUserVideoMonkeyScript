@@ -11,7 +11,6 @@ const oldToNewRule = () => {
      * @type {[{key:string,name:string,oldKey:string,oldName:string}]}
      */
     const listData = ruleKeyListData.getRuleKeyListData().filter(item => item.oldKey);
-    debugger
     for (let data of listData) {
         const oldKeyDataArr = gmUtil.getData(data.oldKey, []);
         // 如果旧数据为空，则跳过

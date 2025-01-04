@@ -21,7 +21,6 @@ const outputInformationFontColor = localMKData.getOutputInformationFontColor();
 const highlightInformationColor = localMKData.getHighlightInformationColor();
 
 //将错误信息除数到信息选项卡中
-debugger
 eventEmitter.on('正则匹配时异常', (errorData) => {
     const {msg, e} = errorData
     addInfo(msg)

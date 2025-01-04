@@ -83,7 +83,6 @@ const returnVue = () => {
             },
             hideRightTopMainButSwitch(newVal) {
                 localMKData.setHideRightTopMainButSwitch(newVal);
-                debugger
                 eventEmitter.emit('右上角开关按钮显隐', newVal)
             }
         }
