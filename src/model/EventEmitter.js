@@ -3,8 +3,10 @@
  */
 class EventEmitter {
     constructor() {
-        this.events = {}; // 存储事件和回调函数
-        this.handlers = {}; // 存储事件处理函数
+        // 存储事件和回调函数
+        this.events = {};
+        // 存储事件处理函数
+        this.handlers = {};
     }
 
     /**
