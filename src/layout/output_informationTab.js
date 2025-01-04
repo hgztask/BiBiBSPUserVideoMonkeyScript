@@ -1,5 +1,6 @@
 import defUtil from "../utils/defUtil.js";
 import localMKData from "../data/localMKData.js";
+import {eventEmitter} from "../model/EventEmitter.js";
 
 document.querySelector("#output_information button")?.addEventListener("click", () => {
     olEL.innerHTML = "";
@@ -19,6 +20,14 @@ const outputInformationFontColor = localMKData.getOutputInformationFontColor();
 // 高亮信息字体颜色
 const highlightInformationColor = localMKData.getHighlightInformationColor();
 
+//将错误信息除数到信息选项卡中
+debugger
+eventEmitter.on('正则匹配时异常', (errorData) => {
+    const {msg, e} = errorData
+    addInfo(msg)
+    console.log(msg)
+    throw new Error(e)
+})
 
 /**
  *获取视频html格式化排版信息
@@ -70,7 +79,7 @@ const getLiveRoomCommentInfoHtml = (type, matching, commentData) => {
     const toTimeString = defUtil.toTimeString();
     const {name, uid, content} = commentData;
     return `<b style="color: ${outputInformationFontColor}; " gz_bezel>
-${toTimeString}-根据${type}-${matching ?`<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
+${toTimeString}-根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
             <a href="https://space.bilibili.com/${uid}" 
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>

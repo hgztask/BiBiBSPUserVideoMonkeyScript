@@ -1,3 +1,5 @@
+import {eventEmitter} from "../model/EventEmitter.js";
+
 /**
  * 精确匹配
  * @param ruleList {[]} 规则列表
@@ -28,10 +30,12 @@ const regexMatch = (ruleList, value) => {
         try {
             return value.search(item) !== -1;
         } catch (e) {
-            throw new Error(`正则匹配失败，请检查规则列表中的正则表达式是否正确，错误信息：${e.message}`)
+            const msg = `正则匹配失败，请检查规则列表中的正则表达式是否正确，错误信息：${e.message}`;
+            eventEmitter.emit('正则匹配时异常', {e, msg})
+            return false;
         }
     });
-    return find===undefined ? null : find;
+    return find === undefined ? null : find;
 }
 
 /**
