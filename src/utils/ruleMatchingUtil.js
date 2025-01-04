@@ -24,7 +24,13 @@ const regexMatch = (ruleList, value) => {
     value = value.toLowerCase();
     //去除空格
     value = value.split(/[\t\r\f\n\s]*/g).join("")
-    const find = ruleList.find(item => value.search(item) !== -1);
+    const find = ruleList.find(item => {
+        try {
+            return value.search(item) !== -1;
+        } catch (e) {
+            throw new Error(`正则匹配失败，请检查规则列表中的正则表达式是否正确，错误信息：${e.message}`)
+        }
+    });
     return find===undefined ? null : find;
 }
 
