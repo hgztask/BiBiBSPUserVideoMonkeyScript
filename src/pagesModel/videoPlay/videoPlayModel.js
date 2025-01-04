@@ -31,8 +31,8 @@ const installSingleUserCreatorButton = async () => {
         const userUrl = nameEl.href
         const uid = elUtil.getUrlUID(userUrl)
         console.log('点击了屏蔽按钮', name, userUrl, uid)
-        xtip.confirm(`uid精确屏蔽-用户uid=${uid}-name=${name}`, {
-            title: "提示", icon: "a",
+        xtip.confirm(`用户uid=${uid}-name=${name}`, {
+            title: "uid精确屏蔽方式", icon: "a",
             btn1: () => {
                 if (uid === -1) {
                     Tip.error("该页面数据不存在uid字段");
