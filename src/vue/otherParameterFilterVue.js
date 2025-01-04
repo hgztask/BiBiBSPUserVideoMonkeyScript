@@ -25,7 +25,7 @@ const returnVue = () => {
                   <li>最后因为设置限制条件冲突或限制太多，视频未能限制的情况下，请按需设置限制条件</li>
                 </ol>
               </div>
-              <input type="number" :min="inputMin" :max="inputMax" v-model="index">
+              <input gz_type type="number" :min="inputMin" :max="inputMax" v-model="index">
               <select v-model="selectValue">
                 <option :value="item.value" v-for="item in selectList">{{ item.name }}</option>
               </select>
