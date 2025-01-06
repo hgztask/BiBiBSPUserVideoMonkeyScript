@@ -19,7 +19,7 @@ const getVideoList = async (css) => {
     for (let el of elList) {
         const title = el.querySelector(".bili-video-card__info--tit").title;
         const userEl = el.querySelector(".bili-video-card__info--owner");
-        let userUrl;
+        let userUrl='';
         try {
             userUrl = userEl.getAttribute("href");
         } catch (e) {
