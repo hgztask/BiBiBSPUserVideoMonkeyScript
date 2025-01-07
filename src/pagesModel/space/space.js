@@ -64,7 +64,7 @@ const initializePageBlockingButton = async () => {
     const urlUID = elUtil.getUrlUID(window.location.href);
     const nameEl = await elUtil.findElementUntilFound('#h-name')
     if (ruleKeyListData.getPreciseUidArr().includes(urlUID)) {
-        console.log('当前用户为已标记uid黑名单')
+        xtip.msg('当前用户为已标记uid黑名单')
         return
     }
     const name = nameEl.textContent
