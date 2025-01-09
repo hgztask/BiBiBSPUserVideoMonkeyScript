@@ -114,7 +114,7 @@ const getCommentSectionList = async () => {
                 content: inTheBuildingContent,
                 el: inTheBuildingEl,
                 insertionPositionEl: inTheBuildingUserInfo,
-                explicitSubjectEl: inTheContentEl
+                explicitSubjectEl: inTheBuildingEl
             })
         }
     }
