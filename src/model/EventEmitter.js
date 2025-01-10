@@ -3,7 +3,10 @@
  */
 class EventEmitter {
     constructor() {
-        // 存储事件和回调函数
+        /**
+         * 存储事件和回调函数
+         * @type {{}}
+         */
         this.events = {};
         // 存储事件处理函数
         this.handlers = {};
@@ -40,17 +43,17 @@ class EventEmitter {
      * @param {*} data - 事件数据
      */
     emit(eventName, data) {
-        if (this.events[eventName]) {
-            this.events[eventName].forEach(callback => {
-                try {
-                    callback(data);
-                } catch (error) {
-                    console.error(`Error in event listener for "${eventName}":`, error);
-                }
-            });
-            return
+        if (!this.events[eventName]) {
+            // 如果事件没有订阅，则抛出错误
+            throw new Error(`没有为注册的事件侦听器 "${eventName}"`);
         }
-        throw new Error(`No event listeners registered for "${eventName}"`);
+        this.events[eventName].forEach(callback => {
+            try {
+                callback(data);
+            } catch (error) {
+                console.error(`事件侦听器中发生错误 "${eventName}":`, error);
+            }
+        });
     }
 
     /**

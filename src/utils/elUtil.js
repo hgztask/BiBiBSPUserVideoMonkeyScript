@@ -31,38 +31,58 @@ const getUrlUID = (url) => {
     return parseInt(uid);
 }
 
-// 事件监听器注册表
+/**
+ * 事件监听器注册表
+ * @type {Map<any, {events:[],attrs:[]}>}
+ */
 const eventRegistry = new Map();
 
 /**
  * 添加事件监听器，同时将事件监听器添加到事件注册表中，以进行跟踪。
- * @param element - 要监听的事件的目标元素。
+ * @param element {Document|Element} - 要监听的事件的目标元素。
  * @param eventName 事件名
  * @param handler - 事件处理函数。
  */
 function addEventListenerWithTracking(element, eventName, handler) {
+    if (!element) {
+        console.error(element)
+        throw new Error('错误的元素！')
+    }
     if (!eventRegistry.has(element)) {
-        eventRegistry.set(element, new Map());
+        //当事件监听器注册表没有该元素时，添加并初始化
+        eventRegistry.set(element, {events: [], attrs: []});
     }
-    const elementEvents = eventRegistry.get(element);
-    if (!elementEvents.has(eventName)) {
-        elementEvents.set(eventName, new Set());
+    // 获取该元素对应的事件监听器表
+    const {events, attrs} = eventRegistry.get(element);
+    if (attrs.includes(eventName)) {
+        return
     }
-    elementEvents.get(eventName).add(handler);
-
+    attrs.push(eventName)
+    events.push({eventName, handler})
+    element.setAttribute(`event-${eventName}`, eventName)
+    // 如果该元素还没有对应的事件监听器表，则创建一个空的事件监听器表
     element.addEventListener(eventName, handler);
 }
 
-// 检查事件监听器是否已注册
+/**
+ * 检查事件监听器是否已注册的对应事件
+ * @param element {Element|Document}
+ * @param eventName
+ * @returns {boolean}
+ */
 function hasEventListener(element, eventName) {
-    if (eventRegistry.has(element)) {
-        return true;
-    }
-    const elementEvents = eventRegistry.get(element);
-    if (elementEvents === undefined) {
+    const elementEvents = eventRegistry.get(element)
+    if (!elementEvents) {
+        // 如果事件监听器注册表中没有该元素，则返回false
         return false
     }
-    return elementEvents.has(eventName)
+    const attr = element.getAttribute(`event-${eventName}`);
+    if (attr) {
+        return true
+    }
+    const {events} = elementEvents
+    // 遍历事件监听器表，如果事件名存在于事件监听器表中，则返回true
+    return events.some(item => item === eventName);
 }
 
 
@@ -130,16 +150,22 @@ function findElementsByAttempts(selector, config) {
 /**
  * 不断尝试查找单个元素，每次查找之间有指定的间隔时间，直到找到为止
  * 结合异步操作await可用于监听元素加载完成之后继续执行
+ * 如设置超时时间，则当超过指定时间后，将返回null，需要cry异常处理
  * @param {string} selector - CSS 选择器，用于选择元素
  * @param config{Object} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @returns {Promise<Element|Document>} - 返回找到的元素
+ * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
+ * @returns {Promise<Element|Document>} - 成功时返回找到的元素，失败时需要cry处理
  */
 function findElementUntilFound(selector, config = {}) {
-    const defConfig = {doc: document, interval: 1000}
+    const defConfig = {
+        doc: document,
+        interval: 1000,
+        timeout: -1,
+    }
     config = {...defConfig, ...config}
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const i1 = setInterval(() => {
             const element = config.doc.querySelector(selector);
             if (element) {
@@ -147,34 +173,45 @@ function findElementUntilFound(selector, config = {}) {
                 clearInterval(i1);
             }
         }, config.interval);
+        if (config.timeout > 0) {
+            setTimeout(() => {
+                clearInterval(i1);
+                reject(null); // 超时则返回 null
+            }, config.timeout);
+        }
     });
 }
 
 /**
  * 不断尝试查找多个元素，每次查找之间有指定的间隔时间，直到找到为止
+ * 结合异步操作await可用于监听元素加载完成之后继续执行
+ * 如设置超时时间，则当超过指定时间后，将返回null，需要cry异常处理
  * @param {string} selector - CSS 选择器，用于选择元素
  * @param config{Object} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
+ * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
  * @returns {Promise<NodeListOf<Element|Document>>} - 返回找到的 Element列表
  */
 function findElementsUntilFound(selector, config = {}) {
-    const defConfig = {doc: document, interval: 1000}
+    const defConfig = {doc: document, interval: 1000, timeout: -1}
     config = {...defConfig, ...config}
-    return new Promise((resolve) => {
-        function attemptToFind() {
+    return new Promise((resolve, reject) => {
+        const i1 = setInterval(() => {
             const elements = config.doc.querySelectorAll(selector);
             if (elements.length > 0) {
                 resolve(elements);
-            } else {
-                setTimeout(attemptToFind, config.interval);
+                clearInterval(i1)
             }
+        }, config.interval);
+        if (config.timeout > 0) {
+            setTimeout(() => {
+                clearInterval(i1);
+                reject(null); // 超时则返回 null
+            }, config.timeout);
         }
-
-        attemptToFind();
     });
 }
-
 
 /**
  * 在指定时间内不断尝试查找单个元素，每次查找之间有指定的间隔时间
@@ -217,47 +254,6 @@ function findElementWithTimeout(selector, config = {}) {
             }); // 超时后提示信息
             clearTimeout(timeout);
         }, config.timeout);
-        attemptToFind(); // 立即尝试一次
-    });
-}
-
-/**
- * 在指定时间内不断尝试查找多个元素，每次查找之间有指定的间隔时间
- * 如果在指定时间内找不到，则返回 null
- * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.timeout  {number} - 查找的总超时时间（毫秒），默认为60秒，即 60 000 毫秒
- * @returns {Promise<NodeListOf<Element>|null>} - 返回找到的Element列表 或 null
- */
-function findElementsWithTimeout(selector, config = {}) {
-    const defConfig = {
-        doc: document,
-        interval: 1000,
-        timeout: 60000
-    }
-    config = {...defConfig, ...config}
-    return new Promise((resolve, reject) => {
-        let timer;
-        let intervalId;
-
-        function attemptToFind() {
-            const elements = config.doc.querySelectorAll(selector);
-            if (elements.length > 0) {
-                clearTimeout(timer);
-                clearInterval(intervalId);
-                resolve(elements);
-            }
-        }
-
-        intervalId = setInterval(attemptToFind, config.interval);
-
-        timer = setTimeout(() => {
-            clearInterval(intervalId);
-            reject(null); // 超时后返回 null
-        }, config.timeout);
-
         attemptToFind(); // 立即尝试一次
     });
 }
@@ -319,7 +315,7 @@ function hoverTimeout(element, callback, timeout = 2000) {
 
 
 /**
- * @version 0.1
+ * @version 0.2.0
  */
 export default {
     getUrlUID,
@@ -327,6 +323,6 @@ export default {
     findElementUntilFound,
     findElementWithTimeout,
     findElementsUntilFound,
-    findElementsWithTimeout,
-    findElementsAndBindEvents
+    findElementsAndBindEvents,
+    hasEventListener
 }

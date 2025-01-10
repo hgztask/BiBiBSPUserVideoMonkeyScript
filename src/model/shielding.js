@@ -12,17 +12,21 @@ import gmUtil from "../utils/gmUtil.js";
  * @param data {{}}
  * @param data.data {{}} 数据
  * @param data.maskingFunc {function} 屏蔽函数
- * @param data.css {Object} css
+ * @param data.css {string|null} css
  * @param tagCss {string} 标记css，用于标记是否已添加
  * @param position {[]} 位置
  */
-const addBlockButton = (data, tagCss, position = []) => {
+const addBlockButton = (data, tagCss = '', position = []) => {
     //插入位置元素,显隐主体元素,主el元素
     const {insertionPositionEl, explicitSubjectEl, css} = data.data;
-    if (insertionPositionEl.querySelector("." + tagCss)) return;
+    if (tagCss !== '') {
+        if (insertionPositionEl.querySelector("." + tagCss)) return;
+    }
     const buttonEL = document.createElement("button")
     buttonEL.setAttribute("gz_type", "")
-    buttonEL.className = tagCss;
+    if (tagCss !== '') {
+        buttonEL.className = tagCss;
+    }
     buttonEL.textContent = "屏蔽";
     if (position.length !== 0) {
         buttonEL.style.position = "absolute";
@@ -38,9 +42,12 @@ const addBlockButton = (data, tagCss, position = []) => {
             buttonEL.style[key] = css[key];
         }
     }
-    buttonEL.style.display = "none";
-    elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
-    elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseout", () => buttonEL.style.display = "none");
+    //当没有显隐主体元素，则主动隐藏，不添加鼠标经过显示移开隐藏事件
+    if (explicitSubjectEl) {
+        buttonEL.style.display = "none";
+        elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseout", () => buttonEL.style.display = "none");
+        elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
+    }
     insertionPositionEl.appendChild(buttonEL);
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
