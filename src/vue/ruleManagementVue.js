@@ -62,6 +62,7 @@ const returnVue = () => {
                     <li>旧版本的需要使用下面的v1旧版本导入规则</li>
                     <li>旧版本的只能覆盖导入</li>
                     <li>v1之后的版本可以选择覆盖和追加</li>
+                    <li>旧规则转新规则，用于2.0之前版本升上来旧规则内容丢失问题</li>
                   </ol>
                   <ol>
                     <li v-for="item in ruleReference">
@@ -70,6 +71,9 @@ const returnVue = () => {
                       </button>
                     </li>
                   </ol>
+                </div>
+                <div>
+                  <input type="file" accept="application/json" @change="handleFileUpload">
                 </div>
                 <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
                 <button gz_type @click="appendImportRulesBut">追加导入规则</button>
@@ -220,6 +224,24 @@ const returnVue = () => {
             outToInputBut() {
                 this.ruleContentImport = ruleUtil.getRuleContent(2);
                 xtip.msg('已导出到输入框！', {icon: 's'})
+            },
+            handleFileUpload(event){
+                const file = event.target.files[0];
+                if (!file) return;
+                console.log(file.name);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const fileContent = e.target.result;
+                    try {
+                        JSON.parse(fileContent);
+                    } catch (e) {
+                        xtip.msg('文件内容有误', {icon: 'e'})
+                        return;
+                    }
+                    this.ruleContentImport= fileContent;
+                    xtip.msg('读取到内容，请按需覆盖或追加', {icon: 's'})
+                };
+                reader.readAsText(file);
             }
         },
         watch: {
