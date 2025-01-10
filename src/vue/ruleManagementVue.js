@@ -50,7 +50,7 @@ const returnVue = () => {
               <div>
                 <h2>导出规则</h2>
                 <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
-                <button gz_type>导出到编辑框</button>
+                <button gz_type @click="outToInputBut">导出到编辑框</button>
                 <button gz_type @click="ruleOutToConsoleBut">导出到控制台</button>
               </div>
               <hr>
@@ -216,6 +216,10 @@ const returnVue = () => {
                 ruleConversion.oldToNewRule()
                 this.refreshInfoBut();
                 xtip.msg('已转换成功！', {icon: 's'})
+            },
+            outToInputBut() {
+                this.ruleContentImport = ruleUtil.getRuleContent(2);
+                xtip.msg('已导出到输入框！', {icon: 's'})
             }
         },
         watch: {
