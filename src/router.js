@@ -1,5 +1,5 @@
 import bilibiliHome from './pagesModel/home/bilibiliHome.js'
-import searchModel from "./pagesModel/searchModel.js";
+import searchModel from "./pagesModel/search/searchModel.js";
 import videoPlayModel from "./pagesModel/videoPlay/videoPlayModel.js";
 import collectionVideoPlayPageModel from "./pagesModel/videoPlay/collectionVideoPlayPageModel.js";
 import liveRoomModel from "./pagesModel/live/liveRoomModel.js";
@@ -15,6 +15,7 @@ import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
 import oldHistory from "./pagesModel/history/oldHistory.js";
 import space from "./pagesModel/space/space.js";
+import searchLive from "./pagesModel/search/searchLive.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -49,7 +50,10 @@ const staticRoute = (title, url) => {
     //如果只屏蔽首页，则不执行以下代码
     if (bOnlyTheHomepageIsBlocked) return;
     if (searchModel.isSearch(url)) {
-        searchModel.startDebounceShieldingVideoList();
+        searchModel.searchTopTabsIWrapperInstallListener()
+        searchModel.startShieldingVideoList();
+        searchModel.currentlyActivatedOptions()
+        searchLive.installStyle()
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.startShieldingVideoList();
@@ -110,7 +114,7 @@ const dynamicRouting = (title, url) => {
     //如果只屏蔽首页，则不执行以下代码
     if (bOnlyTheHomepageIsBlocked) return;
     if (searchModel.isSearch(url)) {
-        searchModel.startDebounceShieldingVideoList();
+        searchModel.startShieldingVideoList();
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.startShieldingVideoList();

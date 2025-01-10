@@ -419,7 +419,7 @@ const shieldingComments = (commentsDataList) => {
 
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
-    const {name = null, title, partition, uid = -1} = liveRoomData;
+    const {name, title, partition, uid = -1} = liveRoomData;
     if (uid !== -1) {
         if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid)) {
             return {state: false};
@@ -429,7 +429,7 @@ const shieldingLiveRoom = (liveRoomData) => {
         }
     }
     let matching;
-    if (name !== null) {
+    if (name) {
         if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
             return {state: true, type: "精确用户名"};
         }
@@ -446,8 +446,10 @@ const shieldingLiveRoom = (liveRoomData) => {
     if (matching) {
         return {state: true, type: "正则标题", matching};
     }
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPrecisePartitionArr(), partition)) {
-        return {state: true, type: "精确直播分区"};
+    if (partition) {
+        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPrecisePartitionArr(), partition)) {
+            return {state: true, type: "精确直播分区"};
+        }
     }
     return {state: false};
 }
