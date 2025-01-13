@@ -4,6 +4,7 @@ import router from './router.js'
 import watch from './watch/watch.js'
 import observeNetwork from "./watch/observeNetwork.js";
 import mainDrawer from "./layout/drawer/mainDrawer.js";
+import './menu.js'
 
 router.staticRoute(document.title, window.location.href);
 
