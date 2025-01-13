@@ -58,7 +58,7 @@ const handleFileReader = (event) => {
  * @param obj {any}
  * @returns {boolean}
  */
-const isIterable=(obj)=> {
+const isIterable = (obj) => {
     return obj != null && typeof obj[Symbol.iterator] === 'function';
 }
 
@@ -257,6 +257,31 @@ const parseUrl = (urlString) => {
     };
 }
 
+/**
+ *获取localStorage指定key数据
+ * 如Key不存在则返回默认值
+ * 如指定isList为true,则返回数组
+ * @param key {string}
+ * @param isList {boolean} 是否是数组
+ * @param defaultValue {any}
+ * @returns {any|string|boolean|number|[]}
+ */
+const getLocalStorage = (key, isList = false, defaultValue = null) => {
+    const item = localStorage.getItem(key);
+    if (item === null) {
+        return defaultValue
+    }
+    if (isList) {
+        try {
+            return JSON.parse(item)
+        } catch (e) {
+            console.error(`读取localStorage时尝试转换${key}的值失败`, e)
+            return defaultValue
+        }
+    }
+    return item
+}
+
 
 export default {
     wait,
@@ -269,5 +294,6 @@ export default {
     throttleAsync,
     parseUrl,
     handleFileReader,
-    isIterable
+    isIterable,
+    getLocalStorage
 }

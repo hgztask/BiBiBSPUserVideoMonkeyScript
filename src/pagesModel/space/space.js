@@ -4,35 +4,34 @@ import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import {Tip} from "../../utils/Tip.js";
 
-// 缓存数据
-const cacheData = {
-    isPersonalHomepage: null,
-}
-
 //是否是用户空间页面
 const isSpacePage = (url) => {
     return url.startsWith('https://space.bilibili.com/')
 }
 
 
-//是否个人主页
-const isPersonalHomepage = async () => {
-    if (cacheData.isPersonalHomepage !== null) {
-        // 缓存，当前页面是个人主页，且没有刷新，则直接返回
-        return cacheData.isPersonalHomepage;
+/**
+ * 是否个人主页
+ * todo 目前会出现非个人主页的情况但会返回true的情况，待后续修复
+ * todo 2025年1月13日23:52:56，改成判断localStorage中值来作为是否是个人主页，待后续观察
+ * @returns boolean
+ */
+const isPersonalHomepage = () => {
+    const data = defUtil.getLocalStorage('time_tracker', true, {})
+    const dataKeys = Object.keys(data);
+    if (dataKeys.length === 0) {
+        return false
     }
-    const {state} = await elUtil.findElementWithTimeout(".h-action", {timeout: 2000, interval: 200});
-    const res = !state;
-    cacheData.isPersonalHomepage = res;
-    return res;
+    const tempUid=dataKeys[0]
+    const urlUID = elUtil.getUrlUID(window.location.href);
+    try {
+        return parseInt(tempUid) === urlUID;
+    } catch (e) {
+        console.log('isPersonalHomepage出现错误',e)
+        return false
+    }
 }
 
-/**
- * 是否个人主页防抖
- * @type function
- * @return {Promise<boolean>}
- */
-const isThrottleAsyncPersonalHomepage = defUtil.throttleAsync(isPersonalHomepage, 2000);
 
 /**
  * 插入屏蔽按钮
@@ -41,6 +40,7 @@ const isThrottleAsyncPersonalHomepage = defUtil.throttleAsync(isPersonalHomepage
  * @param callback {function}
  */
 const __insertButton = (el, label, callback = null) => {
+    debugger
     const liEl = document.createElement("li");
     liEl.textContent = label;
     liEl.className = 'be-dropdown-item';
@@ -57,10 +57,10 @@ const __insertButton = (el, label, callback = null) => {
  * @returns null
  */
 const initializePageBlockingButton = async () => {
-    const is = await isThrottleAsyncPersonalHomepage()
+    const is = isPersonalHomepage()
     //个人主页，不做屏蔽按钮处理
     if (is) return
-    const el = await elUtil.findElementUntilFound('.be-dropdown-menu.menu-align-')
+    const el = await elUtil.findElementUntilFound('.be-dropdown.h-add-to-black .be-dropdown-menu.menu-align-')
     const urlUID = elUtil.getUrlUID(window.location.href);
     const nameEl = await elUtil.findElementUntilFound('#h-name')
     if (ruleKeyListData.getPreciseUidArr().includes(urlUID)) {
@@ -91,7 +91,7 @@ const initializePageBlockingButton = async () => {
 
 
 export default {
-    isThrottleAsyncPersonalHomepage,
+    isPersonalHomepage,
     initializePageBlockingButton,
     isSpacePage
 }
