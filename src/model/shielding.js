@@ -211,13 +211,19 @@ const shieldingVideo = (videoData) => {
 }
 
 /**
- * 根据视频tag屏蔽
+ * 检查视频tag执行屏蔽
+ * @description 当没有设置相关tag屏蔽规则时，不执行，当videoData的bv没有且为-1时，不执行
  * @param videoData
  * @returns {Promise<void>|null}
  */
 const blockBasedVideoTag = async (videoData) => {
     const {el, bv = '-1'} = videoData
     if (bv === '-1') {
+        return
+    }
+    const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
+    const videoTagArr = ruleKeyListData.getVideoTagArr();
+    if (preciseVideoTagArr.length <= 0 && videoTagArr.length <= 0) {
         return
     }
     const tagsData = await bFetch.getVideoTagsPackaging(videoData)
@@ -227,8 +233,6 @@ const blockBasedVideoTag = async (videoData) => {
         return
     }
     const {tags = []} = data
-    const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
-    const videoTagArr = ruleKeyListData.getVideoTagArr();
     for (let tag of tags) {
         if (ruleMatchingUtil.exactMatch(preciseVideoTagArr, tag)) {
             el?.remove();
@@ -243,7 +247,7 @@ const blockBasedVideoTag = async (videoData) => {
             output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("模糊tag", fuzzyMatch, videoData));
             return
         }
-        fuzzyMatch=ruleMatchingUtil.regexMatch(ruleKeyListData.getVideoTagCanonicalArr(),tag)
+        fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getVideoTagCanonicalArr(), tag)
         if (fuzzyMatch) {
             el?.remove();
             Tip.successBottomRight("屏蔽了视频");
