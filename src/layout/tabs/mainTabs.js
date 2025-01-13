@@ -57,6 +57,11 @@ const tabsConfig = [
     },
     {
         id: 'tab05',
+        title: '缓存tags管理',
+        content: '<div id="cache_tags_management_vue"></div>',
+    },
+    {
+        id: 'tab06',
         title: '输出信息',
         content: `<div id="output_information">
 <button gz_type>清空消息</button>
@@ -66,13 +71,13 @@ const tabsConfig = [
         height: "96vh"
     },
     {
-        id: 'tab06',
+        id: 'tab07',
         title: '支持打赏',
         content: '<div id="station_b_shield_donate"></div>',
         height: "80vh"
     },
     {
-        id: 'tab07',
+        id: 'tab08',
         title: '关于和问题反馈',
         content: `<div id="station_b_shield_problem_feedback"></div>`,
         height: '53vh'

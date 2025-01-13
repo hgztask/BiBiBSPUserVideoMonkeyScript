@@ -56,8 +56,25 @@ const addTagsData = async (data) => {
 }
 
 /**
+ * 批量导入数据
+ * @param friendsData
+ * @returns {Promise<{state: boolean, any}>}
+ */
+const bulkImportTags = async (friendsData) => {
+    try {
+        // 使用 bulkPut 方法批量插入数据
+        const lastKeyItem = await mk_db.tags.bulkPut(friendsData);
+        console.log('批量导入成功，最后一个插入的主键:', lastKeyItem);
+        return {state: true, lastKeyItem}
+    } catch (error) {
+        console.error('批量导入时出错:', error);
+        return {state: false, error}
+    }
+}
+
+/**
  * 获取视频tag数据
- * @returns {Promise<{bv:string,title:string,name:string, tags:[string]}>}
+ * @returns {Promise<[bv:string,title:string,name:string, tags:[string]]>}
  */
 const getVideoAllTags = async () => {
     return await mk_db.tags.toArray()
@@ -98,5 +115,6 @@ export default {
     findBv,
     updateLocalData,
     getTagsCount,
-    clearTagsTable
+    clearTagsTable,
+    bulkImportTags
 }

@@ -5,6 +5,7 @@ import ruleManagementVue from './../vue/ruleManagementVue.js'
 import donateLayoutVue from './../vue/donateLayoutVue.js'
 import otherParameterFilterVue from '../vue/otherParameterFilterVue.js'
 import compatibleSettingVue from '../vue/compatibleSettingVue.js'
+import cacheTagsManagementVue from '../vue/cacheTagsManagementVue.js'
 import './output_informationTab.js'
 import gmUtil from "../utils/gmUtil.js";
 import localMKData from "../data/localMKData.js";
@@ -15,6 +16,7 @@ ruleManagementVue();
 donateLayoutVue();
 otherParameterFilterVue()
 compatibleSettingVue()
+cacheTagsManagementVue()
 
 installAboutAndFeedbackComponentsVue('#station_b_shield_problem_feedback',
     {
