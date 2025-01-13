@@ -37,7 +37,7 @@ const tabsConfig = [
         id: 'tab01',
         title: '面板设置',
         content: '<div id="panel_settings_vue"></div>',
-        height: "23vh",
+        height: "25vh",
     },
     {
         id: 'tab02',
@@ -49,6 +49,7 @@ const tabsConfig = [
         id: 'tab03',
         title: '其他参数过滤',
         content: `<div id="other_parameter_filter"></div>`,
+        height: '60vh'
     },
     {
         id:'id04',

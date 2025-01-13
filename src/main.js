@@ -1,3 +1,4 @@
+import './model/externalLibraryVerification.js'
 import "./layout/init.js";
 import router from './router.js'
 import watch from './watch/watch.js'
