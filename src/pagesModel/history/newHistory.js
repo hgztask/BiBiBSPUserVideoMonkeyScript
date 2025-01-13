@@ -38,7 +38,12 @@ const getVideoDataList = async () => {
     for (let el of elList) {
         const titleEl = el.querySelector('.bili-video-card__title');
         const title = titleEl.textContent.trim();
-        const videoUrl = titleEl.firstElementChild.href
+        const videoUrl = titleEl.firstElementChild.href||null
+        if (videoUrl?.includes('live.bilibili.com')) {
+            //如果卡片为直播卡片,则不做任何处理
+            continue
+        }
+        const bv=elUtil.getUrlBV(videoUrl)
         const userEl = el.querySelector('.bili-video-card__author');
         const cardTag = el.querySelector('.bili-cover-card__tag')?.textContent.trim() || null;
         const name = userEl.textContent.trim()
@@ -58,6 +63,7 @@ const getVideoDataList = async () => {
             nDuration,
             uid,
             el,
+            bv,
             insertionPositionEl: tempEL,
             explicitSubjectEl: tempEL
         })

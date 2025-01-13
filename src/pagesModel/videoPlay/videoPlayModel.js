@@ -118,6 +118,8 @@ const getGetTheVideoListOnTheRight = async () => {
             const userUrl = elInfo.querySelector(".upname>a").href;
             const uid = elUtil.getUrlUID(userUrl);
             const playInfo = el.querySelector('.playinfo').innerHTML.trim();
+            const videoUrl = el.querySelector(".info>a").href
+            const bv = elUtil.getUrlBV(videoUrl)
             let nPlayCount = playInfo.match(/<\/svg>(.*)<svg/s)?.[1].trim()
             nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
             let nBulletChat = playInfo.match(/class="dm".+<\/svg>(.+)$/s)?.[1].trim()
@@ -129,11 +131,12 @@ const getGetTheVideoListOnTheRight = async () => {
                 userUrl,
                 name,
                 uid,
+                bv,
                 nPlayCount,
                 nBulletChat,
                 nDuration,
                 el,
-                videoUrl: el.querySelector(".info>a").href,
+                videoUrl,
                 insertionPositionEl: el.querySelector(".playinfo"),
                 explicitSubjectEl: elInfo
             });
@@ -146,7 +149,9 @@ const getGetTheVideoListOnTheRight = async () => {
 
 // 执行屏蔽右侧视频列表
 const startShieldingVideoList = () => {
+    console.time("屏蔽右侧视频列表");
     getGetTheVideoListOnTheRight().then((videoList) => {
+        console.timeEnd("屏蔽右侧视频列表");
         for (let videoData of videoList) {
             if (shielding.shieldingVideoDecorated(videoData)) {
                 continue;
@@ -164,8 +169,7 @@ const startShieldingVideoList = () => {
 const findTheExpandButtonForTheListOnTheRightAndBindTheEvent = () => {
     setTimeout(() => {
         elUtil.findElementUntilFound(".rec-footer", {interval: 2000}).then((el) => {
-            console.log("找到右侧视频列表的展开按钮");
-            console.log(el);
+            console.log("找到右侧视频列表的展开按钮", el);
             el.addEventListener("click", () => {
                 startShieldingVideoList();
             })

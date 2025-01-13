@@ -78,6 +78,15 @@ const ruleKeyListData = [
     }, {
         key: "precise_partition",
         name: "直播分区黑名单(精确匹配)"
+    }, {
+        key: 'videoTag',
+        name: '视频tag黑名单(模糊匹配)',
+    }, {
+        key: 'precise_videoTag',
+        name: '视频tag黑名单(精确匹配)',
+    }, {
+        key: 'videoTagCanonical',
+        name: '视频tag黑名单(正则匹配)',
     }
 ]
 
@@ -196,8 +205,32 @@ const getPreciseFanCardArr = () => {
  *获取直播分区黑名单数组(精确匹配)
  * @returns {[]|string}
  */
-const getPrecisePartitionArr=()=>{
+const getPrecisePartitionArr = () => {
     return gmUtil.getData("precise_partition", []);
+}
+
+/**
+ * 获取视频tag黑名单数组(模糊匹配)
+ * @returns {[string]}
+ */
+const getVideoTagArr = () => {
+    return gmUtil.getData("videoTag", []);
+}
+
+/**
+ * 获取视频tag黑名单数组(精确匹配)
+ * @returns {[string]}
+ */
+const getPreciseVideoTagArr = () => {
+    return gmUtil.getData("precise_videoTag", []);
+}
+
+/**
+ * 获取视频tag黑名单数组(正则匹配)
+ * @returns {[string]}
+ */
+const getVideoTagCanonicalArr = () => {
+    return gmUtil.getData("videoTagCanonical", []);
 }
 
 
@@ -216,5 +249,8 @@ export default {
     getTagArr,
     getTagCanonicalArr,
     getPreciseFanCardArr,
-    getPrecisePartitionArr
+    getPrecisePartitionArr,
+    getVideoTagArr,
+    getPreciseVideoTagArr,
+    getVideoTagCanonicalArr
 }

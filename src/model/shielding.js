@@ -6,6 +6,7 @@ import ruleUtil from "../utils/ruleUtil.js";
 import commentSectionModel from "../pagesModel/commentSectionModel.js";
 import output_informationTab from "../layout/output_informationTab.js";
 import gmUtil from "../utils/gmUtil.js";
+import bFetch from '../model/bFetch.js';
 
 /**
  * 添加屏蔽按钮
@@ -210,6 +211,49 @@ const shieldingVideo = (videoData) => {
 }
 
 /**
+ * 根据视频tag屏蔽
+ * @param videoData
+ * @returns {Promise<void>|null}
+ */
+const blockBasedVideoTag = async (videoData) => {
+    const {el, bv = '-1'} = videoData
+    if (bv === '-1') {
+        return
+    }
+    const tagsData = await bFetch.getVideoTagsPackaging(videoData)
+    const {state, data} = tagsData
+    if (!state) {
+        console.log('错误:', data);
+        return
+    }
+    const {tags = []} = data
+    const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
+    const videoTagArr = ruleKeyListData.getVideoTagArr();
+    for (let tag of tags) {
+        if (ruleMatchingUtil.exactMatch(preciseVideoTagArr, tag)) {
+            el?.remove();
+            Tip.successBottomRight("屏蔽了视频");
+            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("精确tag", tag, videoData));
+            return
+        }
+        let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(videoTagArr, tag);
+        if (fuzzyMatch) {
+            el?.remove();
+            Tip.successBottomRight("屏蔽了视频");
+            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("模糊tag", fuzzyMatch, videoData));
+            return
+        }
+        fuzzyMatch=ruleMatchingUtil.regexMatch(ruleKeyListData.getVideoTagCanonicalArr(),tag)
+        if (fuzzyMatch) {
+            el?.remove();
+            Tip.successBottomRight("屏蔽了视频");
+            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("正则tag", fuzzyMatch, videoData));
+            return
+        }
+    }
+}
+
+/**
  * 装饰过的屏蔽视频
  * @param videoData {{}} 视频数据
  * @param method {string} 屏蔽方法, remove为直接删除，hide为隐藏，默认为remove
@@ -230,7 +274,9 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         Tip.successBottomRight("屏蔽了视频");
         const videoInfoHtml = output_informationTab.getVideoInfoHtml(type, matching, videoData);
         output_informationTab.addInfo(videoInfoHtml);
+        return true;
     }
+    blockBasedVideoTag(videoData)
     return state;
 }
 

@@ -16,6 +16,8 @@ const getVideDataList = async (isWeekly = false) => {
         const videoCardInfoEl = el.querySelector(".video-card__info");
         const title = videoCardInfoEl.querySelector(".video-name").title.trim();
         const name = videoCardInfoEl.querySelector(".up-name__text").title;
+        const videoUrl = el.querySelector('.video-card__content>a')?.href || null;
+        const bv = elUtil.getUrlBV(videoUrl);
         let nPlayCount = el.querySelector('.play-text').textContent.trim()
         nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         let nBulletChat = el.querySelector('.like-text').textContent.trim()
@@ -25,6 +27,8 @@ const getVideDataList = async (isWeekly = false) => {
             title,
             name,
             uid: -1,
+            videoUrl,
+            bv,
             nPlayCount,
             nBulletChat,
             nDuration: -1,

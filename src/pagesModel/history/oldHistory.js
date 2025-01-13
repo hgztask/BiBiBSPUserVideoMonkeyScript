@@ -28,6 +28,7 @@ const getVideoDataList = async () => {
         const userEl = el.querySelector('.w-info>span>a');
         const title = titleEl.textContent.trim();
         const videoUrl = titleEl.href;
+        const bv = elUtil.getUrlBV(videoUrl)
         const name = userEl.textContent.trim();
         const userUrl = userEl.href;
         const uid = elUtil.getUrlUID(userUrl)
@@ -38,6 +39,7 @@ const getVideoDataList = async () => {
             userUrl,
             uid,
             el,
+            bv,
             explicitSubjectEl: el.querySelector('.r-txt'),
             insertionPositionEl: el.querySelector('.subtitle')
         })

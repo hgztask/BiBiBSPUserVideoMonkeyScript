@@ -32,6 +32,25 @@ const getUrlUID = (url) => {
 }
 
 /**
+ * 获取url中的BV号
+ * @param url {string}
+ * @returns {string|null}
+ */
+const getUrlBV = (url) => {
+    //例子：https://www.bilibili.com/video/BV1gLCWYAE5C/?spm_id_from=333.788.recommend_more_video.1
+    let match = url.match(/video\/(.+)\//);
+    if (match === null) {
+        //例子：https://www.bilibili.com/video/BV1wB421r7NX?spm_id_from=333.1245.recommend_more_video.1
+        match = url.match(/video\/(.+)\?/)
+    }
+    if (match === null) {
+        //例子:https://www.bilibili.com/video/BV1B1cxewECr
+        match=url.match(/video\/(.+)/)
+    }
+    return match?.[1]?.trim() || null;
+}
+
+/**
  * 事件监听器注册表
  * @type {Map<any, {events:[],attrs:[]}>}
  */
@@ -319,6 +338,7 @@ function hoverTimeout(element, callback, timeout = 2000) {
  */
 export default {
     getUrlUID,
+    getUrlBV,
     addEventListenerWithTracking,
     findElementUntilFound,
     findElementWithTimeout,

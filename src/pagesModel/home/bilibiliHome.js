@@ -43,7 +43,11 @@ const getChangeTheVideoElList = async () => {
         try {
             const tempData = getVideoData(el)
             const {userUrl} = tempData
-            const videoUrl = el.querySelector(".bili-video-card__info--tit>a").href;
+            /**
+             *
+             * @type {string|null}
+             */
+            const videoUrl = el.querySelector(".bili-video-card__info--tit>a")?.href || null;
             //过滤非视频内容
             if (!userUrl.includes("//space.bilibili.com/")) {
                 el?.remove();
@@ -52,14 +56,18 @@ const getChangeTheVideoElList = async () => {
                 console.log(log, el);
                 continue;
             }
-            list.push({
+            const items = {
                 ...tempData, ...{
                     videoUrl,
                     el,
                     insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
                     explicitSubjectEl: el.querySelector(".bili-video-card__info")
                 }
-            });
+            };
+            if (videoUrl?.includes('www.bilibili.com/video')) {
+                items.bv = elUtil.getUrlBV(videoUrl)
+            }
+            list.push(items);
         } catch (e) {
             el.remove();
             Qmsg.error("获取视频信息失败");
@@ -112,14 +120,21 @@ const getHomeVideoELList = async () => {
                 console.log(log, el);
                 continue;
             }
-            list.push({
+
+            const videoUrl = el.querySelector(".bili-video-card__info--tit>a")?.href
+            const items = {
                 ...tempData, ...{
-                    videoUrl: el.querySelector(".bili-video-card__info--tit>a").href,
+                    videoUrl,
                     el,
                     insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
                     explicitSubjectEl: el.querySelector(".bili-video-card__info")
                 }
-            })
+            };
+            if (videoUrl?.includes('www.bilibili.com/video')) {
+                items.bv = elUtil.getUrlBV(videoUrl)
+            }
+
+            list.push(items)
         } catch (e) {
             el?.remove();
             Tip.infoBottomRight("遍历视频列表中检测到异常内容，已将该元素移除;")
@@ -148,12 +163,14 @@ const getGateDataList = async () => {
     const list = [];
     for (let el of elList) {
         const tempData = getVideoData(el)
-        const videoUrl = el.querySelector("a.css-feo88y").href;
+        const videoUrl = el.querySelector("a.css-feo88y")?.href;
+        const bv = elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector(".bili-video-card__info--owner");
         list.push({
             ...tempData, ...{
                 videoUrl,
                 el,
+                bv,
                 insertionPositionEl,
                 explicitSubjectEl: el
             }

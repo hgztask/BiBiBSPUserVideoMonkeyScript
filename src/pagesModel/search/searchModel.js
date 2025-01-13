@@ -80,6 +80,12 @@ const getVideoList = async (css) => {
             console.log("移除了非视频内容", userUrl, el);
             continue;
         }
+        const videoUrl = el.querySelector(".bili-video-card__info--right>a")?.href
+        if (videoUrl?.includes('live.bilibili.com/')) {
+            //如果卡片为直播卡片,则不做任何处理
+            continue
+        }
+        const bv = elUtil.getUrlBV(videoUrl)
         const uid = elUtil.getUrlUID(userUrl);
         const name = userEl.querySelector(".bili-video-card__info--author").textContent.trim();
         const bili_video_card__stats_item = el.querySelectorAll('.bili-video-card__stats--item');
@@ -94,11 +100,12 @@ const getVideoList = async (css) => {
             userUrl,
             name,
             uid,
+            bv,
             nPlayCount,
             nBulletChat,
             nDuration,
             el,
-            videoUrl: el.querySelector(".bili-video-card__info--right>a").href,
+            videoUrl,
             insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
             explicitSubjectEl: el.querySelector(".bili-video-card__info")
         })
@@ -236,6 +243,7 @@ const processingExactSearchVideoCardContent = async () => {
     for (let videoEl of videoElList) {
         const titleEl = videoEl.querySelector('.bili-video-card__info--right>a');
         const videoUrl = titleEl.href;
+        const bv = elUtil.getUrlBV(videoUrl)
         const title = titleEl.textContent.trim()
         let nDuration = videoEl.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
         nDuration = sFormatUtil.timeStringToSeconds(nDuration)
@@ -246,6 +254,7 @@ const processingExactSearchVideoCardContent = async () => {
             userUrl,
             name,
             uid,
+            bv,
             nPlayCount,
             nDuration,
             el: videoEl,

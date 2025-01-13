@@ -23,7 +23,9 @@ const getDataList = async () => {
         const data = {name, uid, el, judgmentVideo: judgmentEl !== null};
         if (judgmentEl !== null) {
             data.title = judgmentEl.textContent.trim();
-            data.videoUrl = el.querySelector(".bili-dyn-card-video").href;
+            const videoUrl = el.querySelector(".bili-dyn-card-video").href;
+            data.videoUrl = videoUrl;
+            data.bv = elUtil.getUrlBV(videoUrl);
             data.insertionPositionEl = el.querySelector(".bili-dyn-content__orig");
             data.explicitSubjectEl = data.insertionPositionEl;
         } else {

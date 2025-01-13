@@ -10,36 +10,11 @@ const iscCollectionVideoPlayPage = (url) => {
 // 获取右侧视频列表
 const getGetTheVideoListOnTheRight = async () => {
     const elList = await elUtil.findElementsUntilFound(".recommend-list-container>.video-card");
-    /**
-     *
-     * @type {[{}]}
-     */
-    const list = [];
-    for (let el of elList) {
-        const title = el.querySelector(".title").title;
-        const name = el.querySelector(".name").textContent.trim();
-        const userUrl = el.querySelector(".upname").href;
-        const uid = elUtil.getUrlUID(userUrl);
-        list.push({
-            ...generalFuc.getPlayCountAndBulletChatAndDuration(el), ...{
-                title,
-                name,
-                userUrl,
-                videoUrl: el.querySelector(".info>a").href,
-                uid,
-                el,
-                insertionPositionEl: el.querySelector(".playinfo"),
-                explicitSubjectEl: el.querySelector(".info")
-            }
-        })
-    }
-    return list;
+    return generalFuc.getRightVideoDataList(elList);
 }
-
 
 //开始执行屏蔽右侧视频列表
 const startShieldingVideoList = () => {
-
     getGetTheVideoListOnTheRight().then((videoList) => {
         const css = {right: "123px"};
         for (let videoData of videoList) {

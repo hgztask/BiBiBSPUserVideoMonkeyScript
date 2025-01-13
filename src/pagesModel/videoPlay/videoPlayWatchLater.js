@@ -1,7 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding.js";
 import defUtil from "../../utils/defUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
 import generalFuc from "./generalFuc.js";
 
 /**
@@ -18,28 +17,7 @@ const isVideoPlayWatchLaterPage = (url) => {
  */
 const getRightVideoDataList = async () => {
     const elList = await elUtil.findElementsUntilFound(".recommend-video-card.video-card")
-    const list = []
-    for (let el of elList) {
-        const title = el.querySelector(".title").textContent.trim();
-        const userInfoEl = el.querySelector(".upname");
-        const name = userInfoEl.querySelector(".name").textContent.trim();
-        const userUrl = userInfoEl.href;
-        const uid = elUtil.getUrlUID(userUrl);
-
-        list.push({
-            ...generalFuc.getPlayCountAndBulletChatAndDuration(el), ...{
-                title,
-                name,
-                userUrl,
-                videoUrl: el.querySelector(".info>a").href,
-                uid,
-                el,
-                insertionPositionEl: el.querySelector(".playinfo"),
-                explicitSubjectEl: el.querySelector(".info")
-            }
-        })
-    }
-    return list;
+    return generalFuc.getRightVideoDataList(elList);
 }
 
 

@@ -49,12 +49,14 @@ const getVideoList = async () => {
         }
         let nDuration = el.querySelector('[class*="group-hover:opacity-0"]')?.textContent.trim() || null;
         nDuration = sFormatUtil.timeStringToSeconds(nDuration)
-        const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href || null;
+        const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href;
+        const bv=elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector('[class="group/desc"]')
         list.push({
             title,
             name,
             uid,
+            bv,
             userUrl,
             videoUrl,
             playCount,
@@ -95,6 +97,7 @@ const getHistoryVideoDataList = async () => {
         const videoUrlEl = titleEl.parentElement;
         const userEl = videoUrlEl.nextElementSibling;
         const videoUrl = videoUrlEl.href;
+        const bv=elUtil.getUrlBV(videoUrl)
         const userUrl = userEl.href
         const uid = elUtil.getUrlUID(userUrl)
         const name = userEl.textContent.trim()
@@ -110,6 +113,7 @@ const getHistoryVideoDataList = async () => {
             uid,
             videoUrl,
             nDuration,
+            bv,
             el,
             insertionPositionEl: videoUrlEl.parentElement,
             explicitSubjectEl: el

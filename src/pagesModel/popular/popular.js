@@ -75,11 +75,15 @@ const getVideoDataList = async () => {
         nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         let nBulletChat = detailStateEls[1].textContent.trim()
         nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+        const videoUrl = el.querySelector('.img>a')?.href || null;
+        const bv = elUtil.getUrlBV(videoUrl);
         list.push({
             title,
             userUrl,
             uid,
             name,
+            videoUrl,
+            bv,
             nPlayCount,
             nBulletChat,
             nDuration: -1,
