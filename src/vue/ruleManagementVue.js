@@ -88,9 +88,9 @@ const returnVue = () => {
             <div style="width: 15%;" gz_bezel>
               <h2>规则信息</h2>
               <button gz_type @click="refreshInfoBut">刷新信息</button>
-              <div v-for="item in ruleInfoArr">{{ item.name }}
-                <button gz_type>{{ item.len }}</button>
-                个
+              <div v-for="item in ruleInfoArr"
+              style="padding: 5px">
+                {{ item.name }}{{ item.len }}个
               </div>
             </div>
           </div>`,

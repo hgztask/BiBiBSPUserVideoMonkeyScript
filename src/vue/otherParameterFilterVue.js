@@ -38,9 +38,8 @@ const returnVue = () => {
             </div>
             <div>
               <button @click="updateInfoBut">刷新</button>
-              <div v-for="item in selectList">
-                {{ item.name }}
-                <button gz_type>{{ item.defVal }}</button>
+              <div v-for="item in selectList" style="padding: 5px">
+                {{ item.name }}{{ item.defVal }}
                 {{ item.name.includes('时长') ? '秒' : '' }}
               </div>
             </div>
