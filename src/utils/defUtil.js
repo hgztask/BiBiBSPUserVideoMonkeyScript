@@ -27,6 +27,42 @@ const fileDownload = (content, fileName) => {
 }
 
 /**
+ *封装file标签handle的回调，用于读取文件内容
+ * @param event
+ * @returns {Promise<{any,content:string|string}>}
+ */
+const handleFileReader = (event) => {
+    return new Promise((resolve, reject) => {
+        const file = event.target.files[0];
+        if (!file) {
+            reject('未读取到文件');
+            return;
+        }
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            const fileContent = e.target.result;
+            resolve({file, content: fileContent});
+            reader = null;
+        };
+        reader.readAsText(file);
+    });
+}
+
+/**
+ * 判断对象是否可迭代
+ * 1.array可迭代
+ * 2.string可迭代
+ * 3.map可迭代
+ * 4.set可迭代
+ * 5.类数组对象可迭代
+ * @param obj {any}
+ * @returns {boolean}
+ */
+const isIterable=(obj)=> {
+    return obj != null && typeof obj[Symbol.iterator] === 'function';
+}
+
+/**
  * 返回当前时间
  * @returns {String}
  */
@@ -72,7 +108,7 @@ function smoothScroll(toTop = false, duration = 1000) {
  * @param wait {number} 等待时间，单位毫秒，默认为 1000毫秒
  * @returns {(function(...[*]): void)|*}
  */
-function debounce(func, wait=1000) {
+function debounce(func, wait = 1000) {
     let timeout;
     return function (...args) {
         const context = this;
@@ -87,11 +123,11 @@ function debounce(func, wait=1000) {
  * @param wait {number} 等待时间，单位毫秒，默认为 1000毫秒
  * @returns {function(...[*]): Promise<any>}
  */
-function debounceAsync(asyncFunc, wait=1000) {
+function debounceAsync(asyncFunc, wait = 1000) {
     let timeout;
     let pendingPromise;
 
-    return async function(...args) {
+    return async function (...args) {
         const context = this;
 
         // 如果有正在进行的异步操作，则取消定时器并等待其完成
@@ -231,5 +267,7 @@ export default {
     debounceAsync,
     throttle,
     throttleAsync,
-    parseUrl
+    parseUrl,
+    handleFileReader,
+    isIterable
 }

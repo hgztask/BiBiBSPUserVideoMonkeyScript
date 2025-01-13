@@ -72,9 +72,8 @@ const returnVue = () => {
                     </li>
                   </ol>
                 </div>
-                <div>
-                  <input type="file" accept="application/json" @change="handleFileUpload">
-                </div>
+                <input ref="file" type="file" accept="application/json" @change="handleFileUpload" style="display: none">
+                <button gz_type @click="inputFIleRuleBut">读取外部规则文件</button>
                 <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
                 <button gz_type @click="appendImportRulesBut">追加导入规则</button>
                 <button gz_type @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</button>
@@ -89,7 +88,7 @@ const returnVue = () => {
               <h2>规则信息</h2>
               <button gz_type @click="refreshInfoBut">刷新信息</button>
               <div v-for="item in ruleInfoArr"
-              style="padding: 5px">
+                   style="padding: 5px">
                 {{ item.name }}{{ item.len }}个
               </div>
             </div>
@@ -190,27 +189,42 @@ const returnVue = () => {
             },
             //覆盖导入规则
             overwriteImportRulesBut() {
-                const trim = this.ruleContentImport.trim();
-                if (ruleUtil.overwriteImportRules(this.ruleKeyArr, trim)) {
-                    xtip.msg('已导入成功！', {icon: 's'})
-                    this.refreshInfoBut();
-                }
+                xtip.confirm('是否要覆盖导入规则？', {
+                    icon: 'a',
+                    btn1: () => {
+                        const trim = this.ruleContentImport.trim();
+                        if (ruleUtil.overwriteImportRules(this.ruleKeyArr, trim)) {
+                            xtip.msg('已覆盖导入成功！', {icon: 's'})
+                            this.refreshInfoBut();
+                        }
+                    }
+                })
             },
             //追加导入规则
             appendImportRulesBut() {
-                const trim = this.ruleContentImport.trim();
-                if (ruleUtil.appendImportRules(this.ruleKeyArr, trim)) {
-                    xtip.msg('已导入成功！', {icon: 's'})
-                    this.refreshInfoBut();
-                }
+                xtip.confirm('是否要追加导入规则？', {
+                    icon: 'a',
+                    btn1: () => {
+                        const trim = this.ruleContentImport.trim();
+                        if (ruleUtil.appendImportRules(this.ruleKeyArr, trim)) {
+                            xtip.msg('已追加导入成功！', {icon: 's'})
+                            this.refreshInfoBut();
+                        }
+                    }
+                })
             },
-            //旧版本导入规则
+            //旧版本导入规则-覆盖
             overwriteImportRulesV1But() {
-                const trim = this.ruleContentImport.trim();
-                if (ruleUtil.overwriteImportRulesV1(trim)) {
-                    xtip.msg('已导入成功！', {icon: 's'})
-                    this.refreshInfoBut();
-                }
+                xtip.confirm('旧版本-是否导入规则？', {
+                    icon: 'a',
+                    btn1: () => {
+                        const trim = this.ruleContentImport.trim();
+                        if (ruleUtil.overwriteImportRulesV1(trim)) {
+                            xtip.msg('已导入成功！', {icon: 's'})
+                            this.refreshInfoBut();
+                        }
+                    }
+                })
             },
             xtipAlertBut(content, title) {
                 xtip.alert(content,
@@ -225,23 +239,21 @@ const returnVue = () => {
                 this.ruleContentImport = ruleUtil.getRuleContent(2);
                 xtip.msg('已导出到输入框！', {icon: 's'})
             },
-            handleFileUpload(event){
-                const file = event.target.files[0];
-                if (!file) return;
-                console.log(file.name);
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const fileContent = e.target.result;
+            handleFileUpload(event) {
+                defUtil.handleFileReader(event).then(data => {
+                    const {content} = data;
                     try {
-                        JSON.parse(fileContent);
+                        JSON.parse(content);
                     } catch (e) {
                         xtip.msg('文件内容有误', {icon: 'e'})
                         return;
                     }
-                    this.ruleContentImport= fileContent;
+                    this.ruleContentImport = content;
                     xtip.msg('读取到内容，请按需覆盖或追加', {icon: 's'})
-                };
-                reader.readAsText(file);
+                })
+            },
+            inputFIleRuleBut() {
+                this.$refs.file.click()
             }
         },
         watch: {

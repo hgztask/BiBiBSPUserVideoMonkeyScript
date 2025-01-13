@@ -44,7 +44,6 @@ const returnVue = () => {
         },
         methods: {
             setBorderColorBut() {
-                console.log(this.input_color);
                 xtip.confirm("是要否设置面板边框颜色吗？", {
                     icon: "a",
                     btn1: () => {
