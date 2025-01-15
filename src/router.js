@@ -17,6 +17,7 @@ import oldHistory from "./pagesModel/history/oldHistory.js";
 import space from "./pagesModel/space/space.js";
 import searchLive from "./pagesModel/search/searchLive.js";
 import hotSearch from "./pagesModel/search/hotSearch.js";
+import partition from "./pagesModel/partition.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -104,6 +105,9 @@ const staticRoute = (title, url) => {
     }
     if (space.isSpacePage(url)) {
         space.initializePageBlockingButton()
+    }
+    if (partition.isPartition(url)) {
+        partition.startIntervalShieldingVideoList()
     }
 }
 

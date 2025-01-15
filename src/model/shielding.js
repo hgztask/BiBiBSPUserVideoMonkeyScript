@@ -163,16 +163,18 @@ const shieldingVideo = (videoData) => {
     if (matching !== null) {
         return {state: true, type: "正则标题", matching};
     }
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
-        return {state: true, type: "精确用户名"};
-    }
-    matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
-    if (matching !== null) {
-        return {state: true, type: "模糊用户名", matching};
-    }
-    matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name);
-    if (matching !== null) {
-        return {state: true, type: "正则用户名", matching};
+    if (name) {
+        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
+            return {state: true, type: "精确用户名"};
+        }
+        matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
+        if (matching !== null) {
+            return {state: true, type: "模糊用户名", matching};
+        }
+        matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name);
+        if (matching !== null) {
+            return {state: true, type: "正则用户名", matching};
+        }
     }
     //限制时长
     if (nDuration !== -1) {

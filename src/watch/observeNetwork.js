@@ -5,6 +5,7 @@ import dynamic from "../pagesModel/space/dynamic.js";
 import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import liveHome from "../pagesModel/live/liveHome.js";
 import localMKData from "../data/localMKData.js";
+import partition from "../pagesModel/partition.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -18,7 +19,11 @@ const compatible_BEWLY_BEWLY = localMKData.isCompatible_BEWLY_BEWLY()
  * @param winTitle {string} 窗口的标题
  * @param initiatorType {string} 请求发起者类型
  */
-const observeNetwork = (url, windowUrl,winTitle, initiatorType) => {
+const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
+    if (!url.includes('api')) {
+        //如果不是api请求，就直接返回
+        return;
+    }
     if (bOnlyTheHomepageIsBlocked) {
         if (!bilibiliHome.isHome(windowUrl, winTitle)) {
             //如果开启了只屏蔽首页，且当前窗口不是首页，就直接返回
@@ -61,6 +66,20 @@ const observeNetwork = (url, windowUrl,winTitle, initiatorType) => {
         console.log("检测到直播间加载了推荐房间列表");
         liveHome.startShieldingLiveRoom();
     }
+    if (url.startsWith('https://api.bilibili.com/x/web-interface/ranking/region?day=')) {
+        console.log("检测到专区热门排行榜加载了");
+        partition.startShieldingHotVideoDayList()
+    }
+    /**
+     *
+     * 该接口暂不需要，检测列表方式改成了定时遍历专区里的视频列表
+     *
+     * 用于获取特定标签（tag_id=）和分区（rid=）的动态内容
+     * https://api.bilibili.com/x/web-interface/dynamic/tag?ps=
+     *
+     * 用于获取特定分区（rid=）的动态内容
+     * https://api.bilibili.com/x/web-interface/dynamic/region?ps=
+     */
 }
 
 export default {
