@@ -153,22 +153,22 @@ const shieldingVideo = (videoData) => {
         return {state: false};
     }
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
-        return {state: true, type: "精确匹配uid"};
+        return {state: true, type: "精确uid"};
     }
     let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
     if (matching !== null) {
-        return {state: true, type: "模糊匹配标题", matching};
+        return {state: true, type: "模糊标题", matching};
     }
     matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
     if (matching !== null) {
-        return {state: true, type: "正则匹配标题", matching};
+        return {state: true, type: "正则标题", matching};
     }
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
-        return {state: true, type: "精确匹配用户名"};
+        return {state: true, type: "精确用户名"};
     }
     matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
     if (matching !== null) {
-        return {state: true, type: "模糊匹配用户名", matching};
+        return {state: true, type: "模糊用户名", matching};
     }
     matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name);
     if (matching !== null) {
@@ -237,21 +237,21 @@ const blockBasedVideoTag = async (videoData) => {
         if (ruleMatchingUtil.exactMatch(preciseVideoTagArr, tag)) {
             el?.remove();
             Tip.successBottomRight("屏蔽了视频");
-            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("精确tag", tag, videoData));
+            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("精确视频tag", tag, videoData));
             return
         }
         let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(videoTagArr, tag);
         if (fuzzyMatch) {
             el?.remove();
             Tip.successBottomRight("屏蔽了视频");
-            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("模糊tag", fuzzyMatch, videoData));
+            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("模糊视频tag", fuzzyMatch, videoData));
             return
         }
         fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getVideoTagCanonicalArr(), tag)
         if (fuzzyMatch) {
             el?.remove();
             Tip.successBottomRight("屏蔽了视频");
-            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("正则tag", fuzzyMatch, videoData));
+            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("正则视频tag", fuzzyMatch, videoData));
             return
         }
     }
@@ -304,12 +304,12 @@ const shieldingDynamic = (dynamicData) => {
         matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getCommentOnArr(), content);
         if (matching !== null) {
             el?.remove();
-            return {state: true, type: "评论模糊内容", matching};
+            return {state: true, type: "模糊评论内容", matching};
         }
         matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getCommentOnCanonicalArr(), content);
         if (matching !== null) {
             el?.remove();
-            return {state: true, type: "评论正则内容", matching};
+            return {state: true, type: "正则评论内容", matching};
         }
     }
     if (title !== null) {
@@ -329,17 +329,17 @@ const shieldingDynamic = (dynamicData) => {
     if (tag !== null) {
         if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseTagArr(), tag)) {
             el?.remove();
-            return {state: true, type: "精确tag"};
+            return {state: true, type: "精确话题tag"};
         }
         matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTagArr(), tag);
         if (matching !== null) {
             el?.remove();
-            return {state: true, type: "模糊tag", matching};
+            return {state: true, type: "模糊话题tag", matching};
         }
         matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTagCanonicalArr(), tag);
         if (matching !== null) {
             el?.remove();
-            return {state: true, type: "正则tag", matching};
+            return {state: true, type: "正则话题tag", matching};
         }
     }
     return {state: false}
@@ -376,14 +376,14 @@ const shieldingComment = (commentsData) => {
         return {state: false};
     }
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
-        return {state: true, type: "精确匹配uid"};
+        return {state: true, type: "精确uid"};
     }
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
         return {state: true, type: "精确用户名"};
     }
     let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
     if (matching !== null) {
-        return {state: true, type: "模糊匹配用户名", matching};
+        return {state: true, type: "模糊用户名", matching};
     }
     matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name);
     if (matching !== null) {
