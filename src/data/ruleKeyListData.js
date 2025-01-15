@@ -87,6 +87,14 @@ const ruleKeyListData = [
     }, {
         key: 'videoTagCanonical',
         name: '视频tag黑名单(正则匹配)',
+    },
+    {
+        key: 'hotSearchKey',
+        name: '热搜关键词(模糊匹配)',
+    },
+    {
+        key: 'hotSearchKeyCanonical',
+        name: '热搜关键词(正则匹配)'
     }
 ]
 
@@ -233,6 +241,21 @@ const getVideoTagCanonicalArr = () => {
     return gmUtil.getData("videoTagCanonical", []);
 }
 
+/**
+ * 热搜关键词(模糊匹配)
+ * @returns {string[]}
+ */
+const getHotSearchKeyArr = () => {
+    return gmUtil.getData("hotSearchKey", []);
+}
+
+/**
+ * 热搜关键词(正则匹配)
+ * @returns {string[]}
+ */
+const getHotSearchKeyCanonicalArr = () => {
+    return gmUtil.getData("hotSearchKeyCanonical", []);
+}
 
 export default {
     getNameArr,
@@ -252,5 +275,7 @@ export default {
     getPrecisePartitionArr,
     getVideoTagArr,
     getPreciseVideoTagArr,
-    getVideoTagCanonicalArr
+    getVideoTagCanonicalArr,
+    getHotSearchKeyArr,
+    getHotSearchKeyCanonicalArr
 }

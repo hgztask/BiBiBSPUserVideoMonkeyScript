@@ -16,6 +16,7 @@ import newHistory from "./pagesModel/history/newHistory.js";
 import oldHistory from "./pagesModel/history/oldHistory.js";
 import space from "./pagesModel/space/space.js";
 import searchLive from "./pagesModel/search/searchLive.js";
+import hotSearch from "./pagesModel/search/hotSearch.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -23,6 +24,7 @@ const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 const adaptationBAppCommerce = localMKData.getAdaptationBAppCommerce();
 // 是否兼容BewlyBewly插件
 const compatible_BEWLY_BEWLY = localMKData.isCompatible_BEWLY_BEWLY()
+
 
 /**
  * 静态路由
@@ -35,6 +37,7 @@ const staticRoute = (title, url) => {
         compatibleBewlyBewly.startRun(url)
         return;
     }
+    hotSearch.startShieldingHotList()
     if (bilibiliHome.isHome(url, title)) {
         if (compatible_BEWLY_BEWLY) {
             return;
