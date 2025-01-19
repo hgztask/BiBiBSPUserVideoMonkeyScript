@@ -62,11 +62,12 @@ const staticRoute = (title, url) => {
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.startShieldingVideoList();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
-        videoPlayModel.execAuthorAddBlockButton()
+        videoPlayModel.startIntervalCheckInstallShieldingButton()
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.startShieldingVideoList();
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
+        videoPlayModel.startIntervalCheckInstallShieldingButton()
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.addWatchLiveRoomChatItemsListener();
@@ -89,6 +90,7 @@ const staticRoute = (title, url) => {
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.startDebounceShieldingVideoList();
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
+        videoPlayModel.startIntervalCheckInstallShieldingButton()
     }
     if (liveSectionModel.isLiveSection(url)) {
         liveSectionModel.startShieldingLiveRoom();
@@ -125,7 +127,6 @@ const dynamicRouting = (title, url) => {
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.startShieldingVideoList();
-        videoPlayModel.execAuthorAddBlockButton()
     }
     if (popular.isPopularAllPage(url) || popular.isPopularHistory(url)) {
         popularAll.startShieldingVideoList();

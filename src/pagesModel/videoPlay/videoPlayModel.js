@@ -3,106 +3,111 @@ import shielding from "../../model/shielding.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleUtil from "../../utils/ruleUtil.js";
 import {Tip} from "../../utils/Tip.js";
-import elData from "../../data/elData.js";
 
+//判断是否是视频播放页
 const isVideoPlayPage = (url) => {
     return url.includes("www.bilibili.com/video");
 }
 
-
 /**
- * 对单个用户创作者卡片插入屏蔽按钮
- * 如果在视频页右侧的推荐列表中点击了某个视频，页面加载对应的视频信息，这时下面的nameEl元素依旧拿到的是对应的作者名称
- * 也就是对于单作者加载其他视频也是单作者时，不用重复添加按钮
- * @returns null
+ * 开始定时检查创作者快捷屏蔽按钮
+ * 存在时不作任何处理
+ * 不存在时添加按钮
  */
-const installSingleUserCreatorButton = async () => {
-    const el = await elUtil.findElementUntilFound('.up-info-container')
-    //要插入的元素位置
-    const installPositionEl = el.querySelector('.up-info--right')
-    const butEl = document.createElement("button")
-    butEl.setAttribute("gz_type", "")
-    butEl.textContent = "屏蔽";
-    butEl.style.width = "100%";
-    butEl.style.display = 'none'
-    const nameEl = installPositionEl.querySelector('a.up-name')
-    butEl.addEventListener('click', () => {
-        const name = nameEl.textContent.trim()
-        const userUrl = nameEl.href
-        const uid = elUtil.getUrlUID(userUrl)
-        console.log('点击了屏蔽按钮', name, userUrl, uid)
-        xtip.confirm(`用户uid=${uid}-name=${name}`, {
-            title: "uid精确屏蔽方式", icon: "a",
-            btn1: () => {
-                if (uid === -1) {
-                    Tip.error("该页面数据不存在uid字段");
-                    return;
+const startIntervalCheckInstallShieldingButton = () => {
+    setInterval(async () => {
+        let tempBut = document.querySelector('button[but-data="video"]');
+        if (tempBut !== null) return
+        const el = await elUtil.findElementUntilFound('.video-info-detail-list.video-info-detail-content')
+        tempBut = document.querySelector('button[but-data="video"]');
+        if (tempBut !== null) return
+        const butEl = document.createElement("button")
+        butEl.setAttribute("gz_type", "")
+        butEl.setAttribute('but-data', 'video')
+        butEl.textContent = '选择用户屏蔽'
+        el.appendChild(butEl)
+        butEl.addEventListener('click', async () => {
+            //查找是否是多个作者
+            const {state} = await elUtil.findElement('.header.can-pointer', {timeout: 1800})
+            if (state) {
+                //多作者
+                const elList = document.querySelectorAll('.container>.membersinfo-upcard-wrap>.membersinfo-upcard')
+                const list = []
+                for (const el of elList) {
+                    const userUrl = el.querySelector('.avatar').href
+                    const uid = elUtil.getUrlUID(userUrl)
+                    const name = el.querySelector('.staff-name').textContent.trim()
+                    list.push({
+                        label: `用户-name=${name}-uid=${uid}`,
+                        uid,
+                        el,
+                        name,
+                    })
                 }
-                ruleUtil.addRulePreciseUid(uid)
+                new gz.SheetDialog({
+                    title: "选择屏蔽用户(uid精确)",
+                    options: list,
+                    closeOnOverlayClick: true,
+                    /**
+                     * 该实例的全局选项点击事件
+                     * @param event 事件对象
+                     * @param attrs {[{name:string,value:string}]} 当前选项的属性
+                     * @returns {boolean} 如果返回true则阻止全局选项的点击事件，否则继续执行全局选项的点击事件
+                     *
+                     */
+                    optionEvent: (event, attrs) => {
+                        const {value} = attrs.find(item => item.name = 'uid')
+                        const attrsUd = parseInt(value)
+                        const item = list.find(item => item.uid === attrsUd);
+                        ruleUtil.addRulePreciseUid(item.uid)
+                        return true;
+                    }
+                });
+
+            } else {
+                //单作者
+                const el = document.querySelector('.up-info-container')
+                const nameEl = el.querySelector('.up-info--right a.up-name')
+                const name = nameEl.textContent.trim()
+                const userUrl = nameEl.href
+                const uid = elUtil.getUrlUID(userUrl)
+                console.log('点击了屏蔽按钮', name, userUrl, uid)
+                xtip.confirm(`用户uid=${uid}-name=${name}`, {
+                    title: "uid精确屏蔽方式", icon: "a",
+                    btn1: () => {
+                        if (uid === -1) {
+                            Tip.error("该页面数据不存在uid字段");
+                            return;
+                        }
+                        ruleUtil.addRulePreciseUid(uid)
+                    }
+                })
+
             }
         })
-    })
-    elUtil.addEventListenerWithTracking(installPositionEl, 'mouseover', () => butEl.style.display = '')
-    elUtil.addEventListenerWithTracking(installPositionEl, 'mouseout', () => butEl.style.display = 'none')
-    installPositionEl.appendChild(butEl)
-    Tip.infoBottomRight(`单作者添加屏蔽按钮成功`)
+    }, 2000);
 }
 
 /**
  * 执行创作团队卡片添加屏蔽按钮
  * @returns null
  */
-const creationTeamInsertsShieldButton = async () => {
-    //获取用户团队列表
-    const elList = await elUtil.findElementsUntilFound('.container>.membersinfo-upcard-wrap>.membersinfo-upcard')
-    for (let item of elList) {
-        const butEL = document.createElement('button')
-        butEL.className = "gz_button gz_demo"
-        butEL.textContent = "屏蔽"
-        butEL.style.display = 'none'
-        const userUrl = item.querySelector('.avatar').href
-        const uid = elUtil.getUrlUID(userUrl)
-        const name = item.querySelector('.staff-name').textContent.trim()
-        butEL.addEventListener('click', () => {
-            xtip.confirm(`uid=${uid}-name=${name}`, {
-                title: "uid精确屏蔽方式", icon: "a",
-                btn1: () => {
-                    if (uid === -1) {
-                        Tip.error("该页面数据不存在uid字段");
-                        return;
-                    }
-                    ruleUtil.addRulePreciseUid(uid)
-                }
-            })
-        })
-        item.appendChild(butEL)
-        elUtil.addEventListenerWithTracking(item, 'mouseover', () => butEL.style.display = '')
-        elUtil.addEventListenerWithTracking(item, 'mouseout', () => butEL.style.display = 'none')
-    }
-    Tip.infoBottomRight(`创作团队添加屏蔽按钮成功`)
-}
-
-
-// 执行作者卡片添加屏蔽按钮
-const execAuthorAddBlockButton = () => {
-    //查找是否是多个作者，是否是创作
-    elUtil.findElementWithTimeout('.header.can-pointer', {timeout: 4000}).then(res => {
-        if (res.state) {
-            creationTeamInsertsShieldButton()
-            //更新标记，更新为当前不是单作者视频
-            elData.setData('isSingleAuthor', false)
-            return
-        }
-        //单作者时添加对应的屏蔽按钮
-        // 上一个是单作者，不用重复添加按钮
-        if (elData.getData('isSingleAuthor', false)) {
-            return;
-        }
-        elData.setData('isSingleAuthor', true)
-        installSingleUserCreatorButton()
-    })
-}
-
+// const creationTeamInsertsShieldButton = async () => {
+//     //获取用户团队列表
+//     const butEL = document.createElement('button')
+//     butEL.addEventListener('click', () => {
+//         xtip.confirm(`uid=${uid}-name=${name}`, {
+//             title: "uid精确屏蔽方式", icon: "a",
+//             btn1: () => {
+//                 if (uid === -1) {
+//                     Tip.error("该页面数据不存在uid字段");
+//                     return;
+//                 }
+//                 ruleUtil.addRulePreciseUid(uid)
+//             }
+//         })
+//     })
+// }
 
 // 获取右侧视频列表
 const getGetTheVideoListOnTheRight = async () => {
@@ -183,5 +188,5 @@ export default {
     isVideoPlayPage,
     startShieldingVideoList,
     findTheExpandButtonForTheListOnTheRightAndBindTheEvent,
-    execAuthorAddBlockButton
+    startIntervalCheckInstallShieldingButton
 }
