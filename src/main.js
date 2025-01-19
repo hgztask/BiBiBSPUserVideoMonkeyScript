@@ -6,10 +6,14 @@ import observeNetwork from "./watch/observeNetwork.js";
 import mainDrawer from "./layout/drawer/mainDrawer.js";
 import './menu.js'
 
-router.staticRoute(document.title, window.location.href);
 
-watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
-    router.dynamicRouting(title, newUrl);
+window.addEventListener('load', () => {
+    console.log('页面加载完成')
+    router.staticRoute(document.title, window.location.href);
+
+    watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
+        router.dynamicRouting(title, newUrl);
+    })
 })
 
 watch.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
