@@ -544,7 +544,7 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
         i1 = setInterval(() => {
             func()
             console.log(`执行屏蔽${name}列表-定时器正在执行`)
-        }, 1500);
+        }, 800);
     }
     const stop = () => {
         if (i1 === -1) {
