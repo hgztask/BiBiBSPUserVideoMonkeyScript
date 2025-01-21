@@ -3,4 +3,5 @@
 /node_modules/
 /dist/
 /lib/
+/patch/
 yarn.lock
