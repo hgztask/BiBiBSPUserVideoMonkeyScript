@@ -58,8 +58,8 @@ const tabsConfig = [
     },
     {
         id: 'tab05',
-        title: '缓存tags管理',
-        content: '<div id="cache_tags_management_vue"></div>',
+        title: '缓存管理',
+        content: '<div id="cache_management_vue"></div>',
     },
     {
         id: 'tab06',

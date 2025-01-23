@@ -1,75 +1,167 @@
 import bvDexie from "./bvDexie.js";
 
 /**
- * 获取视频tag
- * @param bv
- * @returns {Promise<{bv:string, state: boolean,msgData, tags:[string]}>}
+ * 发起网络请求获取视频信息
+ * 已测试data.View.is_view_self属性【是否为自己上传的视频】值对不上实际情况
+ * @param bvId {string} bv号
+ * @returns {Promise<{state: boolean,msg:string,data:{bv:string,name:string,title:string,tags:[string]}|any}>}
  */
-const getVideoTags = async (bv) => {
-    const response = await fetch(`https://api.bilibili.com/x/web-interface/view/detail/tag?bvid=${bv}`)
-    const videoTagData = {bv, state: false, tags: []}
-    if (!response.ok) {
-        videoTagData.msgData = {msg: 'fetch网络请求失败:获取视频tag失败', response}
-        return videoTagData
-    }
-    let responseJson;
-    try {
-        responseJson = await response.json()
-    } catch (e) {
-        videoTagData.msgData = {msg: '获取视频tag异常:转换json内容失败', e}
-        return videoTagData
-    }
-    const {code, data} = responseJson
+const fetchGetVideoInfo = async (bvId) => {
+    const response = await fetch(`https://api.bilibili.com/x/web-interface/view/detail?bvid=${bvId}`)
+    const {code, data, message} = await response.json();
+    const defData = {state: false, msg: '默认失败信息'}
     if (code !== 0) {
-        videoTagData.msgData = {msg: '获取视频tag失败', responseJson}
-        return videoTagData
+        defData.msg = message
+        return defData
     }
-    try {
-        for (let datum of data) {
-            videoTagData.tags.push(datum['tag_name'])
-        }
-    } catch (e) {
-        videoTagData.msgData = {msg: '获取视频tag异常:遍历读取data数据时失败', e}
-        return videoTagData
+    defData.state = true
+    defData.msg = '获取成功'
+    const {
+        View: {
+            //合作成员列表，非合作视频没有此项
+            staff,
+            //
+            //子分区名称
+            tname,
+            //子分区名称-v2
+            tname_v2,
+            //视频简介
+            desc,
+            //发布时间
+            pubdate,
+            //用户投稿时间
+            ctime,
+            //版权类型转载还是原创
+            copyright,
+            //是否为充电专属
+            is_upower_exclusive,
+            //视频时长
+            duration,
+            //视频状态数
+            stat: {
+                //播放量
+                view,
+                //弹幕数
+                danmaku,
+                //评论数
+                reply,
+                // 收藏数
+                favorite,
+                // 投币数
+                coin,
+                //分享数
+                share
+            },
+        }, Card: {
+            // 粉丝数
+            follower,
+            // 获赞数
+            like_num,
+            // 视频数量
+            archive_count,
+            // 专栏数量
+            article_count, card: {
+                mid: uid,
+                name,
+                // 性别
+                sex, level_info: {
+                    //当前等级
+                    current_level
+                },
+                //挂件信息对象
+                pendant,
+                //勋章信息对象
+                nameplate,
+                //认证信息对象
+                Official,
+                // 验证是否是有认证对象
+                official_verify,
+                //会员信息对象
+                vip,
+            }
+        }, Tags,
+        //分词
+        participle
+    } = data
+
+    //封装视频信息
+    const videoInfo = {
+        //合作成员列表，非合作视频没有此项
+        staff,
+        //子分区名称
+        tname,
+        //子分区名称-v2
+        tname_v2,
+        //视频简介
+        desc,
+        //发布时间
+        pubdate,
+        //用户投稿时间
+        ctime,
+        //版权类型转载还是原创
+        copyright,
+        //是否为充电专属
+        is_upower_exclusive,
+        //视频时长
+        duration,
+        //视频播放量
+        view,
+        //弹幕数
+        danmaku,
+        //评论数
+        reply,
+        //收藏数
+        favorite,
+        // 投币数
+        coin,
+        // 分享数
+        share,
+        //分词
+        participle,
     }
-    videoTagData.state = true
-    videoTagData.msgData = {msg: '获取视频tag成功'}
-    return videoTagData
+
+    //封装用户信息
+    const userInfo = {
+        // 粉丝数
+        follower,
+        // 获赞数
+        like_num,
+        // 视频数量
+        archive_count,
+        // 专栏数量
+        article_count,
+        // 认证信息对象
+        Official,
+        // 验证是否是有认证对象
+        official_verify,
+        //会员信息对象
+        vip,
+        // 获取用户信息
+        uid,
+        name,
+        // 性别
+        sex,
+        // 当前用户b站等级
+        current_level,
+        //挂件信息对象
+        pendant,
+        nameplate
+    }
+
+    const tags = []
+    for (let tag of Tags) {
+        tags.push(tag['tag_name'])
+    }
+    //添加子分区名称，添加子分区名称-v2
+    tags.unshift(tname, tname_v2)
+    const findKey = video_zoneData.findKey(tname);
+    if (findKey) {
+        tags.unshift(findKey)
+    }
+    defData.data = {videoInfo, userInfo, tags}
+    return defData
 }
-
-//缓存数据
-const data = []
-
-
-/**
- * 获取视频tag-包装
- * 已做缓存处理
- * @param videoData {{}}
- * @returns {Promise<{state: boolean,data:{bv:string,name:string,title:string,tags:[string]}|any}>}
- */
-const getVideoTagsPackaging = async (videoData) => {
-    const {bv, title, name} = videoData
-    const find = await bvDexie.findBv(bv)
-    if (find) {
-        return {state: true, data: {bv, name, title, tags: find.tags}}
-    }
-    const videoTagData = await getVideoTags(bv)
-    if (!videoTagData.state) {
-        console.error(videoTagData.msgData.msg, videoTagData.msgData)
-        return {state: false, data: videoTagData}
-    }
-    const {tags} = videoTagData
-    const bool = await bvDexie.addTagsData({bv, title, name, tags})
-    if (bool) {
-        await bvDexie.updateLocalData()
-        console.log('mk-db-tags-添加数据成功', videoTagData, videoData)
-    } else {
-        console.error('mk-db-tags-添加数据失败', videoTagData, videoData)
-    }
-    return {state: true, data: {bv, name, title, tags}}
-}
-
 
 export default {
-    getVideoTagsPackaging
+    fetchGetVideoInfo
 }

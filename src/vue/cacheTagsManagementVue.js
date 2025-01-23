@@ -4,20 +4,20 @@ import defUtil from "../utils/defUtil.js";
 
 const returnVue = () => {
     return new Vue({
-        el: "#cache_tags_management_vue",
+        el: "#cache_management_vue",
         template: `
           <div>
-            <ol>
-              <li>每个域名中的tags数据不同</li>
-              <li>仅仅支持导入json格式</li>
-              <li>下面导入默认追加模式</li>
-            </ol>
-            <div>当前域名：{{ hostname }}</div>
-            <button gz_type @click="outTagsDataBut">导出当前域名的tags数据</button>
-            <input ref="inputDemo" type="file" @change="handleFileUpload" accept="application/json"
-                   style="display: none">
-            <button @click="inputFIleBut" gz_type>追加导入tags数据</button>
-            <button gz_type @click="clearPageTagsDataBut">清空当前域名的tags数据</button>
+          <ol>
+            <li>每个域名中的缓存数据不同</li>
+            <li>仅仅支持导入json格式</li>
+            <li>下面导入默认追加模式</li>
+          </ol>
+          <div>当前域名：{{ hostname }}</div>
+          <button gz_type @click="outDbDataBut">导出当前域名的缓存数据</button>
+          <input ref="inputDemo" type="file" @change="handleFileUpload" accept="application/json"
+                 style="display: none">
+          <button @click="inputFIleBut" gz_type>追加导入视频缓存数据</button>
+          <button gz_type @click="clearPageVideoCacheDataBut">清空当前域名的视频缓存数据</button>
           </div>`,
         data() {
             return {
@@ -25,15 +25,19 @@ const returnVue = () => {
             }
         },
         methods: {
-            outTagsDataBut() {
-                bvDexie.getVideoAllTags().then((data) => {
+            outDbDataBut() {
+                bvDexie.getVideoInfo().then((data) => {
+                    if (data.length === 0) {
+                        xtip.msg('当前域名下没有缓存视频数据')
+                        return
+                    }
                     data = {
                         hostName: this.hostname,
                         size: data.length,
-                        tags: data
+                        data: data
                     }
-                    defUtil.fileDownload(JSON.stringify(data,null,4), 'mk-db-tags.json')
-                    xtip.msg('已导出当前域名的tags缓存数据', 'success')
+                    defUtil.fileDownload(JSON.stringify(data, null, 4), 'mk-db-videoInfos-cache.json')
+                    xtip.msg('已导出当前域名的缓存数据', 'success')
                     console.log(data)
                 })
             },
@@ -41,7 +45,7 @@ const returnVue = () => {
                 defUtil.handleFileReader(event).then(data => {
                     const {content} = data;
                     /**
-                     * @type {{hostName:string,tags:[{bv:string,name:string,title:string,tags:[string]}]}}
+                     // * @type {{hostName:string,tags:[{bv:string,name:string,title:string,tags:[string]}]}}
                      */
                     let parse
                     try {
@@ -50,28 +54,20 @@ const returnVue = () => {
                         xtip.msg('文件内容有误', {icon: 'e'})
                         return;
                     }
-                    const {hostName = null, tags = []} = parse;
+                    const {hostName = null, videoInfos = []} = parse;
                     if (!hostName) {
                         xtip.msg('hostName字段不存在', {icon: 'e'})
                         return;
                     }
-                    if (!defUtil.isIterable(tags)) {
+                    if (!defUtil.isIterable(videoInfos)) {
                         xtip.msg('文件内容有误，非可迭代的数组！', {icon: 'e'})
                         return;
                     }
-                    if (tags.length === 0) {
+                    if (videoInfos.length === 0) {
                         xtip.msg('tags数据为空', {icon: 'e'})
                         return;
                     }
-                    for (let item of tags) {
-                        if (!item['name']) {
-                            xtip.msg('name字段不存在', {icon: 'e'})
-                            return;
-                        }
-                        if (!item['title']) {
-                            xtip.msg('title字段不存在', {icon: 'e'})
-                            return;
-                        }
+                    for (let item of videoInfos) {
                         if (!item['bv']) {
                             xtip.msg('bv字段不存在', {icon: 'e'})
                             return;
@@ -80,8 +76,16 @@ const returnVue = () => {
                             xtip.msg('tags字段不存在', {icon: 'e'})
                             return;
                         }
+                        if (!item['userInfo']) {
+                            xtip.msg('userInfo字段不存在', {icon: 'e'})
+                            return;
+                        }
+                        if (!item['videoInfo']) {
+                            xtip.msg('videoInfo字段不存在', {icon: 'e'})
+                            return;
+                        }
                     }
-                    bvDexie.bulkImportTags(tags).then((bool) => {
+                    bvDexie.bulkImportVideoInfos(videoInfos).then((bool) => {
                         if (bool) {
                             xtip.msg('导入成功', 'success')
                         } else {
@@ -93,13 +97,13 @@ const returnVue = () => {
             inputFIleBut() {
                 this.$refs.inputDemo.click();
             },
-            clearPageTagsDataBut() {
+            clearPageVideoCacheDataBut() {
                 xtip.confirm('是否清空当前域名下的tags数据', {
                     icon: 'a',
                     btn1: () => {
-                        bvDexie.clearTagsTable().then((bool) => {
+                        bvDexie.clearVideoInfosTable().then((bool) => {
                             if (bool) {
-                                xtip.msg('已清空当前域名下的tags数据', 'success')
+                                xtip.msg('已清空当前域名下的视频缓存数据', 'success')
                             } else {
                                 xtip.msg('清空失败', 'error')
                             }

@@ -7,6 +7,8 @@ import commentSectionModel from "../pagesModel/commentSectionModel.js";
 import output_informationTab from "../layout/output_informationTab.js";
 import gmUtil from "../utils/gmUtil.js";
 import bFetch from '../model/bFetch.js';
+import {videoInfoCache} from "./cache/videoInfoCache.js";
+import bvDexie from "./bvDexie.js";
 
 /**
  * 添加屏蔽按钮
@@ -213,50 +215,83 @@ const shieldingVideo = (videoData) => {
 }
 
 /**
+ * 检查其他视频参数执行屏蔽
+ * @param videoData {{}} 视频数据
+ * @returns {Promise<{state:boolean,type:string,matching:string}|any>}
+ */
+const shieldingOtherVideoParameter = async (videoData) => {
+    const {el, bv = '-1'} = videoData
+    //如果没有bv号参数，则不执行
+    if (bv === '-1') return
+    if (videoInfoCache.getCount() === 0) {
+        await videoInfoCache.update()
+    }
+    const find = videoInfoCache.find(bv);
+    let result;
+    if (find === null) {
+        //获取视频信息
+        const {state, data, msg} = await bFetch.fetchGetVideoInfo(bv)
+        if (!state) {
+            console.warn('获取视频信息失败:' + msg);
+            return
+        }
+        result = data
+        if (await bvDexie.addVideoData(bv, result)) {
+            await videoInfoCache.update()
+            console.log('mk-db-添加视频信息到数据库成功', result, videoData)
+        }
+    } else {
+        result = find
+    }
+    const {tags = [], userInfo, videoInfo} = result
+    /**
+     * @type {state:boolean,type:string,matching:string|any}
+     */
+    let returnValue;
+    //开始验证
+    //当tags长度不为0时，执行根据tags屏蔽视频
+    if (tags.length !== 0) {
+        returnValue = blockBasedVideoTag(tags);
+        if (returnValue.state) {
+            return returnValue
+        }
+    }
+
+    //检查用户等级，当前用户等级
+    const currentLevel = userInfo?.current_level || -1;
+    returnValue = shieldingByLevel(currentLevel);
+    if (returnValue.state) {
+        return returnValue
+    }
+}
+
+
+/**
  * 检查视频tag执行屏蔽
  * @description 当没有设置相关tag屏蔽规则时，不执行，当videoData的bv没有且为-1时，不执行
- * @param videoData
- * @returns {Promise<void>|null}
+ * @param tags {[string]} 当前视频的tags
+ * @returns {{state:boolean,type:string|any,matching:string|any}} 结果对象，state为true时，匹配上结果，需要屏蔽该视频
  */
-const blockBasedVideoTag = async (videoData) => {
-    const {el, bv = '-1'} = videoData
-    if (bv === '-1') {
-        return
-    }
+const blockBasedVideoTag = (tags) => {
     const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
     const videoTagArr = ruleKeyListData.getVideoTagArr();
     if (preciseVideoTagArr.length <= 0 && videoTagArr.length <= 0) {
-        return
+        return {state: false}
     }
-    const tagsData = await bFetch.getVideoTagsPackaging(videoData)
-    const {state, data} = tagsData
-    if (!state) {
-        console.log('错误:', data);
-        return
-    }
-    const {tags = []} = data
     for (let tag of tags) {
         if (ruleMatchingUtil.exactMatch(preciseVideoTagArr, tag)) {
-            el?.remove();
-            Tip.successBottomRight("屏蔽了视频");
-            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("精确视频tag", tag, videoData));
-            return
+            return {state: true, type: "精确视频tag", matching: tag}
         }
         let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(videoTagArr, tag);
         if (fuzzyMatch) {
-            el?.remove();
-            Tip.successBottomRight("屏蔽了视频");
-            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("模糊视频tag", fuzzyMatch, videoData));
-            return
+            return {state: true, type: "模糊视频tag", matching: fuzzyMatch}
         }
         fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getVideoTagCanonicalArr(), tag)
         if (fuzzyMatch) {
-            el?.remove();
-            Tip.successBottomRight("屏蔽了视频");
-            output_informationTab.addInfo(output_informationTab.getVideoInfoHtml("正则视频tag", fuzzyMatch, videoData));
-            return
+            return {state: true, type: "正则视频tag", matching: fuzzyMatch}
         }
     }
+    return {state: false}
 }
 
 /**
@@ -282,7 +317,15 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         output_informationTab.addInfo(videoInfoHtml);
         return true;
     }
-    blockBasedVideoTag(videoData)
+    shieldingOtherVideoParameter(videoData).then(res => {
+        if (!res) {
+            return
+        }
+        const {type, matching} = res
+        Tip.successBottomRight("进阶模式-屏蔽了视频");
+        const videoInfoHtml = output_informationTab.getVideoInfoHtml(type, matching, videoData);
+        output_informationTab.addInfo(videoInfoHtml);
+    })
     return state;
 }
 
@@ -400,17 +443,32 @@ const shieldingComment = (commentsData) => {
         return {state: true, type: "正则评论内容", matching};
     }
     if (level !== -1) {
-        const min = gmUtil.getData('nMinimumLevel', -1)
-        if (min > level) {
-            return {state: true, type: "评论区最小用户等级过滤", matching: min};
-        }
-        const max = gmUtil.getData('nMaximumLevel', -1)
-        if (max > level) {
-            return {state: true, type: "评论区最大用户等级过滤", matching: max};
-        }
+        return shieldingByLevel(level);
     }
     return {state: false};
 }
+
+/**
+ * 根据等级屏蔽
+ * @param level {number} 用户等级
+ * @returns {{state: boolean, type: string, matching:number }|any}
+ */
+const shieldingByLevel = (level) => {
+    const def = {state: false}
+    if (!level) {
+        return def
+    }
+    const min = gmUtil.getData('nMinimumLevel', -1)
+    if (min > level) {
+        return {state: true, type: "评论区最小用户等级过滤", matching: min};
+    }
+    const max = gmUtil.getData('nMaximumLevel', -1)
+    if (max > level) {
+        return {state: true, type: "评论区最大用户等级过滤", matching: max};
+    }
+    return def
+}
+
 
 /**
  * 装饰过的屏蔽评论,屏蔽单个评论项

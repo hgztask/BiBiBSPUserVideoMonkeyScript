@@ -2,54 +2,27 @@ import Dexie from "dexie";
 
 const mk_db = new Dexie('mk-db');
 mk_db.version(1).stores({
-    tags: 'bv,title,name'
+    videoInfos: 'bv,tags,userInfo,videoInfo',
 });
 
 
-//临时缓存
-const localData = []
-
-//更新缓存
-const updateLocalData = async () => {
-    localData.splice(0, localData.length, ...await mk_db.tags.toArray())
-}
-
-updateLocalData().then(r => {
-    console.log('初始化视频tags表临时缓存')
-})
 /**
- *查找临时缓存里是否有该bv号信息
- * @param bv{string}
- */
-const findBv = async (bv) => {
-    const find = localData.find(item => item.bv === bv);
-    if (find === undefined) {
-        return false
-    }
-    return find
-}
-
-
-/**
- *添加视频tag数据
+ *添加视频数据
+ * @param bv {string}
  * @param data {{}}
- * @param data.title {string}
- * @param data.bv {string}
- * @param data.name {string}
+ * @param data.userInfo {{}}
+ * @param data.videoInfo {{}}
  * @param data.tags {string[]}
  * @returns {Promise<boolean>}
  */
-const addTagsData = async (data) => {
-    const {title, bv, name, tags} = data
+const addVideoData = async (bv, data) => {
+    const {tags, userInfo, videoInfo} = data
     try {
-        await mk_db.tags.add({
-            bv,
-            title,
-            name,
-            tags
+        await mk_db.videoInfos.add({
+            bv, tags, userInfo, videoInfo
         })
     } catch (e) {
-        console.log(`添加视频tags失败`, data, e)
+        console.log(`添加视频数据失败`, data, e)
         return false
     }
     return true
@@ -60,11 +33,11 @@ const addTagsData = async (data) => {
  * @param friendsData
  * @returns {Promise<{state: boolean, any}>}
  */
-const bulkImportTags = async (friendsData) => {
+const bulkImportVideoInfos = async (friendsData) => {
     try {
         // 使用 bulkPut 方法批量插入数据
-        const lastKeyItem = await mk_db.tags.bulkPut(friendsData);
-        console.log('批量导入成功，最后一个插入的主键:', lastKeyItem);
+        const lastKeyItem = await mk_db.videoInfos.bulkPut(friendsData);
+        console.info('批量导入成功，最后一个插入的主键:', lastKeyItem);
         return {state: true, lastKeyItem}
     } catch (error) {
         console.error('批量导入时出错:', error);
@@ -73,48 +46,31 @@ const bulkImportTags = async (friendsData) => {
 }
 
 /**
- * 获取视频tag数据
- * @returns {Promise<[bv:string,title:string,name:string, tags:[string]]>}
+ * 获取本地db视频数据
+ * @returns {Promise<[bv:string,userInfos:{},videoInfo:{}]>}
  */
-const getVideoAllTags = async () => {
-    return await mk_db.tags.toArray()
-}
-
-
-/**
- * 获取视频tags表的长度
- * @returns {Promise<{count: number, state: boolean, error}|{count: number, state: boolean}>}
- */
-const getTagsCount = async () => {
-    try {
-        const count = await mk_db.tags.count()
-        return {state: true, count}
-    } catch (e) {
-        return {state: false, count: -1, error: e}
-    }
+const getVideoInfo = async () => {
+    return await mk_db.videoInfos.toArray()
 }
 
 /**
- * 清除tags表
+ * 清除视频缓存表
  * @returns {Promise<boolean>}
  */
-const clearTagsTable = async () => {
+const clearVideoInfosTable = async () => {
     try {
-        await mk_db.tags.clear()
+        await mk_db.videoInfos.clear()
         return true
     } catch (e) {
-        console.log('清除tags表失败', e)
+        console.log('清除videoInfos表失败', e)
         return false
     }
 }
 
 
 export default {
-    addTagsData,
-    getVideoAllTags,
-    findBv,
-    updateLocalData,
-    getTagsCount,
-    clearTagsTable,
-    bulkImportTags
+    addVideoData,
+    clearVideoInfosTable,
+    bulkImportVideoInfos,
+    getVideoInfo
 }

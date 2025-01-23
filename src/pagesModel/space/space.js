@@ -40,7 +40,6 @@ const isPersonalHomepage = () => {
  * @param callback {function}
  */
 const __insertButton = (el, label, callback = null) => {
-    debugger
     const liEl = document.createElement("li");
     liEl.textContent = label;
     liEl.className = 'be-dropdown-item';
