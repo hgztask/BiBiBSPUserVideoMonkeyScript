@@ -460,15 +460,14 @@ const shieldingByLevel = (level) => {
     }
     const min = gmUtil.getData('nMinimumLevel', -1)
     if (min > level) {
-        return {state: true, type: "评论区最小用户等级过滤", matching: min};
+        return {state: true, type: "最小用户等级过滤", matching: min};
     }
     const max = gmUtil.getData('nMaximumLevel', -1)
     if (max > level) {
-        return {state: true, type: "评论区最大用户等级过滤", matching: max};
+        return {state: true, type: "最大用户等级过滤", matching: max};
     }
     return def
 }
-
 
 /**
  * 装饰过的屏蔽评论,屏蔽单个评论项
