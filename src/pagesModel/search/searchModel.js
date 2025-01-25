@@ -5,8 +5,8 @@ import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
-import output_informationTab from "../../layout/output_informationTab.js";
 import searchLive from "./searchLive.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 /**
  * 判断是否为搜索页
@@ -213,21 +213,21 @@ const processingExactSearchVideoCardContent = async () => {
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         el.remove()
         Tip.successBottomRight('屏蔽到用户')
-        output_informationTab.addInfo(`根据精确uid匹配到用户${name}-【${uid}】`)
+        eventEmitter.send('添加信息', `根据精确uid匹配到用户${name}-【${uid}】`)
         return
     }
     let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
     if (fuzzyMatch) {
         el.remove()
         Tip.infoBottomRight('屏蔽到用户')
-        output_informationTab.addInfo(`根据模糊用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
+        eventEmitter.send('添加信息', `根据模糊用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
         return
     }
     fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name)
     if (fuzzyMatch) {
         el.remove()
         Tip.infoBottomRight('屏蔽到用户')
-        output_informationTab.addInfo(`根据正则用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
+        eventEmitter.send('添加信息', `根据正则用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
         return
     }
     const insertionPositionEl = el.querySelector('.info-card.flex_start')

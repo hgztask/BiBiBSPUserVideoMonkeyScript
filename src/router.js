@@ -18,6 +18,7 @@ import space from "./pagesModel/space/space.js";
 import searchLive from "./pagesModel/search/searchLive.js";
 import hotSearch from "./pagesModel/search/hotSearch.js";
 import partition from "./pagesModel/partition.js";
+import elUtil from "./utils/elUtil.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -60,6 +61,16 @@ const staticRoute = (title, url) => {
         searchLive.installStyle()
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
+        elUtil.findElement('.v-modal').then(el => {
+            debugger
+            const styleEl = document.createElement('style');
+            styleEl.innerHTML = `
+          .v-modal  {
+    z-index: auto !important;
+}
+            `
+            document.head.appendChild(styleEl)
+        })
         videoPlayModel.startShieldingVideoList();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.startIntervalCheckInstallShieldingButton()

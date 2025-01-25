@@ -40,20 +40,50 @@ class EventEmitter {
     /**
      * 发布事件。
      * @param {string} eventName - 事件名称
-     * @param {*} data - 事件数据
+     * @param {...*} data - 事件数据
      */
-    emit(eventName, data) {
+    emit(eventName, ...data) {
         if (!this.events[eventName]) {
             // 如果事件没有订阅，则抛出错误
             throw new Error(`没有为注册的事件侦听器 "${eventName}"`);
         }
         this.events[eventName].forEach(callback => {
             try {
-                callback(data);
+                callback(...data);
             } catch (error) {
                 console.error(`事件侦听器中发生错误 "${eventName}":`, error);
             }
         });
+    }
+
+    /**
+     *发送消息，如未订阅，则一直等到订阅事件存在
+     * @param eventName {string} 事件类型
+     * @param data {。。*} 事件数据
+     */
+    send(eventName, ...data) {
+        const func = () => {
+            const event = this.events[eventName];
+            if (event) {
+                this.events[eventName].forEach(callback => {
+                    try {
+                        callback(...data);
+                    } catch (error) {
+                        console.error(`send发送消息，事件侦听器中发生错误 "${eventName}":`, error);
+                    }
+                });
+                return true;
+            }
+            return false
+        }
+        if (func()) {
+            return
+        }
+        const i1 = setInterval(() => {
+            if (func()) {
+                clearInterval(i1);
+            }
+        }, 1000);
     }
 
     /**

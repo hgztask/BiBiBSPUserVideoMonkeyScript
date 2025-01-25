@@ -97,15 +97,6 @@ const getAdaptationBAppCommerce = () => {
 export const setAdaptationBAppCommerce = (bool) => {
     gmUtil.setData("adaptation-b-app-recommend", bool === true)
 }
-//获取是否隐藏主面板按钮开关
-const isHideMainButSwitch = () => {
-    return gmUtil.getData("hideMainButSwitch", false) === true;
-}
-
-//设置是否隐藏主面板按钮开关
-const setHideMainButSwitch = (bool) => {
-    gmUtil.setData("hideMainButSwitch", bool === true)
-}
 
 // 是否隐藏右上角主面板按钮开关，默认为true
 const isHideRightTopMainButSwitch = () => {
@@ -162,8 +153,6 @@ export default {
     getAdaptationBAppCommerce,
     setAdaptationBAppCommerce,
     setDefaultColorInfo,
-    isHideMainButSwitch,
-    setHideMainButSwitch,
     isCompatible_BEWLY_BEWLY,
     setCompatible_BEWLY_BEWLY,
     setDiscardOldCommentAreas,

@@ -1,8 +1,8 @@
 import elUtil from "../../utils/elUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
-import output_informationTab from "../../layout/output_informationTab.js";
 import {Tip} from "../../utils/Tip.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 
 /**
@@ -21,12 +21,12 @@ export const startShieldingHotList = async () => {
         let match = ruleMatchingUtil.fuzzyMatch(hotSearchKeyArr, label);
         if (match) {
             el.remove();
-            output_informationTab.addInfo(`根据模糊热搜关键词-【${match}】-屏蔽-${label}`);
+            eventEmitter.send('添加信息', `根据模糊热搜关键词-【${match}】-屏蔽-${label}`)
             continue;
         }
         match = ruleMatchingUtil.regexMatch(hotSearchKeyCanonicalArr, label);
         if (match) {
-            output_informationTab.addInfo(`根据正则热搜关键词-【${match}】-屏蔽-${label}`);
+            eventEmitter.send('添加信息', `根据正则热搜关键词-【${match}】-屏蔽-${label}`);
             el.remove();
         }
     }

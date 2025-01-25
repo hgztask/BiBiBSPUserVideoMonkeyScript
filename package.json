@@ -10,6 +10,7 @@
   "private": true,
   "devDependencies": {
     "dexie": "^4.0.10",
+    "element-ui": "^2.15.14",
     "rollup": "^4.28.0",
     "rollup-plugin-import-content": "^1.1.0",
     "rollup-plugin-terser": "^7.0.2",

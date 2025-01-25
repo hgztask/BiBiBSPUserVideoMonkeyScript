@@ -31,7 +31,7 @@ const regexMatch = (ruleList, value) => {
             return value.search(item) !== -1;
         } catch (e) {
             const msg = `正则匹配失败，请检查规则列表中的正则表达式是否正确，错误信息：${e.message}`;
-            eventEmitter.emit('正则匹配时异常', {e, msg})
+            eventEmitter.send('正则匹配时异常', {e, msg})
             return false;
         }
     });

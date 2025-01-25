@@ -9,6 +9,7 @@ import gmUtil from "../utils/gmUtil.js";
 import bFetch from '../model/bFetch.js';
 import {videoInfoCache} from "./cache/videoInfoCache.js";
 import bvDexie from "./bvDexie.js";
+import {eventEmitter} from "./EventEmitter.js";
 
 /**
  * 添加屏蔽按钮
@@ -313,8 +314,7 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
             el.style.display = "none";
         }
         Tip.successBottomRight("屏蔽了视频");
-        const videoInfoHtml = output_informationTab.getVideoInfoHtml(type, matching, videoData);
-        output_informationTab.addInfo(videoInfoHtml);
+        eventEmitter.send('屏蔽视频信息', type, matching, videoData)
         return true;
     }
     shieldingOtherVideoParameter(videoData).then(res => {
@@ -323,8 +323,7 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         }
         const {type, matching} = res
         Tip.successBottomRight("进阶模式-屏蔽了视频");
-        const videoInfoHtml = output_informationTab.getVideoInfoHtml(type, matching, videoData);
-        output_informationTab.addInfo(videoInfoHtml);
+        eventEmitter.send('屏蔽视频信息', type, matching, videoData)
     })
     return state;
 }
@@ -401,7 +400,8 @@ const shieldingDynamicDecorated = (dynamicData) => {
     const {state, type, matching} = shieldingDynamic(dynamicData);
     if (state) {
         Tip.successBottomRight("屏蔽了视频")
-        output_informationTab.addInfo(output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData));
+        const infoHtml = output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData);
+        eventEmitter.send('添加信息', infoHtml)
     }
     return state;
 }
@@ -481,7 +481,7 @@ const shieldingCommentDecorated = (commentsData) => {
     if (state) {
         commentsData.el?.remove()
         Tip.successBottomRight("屏蔽了评论")
-        output_informationTab.addInfo(output_informationTab.getCommentInfoHtml(type, matching, commentsData));
+        eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
     }
     return state;
 }
@@ -507,7 +507,8 @@ const shieldingLiveRoomContentDecorated = (liveRoomContent) => {
         Tip.successBottomRight("屏蔽了直播间评论")
     }
     if (type) {
-        output_informationTab.addInfo(output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent));
+        const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
+        eventEmitter.send('添加信息', infoHtml)
     }
     return state;
 }
@@ -580,7 +581,8 @@ const shieldingLiveRoomDecorated = (liveRoomData) => {
     if (state) {
         liveRoomData.el?.remove();
         Tip.successBottomRight("屏蔽了直播间")
-        output_informationTab.addInfo(output_informationTab.getLiveRoomInfoHtml(type, matching, liveRoomData));
+        const infoHtml = output_informationTab.getLiveRoomInfoHtml(type, matching, liveRoomData);
+        eventEmitter.send('添加信息', infoHtml)
     }
     return state;
 }
