@@ -178,7 +178,8 @@ class EventEmitter {
 
 
 /**
- * 事件中心实例
+ * 事件中心实例，用于管理事件的订阅和发布。
+ * 提供了订阅普通事件、一次性订阅普通事件、订阅回调事件、发送通知、发送普通消息等功能。
  * @type {EventEmitter}
  */
 export const eventEmitter = new EventEmitter();
