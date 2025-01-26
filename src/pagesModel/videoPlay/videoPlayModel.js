@@ -88,32 +88,15 @@ const startIntervalCheckInstallShieldingButton = () => {
     }, 2000);
 }
 
-/**
- * 执行创作团队卡片添加屏蔽按钮
- * @returns null
- */
-// const creationTeamInsertsShieldButton = async () => {
-//     //获取用户团队列表
-//     const butEL = document.createElement('button')
-//     butEL.addEventListener('click', () => {
-//         xtip.confirm(`uid=${uid}-name=${name}`, {
-//             title: "uid精确屏蔽方式", icon: "a",
-//             btn1: () => {
-//                 if (uid === -1) {
-//                     Tip.error("该页面数据不存在uid字段");
-//                     return;
-//                 }
-//                 ruleUtil.addRulePreciseUid(uid)
-//             }
-//         })
-//     })
-// }
-
 // 获取右侧视频列表
 const getGetTheVideoListOnTheRight = async () => {
     //等待，直到列表中封面加载完
     await elUtil.findElementUntilFound(".video-page-card-small .b-img img");
-    const elList = await elUtil.findElementsUntilFound(".video-page-card-small", {interval: 50})
+    const elList = await elUtil.findElements(".rec-list>div", {interval: 1000})
+    const nextPlayEl = document.querySelector('.next-play>.video-page-card-small');
+    if (nextPlayEl) {
+        elList.push(nextPlayEl)
+    }
     const list = [];
     for (let el of elList) {
         try {
