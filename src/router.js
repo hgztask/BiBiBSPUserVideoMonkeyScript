@@ -74,6 +74,7 @@ const staticRoute = (title, url) => {
         videoPlayModel.startShieldingVideoList();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.startIntervalCheckInstallShieldingButton()
+        videoPlayModel.setVideoPlayerEnded()
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.startShieldingVideoList();

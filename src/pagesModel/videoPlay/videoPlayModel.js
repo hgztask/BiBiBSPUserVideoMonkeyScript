@@ -3,6 +3,9 @@ import shielding from "../../model/shielding.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleUtil from "../../utils/ruleUtil.js";
 import {Tip} from "../../utils/Tip.js";
+import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
+import ruleKeyListData from "../../data/ruleKeyListData.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 //判断是否是视频播放页
 const isVideoPlayPage = (url) => {
@@ -92,7 +95,7 @@ const startIntervalCheckInstallShieldingButton = () => {
 const getGetTheVideoListOnTheRight = async () => {
     //等待，直到列表中封面加载完
     await elUtil.findElementUntilFound(".video-page-card-small .b-img img");
-    const elList = await elUtil.findElements(".rec-list>div", {interval: 1000})
+    const elList = await elUtil.findElements(".rec-list>.video-page-card-small", {interval: 1000})
     const nextPlayEl = document.querySelector('.next-play>.video-page-card-small');
     if (nextPlayEl) {
         elList.push(nextPlayEl)
@@ -165,11 +168,62 @@ const findTheExpandButtonForTheListOnTheRightAndBindTheEvent = () => {
     }, 3000);
 }
 
+/**
+ * 获取播放器播放完成之后的推荐视频列表
+ * @returns {Promise<{list: [{title:string,el:Element}],cancelEl:Element}>}
+ */
+const getPlayerVideoList = async () => {
+    const elList = await elUtil.findElements('.bpx-player-ending-related>.bpx-player-ending-related-item')
+    const data = {list: [], cancelEl: null}
+    for (const el of elList) {
+        const title = el.querySelector('.bpx-player-ending-related-item-title')?.textContent.trim()
+        const cancelEl = el.querySelector('.bpx-player-ending-related-item-cancel')
+        if (cancelEl) {
+            data.cancelEl = cancelEl
+        }
+        data.list.push({
+            title,
+            el
+        })
+    }
+    return data
+}
+
+
+/**
+ * 设置视频播放结束事件
+ * @returns {Promise<void>|any}
+ */
+const setVideoPlayerEnded = async () => {
+    const videoEl = await elUtil.findElement('#bilibili-player video');
+    const funcStart = async () => {
+        const res = await getPlayerVideoList()
+        for (let {el, title} of res.list) {
+            let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
+            if (matching !== null) {
+                eventEmitter.send('添加消息', `根据-模糊标题-【${matching}】-屏蔽视频:${title}`)
+                el.remove();
+                continue
+            }
+            matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
+            if (matching !== null) {
+                eventEmitter.send('添加消息', `根据-正则标题-【${matching}】-屏蔽视频:${title}`)
+                el.remove();
+            }
+        }
+    }
+    videoEl.addEventListener('ended', () => {
+        console.log('视频播放结束')
+        funcStart()
+    })
+}
+
 
 //视频播放模块
 export default {
     isVideoPlayPage,
     startShieldingVideoList,
     findTheExpandButtonForTheListOnTheRightAndBindTheEvent,
-    startIntervalCheckInstallShieldingButton
+    startIntervalCheckInstallShieldingButton,
+    setVideoPlayerEnded
 }
