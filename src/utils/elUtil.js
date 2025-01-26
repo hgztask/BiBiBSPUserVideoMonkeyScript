@@ -194,7 +194,7 @@ function findElementUntilFound(selector, config = {}) {
         }, config.interval);
         if (config.timeout > 0) {
             setTimeout(() => {
-                clearTimeout(i1);
+                clearInterval(i1);
                 reject(null); // 超时则返回 null
             }, config.timeout);
         }
@@ -280,7 +280,7 @@ function findElementsUntilFound(selector, config = {}) {
         }, config.interval);
         if (config.timeout > 0) {
             setTimeout(() => {
-                clearTimeout(i1);
+                clearInterval(i1);
                 reject(null); // 超时则返回 null
             }, config.timeout);
         }
