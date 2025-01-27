@@ -7,6 +7,7 @@ import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import searchLive from "./searchLive.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import gmUtil from "../../utils/gmUtil.js";
 
 /**
  * 判断是否为搜索页
@@ -266,11 +267,23 @@ const processingExactSearchVideoCardContent = async () => {
     }
 }
 
+//屏蔽删除底部内容
+const delFooterContent = () => {
+    if (!gmUtil.getData('isRemoveSearchBottomContent', false)) {
+        return
+    }
+    elUtil.findElement('#biliMainFooter').then(el => {
+        el.remove()
+        eventEmitter.send('添加信息', '已删除底部内容')
+    })
+}
+
 
 //搜索模块
 export default {
     isSearch,
     searchTopTabsIWrapperInstallListener,
     startShieldingVideoList,
-    currentlyActivatedOptions
+    currentlyActivatedOptions,
+    delFooterContent
 }

@@ -9,11 +9,6 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 
 const mainLayoutEl = document.createElement('div');
 mainLayoutEl.style.position = 'fixed';
-mainLayoutEl.style.left = '0';
-mainLayoutEl.style.top = '0';
-mainLayoutEl.style.width = '100%';
-mainLayoutEl.style.height = '100%';
-mainLayoutEl.id = 'main_drawer_layout'
 document.body.appendChild(mainLayoutEl);
 
 if (document.head.querySelector('#element-ui-css') === null) {
@@ -41,26 +36,30 @@ new Vue({
           size="100%"
           :modal="false"
           :with-header="false">
-        <el-tabs type="border-card">
-          <el-tab-pane label="面板设置">
+        <el-tabs type="border-card" v-model="tabsActiveName"
+                 @tab-click="tabClick">
+          <el-tab-pane label="面板设置" name="面板设置" lazy>
             <panel_settings_vue/>
           </el-tab-pane>
-          <el-tab-pane label="规则管理">
+          <el-tab-pane label="规则管理" name="规则管理" lazy>
             <rule_management_vue/>
           </el-tab-pane>
           <el-tab-pane label="兼容设置">
             <compatible_setting/>
           </el-tab-pane>
-          <el-tab-pane label="缓存管理">
+          <el-tab-pane label="缓存管理" name="缓存管理" lazy>
             <cache_management_vue/>
           </el-tab-pane>
-          <el-tab-pane label="输出信息">
+          <el-tab-pane label="页面处理" name="页面处理" lazy>
+            <page_processing_vue/>
+          </el-tab-pane>
+          <el-tab-pane label="输出信息" name="输出信息" lazy>
             <output_information_vue/>
           </el-tab-pane>
-          <el-tab-pane label="支持打赏">
+          <el-tab-pane label="支持打赏" name="支持打赏" lazy>
             <donate_layout_vue/>
           </el-tab-pane>
-          <el-tab-pane label="关于和问题反馈">
+          <el-tab-pane label="关于和问题反馈" name="关于和问题反馈" lazy>
           </el-tab-pane>
         </el-tabs>
       </el-drawer>
@@ -72,9 +71,14 @@ new Vue({
     data() {
         return {
             drawer: false,
+            tabsActiveName: '规则管理'
         }
     },
-    methods: {},
+    methods: {
+        tabClick(tab) {
+            gmUtil.setData('mainTabsActiveName', tab.name);
+        }
+    },
     created() {
         eventEmitter.on('主面板开关', () => {
             const tempBool = this.drawer;

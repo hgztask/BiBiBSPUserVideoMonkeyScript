@@ -14,11 +14,11 @@ import localMKData from "./data/localMKData.js";
 import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
 import oldHistory from "./pagesModel/history/oldHistory.js";
-import space from "./pagesModel/space/space.js";
 import searchLive from "./pagesModel/search/searchLive.js";
 import hotSearch from "./pagesModel/search/hotSearch.js";
 import partition from "./pagesModel/partition.js";
 import elUtil from "./utils/elUtil.js";
+import messagePage from "./pagesModel/message/messagePage.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -59,9 +59,10 @@ const staticRoute = (title, url) => {
         searchModel.startShieldingVideoList();
         searchModel.currentlyActivatedOptions()
         searchLive.installStyle()
+        searchModel.delFooterContent()
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
-        elUtil.findElement('.v-modal').then(el => {
+        elUtil.findElement('.v-modal').then(() => {
             debugger
             const styleEl = document.createElement('style');
             styleEl.innerHTML = `
@@ -75,6 +76,7 @@ const staticRoute = (title, url) => {
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.startIntervalCheckInstallShieldingButton()
         videoPlayModel.setVideoPlayerEnded()
+        videoPlayModel.delElManagement();
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.startShieldingVideoList();
@@ -122,6 +124,9 @@ const staticRoute = (title, url) => {
     }
     if (partition.isPartition(url)) {
         partition.startIntervalShieldingVideoList()
+    }
+    if (messagePage.isMessagePage(url)) {
+        messagePage.modifyTopItemsZIndex()
     }
 }
 

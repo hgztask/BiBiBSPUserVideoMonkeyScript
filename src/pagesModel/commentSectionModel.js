@@ -3,6 +3,8 @@ import shielding from "../model/shielding.js";
 import defUtil from "../utils/defUtil.js";
 import topicDetail from "./topicDetail.js";
 import localMKData from "../data/localMKData.js";
+import videoPlayModel from "./videoPlay/videoPlayModel.js";
+import gmUtil from "../utils/gmUtil.js";
 //评论区模型
 
 
@@ -192,6 +194,10 @@ const getOldCommentSectionList = async () => {
 
 //执行屏蔽评论
 const startShieldingComments = async () => {
+    //如果当前是视频播放页并且配置了移除底部评论区时不执行该页的屏蔽评论功能
+    if (videoPlayModel.isVideoPlayPage() && gmUtil.getData('isDelBottomComment', false)) {
+        return
+    }
     let list;
     const href = window.location.href;
     if (localMKData.isDiscardOldCommentAreas()) {

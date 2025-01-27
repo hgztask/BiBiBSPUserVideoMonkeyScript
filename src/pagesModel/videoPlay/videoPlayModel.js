@@ -6,9 +6,11 @@ import {Tip} from "../../utils/Tip.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import gmUtil from "../../utils/gmUtil.js";
+import localMKData from "../../data/localMKData.js";
 
 //判断是否是视频播放页
-const isVideoPlayPage = (url) => {
+const isVideoPlayPage = (url = window.location.href) => {
     return url.includes("www.bilibili.com/video");
 }
 
@@ -95,6 +97,8 @@ const startIntervalCheckInstallShieldingButton = () => {
 const getGetTheVideoListOnTheRight = async () => {
     //等待，直到列表中封面加载完
     await elUtil.findElementUntilFound(".video-page-card-small .b-img img");
+    delAd()
+    delGameAd()
     const elList = await elUtil.findElements(".rec-list>.video-page-card-small", {interval: 1000})
     const nextPlayEl = document.querySelector('.next-play>.video-page-card-small');
     if (nextPlayEl) {
@@ -140,9 +144,10 @@ const getGetTheVideoListOnTheRight = async () => {
 
 // 执行屏蔽右侧视频列表
 const startShieldingVideoList = () => {
-    console.time("屏蔽右侧视频列表");
+    if (localMKData.isDelPlayerPageRightVideoList()) {
+        return
+    }
     getGetTheVideoListOnTheRight().then((videoList) => {
-        console.timeEnd("屏蔽右侧视频列表");
         for (let videoData of videoList) {
             if (shielding.shieldingVideoDecorated(videoData)) {
                 continue;
@@ -201,13 +206,13 @@ const setVideoPlayerEnded = async () => {
         for (let {el, title} of res.list) {
             let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
             if (matching !== null) {
-                eventEmitter.send('添加消息', `根据-模糊标题-【${matching}】-屏蔽视频:${title}`)
+                eventEmitter.send('添加信息', `根据-模糊标题-【${matching}】-屏蔽视频:${title}`)
                 el.remove();
                 continue
             }
             matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
             if (matching !== null) {
-                eventEmitter.send('添加消息', `根据-正则标题-【${matching}】-屏蔽视频:${title}`)
+                eventEmitter.send('添加信息', `根据-正则标题-【${matching}】-屏蔽视频:${title}`)
                 el.remove();
             }
         }
@@ -219,11 +224,81 @@ const setVideoPlayerEnded = async () => {
 }
 
 
+/**
+ * 删除播放页的广告
+ */
+const delAd = () => {
+    if (!gmUtil.getData('isDelPlayerPageAd', false)) {
+        return
+    }
+    //查找页面广告标签，十秒之后未找到则结束
+    elUtil.findElements('[class|=ad],#slide_ad').then(elList => {
+        for (const el of elList) {
+            el.style.display = 'none'
+            // el?.remove()
+        }
+        eventEmitter.send('添加信息', '隐藏了播放页的页面广告')
+    })
+}
+
+
+//移除右侧视频列表
+const delRightVideoList = () => {
+    if (!localMKData.isDelPlayerPageRightVideoList()) {
+        return
+    }
+    elUtil.findElement('.recommend-list-v1').then(el => {
+        el?.remove()
+        eventEmitter.send('添加信息', '屏蔽了播放页的右侧推荐列表')
+    })
+}
+
+
+/**
+ * 屏蔽播放页右侧游戏推荐
+ */
+const delGameAd = () => {
+    if (!gmUtil.getData('isDelPlayerPageRightGameAd', false)) {
+        return
+    }
+    elUtil.findElement('.video-page-game-card-small', {timeout: 10000}).then(({state, data}) => {
+        if (!state) {
+            eventEmitter.send('添加信息', '没有找到播放页的右侧游戏推荐')
+            return
+        }
+        data?.remove();
+        eventEmitter.send('添加信息', '屏蔽了游戏推荐')
+    })
+}
+
+//移除屏蔽底部评论区
+const delBottomCommentApp = () => {
+    if (!gmUtil.getData('isDelBottomComment', false)) {
+        return
+    }
+    elUtil.findElement('#commentapp').then(el => {
+        el?.remove()
+        eventEmitter.send('添加信息', '移除了页面底部的评论区')
+    })
+}
+
+
+//屏蔽页面元素管理
+const delElManagement = () => {
+    if (localMKData.isDelPlayerPageRightVideoList()) {
+        delAd()
+    }
+    delRightVideoList()
+    delBottomCommentApp()
+}
+
+
 //视频播放模块
 export default {
     isVideoPlayPage,
     startShieldingVideoList,
     findTheExpandButtonForTheListOnTheRightAndBindTheEvent,
     startIntervalCheckInstallShieldingButton,
-    setVideoPlayerEnded
+    setVideoPlayerEnded,
+    delElManagement
 }

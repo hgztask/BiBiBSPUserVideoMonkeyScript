@@ -7,7 +7,7 @@ export default {
      * 读取数据
      * @param key
      * @param defaultValue
-     * @returns {[string]|[number]|[any]}
+     * @returns {[string]|[number]|[any]|boolean|number}
      */
     getData(key, defaultValue) {
         return GM_getValue(key, defaultValue);

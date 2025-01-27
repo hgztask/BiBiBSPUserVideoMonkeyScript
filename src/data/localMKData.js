@@ -141,6 +141,15 @@ const isDiscardOldCommentAreas = () => {
     return gmUtil.getData("discardOldCommentAreas", false) === true;
 }
 
+/**
+ * 是否移除播放器页面右侧推荐列表
+ * @returns {boolean}
+ */
+const isDelPlayerPageRightVideoList = () => {
+    return gmUtil.getData("isDelPlayerPageRightVideoList", false) === true
+}
+
+
 export default {
     setBorderColor,
     getBorderColor,
