@@ -1,5 +1,6 @@
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData from "../../data/localMKData.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 //页面处理处理
 export const page_processing_vue = {
@@ -25,6 +26,12 @@ export const page_processing_vue = {
           <el-switch v-model="isDelBottomComment" active-text="移除评论区"/>
         </el-tooltip>
       </el-card>
+      <el-card>
+        <template #header>
+          <span>顶部搜索框</span>
+        </template>
+        <el-switch v-model="isClearTopInputTipContent" active-text="清空内容"/>
+      </el-card>
       </div>`,
     data() {
         return {
@@ -32,25 +39,32 @@ export const page_processing_vue = {
             isDelPlayerPageAd: gmUtil.getData('isDelPlayerPageAd', false),
             isDelPlayerPageRightGameAd: gmUtil.getData('isDelPlayerPageRightGameAd', false),
             isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
-            isDelBottomComment: gmUtil.getData('isDelBottomComment', false)
+            isDelBottomComment: gmUtil.getData('isDelBottomComment', false),
+            isClearTopInputTipContent: gmUtil.getData('isClearTopInputTipContent', false),
         }
     },
     methods: {},
     watch: {
-        isRemoveSearchBottomContent(newBool) {
-            gmUtil.setData('isRemoveSearchBottomContent', newBool)
+        isRemoveSearchBottomContent(b) {
+            gmUtil.setData('isRemoveSearchBottomContent', b)
         },
-        isDelPlayerPageAd(newBool) {
-            gmUtil.setData('isDelPlayerPageAd', newBool)
+        isDelPlayerPageAd(b) {
+            gmUtil.setData('isDelPlayerPageAd', b)
         },
-        isDelPlayerPageRightGameAd(newBool) {
-            gmUtil.setData('isDelPlayerPageRightGameAd', newBool)
+        isDelPlayerPageRightGameAd(b) {
+            gmUtil.setData('isDelPlayerPageRightGameAd', b)
         },
-        isDelPlayerPageRightVideoList(newBool) {
-            gmUtil.setData('isDelPlayerPageRightVideoList', newBool)
+        isDelPlayerPageRightVideoList(b) {
+            gmUtil.setData('isDelPlayerPageRightVideoList', b)
         },
-        isDelBottomComment(newBool) {
-            gmUtil.setData('isDelBottomComment', newBool)
+        isDelBottomComment(b) {
+            gmUtil.setData('isDelBottomComment', b)
+        },
+        isClearTopInputTipContent(b) {
+            gmUtil.setData('isClearTopInputTipContent', b)
+            if (b) {
+                eventEmitter.send('执行清空顶部搜索框提示内容')
+            }
         }
     }
 }

@@ -206,13 +206,13 @@ const setVideoPlayerEnded = async () => {
         for (let {el, title} of res.list) {
             let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
             if (matching !== null) {
-                eventEmitter.send('添加信息', `根据-模糊标题-【${matching}】-屏蔽视频:${title}`)
+                eventEmitter.send('打印信息', `根据-模糊标题-【${matching}】-屏蔽视频:${title}`)
                 el.remove();
                 continue
             }
             matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
             if (matching !== null) {
-                eventEmitter.send('添加信息', `根据-正则标题-【${matching}】-屏蔽视频:${title}`)
+                eventEmitter.send('打印信息', `根据-正则标题-【${matching}】-屏蔽视频:${title}`)
                 el.remove();
             }
         }
@@ -237,7 +237,7 @@ const delAd = () => {
             el.style.display = 'none'
             // el?.remove()
         }
-        eventEmitter.send('添加信息', '隐藏了播放页的页面广告')
+        eventEmitter.send('打印信息', '隐藏了播放页的页面广告')
     })
 }
 
@@ -249,7 +249,7 @@ const delRightVideoList = () => {
     }
     elUtil.findElement('.recommend-list-v1').then(el => {
         el?.remove()
-        eventEmitter.send('添加信息', '屏蔽了播放页的右侧推荐列表')
+        eventEmitter.send('打印信息', '屏蔽了播放页的右侧推荐列表')
     })
 }
 
@@ -263,11 +263,11 @@ const delGameAd = () => {
     }
     elUtil.findElement('.video-page-game-card-small', {timeout: 10000}).then(({state, data}) => {
         if (!state) {
-            eventEmitter.send('添加信息', '没有找到播放页的右侧游戏推荐')
+            eventEmitter.send('打印信息', '没有找到播放页的右侧游戏推荐')
             return
         }
         data?.remove();
-        eventEmitter.send('添加信息', '屏蔽了游戏推荐')
+        eventEmitter.send('打印信息', '屏蔽了游戏推荐')
     })
 }
 
@@ -278,7 +278,7 @@ const delBottomCommentApp = () => {
     }
     elUtil.findElement('#commentapp').then(el => {
         el?.remove()
-        eventEmitter.send('添加信息', '移除了页面底部的评论区')
+        eventEmitter.send('打印信息', '移除了页面底部的评论区')
     })
 }
 

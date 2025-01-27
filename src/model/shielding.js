@@ -401,7 +401,7 @@ const shieldingDynamicDecorated = (dynamicData) => {
     if (state) {
         Tip.successBottomRight("屏蔽了视频")
         const infoHtml = output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData);
-        eventEmitter.send('添加信息', infoHtml)
+        eventEmitter.send('打印信息', infoHtml)
     }
     return state;
 }
@@ -508,7 +508,7 @@ const shieldingLiveRoomContentDecorated = (liveRoomContent) => {
     }
     if (type) {
         const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
-        eventEmitter.send('添加信息', infoHtml)
+        eventEmitter.send('打印信息', infoHtml)
     }
     return state;
 }
@@ -582,7 +582,7 @@ const shieldingLiveRoomDecorated = (liveRoomData) => {
         liveRoomData.el?.remove();
         Tip.successBottomRight("屏蔽了直播间")
         const infoHtml = output_informationTab.getLiveRoomInfoHtml(type, matching, liveRoomData);
-        eventEmitter.send('添加信息', infoHtml)
+        eventEmitter.send('打印信息', infoHtml)
     }
     return state;
 }

@@ -34,7 +34,7 @@ export default {
         }
     },
     created() {
-        eventEmitter.on('添加信息', (content) => {
+        eventEmitter.on('打印信息', (content) => {
             const liEL = document.createElement("li");
             liEL.innerHTML = content;
             this.outputInfoArr.push(liEL.innerHTML)

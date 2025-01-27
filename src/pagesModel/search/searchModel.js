@@ -214,21 +214,21 @@ const processingExactSearchVideoCardContent = async () => {
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         el.remove()
         Tip.successBottomRight('屏蔽到用户')
-        eventEmitter.send('添加信息', `根据精确uid匹配到用户${name}-【${uid}】`)
+        eventEmitter.send('打印信息', `根据精确uid匹配到用户${name}-【${uid}】`)
         return
     }
     let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
     if (fuzzyMatch) {
         el.remove()
         Tip.infoBottomRight('屏蔽到用户')
-        eventEmitter.send('添加信息', `根据模糊用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
+        eventEmitter.send('打印信息', `根据模糊用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
         return
     }
     fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name)
     if (fuzzyMatch) {
         el.remove()
         Tip.infoBottomRight('屏蔽到用户')
-        eventEmitter.send('添加信息', `根据正则用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
+        eventEmitter.send('打印信息', `根据正则用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
         return
     }
     const insertionPositionEl = el.querySelector('.info-card.flex_start')
@@ -274,7 +274,7 @@ const delFooterContent = () => {
     }
     elUtil.findElement('#biliMainFooter').then(el => {
         el.remove()
-        eventEmitter.send('添加信息', '已删除底部内容')
+        eventEmitter.send('打印信息', '已删除底部内容')
     })
 }
 

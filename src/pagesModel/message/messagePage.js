@@ -9,7 +9,7 @@ const isMessagePage = (url = window.location.href) => {
 const modifyTopItemsZIndex = () => {
     elUtil.findElement('#home_nav').then(el => {
         el.style.zIndex = 1000
-        eventEmitter.send('添加信息', '已修改顶部的z-index值为1')
+        eventEmitter.send('打印信息', '已修改顶部的z-index值为1')
     })
 }
 
