@@ -5,7 +5,18 @@ import topicDetail from "./topicDetail.js";
 import localMKData from "../data/localMKData.js";
 import videoPlayModel from "./videoPlay/videoPlayModel.js";
 import gmUtil from "../utils/gmUtil.js";
-//评论区模型
+import {eventEmitter} from "../model/EventEmitter.js";
+
+/**
+ * 评论添加屏蔽按钮
+ * @param commentsData {{}}评论数据
+ */
+eventEmitter.on('评论添加屏蔽按钮', (commentsData) => {
+    shielding.addBlockButton({
+        data: commentsData,
+        maskingFunc: startShieldingComments
+    }, "gz_shielding_comment_button");
+})
 
 
 /**

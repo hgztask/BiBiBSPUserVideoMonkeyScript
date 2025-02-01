@@ -3,7 +3,6 @@ import ruleKeyListData from "../data/ruleKeyListData.js";
 import {Tip} from "../utils/Tip.js";
 import elUtil from "../utils/elUtil.js";
 import ruleUtil from "../utils/ruleUtil.js";
-import commentSectionModel from "../pagesModel/commentSectionModel.js";
 import output_informationTab from "../layout/output_informationTab.js";
 import gmUtil from "../utils/gmUtil.js";
 import bFetch from '../model/bFetch.js';
