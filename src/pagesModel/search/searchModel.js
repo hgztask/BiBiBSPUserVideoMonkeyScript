@@ -140,7 +140,7 @@ const startShieldingCSVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingCSVideoList});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingCSVideoList})
     }
 }
 
@@ -153,7 +153,7 @@ const startShieldingOtherVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingOtherVideoList});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingOtherVideoList})
     }
 }
 

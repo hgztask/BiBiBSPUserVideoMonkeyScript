@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import shielding from "../../model/shielding.js";
 import defUtil from "../../utils/defUtil.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 /**
  * 获取bewly的shadowRoot元素
@@ -130,7 +131,7 @@ const startShieldingHistoryVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingHistoryVideoList})
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHistoryVideoList})
     }
 }
 
@@ -142,7 +143,7 @@ const startShieldingVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue
         }
-        addVideoBlockButton({data: videoData, maskingFunc: startShieldingVideoList})
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
     }
 }
 
@@ -284,17 +285,6 @@ const rankingLeftTabsInsertListener = () => {
             })
         }
     })
-}
-
-/**
- * 视频添加屏蔽按钮和指令
- * 适配BEWLYBEWLY插件
- * @param data {{}}
- * @param data.data {{}} 视频数据
- * @param data.maskingFunc {function} 屏蔽函数
- */
-const addVideoBlockButton = (data) => {
-    shielding.addBlockButton(data, "gz_shielding_button", ["right", 'bottom']);
 }
 
 /**

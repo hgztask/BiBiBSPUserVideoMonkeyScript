@@ -83,16 +83,15 @@ const addBlockButton = (data, tagCss = '', position = []) => {
     })
 }
 
-
 /**
  * 视频添加屏蔽按钮和指令
  * @param data {Object}
  * @param data.data {{}} 视频数据
  * @param data.maskingFunc {function} 屏蔽函数
  */
-const addVideoBlockButton = (data) => {
+eventEmitter.on('视频添加屏蔽按钮', (data) => {
     addBlockButton(data, "gz_shielding_button", ["right"]);
-}
+})
 
 /**
  * 添加热门视频屏蔽按钮
@@ -100,9 +99,9 @@ const addVideoBlockButton = (data) => {
  * @param data.data {Object} 评论数据
  * @param data.maskingFunc {function} 屏蔽函数
  */
-const addPopularVideoBlockButton = (data) => {
+eventEmitter.on('添加热门视频屏蔽按钮', (data) => {
     addBlockButton(data, "gz_shielding_button", ["right", "bottom"]);
-}
+})
 
 //话题页面中视频项添加屏蔽按钮
 const addTopicDetailVideoBlockButton = (data) => {
@@ -113,19 +112,6 @@ const addTopicDetailContentsBlockButton = (data) => {
     const position = data.data.position;
     const loop = position !== undefined;
     addBlockButton(data, "gz_shielding_topic_detail_button", loop ? position : []);
-}
-
-
-/**
- * 评论添加屏蔽按钮
- * @param commentsData {{}}评论数据
- */
-const addCommentBlockButton = (commentsData) => {
-    const data = {
-        data: commentsData,
-        maskingFunc: commentSectionModel.startShieldingComments
-    }
-    addBlockButton(data, "gz_shielding_comment_button");
 }
 
 /**
@@ -521,13 +507,13 @@ const shieldingComments = (commentsDataList) => {
         //判断是否为楼主，如果是楼主层，则有楼中餐
         //处理列表中的楼主层
         if (shieldingCommentDecorated(commentsData)) continue;
-        addCommentBlockButton(commentsData);
+        eventEmitter.send('评论添加屏蔽按钮', commentsData)
         //当楼主层执行通过后，检查楼中层
         const {replies = []} = commentsData;
         if (replies.length === 0) continue;
         for (let reply of replies) {
             if (shieldingCommentDecorated(reply)) continue;
-            addCommentBlockButton(reply);
+            eventEmitter.send('评论添加屏蔽按钮', reply)
         }
     }
 }
@@ -622,11 +608,8 @@ export default {
     shieldingCommentDecorated,
     shieldingLiveRoomDecorated,
     shieldingComments,
-    addVideoBlockButton,
-    addCommentBlockButton,
     shieldingLiveRoomContentDecorated,
     addLiveContentBlockButton,
-    addPopularVideoBlockButton,
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,
     intervalExecutionStartShieldingVideoInert,

@@ -1,5 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 /**
  * 判断页面是否是旧版历史记录页面
@@ -56,7 +57,7 @@ const startShieldingVideo = async () => {
             continue;
         }
         videoData.css = css
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingVideo});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideo})
     }
     console.log('屏蔽旧版历史记录视频列表完成')
 }

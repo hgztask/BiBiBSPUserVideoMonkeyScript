@@ -1,6 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 
 const generalUrl=[
@@ -104,7 +105,7 @@ const startShieldingRankVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
-        shielding.addPopularVideoBlockButton({data: videoData, maskingFunc: startShieldingRankVideoList})
+        eventEmitter.send('添加热门视频屏蔽按钮', {data: videoData, maskingFunc: startShieldingRankVideoList})
     }
 }
 

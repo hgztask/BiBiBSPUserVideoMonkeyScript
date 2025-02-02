@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding.js";
 import defUtil from "../../utils/defUtil.js";
 import generalFuc from "./generalFuc.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 /**
  *判断是否为稍后再看播放页
@@ -28,7 +29,7 @@ const startShieldingVideoList = async () => {
     for (let videoData of videoList) {
         videoData.css = css;
         if (shielding.shieldingVideoDecorated(videoData)) continue;
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingVideoList});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
     }
 }
 

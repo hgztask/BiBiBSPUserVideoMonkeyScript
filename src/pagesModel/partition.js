@@ -2,6 +2,7 @@ import elUtil from "../utils/elUtil.js";
 import sFormatUtil from "../utils/sFormatUtil.js"
 import defUtil from "../utils/defUtil.js";
 import shielding from "../model/shielding.js";
+import {eventEmitter} from "../model/EventEmitter.js";
 
 /**
  *判断url是否是分区页面
@@ -83,7 +84,7 @@ const shieldingVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: shieldingVideoList})
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: shieldingVideoList})
     }
 }
 

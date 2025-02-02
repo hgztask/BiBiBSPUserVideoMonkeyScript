@@ -4,6 +4,7 @@ import {Tip} from "../../utils/Tip.js";
 import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import localMKData from "../../data/localMKData.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 
 // 判断是否是首页
@@ -185,7 +186,7 @@ const startShieldingGateVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData, "hide")) {
             continue;
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingGateVideoList});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingGateVideoList})
     }
 }
 
@@ -195,7 +196,7 @@ const startShieldingGateVideoList = async () => {
 const startIntervalShieldingGateVideoList = () => {
     const throttle = defUtil.throttle(startShieldingGateVideoList, 2000);
     setInterval(async () => {
-        const tabName = await getGateActivatedTab();
+        await getGateActivatedTab();
         throttle();
     }, 1500);
 }
@@ -227,7 +228,7 @@ const startShieldingChangeVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingChangeVideoList});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingChangeVideoList})
     }
 }
 
@@ -244,7 +245,7 @@ const startShieldingHomeVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
-        shielding.addVideoBlockButton({data: videoData, maskingFunc: startShieldingHomeVideoList});
+        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHomeVideoList})
     }
 }
 
