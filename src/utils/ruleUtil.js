@@ -135,7 +135,7 @@ const verificationRuleMap = (keyArr, content) => {
         return false;
     }
     const newRule = {};
-    for (let key of keyArr) {
+    for (const key in parse) {
         if (!Array.isArray(parse[key])) {
             continue;
         }
@@ -251,7 +251,7 @@ const addRulePreciseUid = (uid) => {
  * @param name {string}
  * @returns null
  */
-const addRulePreciseName= (name) => {
+const addRulePreciseName = (name) => {
     return addRule(name, "precise_name").then(msg => {
         xtip.msg(msg, {icon: 's'});
     }).catch(msg => {

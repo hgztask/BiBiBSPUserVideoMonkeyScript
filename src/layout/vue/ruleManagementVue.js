@@ -1,4 +1,3 @@
-import Vue from "vue";
 import './ruleManagement/basicRulesVue.js'
 import rule_export_import_vue from './ruleManagement/ruleExportImportVue.js'
 import other_parameter_filter from './ruleManagement/otherParameterFilterVue.js'
