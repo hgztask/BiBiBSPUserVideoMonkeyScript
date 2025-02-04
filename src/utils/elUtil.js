@@ -51,61 +51,6 @@ const getUrlBV = (url) => {
 }
 
 /**
- * 事件监听器注册表
- * @type {Map<any, {events:[],attrs:[]}>}
- */
-const eventRegistry = new Map();
-
-/**
- * 添加事件监听器，同时将事件监听器添加到事件注册表中，以进行跟踪。
- * @param element {Document|Element} - 要监听的事件的目标元素。
- * @param eventName 事件名
- * @param handler - 事件处理函数。
- */
-function addEventListenerWithTracking(element, eventName, handler) {
-    if (!element) {
-        console.error(element)
-        throw new Error('错误的元素！')
-    }
-    if (!eventRegistry.has(element)) {
-        //当事件监听器注册表没有该元素时，添加并初始化
-        eventRegistry.set(element, {events: [], attrs: []});
-    }
-    // 获取该元素对应的事件监听器表
-    const {events, attrs} = eventRegistry.get(element);
-    if (attrs.includes(eventName)) {
-        return
-    }
-    attrs.push(eventName)
-    events.push({eventName, handler})
-    element.setAttribute(`event-${eventName}`, eventName)
-    // 如果该元素还没有对应的事件监听器表，则创建一个空的事件监听器表
-    element.addEventListener(eventName, handler);
-}
-
-/**
- * 检查事件监听器是否已注册的对应事件
- * @param element {Element|Document}
- * @param eventName
- * @returns {boolean}
- */
-function hasEventListener(element, eventName) {
-    const elementEvents = eventRegistry.get(element)
-    if (!elementEvents) {
-        // 如果事件监听器注册表中没有该元素，则返回false
-        return false
-    }
-    const attr = element.getAttribute(`event-${eventName}`);
-    if (attr) {
-        return true
-    }
-    const {events} = elementEvents
-    // 遍历事件监听器表，如果事件名存在于事件监听器表中，则返回true
-    return events.some(item => item === eventName);
-}
-
-
-/**
  * 按次数查找单个元素，每次查找之间有指定的间隔时间
  * @param {string} selector - CSS 选择器，用于选择元素
  * @param config{Object} 配置对象
@@ -396,7 +341,6 @@ export default {
     getUrlBV,
     findElement,
     findElements,
-    addEventListenerWithTracking,
     findElementUntilFound,
     findElementWithTimeout,
     findElementsUntilFound,

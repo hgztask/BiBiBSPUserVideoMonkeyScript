@@ -1,7 +1,6 @@
 import ruleMatchingUtil from "../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../data/ruleKeyListData.js";
 import {Tip} from "../utils/Tip.js";
-import elUtil from "../utils/elUtil.js";
 import ruleUtil from "../utils/ruleUtil.js";
 import output_informationTab from "../layout/output_informationTab.js";
 import gmUtil from "../utils/gmUtil.js";
@@ -9,6 +8,7 @@ import bFetch from '../model/bFetch.js';
 import {videoInfoCache} from "./cache/videoInfoCache.js";
 import bvDexie from "./bvDexie.js";
 import {eventEmitter} from "./EventEmitter.js";
+import {elEventEmitter} from "./elEventEmitter.js";
 
 /**
  * 添加屏蔽按钮
@@ -48,8 +48,8 @@ const addBlockButton = (data, tagCss = '', position = []) => {
     //当没有显隐主体元素，则主动隐藏，不添加鼠标经过显示移开隐藏事件
     if (explicitSubjectEl) {
         buttonEL.style.display = "none";
-        elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseout", () => buttonEL.style.display = "none");
-        elUtil.addEventListenerWithTracking(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
+        elEventEmitter.addEvent(explicitSubjectEl, "mouseout", () => buttonEL.style.display = "none");
+        elEventEmitter.addEvent(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
     }
     insertionPositionEl.appendChild(buttonEL);
     buttonEL.addEventListener("click", (event) => {

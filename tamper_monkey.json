@@ -40,6 +40,7 @@
         "*://www.bilibili.com/*"
     ],
     "@require": [
+        "https://unpkg.com/element-ui/lib/index.js",
         "https://cdn.jsdelivr.net/npm/vue@2",
         "https://cdn.jsdelivr.net/npm/dexie@4.0.10/dist/dexie.min.js",
         "https://update.greasyfork.org/scripts/517928/gz_ui_css-v1.js",

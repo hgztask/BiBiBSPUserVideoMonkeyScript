@@ -1,6 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import css from '../../css/searchLive.css'
 import shielding from "../../model/shielding.js";
+import {elEventEmitter} from "../../model/elEventEmitter.js";
 
 //安装样式，该样式主要为修改搜索页的直播选项卡下的隐藏房间卡片，使其显示
 const installStyle = () => {
@@ -65,9 +66,9 @@ const startShieldingLiveRoomList = async () => {
  * @returns {Promise<void>|null}
  */
 const InstallLiveTopTabsListener = async () => {
-    const el = await elUtil.findElementUntilFound('.live-condition')
-    if (elUtil.hasEventListener(el, 'click')) return
-    elUtil.addEventListenerWithTracking(el, 'click', async (event) => {
+    const el = await elUtil.findElement('.live-condition')
+    if (elEventEmitter.hasEventName(el, 'click')) return
+    elEventEmitter.addEvent(el, 'click', async (event) => {
         /**
          * @type {Element|Document}
          */
@@ -88,9 +89,9 @@ const InstallLiveTopTabsListener = async () => {
  * @returns {Promise<void>|null}
  */
 const InstallBottomPagingListener = async () => {
-    const el = await elUtil.findElementUntilFound('.vui_pagenation--btns')
-    if (elUtil.hasEventListener(el, 'click')) return
-    elUtil.addEventListenerWithTracking(el, 'click', async (event) => {
+    const el = await elUtil.findElement('.vui_pagenation--btns')
+    if (elEventEmitter.hasEventName(el, 'click')) return
+    elEventEmitter.addEvent(el, 'click', async (event) => {
         /**
          * @type {Element|Document}
          */
@@ -109,9 +110,9 @@ const InstallBottomPagingListener = async () => {
  * @returns {Promise<void>|null}
  */
 const installTopRoomOrderListener = async () => {
-    const el = await elUtil.findElementUntilFound('.room-order')
-    if (elUtil.hasEventListener(el, 'click')) return
-    elUtil.addEventListenerWithTracking(el, 'click', async (event) => {
+    const el = await elUtil.findElement('.room-order')
+    if (elEventEmitter.hasEventName(el, 'click')) return
+    elEventEmitter.addEvent(el, 'click', async (event) => {
         /**
          * @type {Element|Document}
          */
