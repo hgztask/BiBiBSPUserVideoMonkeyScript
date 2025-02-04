@@ -4,8 +4,9 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
+    "build:prod": "rollup -c rollup-prod.config.js",
+    "watch:dev": "rollup -w -c",
+    "watch:prod": "rollup -w -c rollup-prod.config.js"
   },
   "private": true,
   "devDependencies": {
