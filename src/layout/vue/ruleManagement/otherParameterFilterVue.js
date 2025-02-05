@@ -8,8 +8,10 @@ export default {
       <div>
       <div style="display: flex">
         <div style="width: 70vw">
-          <div>
-            <h2>使用说明</h2>
+          <el-card>
+            <template #header>
+              <span>使用说明</span>
+            </template>
             <ol>
               <li>如设置时长相关单位为秒</li>
               <li>如设置播放量和弹幕量相关单位为个</li>
@@ -25,7 +27,7 @@ export default {
               <li>右侧信息关键条件-1则为未做任何限制处理</li>
               <li>最后因为设置限制条件冲突或限制太多，视频未能限制的情况下，请按需设置限制条件</li>
             </ol>
-          </div>
+          </el-card>
           <input gz_type type="number" :min="inputMin" :max="inputMax" v-model="index">
           <select v-model="selectValue">
             <option :value="item.value" v-for="item in selectList">{{ item.name }}</option>

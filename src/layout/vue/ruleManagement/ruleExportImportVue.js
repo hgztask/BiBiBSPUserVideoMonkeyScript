@@ -7,45 +7,51 @@ import {eventEmitter} from "../../../model/EventEmitter.js";
 export default {
     template: `
       <div>
-      <el-row>
-        <el-col :span="20">
-          <div>
-            <h2>导出规则</h2>
-            <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
-            <button gz_type @click="outToInputBut">导出到编辑框</button>
-            <button gz_type @click="ruleOutToConsoleBut">导出到控制台</button>
-          </div>
-          <h2>导入规则</h2>
-          <div>
-            <ol>
-              <li>规则内容请在下面编辑框中导入</li>
-              <li>旧版本的需要使用下面的v1旧版本导入规则</li>
-              <li>旧版本的只能覆盖导入</li>
-              <li>v1之后的版本可以选择覆盖和追加</li>
-              <li>旧规则转新规则，用于2.0之前版本升上来旧规则内容丢失问题</li>
-            </ol>
-          </div>
-          <input ref="file" type="file" accept="application/json" @change="handleFileUpload"
-                 style="display: none">
+      <el-card shadow="never">
+        <template #header>
+          <span>导出规则</span>
+        </template>
+        <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
+        <button gz_type @click="outToInputBut">导出到编辑框</button>
+        <button gz_type @click="ruleOutToConsoleBut">导出到控制台</button>
+      </el-card>
+      <el-card shadow="never">
+        <template #header>
+          <el-row>
+            <el-col :span="12">
+              <div class="el-horizontal-left">导入规则</div>
+            </el-col>
+            <el-col :span="12">
+              <div class="el-horizontal-right">
+                <el-button v-for="item in ruleReference" @click="xtipAlertBut(item.content,item.title)">
+                  {{ item.title }}
+                </el-button>
+              </div>
+            </el-col>
+          </el-row>
+        </template>
+        <div>规则内容请在下面编辑框中导入</div>
+        <div>旧版本的需要使用下面的v1旧版本导入规则</div>
+        <div>旧版本的只能覆盖导入</div>
+        <div>v1之后的版本可以选择覆盖和追加</div>
+        <div>旧规则转新规则，用于2.0之前版本升上来旧规则内容丢失问题</div>
+        <el-divider/>
+        <div>
           <button gz_type @click="inputFIleRuleBut">读取外部规则文件</button>
           <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
           <button gz_type @click="appendImportRulesBut">追加导入规则</button>
           <button gz_type @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</button>
           <button gz_type @click="ruleOldToNewBut">旧规则自动转新规则</button>
-          <div>
-            <el-input autosize
-                      :autosize="{ minRows: 2, maxRows: 50}"
-                      type="textarea" v-model="ruleContentImport" placeholder="要导入的规则内容"></el-input>
-          </div>
-        </el-col>
-        <el-col :span="4">
-          <div v-for="item in ruleReference">
-            <button gz_type='info' @click="xtipAlertBut(item.content,item.title)">
-              {{ item.title }}
-            </button>
-          </div>
-        </el-col>
-      </el-row>
+        </div>
+        <el-divider/>
+        <div>
+          <el-input autosize
+                    :autosize="{ minRows: 10, maxRows: 50}"
+                    type="textarea" v-model="ruleContentImport" placeholder="要导入的规则内容"></el-input>
+        </div>
+      </el-card>
+      <input ref="file" type="file" accept="application/json" @change="handleFileUpload"
+             style="display: none">
       </div>`,
     data() {
         return {
@@ -71,41 +77,35 @@ export default {
     methods: {
         //覆盖导入规则
         overwriteImportRulesBut() {
-            xtip.confirm('是否要覆盖导入规则？', {
-                icon: 'a',
-                btn1: () => {
-                    const trim = this.ruleContentImport.trim();
-                    if (ruleUtil.overwriteImportRules(this.ruleKeyArr, trim)) {
-                        xtip.msg('已覆盖导入成功！', {icon: 's'})
-                        eventEmitter.emit('刷新规则信息', null);
-                    }
+            this.$confirm('是否要覆盖导入规则？').then(() => {
+                const trim = this.ruleContentImport.trim();
+                debugger
+                if (ruleUtil.overwriteImportRules(this.ruleKeyArr, trim)) {
+                    this.$alert('已覆盖导入成功！')
+                    eventEmitter.send('刷新规则信息');
                 }
             })
         },
         //追加导入规则
         appendImportRulesBut() {
-            xtip.confirm('是否要追加导入规则？', {
-                icon: 'a',
-                btn1: () => {
-                    const trim = this.ruleContentImport.trim();
-                    if (ruleUtil.appendImportRules(this.ruleKeyArr, trim)) {
-                        xtip.msg('已追加导入成功！', {icon: 's'})
-                        eventEmitter.emit('刷新规则信息', null);
-                    }
+            this.$confirm('是否要追加导入规则？').then(() => {
+                const trim = this.ruleContentImport.trim();
+                if (ruleUtil.appendImportRules(this.ruleKeyArr, trim)) {
+                    this.$message('已追加导入成功！')
+                    eventEmitter.send('刷新规则信息');
                 }
+
             })
         },
         //旧版本导入规则-覆盖
         overwriteImportRulesV1But() {
-            xtip.confirm('旧版本-是否导入规则？', {
-                icon: 'a',
-                btn1: () => {
-                    const trim = this.ruleContentImport.trim();
-                    if (ruleUtil.overwriteImportRulesV1(trim)) {
-                        xtip.msg('已导入成功！', {icon: 's'})
-                        eventEmitter.emit('刷新规则信息', null);
-                    }
+            this.$confirm('旧版本-是否导入规则？').then(() => {
+                const trim = this.ruleContentImport.trim();
+                if (ruleUtil.overwriteImportRulesV1(trim)) {
+                    this.$message('已导入成功！')
+                    eventEmitter.send('刷新规则信息');
                 }
+
             })
         },
         xtipAlertBut(content, title) {
@@ -113,8 +113,8 @@ export default {
         },
         ruleOldToNewBut() {
             ruleConversion.oldToNewRule()
-            eventEmitter.emit('刷新规则信息', null);
-            xtip.msg('已转换成功！', {icon: 's'})
+            eventEmitter.send('刷新规则信息');
+            this.$message('已转换成功！')
         },
         handleFileUpload(event) {
             defUtil.handleFileReader(event).then(data => {
@@ -126,7 +126,7 @@ export default {
                     return;
                 }
                 this.ruleContentImport = content;
-                xtip.msg('读取到内容，请按需覆盖或追加', {icon: 's'})
+                this.$message('读取到内容，请按需覆盖或追加')
             })
         },
         inputFIleRuleBut() {
@@ -134,7 +134,7 @@ export default {
         },
         outToInputBut() {
             this.ruleContentImport = ruleUtil.getRuleContent(2);
-            xtip.msg('已导出到输入框！', {icon: 's'})
+            this.$message('已导出到输入框中')
         },
         ruleOutToFIleBut() {
             const ruleContent = ruleUtil.getRuleContent(4);
@@ -145,8 +145,8 @@ export default {
             defUtil.fileDownload(ruleContent, fileName + ".json");
         },
         ruleOutToConsoleBut() {
-            xtip.msg('已导出到控制台上！', {icon: 's'})
             console.log(ruleUtil.getRuleContent());
+            this.$message('已导出到控制台上，F12打开控制台查看')
         },
     },
 };

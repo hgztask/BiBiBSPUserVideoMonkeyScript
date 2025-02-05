@@ -2,7 +2,7 @@ import gmUtil from "./utils/gmUtil.js";
 import {eventEmitter} from "./model/EventEmitter.js";
 
 gmUtil.addGMMenu('主面板', () => {
-    eventEmitter.emit('主面板开关')
+    eventEmitter.send('主面板开关')
 }, 'Q')
 
 gmUtil.addGMMenu('脚本主页', () => {

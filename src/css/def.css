@@ -1,5 +1,23 @@
-
-.el-center {
+/*垂直居中*/
+.el-vertical-center {
     display: flex;
     justify-content: center;
+}
+
+/*水平居中*/
+.el-horizontal-center {
+    display: flex;
+    align-items: center;
+}
+
+/*水平右对齐*/
+.el-horizontal-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/*水平左对齐*/
+.el-horizontal-left {
+    display: flex;
+    justify-content: flex-start;
 }

@@ -1,4 +1,16 @@
-import bvDexie from "./bvDexie.js";
+import video_zoneData from "../data/video_zoneData.js";
+
+const apiStyle = [
+    {
+        txt: '返回视频的所有标签及其基本属性，适合在需要显示标签列表的场景中使用',
+        url: "https://api.bilibili.com/x/tag/archive/tags?bvid="
+    },
+    {
+        txt: `参考脚本所使用的api获取视频tag
+        返回视频的所有标签及其基本属性，还提供了标签的类型和跳转链接，适合在需要根据标签类型进行特殊处理或跳转的场景中使用`,
+        url: 'https://api.bilibili.com/x/web-interface/view/detail/tag?bvid='
+    },
+]
 
 /**
  * 发起网络请求获取视频信息

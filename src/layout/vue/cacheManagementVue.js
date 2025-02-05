@@ -1,8 +1,7 @@
-import Vue from "vue";
 import bvDexie from "../../model/bvDexie.js";
 import defUtil from "../../utils/defUtil.js";
 
-Vue.component('cache_management_vue', {
+export const cache_management_vue = {
     template: `
       <div>
       <ol>
@@ -113,4 +112,4 @@ Vue.component('cache_management_vue', {
     },
     created() {
     }
-})
+};

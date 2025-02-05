@@ -98,14 +98,47 @@ export const setAdaptationBAppCommerce = (bool) => {
     gmUtil.setData("adaptation-b-app-recommend", bool === true)
 }
 
-// 是否隐藏右上角主面板按钮开关，默认为true
-const isHideRightTopMainButSwitch = () => {
-    return gmUtil.getData("hideRightTopMainButSwitch", true) === true;
+// 是否显示右上角主面板按钮开关，默认为true
+const isShowRightTopMainButSwitch = () => {
+    return gmUtil.getData("showRightTopMainButSwitch", false) === true;
 }
 
-// 设置是否隐藏右上角主面板按钮开关
-const setHideRightTopMainButSwitch = (bool) => {
-    gmUtil.setData("hideRightTopMainButSwitch", bool === true)
+// 设置是否显示右上角主面板按钮开关
+const setShowRightTopMainButSwitch = (bool) => {
+    gmUtil.setData("showRightTopMainButSwitch", bool === true)
+}
+
+/**
+ * 是否第一次完整显示外部开关主面板按钮
+ * @returns {boolean}
+ */
+const isFirstFullDisplay = () => {
+    return gmUtil.getData('isFirstFullDisplay', true) === true
+}
+
+/**
+ * 设置是否第一次完整显示外部开关主面板按钮
+ * @param bool {boolean}
+ */
+export const setFirstFullDisplay = (bool) => {
+    gmUtil.setData('isFirstFullDisplay', bool === true)
+}
+
+/**
+ * 是否初次显示后间隔半隐藏主面板开关按钮，默认true
+ * @returns {boolean}
+ */
+const isHalfHiddenIntervalAfterInitialDisplay = () => {
+    return gmUtil.getData('is_half_hidden_interval_after_initial_display', true) === true
+}
+
+
+/**
+ * 设置初次显示后间隔半隐藏主面板开关按钮
+ * @param bool {boolean}
+ */
+const setHalfHiddenIntervalAfterInitialDisplay = (bool) => {
+    gmUtil.setData('is_half_hidden_interval_after_initial_display', bool === true)
 }
 
 /**
@@ -166,6 +199,11 @@ export default {
     setCompatible_BEWLY_BEWLY,
     setDiscardOldCommentAreas,
     isDiscardOldCommentAreas,
-    isHideRightTopMainButSwitch,
-    setHideRightTopMainButSwitch
+    isShowRightTopMainButSwitch,
+    setShowRightTopMainButSwitch,
+    isFirstFullDisplay,
+    setFirstFullDisplay,
+    isHalfHiddenIntervalAfterInitialDisplay,
+    setHalfHiddenIntervalAfterInitialDisplay,
+    isDelPlayerPageRightVideoList,
 }

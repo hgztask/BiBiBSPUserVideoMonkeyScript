@@ -2,13 +2,17 @@ import './ruleManagement/basicRulesVue.js'
 import rule_export_import_vue from './ruleManagement/ruleExportImportVue.js'
 import other_parameter_filter from './ruleManagement/otherParameterFilterVue.js'
 import rule_information_vue from './ruleManagement/ruleInformationVue.js'
+import conditional_processing_vue from './ruleManagement/conditionalProcessingVue.js'
+import {basic_rules_vue} from "./ruleManagement/basicRulesVue.js";
 
 // 规则管理组件
-Vue.component('rule_management_vue', {
+export default {
     components: {
         rule_export_import_vue,
         other_parameter_filter,
-        rule_information_vue
+        rule_information_vue,
+        conditional_processing_vue,
+        basic_rules_vue
     },
     template: `
       <div>
@@ -23,6 +27,9 @@ Vue.component('rule_management_vue', {
         <el-tab-pane label="导出导入">
           <rule_export_import_vue/>
         </el-tab-pane>
+        <el-tab-pane label="条件处理">
+          <conditional_processing_vue/>
+        </el-tab-pane>
         <el-tab-pane label="规则信息">
           <rule_information_vue/>
         </el-tab-pane>
@@ -31,5 +38,5 @@ Vue.component('rule_management_vue', {
     data() {
         return {}
     }
-})
+};
 

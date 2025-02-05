@@ -1,10 +1,7 @@
-import Vue from "vue";
 import localMKData from "../../data/localMKData.js";
 
-/**
- * 兼容性设置
- */
-Vue.component('compatible_setting', {
+// 兼容性设置组件
+export const compatible_setting_vue = {
     template: `
       <div>
       <div>
@@ -42,4 +39,4 @@ Vue.component('compatible_setting', {
             localMKData.setDiscardOldCommentAreas(newVal)
         }
     }
-})
+};
