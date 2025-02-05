@@ -185,7 +185,7 @@ const findElement = async (selector, config = {}) => {
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，去问问1即无限等待
- * @returns {Promise<{data:NodeListOf<Element|Document>,state:boolean}|NodeListOf<Element|Document>>}-如未设置超时时间，直接返回找到的Element列表。设置了成功或失败都会返回对象，对象state为状态，data为结果
+ * @returns {Promise<[Element|Document]|{state:boolean,data:[Element|Document]}>}-如未设置超时时间，直接返回找到的Element列表。设置了成功或失败都会返回对象，对象state为状态，data为结果
  */
 const findElements = async (selector, config = {}) => {
     const defConfig = {doc: document, interval: 1000, timeout: -1}
@@ -210,7 +210,7 @@ const findElements = async (selector, config = {}) => {
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
- * @returns {Promise<NodeListOf<Element|Document>>} - 返回找到的 Element列表
+ * @returns {Promise<Array<Element|Document>>} - 返回找到的 Element列表
  */
 function findElementsUntilFound(selector, config = {}) {
     const defConfig = {doc: document, interval: 1000, timeout: -1}
@@ -219,7 +219,7 @@ function findElementsUntilFound(selector, config = {}) {
         const i1 = setInterval(() => {
             const elements = config.doc.querySelectorAll(selector);
             if (elements.length > 0) {
-                resolve(elements);
+                resolve(Array.from(elements));
                 clearInterval(i1)
             }
         }, config.interval);
@@ -229,51 +229,6 @@ function findElementsUntilFound(selector, config = {}) {
                 reject(null); // 超时则返回 null
             }, config.timeout);
         }
-    });
-}
-
-/**
- * 在指定时间内不断尝试查找单个元素，每次查找之间有指定的间隔时间
- * 如果在指定时间内找不到，则返回 null
- * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.timeout  {number} - 查找的总超时时间（毫秒），默认为60秒，即 60 000 毫秒
- * @returns {Promise<{state:boolean,msg:string,el:Element|null}>} - 返回找到的元素或 null
- */
-function findElementWithTimeout(selector, config = {}) {
-    const defConfig = {
-        doc: document,
-        interval: 1000,
-        timeout: 60000
-    }
-    config = {...defConfig, ...config}
-    return new Promise((resolve) => {
-        let intervalId;
-
-        function attemptToFind() {
-            const element = config.doc.querySelector(selector);
-            if (element) {
-                clearInterval(intervalId);
-                resolve({
-                    state: true,
-                    msg: "已找到元素",
-                    el: element
-                });
-            }
-        }
-
-        intervalId = setInterval(attemptToFind, config.interval);
-        const timeout = setTimeout(() => {
-            clearInterval(intervalId);
-            resolve({
-                state: false,
-                msg: "已超时:" + config.timeout
-            }); // 超时后提示信息
-            clearTimeout(timeout);
-        }, config.timeout);
-        attemptToFind(); // 立即尝试一次
     });
 }
 
@@ -342,8 +297,6 @@ export default {
     findElement,
     findElements,
     findElementUntilFound,
-    findElementWithTimeout,
     findElementsUntilFound,
-    findElementsAndBindEvents,
-    hasEventListener
+    findElementsAndBindEvents
 }
