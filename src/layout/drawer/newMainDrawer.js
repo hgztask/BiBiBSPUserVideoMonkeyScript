@@ -16,6 +16,7 @@ import {bAfterLoadingThePageOpenMainPanel, debugger_management_vue} from "../vue
 import {page_processing_vue} from "../vue/pageProcessingVue.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {about_and_feedback_vue} from "../vue/aboutAndFeedbackVue.js";
+import {show_img_dialog_vue} from "../components/showImgDialogVue.js";
 
 const mainLayoutEl = document.createElement('div');
 mainLayoutEl.style.position = 'fixed';
@@ -74,6 +75,7 @@ new Vue({
             <donate_layout_vue/>
           </el-tab-pane>
           <el-tab-pane label="关于和问题反馈" name="关于和问题反馈" lazy>
+            <about_and_feedback_vue/>
           </el-tab-pane>
           <el-tab-pane label="调试测试" name="调试测试" lazy v-if="debug_panel_show">
             <div v-show="debug_panel_show">
@@ -83,6 +85,7 @@ new Vue({
         </el-tabs>
       </el-drawer>
       <look_content_dialog_vue/>
+      <show_img_dialog_vue/>
       </div>`,
     components: {
         output_information_vue: outputInformationVue,
@@ -94,7 +97,8 @@ new Vue({
         look_content_dialog_vue,
         debugger_management_vue,
         page_processing_vue,
-        about_and_feedback_vue
+        about_and_feedback_vue,
+        show_img_dialog_vue
     },
     data() {
         return {
