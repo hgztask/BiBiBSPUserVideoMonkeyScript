@@ -1,6 +1,7 @@
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import topInput from "../../pagesModel/search/topInput.js";
 
 //页面处理处理
 export const page_processing_vue = {
@@ -64,7 +65,9 @@ export const page_processing_vue = {
             gmUtil.setData('isClearTopInputTipContent', b)
             if (b) {
                 eventEmitter.send('执行清空顶部搜索框提示内容')
+                return
             }
+            topInput.setTopInputPlaceholder()
         }
     }
 }

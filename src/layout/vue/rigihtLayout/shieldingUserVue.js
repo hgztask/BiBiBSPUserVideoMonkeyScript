@@ -62,18 +62,20 @@ export const shielding_user_vue = {
         if (videoPlayModel.isVideoPlayPage()) {
             this.selectUserBlockingButShow = true
         }
-        if (!space.isSpacePage(window.location.href)) return;
-        this.urlUID = elUtil.getUrlUID(window.location.href);
-        if (ruleKeyListData.getPreciseUidArr().includes(this.urlUID)) {
+        if (space.isSpacePage()) {
+            this.urlUID = elUtil.getUrlUID(window.location.href);
+            if (ruleKeyListData.getPreciseUidArr().includes(this.urlUID)) {
+                this.shieldingModelShow = true
+                this.removedShieldingUIDrButShow = true
+                await this.$alert('当前用户为已标记uid黑名单', '提示');
+                return;
+            }
+            if (await space.isPersonalHomepage()) {
+                this.shieldingModelShow = false
+                return;
+            }
             this.shieldingModelShow = true
-            this.removedShieldingUIDrButShow = true
-            await this.$alert('当前用户为已标记uid黑名单', '提示');
-            return;
+            this.shieldingUseUIDrButShow = true
         }
-        if (await space.isPersonalHomepage()) {
-            return;
-        }
-        this.shieldingModelShow = true
-        this.shieldingUseUIDrButShow = true
     }
 }

@@ -140,7 +140,7 @@ new Vue({
             this.drawer = !tempBool;
         })
 
-        eventEmitter.on('notification', (...options) => {
+        eventEmitter.on('el-notification', (...options) => {
             this.$notify(...options)
         })
         eventEmitter.on('el-msg', (...options) => {
