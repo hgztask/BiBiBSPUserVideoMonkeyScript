@@ -1,4 +1,5 @@
 import gmUtil from "../../../utils/gmUtil.js";
+import ruleKeyListData from "../../../data/ruleKeyListData.js";
 
 /**
  * 其他规则组件
@@ -51,62 +52,7 @@ export default {
     data() {
         return {
             index: 0,
-            selectList: [
-                {
-                    name: '最小播放量',
-                    value: 'nMinimumPlay',
-                    //关联
-                    associated: 'nMaximumPlayback',
-                    defVal: -1
-                },
-                {
-                    name: '最大播放量',
-                    value: 'nMaximumPlayback',
-                    associated: 'nMinimumPlay',
-                    //最大
-                    bLarge: true,
-                    defVal: -1
-                },
-                {
-                    name: '最小弹幕数',
-                    value: 'nMinimumBarrage',
-                    associated: 'nMaximumBarrage',
-                    defVal: -1
-                },
-                {
-                    name: '最大弹幕数',
-                    value: 'nMaximumBarrage',
-                    associated: 'nMinimumBarrage',
-                    bLarge: true,
-                    defVal: -1
-                },
-                {
-                    name: '最小时长',
-                    value: 'nMinimumDuration',
-                    associated: 'nMaximumDuration',
-                    defVal: -1
-                },
-                {
-                    name: '最大时长',
-                    value: 'nMaximumDuration',
-                    associated: 'nMinimumDuration',
-                    bLarge: true,
-                    defVal: -1
-                },
-                {
-                    name: '最小用户等级过滤',
-                    value: 'nMinimumLevel',
-                    associated: 'nMaximumLevel',
-                    defVal: -1
-                },
-                {
-                    name: '最大用户等级过滤',
-                    value: 'nMaximumLevel',
-                    associated: 'nMinimumLevel',
-                    bLarge: true,
-                    defVal: -1
-                }
-            ],
+            selectList: ruleKeyListData.otherKeyListData,
             selectValue: 'nMinimumPlay',
             inputMax: '',
             inputMin: '0'
