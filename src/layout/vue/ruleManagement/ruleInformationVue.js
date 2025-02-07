@@ -27,7 +27,11 @@ export default {
             for (let x of this.ruleInfoArr) {
                 x.len = gmUtil.getData(x.type, []).length;
             }
-            Qmsg.info('已刷新规则信息');
+            this.$notify({
+                title: 'tip',
+                message: '刷新规则信息成功',
+                type: 'success',
+            })
         },
     },
     created() {

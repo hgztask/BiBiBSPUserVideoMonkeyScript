@@ -5,10 +5,11 @@ import watch from './watch/watch.js'
 import observeNetwork from "./watch/observeNetwork.js";
 import './menu.js'
 import {eventEmitter} from "./model/EventEmitter.js";
-
+import rightFloatingLayoutVue from "./layout/rightFloatingLayoutVue.js";
 
 window.addEventListener('load', () => {
     console.log('页面加载完成')
+    rightFloatingLayoutVue.addLayout()
     router.staticRoute(document.title, window.location.href);
 
     watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
@@ -22,6 +23,6 @@ watch.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
 
 document.addEventListener('keydown', function (event) {
     if (event.key === "`") {
-        eventEmitter.emit('主面板开关')
+        eventEmitter.send('主面板开关')
     }
 });

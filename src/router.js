@@ -19,6 +19,8 @@ import hotSearch from "./pagesModel/search/hotSearch.js";
 import partition from "./pagesModel/partition.js";
 import elUtil from "./utils/elUtil.js";
 import messagePage from "./pagesModel/message/messagePage.js";
+import topInput from "./pagesModel/search/topInput.js";
+import space from "./pagesModel/space/space.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -35,6 +37,7 @@ const compatible_BEWLY_BEWLY = localMKData.isCompatible_BEWLY_BEWLY()
  */
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
+    topInput.processTopInputContent()
     if (compatible_BEWLY_BEWLY && compatibleBewlyBewly.isBEWLYPage(url)) {
         compatibleBewlyBewly.startRun(url)
         return;
@@ -115,14 +118,16 @@ const staticRoute = (title, url) => {
     if (oldHistory.isOldHistory(url)) {
         oldHistory.intervalExecutionStartShieldingVideo()
     }
-    if (space.isSpacePage(url)) {
-        space.initializePageBlockingButton()
-    }
     if (partition.isPartition(url)) {
         partition.startIntervalShieldingVideoList()
     }
     if (messagePage.isMessagePage(url)) {
         messagePage.modifyTopItemsZIndex()
+    }
+    if (space.isSpacePage()) {
+        space.getUserInfo().then(userInfo => {
+            console.info('userInfo', userInfo)
+        })
     }
 }
 
