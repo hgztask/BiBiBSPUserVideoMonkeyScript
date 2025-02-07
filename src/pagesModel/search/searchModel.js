@@ -1,6 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding.js";
-import {Tip} from "../../utils/Tip.js";
 import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
@@ -22,7 +21,7 @@ const isSearch = (url) => {
  * @returns {Promise<void>|null}
  */
 const currentlyActivatedOptions = async () => {
-    const el = await elUtil.findElementUntilFound('.vui_tabs--nav-item-active .vui_tabs--nav-text')
+    const el = await elUtil.findElement('.vui_tabs--nav-item-active .vui_tabs--nav-text')
     const label = el.textContent.trim();
     if (label === '直播') {
         await searchLive.startShieldingLiveRoomList()
@@ -40,7 +39,7 @@ const currentlyActivatedOptions = async () => {
 // 搜索顶部的选项卡安装监听器
 const searchTopTabsIWrapperInstallListener = async () => {
     const tempTabs = ['番剧', '影视', '用户']
-    const el = await elUtil.findElementUntilFound('.vui_tabs--navbar>ul');
+    const el = await elUtil.findElement('.vui_tabs--navbar>ul');
     el.addEventListener("click", async (event) => {
         /**
          *
@@ -64,7 +63,7 @@ const searchTopTabsIWrapperInstallListener = async () => {
 }
 
 const getVideoList = async (css) => {
-    const elList = await elUtil.findElementsUntilFound(css, {interval: 200});
+    const elList = await elUtil.findElements(css, {interval: 200});
     const list = [];
     for (let el of elList) {
         const title = el.querySelector(".bili-video-card__info--tit").title;
@@ -77,7 +76,6 @@ const getVideoList = async (css) => {
         const userUrl = userEl.getAttribute("href");
         if (!userUrl.includes("//space.bilibili.com/")) {
             el?.remove();
-            Tip.infoBottomRight("移除了非视频内容");
             console.log("移除了非视频内容", userUrl, el);
             continue;
         }
@@ -136,6 +134,7 @@ const getOtherVideoList = () => {
 //处理搜索页综合选项卡中的综合排序视频列表
 const startShieldingCSVideoList = async () => {
     const list = await getTabComprehensiveSortedVideoList()
+    console.log(list)
     for (let videoData of list) {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;
@@ -159,7 +158,7 @@ const startShieldingOtherVideoList = async () => {
 
 //获取搜索页的二级选项卡激活的选项
 const getTwTabActiveItem = async () => {
-    const twoTabActiveItem = await elUtil.findElementUntilFound('.vui_button.vui_button--tab.vui_button--active.mr_sm', {interval: 200})
+    const twoTabActiveItem = await elUtil.findElement('.vui_button.vui_button--tab.vui_button--active.mr_sm', {interval: 200})
     //二级选项卡激活的选项
     const twoTabActiveItemLabel = twoTabActiveItem.textContent.trim()
     return {el: twoTabActiveItemLabel, label: twoTabActiveItemLabel}
@@ -169,9 +168,10 @@ const getTwTabActiveItem = async () => {
  * 开始屏蔽搜索页综合选项卡中的综合排序视频列表和搜索页其他的视频列表
  */
 const startShieldingVideoList = async () => {
-    const topTabActiveItem = await elUtil.findElementUntilFound('.vui_tabs--nav-item.vui_tabs--nav-item-active', {interval: 200})
+    const topTabActiveItem = await elUtil.findElement('.vui_tabs--nav-item.vui_tabs--nav-item-active', {interval: 200})
     //一级选项卡激活的选项
     const topTabActiveItemLabel = topTabActiveItem.textContent.trim();
+    console.log(topTabActiveItemLabel)
     if (topTabActiveItemLabel !== '综合') {
         await startShieldingOtherVideoList()
         return
@@ -200,12 +200,17 @@ const startShieldingVideoList = async () => {
  * @returns {Promise<void>|null}
  */
 const processingExactSearchVideoCardContent = async () => {
-    let el;
+    let res;
     try {
-        el = await elUtil.findElementUntilFound('.user-list.search-all-list', {interval: 50, timeout: 4000})
+        res = await elUtil.findElement('.user-list.search-all-list', {interval: 50, timeout: 4000})
     } catch (e) {
         return
     }
+    let el;
+    if (!res.state) {
+        return
+    }
+    el = res.data
     const infoCardEl = el.querySelector('.info-card');
     const userNameEl = infoCardEl.querySelector('.user-name')
     const name = userNameEl.textContent.trim()
@@ -213,21 +218,18 @@ const processingExactSearchVideoCardContent = async () => {
     const uid = elUtil.getUrlUID(userUrl)
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         el.remove()
-        Tip.successBottomRight('屏蔽到用户')
         eventEmitter.send('打印信息', `根据精确uid匹配到用户${name}-【${uid}】`)
         return
     }
     let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
     if (fuzzyMatch) {
         el.remove()
-        Tip.infoBottomRight('屏蔽到用户')
         eventEmitter.send('打印信息', `根据模糊用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
         return
     }
     fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name)
     if (fuzzyMatch) {
         el.remove()
-        Tip.infoBottomRight('屏蔽到用户')
         eventEmitter.send('打印信息', `根据正则用户名【${fuzzyMatch}】匹配到用户${name}-【${uid}】`)
         return
     }

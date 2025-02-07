@@ -1,6 +1,5 @@
 import ruleMatchingUtil from "../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../data/ruleKeyListData.js";
-import {Tip} from "../utils/Tip.js";
 import ruleUtil from "../utils/ruleUtil.js";
 import output_informationTab from "../layout/output_informationTab.js";
 import gmUtil from "../utils/gmUtil.js";
@@ -9,6 +8,7 @@ import {videoInfoCache} from "./cache/videoInfoCache.js";
 import bvDexie from "./bvDexie.js";
 import {eventEmitter} from "./EventEmitter.js";
 import {elEventEmitter} from "./elEventEmitter.js";
+import {isDisableNetRequestsBvVideoInfo} from "../layout/vue/debuggerMeanagementVue.js";
 
 /**
  * 添加屏蔽按钮
@@ -311,16 +311,21 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         } else {
             el.style.display = "none";
         }
-        Tip.successBottomRight("屏蔽了视频");
+        /**
+         * 如果在搜索页面里使用Qmsg库相关的方法，会暂停一些setTimeOut函数对应的事件，这个问题后续排查
+         * 不知为什么这里如果使用Qmsg库相关的方法，会暂停一些setTimeOut函数对应的事件
+         */
         eventEmitter.send('屏蔽视频信息', type, matching, videoData)
         return true;
+    }
+    if (isDisableNetRequestsBvVideoInfo()) {
+        return state
     }
     shieldingOtherVideoParameter(videoData).then(res => {
         if (!res) {
             return
         }
         const {type, matching} = res
-        Tip.successBottomRight("进阶模式-屏蔽了视频");
         eventEmitter.send('屏蔽视频信息', type, matching, videoData)
     })
     return state;
@@ -397,7 +402,6 @@ const shieldingDynamic = (dynamicData) => {
 const shieldingDynamicDecorated = (dynamicData) => {
     const {state, type, matching} = shieldingDynamic(dynamicData);
     if (state) {
-        Tip.successBottomRight("屏蔽了视频")
         const infoHtml = output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData);
         eventEmitter.send('打印信息', infoHtml)
     }
@@ -478,7 +482,6 @@ const shieldingCommentDecorated = (commentsData) => {
     const {state, type, matching} = shieldingComment(commentsData);
     if (state) {
         commentsData.el?.remove()
-        Tip.successBottomRight("屏蔽了评论")
         eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
     }
     return state;
@@ -502,7 +505,6 @@ const shieldingLiveRoomContentDecorated = (liveRoomContent) => {
     }
     if (state) {
         el?.remove()
-        Tip.successBottomRight("屏蔽了直播间评论")
     }
     if (type) {
         const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
@@ -578,7 +580,6 @@ const shieldingLiveRoomDecorated = (liveRoomData) => {
     const {state, type, matching = null} = shieldingLiveRoom(liveRoomData);
     if (state) {
         liveRoomData.el?.remove();
-        Tip.successBottomRight("屏蔽了直播间")
         const infoHtml = output_informationTab.getLiveRoomInfoHtml(type, matching, liveRoomData);
         eventEmitter.send('打印信息', infoHtml)
     }

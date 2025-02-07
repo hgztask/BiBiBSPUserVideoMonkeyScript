@@ -9,10 +9,9 @@ import {eventEmitter} from "../../model/EventEmitter.js";
  * @returns {Promise<void>|null}
  */
 export const startShieldingHotList = async () => {
-    const elList = await elUtil
-        .findElementsUntilFound(".trendings-col>.trending-item",
-            {interval: 2000})
-    Tip.infoBottomRight("检查热搜关键词中...");
+    const elList = await elUtil.findElements(".trendings-col>.trending-item",
+        {interval: 2000})
+    console.log("检查热搜关键词中...");
     const hotSearchKeyArr = ruleKeyListData.getHotSearchKeyArr();
     const hotSearchKeyCanonicalArr = ruleKeyListData.getHotSearchKeyCanonicalArr();
     for (let el of elList) {

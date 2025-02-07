@@ -13,7 +13,7 @@ const installStyle = () => {
 
 //获取直播列表
 const getLiveRoomList = async () => {
-    const elList = await elUtil.findElementsUntilFound('.live-room-cards>.video-list-item')
+    const elList = await elUtil.findElements('.live-room-cards>.video-list-item')
     const list = []
     for (let el of elList) {
         const titleAEl = el.querySelector('.bili-live-card__info--tit>a');
