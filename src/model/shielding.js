@@ -56,30 +56,43 @@ const addBlockButton = (data, tagCss = '', position = []) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
         const {uid, name} = data.data;
-        console.log("该选项数据:", data);
-        xtip.sheet({
-            btn: [`uid精确屏蔽-用户uid=${uid}-name=${name}`, `用户名精确屏蔽(不推荐)-用户name=${name}`],
-            btn1: () => {
-                if (uid === -1) {
-                    Tip.error("该页面数据不存在uid字段");
+        eventEmitter.send('sheet-dialog', {
+            title: "屏蔽选项",
+            list: [
+                {
+                    label: `uid精确屏蔽-用户uid=${uid}-name=${name}`,
+                    value: "uid"
+                }, {
+                    label: `用户名精确屏蔽(不推荐)-用户name=${name}`,
+                    value: 'name'
+                }
+            ],
+            optionsClick: (item) => {
+                const {value} = item
+                if (value === 'uid') {
+                    // uid精确屏蔽
+                    if (uid === -1) {
+                        eventEmitter.send('el-msg', "该页面数据不存在uid字段")
+                        return;
+                    }
+                    ruleUtil.addRule(uid, "precise_uid").then(msg => {
+                        eventEmitter.send('el-msg', msg)
+                        data.maskingFunc();
+                    }).catch((msg) => {
+                        eventEmitter.send('el-alert', msg)
+                    })
                     return;
                 }
-                ruleUtil.addRule(uid, "precise_uid").then(msg => {
-                    xtip.msg(msg);
-                    data.maskingFunc();
-                }).catch(msg => {
-                    xtip.alert(msg, {icon: 'e'});
-                })
-            },
-            btn2: () => {
+                // 用户名精确屏蔽
                 if (!name) {
-                    alert("该页面数据不存在name字段" + name)
+                    eventEmitter.send('el-alert', "该页面数据不存在name字段" + name)
                     return;
                 }
-                if (!window.confirm('不推荐用户使用精确用户名来屏蔽，确定继续吗？')) return
-                ruleUtil.addRulePreciseName(name)
-            },
-        });
+                eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
+                    ruleUtil.addRulePreciseName(name)
+                })
+            }
+        })
     })
 }
 

@@ -58,35 +58,26 @@ export const panel_settings_vue = {
     },
     methods: {
         setBorderColorBut() {
-            xtip.confirm("是要否设置面板边框颜色吗？", {
-                icon: "a",
-                btn1: () => {
-                    localMKData.setBorderColor(this.input_color);
-                    xtip.alert("已设置面板边框颜色，刷新生效");
-                }
+            this.$confirm('是否设置面板边框颜色', '提示').then(() => {
+                localMKData.setBorderColor(this.input_color);
+                this.$alert("已设置面板边框颜色，刷新生效")
             })
         },
         setDefFontColorForOutputInformationBut() {
-            xtip.confirm("是要否设置输出信息默认字体颜色吗？", {
-                icon: "a",
-                btn1: () => {
-                    localMKData.setOutputInformationFontColor(this.input_color);
-                    xtip.alert("已设置输出信息默认字体颜色，刷新生效");
-                }
+            this.$confirm("是否设置输出信息默认字体颜色", "提示").then(() => {
+                localMKData.setOutputInformationFontColor(this.input_color);
+                this.$alert("已设置输出信息默认字体颜色，刷新生效");
             })
         },
         setTheFontColorForOutputInformationBut() {
-            xtip.confirm("是要否设置输出信息高亮字体颜色吗？", {
-                icon: "a",
-                btn1: () => {
-                    localMKData.setHighlightInformationColor(this.input_color);
-                    xtip.alert("已设置输出信息高亮字体颜色，刷新生效");
-                }
+            this.$confirm('是要设置输出信息高亮字体颜色吗？').then(() => {
+                localMKData.setHighlightInformationColor(this.input_color);
+                this.$alert("已设置输出信息高亮字体颜色，刷新生效");
             })
         },
         setDefInfoBut() {
             localMKData.setDefaultColorInfo()
-            xtip.alert("已恢复默认颜色，刷新生效");
+            this.$alert("已恢复默认颜色，刷新生效");
         },
         changeDevToolsInput() {
             debugger

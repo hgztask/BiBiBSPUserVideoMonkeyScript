@@ -1,6 +1,7 @@
 /**
  * 事件中心类，用于管理事件的订阅和发布。
  * 提供了订阅普通事件、一次性订阅普通事件、订阅回调事件、发送通知、发送普通消息等功能。
+ * @version 1.0.0
  */
 class EventEmitter {
     /**
@@ -173,6 +174,17 @@ class EventEmitter {
      */
     setInvokeInterval(interval) {
         this.#callbackEvents.callbackInterval = interval;
+    }
+
+    /**
+     * 获取事件中心所有事件
+     * @returns {{callbackEvents: {events: {}, callbackInterval: number}, regularEvents: {futures: {}, events: {}}}}
+     */
+    getEvents() {
+        return {
+            regularEvents: this.#regularEvents,
+            callbackEvents: this.#callbackEvents
+        }
     }
 }
 

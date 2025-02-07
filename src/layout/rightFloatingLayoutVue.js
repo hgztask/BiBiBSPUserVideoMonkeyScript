@@ -1,8 +1,7 @@
 import {eventEmitter} from "../model/EventEmitter.js";
 import Vue from "vue";
 import localMKData from "../data/localMKData.js";
-import {Tip} from "../utils/Tip.js";
-import {shielding_user_vue} from "./vue/space/shieldingUserVue.js";
+import {shielding_user_vue} from "./vue/rigihtLayout/shieldingUserVue.js";
 
 
 const addLayout = () => {
@@ -19,7 +18,7 @@ const addLayout = () => {
         if (localMKData.isHalfHiddenIntervalAfterInitialDisplay()) {
             setTimeout(() => {
                 divStyle.transform = 'translateX(80%)'
-                Tip.infoBottomRight('自动隐藏外部主面板显隐按钮')
+                eventEmitter.send('el-msg', '自动隐藏外部主面板显隐按钮')
             }, 8000);
         }
     }
@@ -28,7 +27,7 @@ const addLayout = () => {
     document.body.appendChild(div)
     const config = {
         components: {
-            shielding_user_vue
+            shielding_user_vue,
         },
         el: vueDiv,
         template: `

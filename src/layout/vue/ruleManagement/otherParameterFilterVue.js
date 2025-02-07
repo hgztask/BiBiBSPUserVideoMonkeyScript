@@ -121,19 +121,19 @@ export default {
             //当输入框的值，大于对应关联箱子条件时返回
             if (this.index > associatedVal && associatedVal !== -1) {
                 if (associatedFind.bLarge) {
-                    xtip.alert(`要设置的${find.name}值不能大于${associatedFind.name}的值`)
+                    this.$alert(`要设置的${find.name}值不能大于${associatedFind.name}的值`)
                     return
                 }
                 console.log('正常修改')
             }
-            xtip.alert(`已设置${find.name}，值为${this.index}`)
+            this.$alert(`已设置${find.name}，值为${this.index}`)
             gmUtil.setData(this.selectValue, this.index)
             this.updateInfo()
         },
         cancelBut() {
             gmUtil.setData(this.selectValue, -1)
             const find = this.selectList.find(item => item.value === this.selectValue);
-            xtip.alert(`已取消${find.name}的限制`)
+            this.$alert(`已取消${find.name}的限制`)
             this.updateInfo()
         },
         allCancelBut() {
@@ -149,7 +149,7 @@ export default {
         },
         updateInfoBut() {
             this.updateInfo()
-            xtip.alert('已刷新')
+            this.$alert('已刷新')
         },
     },
     watch: {

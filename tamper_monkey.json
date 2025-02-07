@@ -40,16 +40,10 @@
         "*://www.bilibili.com/*"
     ],
     "@require": [
-        "https://unpkg.com/element-ui/lib/index.js",
         "https://cdn.jsdelivr.net/npm/vue@2",
+        "https://unpkg.com/element-ui/lib/index.js",
         "https://cdn.jsdelivr.net/npm/dexie@4.0.10/dist/dexie.min.js",
-        "https://update.greasyfork.org/scripts/517928/gz_ui_css-v1.js",
-        "https://update.greasyfork.org/scripts/524094/gz-component.js",
-        "https://update.greasyfork.org/scripts/521941/about_and_feedback_components.js",
-        "https://greasyfork.org/scripts/462234-message/code/Message.js",
-        "https://update.greasyfork.org/scripts/449512/Xtiper.js",
-        "https://update.greasyfork.org/scripts/516282/Drawer_gz%E9%A1%B5%E9%9D%A2%E4%BE%A7%E8%BE%B9%E6%8A%BD%E5%B1%89%E7%BB%84%E4%BB%B6.js",
-        "https://update.greasyfork.org/scripts/517538/DynamicTabs_gz.js"
+        "https://update.greasyfork.org/scripts/517928/gz_ui_css-v1.js"
     ],
     "@downloadURL": "https://update.greasyfork.org/scripts/461382/user.js",
     "@updateURL": "https://update.greasyfork.org/scripts/461382/meta.js"

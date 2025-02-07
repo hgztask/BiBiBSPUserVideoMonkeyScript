@@ -7,7 +7,6 @@ import donateLayoutVue from '../vue/donateLayoutVue.js'
 import outputInformationVue from '../vue/outputInformationVue.js'
 import ruleManagementVue from '../vue/ruleManagementVue.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
-import {Tip} from "../../utils/Tip.js";
 import {cache_management_vue} from "../vue/cacheManagementVue.js";
 import {panel_settings_vue} from "../vue/panelSettingsVue.js";
 import {compatible_setting_vue} from "../vue/compatibleSettingVue.js";
@@ -17,13 +16,9 @@ import {page_processing_vue} from "../vue/pageProcessingVue.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {about_and_feedback_vue} from "../vue/aboutAndFeedbackVue.js";
 import {show_img_dialog_vue} from "../components/showImgDialogVue.js";
+import {sheet_dialog_vue} from "../components/sheetDialogVue.js";
 
 const mainLayoutEl = document.createElement('div');
-mainLayoutEl.style.position = 'fixed';
-mainLayoutEl.style.left = '0';
-mainLayoutEl.style.top = '0';
-mainLayoutEl.style.width = '100%';
-mainLayoutEl.style.height = '100%';
 document.body.appendChild(mainLayoutEl);
 
 if (document.head.querySelector('#element-ui-css') === null) {
@@ -35,22 +30,20 @@ if (document.head.querySelector('#element-ui-css') === null) {
     console.log('挂载element-ui样式成功')
 }
 
-
 /**
  * todo 目前发现加载在视频页时，el-drawer的遮罩会挡住整个屏幕，先设置modal为false，关闭遮罩，待后续观察
  * Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。
- * 因此，如果需要执行 DOM 操作，或通过 ref 获取相应组件，请在 open 事件回调中进行。
  */
 new Vue({
     el: mainLayoutEl,
     template: `
       <div>
-      <el-drawer
-          :visible.sync="drawer"
-          direction="ltr"
-          size="100%"
-          :modal="false"
-          :with-header="false">
+      <el-drawer style="position: fixed"
+                 :visible.sync="drawer"
+                 direction="ltr"
+                 size="100%"
+                 :modal="false"
+                 :with-header="false">
         <el-tabs type="border-card" v-model="tabsActiveName"
                  @tab-click="tabClick">
           <el-tab-pane label="面板设置" name="面板设置" lazy>
@@ -86,6 +79,9 @@ new Vue({
       </el-drawer>
       <look_content_dialog_vue/>
       <show_img_dialog_vue/>
+      <sheet_dialog_vue :show="sheet_dialog.show" :list="sheet_dialog.list" :title="sheet_dialog.title"
+                        @close="handleClose"
+                        :close-on-click-modal="sheet_dialog.closeOnClickModal" @options-click="handleOptionsClick"/>
       </div>`,
     components: {
         output_information_vue: outputInformationVue,
@@ -98,18 +94,44 @@ new Vue({
         debugger_management_vue,
         page_processing_vue,
         about_and_feedback_vue,
-        show_img_dialog_vue
+        show_img_dialog_vue,
+        sheet_dialog_vue
     },
     data() {
         return {
             drawer: false,
             tabsActiveName: '规则管理',
-            debug_panel_show: gmUtil.getData('open-dev', false)
+            debug_panel_show: gmUtil.getData('open-dev', false),
+            sheet_dialog: {
+                show: false,
+                list: [],
+                title: "",
+                /**
+                 * @type function
+                 * @returns boolean
+                 */
+                optionsClick: null,
+                closeOnClickModal: true
+            }
         }
     },
     methods: {
         tabClick(tab) {
             gmUtil.setData('mainTabsActiveName', tab.name);
+        },
+        handleClose() {
+            this.sheet_dialog.show = false
+        },
+        handleOptionsClick(item) {
+            let tempBool;
+            //如果回调函数返回true，则不关闭对话框，反之关闭对话框
+            const temp = this.sheet_dialog.optionsClick(item);
+            if (temp === undefined) {
+                tempBool = false
+            } else {
+                tempBool = temp;
+            }
+            this.sheet_dialog.show = tempBool === true;
         }
     },
     created() {
@@ -118,13 +140,23 @@ new Vue({
             this.drawer = !tempBool;
         })
 
-        eventEmitter.on('notification', (options) => {
-            this.$notify(options)
+        eventEmitter.on('notification', (...options) => {
+            this.$notify(...options)
         })
-        Tip.infoBottomRight('主面板组件已加载')
+        eventEmitter.on('el-msg', (...options) => {
+            this.$message(...options)
+        })
+
+        eventEmitter.on('el-alert', (...options) => {
+            this.$alert(...options);
+        })
+
+        eventEmitter.handler('el-confirm', (...options) => {
+            return this.$confirm(...options);
+        })
+
         //记忆主面板激活的tab
         this.tabsActiveName = gmUtil.getData('mainTabsActiveName', '规则管理')
-
 
         eventEmitter.on('debugger-dev-show', (bool) => {
             debugger
@@ -134,6 +166,14 @@ new Vue({
             } else {
                 this.$alert('已关闭测试调试面板', 'tip')
             }
+        })
+
+        eventEmitter.on('sheet-dialog', ({list, optionsClick, title = '选项', closeOnClickModal = false}) => {
+            this.sheet_dialog.show = true
+            this.sheet_dialog.list = list
+            this.sheet_dialog.title = title
+            this.sheet_dialog.optionsClick = optionsClick
+            this.sheet_dialog.closeOnClickModal = closeOnClickModal
         })
 
         if (bAfterLoadingThePageOpenMainPanel()) {

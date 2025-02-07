@@ -122,7 +122,7 @@ export default {
                 try {
                     JSON.parse(content);
                 } catch (e) {
-                    xtip.msg('文件内容有误', {icon: 'e'})
+                    this.$message('文件内容有误')
                     return;
                 }
                 this.ruleContentImport = content;

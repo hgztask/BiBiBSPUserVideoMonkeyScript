@@ -1,6 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding.js";
-import {Tip} from "../../utils/Tip.js";
 import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import localMKData from "../../data/localMKData.js";
@@ -27,7 +26,6 @@ const deDesktopDownloadTipEl = async () => {
     const el = await elUtil.findElementUntilFound(".desktop-download-tip")
     el?.remove();
     const log = "已删除下载提示";
-    Tip.infoBottomRight(log);
     console.log(log, el);
 }
 
@@ -53,7 +51,6 @@ const getChangeTheVideoElList = async () => {
             if (!userUrl.includes("//space.bilibili.com/")) {
                 el?.remove();
                 const log = "遍历换一换视频列表中检测到异常内容，已将该元素移除";
-                Tip.infoBottomRight(log);
                 console.log(log, el);
                 continue;
             }
@@ -117,7 +114,7 @@ const getHomeVideoELList = async () => {
             if (!userUrl.includes("//space.bilibili.com/")) {
                 el?.remove();
                 const log = "遍历换一换视频列表下面列表时检测到异常内容，已将该元素移除";
-                Tip.infoBottomRight(log);
+               eventEmitter.send('打印信息', log)
                 console.log(log, el);
                 continue;
             }
@@ -138,7 +135,7 @@ const getHomeVideoELList = async () => {
             list.push(items)
         } catch (e) {
             el?.remove();
-            Tip.infoBottomRight("遍历视频列表中检测到异常内容，已将该元素移除;")
+            console.log("遍历视频列表中检测到异常内容，已将该元素移除;");
         }
     }
     return list;

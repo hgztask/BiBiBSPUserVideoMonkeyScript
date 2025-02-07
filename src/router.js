@@ -63,7 +63,6 @@ const staticRoute = (title, url) => {
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
         elUtil.findElement('.v-modal').then(() => {
-            debugger
             const styleEl = document.createElement('style');
             styleEl.innerHTML = `
           .v-modal  {
@@ -74,14 +73,12 @@ const staticRoute = (title, url) => {
         })
         videoPlayModel.startShieldingVideoList();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
-        videoPlayModel.startIntervalCheckInstallShieldingButton()
         videoPlayModel.setVideoPlayerEnded()
         videoPlayModel.delElManagement();
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.startShieldingVideoList();
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
-        videoPlayModel.startIntervalCheckInstallShieldingButton()
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.addWatchLiveRoomChatItemsListener();
@@ -104,7 +101,6 @@ const staticRoute = (title, url) => {
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.startDebounceShieldingVideoList();
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
-        videoPlayModel.startIntervalCheckInstallShieldingButton()
     }
     if (liveSectionModel.isLiveSection(url)) {
         liveSectionModel.startShieldingLiveRoom();

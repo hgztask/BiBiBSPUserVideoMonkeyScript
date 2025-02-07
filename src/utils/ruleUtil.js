@@ -1,5 +1,6 @@
 import gmUtil from "./gmUtil.js";
 import ruleKeyListData from '../data/ruleKeyListData.js'
+import {eventEmitter} from "../model/EventEmitter.js";
 
 /**
  *验证输入框的值
@@ -240,9 +241,9 @@ const overwriteImportRulesV1 = (content) => {
  */
 const addRulePreciseUid = (uid) => {
     return addRule(uid, "precise_uid").then(msg => {
-        xtip.msg(msg, {icon: 's'});
+        eventEmitter.send('el-msg', msg)
     }).catch(msg => {
-        xtip.msg(msg, {icon: 'e'});
+        eventEmitter.send('el-msg', msg)
     })
 }
 
@@ -253,9 +254,9 @@ const addRulePreciseUid = (uid) => {
  */
 const addRulePreciseName = (name) => {
     return addRule(name, "precise_name").then(msg => {
-        xtip.msg(msg, {icon: 's'});
+        eventEmitter.send('el-msg', msg)
     }).catch(msg => {
-        xtip.msg(msg, {icon: 'e'});
+        eventEmitter.send('el-msg', msg)
     })
 }
 

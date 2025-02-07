@@ -25,7 +25,7 @@ export const cache_management_vue = {
         outDbDataBut() {
             bvDexie.getVideoInfo().then((data) => {
                 if (data.length === 0) {
-                    xtip.msg('当前域名下没有缓存视频数据')
+                    this.$message('当前域名下没有缓存视频数据')
                     return
                 }
                 data = {
@@ -34,7 +34,7 @@ export const cache_management_vue = {
                     data: data
                 }
                 defUtil.fileDownload(JSON.stringify(data, null, 4), 'mk-db-videoInfos-cache.json')
-                xtip.msg('已导出当前域名的缓存数据', 'success')
+                this.$message('已导出当前域名的缓存数据')
                 console.log(data)
             })
         },
@@ -48,45 +48,45 @@ export const cache_management_vue = {
                 try {
                     parse = JSON.parse(content);
                 } catch (e) {
-                    xtip.msg('文件内容有误', {icon: 'e'})
+                    this.$message('文件内容有误')
                     return;
                 }
                 const {hostName = null, videoInfos = []} = parse;
                 if (!hostName) {
-                    xtip.msg('hostName字段不存在', {icon: 'e'})
+                    this.$message('hostName字段不存在')
                     return;
                 }
                 if (!defUtil.isIterable(videoInfos)) {
-                    xtip.msg('文件内容有误，非可迭代的数组！', {icon: 'e'})
+                    this.$message('文件内容有误，非可迭代的数组！')
                     return;
                 }
                 if (videoInfos.length === 0) {
-                    xtip.msg('tags数据为空', {icon: 'e'})
+                    this.$message('tags数据为空')
                     return;
                 }
                 for (let item of videoInfos) {
                     if (!item['bv']) {
-                        xtip.msg('bv字段不存在', {icon: 'e'})
+                        this.$message('bv字段不存在')
                         return;
                     }
                     if (!item['tags']) {
-                        xtip.msg('tags字段不存在', {icon: 'e'})
+                        this.$message('tags字段不存在')
                         return;
                     }
                     if (!item['userInfo']) {
-                        xtip.msg('userInfo字段不存在', {icon: 'e'})
+                        this.$message('userInfo字段不存在')
                         return;
                     }
                     if (!item['videoInfo']) {
-                        xtip.msg('videoInfo字段不存在', {icon: 'e'})
+                        this.$message('videoInfo字段不存在')
                         return;
                     }
                 }
                 bvDexie.bulkImportVideoInfos(videoInfos).then((bool) => {
                     if (bool) {
-                        xtip.msg('导入成功', 'success')
+                        this.$message('导入成功')
                     } else {
-                        xtip.msg('导入失败', 'error')
+                        this.$message('导入失败')
                     }
                 })
             })
@@ -95,19 +95,15 @@ export const cache_management_vue = {
             this.$refs.inputDemo.click();
         },
         clearPageVideoCacheDataBut() {
-            xtip.confirm('是否清空当前域名下的tags数据', {
-                icon: 'a',
-                btn1: () => {
-                    bvDexie.clearVideoInfosTable().then((bool) => {
-                        if (bool) {
-                            xtip.msg('已清空当前域名下的视频缓存数据', 'success')
-                        } else {
-                            xtip.msg('清空失败', 'error')
-                        }
-                    })
-                }
+            this.$confirm('是否清空当前域名下的tags数据').then(() => {
+                bvDexie.clearVideoInfosTable().then((bool) => {
+                    if (bool) {
+                        this.$message('已清空当前域名下的视频缓存数据')
+                    } else {
+                        this.$message('清空失败')
+                    }
+                })
             })
-
         }
     },
     created() {
