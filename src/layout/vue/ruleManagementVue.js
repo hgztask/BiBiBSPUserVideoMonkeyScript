@@ -23,7 +23,7 @@ export default {
         <el-tab-pane label="其他规则">
           <other_parameter_filter/>
         </el-tab-pane>
-        <el-tab-pane label="高级规则">高级规则</el-tab-pane>
+        <el-tab-pane label="高级规则">待补充</el-tab-pane>
         <el-tab-pane label="导出导入">
           <rule_export_import_vue/>
         </el-tab-pane>
