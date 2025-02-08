@@ -326,6 +326,11 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
             return
         }
         const {type, matching} = res
+        if (method === "remove") {
+            el.remove();
+        } else {
+            el.style.display = "none";
+        }
         eventEmitter.send('屏蔽视频信息', type, matching, videoData)
     })
     return state;
