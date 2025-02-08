@@ -4,6 +4,9 @@ import localMKData from "../data/localMKData.js";
 import {shielding_user_vue} from "./vue/rigihtLayout/shieldingUserVue.js";
 
 
+/**
+ * 插入右侧悬浮布局
+ */
 const addLayout = () => {
     const div = document.createElement('div');
     const divStyle = div.style;

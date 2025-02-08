@@ -1,5 +1,4 @@
 import './drawer/newMainDrawer.js'
-import './output_informationTab.js'
 import gmUtil from "../utils/gmUtil.js";
 import localMKData from "../data/localMKData.js";
 import defCss from '../css/def.css'

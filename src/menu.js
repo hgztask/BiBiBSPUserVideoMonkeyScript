@@ -5,9 +5,10 @@ gmUtil.addGMMenu('主面板', () => {
     eventEmitter.send('主面板开关')
 }, 'Q')
 
-gmUtil.addGMMenu('脚本主页', () => {
-    const aEl = document.createElement('a');
-    aEl.target = '_blank';
-    aEl.href = 'https://greasyfork.org/zh-CN/scripts/461382';
-    aEl.click();
+gmUtil.addGMMenu('gf脚本更新页', () => {
+    gmUtil.openInTab('https://greasyfork.org/zh-CN/scripts/461382')
 }, 'W')
+
+gmUtil.addGMMenu('脚本猫脚本更新页', () => {
+    gmUtil.openInTab('https://scriptcat.org/zh-CN/script-show-page/1029')
+}, 'E')

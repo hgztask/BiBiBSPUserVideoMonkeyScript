@@ -41,4 +41,17 @@ export default {
     addGMMenu(text, func, shortcutKey = null) {
         return GM_registerMenuCommand(text, func, shortcutKey);
     },
+    /**
+     * 打开新标签页
+     * 使用参数url打开一个新的tab，options可以是以下值
+     *  另外，新的选项卡将被添加。
+     * @param url {string}
+     * @param options {{}}
+     * @param options.active {boolean} 决定新的tab是否被聚焦，聚焦的意思是直接显示
+     * @param options.insert {boolean} 插入一个新的tab在当前的tab后面
+     * @param options.setParent {boolean}在tab关闭后重新聚焦当前tab
+     */
+    openInTab(url, options = {active: true, insert: true, setParent: true}) {
+        GM_openInTab(url, options)
+    }
 }
