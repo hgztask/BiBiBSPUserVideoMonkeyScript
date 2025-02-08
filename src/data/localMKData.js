@@ -182,6 +182,21 @@ const isDelPlayerPageRightVideoList = () => {
     return gmUtil.getData("isDelPlayerPageRightVideoList", false) === true
 }
 
+/**
+ * 是否模糊和正则匹配词转小写
+ * @returns {boolean}
+ */
+const bFuzzyAndRegularMatchingWordsToLowercase = () => {
+    return gmUtil.getData("bFuzzyAndRegularMatchingWordsToLowercase", true) === true
+}
+
+/**
+ * 设置是否模糊和正则匹配词转小写
+ * @param bool {boolean}
+ */
+const setFuzzyAndRegularMatchingWordsToLowercase = (bool) => {
+    gmUtil.setData("bFuzzyAndRegularMatchingWordsToLowercase", bool === true)
+}
 
 export default {
     setBorderColor,
@@ -206,4 +221,6 @@ export default {
     isHalfHiddenIntervalAfterInitialDisplay,
     setHalfHiddenIntervalAfterInitialDisplay,
     isDelPlayerPageRightVideoList,
+    bFuzzyAndRegularMatchingWordsToLowercase,
+    setFuzzyAndRegularMatchingWordsToLowercase
 }

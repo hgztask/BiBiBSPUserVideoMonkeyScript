@@ -1,4 +1,5 @@
 import {eventEmitter} from "../model/EventEmitter.js";
+import localMKData from "../data/localMKData.js";
 
 /**
  * 精确匹配
@@ -12,6 +13,7 @@ const exactMatch = (ruleList, value) => {
     return ruleList.some(item => item === value);
 }
 
+const bFuzzyAndRegularMatchingWordsToLowercase = localMKData.bFuzzyAndRegularMatchingWordsToLowercase()
 
 /**
  * 正则匹配，匹配上则返回规则列表中的规则，反之返回null
@@ -22,8 +24,10 @@ const exactMatch = (ruleList, value) => {
 const regexMatch = (ruleList, value) => {
     if (ruleList === null || ruleList === undefined) return null;
     if (!Array.isArray(ruleList)) return null
-    //转小写
-    value = value.toLowerCase();
+    if (bFuzzyAndRegularMatchingWordsToLowercase) {
+        //转小写
+        value = value.toLowerCase();
+    }
     //去除空格
     value = value.split(/[\t\r\f\n\s]*/g).join("")
     const find = ruleList.find(item => {
@@ -45,7 +49,7 @@ const regexMatch = (ruleList, value) => {
  * @return {string|null}
  */
 const fuzzyMatch = (ruleList, value) => {
-    if (ruleList === null || ruleList === undefined||value===null) return null;
+    if (ruleList === null || ruleList === undefined || value === null) return null;
     if (!Array.isArray(ruleList)) return null
     const find = ruleList.find(item => value.toLowerCase().includes(item));
     return find === undefined ? null : find;

@@ -38,6 +38,7 @@ const compatible_BEWLY_BEWLY = localMKData.isCompatible_BEWLY_BEWLY()
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
     topInput.processTopInputContent()
+    debugger
     if (compatible_BEWLY_BEWLY && compatibleBewlyBewly.isBEWLYPage(url)) {
         compatibleBewlyBewly.startRun(url)
         return;

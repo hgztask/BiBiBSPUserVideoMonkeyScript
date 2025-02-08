@@ -10,11 +10,8 @@ export const basic_rules_vue = {
         <template #header>
           <span>使用说明</span>
         </template>
-        <div>脚本中会对要匹配的内容进行去除空格和转成小写，比如有个内容是【不 要 笑 挑 战
-          ChallEnGE】，会被识别称为【不要笑挑战challenge】
-        </div>
-        <div>在上述一点的情况下，模糊匹配和正则匹配的方式时不用考虑要匹配的内容中大写问题</div>
-        <div>大部分情况下模糊匹配比精确匹配好用</div>
+        <div>1. 大部分情况下模糊匹配比精确匹配好用</div>
+        <div>2. 如果可以的话，请优先考虑根据uid精确屏蔽，而非使用用户名相关屏蔽，因用户名可以随意更改</div>
         <div>如果用户要添加自己的正则匹配相关的规则时，建议先去该网址进行测试再添加，避免浪费时间
           <el-link href="https://www.jyshare.com/front-end/854/" target="_blank"
                    type="primary">>>>正则表达式在线测试<<<

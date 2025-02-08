@@ -321,7 +321,10 @@ const startRun = async (url) => {
     const parseUrl = defUtil.parseUrl(url);
     const {page} = parseUrl.queryParams
     installBEWLStyle()
-    if (page === 'Home' || url.startsWith('https://www.bilibili.com/?spm_id_from=')) {
+    if (page === 'Home' ||
+        url.startsWith('https://www.bilibili.com/?spm_id_from=') ||
+        url === 'https://www.bilibili.com/'
+    ) {
         startShieldingVideo().start()
         homeTopTabsInsertListener()
     }
