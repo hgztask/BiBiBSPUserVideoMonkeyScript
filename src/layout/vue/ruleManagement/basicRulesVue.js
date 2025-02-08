@@ -1,6 +1,7 @@
 import ruleUtil from "../../../utils/ruleUtil.js";
 import gmUtil from "../../../utils/gmUtil.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
+import ruleKeyListData from "../../../data/ruleKeyListData.js";
 //基础规则管理
 export const basic_rules_vue = {
     template: `
@@ -103,7 +104,12 @@ export const basic_rules_vue = {
         },
         clearItemRuleBut() {
             const type = this.selectVal;
-            console.log(type)
+            const find = this.ruleInfoArr.find(item => item.type === type);
+            this.$confirm(`是要清空${find.name}的规则内容吗？`, 'tip').then(() => {
+
+                ruleKeyListData.clearKeyItem(type);
+                this.$alert(`已清空${find.name}的规则内容`)
+            })
         }
     },
     watch: {

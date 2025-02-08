@@ -1,9 +1,9 @@
+import './menu.js'
 import './model/externalLibraryVerification.js'
 import "./layout/init.js";
 import router from './router.js'
 import watch from './watch/watch.js'
 import observeNetwork from "./watch/observeNetwork.js";
-import './menu.js'
 import {eventEmitter} from "./model/EventEmitter.js";
 import rightFloatingLayoutVue from "./layout/rightFloatingLayoutVue.js";
 

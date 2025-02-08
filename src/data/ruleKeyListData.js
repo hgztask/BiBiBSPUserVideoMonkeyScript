@@ -316,6 +316,16 @@ const getHotSearchKeyCanonicalArr = () => {
     return gmUtil.getData("hotSearchKeyCanonical", []);
 }
 
+
+/**
+ *移除指定key类型的规则
+ * @param ruleKey {string} mk-key值
+ */
+const clearKeyItem = (ruleKey) => {
+    gmUtil.delData(ruleKey)
+}
+
+
 export default {
     getNameArr,
     getPreciseNameArr,
@@ -337,5 +347,6 @@ export default {
     getVideoTagCanonicalArr,
     getHotSearchKeyArr,
     getHotSearchKeyCanonicalArr,
-    otherKeyListData
+    otherKeyListData,
+    clearKeyItem
 }

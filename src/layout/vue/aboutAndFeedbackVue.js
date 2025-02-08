@@ -1,4 +1,5 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
+import globalValue from '../../data/globalValue.js'
 
 /**
  * 关于与反馈组件
@@ -17,8 +18,7 @@ export const about_and_feedback_vue = {
           <span>交流群</span>
         </template>
         <el-link
-            href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=tFU0xLt1uO5u5CXI2ktQRLh_XGAHBl7C&authKey=KAf4rICQYjfYUi66WelJAGhYtbJLILVWumOm%2BO9nM5fNaaVuF9Iiw3dJoPsVRUak&noverify=0&group_code=876295632"
-            target="_blank" type="primary">====》Q群传送门《====
+            :href='group_url' target="_blank" type="primary">====》Q群传送门《====
         </el-link>
         <el-tooltip content="点击查看群二维码">
           <el-tag @click="lookImgBut">876295632</el-tag>
@@ -41,7 +41,7 @@ export const about_and_feedback_vue = {
           <el-col :span="12">
             <el-card>
               <span>脚本猫</span>
-              <el-link target="_blank" type="primary" href="https://scriptcat.org/zh-CN/script-show-page/1029/">
+              <el-link target="_blank" type="primary" :href="scriptCat_js_url">
                 ===》传送门《===
               </el-link>
             </el-card>
@@ -74,7 +74,10 @@ export const about_and_feedback_vue = {
       </el-card>
       </div>`,
     data() {
-        return {}
+        return {
+            group_url: globalValue.group_url,
+            scriptCat_js_url: globalValue.scriptCat_js_url
+        }
     },
     methods: {
         lookImgBut() {
