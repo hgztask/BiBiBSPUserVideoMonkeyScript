@@ -75,12 +75,11 @@ const addBlockButton = (data, tagCss = '', position = []) => {
                         eventEmitter.send('el-msg', "该页面数据不存在uid字段")
                         return;
                     }
-                    ruleUtil.addRule(uid, "precise_uid").then(msg => {
-                        eventEmitter.send('el-msg', msg)
+                    const {status, res} = ruleUtil.addRulePreciseUid(uid, false);
+                    if (status) {
                         data.maskingFunc();
-                    }).catch((msg) => {
-                        eventEmitter.send('el-alert', msg)
-                    })
+                    }
+                    eventEmitter.send('el-alert', res)
                     return;
                 }
                 // 用户名精确屏蔽

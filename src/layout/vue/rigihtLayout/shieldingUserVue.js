@@ -42,13 +42,19 @@ export const shielding_user_vue = {
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    //todo 待优化处理，后续根据屏蔽成功之后隐藏对应的屏蔽按钮并显示取消屏蔽按钮
-                    ruleUtil.addRulePreciseUid(uid)
+                    const {status, res} = ruleUtil.addRulePreciseUid(uid, false);
+                    this.$alert(res)
+                    if (status) {
+                        // 屏蔽成功后隐藏屏蔽按钮并显示取消屏蔽按钮
+                        this.shieldingUseUIDrButShow = false
+                        this.removedShieldingUIDrButShow = true
+                    }
                 })
                 return
             }
             if (item === '移除屏蔽uid') {
-                this.$message('暂未完善')
+                const {uid} = await space.getUserInfo()
+                ruleUtil.delRUlePreciseUid(uid)
                 return
             }
             if (item === '选择用户屏蔽') {

@@ -32,9 +32,8 @@ const verificationInputValue = (ruleValue, type) => {
  * 添加规则
  * @param ruleValue {string|number} 规则的实际值
  * @param type {string} 类型
- * @returns {Promise<unknown>}
  */
-const addRule = async (ruleValue, type) => {
+const addRule = (ruleValue, type) => {
     const verificationRes = verificationInputValue(ruleValue, type);
     if (!verificationRes.status) {
         return verificationRes
@@ -61,9 +60,32 @@ const showAddRuleInput = async (type) => {
     } catch (e) {
         return
     }
-    const {res} = await addRule(ruleValue, type)
+    const {res, status} = addRule(ruleValue, type)
     eventEmitter.send('el-msg', res)
-    eventEmitter.send('刷新规则信息')
+    status && eventEmitter.send('刷新规则信息')
+}
+
+
+/**
+ * 删除单个规则值
+ * @param type {string}
+ * @param value {string|number}
+ * @returns {{status: boolean, res: (string|number)}|{res: string, status: boolean}}
+ */
+const delRule = (type, value) => {
+    const verificationRes = verificationInputValue(value, type);
+    if (!verificationRes.status) {
+        return verificationRes
+    }
+    const {res} = verificationRes
+    const arr = gmUtil.getData(type, []);
+    const indexOf = arr.indexOf(res);
+    if (indexOf === -1) {
+        return {status: false, res: '不存在此内容'};
+    }
+    arr.splice(indexOf, 1);
+    gmUtil.setData(type, arr);
+    return {status: true, res: "移除成功"}
 }
 
 /**
@@ -79,22 +101,10 @@ const showDelRuleInput = async (type) => {
     } catch (e) {
         return
     }
-    const {status, res} = verificationInputValue(ruleValue, type);
-    if (!status) {
-        eventEmitter.send('el-msg', res)
-        return
-    }
-    const arr = gmUtil.getData(type, []);
-    const indexOf = arr.indexOf(res);
-    if (indexOf === -1) {
-        eventEmitter.send('el-msg', '不存在此内容')
-        return;
-    }
-    arr.splice(indexOf, 1);
-    gmUtil.setData(type, arr);
-    eventEmitter.send('el-msg', '移除成功')
+    const {status, res} = delRule(type, ruleValue)
+    eventEmitter.send('el-msg', res)
+    status && eventEmitter.send('刷新规则信息');
 }
-
 
 /**
  *获取本地规则内容
@@ -226,28 +236,48 @@ const overwriteImportRulesV1 = (content) => {
 
 /**
  * 添加精确uid
- * @param uid
- * @returns {Promise<void>}
+ * @param uid {number}
+ * @param isTip {boolean} 是否提示，默认true，则默认提示，如果为false则不提示，返回结果
+ * @returns {{status: boolean, res: string}|null}
  */
-const addRulePreciseUid = (uid) => {
-    return addRule(uid, "precise_uid").then(msg => {
-        eventEmitter.send('el-msg', msg)
-    }).catch(msg => {
-        eventEmitter.send('el-msg', msg)
-    })
+const addRulePreciseUid = (uid, isTip = true) => {
+    const results = addRule(uid, "precise_uid");
+    if (isTip) {
+        eventEmitter.send('el-alert', results.res)
+        return null
+    }
+    return results;
 }
+
+
+/**
+ * 删除精确uid
+ * @param uid {number}
+ * @param isTip {boolean} 是否提示，默认true，则默认提示，如果为false则不提示，返回结果
+ * @returns {{status: boolean, res: string|number}|null}
+ */
+const delRUlePreciseUid = (uid, isTip = true) => {
+    const results = delRule('precise_uid', uid)
+    if (isTip) {
+        eventEmitter.send('el-alert', results.res)
+        return null
+    }
+    return results
+}
+
 
 /**
  * 添加精确name
  * @param name {string}
- * @returns null
+ * @param tip {boolean} 是否提示,默认true，则默认提示，如果为false则不提示，返回结果
+ * @returns {{status: boolean, res: string}|null}
  */
-const addRulePreciseName = (name) => {
-    return addRule(name, "precise_name").then(msg => {
-        eventEmitter.send('el-msg', msg)
-    }).catch(msg => {
-        eventEmitter.send('el-msg', msg)
-    })
+const addRulePreciseName = (name, tip = true) => {
+    const results = addRule(name, "precise_name");
+    if (tip) {
+        eventEmitter.send('el-msg', results.res)
+    }
+    return results;
 }
 
 /**
@@ -272,5 +302,6 @@ export default {
     getNewRuleKeyList,
     addRulePreciseUid,
     addRulePreciseName,
+    delRUlePreciseUid,
     findRuleItemValue
 }

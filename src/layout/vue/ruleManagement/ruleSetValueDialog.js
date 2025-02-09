@@ -13,10 +13,10 @@ export const rule_set_value_dialog = {
         {{ ruleName }}-{{ ruleType }}
         <el-form>
           <el-form-item label="要修改的值">
-            <el-input v-model="oldVal"/>
+            <el-input type="text" v-model="oldVal" clearable/>
           </el-form-item>
           <el-form-item label="修改后的值">
-            <el-input v-model="newVal"/>
+            <el-input v-model="newVal" clearable/>
           </el-form-item>
         </el-form>
         <template #footer class="dialog-footer">
