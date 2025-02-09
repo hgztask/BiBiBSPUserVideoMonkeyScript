@@ -6,24 +6,25 @@ import {eventEmitter} from "../model/EventEmitter.js";
  *验证输入框的值
  * @param ruleValue 规则的实际值
  * @param type 类型
- * @returns {number|string|null}
+ * @returns {{status: boolean, res: string|number}} 返回验证结果
  */
 const verificationInputValue = (ruleValue, type) => {
-    if (ruleValue === null) return null;
+    if (ruleValue === null) return {status: false, res: '内容不能为空'};
     if (type === "precise_uid" || type === "precise_uid_white") {
         ruleValue = parseInt(ruleValue);
         if (isNaN(ruleValue)) {
-            Qmsg.info('请输入数字!')
-            return null;
+            return {
+                status: false,
+                res: '请输入数字！'
+            };
         }
     } else {
         ruleValue.trim();
     }
     if (ruleValue === '') {
-        Qmsg.info('内容为空')
-        return null;
+        return {status: false, res: '内容不能为空'};
     }
-    return ruleValue;
+    return {status: true, res: ruleValue};
 }
 
 
@@ -33,78 +34,67 @@ const verificationInputValue = (ruleValue, type) => {
  * @param type {string} 类型
  * @returns {Promise<unknown>}
  */
-const addRule = (ruleValue, type) => {
-    const inputValue = verificationInputValue(ruleValue, type);
-    return new Promise((resolve, reject) => {
-            if (inputValue === null) {
-                reject('取消添加');
-                return;
-            }
-            const arr = gmUtil.getData(type, []);
-            if (arr.includes(inputValue)) {
-                reject('已存在此内容');
-                return;
-            }
-            arr.push(inputValue);
-            gmUtil.setData(type, arr);
-            resolve('添加成功');
-        }
-    )
+const addRule = async (ruleValue, type) => {
+    const verificationRes = verificationInputValue(ruleValue, type);
+    if (!verificationRes.status) {
+        return verificationRes
+    }
+    const arr = gmUtil.getData(type, []);
+    if (arr.includes(verificationRes.res)) {
+        return {status: false, res: '已存在此内容'};
+    }
+    arr.push(verificationRes.res);
+    gmUtil.setData(type, arr);
+    return {status: true, res: '添加成功'};
 }
 
 /**
  * 添加规则对话框
  * @param type {string} 类型
- * @returns {Promise<unknown>}
+ * @returns {null}
  */
-const showAddRuleInput = (type) => {
-    const ruleValue = window.prompt('请输入要添加的规则内容', '');
-    return addRule(ruleValue, type);
+const showAddRuleInput = async (type) => {
+    let ruleValue;
+    try {
+        const {value} = await eventEmitter.invoke('el-prompt', '请输入要添加的规则内容', 'tip');
+        ruleValue = value
+    } catch (e) {
+        return
+    }
+    const {res} = await addRule(ruleValue, type)
+    eventEmitter.send('el-msg', res)
+    eventEmitter.send('刷新规则信息')
 }
 
-const showDelRuleInput = (type) => {
-    let prompt = window.prompt('请输入要移除的规则内容', '');
-    const inputValue = verificationInputValue(prompt, type);
-    return new Promise((resolve, reject) => {
-        if (inputValue === null) {
-            reject('取消添加');
-            return;
-        }
-        const arr = gmUtil.getData(type, []);
-        const indexOf = arr.indexOf(inputValue);
-        if (indexOf === -1) {
-            reject('不存在此内容');
-            return;
-        }
-        arr.splice(indexOf, 1);
-        gmUtil.setData(type, arr);
-        resolve('移除成功');
-    })
+/**
+ * 删除规则对话框
+ * @param type {string}
+ * @returns {null}
+ */
+const showDelRuleInput = async (type) => {
+    let ruleValue;
+    try {
+        const {value} = await eventEmitter.invoke('el-prompt', '请输入要删除的规则内容', '删除指定规则');
+        ruleValue = value
+    } catch (e) {
+        return
+    }
+    const {status, res} = verificationInputValue(ruleValue, type);
+    if (!status) {
+        eventEmitter.send('el-msg', res)
+        return
+    }
+    const arr = gmUtil.getData(type, []);
+    const indexOf = arr.indexOf(res);
+    if (indexOf === -1) {
+        eventEmitter.send('el-msg', '不存在此内容')
+        return;
+    }
+    arr.splice(indexOf, 1);
+    gmUtil.setData(type, arr);
+    eventEmitter.send('el-msg', '移除成功')
 }
 
-const showSetRuleInput = (type) => {
-    let prompt = window.prompt('请输入要修改的规则内容', '');
-    const inputValue = verificationInputValue(prompt, type);
-    return new Promise((resolve, reject) => {
-        if (inputValue === null) return;
-        const arr = gmUtil.getData(type, []);
-        const indexOf = arr.indexOf(inputValue);
-        if (indexOf === -1) {
-            reject('不存在此内容');
-            return;
-        }
-        prompt = window.prompt('请输入要修改的内容', '');
-        const newInputValue = verificationInputValue(prompt, type);
-        if (newInputValue === null) return;
-        if (arr.includes(newInputValue)) {
-            reject('已存在要修改过后的值内容');
-            return;
-        }
-        arr[indexOf] = newInputValue;
-        gmUtil.setData(type, arr);
-        resolve('修改成功');
-    })
-}
 
 /**
  *获取本地规则内容
@@ -260,17 +250,27 @@ const addRulePreciseName = (name) => {
     })
 }
 
+/**
+ * 查找规则项，返回匹配的值，如果找不到则返回null
+ * @param type {string}
+ * @param value {string|number}
+ * @returns {number|string|null}
+ */
+const findRuleItemValue = (type, value) => {
+    return gmUtil.getData(type, []).find(item => item === value) || null
+}
+
 
 export default {
     addRule,
     showAddRuleInput,
     showDelRuleInput,
-    showSetRuleInput,
     getRuleContent,
     overwriteImportRules,
     appendImportRules,
     overwriteImportRulesV1,
     getNewRuleKeyList,
     addRulePreciseUid,
-    addRulePreciseName
+    addRulePreciseName,
+    findRuleItemValue
 }

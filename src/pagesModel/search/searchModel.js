@@ -134,7 +134,6 @@ const getOtherVideoList = () => {
 //处理搜索页综合选项卡中的综合排序视频列表
 const startShieldingCSVideoList = async () => {
     const list = await getTabComprehensiveSortedVideoList()
-    console.log(list)
     for (let videoData of list) {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue;

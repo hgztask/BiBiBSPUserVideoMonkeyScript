@@ -177,12 +177,14 @@ window.addEventListener('load', () => {
                 this.sheet_dialog.closeOnClickModal = closeOnClickModal
             })
 
+            eventEmitter.handler('el-prompt', (...options) => {
+                return this.$prompt(...options)
+            })
+
+
             if (bAfterLoadingThePageOpenMainPanel()) {
                 this.drawer = true
             }
         }
     });
-
 })
-
-

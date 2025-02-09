@@ -68,7 +68,7 @@ const getChangeTheVideoElList = async () => {
             list.push(items);
         } catch (e) {
             el.remove();
-            Qmsg.error("获取视频信息失败");
+            console.warn("获取视频信息失败");
         }
     }
     return list
@@ -114,7 +114,7 @@ const getHomeVideoELList = async () => {
             if (!userUrl.includes("//space.bilibili.com/")) {
                 el?.remove();
                 const log = "遍历换一换视频列表下面列表时检测到异常内容，已将该元素移除";
-               eventEmitter.send('打印信息', log)
+                eventEmitter.send('打印信息', log)
                 console.log(log, el);
                 continue;
             }

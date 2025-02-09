@@ -2,8 +2,10 @@ import ruleUtil from "../../../utils/ruleUtil.js";
 import gmUtil from "../../../utils/gmUtil.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
 import ruleKeyListData from "../../../data/ruleKeyListData.js";
+import {rule_set_value_dialog} from "./ruleSetValueDialog.js";
 //基础规则管理
 export const basic_rules_vue = {
+    components: {rule_set_value_dialog},
     template: `
       <div>
       <el-card shadow="never">
@@ -21,25 +23,24 @@ export const basic_rules_vue = {
           如果更新脚本之后规则全没了，请点击下面的【旧规则自动转新规则】按钮，进行转换，如不行请通过关于和问题反馈选项卡中的反馈渠道联系作者
         </div>
       </el-card>
-
-      <div>
-        <select v-model="selectVal">
-          <option v-for="item in ruleInfoArr" :value="item.type">{{ item.name }}</option>
-        </select>
-        《====可点击切换条件
-      </div>
-      <el-divider/>
-      <el-button-group>
-        <el-button @click="operationBut('add')">添加{{ selectText }}</el-button>
-        <el-button @click="operationBut('del')">移除{{ selectText }}</el-button>
-        <el-button @click="operationBut('set')">修改{{ selectText }}</el-button>
-        <el-button @click="operationBut('find-item-all')">查询{{ selectText }}的内容</el-button>
-      </el-button-group>
-      <el-divider/>
-      <el-button-group>
-        <el-button @click="clearItemRuleBut" type="danger">移除{{ selectText }}项</el-button>
-        <el-button type="danger" @click="operationBut('del_all')">全部移除</el-button>
-      </el-button-group>
+      <el-card>
+        <el-select v-model="selectVal" filterable>
+          <el-option v-for="item in ruleInfoArr" :value="item.type" :key="item.type" :label="item.name"></el-option>
+        </el-select>
+        <el-divider/>
+        <el-button-group>
+          <el-button @click="operationBut('add')">添加{{ selectText }}</el-button>
+          <el-button @click="operationBut('del')">移除{{ selectText }}</el-button>
+          <el-button @click="setRuleBut">修改{{ selectText }}</el-button>
+          <el-button @click="operationBut('find-item-all')">查询{{ selectText }}的内容</el-button>
+        </el-button-group>
+        <el-divider/>
+        <el-button-group>
+          <el-button @click="clearItemRuleBut" type="danger">清空{{ selectText }}项</el-button>
+          <el-button type="danger" @click="operationBut('del_all')">全部移除</el-button>
+        </el-button-group>
+      </el-card>
+      <rule_set_value_dialog/>
       </div>`,
     data() {
         return {
@@ -59,31 +60,18 @@ export const basic_rules_vue = {
         }
     },
     methods: {
+        setRuleBut() {
+            const type = this.selectVal;
+            const {name} = this.ruleInfoArr.find(item => item.type === type);
+            eventEmitter.send('修改规则对话框', type, name)
+        },
         operationBut(model) {
             const type = this.selectVal;
             if (model === "add") {
-                ruleUtil.showAddRuleInput(type).then((msg) => {
-                    eventEmitter.send('刷新规则信息');
-                    alert(msg);
-                }).catch(errMsg => {
-                    Qmsg.info(errMsg);
-                });
+                ruleUtil.showAddRuleInput(type);
             }
             if (model === "del") {
-                ruleUtil.showDelRuleInput(type).then((msg) => {
-                    eventEmitter.send('刷新规则信息');
-                    alert(msg);
-                }).catch(errMsg => {
-                    Qmsg.info(errMsg);
-                });
-            }
-            if (model === "set") {
-                ruleUtil.showSetRuleInput(type).then((msg) => {
-                    eventEmitter.send('刷新规则信息');
-                    alert(msg);
-                }).catch(errMsg => {
-                    Qmsg.info(errMsg);
-                });
+                ruleUtil.showDelRuleInput(type)
             }
             if (model === "del_all") {
                 this.$confirm('确定要删除所有规则吗？').then(() => {
