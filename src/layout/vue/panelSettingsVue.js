@@ -80,9 +80,8 @@ export const panel_settings_vue = {
             this.$alert("已恢复默认颜色，刷新生效");
         },
         changeDevToolsInput() {
-            debugger
             if (this.devToolsInputVal === 'show-dev') {
-                gmUtil.setData('dev-', true)
+                gmUtil.setData('open-dev', true)
                 eventEmitter.send('debugger-dev-show', true)
                 this.devToolsInputVal = ''
             }
