@@ -6,6 +6,7 @@ import watch from './watch/watch.js'
 import observeNetwork from "./watch/observeNetwork.js";
 import {eventEmitter} from "./model/EventEmitter.js";
 import rightFloatingLayoutVue from "./layout/rightFloatingLayoutVue.js";
+import './model/notificationBlocking.js'
 
 window.addEventListener('load', () => {
     console.log('页面加载完成')

@@ -62,7 +62,9 @@ const showAddRuleInput = async (type) => {
     }
     const {res, status} = addRule(ruleValue, type)
     eventEmitter.send('el-msg', res)
-    status && eventEmitter.send('刷新规则信息')
+    status && eventEmitter.send('刷新规则信息');
+    status && eventEmitter.send('通知屏蔽');
+
 }
 
 
