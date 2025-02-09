@@ -29,11 +29,10 @@ export default {
               <li>最后因为设置限制条件冲突或限制太多，视频未能限制的情况下，请按需设置限制条件</li>
             </ol>
           </el-card>
-          <input gz_type type="number" :min="inputMin" :max="inputMax" v-model="index">
-          <select v-model="selectValue">
-            <option :value="item.value" v-for="item in selectList">{{ item.name }}</option>
-          </select>
-          《====可点击切换限制条件
+          <input gz_type type="number" :min="inputMin" :max="inputMax" v-model="num">
+          <el-select v-model="selectValue" filterable>
+            <el-option :value="item.value" v-for="item in selectList" :label="item.name"></el-option>
+          </el-select>
           <div>
             <button @click="okVideoSelectBut" gz_type>设置</button>
             <button @click="cancelBut" gz_type>取消</button>
@@ -51,11 +50,11 @@ export default {
       </div>`,
     data() {
         return {
-            index: 0,
+            num: 0,
             selectList: ruleKeyListData.otherKeyListData,
             selectValue: 'nMinimumPlay',
-            inputMax: '',
-            inputMin: '0'
+            inputMax: "",
+            inputMin: 0
         }
     },
     methods: {
@@ -65,15 +64,15 @@ export default {
             const associatedVal = gmUtil.getData(find.associated, -1);
             const associatedFind = this.selectList.find(item => item.value === find.associated)
             //当输入框的值，大于对应关联箱子条件时返回
-            if (this.index > associatedVal && associatedVal !== -1) {
+            if (this.num > associatedVal && associatedVal !== -1) {
                 if (associatedFind.bLarge) {
                     this.$alert(`要设置的${find.name}值不能大于${associatedFind.name}的值`)
                     return
                 }
                 console.log('正常修改')
             }
-            this.$alert(`已设置${find.name}，值为${this.index}`)
-            gmUtil.setData(this.selectValue, this.index)
+            this.$alert(`已设置${find.name}，值为${this.num}`)
+            gmUtil.setData(this.selectValue, this.num)
             this.updateInfo()
         },
         cancelBut() {
@@ -107,11 +106,11 @@ export default {
                 //b站等级目前最高7级，即硬核会员等级，设置最大限制等级为6
                 this.inputMax = 6
                 //修正限制等级
-                if (this.index > 6) {
-                    this.index = 6
+                if (this.num > 6) {
+                    this.num = 6
                 }
-                if (this.index < 3) {
-                    this.index = 3
+                if (this.num < 3) {
+                    this.num = 3
                 }
             } else {
                 this.inputMin = 0
