@@ -8,7 +8,8 @@ import {videoInfoCache} from "./cache/videoInfoCache.js";
 import bvDexie from "./bvDexie.js";
 import {eventEmitter} from "./EventEmitter.js";
 import {elEventEmitter} from "./elEventEmitter.js";
-import {isDisableNetRequestsBvVideoInfo} from "../layout/vue/debuggerMeanagementVue.js";
+import {requestIntervalQueue} from "./asynchronousIntervalQueue.js";
+import localMKData from "../data/localMKData.js";
 
 /**
  * 添加屏蔽按钮
@@ -228,7 +229,7 @@ const shieldingOtherVideoParameter = async (videoData) => {
     let result;
     if (find === null) {
         //获取视频信息
-        const {state, data, msg} = await bFetch.fetchGetVideoInfo(bv)
+        const {state, data, msg} = await requestIntervalQueue.add(()=>bFetch.fetchGetVideoInfo(bv))
         if (!state) {
             console.warn('获取视频信息失败:' + msg);
             return
@@ -317,7 +318,7 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         eventEmitter.send('屏蔽视频信息', type, matching, videoData)
         return true;
     }
-    if (isDisableNetRequestsBvVideoInfo()) {
+    if (localMKData.isDisableNetRequestsBvVideoInfo()) {
         return state
     }
     shieldingOtherVideoParameter(videoData).then(res => {

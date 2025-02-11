@@ -198,6 +198,23 @@ const setFuzzyAndRegularMatchingWordsToLowercase = (bool) => {
     gmUtil.setData("bFuzzyAndRegularMatchingWordsToLowercase", bool === true)
 }
 
+/**
+ * 获取请求频率，默认0.2，单位秒
+ * @returns {number}
+ */
+const isRequestFrequencyVal = () => {
+    return gmUtil.getData("requestFrequencyVal", 0.2)
+}
+
+/**
+ * 禁用根据bv号网络请求获取视频信息
+ * @returns {boolean}
+ */
+const isDisableNetRequestsBvVideoInfo = () => {
+    return gmUtil.getData('isDisableNetRequestsBvVideoInfo', false)
+}
+
+
 export default {
     setBorderColor,
     getBorderColor,
@@ -222,5 +239,7 @@ export default {
     setHalfHiddenIntervalAfterInitialDisplay,
     isDelPlayerPageRightVideoList,
     bFuzzyAndRegularMatchingWordsToLowercase,
-    setFuzzyAndRegularMatchingWordsToLowercase
+    setFuzzyAndRegularMatchingWordsToLowercase,
+    isRequestFrequencyVal,
+    isDisableNetRequestsBvVideoInfo
 }
