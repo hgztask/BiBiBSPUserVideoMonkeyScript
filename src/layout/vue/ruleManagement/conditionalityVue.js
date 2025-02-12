@@ -1,6 +1,7 @@
 import localMKData from "../../../data/localMKData.js";
 import gmUtil from "../../../utils/gmUtil.js";
 import {requestIntervalQueue} from "../../../model/asynchronousIntervalQueue.js";
+import {eventEmitter} from "../../../model/EventEmitter.js";
 
 /**
  * 设置请求频率
@@ -8,14 +9,6 @@ import {requestIntervalQueue} from "../../../model/asynchronousIntervalQueue.js"
  */
 const setRequestFrequencyVal = (v) => {
     gmUtil.setData('requestFrequencyVal', v > 0 && v <= 5 ? v : 0.2)
-}
-
-/**
- * 设置是否禁用根据bv号网络请求获取视频信息
- * @param b {boolean}
- */
-const setDisableNetRequestsBvVideoInfo = (b) => {
-    gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
 }
 
 /**
@@ -34,11 +27,12 @@ export default {
             <span>网络请求频率(单位秒)</span>
             <div>如设置0，则为不限制，比如设置2，则为每个请求之间隔2秒，可有效降低对B站api接口的压力，降低风控</div>
             <div>注意：设置过低可能会导致部分接口风控</div>
+            <div>如接口风控了请先勾选下面的【禁用根据bv号网络请求获取视频信息】</div>
             <div>修改实时生效</div>
           </template>
           <el-switch v-model="isDisableNetRequestsBvVideoInfo" active-text="禁用根据bv号网络请求获取视频信息"/>
           <el-slider v-model="requestFrequencyVal" max="5" step="0.1" show-stops show-input
-          :disabled="isDisableNetRequestsBvVideoInfo"
+                     :disabled="isDisableNetRequestsBvVideoInfo"
           ></el-slider>
         </el-card>
       </div>`,
@@ -49,7 +43,7 @@ export default {
             bOnlyTheHomepageIsBlocked: localMKData.getBOnlyTheHomepageIsBlocked(),
             //是否模糊和正则匹配词转小写
             bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
-            isDisableNetRequestsBvVideoInfo: localMKData.isDisableNetRequestsBvVideoInfo()
+            isDisableNetRequestsBvVideoInfo: false
         }
     },
     methods: {},
@@ -61,7 +55,7 @@ export default {
             localMKData.setFuzzyAndRegularMatchingWordsToLowercase(newVal)
         },
         isDisableNetRequestsBvVideoInfo(b) {
-            setDisableNetRequestsBvVideoInfo(b)
+            localMKData.setDisableNetRequestsBvVideoInfo(b)
         },
         requestFrequencyVal(n) {
             setRequestFrequencyVal(n)
@@ -69,6 +63,8 @@ export default {
         }
     },
     created() {
-
+        eventEmitter.on('更新根据bv号网络请求获取视频信息状态', (b) => {
+            this.isDisableNetRequestsBvVideoInfo = b
+        });
     }
 }

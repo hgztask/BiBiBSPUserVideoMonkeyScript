@@ -214,6 +214,14 @@ const isDisableNetRequestsBvVideoInfo = () => {
     return gmUtil.getData('isDisableNetRequestsBvVideoInfo', false)
 }
 
+/**
+ * 设置是否禁用根据bv号网络请求获取视频信息
+ * @param b {boolean}
+ */
+const setDisableNetRequestsBvVideoInfo = (b) => {
+    gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
+}
+
 
 export default {
     setBorderColor,
@@ -241,5 +249,6 @@ export default {
     bFuzzyAndRegularMatchingWordsToLowercase,
     setFuzzyAndRegularMatchingWordsToLowercase,
     isRequestFrequencyVal,
-    isDisableNetRequestsBvVideoInfo
+    isDisableNetRequestsBvVideoInfo,
+    setDisableNetRequestsBvVideoInfo
 }

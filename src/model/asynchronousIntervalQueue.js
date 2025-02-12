@@ -100,6 +100,15 @@ class asynchronousIntervalQueue {
         }
         this.#isProcessing = false;
     }
+
+
+    /**
+     * 清空队列
+     */
+    clearPendingQueue() {
+        this.#pendingQueue = [];
+        this.#isProcessing = false;
+    }
 }
 
 

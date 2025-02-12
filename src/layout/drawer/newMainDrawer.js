@@ -17,6 +17,7 @@ import gmUtil from "../../utils/gmUtil.js";
 import {about_and_feedback_vue} from "../vue/aboutAndFeedbackVue.js";
 import {show_img_dialog_vue} from "../components/showImgDialogVue.js";
 import {sheet_dialog_vue} from "../components/sheetDialogVue.js";
+import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
 
 const mainLayoutEl = document.createElement('div');
 
@@ -39,50 +40,51 @@ window.addEventListener('load', () => {
         el: mainLayoutEl,
         template: `
           <div>
-          <el-drawer style="position: fixed"
-                     :visible.sync="drawer"
-                     direction="ltr"
-                     size="100%"
-                     :modal="false"
-                     :with-header="false">
-            <el-tabs type="border-card" v-model="tabsActiveName"
-                     @tab-click="tabClick">
-              <el-tab-pane label="面板设置" name="面板设置" lazy>
-                <panel_settings_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="规则管理" name="规则管理" lazy>
-                <rule_management_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="兼容设置" name="兼容设置" lazy>
-                <compatible_setting_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="缓存管理" name="缓存管理" lazy>
-                <cache_management_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="页面处理" name="页面处理" lazy>
-                <page_processing_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="输出信息" name="输出信息" lazy>
-                <output_information_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="支持打赏" name="支持打赏" lazy>
-                <donate_layout_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="关于和问题反馈" name="关于和问题反馈" lazy>
-                <about_and_feedback_vue/>
-              </el-tab-pane>
-              <el-tab-pane label="调试测试" name="调试测试" lazy v-if="debug_panel_show">
-                <div v-show="debug_panel_show">
-                  <debugger_management_vue/>
-                </div>
-              </el-tab-pane>
-            </el-tabs>
-          </el-drawer>
-          <look_content_dialog_vue/>
-          <show_img_dialog_vue/>
-          <sheet_dialog_vue :show="sheet_dialog.show" :list="sheet_dialog.list" :title="sheet_dialog.title"
-                            @close="handleClose"
-                            :close-on-click-modal="sheet_dialog.closeOnClickModal" @options-click="handleOptionsClick"/>
+            <el-drawer style="position: fixed"
+                       :visible.sync="drawer"
+                       direction="ltr"
+                       size="100%"
+                       :modal="false"
+                       :with-header="false">
+              <el-tabs type="border-card" v-model="tabsActiveName"
+                       @tab-click="tabClick">
+                <el-tab-pane label="面板设置" name="面板设置" lazy>
+                  <panel_settings_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="规则管理" name="规则管理" lazy>
+                  <rule_management_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="兼容设置" name="兼容设置" lazy>
+                  <compatible_setting_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="缓存管理" name="缓存管理" lazy>
+                  <cache_management_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="页面处理" name="页面处理" lazy>
+                  <page_processing_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="输出信息" name="输出信息" lazy>
+                  <output_information_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="支持打赏" name="支持打赏" lazy>
+                  <donate_layout_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="关于和问题反馈" name="关于和问题反馈" lazy>
+                  <about_and_feedback_vue/>
+                </el-tab-pane>
+                <el-tab-pane label="调试测试" name="调试测试" lazy v-if="debug_panel_show">
+                  <div v-show="debug_panel_show">
+                    <debugger_management_vue/>
+                  </div>
+                </el-tab-pane>
+              </el-tabs>
+            </el-drawer>
+            <look_content_dialog_vue/>
+            <show_img_dialog_vue/>
+            <sheet_dialog_vue :show="sheet_dialog.show" :list="sheet_dialog.list" :title="sheet_dialog.title"
+                              @close="handleClose"
+                              :close-on-click-modal="sheet_dialog.closeOnClickModal"
+                              @options-click="handleOptionsClick"/>
           </div>`,
         components: {
             output_information_vue: outputInformationVue,
@@ -181,6 +183,16 @@ window.addEventListener('load', () => {
                 return this.$prompt(...options)
             })
 
+            eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
+                requestIntervalQueue.clearPendingQueue()
+                eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
+                this.$alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}
+                \n。已自动禁用根据bv号网络请求获取视频信息状态
+                \n如需关闭，请在面板条件限制里手动关闭。`, '错误', {
+                    confirmButtonText: '确定',
+                    type: 'error'
+                })
+            })
 
             if (bAfterLoadingThePageOpenMainPanel()) {
                 this.drawer = true

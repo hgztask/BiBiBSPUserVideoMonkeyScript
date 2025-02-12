@@ -1,4 +1,5 @@
 import video_zoneData from "../data/video_zoneData.js";
+import {eventEmitter} from "./EventEmitter.js";
 
 const apiStyle = [
     {
@@ -20,6 +21,10 @@ const apiStyle = [
  */
 const fetchGetVideoInfo = async (bvId) => {
     const response = await fetch(`https://api.bilibili.com/x/web-interface/view/detail?bvid=${bvId}`)
+    if (response.status !== 200) {
+        eventEmitter.send('请求获取视频信息失败', response, bvId)
+        return {state: false, msg: '网络请求失败', data: response}
+    }
     const {code, data, message} = await response.json();
     const defData = {state: false, msg: '默认失败信息'}
     if (code !== 0) {
