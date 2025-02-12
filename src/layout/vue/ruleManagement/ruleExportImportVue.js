@@ -7,51 +7,51 @@ import {eventEmitter} from "../../../model/EventEmitter.js";
 export default {
     template: `
       <div>
-      <el-card shadow="never">
-        <template #header>
-          <span>导出规则</span>
-        </template>
-        <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
-        <button gz_type @click="outToInputBut">导出到编辑框</button>
-        <button gz_type @click="ruleOutToConsoleBut">导出到控制台</button>
-      </el-card>
-      <el-card shadow="never">
-        <template #header>
-          <el-row>
-            <el-col :span="12">
-              <div class="el-horizontal-left">导入规则</div>
-            </el-col>
-            <el-col :span="12">
-              <div class="el-horizontal-right">
-                <el-button v-for="item in ruleReference" @click="xtipAlertBut(item.content,item.title)">
-                  {{ item.title }}
-                </el-button>
-              </div>
-            </el-col>
-          </el-row>
-        </template>
-        <div>规则内容请在下面编辑框中导入</div>
-        <div>旧版本的需要使用下面的v1旧版本导入规则</div>
-        <div>旧版本的只能覆盖导入</div>
-        <div>v1之后的版本可以选择覆盖和追加</div>
-        <div>旧规则转新规则，用于2.0之前版本升上来旧规则内容丢失问题</div>
-        <el-divider/>
-        <div>
-          <button gz_type @click="inputFIleRuleBut">读取外部规则文件</button>
-          <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
-          <button gz_type @click="appendImportRulesBut">追加导入规则</button>
-          <button gz_type @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</button>
-          <button gz_type @click="ruleOldToNewBut">旧规则自动转新规则</button>
-        </div>
-        <el-divider/>
-        <div>
-          <el-input autosize
-                    :autosize="{ minRows: 10, maxRows: 50}"
-                    type="textarea" v-model="ruleContentImport" placeholder="要导入的规则内容"></el-input>
-        </div>
-      </el-card>
-      <input ref="file" type="file" accept="application/json" @change="handleFileUpload"
-             style="display: none">
+        <el-card shadow="never">
+          <template #header>
+            <span>导出规则</span>
+          </template>
+          <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
+          <button gz_type @click="outToInputBut">导出到编辑框</button>
+          <button gz_type @click="ruleOutToConsoleBut">导出到控制台</button>
+        </el-card>
+        <el-card shadow="never">
+          <template #header>
+            <el-row>
+              <el-col :span="12">
+                <div class="el-horizontal-left">导入规则</div>
+              </el-col>
+              <el-col :span="12">
+                <div class="el-horizontal-right">
+                  <el-button v-for="item in ruleReference" @click="xtipAlertBut(item.content,item.title)">
+                    {{ item.title }}
+                  </el-button>
+                </div>
+              </el-col>
+            </el-row>
+          </template>
+          <div>规则内容请在下面编辑框中导入</div>
+          <div>旧版本的需要使用下面的v1旧版本导入规则</div>
+          <div>旧版本的只能覆盖导入</div>
+          <div>v1之后的版本可以选择覆盖和追加</div>
+          <div>旧规则转新规则，用于2.0之前版本升上来旧规则内容丢失问题</div>
+          <el-divider/>
+          <div>
+            <button gz_type @click="inputFIleRuleBut">读取外部规则文件</button>
+            <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
+            <button gz_type @click="appendImportRulesBut">追加导入规则</button>
+            <button gz_type @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</button>
+            <button gz_type @click="ruleOldToNewBut">旧规则自动转新规则</button>
+          </div>
+          <el-divider/>
+          <div>
+            <el-input autosize
+                      :autosize="{ minRows: 10, maxRows: 50}"
+                      type="textarea" v-model="ruleContentImport" placeholder="要导入的规则内容"></el-input>
+          </div>
+        </el-card>
+        <input ref="file" type="file" accept="application/json" @change="handleFileUpload"
+               style="display: none">
       </div>`,
     data() {
         return {
@@ -137,12 +137,17 @@ export default {
             this.$message('已导出到输入框中')
         },
         ruleOutToFIleBut() {
-            const ruleContent = ruleUtil.getRuleContent(4);
             let fileName = "b站屏蔽器规则-" + defUtil.toTimeString();
-            const s = prompt("保存为", fileName);
-            if (s === null) return;
-            if (!(s.includes(" ") || s === "" || s.length === 0)) fileName = s;
-            defUtil.fileDownload(ruleContent, fileName + ".json");
+            this.$prompt('请输入文件名', '保存为', {
+                inputValue: fileName
+            }).then(({value}) => {
+                if (value === "" && value.includes(' ')) {
+                    this.$alert('文件名不能为空或包含空格')
+                    return
+                }
+                const ruleContent = ruleUtil.getRuleContent(4);
+                defUtil.fileDownload(ruleContent, value + ".json");
+            })
         },
         ruleOutToConsoleBut() {
             console.log(ruleUtil.getRuleContent());
