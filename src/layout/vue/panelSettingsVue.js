@@ -23,7 +23,7 @@ export const panel_settings_vue = {
       </el-card>
       <el-card shadow="never">
         <template #header>
-          <span>外部主面板显隐按钮设置</span>
+          <span>页面右侧悬浮按钮设置</span>
         </template>
         <el-switch v-model="showRightTopMainButSwitch" active-text="显示按钮"></el-switch>
         <el-tooltip content="页面每次加载完之后是否完整展示按钮，否则半隐藏">
