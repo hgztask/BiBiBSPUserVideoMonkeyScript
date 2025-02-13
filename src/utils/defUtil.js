@@ -282,6 +282,60 @@ const getLocalStorage = (key, isList = false, defaultValue = null) => {
     return item
 }
 
+/**
+ * 时间戳转时间字符串 (增强版)
+ * @param {number|string} timestamp - 支持10位(秒)/13位(毫秒)/字符串数字
+ * @param {object} [options] - 配置项
+ * @param {string} [options.format='YYYY-MM-DD HH:mm:ss'] - 输出格式，可选标记：
+ *    YYYY/YY: 年, MM/M: 月, DD/D: 日, HH/H: 时, mm/m: 分, ss/s: 秒
+ * @param {number} [options.timezone] - 时区偏移(小时)，如 +8 或 -5
+ * @param {boolean} [options.returnObject=false] - 是否返回时间对象
+ * @returns {string|object} 格式化时间字符串 或 时间对象 {year,month,day...}
+ */
+const formatTimestamp = (timestamp, options = {}) => {
+    // 参数校验与转换
+    if (!timestamp || isNaN(timestamp)) return 'Invalid Timestamp'
+    const ts = String(timestamp).length === 10 ? +timestamp * 1000 : +timestamp
+
+    // 处理时区偏移 (单位: 小时)
+    const timezoneOffset = (options.timezone || 0) * 60 * 60 * 1000
+    const date = new Date(ts + timezoneOffset)
+
+    // 有效性检查
+    if (isNaN(date.getTime())) return 'Invalid Date'
+
+    // 时间组件提取
+    const timeObj = {
+        year: date.getUTCFullYear(),
+        month: date.getUTCMonth() + 1,
+        day: date.getUTCDate(),
+        hours: date.getUTCHours(),
+        minutes: date.getUTCMinutes(),
+        seconds: date.getUTCSeconds()
+    }
+
+    // 返回原始对象
+    if (options.returnObject) return timeObj
+
+    // 格式处理
+    const format = options.format || 'YYYY-MM-DD HH:mm:ss'
+    const pad = (n) => n.toString().padStart(2, '0')
+
+    return format
+        .replace(/YYYY/g, timeObj.year)
+        .replace(/YY/g, String(timeObj.year).slice(-2))
+        .replace(/MM/g, pad(timeObj.month))
+        .replace(/M/g, timeObj.month)
+        .replace(/DD/g, pad(timeObj.day))
+        .replace(/D/g, timeObj.day)
+        .replace(/HH/g, pad(timeObj.hours))
+        .replace(/H/g, timeObj.hours)
+        .replace(/mm/g, pad(timeObj.minutes))
+        .replace(/m/g, timeObj.minutes)
+        .replace(/ss/g, pad(timeObj.seconds))
+        .replace(/s/g, timeObj.seconds)
+}
+
 
 export default {
     wait,
@@ -295,5 +349,6 @@ export default {
     parseUrl,
     handleFileReader,
     isIterable,
-    getLocalStorage
+    getLocalStorage,
+    formatTimestamp
 }
