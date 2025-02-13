@@ -292,6 +292,53 @@ const findRuleItemValue = (type, value) => {
     return gmUtil.getData(type, []).find(item => item === value) || null
 }
 
+/**
+ * 添加规则项
+ * @param arr {[]} 要添加的内容数组
+ * @param key {string}
+ * @param coverage {boolean} 是否覆盖，默认true，如果为false则追加
+ */
+const addItemRule = (arr, key, coverage = true) => {
+    const complianceList = []
+    for (let v of arr) {
+        const {status, res} = verificationInputValue(v, key)
+        if (!status) return {status: false, msg: `内容中有误:${res}`}
+        complianceList.push(v)
+    }
+    if (coverage) {
+        gmUtil.setData(key, complianceList)
+        return {status: true, msg: '添加成功-覆盖模式'}
+    }
+    const oldArr = gmUtil.getData(key, []);
+    const newList = []
+    for (const v of complianceList) {
+        if (oldArr.includes(v)) continue;
+        newList.push(v)
+    }
+    debugger
+    if (newList.length === 0) {
+        return {status: false, msg: '内容重复'}
+    }
+    gmUtil.setData(key, newList)
+    return {status: true, msg: '添加成功-追加模式'}
+}
+
+/**
+ * 批量添加精确uid项
+ * @param uidArr {[]} uid数组
+ * @param isTip {boolean} 是否提示，默认true，则默认提示，如果为false则不提示，返回结果
+ * @param coverage {boolean} 是否覆盖，默认true，如果为false则追加
+ * @returns {{msg:string, status: boolean}|null|boolean}
+ */
+const addPreciseUidItemRule = (uidArr, isTip = true, coverage = true) => {
+    const {status, msg} = addItemRule(uidArr, 'precise_uid', coverage)
+    if (isTip) {
+        eventEmitter.send('el-alert', msg)
+        return status
+    }
+    return {status, msg}
+}
+
 
 export default {
     addRule,
@@ -305,5 +352,7 @@ export default {
     addRulePreciseUid,
     addRulePreciseName,
     delRUlePreciseUid,
-    findRuleItemValue
+    findRuleItemValue,
+    addItemRule,
+    addPreciseUidItemRule
 }
