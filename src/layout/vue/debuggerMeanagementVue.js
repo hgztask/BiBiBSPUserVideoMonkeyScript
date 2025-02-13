@@ -27,17 +27,19 @@ const setBAfterLoadingThePageOpenMainPanel = (b) => {
 export const debugger_management_vue = {
     template: `
       <div>
-        <el-card shadow="never">
-          <template #header><span>测试</span></template>
-          <el-button @click="demoBut">测试网络请求</el-button>
-          <el-button @click="demo1but">测试对话框</el-button>
-          <el-button @click="printValueCacheBut">打印valueCache值</el-button>
-          <el-button @click="printEventBut">打印事件中心值</el-button>
-          <el-button @click="printReqIntervalQueueVal">打印requestIntervalQueue值</el-button>
-          <el-divider/>
-          
-          <el-switch v-model="bAfterLoadingThePageOpenMainPanel" active-text="加载完页面打开主面板"/>
-        </el-card>
+        <el-tabs tab-position="left">
+          <el-tab-pane label="基础">
+            <el-card shadow="never">
+              <template #header><span>测试</span></template>
+              <el-button @click="demoBut">测试网络请求</el-button>
+              <el-button @click="printValueCacheBut">打印valueCache值</el-button>
+              <el-button @click="printEventBut">打印事件中心值</el-button>
+              <el-button @click="printReqIntervalQueueVal">打印requestIntervalQueue值</el-button>
+              <el-divider/>
+              <el-switch v-model="bAfterLoadingThePageOpenMainPanel" active-text="加载完页面打开主面板"/>
+            </el-card>
+          </el-tab-pane>
+        </el-tabs>
       </div>`,
     data() {
         return {
@@ -53,17 +55,6 @@ export const debugger_management_vue = {
             bFetch.fetchGetVideoInfo('BV152cWeXEhW').then(data => {
                 console.log(data);
                 debugger
-            })
-        },
-        demo1but() {
-            this.$alert('这是一段内容', '标题名称', {
-                confirmButtonText: '确定',
-                callback: action => {
-                    this.$message({
-                        type: 'info',
-                        message: `action: ${action}`
-                    });
-                }
             })
         },
         printEventBut() {

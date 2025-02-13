@@ -4,7 +4,7 @@ import localMKData from "../data/localMKData.js";
  * 异步间隔队列
  * 测试依旧有问题，需要优化
  */
-class asynchronousIntervalQueue {
+export class asynchronousIntervalQueue {
 
     // 队列是否正在运行
     #isProcessing = false;
@@ -17,7 +17,7 @@ class asynchronousIntervalQueue {
     #interval = 200;
 
     /**
-     *
+     *异步间隔队列
      * @param options {{}} 配置
      * @param options.interval {number} - 每个异步函数间隔 (ms)
      */
