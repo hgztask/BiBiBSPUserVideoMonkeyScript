@@ -11,7 +11,7 @@ export const about_and_feedback_vue = {
         <template #header>
           <span>作者b站</span>
         </template>
-        <el-link target="_blank" href="https://space.bilibili.com/473239155" type="primary">b站传送门</el-link>
+        <el-link target="_blank" :href="b_url" type="primary">b站传送门</el-link>
       </el-card>
       <el-card>
         <template #header>
@@ -24,8 +24,6 @@ export const about_and_feedback_vue = {
           <el-tag @click="lookImgBut">876295632</el-tag>
         </el-tooltip>
       </el-card>
-
-
       <el-card>
         <template #header>
           <span>发布、更新、反馈地址</span>
@@ -76,7 +74,8 @@ export const about_and_feedback_vue = {
     data() {
         return {
             group_url: globalValue.group_url,
-            scriptCat_js_url: globalValue.scriptCat_js_url
+            scriptCat_js_url: globalValue.scriptCat_js_url,
+            b_url: globalValue.b_url
         }
     },
     methods: {

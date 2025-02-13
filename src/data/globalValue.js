@@ -3,8 +3,12 @@ const group_url = 'http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=tFU0xLt1uO5u5CXI2kt
 
 //本脚本的脚本猫链接
 const scriptCat_js_url = 'https://scriptcat.org/zh-CN/script-show-page/1029'
+//作者B站链接
+const b_url = 'https://space.bilibili.com/473239155'
+
 
 export default {
     group_url,
-    scriptCat_js_url
+    scriptCat_js_url,
+    b_url
 }
