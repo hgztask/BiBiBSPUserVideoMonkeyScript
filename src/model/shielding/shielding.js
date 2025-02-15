@@ -1,15 +1,15 @@
-import ruleMatchingUtil from "../utils/ruleMatchingUtil.js";
-import ruleKeyListData from "../data/ruleKeyListData.js";
-import ruleUtil from "../utils/ruleUtil.js";
-import output_informationTab from "../layout/output_informationTab.js";
-import gmUtil from "../utils/gmUtil.js";
-import bFetch from '../model/bFetch.js';
-import {videoInfoCache} from "./cache/videoInfoCache.js";
-import bvDexie from "./bvDexie.js";
-import {eventEmitter} from "./EventEmitter.js";
-import {elEventEmitter} from "./elEventEmitter.js";
-import {requestIntervalQueue} from "./asynchronousIntervalQueue.js";
-import localMKData from "../data/localMKData.js";
+import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
+import ruleKeyListData from "../../data/ruleKeyListData.js";
+import ruleUtil from "../../utils/ruleUtil.js";
+import output_informationTab from "../../layout/output_informationTab.js";
+import gmUtil from "../../utils/gmUtil.js";
+import bFetch from '../bFetch.js';
+import {videoInfoCache} from "../cache/videoInfoCache.js";
+import bvDexie from "../bvDexie.js";
+import {eventEmitter} from "../EventEmitter.js";
+import {elEventEmitter} from "../elEventEmitter.js";
+import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
+import localMKData from "../../data/localMKData.js";
 
 /**
  * 添加屏蔽按钮
@@ -142,6 +142,7 @@ const addLiveContentBlockButton = (commentsData) => {
  * @property {boolean} state 是否屏蔽
  * @property {string} type 屏蔽了的类型
  * @property {string} matching 匹配到的规则
+ * @returns {{state:boolean,type:string|any,matching:string|any}} 是否屏蔽
  */
 const shieldingVideo = (videoData) => {
     const {
@@ -229,7 +230,7 @@ const shieldingOtherVideoParameter = async (videoData) => {
     let result;
     if (find === null) {
         //获取视频信息
-        const {state, data, msg} = await requestIntervalQueue.add(()=>bFetch.fetchGetVideoInfo(bv))
+        const {state, data, msg} = await requestIntervalQueue.add(() => bFetch.fetchGetVideoInfo(bv))
         if (!state) {
             console.warn('获取视频信息失败:' + msg);
             return
@@ -622,6 +623,7 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
 
 
 export default {
+    shieldingVideo,
     shieldingVideoDecorated,
     shieldingDynamicDecorated,
     shieldingCommentDecorated,

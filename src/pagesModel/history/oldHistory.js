@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 
 /**

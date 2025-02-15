@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 
 const isLiveHomePage = (url) => {
     return url.includes("https://live.bilibili.com/?spm_id_from=333.1007.0.0") ||

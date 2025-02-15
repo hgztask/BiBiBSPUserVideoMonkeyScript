@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import localMKData from "../../data/localMKData.js";

@@ -1,6 +1,6 @@
 //url是否是话题详情页
 import elUtil from "../utils/elUtil.js";
-import shielding from "../model/shielding.js";
+import shielding from "../model/shielding/shielding.js";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url) => {

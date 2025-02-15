@@ -1,6 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import css from '../../css/searchLive.css'
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 import {elEventEmitter} from "../../model/elEventEmitter.js";
 
 //安装样式，该样式主要为修改搜索页的直播选项卡下的隐藏房间卡片，使其显示

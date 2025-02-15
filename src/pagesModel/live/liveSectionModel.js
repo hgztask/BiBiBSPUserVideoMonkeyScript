@@ -1,6 +1,6 @@
 // 判断是否是直播分区
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 
 const isLiveSection = (url) => {
     return url.includes("live.bilibili.com/p/eden/area-tags")

@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleUtil from "../../utils/ruleUtil.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";

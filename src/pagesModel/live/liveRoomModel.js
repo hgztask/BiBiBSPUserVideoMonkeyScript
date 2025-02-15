@@ -1,7 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import watch from '../../watch/watch.js'
 import defUtil from "../../utils/defUtil.js";
-import shielding from "../../model/shielding.js";
+import shielding from "../../model/shielding/shielding.js";
 
 /**
  * 判断是否为直播间
