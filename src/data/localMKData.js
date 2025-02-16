@@ -223,6 +223,12 @@ const setDisableNetRequestsBvVideoInfo = (b) => {
 }
 
 
+// 是否屏蔽已关注用户
+const isBlockFollowed = () => {
+    return gmUtil.getData('blockFollowed', false)
+}
+
+
 export default {
     setBorderColor,
     getBorderColor,
@@ -250,5 +256,6 @@ export default {
     setFuzzyAndRegularMatchingWordsToLowercase,
     isRequestFrequencyVal,
     isDisableNetRequestsBvVideoInfo,
-    setDisableNetRequestsBvVideoInfo
+    setDisableNetRequestsBvVideoInfo,
+    isBlockFollowed
 }

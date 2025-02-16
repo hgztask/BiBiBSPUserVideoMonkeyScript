@@ -37,7 +37,6 @@ const fetchGetVideoInfo = async (bvId) => {
         View: {
             //合作成员列表，非合作视频没有此项
             staff,
-            //
             //子分区名称
             tname,
             //子分区名称-v2
@@ -76,6 +75,8 @@ const fetchGetVideoInfo = async (bvId) => {
             like_num,
             // 视频数量
             archive_count,
+            //是否关注此用户
+            following,
             // 专栏数量
             article_count, card: {
                 mid: uid,
@@ -162,9 +163,9 @@ const fetchGetVideoInfo = async (bvId) => {
         current_level,
         //挂件信息对象
         pendant,
-        nameplate
+        nameplate,
+        following
     }
-
     const tags = []
     for (let tag of Tags) {
         tags.push(tag['tag_name'])

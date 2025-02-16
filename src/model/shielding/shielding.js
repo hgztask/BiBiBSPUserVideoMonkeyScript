@@ -214,6 +214,18 @@ const shieldingVideo = (videoData) => {
     return {state: false};
 }
 
+//根据头像挂件名屏蔽
+const blockAvatarPendant = (name) => {
+    if (ruleMatchingUtil.exactMatch(gmUtil.getData('precise_avatarPendantName', []), name)) {
+        return {state: true, type: "精确头像挂件名", matching: name}
+    }
+    const matching = ruleMatchingUtil.fuzzyMatch(gmUtil.getData('avatarPendantName', []), name);
+    if (matching) {
+        return {state: true, type: "模糊头像挂件名", matching}
+    }
+    return {state: false}
+}
+
 /**
  * 检查其他视频参数执行屏蔽
  * @param videoData {{}} 视频数据
@@ -244,6 +256,12 @@ const shieldingOtherVideoParameter = async (videoData) => {
         result = find
     }
     const {tags = [], userInfo, videoInfo} = result
+
+    //屏蔽已关注视频
+    if (videoInfo?.following && localMKData.isBlockFollowed()) {
+        return {state: true, type: '已关注'}
+    }
+
     /**
      * @type {state:boolean,type:string,matching:string|any}
      */
@@ -256,13 +274,21 @@ const shieldingOtherVideoParameter = async (videoData) => {
             return returnValue
         }
     }
-
     //检查用户等级，当前用户等级
     const currentLevel = userInfo?.current_level || -1;
     returnValue = shieldingByLevel(currentLevel);
     if (returnValue.state) {
         return returnValue
     }
+    //头像挂件
+    const avatarPendantName = userInfo?.pendant?.name || null;
+    if (avatarPendantName) {
+        returnValue = blockAvatarPendant(avatarPendantName);
+        if (returnValue.state) {
+            return returnValue
+        }
+    }
+    debugger
 }
 
 

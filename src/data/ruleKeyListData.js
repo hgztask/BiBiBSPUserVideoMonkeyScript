@@ -3,99 +3,98 @@ import gmUtil from "../utils/gmUtil.js";
 /**
  * 规则key列表
  */
-const ruleKeyListData = [
-    {
-        key: "name",
-        name: "用户名黑名单(模糊匹配)",
-        oldKey: "userNameKeyArr",
-        oldName: "用户名黑名单模式(模糊匹配)"
-    },
-    {
-        key: "precise_name",
-        name: "用户名黑名单(精确匹配)",
-        oldKey: "userNameArr",
-        oldName: "用户名黑名单模式(精确匹配)"
-    }, {
-        key: "nameCanonical",
-        name: "用户名黑名单(正则匹配)"
-    },
-    {
-        key: "precise_uid",
-        name: "用户uid黑名单(精确匹配)",
-        oldKey: "userUIDArr",
-        oldName: "用户uid黑名单模式(精确匹配)"
-    },
-    {
-        key: "precise_uid_white",
-        name: "用户uid白名单(精确匹配)",
-        oldKey: "userWhiteUIDArr",
-        oldName: "用户uid白名单模式(精确匹配)"
-    }, {
-        key: "title",
-        name: "标题黑名单(模糊匹配)",
-        oldKey: "titleKeyArr",
-        oldName: "标题黑名单模式(模糊匹配)"
-    }, {
-        key: "titleCanonical",
-        name: "标题黑名单(正则匹配)",
-        oldKey: "titleKeyCanonicalArr",
-        oldName: "标题黑名单模式(正则匹配)"
-    }, {
-        key: "commentOn",
-        name: "评论关键词黑名单(模糊匹配)",
-        oldKey: "commentOnKeyArr",
-        oldName: "评论关键词黑名单模式(模糊匹配)"
-    }, {
-        key: "commentOnCanonical",
-        name: "评论关键词黑名单(正则匹配)",
-        oldKey: "contentOnKeyCanonicalArr",
-        oldName: "评论关键词黑名单模式(正则匹配)"
-    }, {
-        key: "contentOn",
-        name: "评论内容黑名单(模糊匹配)",
-        oldKey: "contentOnKeyArr",
-        oldName: "评论内容黑名单模式(模糊匹配)"
-    }, {
-        key: "precise_fanCard",
-        name: "粉丝牌黑名单(精确匹配)",
-        oldKey: "fanCardArr",
-        oldName: "粉丝牌黑名单模式(精确匹配)"
-    }, {
-        key: "dynamic",
-        name: "动态关键词黑名单(模糊匹配)",
-        oldKey: "dynamicArr",
-        oldName: "动态关键词内容黑名单模式(模糊匹配)"
-    }, {
-        key: "precise_tag",
-        name: "话题tag标签黑名单(精确匹配)",
-    }
-    , {
-        key: "tag",
-        name: "话题tag标签黑名单(模糊匹配)",
-    }, {
-        key: "tagCanonical",
-        name: "话题tag标签黑名单(正则匹配)"
-    }, {
-        key: "precise_partition",
-        name: "直播分区黑名单(精确匹配)"
-    }, {
-        key: 'videoTag',
-        name: '视频tag黑名单(模糊匹配)',
-    }, {
-        key: 'precise_videoTag',
-        name: '视频tag黑名单(精确匹配)',
-    }, {
-        key: 'videoTagCanonical',
-        name: '视频tag黑名单(正则匹配)',
-    },
-    {
-        key: 'hotSearchKey',
-        name: '热搜关键词(模糊匹配)',
-    },
-    {
-        key: 'hotSearchKeyCanonical',
-        name: '热搜关键词(正则匹配)'
-    }
+const ruleKeyListData = [{
+    key: "name",
+    name: "用户名黑名单(模糊匹配)",
+    oldKey: "userNameKeyArr",
+    oldName: "用户名黑名单模式(模糊匹配)"
+}, {
+    key: "precise_name",
+    name: "用户名黑名单(精确匹配)",
+    oldKey: "userNameArr",
+    oldName: "用户名黑名单模式(精确匹配)"
+}, {
+    key: "nameCanonical",
+    name: "用户名黑名单(正则匹配)"
+}, {
+    key: "precise_uid",
+    name: "用户uid黑名单(精确匹配)",
+    oldKey: "userUIDArr",
+    oldName: "用户uid黑名单模式(精确匹配)"
+}, {
+    key: "precise_uid_white",
+    name: "用户uid白名单(精确匹配)",
+    oldKey: "userWhiteUIDArr",
+    oldName: "用户uid白名单模式(精确匹配)"
+}, {
+    key: "title",
+    name: "标题黑名单(模糊匹配)",
+    oldKey: "titleKeyArr",
+    oldName: "标题黑名单模式(模糊匹配)"
+}, {
+    key: "titleCanonical",
+    name: "标题黑名单(正则匹配)",
+    oldKey: "titleKeyCanonicalArr",
+    oldName: "标题黑名单模式(正则匹配)"
+}, {
+    key: "commentOn",
+    name: "评论关键词黑名单(模糊匹配)",
+    oldKey: "commentOnKeyArr",
+    oldName: "评论关键词黑名单模式(模糊匹配)"
+}, {
+    key: "commentOnCanonical",
+    name: "评论关键词黑名单(正则匹配)",
+    oldKey: "contentOnKeyCanonicalArr",
+    oldName: "评论关键词黑名单模式(正则匹配)"
+}, {
+    key: "contentOn",
+    name: "评论内容黑名单(模糊匹配)",
+    oldKey: "contentOnKeyArr",
+    oldName: "评论内容黑名单模式(模糊匹配)"
+}, {
+    key: "precise_fanCard",
+    name: "粉丝牌黑名单(精确匹配)",
+    oldKey: "fanCardArr",
+    oldName: "粉丝牌黑名单模式(精确匹配)"
+}, {
+    key: "dynamic",
+    name: "动态关键词黑名单(模糊匹配)",
+    oldKey: "dynamicArr",
+    oldName: "动态关键词内容黑名单模式(模糊匹配)"
+}, {
+    key: "precise_tag",
+    name: "话题tag标签黑名单(精确匹配)",
+}, {
+    key: "tag",
+    name: "话题tag标签黑名单(模糊匹配)",
+}, {
+    key: "tagCanonical",
+    name: "话题tag标签黑名单(正则匹配)"
+}, {
+    key: "precise_partition",
+    name: "直播分区黑名单(精确匹配)"
+}, {
+    key: 'videoTag',
+    name: '视频tag黑名单(模糊匹配)',
+}, {
+    key: 'precise_videoTag',
+    name: '视频tag黑名单(精确匹配)',
+}, {
+    key: 'videoTagCanonical',
+    name: '视频tag黑名单(正则匹配)',
+}, {
+    key: 'hotSearchKey',
+    name: '热搜关键词(模糊匹配)',
+}, {
+    key: 'hotSearchKeyCanonical',
+    name: '热搜关键词(正则匹配)'
+}, {
+    key: 'precise_avatarPendantName',
+    name: '头像挂件名(精确匹配)'
+}, {
+    key: 'avatarPendantName',
+    name: '头像挂件名(模糊匹配)'
+}
 ]
 
 //其他参数规则列表
@@ -324,7 +323,6 @@ const getHotSearchKeyCanonicalArr = () => {
 const clearKeyItem = (ruleKey) => {
     gmUtil.delData(ruleKey)
 }
-
 
 export default {
     getNameArr,
