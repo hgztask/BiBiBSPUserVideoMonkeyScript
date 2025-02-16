@@ -222,10 +222,14 @@ const setDisableNetRequestsBvVideoInfo = (b) => {
     gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
 }
 
-
 // 是否屏蔽已关注用户
 const isBlockFollowed = () => {
     return gmUtil.getData('blockFollowed', false)
+}
+
+// 是否屏蔽充电专属视频
+const isUpOwnerExclusive = () => {
+    return gmUtil.getData('is_up_owner_exclusive', false)
 }
 
 
@@ -257,5 +261,6 @@ export default {
     isRequestFrequencyVal,
     isDisableNetRequestsBvVideoInfo,
     setDisableNetRequestsBvVideoInfo,
-    isBlockFollowed
+    isBlockFollowed,
+    isUpOwnerExclusive
 }

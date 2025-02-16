@@ -268,7 +268,7 @@ const blockSignature = (signature) => {
  * @returns {Promise<{state:boolean,type:string,matching:string}|any>}
  */
 const shieldingOtherVideoParameter = async (videoData) => {
-    const {el, bv = '-1'} = videoData
+    const {bv = '-1'} = videoData
     //如果没有bv号参数，则不执行
     if (bv === '-1') return
     if (videoInfoCache.getCount() === 0) {
@@ -295,6 +295,10 @@ const shieldingOtherVideoParameter = async (videoData) => {
     //屏蔽已关注视频
     if (videoInfo?.following && localMKData.isBlockFollowed()) {
         return {state: true, type: '已关注'}
+    }
+    const isUpOwnerExclusive = videoInfo?.is_upower_exclusive;
+    if (isUpOwnerExclusive && localMKData.isUpOwnerExclusive()) {
+        return {state: true, type: '充电专属视频'}
     }
     /**
      * @type {state:boolean,type:string,matching:string|any}
