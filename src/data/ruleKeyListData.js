@@ -94,6 +94,12 @@ const ruleKeyListData = [{
 }, {
     key: 'avatarPendantName',
     name: '头像挂件名(模糊匹配)'
+}, {
+    key: 'signature',
+    name: '用户签名(模糊匹配)'
+}, {
+    key: 'signatureCanonical',
+    name: '用户签名(正则匹配)'
 }
 ]
 

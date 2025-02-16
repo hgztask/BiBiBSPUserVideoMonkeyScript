@@ -214,17 +214,53 @@ const shieldingVideo = (videoData) => {
     return {state: false};
 }
 
-//根据头像挂件名屏蔽
-const blockAvatarPendant = (name) => {
-    if (ruleMatchingUtil.exactMatch(gmUtil.getData('precise_avatarPendantName', []), name)) {
-        return {state: true, type: "精确头像挂件名", matching: name}
+/**
+ * 精确匹配和模糊匹配屏蔽
+ * @param val {string} 待匹配的值
+ * @param config {{}} 配置项
+ * @param config.exactKey {string} 精确类型的规则键
+ * @param config.exactTypeName {string} 显示的名称
+ * @param config.fuzzyKey {string} 模糊类型的规则键
+ * @param config.fuzzyTypeName {string} 显示的名称
+ * @param config.regexKey {string} 正则类型的规则键
+ * @param config.regexTypeName {string} 显示的名称
+ */
+const blockExactAndFuzzyMatching = (val, config) => {
+    if (config.exactKey) {
+        if (ruleMatchingUtil.exactMatch(gmUtil.getData(config.exactKey, []), val)) {
+            return {state: true, type: config.exactTypeName, matching: val}
+        }
     }
-    const matching = ruleMatchingUtil.fuzzyMatch(gmUtil.getData('avatarPendantName', []), name);
-    if (matching) {
-        return {state: true, type: "模糊头像挂件名", matching}
+    let matching;
+    if (config.fuzzyKey) {
+        matching = ruleMatchingUtil.fuzzyMatch(gmUtil.getData(config.fuzzyKey, []), val);
+        if (matching) {
+            return {state: true, type: config.fuzzyTypeName, matching}
+        }
+    }
+    if (config.regexKey) {
+        matching = ruleMatchingUtil.regexMatch(gmUtil.getData(config.regexKey, []), val);
+        if (matching) {
+            return {state: true, type: config.regexTypeName, matching}
+        }
     }
     return {state: false}
 }
+
+//根据头像挂件名屏蔽
+const blockAvatarPendant = (name) => {
+    return blockExactAndFuzzyMatching(name, {
+        exactKey: 'precise_avatarPendantName',
+        exactTypeName: '精确头像挂件名', fuzzyKey: 'avatarPendantName', fuzzyTypeName: '模糊头像挂件名'
+    })
+}
+//根据用户签名屏蔽
+const blockSignature = (signature) => {
+    return blockExactAndFuzzyMatching(signature, {
+        fuzzyKey: 'signature', fuzzyTypeName: '模糊用户签名', regexKey: 'signatureCanonical', regexTypeName: '正则用户签名'
+    })
+}
+
 
 /**
  * 检查其他视频参数执行屏蔽
@@ -256,12 +292,10 @@ const shieldingOtherVideoParameter = async (videoData) => {
         result = find
     }
     const {tags = [], userInfo, videoInfo} = result
-
     //屏蔽已关注视频
     if (videoInfo?.following && localMKData.isBlockFollowed()) {
         return {state: true, type: '已关注'}
     }
-
     /**
      * @type {state:boolean,type:string,matching:string|any}
      */
@@ -284,6 +318,14 @@ const shieldingOtherVideoParameter = async (videoData) => {
     const avatarPendantName = userInfo?.pendant?.name || null;
     if (avatarPendantName) {
         returnValue = blockAvatarPendant(avatarPendantName);
+        if (returnValue.state) {
+            return returnValue
+        }
+    }
+    //根据用户签名屏蔽
+    const signContent = userInfo?.sign;
+    if (signContent) {
+        returnValue = blockSignature(signContent)
         if (returnValue.state) {
             return returnValue
         }
