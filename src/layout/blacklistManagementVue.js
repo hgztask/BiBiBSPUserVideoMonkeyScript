@@ -181,6 +181,7 @@ export const blacklist_management_vue = {
                 return
             }
             this.list = list
+            this.showList = list
             this.total = total
             this.$message('获取成功')
         },

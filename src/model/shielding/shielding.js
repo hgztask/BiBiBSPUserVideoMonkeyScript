@@ -314,8 +314,6 @@ const blockVideoCopyright = (num) => {
     return {state: false}
 }
 
-
-
 /**
  * 检查其他视频参数执行屏蔽
  * @param videoData {{}} 视频数据
