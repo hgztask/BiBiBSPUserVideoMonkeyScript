@@ -100,6 +100,12 @@ const ruleKeyListData = [{
 }, {
     key: 'signatureCanonical',
     name: '用户签名(正则匹配)'
+}, {
+    key: 'videoDesc',
+    name: '视频简介(模糊匹配)'
+}, {
+    key: 'videoDescCanonical',
+    name: '视频简介(正则匹配)'
 }
 ]
 

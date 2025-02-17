@@ -219,11 +219,11 @@ const shieldingVideo = (videoData) => {
  * @param val {string} 待匹配的值
  * @param config {{}} 配置项
  * @param config.exactKey {string} 精确类型的规则键
- * @param config.exactTypeName {string} 显示的名称
+ * @param config.exactTypeName {string} 精确显示的名称
  * @param config.fuzzyKey {string} 模糊类型的规则键
- * @param config.fuzzyTypeName {string} 显示的名称
+ * @param config.fuzzyTypeName {string} 模糊显示的名称
  * @param config.regexKey {string} 正则类型的规则键
- * @param config.regexTypeName {string} 显示的名称
+ * @param config.regexTypeName {string} 正则显示的名称
  */
 const blockExactAndFuzzyMatching = (val, config) => {
     if (config.exactKey) {
@@ -258,6 +258,14 @@ const blockAvatarPendant = (name) => {
 const blockSignature = (signature) => {
     return blockExactAndFuzzyMatching(signature, {
         fuzzyKey: 'signature', fuzzyTypeName: '模糊用户签名', regexKey: 'signatureCanonical', regexTypeName: '正则用户签名'
+    })
+}
+
+//根据视频简介屏蔽
+const blockVideoDesc = (desc) => {
+    return blockExactAndFuzzyMatching(desc, {
+        fuzzyKey: 'videoDesc', fuzzyTypeName: '视频简介(模糊匹配)'
+        , regexKey: 'videoDescCanonical', regexTypeName: '视频简介(正则匹配)'
     })
 }
 
@@ -330,6 +338,14 @@ const shieldingOtherVideoParameter = async (videoData) => {
     const signContent = userInfo?.sign;
     if (signContent) {
         returnValue = blockSignature(signContent)
+        if (returnValue.state) {
+            return returnValue
+        }
+    }
+    //根据视频简介屏蔽
+    const desc = videoInfo?.desc || null;
+    if (desc) {
+        returnValue = blockVideoDesc(desc)
         if (returnValue.state) {
             return returnValue
         }
