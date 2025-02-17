@@ -281,7 +281,7 @@ const blockGender = (gender) => {
 
 //根据会员类型屏蔽
 const blockUserVip = (vipId) => {
-    const val = localMKData.isVipRadioVal();
+    const val = localMKData.isVipTypeRadioVal();
     const vipMap = {
         0: '无',
         1: '月大会员',
@@ -289,6 +289,14 @@ const blockUserVip = (vipId) => {
     }
     if (val === vipMap[vipId]) {
         return {state: true, type: '会员类型屏蔽', matching: val}
+    }
+    return {state: false}
+}
+
+//根据硬核会员屏蔽
+const blockSeniorMember = (num) => {
+    if (num === 1 && localMKData.isSeniorMember()) {
+        return {state: true, type: '屏蔽硬核会员'}
     }
     return {state: false}
 }
@@ -384,7 +392,11 @@ const shieldingOtherVideoParameter = async (videoData) => {
     if (returnValue.state) {
         return returnValue
     }
-    debugger
+    //根据硬核会员屏蔽
+    returnValue = blockSeniorMember(userInfo.is_senior_member)
+    if (returnValue.state) {
+        return returnValue
+    }
 }
 
 

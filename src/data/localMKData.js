@@ -238,8 +238,13 @@ const isGenderRadioVal = () => {
 }
 
 // 会员类型屏蔽
-const isVipRadioVal = () => {
-    return gmUtil.getData('vipRadioVal', '不处理');
+const isVipTypeRadioVal = () => {
+    return gmUtil.getData('vipTypeRadioVal', '不处理');
+}
+
+// 是否屏蔽硬核会员
+const isSeniorMember = () => {
+    return gmUtil.getData('is_senior_member', false)
 }
 
 
@@ -274,5 +279,6 @@ export default {
     isBlockFollowed,
     isUpOwnerExclusive,
     isGenderRadioVal,
-    isVipRadioVal
+    isVipTypeRadioVal,
+    isSeniorMember,
 }

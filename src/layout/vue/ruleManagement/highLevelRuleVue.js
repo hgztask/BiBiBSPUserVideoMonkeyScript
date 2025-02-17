@@ -16,15 +16,26 @@ export const high_level_rule_vue = {
             <el-radio-button label="不处理"></el-radio-button>
           </el-radio-group>
         </el-card>
-        <el-card>
-          <template #header>会员类型屏蔽</template>
-          <el-radio-group v-model="vipRadioVal">
-            <el-radio-button label="无"></el-radio-button>
-            <el-radio-button label="月大会员"></el-radio-button>
-            <el-radio-button label="年度及以上大会员"></el-radio-button>
-            <el-radio-button label="不处理"></el-radio-button>
-          </el-radio-group>
-        </el-card>
+        <el-row>
+          <el-col :span="12">
+            <el-card>
+              <template #header>会员类型屏蔽</template>
+              <el-radio-group v-model="vipTypeRadioVal">
+                <el-radio-button label="无"></el-radio-button>
+                <el-radio-button label="月大会员"></el-radio-button>
+                <el-radio-button label="年度及以上大会员"></el-radio-button>
+                <el-radio-button label="不处理"></el-radio-button>
+              </el-radio-group>
+            </el-card>
+          </el-col>
+          <el-col :span="12">
+            <el-card>
+              <template #header>是否屏蔽硬核会员</template>
+              <el-switch v-model="is_senior_member_val" active-text="是" inactive-text="否"/>
+            </el-card>
+          </el-col>
+        </el-row>
+
         <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
         <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
       </div>`,
@@ -33,7 +44,8 @@ export const high_level_rule_vue = {
             blockFollowed: localMKData.isBlockFollowed(),
             is_up_owner_exclusive: localMKData.isUpOwnerExclusive(),
             genderRadioVal: localMKData.isGenderRadioVal(),
-            vipRadioVal: localMKData.isVipRadioVal()
+            vipTypeRadioVal: localMKData.isVipTypeRadioVal(),
+            is_senior_member_val: localMKData.isSeniorMember()
         }
     },
     methods: {},
@@ -47,8 +59,11 @@ export const high_level_rule_vue = {
         genderRadioVal(n) {
             gmUtil.setData('genderRadioVal', n)
         },
-        vipRadioVal(n) {
-            gmUtil.setData('vipRadioVal', n)
+        vipTypeRadioVal(n) {
+            gmUtil.setData('vipTypeRadioVal', n)
+        },
+        is_senior_member_val(n) {
+            gmUtil.setData('is_senior_member', n)
         }
     }
 }
