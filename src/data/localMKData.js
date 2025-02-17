@@ -232,6 +232,11 @@ const isUpOwnerExclusive = () => {
     return gmUtil.getData('is_up_owner_exclusive', false)
 }
 
+// 性别屏蔽
+const isGenderRadioVal = () => {
+    return gmUtil.getData('genderRadioVal', '不处理');
+}
+
 
 export default {
     setBorderColor,
@@ -262,5 +267,6 @@ export default {
     isDisableNetRequestsBvVideoInfo,
     setDisableNetRequestsBvVideoInfo,
     isBlockFollowed,
-    isUpOwnerExclusive
+    isUpOwnerExclusive,
+    isGenderRadioVal
 }

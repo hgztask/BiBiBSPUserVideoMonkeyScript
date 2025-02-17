@@ -269,6 +269,15 @@ const blockVideoDesc = (desc) => {
     })
 }
 
+//根据性别屏蔽
+const blockGender = (gender) => {
+    const val = localMKData.isGenderRadioVal();
+    const state = val === gender && val !== '不处理';
+    if (state) {
+        return {state: true, type: '性别屏蔽', matching: val}
+    }
+    return {state: false};
+}
 
 /**
  * 检查其他视频参数执行屏蔽
@@ -346,6 +355,14 @@ const shieldingOtherVideoParameter = async (videoData) => {
     const desc = videoInfo?.desc || null;
     if (desc) {
         returnValue = blockVideoDesc(desc)
+        if (returnValue.state) {
+            return returnValue
+        }
+    }
+    //根据性别屏蔽
+    const tempSex = userInfo?.sex;
+    if (tempSex) {
+        returnValue = blockGender(tempSex)
         if (returnValue.state) {
             return returnValue
         }
