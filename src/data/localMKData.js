@@ -247,6 +247,11 @@ const isSeniorMember = () => {
     return gmUtil.getData('is_senior_member', false)
 }
 
+// 视频类型，原创，转载，不处理
+const isCopyrightRadio = () => {
+    return gmUtil.getData('copyrightRadioVal', '不处理');
+}
+
 
 export default {
     setBorderColor,
@@ -281,4 +286,5 @@ export default {
     isGenderRadioVal,
     isVipTypeRadioVal,
     isSeniorMember,
+    isCopyrightRadio
 }

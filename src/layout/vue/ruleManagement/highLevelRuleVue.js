@@ -16,6 +16,14 @@ export const high_level_rule_vue = {
             <el-radio-button label="不处理"></el-radio-button>
           </el-radio-group>
         </el-card>
+        <el-card>
+          <template #header>视频类型</template>
+          <el-radio-group v-model="copyrightRadioVal">
+            <el-radio-button label="原创"></el-radio-button>
+            <el-radio-button label="转载"></el-radio-button>
+            <el-radio-button label="不处理"></el-radio-button>
+          </el-radio-group>
+        </el-card>
         <el-row>
           <el-col :span="12">
             <el-card>
@@ -35,7 +43,6 @@ export const high_level_rule_vue = {
             </el-card>
           </el-col>
         </el-row>
-
         <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
         <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
       </div>`,
@@ -45,7 +52,8 @@ export const high_level_rule_vue = {
             is_up_owner_exclusive: localMKData.isUpOwnerExclusive(),
             genderRadioVal: localMKData.isGenderRadioVal(),
             vipTypeRadioVal: localMKData.isVipTypeRadioVal(),
-            is_senior_member_val: localMKData.isSeniorMember()
+            is_senior_member_val: localMKData.isSeniorMember(),
+            copyrightRadioVal: localMKData.isCopyrightRadio()
         }
     },
     methods: {},
@@ -64,6 +72,9 @@ export const high_level_rule_vue = {
         },
         is_senior_member_val(n) {
             gmUtil.setData('is_senior_member', n)
+        },
+        copyrightRadioVal(n) {
+            gmUtil.setData('copyrightRadioVal', n)
         }
     }
 }

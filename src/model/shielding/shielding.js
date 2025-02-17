@@ -301,6 +301,20 @@ const blockSeniorMember = (num) => {
     return {state: false}
 }
 
+//根据视频类型屏蔽，1原创，2转载
+const blockVideoCopyright = (num) => {
+    const val = localMKData.isCopyrightRadio();
+    const tempMap = {
+        1: '原创',
+        2: '转载'
+    }
+    if (val === tempMap[num]) {
+        return {state: true, type: '视频类型屏蔽', matching: val}
+    }
+    return {state: false}
+}
+
+
 
 /**
  * 检查其他视频参数执行屏蔽
@@ -394,6 +408,11 @@ const shieldingOtherVideoParameter = async (videoData) => {
     }
     //根据硬核会员屏蔽
     returnValue = blockSeniorMember(userInfo.is_senior_member)
+    if (returnValue.state) {
+        return returnValue
+    }
+    //根据视频类型屏蔽，1原创，2转载
+    returnValue = blockVideoCopyright(videoInfo.copyright)
     if (returnValue.state) {
         return returnValue
     }
