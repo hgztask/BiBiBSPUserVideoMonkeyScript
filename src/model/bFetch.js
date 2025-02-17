@@ -97,7 +97,9 @@ const fetchGetVideoInfo = async (bvId) => {
                 //会员信息对象
                 vip,
                 // 用户签名
-                sign
+                sign,
+                // 是否为硬核会员
+                is_senior_member
             }
         }, Tags,
         //分词
@@ -167,7 +169,8 @@ const fetchGetVideoInfo = async (bvId) => {
         pendant,
         nameplate,
         following,
-        sign
+        sign,
+        is_senior_member
     }
     const tags = []
     for (let tag of Tags) {

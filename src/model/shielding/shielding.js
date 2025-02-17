@@ -279,6 +279,21 @@ const blockGender = (gender) => {
     return {state: false};
 }
 
+//根据会员类型屏蔽
+const blockUserVip = (vipId) => {
+    const val = localMKData.isVipRadioVal();
+    const vipMap = {
+        0: '无',
+        1: '月大会员',
+        2: '年度及以上大会员'
+    }
+    if (val === vipMap[vipId]) {
+        return {state: true, type: '会员类型屏蔽', matching: val}
+    }
+    return {state: false}
+}
+
+
 /**
  * 检查其他视频参数执行屏蔽
  * @param videoData {{}} 视频数据
@@ -360,12 +375,14 @@ const shieldingOtherVideoParameter = async (videoData) => {
         }
     }
     //根据性别屏蔽
-    const tempSex = userInfo?.sex;
-    if (tempSex) {
-        returnValue = blockGender(tempSex)
-        if (returnValue.state) {
-            return returnValue
-        }
+    returnValue = blockGender(userInfo?.sex)
+    if (returnValue.state) {
+        return returnValue
+    }
+    //根据会员类型屏蔽
+    returnValue = blockUserVip(userInfo.vip.type)
+    if (returnValue.state) {
+        return returnValue
     }
     debugger
 }

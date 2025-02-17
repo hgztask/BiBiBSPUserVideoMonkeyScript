@@ -237,6 +237,11 @@ const isGenderRadioVal = () => {
     return gmUtil.getData('genderRadioVal', '不处理');
 }
 
+// 会员类型屏蔽
+const isVipRadioVal = () => {
+    return gmUtil.getData('vipRadioVal', '不处理');
+}
+
 
 export default {
     setBorderColor,
@@ -268,5 +273,6 @@ export default {
     setDisableNetRequestsBvVideoInfo,
     isBlockFollowed,
     isUpOwnerExclusive,
-    isGenderRadioVal
+    isGenderRadioVal,
+    isVipRadioVal
 }

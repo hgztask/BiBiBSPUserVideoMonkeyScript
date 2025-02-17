@@ -16,6 +16,15 @@ export const high_level_rule_vue = {
             <el-radio-button label="不处理"></el-radio-button>
           </el-radio-group>
         </el-card>
+        <el-card>
+          <template #header>会员类型屏蔽</template>
+          <el-radio-group v-model="vipRadioVal">
+            <el-radio-button label="无"></el-radio-button>
+            <el-radio-button label="月大会员"></el-radio-button>
+            <el-radio-button label="年度及以上大会员"></el-radio-button>
+            <el-radio-button label="不处理"></el-radio-button>
+          </el-radio-group>
+        </el-card>
         <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
         <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
       </div>`,
@@ -23,7 +32,8 @@ export const high_level_rule_vue = {
         return {
             blockFollowed: localMKData.isBlockFollowed(),
             is_up_owner_exclusive: localMKData.isUpOwnerExclusive(),
-            genderRadioVal: localMKData.isGenderRadioVal()
+            genderRadioVal: localMKData.isGenderRadioVal(),
+            vipRadioVal: localMKData.isVipRadioVal()
         }
     },
     methods: {},
@@ -36,6 +46,9 @@ export const high_level_rule_vue = {
         },
         genderRadioVal(n) {
             gmUtil.setData('genderRadioVal', n)
+        },
+        vipRadioVal(n) {
+            gmUtil.setData('vipRadioVal', n)
         }
     }
 }
