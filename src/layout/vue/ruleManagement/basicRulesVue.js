@@ -44,7 +44,7 @@ export const basic_rules_vue = {
       </div>`,
     data() {
         return {
-            selectVal: 'name',
+            selectVal: 'precise_uid',
             selectText: "",
             ruleActions: [
                 {
