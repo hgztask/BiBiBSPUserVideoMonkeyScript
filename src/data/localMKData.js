@@ -100,7 +100,7 @@ export const setAdaptationBAppCommerce = (bool) => {
 
 // 是否显示右上角主面板按钮开关，默认为true
 const isShowRightTopMainButSwitch = () => {
-    return gmUtil.getData("showRightTopMainButSwitch", false) === true;
+    return gmUtil.getData("showRightTopMainButSwitch", true) === true;
 }
 
 // 设置是否显示右上角主面板按钮开关
