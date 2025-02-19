@@ -307,20 +307,15 @@ const addItemRule = (arr, key, coverage = true) => {
     }
     if (coverage) {
         gmUtil.setData(key, complianceList)
-        return {status: true, msg: '添加成功-覆盖模式'}
+        return {status: true, msg: `添加成功-覆盖模式，数量：${complianceList.length}`}
     }
     const oldArr = gmUtil.getData(key, []);
-    const newList = []
-    for (const v of complianceList) {
-        if (oldArr.includes(v)) continue;
-        newList.push(v)
-    }
-    debugger
+    const newList = complianceList.filter(item => !oldArr.includes(item))
     if (newList.length === 0) {
         return {status: false, msg: '内容重复'}
     }
-    gmUtil.setData(key, newList)
-    return {status: true, msg: '添加成功-追加模式'}
+    gmUtil.setData(key, oldArr.concat(newList))
+    return {status: true, msg: '添加成功-追加模式，新增数量：' + newList.length}
 }
 
 /**
