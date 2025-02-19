@@ -213,7 +213,8 @@ const delRightVideoList = () => {
         return
     }
     elUtil.findElement('.recommend-list-v1').then(el => {
-        el?.remove()
+        // el?.remove()
+        el.style.visibility = "hidden";
         eventEmitter.send('打印信息', '屏蔽了播放页的右侧推荐列表')
     })
 }
