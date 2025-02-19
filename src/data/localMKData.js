@@ -253,6 +253,12 @@ const isCopyrightRadio = () => {
 }
 
 
+// 是否移除底部评论区
+const isDelBottomComment = () => {
+    return gmUtil.getData('isDelBottomComment', false)
+}
+
+
 export default {
     setBorderColor,
     getBorderColor,
@@ -286,5 +292,6 @@ export default {
     isGenderRadioVal,
     isVipTypeRadioVal,
     isSeniorMember,
-    isCopyrightRadio
+    isCopyrightRadio,
+    isDelBottomComment,
 }

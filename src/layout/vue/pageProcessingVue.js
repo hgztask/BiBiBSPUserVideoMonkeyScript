@@ -40,7 +40,7 @@ export const page_processing_vue = {
             isDelPlayerPageAd: gmUtil.getData('isDelPlayerPageAd', false),
             isDelPlayerPageRightGameAd: gmUtil.getData('isDelPlayerPageRightGameAd', false),
             isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
-            isDelBottomComment: gmUtil.getData('isDelBottomComment', false),
+            isDelBottomComment: localMKData.isDelBottomComment(),
             isClearTopInputTipContent: gmUtil.getData('isClearTopInputTipContent', false),
         }
     },

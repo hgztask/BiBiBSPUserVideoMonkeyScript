@@ -238,7 +238,7 @@ const delGameAd = () => {
 
 //移除屏蔽底部评论区
 const delBottomCommentApp = () => {
-    if (!gmUtil.getData('isDelBottomComment', false)) {
+    if (!localMKData.isDelBottomComment()) {
         return
     }
     elUtil.findElement('#commentapp').then(el => {
