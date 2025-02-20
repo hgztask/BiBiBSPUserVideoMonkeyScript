@@ -6,9 +6,16 @@ const scriptCat_js_url = 'https://scriptcat.org/zh-CN/script-show-page/1029'
 //作者B站链接
 const b_url = 'https://space.bilibili.com/473239155'
 
+//常见问题链接
+const common_question_url = 'https://docs.qq.com/doc/DSlJNR1NVcGR3eEto'
+
+//更新日志链接
+const update_log_url = 'https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj'
 
 export default {
     group_url,
     scriptCat_js_url,
-    b_url
+    b_url,
+    common_question_url,
+    update_log_url
 }

@@ -1,21 +1,22 @@
 # b站屏蔽增强器v2版
+
 <hr>
 对B站的视频和评论项进行屏蔽，其中包括动态直播间的评论等，详情可看下面支持的屏蔽类型
 
 - 支持快捷屏蔽按钮，鼠标放在视频标题或评论上会显示屏蔽按钮，点击可选择uid精确屏蔽和用户名精确屏蔽，建议优先uid方式
 - 所有屏蔽规则都可以在主面板，快捷键~打开或点击页面左上角按钮展开，中的规则管理按需添加规则
 - 脚本发布在[脚本猫](https://scriptcat.org/zh-CN/script-show-page/1029/)
-  和[greasyfork](https://greasyfork.org/zh-CN/scripts/461382)平台
+  和[greasyfork](https://greasyfork.org/zh-CN/scripts/461382)平台，脚本更新会优先更新到脚本猫上，其次greasyfork平台
     - 可使用[脚本猫](https://scriptcat.org/)或者[篡改猴](https://chrome.zzzmh.cn/info/dhdgffkkebhmkfjojejmpbldmpobfkfo)
       插件安装，具体操作可看脚本猫或篡改猴平台介绍
 - 哔哩哔哩增强屏蔽器常见问题汇总(
   持续更新)[https://docs.qq.com/doc/DSlJNR1NVcGR3eEto](https://docs.qq.com/doc/DSlJNR1NVcGR3eEto)
 - 脚本项目开发文档[===》B站屏蔽器脚本项目开发需知《===](https://docs.qq.com/doc/DSkdTQ1p1aFNnVnRS?no_promotion=1)
   ，可二改，但需要留下作者版权信息
-- 更新日志:[===》更新日志《===](https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj?no_promotion=1)
--
+- 更新日志(包括发布前开发完的内容):[===》更新日志《===](https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj)
 
-完整脚本描述可看:[【腾讯文档】b站屏蔽增强器v2版自述文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)
+完整脚本描述可看(
+持续更新):[【腾讯文档】b站屏蔽增强器v2版自述文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)
 
 ## 屏蔽的类型
 
@@ -40,6 +41,7 @@
 | 视频简介模糊匹配    |            | 视频简介正则匹配      |            |     |
 
 -
+
 需要注意的是模糊匹配和正则匹配的规则不用考虑要匹配的内容大写问题，如标题，会自动转成小写进行匹配。如不需要自动转换，可在主面板中的规则管理=>
 条件限制=>模糊和正则匹配时，勾选转小写
 

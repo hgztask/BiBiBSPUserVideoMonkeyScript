@@ -74,7 +74,7 @@ export const about_and_feedback_vue = {
           <el-row>
             <el-col :span="12">
               常见问题
-              <el-link target="_blank" type="primary" href="https://docs.qq.com/doc/DSlJNR1NVcGR3eEto">==>传送门<==
+              <el-link target="_blank" type="primary" :href="common_question_url">==>传送门<==
               </el-link>
             </el-col>
             <el-col :span="12">
@@ -90,7 +90,8 @@ export const about_and_feedback_vue = {
         return {
             group_url: globalValue.group_url,
             scriptCat_js_url: globalValue.scriptCat_js_url,
-            b_url: globalValue.b_url
+            b_url: globalValue.b_url,
+            common_question_url: globalValue.common_question_url,
         }
     },
     methods: {
