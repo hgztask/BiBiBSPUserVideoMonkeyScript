@@ -135,7 +135,6 @@ const startShieldingHistoryVideoList = async () => {
     }
 }
 
-
 //开始执行屏蔽BewlyBewly中首页个性推荐和人视频
 const startShieldingVideoList = async () => {
     const list = await getVideoList()
@@ -143,7 +142,7 @@ const startShieldingVideoList = async () => {
         if (shielding.shieldingVideoDecorated(videoData)) {
             continue
         }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
+        eventEmitter.send('视频添加屏蔽按钮-BewlyBewly', {data: videoData, maskingFunc: startShieldingVideoList})
     }
 }
 

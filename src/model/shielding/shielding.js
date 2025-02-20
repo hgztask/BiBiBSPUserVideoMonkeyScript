@@ -107,6 +107,17 @@ eventEmitter.on('视频添加屏蔽按钮', (data) => {
 })
 
 /**
+ * 对视频添加屏蔽按钮和指令-BewlyBewly
+ * @param data {Object}
+ * @param data.data {{}} 视频数据
+ * @param data.maskingFunc {function} 屏蔽函数
+ */
+eventEmitter.on('视频添加屏蔽按钮-BewlyBewly', (data) => {
+    addBlockButton(data, "gz_shielding_button", ['right', 'bottom']);
+})
+
+
+/**
  * 添加热门视频屏蔽按钮
  * @param data{Object}
  * @param data.data {Object} 评论数据
