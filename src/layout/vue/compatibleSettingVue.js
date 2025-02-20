@@ -4,19 +4,25 @@ import localMKData from "../../data/localMKData.js";
 export const compatible_setting_vue = {
     template: `
       <div>
-      <div>
-        <el-checkbox v-model="adaptationBAppRecommend">首页屏蔽适配Bilibili-Gate脚本(bilibili-app-recommend)
-        </el-checkbox>
-      </div>
-      <div>
-        <el-tooltip content="使用之后需刷新对应页面才可生效，勾选即评论区使用新版获取方式，不再使用旧版方式"
-                    placement="top">
-          <el-checkbox v-model="discardOldCommentAreasV">弃用旧版评论区处理</el-checkbox>
-        </el-tooltip>
-      </div>
-      <div>
-        <el-checkbox v-model="compatible_BEWLY_BEWLY">兼容BewlyBewly插件</el-checkbox>
-      </div>
+        <el-card>
+          <template #header>说明</template>
+          <div>如果用户没有安装并使用对应脚本或插件，就不要开启相关兼容选项</div>
+        </el-card>
+        <el-card>
+          <template #header>Bilibili-Gate脚本(bilibili-app-recommend)</template>
+          <el-switch v-model="adaptationBAppRecommend" active-text="首页屏蔽适配"/>
+        </el-card>
+        <el-card>
+          <template #header>BewlyBewly插件</template>
+          <el-switch v-model="compatible_BEWLY_BEWLY" active-text="首页适配"/>
+        </el-card>
+        <el-card>
+          <template #header>评论区</template>
+          使用之后需刷新对应页面才可生效，勾选即评论区使用新版获取方式，不再使用旧版方式
+          <div>
+            <el-switch v-model="discardOldCommentAreasV" active-text="弃用旧版评论区处理"/>
+          </div>
+        </el-card>
       </div>`,
     data() {
         return {
