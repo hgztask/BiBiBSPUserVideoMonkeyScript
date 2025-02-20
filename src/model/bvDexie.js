@@ -54,6 +54,15 @@ const getVideoInfo = async () => {
 }
 
 /**
+ * 获取本地db视频数据长度
+ * @returns {Promise<number>}
+ */
+const getVideoInfoCount = async () => {
+    return await mk_db.videoInfos.count()
+}
+
+
+/**
  * 清除视频缓存表
  * @returns {Promise<boolean>}
  */
@@ -72,5 +81,6 @@ export default {
     addVideoData,
     clearVideoInfosTable,
     bulkImportVideoInfos,
-    getVideoInfo
+    getVideoInfo,
+    getVideoInfoCount
 }

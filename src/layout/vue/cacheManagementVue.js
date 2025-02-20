@@ -1,20 +1,33 @@
 import bvDexie from "../../model/bvDexie.js";
 import defUtil from "../../utils/defUtil.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 export const cache_management_vue = {
     template: `
       <div>
-      <ol>
-        <li>每个域名中的缓存数据不同</li>
-        <li>仅仅支持导入json格式</li>
-        <li>下面导入默认追加模式</li>
-      </ol>
-      <div>当前域名：{{ hostname }}</div>
-        <el-button @click="outDbDataBut">导出当前域名的缓存数据</el-button>
-      <input ref="inputDemo" type="file" @change="handleFileUpload" accept="application/json"
-             style="display: none">
-        <el-button @click="inputFIleBut">追加导入视频缓存数据</el-button>
-        <el-button @click="clearPageVideoCacheDataBut">清空当前域名的视频缓存数据</el-button>
+        <el-card>
+          <template #header>说明</template>
+          <div>1.每个域名中的缓存数据不同</div>
+          <div>2.仅仅支持导入json格式</div>
+          <div>3.下面导入默认追加模式</div>
+          <div>4.当前域名
+            <el-tag>{{ hostname }}</el-tag>
+          </div>
+        </el-card>
+        <el-card>
+          <template #header>操作</template>
+          <el-button @click="inputFIleBut">追加导入视频缓存数据</el-button>
+          <input ref="inputDemo" type="file" @change="handleFileUpload" accept="application/json"
+                 style="display: none">
+          <el-button @click="clearPageVideoCacheDataBut">清空当前域名的视频缓存数据</el-button>
+          <el-button @click="lookContentBut">查看内容</el-button>
+          <el-button @click="lookContentLenBut">查看数据量</el-button>
+        </el-card>
+        <el-card>
+          <template #header>导出</template>
+          <el-button @click="outDbDataBut">导出至文件</el-button>
+          <el-button @click="outToConsoleBut">导出至控制台</el-button>
+        </el-card>
       </div>`,
     data() {
         return {
@@ -103,6 +116,29 @@ export const cache_management_vue = {
                         this.$message('清空失败')
                     }
                 })
+            })
+        },
+        lookContentBut() {
+            this.$confirm('当数据量过大时，可能卡顿，等待时间会较为长，是要继续吗').then(async () => {
+                const loading = this.$loading({text: "获取中..."});
+                const r = await bvDexie.getVideoInfo()
+                loading.close()
+                eventEmitter.send('展示内容对话框', JSON.stringify(r))
+                this.$message('获取成功')
+            })
+        },
+        outToConsoleBut() {
+            bvDexie.getVideoInfo().then(r => {
+                this.$alert('已导出至控制台上，可通过f12等方式查看')
+                const hostname = this.hostname
+                console.log(`${hostname}的视频数据===start`)
+                console.log(r)
+                console.log(`${hostname}的视频数据=====end`)
+            })
+        },
+        lookContentLenBut() {
+            bvDexie.getVideoInfoCount().then((len) => {
+                this.$alert(`数据量${len}`)
             })
         }
     },
