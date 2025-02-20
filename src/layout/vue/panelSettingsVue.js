@@ -14,9 +14,9 @@ export const panel_settings_vue = {
           选择器
           <el-color-picker v-model="input_color"/>
         </div>
-        <button gz_type @click="setBorderColorBut">设置边框色</button>
-        <button gz_type @click="setDefFontColorForOutputInformationBut">设置输出信息默认字体色</button>
-        <button gz_type @click="setTheFontColorForOutputInformationBut">设置输出信息高亮字体色</button>
+        <el-button @click="setBorderColorBut">设置边框色</el-button>
+        <el-button @click="setDefFontColorForOutputInformationBut">设置输出信息默认字体色</el-button>
+        <el-button @click="setTheFontColorForOutputInformationBut">设置输出信息高亮字体色</el-button>
         <el-tooltip content="刷新页面生效">
           <el-button @click="setDefInfoBut">恢复默认</el-button>
         </el-tooltip>

@@ -10,11 +10,11 @@ export const cache_management_vue = {
         <li>下面导入默认追加模式</li>
       </ol>
       <div>当前域名：{{ hostname }}</div>
-      <button gz_type @click="outDbDataBut">导出当前域名的缓存数据</button>
+        <el-button @click="outDbDataBut">导出当前域名的缓存数据</el-button>
       <input ref="inputDemo" type="file" @change="handleFileUpload" accept="application/json"
              style="display: none">
-      <button @click="inputFIleBut" gz_type>追加导入视频缓存数据</button>
-      <button gz_type @click="clearPageVideoCacheDataBut">清空当前域名的视频缓存数据</button>
+        <el-button @click="inputFIleBut">追加导入视频缓存数据</el-button>
+        <el-button @click="clearPageVideoCacheDataBut">清空当前域名的视频缓存数据</el-button>
       </div>`,
     data() {
         return {

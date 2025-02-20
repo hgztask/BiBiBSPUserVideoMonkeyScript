@@ -11,9 +11,9 @@ export default {
           <template #header>
             <span>导出规则</span>
           </template>
-          <button gz_type @click="ruleOutToFIleBut">导出到文件</button>
-          <button gz_type @click="outToInputBut">导出到编辑框</button>
-          <button gz_type @click="ruleOutToConsoleBut">导出到控制台</button>
+          <el-button @click="ruleOutToFIleBut">导出到文件</el-button>
+          <el-button @click="outToInputBut">导出到编辑框</el-button>
+          <el-button @click="ruleOutToConsoleBut">导出到控制台</el-button>
         </el-card>
         <el-card shadow="never">
           <template #header>
@@ -37,11 +37,11 @@ export default {
           <div>旧规则转新规则，用于2.0之前版本升上来旧规则内容丢失问题</div>
           <el-divider/>
           <div>
-            <button gz_type @click="inputFIleRuleBut">读取外部规则文件</button>
-            <button gz_type @click="overwriteImportRulesBut">覆盖导入规则</button>
-            <button gz_type @click="appendImportRulesBut">追加导入规则</button>
-            <button gz_type @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</button>
-            <button gz_type @click="ruleOldToNewBut">旧规则自动转新规则</button>
+            <el-button @click="inputFIleRuleBut">读取外部规则文件</el-button>
+            <el-button @click="overwriteImportRulesBut">覆盖导入规则</el-button>
+            <el-button @click="appendImportRulesBut">追加导入规则</el-button>
+            <el-button @click="overwriteImportRulesV1But">v1旧版本覆盖导入规则</el-button>
+            <el-button @click="ruleOldToNewBut">旧规则自动转新规则</el-button>
           </div>
           <el-divider/>
           <div>

@@ -34,9 +34,9 @@ export default {
             <el-option :value="item.value" v-for="item in selectList" :label="item.name"></el-option>
           </el-select>
           <div>
-            <button @click="okVideoSelectBut" gz_type>设置</button>
-            <button @click="cancelBut" gz_type>取消</button>
-            <button gz_type @click="allCancelBut">全部取消</button>
+            <el-button @click="okVideoSelectBut">设置</el-button>
+            <el-button @click="cancelBut">取消</el-button>
+            <el-button @click="allCancelBut">全部取消</el-button>
           </div>
         </div>
         <div>
