@@ -83,6 +83,10 @@ export const about_and_feedback_vue = {
                        href="https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c">==>传送门<==
               </el-link>
             </el-col>
+            <div>
+              更新日志
+              <el-link target="_blank" type="primary" :href="update_log_url">==>传送门<==</el-link>
+            </div>
           </el-row>
         </el-card>
       </div>`,
@@ -92,6 +96,7 @@ export const about_and_feedback_vue = {
             scriptCat_js_url: globalValue.scriptCat_js_url,
             b_url: globalValue.b_url,
             common_question_url: globalValue.common_question_url,
+            update_log_url: globalValue.update_log_url
         }
     },
     methods: {
