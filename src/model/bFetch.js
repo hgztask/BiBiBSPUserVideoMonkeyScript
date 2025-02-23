@@ -53,6 +53,8 @@ const fetchGetVideoInfo = async (bvId) => {
             is_upower_exclusive,
             //视频时长
             duration,
+            //视频1P的分辨率
+            dimension,
             //视频状态数
             stat: {
                 //播放量
@@ -66,7 +68,9 @@ const fetchGetVideoInfo = async (bvId) => {
                 // 投币数
                 coin,
                 //分享数
-                share
+                share,
+                //点赞数
+                like
             },
         }, Card: {
             // 粉丝数
@@ -140,6 +144,8 @@ const fetchGetVideoInfo = async (bvId) => {
         share,
         //分词
         participle,
+        dimension,
+        like
     }
 
     //封装用户信息

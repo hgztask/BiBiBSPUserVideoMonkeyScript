@@ -146,6 +146,25 @@ const addLiveContentBlockButton = (commentsData) => {
     addBlockButton(commentsData, "gz_shielding_live_danmaku_button");
 }
 
+//根据uid精确屏蔽
+const blockUserUid = (uid) => {
+    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
+        return {state: true, type: "精确uid"};
+    }
+    return {state: false};
+}
+
+/**
+ * 根据uid检查是否是白名单
+ * 调用处一般结束执行
+ * @param uid {number}
+ * @returns {boolean}
+ */
+const checkWhiteUserUid = (uid) => {
+    return ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid);
+}
+
+
 /**
  * 屏蔽视频
  * @param videoData {{}} 视频数据
@@ -161,12 +180,12 @@ const shieldingVideo = (videoData) => {
         name, nDuration = -1,
         nBulletChat = -1, nPlayCount = -1
     } = videoData;
-    //如果是白名单uid，则不处理
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid)) {
+    if (checkWhiteUserUid(uid)) {
         return {state: false};
     }
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
-        return {state: true, type: "精确uid"};
+    let returnVal = blockUserUid(uid);
+    if (returnVal.state) {
+        return returnVal;
     }
     let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
     if (matching !== null) {
@@ -177,16 +196,9 @@ const shieldingVideo = (videoData) => {
         return {state: true, type: "正则标题", matching};
     }
     if (name) {
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
-            return {state: true, type: "精确用户名"};
-        }
-        matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
-        if (matching !== null) {
-            return {state: true, type: "模糊用户名", matching};
-        }
-        matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name);
-        if (matching !== null) {
-            return {state: true, type: "正则用户名", matching};
+        returnVal = blockUserName(name)
+        if (returnVal.state) {
+            return returnVal;
         }
     }
     //限制时长
@@ -325,6 +337,73 @@ const blockVideoCopyright = (num) => {
     return {state: false}
 }
 
+//根据视频是否是竖屏屏蔽
+const blockVerticalVideo = (dimension) => {
+    const temp = {state: false};
+    if (!localMKData.isBlockVerticalVideo()) {
+        return temp
+    }
+    if (!dimension) {
+        return temp
+    }
+    //当视频分辨率宽度小于高度，则判定为竖屏
+    const vertical = dimension.width < dimension.height
+    if (vertical) {
+        return {state: true, type: '竖屏视频屏蔽', matching: vertical}
+    }
+    return temp
+}
+
+//根据用户uid和name检查屏蔽
+const blockUserUidAndName = (uid, name) => {
+    const temp = {state: false};
+    if (!uid || !name) {
+        return temp
+    }
+
+    let returnVal = blockUserUid(uid)
+    if (returnVal.state) {
+        return returnVal
+    }
+    returnVal = blockUserName(name)
+    if (returnVal.state) {
+        return returnVal
+    }
+    return temp
+}
+
+/**
+ * 检查视频创作团队成员屏蔽
+ * 只要有一个成员满足条件，则屏蔽该视频
+ * @param teamMember {[]}
+ */
+const blockVideoTeamMember = (teamMember) => {
+    const temp = {state: false};
+    if (!teamMember) {
+        return temp
+    }
+    for (let u of teamMember) {
+        if (checkWhiteUserUid(u.mid)) {
+            continue
+        }
+        const returnVal = blockUserUidAndName(u.mid, u.name)
+        if (returnVal.state) {
+            return returnVal
+        }
+    }
+    return temp
+}
+
+//根据用户名检查屏蔽
+const blockUserName = (name) => {
+    return blockExactAndFuzzyMatching(name, {
+        exactKey: 'precise_name',
+        exactTypeName: '精确用户名', fuzzyKey: 'name', fuzzyTypeName: '模糊用户名',
+        regexKey: 'nameCanonical', regexTypeName: '正则用户名'
+    })
+}
+
+
 /**
  * 检查其他视频参数执行屏蔽
  * @param videoData {{}} 视频数据
@@ -425,8 +504,16 @@ const shieldingOtherVideoParameter = async (videoData) => {
     if (returnValue.state) {
         return returnValue
     }
+    //根据视频是否是竖屏屏蔽
+    returnValue = blockVerticalVideo(videoInfo.dimension)
+    if (returnValue.state) {
+        return returnValue
+    }
+    returnValue = blockVideoTeamMember(videoInfo.staff)
+    if (returnValue.state) {
+        return returnValue
+    }
 }
-
 
 /**
  * 检查视频tag执行屏蔽
@@ -586,25 +673,20 @@ const shieldingDynamicDecorated = (dynamicData) => {
  */
 const shieldingComment = (commentsData) => {
     const {content, uid, name, level = -1} = commentsData;
-    //如果是白名单uid，则不处理
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid)) {
+    if (checkWhiteUserUid(uid)) {
         return {state: false};
     }
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
-        return {state: true, type: "精确uid"};
+    let returnVal = blockUserUid(uid)
+    if (returnVal.state) {
+        return returnVal
     }
-    if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
-        return {state: true, type: "精确用户名"};
+    if (name) {
+        returnVal = blockUserName(name)
+        if (returnVal.state) {
+            return returnVal
+        }
     }
-    let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
-    if (matching !== null) {
-        return {state: true, type: "模糊用户名", matching};
-    }
-    matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getNameCanonical(), name);
-    if (matching !== null) {
-        return {state: true, type: "正则用户名", matching};
-    }
-    matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getCommentOnArr(), content);
+    let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getCommentOnArr(), content);
     if (matching !== null) {
         return {state: true, type: "模糊评论内容", matching};
     }

@@ -18,11 +18,14 @@ export const high_level_rule_vue = {
         </el-card>
         <el-card>
           <template #header>视频类型</template>
+          <div>选中的类型会被屏蔽</div>
           <el-radio-group v-model="copyrightRadioVal">
             <el-radio-button label="原创"></el-radio-button>
             <el-radio-button label="转载"></el-radio-button>
             <el-radio-button label="不处理"></el-radio-button>
           </el-radio-group>
+          <el-divider/>
+          <el-switch v-model="is_vertical_val" active-text="屏蔽竖屏类视频"/>
         </el-card>
         <el-row>
           <el-col :span="12">
@@ -43,6 +46,11 @@ export const high_level_rule_vue = {
             </el-card>
           </el-col>
         </el-row>
+        <el-card>
+          <template #header>计算创作团队</template>
+          <el-tooltip content="当作者未匹配上时检查其他成员"></el-tooltip>
+          <el-switch v-model="is_check_team_member" active-text="检查创作团队中成员"/>
+        </el-card>
         <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
         <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
       </div>`,
@@ -53,7 +61,9 @@ export const high_level_rule_vue = {
             genderRadioVal: localMKData.isGenderRadioVal(),
             vipTypeRadioVal: localMKData.isVipTypeRadioVal(),
             is_senior_member_val: localMKData.isSeniorMember(),
-            copyrightRadioVal: localMKData.isCopyrightRadio()
+            copyrightRadioVal: localMKData.isCopyrightRadio(),
+            is_vertical_val: localMKData.isBlockVerticalVideo(),
+            is_check_team_member: localMKData.isCheckTeamMember()
         }
     },
     methods: {},
@@ -75,6 +85,12 @@ export const high_level_rule_vue = {
         },
         copyrightRadioVal(n) {
             gmUtil.setData('copyrightRadioVal', n)
+        },
+        is_vertical_val(n) {
+            gmUtil.setData('blockVerticalVideo', n)
+        },
+        is_check_team_member(n) {
+            gmUtil.setData('checkTeamMember', n)
         }
     }
 }

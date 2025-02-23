@@ -165,7 +165,6 @@ const setDiscardOldCommentAreas = (bool) => {
     gmUtil.setData("discardOldCommentAreas", bool === true)
 }
 
-
 /**
  * 是否弃用旧版评论区处理
  * @returns {boolean}
@@ -252,12 +251,20 @@ const isCopyrightRadio = () => {
     return gmUtil.getData('copyrightRadioVal', '不处理');
 }
 
-
 // 是否移除底部评论区
 const isDelBottomComment = () => {
     return gmUtil.getData('isDelBottomComment', false)
 }
 
+// 是否屏蔽竖屏视频
+const isBlockVerticalVideo = () => {
+    return gmUtil.getData('blockVerticalVideo', false)
+}
+
+// 检查创作团队中成员
+const isCheckTeamMember = () => {
+    return gmUtil.getData('checkTeamMember', false)
+}
 
 export default {
     setBorderColor,
@@ -294,4 +301,6 @@ export default {
     isSeniorMember,
     isCopyrightRadio,
     isDelBottomComment,
+    isBlockVerticalVideo,
+    isCheckTeamMember
 }
