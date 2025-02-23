@@ -10,6 +10,11 @@ import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
 import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
 import localMKData from "../../data/localMKData.js";
+import defUtil from "../../utils/defUtil.js";
+
+//默认返回值-不符合屏蔽条件-{state: false}
+const returnTempVal = {state: false}
+
 
 /**
  * 添加屏蔽按钮
@@ -151,7 +156,7 @@ const blockUserUid = (uid) => {
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         return {state: true, type: "精确uid"};
     }
-    return {state: false};
+    return returnTempVal;
 }
 
 /**
@@ -181,7 +186,7 @@ const shieldingVideo = (videoData) => {
         nBulletChat = -1, nPlayCount = -1
     } = videoData;
     if (checkWhiteUserUid(uid)) {
-        return {state: false};
+        return returnTempVal;
     }
     let returnVal = blockUserUid(uid);
     if (returnVal.state) {
@@ -234,7 +239,7 @@ const shieldingVideo = (videoData) => {
         }
     }
     //表面放行该内容
-    return {state: false};
+    return returnTempVal;
 }
 
 /**
@@ -267,7 +272,7 @@ const blockExactAndFuzzyMatching = (val, config) => {
             return {state: true, type: config.regexTypeName, matching}
         }
     }
-    return {state: false}
+    return returnTempVal
 }
 
 //根据头像挂件名屏蔽
@@ -299,7 +304,7 @@ const blockGender = (gender) => {
     if (state) {
         return {state: true, type: '性别屏蔽', matching: val}
     }
-    return {state: false};
+    return returnTempVal;
 }
 
 //根据会员类型屏蔽
@@ -313,7 +318,7 @@ const blockUserVip = (vipId) => {
     if (val === vipMap[vipId]) {
         return {state: true, type: '会员类型屏蔽', matching: val}
     }
-    return {state: false}
+    return returnTempVal
 }
 
 //根据硬核会员屏蔽
@@ -321,7 +326,7 @@ const blockSeniorMember = (num) => {
     if (num === 1 && localMKData.isSeniorMember()) {
         return {state: true, type: '屏蔽硬核会员'}
     }
-    return {state: false}
+    return returnTempVal
 }
 
 //根据视频类型屏蔽，1原创，2转载
@@ -334,31 +339,50 @@ const blockVideoCopyright = (num) => {
     if (val === tempMap[num]) {
         return {state: true, type: '视频类型屏蔽', matching: val}
     }
-    return {state: false}
+    return returnTempVal
 }
 
 //根据视频是否是竖屏屏蔽
 const blockVerticalVideo = (dimension) => {
-    const temp = {state: false};
     if (!localMKData.isBlockVerticalVideo()) {
-        return temp
+        return returnTempVal
     }
     if (!dimension) {
-        return temp
+        return returnTempVal
     }
     //当视频分辨率宽度小于高度，则判定为竖屏
     const vertical = dimension.width < dimension.height
     if (vertical) {
         return {state: true, type: '竖屏视频屏蔽', matching: vertical}
     }
-    return temp
+    return returnTempVal
+}
+
+//根据视频点赞率屏蔽
+const blockVideoLikeRate = (like, view) => {
+    if (!like || !view || !localMKData.isVideoLikeRateBlockingStatus()) {
+        return returnTempVal
+    }
+    //用户指定限制的点赞率
+    const mk_likeRate = parseInt(localMKData.getVideoLikeRate() * 100);
+    if (isNaN(mk_likeRate)) {
+        return returnTempVal
+    }
+    //视频的点赞率
+    const likeRate = defUtil.calculateLikeRate(like, view);
+    if (likeRate <= mk_likeRate) {
+        return {
+            state: true, type: '视频点赞率屏蔽', matching: mk_likeRate + '%'
+            , msg: `视频的点赞率为${likeRate}%，低于用户指定的限制${mk_likeRate}%，屏蔽该视频`
+        }
+    }
+    return returnTempVal
 }
 
 //根据用户uid和name检查屏蔽
 const blockUserUidAndName = (uid, name) => {
-    const temp = {state: false};
     if (!uid || !name) {
-        return temp
+        return returnTempVal
     }
 
     let returnVal = blockUserUid(uid)
@@ -369,7 +393,7 @@ const blockUserUidAndName = (uid, name) => {
     if (returnVal.state) {
         return returnVal
     }
-    return temp
+    return returnTempVal
 }
 
 /**
@@ -378,9 +402,8 @@ const blockUserUidAndName = (uid, name) => {
  * @param teamMember {[]}
  */
 const blockVideoTeamMember = (teamMember) => {
-    const temp = {state: false};
     if (!teamMember) {
-        return temp
+        return returnTempVal
     }
     for (let u of teamMember) {
         if (checkWhiteUserUid(u.mid)) {
@@ -391,7 +414,7 @@ const blockVideoTeamMember = (teamMember) => {
             return returnVal
         }
     }
-    return temp
+    return returnTempVal
 }
 
 //根据用户名检查屏蔽
@@ -513,6 +536,11 @@ const shieldingOtherVideoParameter = async (videoData) => {
     if (returnValue.state) {
         return returnValue
     }
+    returnValue = blockVideoLikeRate(videoInfo.like, videoInfo.view)
+    if (returnValue.state) {
+        console.log(returnValue.msg);
+        return returnValue
+    }
 }
 
 /**
@@ -525,7 +553,7 @@ const blockBasedVideoTag = (tags) => {
     const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
     const videoTagArr = ruleKeyListData.getVideoTagArr();
     if (preciseVideoTagArr.length <= 0 && videoTagArr.length <= 0) {
-        return {state: false}
+        return returnTempVal
     }
     for (let tag of tags) {
         if (ruleMatchingUtil.exactMatch(preciseVideoTagArr, tag)) {
@@ -540,7 +568,7 @@ const blockBasedVideoTag = (tags) => {
             return {state: true, type: "正则视频tag", matching: fuzzyMatch}
         }
     }
-    return {state: false}
+    return returnTempVal
 }
 
 /**
@@ -644,7 +672,7 @@ const shieldingDynamic = (dynamicData) => {
             return {state: true, type: "正则话题tag", matching};
         }
     }
-    return {state: false}
+    return returnTempVal
 }
 
 
@@ -674,7 +702,7 @@ const shieldingDynamicDecorated = (dynamicData) => {
 const shieldingComment = (commentsData) => {
     const {content, uid, name, level = -1} = commentsData;
     if (checkWhiteUserUid(uid)) {
-        return {state: false};
+        return returnTempVal;
     }
     let returnVal = blockUserUid(uid)
     if (returnVal.state) {
@@ -697,7 +725,7 @@ const shieldingComment = (commentsData) => {
     if (level !== -1) {
         return shieldingByLevel(level);
     }
-    return {state: false};
+    return returnTempVal;
 }
 
 /**
@@ -706,9 +734,8 @@ const shieldingComment = (commentsData) => {
  * @returns {{state: boolean, type: string, matching:number }|any}
  */
 const shieldingByLevel = (level) => {
-    const def = {state: false}
     if (!level) {
-        return def
+        return returnTempVal
     }
     const min = gmUtil.getData('nMinimumLevel', -1)
     if (min > level) {
@@ -718,7 +745,7 @@ const shieldingByLevel = (level) => {
     if (max > level) {
         return {state: true, type: "最大用户等级过滤", matching: max};
     }
-    return def
+    return returnTempVal
 }
 
 /**
@@ -789,7 +816,7 @@ const shieldingLiveRoom = (liveRoomData) => {
     const {name, title, partition, uid = -1} = liveRoomData;
     if (uid !== -1) {
         if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid)) {
-            return {state: false};
+            return returnTempVal;
         }
         if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
             return {state: true, type: "精确用户uid"};
@@ -818,7 +845,7 @@ const shieldingLiveRoom = (liveRoomData) => {
             return {state: true, type: "精确直播分区"};
         }
     }
-    return {state: false};
+    return returnTempVal;
 }
 
 /**

@@ -1,21 +1,15 @@
 import gmUtil from "../../../utils/gmUtil.js";
 import localMKData from "../../../data/localMKData.js";
+import {video_metrics_filter_vue} from "../../videoMetricsFilterVue.js";
 
 /**
  * 高级规则
  */
 export const high_level_rule_vue = {
+    components: {video_metrics_filter_vue},
     template: `
       <div>
-        <el-card>
-          <template #header>性别屏蔽</template>
-          <el-radio-group v-model="genderRadioVal">
-            <el-radio-button label="男性"></el-radio-button>
-            <el-radio-button label="女性"></el-radio-button>
-            <el-radio-button label="保密"></el-radio-button>
-            <el-radio-button label="不处理"></el-radio-button>
-          </el-radio-group>
-        </el-card>
+        <video_metrics_filter_vue/>
         <el-card>
           <template #header>视频类型</template>
           <div>选中的类型会被屏蔽</div>
@@ -26,6 +20,8 @@ export const high_level_rule_vue = {
           </el-radio-group>
           <el-divider/>
           <el-switch v-model="is_vertical_val" active-text="屏蔽竖屏类视频"/>
+          <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
+          <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
         </el-card>
         <el-row>
           <el-col :span="12">
@@ -51,8 +47,15 @@ export const high_level_rule_vue = {
           <el-tooltip content="当作者未匹配上时检查其他成员"></el-tooltip>
           <el-switch v-model="is_check_team_member" active-text="检查创作团队中成员"/>
         </el-card>
-        <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
-        <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
+        <el-card>
+          <template #header>性别屏蔽</template>
+          <el-radio-group v-model="genderRadioVal">
+            <el-radio-button label="男性"></el-radio-button>
+            <el-radio-button label="女性"></el-radio-button>
+            <el-radio-button label="保密"></el-radio-button>
+            <el-radio-button label="不处理"></el-radio-button>
+          </el-radio-group>
+        </el-card>
       </div>`,
     data() {
         return {

@@ -336,6 +336,20 @@ const formatTimestamp = (timestamp, options = {}) => {
         .replace(/s/g, timeObj.seconds)
 }
 
+/**
+ * 求点赞率
+ * 由于精度问题，其值为整数，如 结果0.9，等于90%返回值为90
+ * @param likeCount {number} 点赞数
+ * @param viewCount {number} 播放数
+ * @returns {number}
+ */
+const calculateLikeRate = (likeCount, viewCount) => {
+    if (viewCount === 0) {
+        return 0;
+    }
+    return parseInt((likeCount / viewCount) * 100)
+}
+
 
 export default {
     wait,
@@ -350,5 +364,6 @@ export default {
     handleFileReader,
     isIterable,
     getLocalStorage,
-    formatTimestamp
+    formatTimestamp,
+    calculateLikeRate
 }

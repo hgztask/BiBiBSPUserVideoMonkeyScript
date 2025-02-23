@@ -266,6 +266,20 @@ const isCheckTeamMember = () => {
     return gmUtil.getData('checkTeamMember', false)
 }
 
+/**
+ * 获取视频点赞率屏蔽，默认0.2
+ * @returns {number}
+ */
+const getVideoLikeRate = () => {
+    return gmUtil.getData('video_like_rate', 0.2)
+}
+
+// 是否启用视频屏蔽点赞率
+const isVideoLikeRateBlockingStatus = () => {
+    return gmUtil.getData('video_like_rate_blocking_status', false)
+}
+
+
 export default {
     setBorderColor,
     getBorderColor,
@@ -302,5 +316,7 @@ export default {
     isCopyrightRadio,
     isDelBottomComment,
     isBlockVerticalVideo,
-    isCheckTeamMember
+    isCheckTeamMember,
+    getVideoLikeRate,
+    isVideoLikeRateBlockingStatus
 }
