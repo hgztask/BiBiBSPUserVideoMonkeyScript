@@ -49,20 +49,20 @@ const getSelectOptions = () => {
  */
 const ruleKeyListData = [{
     key: "name",
-    name: "用户名黑名单(模糊匹配)",
+    name: "用户名(模糊匹配)",
     oldKey: "userNameKeyArr",
     oldName: "用户名黑名单模式(模糊匹配)"
 }, {
     key: "precise_name",
-    name: "用户名黑名单(精确匹配)",
+    name: "用户名(精确匹配)",
     oldKey: "userNameArr",
     oldName: "用户名黑名单模式(精确匹配)"
 }, {
     key: "nameCanonical",
-    name: "用户名黑名单(正则匹配)"
+    name: "用户名(正则匹配)"
 }, {
     key: "precise_uid",
-    name: "用户uid黑名单(精确匹配)",
+    name: "用户uid(精确匹配)",
     oldKey: "userUIDArr",
     oldName: "用户uid黑名单模式(精确匹配)"
 }, {
@@ -72,55 +72,55 @@ const ruleKeyListData = [{
     oldName: "用户uid白名单模式(精确匹配)"
 }, {
     key: "title",
-    name: "标题黑名单(模糊匹配)",
+    name: "标题(模糊匹配)",
     oldKey: "titleKeyArr",
     oldName: "标题黑名单模式(模糊匹配)"
 }, {
     key: "titleCanonical",
-    name: "标题黑名单(正则匹配)",
+    name: "标题(正则匹配)",
     oldKey: "titleKeyCanonicalArr",
     oldName: "标题黑名单模式(正则匹配)"
 }, {
     key: "commentOn",
-    name: "评论关键词黑名单(模糊匹配)",
+    name: "评论关键词(模糊匹配)",
     oldKey: "commentOnKeyArr",
     oldName: "评论关键词黑名单模式(模糊匹配)"
 }, {
     key: "commentOnCanonical",
-    name: "评论关键词黑名单(正则匹配)",
+    name: "评论关键词(正则匹配)",
     oldKey: "contentOnKeyCanonicalArr",
     oldName: "评论关键词黑名单模式(正则匹配)"
 }, {
     key: "precise_fanCard",
-    name: "粉丝牌黑名单(精确匹配)",
+    name: "粉丝牌(精确匹配)",
     oldKey: "fanCardArr",
     oldName: "粉丝牌黑名单模式(精确匹配)"
 }, {
     key: "dynamic",
-    name: "动态关键词黑名单(模糊匹配)",
+    name: "动态关键词(模糊匹配)",
     oldKey: "dynamicArr",
     oldName: "动态关键词内容黑名单模式(模糊匹配)"
 }, {
     key: "precise_tag",
-    name: "话题tag标签黑名单(精确匹配)",
+    name: "话题tag标签(精确匹配)",
 }, {
     key: "tag",
-    name: "话题tag标签黑名单(模糊匹配)",
+    name: "话题tag标签(模糊匹配)",
 }, {
     key: "tagCanonical",
-    name: "话题tag标签黑名单(正则匹配)"
+    name: "话题tag标签(正则匹配)"
 }, {
     key: "precise_partition",
-    name: "直播分区黑名单(精确匹配)"
+    name: "直播分区(精确匹配)"
 }, {
     key: 'videoTag',
-    name: '视频tag黑名单(模糊匹配)',
+    name: '视频tag(模糊匹配)',
 }, {
     key: 'precise_videoTag',
-    name: '视频tag黑名单(精确匹配)',
+    name: '视频tag(精确匹配)',
 }, {
     key: 'videoTagCanonical',
-    name: '视频tag黑名单(正则匹配)',
+    name: '视频tag(正则匹配)',
 }, {
     key: 'hotSearchKey',
     name: '热搜关键词(模糊匹配)',
