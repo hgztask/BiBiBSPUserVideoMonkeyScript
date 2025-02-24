@@ -350,6 +350,37 @@ const calculateLikeRate = (likeCount, viewCount) => {
     return parseInt((likeCount / viewCount) * 100)
 }
 
+/**
+ * 求互动率
+ * @param danmaku {number} 弹幕数
+ * @param reply {number} 评论数
+ * @param view {number} 播放数
+ */
+const calculateInteractionRate = (danmaku, reply, view) => {
+    return parseInt((danmaku + reply) / view * 100)
+}
+
+/**
+ * 求视频三连率
+ * @param favorite {number} 收藏数
+ * @param coin {number} 投币数
+ * @param share {number} 分享数
+ * @param view {number} 播放数
+ */
+const calculateTripleRate = (favorite, coin, share, view) => {
+    return parseInt((favorite + coin + share) / view * 100)
+}
+
+/**
+ * 求投币点赞比
+ * @param coin {number} 投币数
+ * @param like {number} 点赞数
+ * @returns {number}
+ */
+const calculateCoinLikesRatioRate = (coin, like) => {
+    return parseInt((coin + like) / view * 100)
+}
+
 
 export default {
     wait,
@@ -365,5 +396,8 @@ export default {
     isIterable,
     getLocalStorage,
     formatTimestamp,
-    calculateLikeRate
+    calculateLikeRate,
+    calculateInteractionRate,
+    calculateTripleRate,
+    calculateCoinLikesRatioRate
 }

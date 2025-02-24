@@ -267,11 +267,11 @@ const isCheckTeamMember = () => {
 }
 
 /**
- * 获取视频点赞率屏蔽，默认0.2
+ * 获取视频点赞率屏蔽，默认0.05
  * @returns {number}
  */
 const getVideoLikeRate = () => {
-    return gmUtil.getData('video_like_rate', 0.2)
+    return gmUtil.getData('video_like_rate', 0.05)
 }
 
 // 是否启用视频屏蔽点赞率
@@ -279,8 +279,45 @@ const isVideoLikeRateBlockingStatus = () => {
     return gmUtil.getData('video_like_rate_blocking_status', false)
 }
 
+// 是否启用视频投币/点赞比（内容价值）屏蔽
+const isCoinLikesRatioRateBlockingStatus = () => {
+    return gmUtil.getData('coin_likes_ratio_rate_blocking_status', false)
+}
+
+// 获取视频投币/点赞比（内容价值）屏蔽，默认0.05
+const getCoinLikesRatioRate = () => {
+    return gmUtil.getData('coin_likes_ratio_rate', 0.05)
+}
+
+// 是否禁用视频投币/点赞比（内容价值）屏蔽
+const isCoinLikesRatioRateDisabled = () => {
+    return gmUtil.getData('coin_likes_ratio_rate_blocking_status', false)
+}
+
+// 是否启用互动率屏蔽
+const isInteractiveRateBlockingStatus = () => {
+    return gmUtil.getData('interactive_rate_blocking_status', false)
+}
+
+// 获取互动率屏蔽，默认0.05
+const getInteractiveRate = () => {
+    return gmUtil.getData('interactive_rate', 0.05)
+}
+
+// 是否启用视频三连率屏蔽
+const isTripleRateBlockingStatus = () => {
+    return gmUtil.getData('triple_rate_blocking_status', false)
+}
+
+// 获取视频三连率屏蔽，默认0.05
+const getTripleRate = () => {
+    return gmUtil.getData('triple_rate', 0.05)
+}
+
 
 export default {
+    getTripleRate,
+    isTripleRateBlockingStatus,
     setBorderColor,
     getBorderColor,
     setOutputInformationFontColor,
@@ -318,5 +355,10 @@ export default {
     isBlockVerticalVideo,
     isCheckTeamMember,
     getVideoLikeRate,
-    isVideoLikeRateBlockingStatus
+    isVideoLikeRateBlockingStatus,
+    isCoinLikesRatioRateBlockingStatus,
+    getCoinLikesRatioRate,
+    isCoinLikesRatioRateDisabled,
+    isInteractiveRateBlockingStatus,
+    getInteractiveRate
 }

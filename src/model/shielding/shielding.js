@@ -378,6 +378,68 @@ const blockVideoLikeRate = (like, view) => {
     }
     return returnTempVal
 }
+/**
+ * 根据视频互动率屏蔽
+ * @param danmaku {number} 弹幕数
+ * @param reply {number} 评论数
+ * @param view {number} 播放数
+ * @returns {{state: boolean}}
+ */
+const blockVideoInteractiveRate = (danmaku, reply, view) => {
+    if (!danmaku || !view || !localMKData.isInteractiveRateBlockingStatus()) {
+        return returnTempVal
+    }
+    //用户指定限制的互动率
+    const mk_interactionRate = parseInt(localMKData.getInteractiveRate() * 100)
+    //视频的互动率
+    const interactionRate = defUtil.calculateInteractionRate(danmaku, reply, view);
+    if (interactionRate <= mk_interactionRate) {
+        return {
+            state: true, type: '视频互动率屏蔽', matching: mk_interactionRate + '%'
+            , msg: `视频的互动率为${interactionRate}%，低于用户指定的限制${mk_interactionRate}%，屏蔽该视频`
+        }
+    }
+    return returnTempVal
+}
+
+//根据视频三连率屏蔽
+const blockVideoTripleRate = (favorite, coin, share, view) => {
+    if (!favorite || !coin || !share || !view || !localMKData.isTripleRateBlockingStatus()) {
+        return returnTempVal
+    }
+    //用户指定限制的三连率
+    const mk_tripleRate = parseInt(localMKData.getTripleRate() * 100)
+    //视频的三连率
+    const tripleRate = defUtil.calculateTripleRate(favorite, coin, share, view);
+    if (tripleRate <= mk_tripleRate) {
+        return {
+            state: true, type: '视频三连率屏蔽', matching: mk_tripleRate + '%'
+            , msg: `视频的三连率为${tripleRate}%，低于用户指定的限制${mk_tripleRate}%，屏蔽该视频`
+        }
+    }
+    return returnTempVal
+}
+
+//根据视频投币/点赞比（内容价值）屏蔽
+const blockVideoCoinLikesRatioRate = (coin, like) => {
+    if (!coin || !like || !localMKData.isCoinLikesRatioRateBlockingStatus()) {
+        return returnTempVal
+    }
+    //用户指定限制的投币/点赞比（内容价值）
+    const mk_coinLikesRatioRate = parseInt(localMKData.getCoinLikesRatioRate() * 100)
+    //视频的投币/点赞比（内容价值）
+    const coinLikesRatioRate = defUtil.calculateCoinLikesRatioRate(coin, like);
+    if (coinLikesRatioRate <= mk_coinLikesRatioRate) {
+        return {
+            state: true,
+            type: '视频投币/点赞比（内容价值）屏蔽',
+            matching: mk_coinLikesRatioRate + '%',
+            msg: `视频的投币/点赞比（内容价值）为${coinLikesRatioRate}%，低于用户指定的限制${mk_coinLikesRatioRate}%，屏蔽该视频`
+        }
+    }
+    return returnTempVal
+}
+
 
 //根据用户uid和name检查屏蔽
 const blockUserUidAndName = (uid, name) => {
@@ -507,39 +569,21 @@ const shieldingOtherVideoParameter = async (videoData) => {
             return returnValue
         }
     }
-    //根据性别屏蔽
-    returnValue = blockGender(userInfo?.sex)
-    if (returnValue.state) {
-        return returnValue
-    }
-    //根据会员类型屏蔽
-    returnValue = blockUserVip(userInfo.vip.type)
-    if (returnValue.state) {
-        return returnValue
-    }
-    //根据硬核会员屏蔽
-    returnValue = blockSeniorMember(userInfo.is_senior_member)
-    if (returnValue.state) {
-        return returnValue
-    }
-    //根据视频类型屏蔽，1原创，2转载
-    returnValue = blockVideoCopyright(videoInfo.copyright)
-    if (returnValue.state) {
-        return returnValue
-    }
-    //根据视频是否是竖屏屏蔽
-    returnValue = blockVerticalVideo(videoInfo.dimension)
-    if (returnValue.state) {
-        return returnValue
-    }
-    returnValue = blockVideoTeamMember(videoInfo.staff)
-    if (returnValue.state) {
-        return returnValue
-    }
-    returnValue = blockVideoLikeRate(videoInfo.like, videoInfo.view)
-    if (returnValue.state) {
-        console.log(returnValue.msg);
-        return returnValue
+    const tempList = [
+        blockGender(userInfo?.sex), blockUserVip(userInfo.vip.type),
+        blockSeniorMember(userInfo.is_senior_member), blockVideoCopyright(videoInfo.copyright),
+        blockVerticalVideo(videoInfo.dimension), blockVideoTeamMember(videoInfo.staff),
+        blockVideoLikeRate(videoInfo.like, videoInfo.view), blockVideoInteractiveRate(videoInfo.danmaku, videoInfo.reply, videoInfo.view),
+        blockVideoTripleRate(videoInfo.favorite, videoInfo.coin, videoInfo.share, videoInfo.view), blockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like)
+    ]
+    for (let v of tempList) {
+        if (v.state) {
+            return v
+        }
+        const msg = v.msg;
+        if (msg) {
+            console.warn(msg);
+        }
     }
 }
 

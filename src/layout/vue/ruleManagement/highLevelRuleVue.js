@@ -9,7 +9,10 @@ export const high_level_rule_vue = {
     components: {video_metrics_filter_vue},
     template: `
       <div>
-        <video_metrics_filter_vue/>
+        <el-card>
+          <template #header>指标屏蔽(改动实时生效)</template>
+          <video_metrics_filter_vue/>
+        </el-card>
         <el-card>
           <template #header>视频类型</template>
           <div>选中的类型会被屏蔽</div>
