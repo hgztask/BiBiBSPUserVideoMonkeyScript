@@ -1,6 +1,50 @@
 import gmUtil from "../utils/gmUtil.js";
 
 /**
+ * 获取选项
+ */
+const getSelectOptions = () => {
+    const options = [
+        {
+            value: '模糊匹配',
+            label: '模糊匹配',
+            children: []
+        },
+        {
+            value: '正则匹配',
+            label: '正则匹配',
+            children: []
+        },
+        {
+            value: '精确匹配',
+            label: '精确匹配',
+            children: []
+        }
+    ]
+    for (let {name, key} of ruleKeyListData) {
+        let children;
+        let label;
+        if (name.includes('模糊匹配')) {
+            children = options[0].children
+            // label = name.match(/(.+)\(模糊匹配/)[1]
+        }
+        if (name.includes('正则匹配')) {
+            children = options[1].children
+            // label = name.match(/(.+)\(正则匹配/)[1]
+        }
+        if (name.includes('精确匹配')) {
+            children = options[2].children
+            // label = name.match(/(.+)\(精确匹配/)[1]
+        }
+        children.push({
+            value: key,
+            label: name
+        })
+    }
+    return options
+}
+
+/**
  * 规则key列表
  */
 const ruleKeyListData = [{
@@ -358,5 +402,6 @@ export default {
     getHotSearchKeyArr,
     getHotSearchKeyCanonicalArr,
     otherKeyListData,
-    clearKeyItem
+    clearKeyItem,
+    getSelectOptions
 }

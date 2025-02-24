@@ -189,13 +189,6 @@ const appendImportRules = (keyArr, content) => {
     return true;
 }
 
-/**
- * 获取新版本规则key列表
- */
-const getNewRuleKeyList = () => {
-    return ruleKeyListData.getRuleKeyListData();
-}
-
 
 /**
  * 覆盖导入规则V1
@@ -343,7 +336,6 @@ export default {
     overwriteImportRules,
     appendImportRules,
     overwriteImportRulesV1,
-    getNewRuleKeyList,
     addRulePreciseUid,
     addRulePreciseName,
     delRUlePreciseUid,

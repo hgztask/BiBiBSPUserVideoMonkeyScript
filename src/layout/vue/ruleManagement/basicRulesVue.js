@@ -27,17 +27,17 @@ export const basic_rules_vue = {
         </el-card>
         <el-card shadow="never">
           <template #header>选择规则</template>
-          <el-select v-model="selectVal" filterable>
-            <el-option v-for="item in ruleInfoArr" :value="item.type" :key="item.type" :label="item.name"></el-option>
-          </el-select>
+          <el-cascader v-model="cascaderVal" @change="handleChangeCascader"
+                       :options="cascaderOptions" :show-all-levels="false"
+                       :props="{ expandTrigger: 'hover' }" filterable/>
           <el-divider/>
           <el-row>
             <el-col :span="12">
               <el-button-group>
                 <el-button @click="operationBut('add')">添加</el-button>
-                <el-button @click="operationBut('del')">移除</el-button>
                 <el-button @click="setRuleBut">修改</el-button>
-                <el-button @click="operationBut('find-item-all')">查询内容</el-button>
+                <el-button @click="operationBut('find-item-all')">查询</el-button>
+                <el-button @click="operationBut('del')">移除</el-button>
               </el-button-group>
             </el-col>
             <el-col :span="12">
@@ -54,23 +54,24 @@ export const basic_rules_vue = {
       </div>`,
     data() {
         return {
-            selectVal: 'precise_uid',
-            selectText: "",
-            //规则key列表
-            ruleKeyArr: [],
+            cascaderVal: ["精确匹配", "precise_uid"],
+            cascaderOptions: ruleKeyListData.getSelectOptions(),
             //规则信息
             ruleInfoArr: [],
 
         }
     },
     methods: {
+        handleChangeCascader(val) {
+            console.log(val)
+        },
         setRuleBut() {
-            const type = this.selectVal;
+            const type = this.cascaderVal[1];
             const {name} = this.ruleInfoArr.find(item => item.type === type);
             eventEmitter.send('修改规则对话框', type, name)
         },
         operationBut(model) {
-            const type = this.selectVal;
+            const type = this.cascaderVal[1];
             if (model === "add") {
                 ruleUtil.showAddRuleInput(type);
             }
@@ -79,8 +80,8 @@ export const basic_rules_vue = {
             }
             if (model === "del_all") {
                 this.$confirm('确定要删除所有规则吗？').then(() => {
-                    for (let x of this.ruleKeyArr) {
-                        gmUtil.delData(x);
+                    for (let x of this.ruleInfoArr) {
+                        gmUtil.delData(x.type);
                     }
                     this.$alert("删除全部规则成功");
                     eventEmitter.send('刷新规则信息');
@@ -92,31 +93,21 @@ export const basic_rules_vue = {
             }
         },
         clearItemRuleBut() {
-            const type = this.selectVal;
+            const type = this.cascaderVal[1];
             const find = this.ruleInfoArr.find(item => item.type === type);
             this.$confirm(`是要清空${find.name}的规则内容吗？`, 'tip').then(() => {
-
                 ruleKeyListData.clearKeyItem(type);
                 this.$alert(`已清空${find.name}的规则内容`)
             })
         }
     },
-    watch: {
-        selectVal(newVal) {
-            console.log(newVal)
-            const find = this.ruleInfoArr.find(item => item.type === newVal);
-            this.selectText = find.name;
-        }
-    },
+    watch: {},
     created() {
-        for (let newRuleKeyListElement of ruleUtil.getNewRuleKeyList()) {
-            this.ruleKeyArr.push(newRuleKeyListElement.key);
+        for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
             this.ruleInfoArr.push({
                 type: newRuleKeyListElement.key,
                 name: newRuleKeyListElement.name,
             })
         }
-        const find = this.ruleInfoArr.find(item => item.type === this.selectVal);
-        this.selectText = find.name;
     }
 };

@@ -1,6 +1,6 @@
 import gmUtil from "../../../utils/gmUtil.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
-import ruleUtil from "../../../utils/ruleUtil.js";
+import ruleKeyListData from "../../../data/ruleKeyListData.js";
 
 /**
  * 规则信息组件
@@ -38,7 +38,7 @@ export default {
         },
     },
     created() {
-        for (let newRuleKeyListElement of ruleUtil.getNewRuleKeyList()) {
+        for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
             this.ruleInfoArr.push({
                 type: newRuleKeyListElement.key,
                 name: newRuleKeyListElement.name,
