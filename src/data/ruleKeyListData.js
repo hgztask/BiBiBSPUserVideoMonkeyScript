@@ -91,11 +91,6 @@ const ruleKeyListData = [{
     oldKey: "contentOnKeyCanonicalArr",
     oldName: "评论关键词黑名单模式(正则匹配)"
 }, {
-    key: "contentOn",
-    name: "评论内容黑名单(模糊匹配)",
-    oldKey: "contentOnKeyArr",
-    oldName: "评论内容黑名单模式(模糊匹配)"
-}, {
     key: "precise_fanCard",
     name: "粉丝牌黑名单(精确匹配)",
     oldKey: "fanCardArr",
