@@ -8,40 +8,49 @@ export const basic_rules_vue = {
     components: {rule_set_value_dialog},
     template: `
       <div>
-      <el-card shadow="never">
-        <template #header>
-          <span>使用说明</span>
-        </template>
-        <div>1.基础规则类型较多，下拉框支持搜索定位，鼠标点击出现光标时支持筛选</div>
-        <div>2.大部分情况下模糊匹配比精确匹配好用</div>
-        <div>3.如果可以的话，请优先考虑根据uid精确屏蔽，而非使用用户名相关屏蔽，因用户名可以随意更改</div>
-        <div>4.如果用户要添加自己的正则匹配相关的规则时，建议先去该网址进行测试再添加，避免浪费时间
-          <el-link href="https://www.jyshare.com/front-end/854/" target="_blank"
-                   type="primary">>>>正则表达式在线测试<<<
-          </el-link>
-        </div>
-        <div>
-          5.如果更新脚本之后规则全没了，请点击下面的【旧规则自动转新规则】按钮，进行转换，如不行请通过关于和问题反馈选项卡中的反馈渠道联系作者
-        </div>
-      </el-card>
-      <el-card>
-        <el-select v-model="selectVal" filterable>
-          <el-option v-for="item in ruleInfoArr" :value="item.type" :key="item.type" :label="item.name"></el-option>
-        </el-select>
-        <el-divider/>
-        <el-button-group>
-          <el-button @click="operationBut('add')">添加{{ selectText }}</el-button>
-          <el-button @click="operationBut('del')">移除{{ selectText }}</el-button>
-          <el-button @click="setRuleBut">修改{{ selectText }}</el-button>
-          <el-button @click="operationBut('find-item-all')">查询{{ selectText }}的内容</el-button>
-        </el-button-group>
-        <el-divider/>
-        <el-button-group>
-          <el-button @click="clearItemRuleBut" type="danger">清空{{ selectText }}项</el-button>
-          <el-button type="danger" @click="operationBut('del_all')">全部移除</el-button>
-        </el-button-group>
-      </el-card>
-      <rule_set_value_dialog/>
+        <el-card shadow="never">
+          <template #header>
+            <span>使用说明</span>
+          </template>
+          <div>1.基础规则类型较多，下拉框支持搜索定位，鼠标点击出现光标时支持筛选</div>
+          <div>2.大部分情况下模糊匹配比精确匹配好用</div>
+          <div>3.如果可以的话，请优先考虑根据uid精确屏蔽，而非使用用户名相关屏蔽，因用户名可以随意更改</div>
+          <div>4.如果用户要添加自己的正则匹配相关的规则时，建议先去该网址进行测试再添加，避免浪费时间
+            <el-link href="https://www.jyshare.com/front-end/854/" target="_blank"
+                     type="primary">>>>正则表达式在线测试<<<
+            </el-link>
+          </div>
+          <div>
+            5.如果更新脚本之后规则全没了，请点击下面的【旧规则自动转新规则】按钮，进行转换，如不行请通过关于和问题反馈选项卡中的反馈渠道联系作者
+          </div>
+          <div>6.改动实时生效</div>
+        </el-card>
+        <el-card shadow="never">
+          <template #header>选择规则</template>
+          <el-select v-model="selectVal" filterable>
+            <el-option v-for="item in ruleInfoArr" :value="item.type" :key="item.type" :label="item.name"></el-option>
+          </el-select>
+          <el-divider/>
+          <el-row>
+            <el-col :span="12">
+              <el-button-group>
+                <el-button @click="operationBut('add')">添加</el-button>
+                <el-button @click="operationBut('del')">移除</el-button>
+                <el-button @click="setRuleBut">修改</el-button>
+                <el-button @click="operationBut('find-item-all')">查询内容</el-button>
+              </el-button-group>
+            </el-col>
+            <el-col :span="12">
+              <div class="el-horizontal-right">
+                <el-button-group>
+                  <el-button @click="clearItemRuleBut" type="danger">清空项</el-button>
+                  <el-button type="danger" @click="operationBut('del_all')">全部移除</el-button>
+                </el-button-group>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+        <rule_set_value_dialog/>
       </div>`,
     data() {
         return {
