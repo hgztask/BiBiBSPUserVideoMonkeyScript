@@ -56,12 +56,6 @@ export const basic_rules_vue = {
         return {
             selectVal: 'precise_uid',
             selectText: "",
-            ruleActions: [
-                {
-                    type: "uid",
-                    name: "uid(精确)",
-                }
-            ],
             //规则key列表
             ruleKeyArr: [],
             //规则信息
