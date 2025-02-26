@@ -1,9 +1,11 @@
 import gmUtil from "../utils/gmUtil.js";
+import {card_slider_vue} from "./components/card_slider_vue.js";
 
 /**
  * 视频指标过滤项
  */
 const video_metrics_filter_item_vue = {
+    components: {card_slider_vue},
     props: {
         // 标题
         headerTitle: {type: String},
@@ -16,27 +18,18 @@ const video_metrics_filter_item_vue = {
     },
     template: `
       <div>
-        <el-card shadow="never">
+        <card_slider_vue v-model="ratioRateVal" :step="0.01" :min="0" :max="1"
+                         :switch-val.sync="rateBlockingStatus" :format-tooltip="reteFormatTooltip">
           <template #header>{{ headerTitle }}</template>
-          <div>{{ describe }}</div>
-          <div style="display: flex; align-items: center">
-            <el-switch v-model="rateBlockingStatus" active-text="启用"/>
-            <div style="flex: 1;margin-left: 15px">
-              <el-slider v-model="ratioRateVal" :step="0.01" :min="0" :max="1" show-input
-                         :format-tooltip="reteFormatTooltip"
-                         :disabled="rateDisabled"></el-slider>
-            </div>
-          </div>
-        </el-card>
+          <template #describe>{{ describe }}</template>
+        </card_slider_vue>
       </div>`,
     data() {
         return {
             //是否启用屏蔽
-            rateBlockingStatus: false,
+            rateBlockingStatus: gmUtil.getData(this.mkRateStatusKey, false),
             //比率
-            ratioRateVal: 0,
-            //是否禁用
-            rateDisabled: false,
+            ratioRateVal: gmUtil.getData(this.mkTypeRateKey, 0.05),
         }
     },
     methods: {
@@ -49,19 +42,10 @@ const video_metrics_filter_item_vue = {
             gmUtil.setData(this.mkTypeRateKey, n)
         },
         rateBlockingStatus(n) {
-            this.rateDisabled = !n
             gmUtil.setData(this.mkRateStatusKey, n)
         }
-    },
-    created() {
-        this.ratioRateVal = gmUtil.getData(this.mkTypeRateKey, 0.05)
-        const bool = gmUtil.getData(this.mkRateStatusKey, false);
-        this.rateBlockingStatus = bool;
-        //如果开启状态则不禁用，反之禁用
-        this.rateDisabled = !bool;
     }
 }
-
 
 /**
  * 视频指标过滤页面vue
@@ -70,12 +54,16 @@ export const video_metrics_filter_vue = {
     components: {video_metrics_filter_item_vue},
     template: `
       <div>
-        <video_metrics_filter_item_vue v-for="item in metricsFilterList" :key="item.headerTitle"
-                                       :header-title="item.headerTitle"
-                                       :describe="item.describe"
-                                       :mk-rate-status-key="item.mkRateStatusKey"
-                                       :mk-type-rate-key="item.mkTypeRateKey"
-        />
+        <el-card>
+          <template #header>指标屏蔽(改动实时生效)</template>
+
+          <video_metrics_filter_item_vue v-for="item in metricsFilterList" :key="item.headerTitle"
+                                         :header-title="item.headerTitle"
+                                         :describe="item.describe"
+                                         :mk-rate-status-key="item.mkRateStatusKey"
+                                         :mk-type-rate-key="item.mkTypeRateKey"
+          />
+        </el-card>
       </div>`,
     data() {
         return {
