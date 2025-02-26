@@ -287,6 +287,17 @@ function hoverTimeout(element, callback, timeout = 2000) {
     });
 }
 
+// 更新弹窗样式
+const updateCssVModal = () => {
+    findElement('.v-modal').then(() => {
+        const styleEl = document.createElement('style');
+        styleEl.innerHTML = `.v-modal  {
+    z-index: auto !important;
+}`
+        document.head.appendChild(styleEl)
+    })
+}
+
 
 /**
  * @version 0.2.0
@@ -298,5 +309,6 @@ export default {
     findElements,
     findElementUntilFound,
     findElementsUntilFound,
-    findElementsAndBindEvents
+    findElementsAndBindEvents,
+    updateCssVModal
 }

@@ -51,13 +51,7 @@ const staticRoute = (title, url) => {
         searchModel.delFooterContent()
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
-        elUtil.findElement('.v-modal').then(() => {
-            const styleEl = document.createElement('style');
-            styleEl.innerHTML = `.v-modal  {
-    z-index: auto !important;
-}`
-            document.head.appendChild(styleEl)
-        })
+        elUtil.updateCssVModal();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.setVideoPlayerEnded()
         videoPlayModel.delElManagement();
@@ -68,8 +62,8 @@ const staticRoute = (title, url) => {
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.addWatchLiveRoomChatItemsListener();
     }
-
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
+        elUtil.updateCssVModal();
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
     }
     if (newHistory.isNewHistoryPage(url)) {
