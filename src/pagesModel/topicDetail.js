@@ -1,6 +1,6 @@
-//url是否是话题详情页
 import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding/shielding.js";
+import video from "../model/shielding/video.js";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url) => {
@@ -42,7 +42,7 @@ const getDataList = async () => {
 }
 
 const __shieldingVideo = (videoData) => {
-    if (shielding.shieldingVideoDecorated(videoData)) {
+    if (video.shieldingVideoDecorated(videoData)) {
         return;
     }
     shielding.addTopicDetailVideoBlockButton({data: videoData, maskingFunc: startShielding})

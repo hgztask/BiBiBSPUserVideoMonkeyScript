@@ -7,6 +7,7 @@ import ruleKeyListData from "../../data/ruleKeyListData.js";
 import searchLive from "./searchLive.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
+import video from "../../model/shielding/video.js";
 
 /**
  * 判断是否为搜索页
@@ -135,7 +136,7 @@ const getOtherVideoList = () => {
 const startShieldingCSVideoList = async () => {
     const list = await getTabComprehensiveSortedVideoList()
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData)) {
+        if (video.shieldingVideoDecorated(videoData)) {
             continue;
         }
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingCSVideoList})
@@ -148,7 +149,7 @@ const startShieldingCSVideoList = async () => {
 const startShieldingOtherVideoList = async () => {
     const list = await getOtherVideoList()
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData)) {
+        if (video.shieldingVideoDecorated(videoData)) {
             continue;
         }
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingOtherVideoList})
@@ -264,7 +265,7 @@ const processingExactSearchVideoCardContent = async () => {
         })
     }
     for (let videoData of list) {
-        shielding.shieldingVideoDecorated(videoData)
+        video.shieldingVideoDecorated(videoData)
     }
 }
 

@@ -1,6 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import video from "../../model/shielding/video.js";
 
 /**
  * 判断页面是否是旧版历史记录页面
@@ -53,7 +53,7 @@ const startShieldingVideo = async () => {
     const list = await getVideoDataList()
     const css = {right: "45px"}
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData)) {
+        if (video.shieldingVideoDecorated(videoData)) {
             continue;
         }
         videoData.css = css

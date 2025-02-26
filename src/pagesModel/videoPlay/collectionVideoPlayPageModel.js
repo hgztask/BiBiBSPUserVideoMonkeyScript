@@ -1,7 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
 import generalFuc from "./generalFuc.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import video from "../../model/shielding/video.js";
 // 判断是否为收藏的视频播放页
 const iscCollectionVideoPlayPage = (url) => {
     return url.includes("www.bilibili.com/list/ml")
@@ -19,7 +19,7 @@ const startShieldingVideoList = () => {
     getGetTheVideoListOnTheRight().then((videoList) => {
         const css = {right: "123px"};
         for (let videoData of videoList) {
-            if (shielding.shieldingVideoDecorated(videoData)) continue;
+            if (video.shieldingVideoDecorated(videoData)) continue;
             videoData.css = css;
             eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
         }

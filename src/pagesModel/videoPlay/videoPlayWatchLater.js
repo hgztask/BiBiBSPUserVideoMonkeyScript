@@ -1,8 +1,8 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
 import defUtil from "../../utils/defUtil.js";
 import generalFuc from "./generalFuc.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import video from "../../model/shielding/video.js";
 
 /**
  *判断是否为稍后再看播放页
@@ -28,7 +28,7 @@ const startShieldingVideoList = async () => {
     const css = {right: "123px"};
     for (let videoData of videoList) {
         videoData.css = css;
-        if (shielding.shieldingVideoDecorated(videoData)) continue;
+        if (video.shieldingVideoDecorated(videoData)) continue;
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
     }
 }

@@ -1,6 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import shielding from "../../model/shielding/shielding.js";
+import video from "../../model/shielding/video.js";
 
 /**
  * 判断是否是新的history页面
@@ -76,7 +77,7 @@ const getVideoDataList = async () => {
 const startShieldingVideoList = async () => {
     const list = await getVideoDataList();
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData)) {
+        if (video.shieldingVideoDecorated(videoData)) {
             continue;
         }
         shielding.addBlockButton({data: videoData, maskingFunc: startShieldingVideoList}, "gz_shielding_button");

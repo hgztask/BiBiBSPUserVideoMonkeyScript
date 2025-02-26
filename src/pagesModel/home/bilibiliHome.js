@@ -1,9 +1,9 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
 import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import localMKData from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import video from "../../model/shielding/video.js";
 
 
 // 判断是否是首页
@@ -180,7 +180,7 @@ const getGateDataList = async () => {
 const startShieldingGateVideoList = async () => {
     const list = await getGateDataList()
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData, "hide")) {
+        if (video.shieldingVideoDecorated(videoData, "hide")) {
             continue;
         }
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingGateVideoList})
@@ -222,7 +222,7 @@ const startClearExcessContentList = () => {
 const startShieldingChangeVideoList = async () => {
     const list = await getChangeTheVideoElList();
     for (let videoData of list) {
-        if (shielding.shieldingVideoDecorated(videoData)) {
+        if (video.shieldingVideoDecorated(videoData)) {
             continue;
         }
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingChangeVideoList})
@@ -239,7 +239,7 @@ const startDebounceShieldingChangeVideoList = defUtil.debounce(startShieldingCha
 const startShieldingHomeVideoList = async () => {
     const homeVideoELList = await getHomeVideoELList();
     for (const videoData of homeVideoELList) {
-        if (shielding.shieldingVideoDecorated(videoData)) {
+        if (video.shieldingVideoDecorated(videoData)) {
             continue;
         }
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHomeVideoList})
