@@ -587,8 +587,8 @@ const blockByUidRange = (uid) => {
         return returnTempVal
     }
     const [head, tail] = localMKData.getUidRangeMasking();
-    if (head > uid < tail) {
-        return {state: true, type: "uid范围屏蔽", matching: `uid在范围屏蔽中【${head}——${tail}】`}
+    if (head >= uid <= tail) {
+        return {state: true, type: "uid范围屏蔽", matching: `${head}=>${uid}<=${tail}`}
     }
     return returnTempVal
 }
