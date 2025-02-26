@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import css from '../../css/searchLive.css'
 import shielding from "../../model/shielding/shielding.js";
 import {elEventEmitter} from "../../model/elEventEmitter.js";
+import live_shielding from "../../model/shielding/live_shielding.js";
 
 //安装样式，该样式主要为修改搜索页的直播选项卡下的隐藏房间卡片，使其显示
 const installStyle = () => {
@@ -54,7 +55,7 @@ const addBlockButton = (data) => {
 const startShieldingLiveRoomList = async () => {
     const list = await getLiveRoomList()
     for (let liveData of list) {
-        if (shielding.shieldingLiveRoomDecorated(liveData)) {
+        if (live_shielding.shieldingLiveRoomDecorated(liveData)) {
             continue
         }
         addBlockButton({data: liveData, maskingFunc: startShieldingLiveRoomList})

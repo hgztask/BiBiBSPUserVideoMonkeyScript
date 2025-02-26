@@ -1,7 +1,7 @@
-// 判断是否是直播分区
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
+import live_shielding from "../../model/shielding/live_shielding.js";
 
+// 判断是否是直播分区
 const isLiveSection = (url) => {
     return url.includes("live.bilibili.com/p/eden/area-tags")
 }
@@ -32,7 +32,7 @@ const getRoomCardDataList = async () => {
 const startShieldingLiveRoom = async () => {
     const liveList = await getRoomCardDataList();
     for (let liveData of liveList) {
-        shielding.shieldingLiveRoomDecorated(liveData);
+        live_shielding.shieldingLiveRoomDecorated(liveData);
     }
 }
 

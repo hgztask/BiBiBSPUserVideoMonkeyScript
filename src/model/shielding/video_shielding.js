@@ -3,7 +3,7 @@ import localMKData from "../../data/localMKData.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import gmUtil from "../../utils/gmUtil.js";
-import {
+import shielding, {
     blockAvatarPendant,
     blockBasedVideoTag,
     blockByLevel,
@@ -247,6 +247,36 @@ const shieldingOtherVideoParameter = async (videoData) => {
         }
     }
 }
+/**
+ * 添加热门视频屏蔽按钮
+ * @param data{Object}
+ * @param data.data {Object} 评论数据
+ * @param data.maskingFunc {function} 屏蔽函数
+ */
+eventEmitter.on('添加热门视频屏蔽按钮', (data) => {
+    shielding.addBlockButton(data, "gz_shielding_button", ["right", "bottom"]);
+})
+
+/**
+ * 对视频添加屏蔽按钮和指令-BewlyBewly
+ * @param data {Object}
+ * @param data.data {{}} 视频数据
+ * @param data.maskingFunc {function} 屏蔽函数
+ */
+eventEmitter.on('视频添加屏蔽按钮-BewlyBewly', (data) => {
+    shielding.addBlockButton(data, "gz_shielding_button", ['right', 'bottom']);
+})
+
+/**
+ * 视频添加屏蔽按钮和指令
+ * @param data {Object}
+ * @param data.data {{}} 视频数据
+ * @param data.maskingFunc {function} 屏蔽函数
+ */
+eventEmitter.on('视频添加屏蔽按钮', (data) => {
+    shielding.addBlockButton(data, "gz_shielding_button", ["right"]);
+})
+
 
 
 export default {

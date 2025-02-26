@@ -1,8 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import watch from '../../watch/watch.js'
 import defUtil from "../../utils/defUtil.js";
-import shielding from "../../model/shielding/shielding.js";
-import {shieldingLiveRoomContentDecorated} from "../../model/shielding/live_shielding.js";
+import live_shielding, {shieldingLiveRoomContentDecorated} from "../../model/shielding/live_shielding.js";
 
 /**
  * 判断是否为直播间
@@ -65,7 +64,7 @@ const startShieldingLiveChatContents = async () => {
         if (shieldingLiveRoomContentDecorated(commentsData)) {
             continue;
         }
-        shielding.addLiveContentBlockButton({data: commentsData, maskingFunc: startShieldingLiveChatContents});
+        live_shielding.addLiveContentBlockButton({data: commentsData, maskingFunc: startShieldingLiveChatContents});
     }
 }
 

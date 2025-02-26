@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
+import live_shielding from "../../model/shielding/live_shielding.js";
 
 const isLiveHomePage = (url) => {
     return url.includes("https://live.bilibili.com/?spm_id_from=333.1007.0.0") ||
@@ -66,7 +66,7 @@ const startShieldingLiveRoom = async () => {
     const list = await getLiveRoomDataList();
     for (let liveData of list) {
         //屏蔽直播间
-        shielding.shieldingLiveRoomDecorated(liveData);
+        live_shielding.shieldingLiveRoomDecorated(liveData);
     }
 }
 
@@ -79,7 +79,7 @@ const startShieldingTopLiveRoom = async () => {
     const list = await getTopLiveRoomDataList();
     for (let liveData of list) {
         //屏蔽直播间
-        shielding.shieldingLiveRoomDecorated(liveData)
+        live_shielding.shieldingLiveRoomDecorated(liveData)
     }
 }
 

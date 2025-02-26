@@ -94,37 +94,6 @@ const addBlockButton = (data, tagCss = '', position = []) => {
     })
 }
 
-/**
- * 视频添加屏蔽按钮和指令
- * @param data {Object}
- * @param data.data {{}} 视频数据
- * @param data.maskingFunc {function} 屏蔽函数
- */
-eventEmitter.on('视频添加屏蔽按钮', (data) => {
-    addBlockButton(data, "gz_shielding_button", ["right"]);
-})
-
-/**
- * 对视频添加屏蔽按钮和指令-BewlyBewly
- * @param data {Object}
- * @param data.data {{}} 视频数据
- * @param data.maskingFunc {function} 屏蔽函数
- */
-eventEmitter.on('视频添加屏蔽按钮-BewlyBewly', (data) => {
-    addBlockButton(data, "gz_shielding_button", ['right', 'bottom']);
-})
-
-
-/**
- * 添加热门视频屏蔽按钮
- * @param data{Object}
- * @param data.data {Object} 评论数据
- * @param data.maskingFunc {function} 屏蔽函数
- */
-eventEmitter.on('添加热门视频屏蔽按钮', (data) => {
-    addBlockButton(data, "gz_shielding_button", ["right", "bottom"]);
-})
-
 //话题页面中视频项添加屏蔽按钮
 const addTopicDetailVideoBlockButton = (data) => {
     addBlockButton(data, "gz_shielding_button");
@@ -134,14 +103,6 @@ const addTopicDetailContentsBlockButton = (data) => {
     const position = data.data.position;
     const loop = position !== undefined;
     addBlockButton(data, "gz_shielding_topic_detail_button", loop ? position : []);
-}
-
-/**
- * 直播间弹幕添加屏蔽按钮
- * @param commentsData
- */
-const addLiveContentBlockButton = (commentsData) => {
-    addBlockButton(commentsData, "gz_shielding_live_danmaku_button");
 }
 
 //根据uid精确屏蔽
@@ -205,7 +166,6 @@ export const blockComment = (comment) => {
         regexKey: 'commentOnCanonical', regexTypeName: '正则评论'
     })
 }
-
 
 //根据头像挂件名屏蔽
 export const blockAvatarPendant = (name) => {
@@ -571,7 +531,6 @@ export const shieldingDynamic = (dynamicData) => {
     return returnTempVal
 }
 
-
 /**
  * 装饰过的屏蔽动态中的项
  * @param dynamicData {{}} 动态内容
@@ -582,50 +541,6 @@ const shieldingDynamicDecorated = (dynamicData) => {
     const {state, type, matching} = shieldingDynamic(dynamicData);
     if (state) {
         const infoHtml = output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData);
-        eventEmitter.send('打印信息', infoHtml)
-    }
-    return state;
-}
-
-// 屏蔽直播间
-const shieldingLiveRoom = (liveRoomData) => {
-    const {name, title, partition, uid = -1} = liveRoomData;
-    let returnVal;
-    if (uid !== -1) {
-        if (blockCheckWhiteUserUid(uid)) {
-            return returnTempVal;
-        }
-        returnVal = blockUserUid(uid)
-        if (returnVal.state) {
-            return returnVal
-        }
-    }
-    returnVal = blockUserName(name)
-    if (returnVal.state) {
-        return returnVal
-    }
-    returnVal = blockVideoOrOtherTitle(title)
-    if (returnVal.state) {
-        return returnVal
-    }
-    if (partition) {
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPrecisePartitionArr(), partition)) {
-            return {state: true, type: "精确直播分区"};
-        }
-    }
-    return returnTempVal;
-}
-
-/**
- * 装饰过的屏蔽直播间
- * @param liveRoomData {{}} 直播间数据
- * @returns {boolean}
- */
-const shieldingLiveRoomDecorated = (liveRoomData) => {
-    const {state, type, matching = null} = shieldingLiveRoom(liveRoomData);
-    if (state) {
-        liveRoomData.el?.remove();
-        const infoHtml = output_informationTab.getLiveRoomInfoHtml(type, matching, liveRoomData);
         eventEmitter.send('打印信息', infoHtml)
     }
     return state;
@@ -660,11 +575,8 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
     return {start, stop}
 }
 
-
 export default {
     shieldingDynamicDecorated,
-    shieldingLiveRoomDecorated,
-    addLiveContentBlockButton,
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,
     intervalExecutionStartShieldingVideoInert,
