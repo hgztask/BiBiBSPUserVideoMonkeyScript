@@ -1,13 +1,15 @@
 import gmUtil from "../../../utils/gmUtil.js";
 import localMKData from "../../../data/localMKData.js";
+import {uid_range_masking_vue} from "../../uidRangeMaskingVue.js";
 
 /**
  * 高级规则
  */
 export const high_level_rule_vue = {
-    components: {},
+    components: {uid_range_masking_vue},
     template: `
       <div>
+        <uid_range_masking_vue/>
         <el-card>
           <template #header>视频类型</template>
           <div>选中的类型会被屏蔽</div>

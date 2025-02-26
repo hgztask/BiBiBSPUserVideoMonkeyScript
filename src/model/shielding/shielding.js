@@ -165,85 +165,12 @@ const blockUserUid = (uid) => {
  * @param uid {number}
  * @returns {boolean}
  */
-const checkWhiteUserUid = (uid) => {
+const blockCheckWhiteUserUid = (uid) => {
     return ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid);
 }
 
-
 /**
- * 屏蔽视频
- * @param videoData {{}} 视频数据
- * @returns {Object}结果对象，其中包括状态state，和消息msg
- * @property {boolean} state 是否屏蔽
- * @property {string} type 屏蔽了的类型
- * @property {string} matching 匹配到的规则
- * @returns {{state:boolean,type:string|any,matching:string|any}} 是否屏蔽
- */
-const shieldingVideo = (videoData) => {
-    const {
-        title, uid = -1,
-        name, nDuration = -1,
-        nBulletChat = -1, nPlayCount = -1
-    } = videoData;
-    if (checkWhiteUserUid(uid)) {
-        return returnTempVal;
-    }
-    let returnVal = blockUserUid(uid);
-    if (returnVal.state) {
-        return returnVal;
-    }
-    let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
-    if (matching !== null) {
-        return {state: true, type: "模糊标题", matching};
-    }
-    matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
-    if (matching !== null) {
-        return {state: true, type: "正则标题", matching};
-    }
-    if (name) {
-        returnVal = blockUserName(name)
-        if (returnVal.state) {
-            return returnVal;
-        }
-    }
-    //限制时长
-    if (nDuration !== -1) {
-        const min = gmUtil.getData('nMinimumDuration', -1);
-        if (min > nDuration && min !== -1) {
-            return {state: true, type: '最小时长', matching: min}
-        }
-        const max = gmUtil.getData('nMaximumDuration', -1)
-        if (max < nDuration && max !== -1) {
-            return {state: true, type: '最大时长', matching: max}
-        }
-    }
-    //限制弹幕数
-    if (nBulletChat !== -1) {
-        const min = gmUtil.getData('nMinimumBarrage', -1);
-        if (min > nBulletChat && min !== -1) {
-            return {state: true, type: '最小弹幕数', matching: min}
-        }
-        const max = gmUtil.getData('nMaximumBarrage', -1)
-        if (max < nBulletChat && max !== -1) {
-            return {state: true, type: '最大弹幕数', matching: max}
-        }
-    }
-    if (nPlayCount !== -1) {
-        const min = gmUtil.getData('nMinimumPlay', -1);
-        if (min > nPlayCount && min !== -1) {
-            return {state: true, type: '最小播放量', matching: min}
-        }
-        const max = gmUtil.getData('nMaximumPlayback', -1)
-        if (max < nPlayCount && max !== -1) {
-            return {state: true, type: '最大播放量', matching: max}
-        }
-    }
-    //表面放行该内容
-    return returnTempVal;
-}
-
-/**
- * 精确匹配和模糊匹配屏蔽
+ * 根据精确匹配和模糊匹配屏蔽
  * @param val {string} 待匹配的值
  * @param config {{}} 配置项
  * @param config.exactKey {string} 精确类型的规则键
@@ -254,6 +181,9 @@ const shieldingVideo = (videoData) => {
  * @param config.regexTypeName {string} 正则显示的名称
  */
 const blockExactAndFuzzyMatching = (val, config) => {
+    if (!val) {
+        return returnTempVal
+    }
     if (config.exactKey) {
         if (ruleMatchingUtil.exactMatch(gmUtil.getData(config.exactKey, []), val)) {
             return {state: true, type: config.exactTypeName, matching: val}
@@ -274,6 +204,15 @@ const blockExactAndFuzzyMatching = (val, config) => {
     }
     return returnTempVal
 }
+
+//根据评论检查屏蔽
+const blockComment = (comment) => {
+    return blockExactAndFuzzyMatching(comment, {
+        fuzzyKey: 'commentOn', fuzzyTypeName: '模糊评论',
+        regexKey: 'commentOnCanonical', regexTypeName: '正则评论'
+    })
+}
+
 
 //根据头像挂件名屏蔽
 const blockAvatarPendant = (name) => {
@@ -440,6 +379,25 @@ const blockVideoCoinLikesRatioRate = (coin, like) => {
     return returnTempVal
 }
 
+/**
+ * 根据等级屏蔽
+ * @param level {number} 用户等级
+ * @returns {{state: boolean, type: string, matching:number }|any}
+ */
+const blockByLevel = (level) => {
+    if (!level) {
+        return returnTempVal
+    }
+    const min = gmUtil.getData('nMinimumLevel', -1)
+    if (min > level) {
+        return {state: true, type: "最小用户等级过滤", matching: min};
+    }
+    const max = gmUtil.getData('nMaximumLevel', -1)
+    if (max > level) {
+        return {state: true, type: "最大用户等级过滤", matching: max};
+    }
+    return returnTempVal
+}
 
 //根据用户uid和name检查屏蔽
 const blockUserUidAndName = (uid, name) => {
@@ -468,7 +426,7 @@ const blockVideoTeamMember = (teamMember) => {
         return returnTempVal
     }
     for (let u of teamMember) {
-        if (checkWhiteUserUid(u.mid)) {
+        if (blockCheckWhiteUserUid(u.mid)) {
             continue
         }
         const returnVal = blockUserUidAndName(u.mid, u.name)
@@ -485,6 +443,14 @@ const blockUserName = (name) => {
         exactKey: 'precise_name',
         exactTypeName: '精确用户名', fuzzyKey: 'name', fuzzyTypeName: '模糊用户名',
         regexKey: 'nameCanonical', regexTypeName: '正则用户名'
+    })
+}
+
+// 根据视频标题或其他标题检查屏蔽
+const blockVideoOrOtherTitle = (title) => {
+    return blockExactAndFuzzyMatching(title, {
+        exactKey: 'title', fuzzyTypeName: '模糊标题',
+        regexKey: 'titleCanonical', regexTypeName: '正则标题'
     })
 }
 
@@ -541,7 +507,7 @@ const shieldingOtherVideoParameter = async (videoData) => {
     }
     //检查用户等级，当前用户等级
     const currentLevel = userInfo?.current_level || -1;
-    returnValue = shieldingByLevel(currentLevel);
+    returnValue = blockByLevel(currentLevel);
     if (returnValue.state) {
         return returnValue
     }
@@ -613,6 +579,94 @@ const blockBasedVideoTag = (tags) => {
         }
     }
     return returnTempVal
+}
+
+//检查uid是否在范围屏蔽
+const blockByUidRange = (uid) => {
+    if (!localMKData.isUidRangeMaskingStatus()) {
+        return returnTempVal
+    }
+    const [head, tail] = localMKData.getUidRangeMasking();
+    if (head > uid < tail) {
+        return {state: true, type: "uid范围屏蔽", matching: `uid在范围屏蔽中【${head}——${tail}】`}
+    }
+    return returnTempVal
+}
+
+/**
+ * 屏蔽视频
+ * @param videoData {{}} 视频数据
+ * @returns {Object}结果对象，其中包括状态state，和消息msg
+ * @property {boolean} state 是否屏蔽
+ * @property {string} type 屏蔽了的类型
+ * @property {string} matching 匹配到的规则
+ * @returns {{state:boolean,type:string|any,matching:string|any}} 是否屏蔽
+ */
+const shieldingVideo = (videoData) => {
+    const {
+        title, uid = -1,
+        name, nDuration = -1,
+        nBulletChat = -1, nPlayCount = -1
+    } = videoData;
+    if (blockCheckWhiteUserUid(uid)) {
+        return returnTempVal;
+    }
+    let returnVal = blockUserUid(uid);
+    if (returnVal.state) {
+        return returnVal;
+    }
+    returnVal = blockByUidRange(uid)
+    if (returnVal.state) {
+        return returnVal;
+    }
+    let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
+    if (matching !== null) {
+        return {state: true, type: "模糊标题", matching};
+    }
+    matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
+    if (matching !== null) {
+        return {state: true, type: "正则标题", matching};
+    }
+    if (name) {
+        returnVal = blockUserName(name)
+        if (returnVal.state) {
+            return returnVal;
+        }
+    }
+    //限制时长
+    if (nDuration !== -1) {
+        const min = gmUtil.getData('nMinimumDuration', -1);
+        if (min > nDuration && min !== -1) {
+            return {state: true, type: '最小时长', matching: min}
+        }
+        const max = gmUtil.getData('nMaximumDuration', -1)
+        if (max < nDuration && max !== -1) {
+            return {state: true, type: '最大时长', matching: max}
+        }
+    }
+    //限制弹幕数
+    if (nBulletChat !== -1) {
+        const min = gmUtil.getData('nMinimumBarrage', -1);
+        if (min > nBulletChat && min !== -1) {
+            return {state: true, type: '最小弹幕数', matching: min}
+        }
+        const max = gmUtil.getData('nMaximumBarrage', -1)
+        if (max < nBulletChat && max !== -1) {
+            return {state: true, type: '最大弹幕数', matching: max}
+        }
+    }
+    if (nPlayCount !== -1) {
+        const min = gmUtil.getData('nMinimumPlay', -1);
+        if (min > nPlayCount && min !== -1) {
+            return {state: true, type: '最小播放量', matching: min}
+        }
+        const max = gmUtil.getData('nMaximumPlayback', -1)
+        if (max < nPlayCount && max !== -1) {
+            return {state: true, type: '最大播放量', matching: max}
+        }
+    }
+    //表面放行该内容
+    return returnTempVal;
 }
 
 /**
@@ -745,10 +799,14 @@ const shieldingDynamicDecorated = (dynamicData) => {
  */
 const shieldingComment = (commentsData) => {
     const {content, uid, name, level = -1} = commentsData;
-    if (checkWhiteUserUid(uid)) {
+    if (blockCheckWhiteUserUid(uid)) {
         return returnTempVal;
     }
     let returnVal = blockUserUid(uid)
+    if (returnVal.state) {
+        return returnVal
+    }
+    returnVal = blockByUidRange(uid)
     if (returnVal.state) {
         return returnVal
     }
@@ -758,38 +816,14 @@ const shieldingComment = (commentsData) => {
             return returnVal
         }
     }
-    let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getCommentOnArr(), content);
-    if (matching !== null) {
-        return {state: true, type: "模糊评论内容", matching};
-    }
-    matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getCommentOnCanonicalArr(), content);
-    if (matching !== null) {
-        return {state: true, type: "正则评论内容", matching};
+    returnVal = blockComment(content)
+    if (returnVal.state) {
+        return returnVal
     }
     if (level !== -1) {
-        return shieldingByLevel(level);
+        return blockByLevel(level);
     }
     return returnTempVal;
-}
-
-/**
- * 根据等级屏蔽
- * @param level {number} 用户等级
- * @returns {{state: boolean, type: string, matching:number }|any}
- */
-const shieldingByLevel = (level) => {
-    if (!level) {
-        return returnTempVal
-    }
-    const min = gmUtil.getData('nMinimumLevel', -1)
-    if (min > level) {
-        return {state: true, type: "最小用户等级过滤", matching: min};
-    }
-    const max = gmUtil.getData('nMaximumLevel', -1)
-    if (max > level) {
-        return {state: true, type: "最大用户等级过滤", matching: max};
-    }
-    return returnTempVal
 }
 
 /**
@@ -854,35 +888,26 @@ const shieldingComments = (commentsDataList) => {
     }
 }
 
-
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
     const {name, title, partition, uid = -1} = liveRoomData;
+    let returnVal;
     if (uid !== -1) {
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid)) {
+        if (blockCheckWhiteUserUid(uid)) {
             return returnTempVal;
         }
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
-            return {state: true, type: "精确用户uid"};
+        returnVal = blockUserUid(uid)
+        if (returnVal.state) {
+            return returnVal
         }
     }
-    let matching;
-    if (name) {
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseNameArr(), name)) {
-            return {state: true, type: "精确用户名"};
-        }
-        matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getNameArr(), name);
-        if (matching) {
-            return {state: true, type: "模糊用户名", matching};
-        }
+    returnVal = blockUserName(name)
+    if (returnVal.state) {
+        return returnVal
     }
-    matching = ruleMatchingUtil.exactMatch(ruleKeyListData.getTitleArr(), title);
-    if (matching) {
-        return {state: true, type: "模糊标题", matching};
-    }
-    matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleCanonicalArr(), title);
-    if (matching) {
-        return {state: true, type: "正则标题", matching};
+    returnVal = blockVideoOrOtherTitle(title)
+    if (returnVal.state) {
+        return returnVal
     }
     if (partition) {
         if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPrecisePartitionArr(), partition)) {

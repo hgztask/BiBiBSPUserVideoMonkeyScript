@@ -49,7 +49,7 @@ const getDataList = async () => {
  * @returns null
  */
 const startShieldingDynamicContent = async () => {
-    const personalHomepage = space.isPersonalHomepage();
+    const personalHomepage = await space.isPersonalHomepage();
     //个人主页，不做动态屏蔽处理
     if (personalHomepage) return;
     const list = await getDataList();

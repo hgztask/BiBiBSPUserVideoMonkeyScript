@@ -314,6 +314,16 @@ const getTripleRate = () => {
     return gmUtil.getData('triple_rate', 0.05)
 }
 
+// 获取uid范围屏蔽数组
+const getUidRangeMasking = () => {
+    return gmUtil.getData('uid_range_masking', [0, 100])
+}
+
+// 是否启用uid范围屏蔽
+const isUidRangeMaskingStatus = () => {
+    return gmUtil.getData('uid_range_masking_status', false)
+}
+
 
 export default {
     getTripleRate,
@@ -360,5 +370,7 @@ export default {
     getCoinLikesRatioRate,
     isCoinLikesRatioRateDisabled,
     isInteractiveRateBlockingStatus,
-    getInteractiveRate
+    getInteractiveRate,
+    getUidRangeMasking,
+    isUidRangeMaskingStatus
 }
