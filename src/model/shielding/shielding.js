@@ -540,7 +540,8 @@ const shieldingOtherVideoParameter = async (videoData) => {
         blockSeniorMember(userInfo.is_senior_member), blockVideoCopyright(videoInfo.copyright),
         blockVerticalVideo(videoInfo.dimension), blockVideoTeamMember(videoInfo.staff),
         blockVideoLikeRate(videoInfo.like, videoInfo.view), blockVideoInteractiveRate(videoInfo.danmaku, videoInfo.reply, videoInfo.view),
-        blockVideoTripleRate(videoInfo.favorite, videoInfo.coin, videoInfo.share, videoInfo.view), blockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like)
+        blockVideoTripleRate(videoInfo.favorite, videoInfo.coin, videoInfo.share, videoInfo.view),
+        blockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like), blockTimeRangeMasking(videoInfo.pubdate)
     ]
     for (let v of tempList) {
         if (v.state) {
@@ -593,6 +594,30 @@ const blockByUidRange = (uid) => {
     return returnTempVal
 }
 
+//检查时间范围屏蔽
+const blockTimeRangeMasking = (timestamp) => {
+    if (!timestamp || !localMKData.isTimeRangeMaskingStatus()) {
+        return returnTempVal
+    }
+    const vals = localMKData.getTimeRangeMaskingVal();
+    if (vals.length === 0) {
+        return returnTempVal;
+    }
+    // 获取时间戳，单位毫秒
+    const [startTimestamp, endTimestamp] = vals;
+    // 将时间戳转换为秒级时间戳
+    const startSecondsTimestamp = Math.floor(startTimestamp / 1000)
+    const endSecondsTimestamp = Math.floor(endTimestamp / 1000)
+    if (startSecondsTimestamp >= timestamp <= endSecondsTimestamp) {
+        const startToTime = new Date(startTimestamp).toLocaleString();
+        const endToTime = new Date(endTimestamp).toLocaleString();
+        const timestampToTime = new Date(timestamp * 1000).toLocaleString();
+        return {state: true, type: "时间范围屏蔽", matching: `${startToTime}=>${timestampToTime}<=${endToTime}`}
+    }
+    return returnTempVal
+}
+
+
 /**
  * 屏蔽视频
  * @param videoData {{}} 视频数据
@@ -627,11 +652,9 @@ const shieldingVideo = (videoData) => {
     if (matching !== null) {
         return {state: true, type: "正则标题", matching};
     }
-    if (name) {
-        returnVal = blockUserName(name)
-        if (returnVal.state) {
-            return returnVal;
-        }
+    returnVal = blockUserName(name)
+    if (returnVal.state) {
+        return returnVal;
     }
     //限制时长
     if (nDuration !== -1) {

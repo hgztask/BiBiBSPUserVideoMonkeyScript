@@ -324,6 +324,19 @@ const isUidRangeMaskingStatus = () => {
     return gmUtil.getData('uid_range_masking_status', false)
 }
 
+// 是否启用时间范围屏蔽
+const isTimeRangeMaskingStatus = () => {
+    return gmUtil.getData('time_range_masking_status', false)
+}
+/**
+ * 获取时间范围屏蔽数组，其数组内值为时间戳，单位毫秒，位数13
+ * 如要比较，请留意比较方是否是以毫秒单位的时间戳，10位的是秒单位的时间戳
+ * @returns {[number]}
+ */
+const getTimeRangeMaskingVal = () => {
+    return gmUtil.getData('time_range_masking', [])
+}
+
 
 export default {
     getTripleRate,
@@ -372,5 +385,7 @@ export default {
     isInteractiveRateBlockingStatus,
     getInteractiveRate,
     getUidRangeMasking,
-    isUidRangeMaskingStatus
+    isUidRangeMaskingStatus,
+    isTimeRangeMaskingStatus,
+    getTimeRangeMaskingVal
 }
