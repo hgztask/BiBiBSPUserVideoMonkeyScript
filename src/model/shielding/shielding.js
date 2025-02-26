@@ -7,10 +7,7 @@ import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
 import localMKData from "../../data/localMKData.js";
 import defUtil from "../../utils/defUtil.js";
-
-//默认返回值-不符合屏蔽条件-{state: false}
-export const returnTempVal = {state: false}
-
+import {returnTempVal} from "../../data/globalValue.js";
 
 /**
  * 添加屏蔽按钮
@@ -202,7 +199,7 @@ const blockExactAndFuzzyMatching = (val, config) => {
 }
 
 //根据评论检查屏蔽
-const blockComment = (comment) => {
+export const blockComment = (comment) => {
     return blockExactAndFuzzyMatching(comment, {
         fuzzyKey: 'commentOn', fuzzyTypeName: '模糊评论',
         regexKey: 'commentOnCanonical', regexTypeName: '正则评论'
@@ -590,105 +587,6 @@ const shieldingDynamicDecorated = (dynamicData) => {
     return state;
 }
 
-/**
- * 屏蔽单个评论项
- * @param commentsData {{}}
- * @returns {Object}
- * @property {boolean} state 是否屏蔽
- * @property {string} type 屏蔽的类型
- * @property {string} matching 匹配到的规则`
- */
-const shieldingComment = (commentsData) => {
-    const {content, uid, name, level = -1} = commentsData;
-    if (blockCheckWhiteUserUid(uid)) {
-        return returnTempVal;
-    }
-    let returnVal = blockUserUid(uid)
-    if (returnVal.state) {
-        return returnVal
-    }
-    returnVal = blockByUidRange(uid)
-    if (returnVal.state) {
-        return returnVal
-    }
-    if (name) {
-        returnVal = blockUserName(name)
-        if (returnVal.state) {
-            return returnVal
-        }
-    }
-    returnVal = blockComment(content)
-    if (returnVal.state) {
-        return returnVal
-    }
-    if (level !== -1) {
-        return blockByLevel(level);
-    }
-    return returnTempVal;
-}
-
-/**
- * 装饰过的屏蔽评论,屏蔽单个评论项
- * @param commentsData {{}}
- * @returns {Object}
- * @property {boolean} state 是否屏蔽
- * @type {function}
- */
-const shieldingCommentDecorated = (commentsData) => {
-    const {state, type, matching} = shieldingComment(commentsData);
-    if (state) {
-        commentsData.el?.remove()
-        eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
-    }
-    return state;
-}
-
-/**
- * 装饰过的屏蔽直播间评论
- * @param liveRoomContent {*} 评论数据
- * @returns {boolean}
- * @type {function}
- */
-const shieldingLiveRoomContentDecorated = (liveRoomContent) => {
-    let {state, type, matching} = shieldingComment(liveRoomContent);
-    const {el, fansMedal} = liveRoomContent;
-    if (fansMedal !== null) {
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseFanCardArr(), fansMedal)) {
-            el?.remove();
-            state = true;
-            type = "精确粉丝牌";
-        }
-    }
-    if (state) {
-        el?.remove()
-    }
-    if (type) {
-        const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
-        eventEmitter.send('打印信息', infoHtml)
-    }
-    return state;
-}
-
-/**
- * 屏蔽评论
- * @param commentsDataList {[{}]} 评论数据
- */
-const shieldingComments = (commentsDataList) => {
-    for (let commentsData of commentsDataList) {
-        //判断是否为楼主，如果是楼主层，则有楼中餐
-        //处理列表中的楼主层
-        if (shieldingCommentDecorated(commentsData)) continue;
-        eventEmitter.send('评论添加屏蔽按钮', commentsData)
-        //当楼主层执行通过后，检查楼中层
-        const {replies = []} = commentsData;
-        if (replies.length === 0) continue;
-        for (let reply of replies) {
-            if (shieldingCommentDecorated(reply)) continue;
-            eventEmitter.send('评论添加屏蔽按钮', reply)
-        }
-    }
-}
-
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
     const {name, title, partition, uid = -1} = liveRoomData;
@@ -765,10 +663,7 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
 
 export default {
     shieldingDynamicDecorated,
-    shieldingCommentDecorated,
     shieldingLiveRoomDecorated,
-    shieldingComments,
-    shieldingLiveRoomContentDecorated,
     addLiveContentBlockButton,
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,

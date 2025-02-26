@@ -5,6 +5,7 @@ import topicDetail from "./topicDetail.js";
 import localMKData from "../data/localMKData.js";
 import videoPlayModel from "./videoPlay/videoPlayModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
+import comments from "../model/shielding/comments.js";
 
 /**
  * 评论添加屏蔽按钮
@@ -44,7 +45,7 @@ const getUrlUserLevel = (src) => {
  * @returns {number}
  */
 const getOldUserLevel = (iEl) => {
-    let level = -1
+    let level
     const levelCLassName = iEl.classList[1];
     if (levelCLassName === 'level-hardcore') {
         level = 7;
@@ -220,7 +221,7 @@ const startShieldingComments = async () => {
         //新版评论区
         list = await getCommentSectionList();
     }
-    shielding.shieldingComments(list);
+    comments.shieldingComments(list);
 }
 
 /**

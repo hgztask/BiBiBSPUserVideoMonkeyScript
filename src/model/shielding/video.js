@@ -23,13 +23,13 @@ import {
     blockVideoInteractiveRate,
     blockVideoLikeRate,
     blockVideoTeamMember,
-    blockVideoTripleRate,
-    returnTempVal
+    blockVideoTripleRate
 } from "./shielding.js";
 import {videoInfoCache} from "../cache/videoInfoCache.js";
 import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
 import bFetch from '../bFetch.js'
 import bvDexie from "../bvDexie.js";
+import {returnTempVal} from "../../data/globalValue.js";
 
 
 /**

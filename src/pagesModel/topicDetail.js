@@ -1,6 +1,7 @@
 import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding/shielding.js";
 import video from "../model/shielding/video.js";
+import comments from "../model/shielding/comments.js";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url) => {
@@ -48,7 +49,7 @@ const __shieldingVideo = (videoData) => {
     shielding.addTopicDetailVideoBlockButton({data: videoData, maskingFunc: startShielding})
 }
 const __shieldingDynamic = (dynamicData) => {
-    if (shielding.shieldingCommentDecorated(dynamicData)) {
+    if (comments.shieldingCommentDecorated(dynamicData)) {
         return;
     }
     shielding.addTopicDetailContentsBlockButton({data: dynamicData, maskingFunc: startShielding});

@@ -12,6 +12,9 @@ const common_question_url = 'https://docs.qq.com/doc/DSlJNR1NVcGR3eEto'
 //更新日志链接
 const update_log_url = 'https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj'
 
+//默认返回值-不符合屏蔽条件-{state: false}
+export const returnTempVal = {state: false}
+
 export default {
     group_url,
     scriptCat_js_url,
