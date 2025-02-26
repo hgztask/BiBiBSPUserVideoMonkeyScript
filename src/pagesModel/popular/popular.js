@@ -1,7 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
-import video from "../../model/shielding/video.js";
+import video_shielding from "../../model/shielding/video_shielding.js";
 
 
 const generalUrl=[
@@ -102,7 +102,7 @@ const getVideoDataList = async () => {
 const startShieldingRankVideoList = async () => {
     const list = await getVideoDataList();
     for (let videoData of list) {
-        if (video.shieldingVideoDecorated(videoData)) {
+        if (video_shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
         eventEmitter.send('添加热门视频屏蔽按钮', {data: videoData, maskingFunc: startShieldingRankVideoList})

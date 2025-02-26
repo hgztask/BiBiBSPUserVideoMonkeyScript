@@ -1,7 +1,7 @@
 import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding/shielding.js";
-import video from "../model/shielding/video.js";
-import comments from "../model/shielding/comments.js";
+import video_shielding from "../model/shielding/video_shielding.js";
+import comments_shielding from "../model/shielding/comments_shielding.js";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url) => {
@@ -43,13 +43,13 @@ const getDataList = async () => {
 }
 
 const __shieldingVideo = (videoData) => {
-    if (video.shieldingVideoDecorated(videoData)) {
+    if (video_shielding.shieldingVideoDecorated(videoData)) {
         return;
     }
     shielding.addTopicDetailVideoBlockButton({data: videoData, maskingFunc: startShielding})
 }
 const __shieldingDynamic = (dynamicData) => {
-    if (comments.shieldingCommentDecorated(dynamicData)) {
+    if (comments_shielding.shieldingCommentDecorated(dynamicData)) {
         return;
     }
     shielding.addTopicDetailContentsBlockButton({data: dynamicData, maskingFunc: startShielding});

@@ -3,7 +3,7 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import shielding from "../../model/shielding/shielding.js";
 import defUtil from "../../utils/defUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import video from "../../model/shielding/video.js";
+import video_shielding from "../../model/shielding/video_shielding.js";
 
 /**
  * 获取bewly的shadowRoot元素
@@ -129,7 +129,7 @@ const getHistoryVideoDataList = async () => {
 const startShieldingHistoryVideoList = async () => {
     const list = await getHistoryVideoDataList()
     for (let videoData of list) {
-        if (video.shieldingVideoDecorated(videoData)) {
+        if (video_shielding.shieldingVideoDecorated(videoData)) {
             continue
         }
         eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHistoryVideoList})
@@ -140,7 +140,7 @@ const startShieldingHistoryVideoList = async () => {
 const startShieldingVideoList = async () => {
     const list = await getVideoList()
     for (let videoData of list) {
-        if (video.shieldingVideoDecorated(videoData)) {
+        if (video_shielding.shieldingVideoDecorated(videoData)) {
             continue
         }
         eventEmitter.send('视频添加屏蔽按钮-BewlyBewly', {data: videoData, maskingFunc: startShieldingVideoList})

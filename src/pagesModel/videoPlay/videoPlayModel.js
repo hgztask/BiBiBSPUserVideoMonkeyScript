@@ -6,7 +6,7 @@ import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData from "../../data/localMKData.js";
-import video from "../../model/shielding/video.js";
+import video_shielding from "../../model/shielding/video_shielding.js";
 
 //判断是否是视频播放页
 const isVideoPlayPage = (url = window.location.href) => {
@@ -114,7 +114,7 @@ const startShieldingVideoList = () => {
     }
     getGetTheVideoListOnTheRight().then((videoList) => {
         for (let videoData of videoList) {
-            if (video.shieldingVideoDecorated(videoData)) {
+            if (video_shielding.shieldingVideoDecorated(videoData)) {
                 continue;
             }
             eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
