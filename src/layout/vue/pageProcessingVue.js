@@ -7,32 +7,35 @@ import topInput from "../../pagesModel/search/topInput.js";
 export const page_processing_vue = {
     template: `
       <div>
-      <el-card>
-        <template #header>
-          <span>搜索页</span>
-        </template>
-        <el-switch v-model="isRemoveSearchBottomContent"
-                   active-text="屏蔽底部额外内容"/>
-      </el-card>
-      <el-card>
-        <template #header>
-          <span>播放页</span>
-        </template>
-        <el-switch v-model="isDelPlayerPageAd" active-text="屏蔽页面元素广告"/>
-        <el-switch v-model="isDelPlayerPageRightGameAd" active-text="屏蔽右侧游戏推荐"/>
-        <el-tooltip content="移除整个推荐列表，状态刷新生效">
-          <el-switch v-model="isDelPlayerPageRightVideoList" active-text="移除右侧推荐列表"/>
-        </el-tooltip>
-        <el-tooltip content="状态刷新生效">
-          <el-switch v-model="isDelBottomComment" active-text="移除评论区"/>
-        </el-tooltip>
-      </el-card>
-      <el-card>
-        <template #header>
-          <span>顶部搜索框</span>
-        </template>
-        <el-switch v-model="isClearTopInputTipContent" active-text="清空内容"/>
-      </el-card>
+        <el-card>
+          <template #header>
+            <span>搜索页</span>
+          </template>
+          <el-switch v-model="isRemoveSearchBottomContent"
+                     active-text="屏蔽底部额外内容"/>
+        </el-card>
+        <el-card>
+          <template #header>
+            <span>播放页</span>
+          </template>
+          <el-switch v-model="isDelPlayerPageAd" active-text="屏蔽页面元素广告"/>
+          <el-switch v-model="isDelPlayerPageRightGameAd" active-text="屏蔽右侧游戏推荐"/>
+          <el-tooltip content="移除整个推荐列表，状态刷新生效">
+            <el-switch v-model="isDelPlayerPageRightVideoList" active-text="移除右侧推荐列表"/>
+          </el-tooltip>
+          <el-tooltip content="状态刷新生效">
+            <el-switch v-model="isDelBottomComment" active-text="移除评论区"/>
+          </el-tooltip>
+          <el-tooltip content="视频播放完之后会在播放器上显示推荐内容，开启之后移除播放器上整个推荐内容">
+            <el-switch v-model="isDelPlayerEndingPanelVal" active-text="移除播放完推荐层"/>
+          </el-tooltip>
+        </el-card>
+        <el-card>
+          <template #header>
+            <span>顶部搜索框</span>
+          </template>
+          <el-switch v-model="isClearTopInputTipContent" active-text="清空内容"/>
+        </el-card>
       </div>`,
     data() {
         return {
@@ -42,6 +45,7 @@ export const page_processing_vue = {
             isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
             isDelBottomComment: localMKData.isDelBottomComment(),
             isClearTopInputTipContent: gmUtil.getData('isClearTopInputTipContent', false),
+            isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel()
         }
     },
     methods: {},
@@ -68,6 +72,9 @@ export const page_processing_vue = {
                 return
             }
             topInput.setTopInputPlaceholder()
+        },
+        isDelPlayerEndingPanelVal(n) {
+            gmUtil.setData('is_del_player_ending_panel', n)
         }
     }
 }

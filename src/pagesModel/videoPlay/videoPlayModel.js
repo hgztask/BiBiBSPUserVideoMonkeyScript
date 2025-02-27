@@ -159,6 +159,11 @@ const getPlayerVideoList = async () => {
     return data
 }
 
+//获取视频播放完成之后的推荐视频层
+const getVideoPlayerEndingPanelEl = async () => {
+    return await elUtil.findElement('#bilibili-player .bpx-player-ending-wrap>.bpx-player-ending-panel',
+        {interval: 50})
+}
 
 /**
  * 设置视频播放结束事件
@@ -185,9 +190,14 @@ const setVideoPlayerEnded = async () => {
     videoEl.addEventListener('ended', () => {
         console.log('视频播放结束')
         funcStart()
+        if (localMKData.isDelPlayerEndingPanel()) {
+            getVideoPlayerEndingPanelEl().then(el => {
+                el.remove()
+                eventEmitter.send('打印信息', '已删除播放页播放器中推荐层')
+            })
+        }
     })
 }
-
 
 /**
  * 删除播放页的广告
@@ -206,7 +216,6 @@ const delAd = () => {
     })
 }
 
-
 //移除右侧视频列表
 const delRightVideoList = () => {
     if (!localMKData.isDelPlayerPageRightVideoList()) {
@@ -218,7 +227,6 @@ const delRightVideoList = () => {
         eventEmitter.send('打印信息', '屏蔽了播放页的右侧推荐列表')
     })
 }
-
 
 /**
  * 屏蔽播放页右侧游戏推荐
@@ -248,7 +256,6 @@ const delBottomCommentApp = () => {
     })
 }
 
-
 //屏蔽页面元素管理
 const delElManagement = () => {
     if (localMKData.isDelPlayerPageRightVideoList()) {
@@ -257,7 +264,6 @@ const delElManagement = () => {
     delRightVideoList()
     delBottomCommentApp()
 }
-
 
 //视频播放模块
 export default {

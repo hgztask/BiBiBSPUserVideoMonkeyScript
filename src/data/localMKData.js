@@ -337,6 +337,12 @@ const getTimeRangeMaskingVal = () => {
     return gmUtil.getData('time_range_masking', [])
 }
 
+// 是否屏蔽播放完推荐层
+const isDelPlayerEndingPanel = () => {
+    return gmUtil.getData('is_del_player_ending_panel', false)
+}
+
+
 
 export default {
     getTripleRate,
@@ -387,5 +393,6 @@ export default {
     getUidRangeMasking,
     isUidRangeMaskingStatus,
     isTimeRangeMaskingStatus,
-    getTimeRangeMaskingVal
+    getTimeRangeMaskingVal,
+    isDelPlayerEndingPanel
 }
