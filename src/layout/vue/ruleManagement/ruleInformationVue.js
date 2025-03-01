@@ -8,15 +8,20 @@ import ruleKeyListData from "../../../data/ruleKeyListData.js";
 export default {
     template: `
       <div>
-        <el-button @click="refreshInfoBut">刷新信息</el-button>
-        <el-descriptions title="规则信息">
-          <el-descriptions-item v-for="item in ruleInfoArr" :key="item.name"
-                                :label="item.name">
-            <el-badge :value="item.len">
-              <el-button>个</el-button>
-            </el-badge>
-          </el-descriptions-item>
-        </el-descriptions>
+        <el-card>
+          <template #header>
+            <el-button @click="refreshInfoBut">刷新信息</el-button>
+          </template>
+          <div style=" display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;">
+            <div v-for="item in ruleInfoArr" :key="item.name">
+              <el-badge :value="item.len">
+                <el-button>{{ item.name }}</el-button>
+              </el-badge>
+            </div>
+          </div>
+        </el-card>
       </div>`,
     data() {
         return {
