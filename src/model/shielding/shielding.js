@@ -452,20 +452,21 @@ export const blockTimeRangeMasking = (timestamp) => {
     if (!timestamp || !localMKData.isTimeRangeMaskingStatus()) {
         return returnTempVal
     }
-    const vals = localMKData.getTimeRangeMaskingVal();
-    if (vals.length === 0) {
+    const timeRangeMaskingArr = localMKData.getTimeRangeMaskingArr();
+    if (timeRangeMaskingArr.length === 0) {
         return returnTempVal;
     }
-    // 获取时间戳，单位毫秒
-    const [startTimestamp, endTimestamp] = vals;
-    // 将时间戳转换为秒级时间戳
-    const startSecondsTimestamp = Math.floor(startTimestamp / 1000)
-    const endSecondsTimestamp = Math.floor(endTimestamp / 1000)
-    if (startSecondsTimestamp >= timestamp <= endSecondsTimestamp) {
-        const startToTime = new Date(startTimestamp).toLocaleString();
-        const endToTime = new Date(endTimestamp).toLocaleString();
-        const timestampToTime = new Date(timestamp * 1000).toLocaleString();
-        return {state: true, type: "时间范围屏蔽", matching: `${startToTime}=>${timestampToTime}<=${endToTime}`}
+    for (let {status, r: [startTimestamp, endTimestamp]} of timeRangeMaskingArr) {
+        if (!status) continue
+        // 将时间戳转换为秒级时间戳，用于比较视频返回的时间戳格式
+        const startSecondsTimestamp = Math.floor(startTimestamp / 1000)
+        const endSecondsTimestamp = Math.floor(endTimestamp / 1000)
+        if (startSecondsTimestamp >= timestamp <= endSecondsTimestamp) {
+            const startToTime = new Date(startTimestamp).toLocaleString();
+            const endToTime = new Date(endTimestamp).toLocaleString();
+            const timestampToTime = new Date(timestamp * 1000).toLocaleString();
+            return {state: true, type: "时间范围屏蔽", matching: `${startToTime}=>${timestampToTime}<=${endToTime}`}
+        }
     }
     return returnTempVal
 }

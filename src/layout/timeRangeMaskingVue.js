@@ -1,73 +1,31 @@
 import localMKData from "../data/localMKData.js";
 import gmUtil from "../utils/gmUtil.js";
+import {time_range_masking_table_vue} from "./time_range_masking_table_vue.js";
 
 /**
  * 时间范围屏蔽组件
  */
 export const time_range_masking_vue = {
+    components: {time_range_masking_table_vue},
     template: `
       <div>
         <el-card>
-          <template #header>时间范围屏蔽</template>
-          <div style="margin-bottom: 5px">说明：屏蔽在指定时间段内发布的视频，注意包括开始时间和结束时间</div>
-          <el-switch v-model="status" active-text="启用"/>
-          <el-date-picker style="margin-left: 5px" :disabled="!status"
-                          v-model="value"
-                          type="datetimerange"
-                          :picker-options="pickerOptions"
-                          range-separator="至"
-                          start-placeholder="开始日期"
-                          end-placeholder="结束日期"
-                          align="right">
-          </el-date-picker>
-          <el-button type="success" style="margin-left: 5px" round @click="setBut" :disabled="!status">设置</el-button>
+          <template #header>时间范围</template>
+          <div>使用说明</div>
+          <div>1.不能添加重复的时间范围或者小于已添加过的时间范围</div>
+          <div>2.修改时间范围的值和状态会自动保存(包括删除)，会有提示</div>
+          <div>3.每个时间范围可独立控制开关状态，关闭则该条范围不生效</div>
+          <div>4.总开关优先级最高，关闭则所有时间范围不生效</div>
+          <el-switch v-model="status" active-text="总开关"/>
         </el-card>
+        <time_range_masking_table_vue/>
       </div>`,
     data() {
         return {
-            status: localMKData.isTimeRangeMaskingStatus(),
-            pickerOptions: {
-                shortcuts: [
-                    {
-                        text: '最近一周',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    },
-                    {
-                        text: '最近一个月',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    },
-                    {
-                        text: '最近三个月',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }
-                ]
-            },
-            value: []
+            status: localMKData.isTimeRangeMaskingStatus()
         }
     },
     methods: {
-        setBut() {
-            if (this.value.length === 0) return;
-            // 获取时间date对象
-            const [startTime, endTime] = this.value
-            gmUtil.setData('time_range_masking', [startTime.getTime(), endTime.getTime()])
-            this.$alert('设置时间范围屏蔽成功')
-        }
     },
     watch: {
         status(n) {
@@ -79,11 +37,5 @@ export const time_range_masking_vue = {
         }
     },
     created() {
-        const tempValue = localMKData.getTimeRangeMaskingVal();
-        if (tempValue.length !== 0) {
-            const [startTimestamp, endTimestamp] = tempValue
-            this.value.push(new Date(startTimestamp));
-            this.value.push(new Date(endTimestamp));
-        }
     }
 }

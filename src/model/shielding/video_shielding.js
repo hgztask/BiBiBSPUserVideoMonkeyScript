@@ -235,7 +235,8 @@ const shieldingOtherVideoParameter = async (videoData) => {
         blockVerticalVideo(videoInfo.dimension), blockVideoTeamMember(videoInfo.staff),
         blockVideoLikeRate(videoInfo.like, videoInfo.view), blockVideoInteractiveRate(videoInfo.danmaku, videoInfo.reply, videoInfo.view),
         blockVideoTripleRate(videoInfo.favorite, videoInfo.coin, videoInfo.share, videoInfo.view),
-        blockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like), blockTimeRangeMasking(videoInfo.pubdate)
+        blockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like)
+        , blockTimeRangeMasking(videoInfo.pubdate)
     ]
     for (let v of tempList) {
         if (v.state) {

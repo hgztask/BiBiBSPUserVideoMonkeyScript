@@ -10,12 +10,12 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import {cache_management_vue} from "../vue/cacheManagementVue.js";
 import {panel_settings_vue} from "../vue/panelSettingsVue.js";
 import {compatible_setting_vue} from "../vue/compatibleSettingVue.js";
-import {look_content_dialog_vue} from "../components/lookContentDialogVue.js";
+import {look_content_dialog_vue} from "../eventEmitter_components/lookContentDialogVue.js";
 import {bAfterLoadingThePageOpenMainPanel, debugger_management_vue} from "../vue/debuggerMeanagementVue.js";
 import {page_processing_vue} from "../vue/pageProcessingVue.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {about_and_feedback_vue} from "../vue/aboutAndFeedbackVue.js";
-import {show_img_dialog_vue} from "../components/showImgDialogVue.js";
+import {show_img_dialog_vue} from "../eventEmitter_components/showImgDialogVue.js";
 import {sheet_dialog_vue} from "../components/sheetDialogVue.js";
 import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
 
