@@ -77,7 +77,7 @@ eventEmitter.on('通知屏蔽', () => {
     if (oldHistory.isOldHistory(url)) {
         oldHistory.intervalExecutionStartShieldingVideo()
     }
-    if (partition.isPartition(url)) {
+    if (partition.isPartition(url) || partition.isNewPartition(url)) {
         partition.startIntervalShieldingVideoList()
     }
 })

@@ -27,18 +27,9 @@
   ],
   "@match": [
     "*://search.bilibili.com/*",
-    "*://www.bilibili.com/v/food/*",
-    "*://message.bilibili.com/*",
-    "*://www.bilibili.com/read/*",
-    "*://www.bilibili.com/v/topic/detail/?topic_id=*",
-    "*://www.bilibili.com/v/kichiku/*",
     "*://t.bilibili.com/*",
     "*://space.bilibili.com/*",
-    "*://www.bilibili.com/video/*",
-    "*://live.bilibili.com/?spm_id_from=*",
-    "*://live.bilibili.com/p/eden/area-tags?*",
     "*://live.bilibili.com/*",
-    "*://www.bilibili.com/opus/*",
     "*://www.bilibili.com/*"
   ],
   "@require": [
