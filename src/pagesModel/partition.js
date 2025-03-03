@@ -97,7 +97,7 @@ const getCVideoDataList = async () => {
         const userEl = el.querySelector('.bili-video-card__author')
         const userUrl = userEl.href;
         const uid = elUtil.getUrlUID(userUrl)
-        const name = userEl.querySelector('[title]').textContent.trim()
+        const name = userEl.querySelector('[title]').textContent.trim().split('·')[0].trim()
         const statEls = el.querySelectorAll('.bili-cover-card__stats span')
         const nPlayCount = sFormatUtil.toPlayCountOrBulletChat(statEls[0].textContent.trim())
         const nBulletChat = sFormatUtil.toPlayCountOrBulletChat(statEls[1].textContent.trim())
