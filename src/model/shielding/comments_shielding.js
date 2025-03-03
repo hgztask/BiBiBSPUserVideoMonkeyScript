@@ -1,12 +1,5 @@
 import {eventEmitter} from "../EventEmitter.js";
-import {
-    blockByLevel,
-    blockByUidRange,
-    blockCheckWhiteUserUid,
-    blockComment,
-    blockUserName,
-    blockUserUid
-} from "./shielding.js";
+import {blockByLevel, blockComment, blockUserUidAndName} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
 
 /**
@@ -19,22 +12,9 @@ import {returnTempVal} from "../../data/globalValue.js";
  */
 const shieldingComment = (commentsData) => {
     const {content, uid, name, level = -1} = commentsData;
-    if (blockCheckWhiteUserUid(uid)) {
-        return returnTempVal;
-    }
-    let returnVal = blockUserUid(uid)
+    let returnVal = blockUserUidAndName(uid, name)
     if (returnVal.state) {
         return returnVal
-    }
-    returnVal = blockByUidRange(uid)
-    if (returnVal.state) {
-        return returnVal
-    }
-    if (name) {
-        returnVal = blockUserName(name)
-        if (returnVal.state) {
-            return returnVal
-        }
     }
     returnVal = blockComment(content)
     if (returnVal.state) {

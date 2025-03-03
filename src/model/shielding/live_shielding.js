@@ -3,7 +3,7 @@ import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import output_informationTab from "../../layout/output_informationTab.js";
 import {eventEmitter} from "../EventEmitter.js";
-import shielding, {blockCheckWhiteUserUid, blockUserName, blockUserUid, blockVideoOrOtherTitle} from "./shielding.js";
+import shielding, {blockCheckWhiteUserUid, blockUserUidAndName, blockVideoOrOtherTitle} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
 
 
@@ -41,14 +41,10 @@ const shieldingLiveRoom = (liveRoomData) => {
         if (blockCheckWhiteUserUid(uid)) {
             return returnTempVal;
         }
-        returnVal = blockUserUid(uid)
+        returnVal = blockUserUidAndName(uid, name)
         if (returnVal.state) {
             return returnVal
         }
-    }
-    returnVal = blockUserName(name)
-    if (returnVal.state) {
-        return returnVal
     }
     returnVal = blockVideoOrOtherTitle(title)
     if (returnVal.state) {

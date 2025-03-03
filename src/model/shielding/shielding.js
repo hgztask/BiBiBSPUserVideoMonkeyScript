@@ -106,7 +106,7 @@ const addTopicDetailContentsBlockButton = (data) => {
 }
 
 //根据uid精确屏蔽
-export const blockUserUid = (uid) => {
+const blockUserUid = (uid) => {
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         return {state: true, type: "精确uid"};
     }
@@ -352,13 +352,13 @@ export const blockByLevel = (level) => {
     return returnTempVal
 }
 
-//根据用户uid和name检查屏蔽
+//根据用户uid和name检查屏蔽，执行相关uid检查
 export const blockUserUidAndName = (uid, name) => {
     if (!uid || !name) {
         return returnTempVal
     }
 
-    let returnVal = blockUserUid(uid)
+    let returnVal = blockUidWholeProcess(uid)
     if (returnVal.state) {
         return returnVal
     }
@@ -379,9 +379,6 @@ export const blockVideoTeamMember = (teamMember) => {
         return returnTempVal
     }
     for (let u of teamMember) {
-        if (blockCheckWhiteUserUid(u.mid)) {
-            continue
-        }
         const returnVal = blockUserUidAndName(u.mid, u.name)
         if (returnVal.state) {
             return returnVal
@@ -446,6 +443,17 @@ export const blockByUidRange = (uid) => {
     }
     return returnTempVal
 }
+
+//根据uid检查所有相关uid流程屏蔽
+export const blockUidWholeProcess = (uid) => {
+    if (!uid || blockCheckWhiteUserUid(uid)) return returnTempVal
+    let returnVal = blockUserUid(uid)
+    if (returnVal.state) {
+        return returnVal;
+    }
+    return blockByUidRange(uid)
+}
+
 
 //检查时间范围屏蔽
 export const blockTimeRangeMasking = (timestamp) => {

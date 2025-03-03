@@ -27,12 +27,10 @@ const getVideDataList = async (isWeekly = false) => {
             el,
             title,
             name,
-            uid: -1,
             videoUrl,
             bv,
             nPlayCount,
             nBulletChat,
-            nDuration: -1,
             insertionPositionEl: videoCardInfoEl.querySelector("div"),
             explicitSubjectEl: videoCardInfoEl
         })

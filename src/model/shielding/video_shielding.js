@@ -7,14 +7,11 @@ import shielding, {
     blockAvatarPendant,
     blockBasedVideoTag,
     blockByLevel,
-    blockByUidRange,
-    blockCheckWhiteUserUid,
     blockGender,
     blockSeniorMember,
     blockSignature,
     blockTimeRangeMasking,
-    blockUserName,
-    blockUserUid,
+    blockUserUidAndName,
     blockUserVip,
     blockVerticalVideo,
     blockVideoCoinLikesRatioRate,
@@ -47,14 +44,7 @@ const shieldingVideo = (videoData) => {
         name, nDuration = -1,
         nBulletChat = -1, nPlayCount = -1
     } = videoData;
-    if (blockCheckWhiteUserUid(uid)) {
-        return returnTempVal;
-    }
-    let returnVal = blockUserUid(uid);
-    if (returnVal.state) {
-        return returnVal;
-    }
-    returnVal = blockByUidRange(uid)
+    let returnVal = blockUserUidAndName(uid, name);
     if (returnVal.state) {
         return returnVal;
     }
@@ -65,10 +55,6 @@ const shieldingVideo = (videoData) => {
     matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
     if (matching !== null) {
         return {state: true, type: "正则标题", matching};
-    }
-    returnVal = blockUserName(name)
-    if (returnVal.state) {
-        return returnVal;
     }
     //限制时长
     if (nDuration !== -1) {
@@ -230,6 +216,7 @@ const shieldingOtherVideoParameter = async (videoData) => {
         }
     }
     const tempList = [
+        blockUserUidAndName(userInfo.mid, userInfo.name),
         blockGender(userInfo?.sex), blockUserVip(userInfo.vip.type),
         blockSeniorMember(userInfo.is_senior_member), blockVideoCopyright(videoInfo.copyright),
         blockVerticalVideo(videoInfo.dimension), blockVideoTeamMember(videoInfo.staff),
@@ -277,7 +264,6 @@ eventEmitter.on('视频添加屏蔽按钮-BewlyBewly', (data) => {
 eventEmitter.on('视频添加屏蔽按钮', (data) => {
     shielding.addBlockButton(data, "gz_shielding_button", ["right"]);
 })
-
 
 
 export default {
