@@ -4,6 +4,7 @@ import shielding from "../../model/shielding/shielding.js";
 import defUtil from "../../utils/defUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import globalValue from "../../data/globalValue.js";
 
 /**
  * 获取bewly的shadowRoot元素
@@ -24,6 +25,23 @@ const isBEWLYPage = (url) => {
         || url.startsWith('https://www.bilibili.com/?spm_id_from=')
 }
 
+/**
+ * 检查页面的 bewly插件兼容性
+ * @returns {Promise<void>|null}
+ */
+const check_BEWLYPage_compatibility = async () => {
+    const {state} = await elUtil.findElement('#bewly', {interval: 200, timeout: 5000})
+    if (state) {
+        if (!globalValue.compatibleBEWLYBEWLY) {
+            eventEmitter.send('el-alert', '检测到使用BewlyBewly插件但未开启兼容选项，需要启用相关兼容选项才可正常使用')
+        }
+    } else {
+        //如果页面中没有 bewly插件标志，且开启了兼容选项
+        if (globalValue.compatibleBEWLYBEWLY) {
+            eventEmitter.send('el-alert', '检测到未使用BewlyBewly插件却开启了兼容选项，请关闭兼容选项或启用bilibili_gate脚本后再启用相关兼容选项')
+        }
+    }
+}
 
 /**
  * 获取视频列表
@@ -52,7 +70,7 @@ const getVideoList = async () => {
         let nDuration = el.querySelector('[class*="group-hover:opacity-0"]')?.textContent.trim() || null;
         nDuration = sFormatUtil.timeStringToSeconds(nDuration)
         const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href;
-        const bv=elUtil.getUrlBV(videoUrl)
+        const bv = elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector('[class="group/desc"]')
         list.push({
             title,
@@ -88,7 +106,6 @@ const getRightTabs = async () => {
     return list;
 }
 
-
 //获取历史记录中的视频列表数据
 const getHistoryVideoDataList = async () => {
     const beEL = await getBewlyEl()
@@ -99,7 +116,7 @@ const getHistoryVideoDataList = async () => {
         const videoUrlEl = titleEl.parentElement;
         const userEl = videoUrlEl.nextElementSibling;
         const videoUrl = videoUrlEl.href;
-        const bv=elUtil.getUrlBV(videoUrl)
+        const bv = elUtil.getUrlBV(videoUrl)
         const userUrl = userEl.href
         const uid = elUtil.getUrlUID(userUrl)
         const name = userEl.textContent.trim()
@@ -123,7 +140,6 @@ const getHistoryVideoDataList = async () => {
     }
     return list
 }
-
 
 //执行屏蔽历史记录中的视频
 const startShieldingHistoryVideoList = async () => {
@@ -229,10 +245,8 @@ const getHomeTopTabs = async () => {
 //排除执行的选项卡
 const excludeTabNames = ['正在关注', '订阅剧集', '直播']
 
-
 //排行左侧选项卡栏，排除的选项卡
 const excludeRankingLeftTabNames = ['番剧', '综艺', '电视剧', '纪录片', '中国动画']
-
 
 //添加顶部选项卡栏的监听器
 const homeTopTabsInsertListener = () => {
@@ -339,4 +353,5 @@ const startRun = async (url) => {
 export default {
     startRun,
     isBEWLYPage,
+    check_BEWLYPage_compatibility
 }

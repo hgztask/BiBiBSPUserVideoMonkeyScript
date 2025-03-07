@@ -23,7 +23,7 @@ const check_bilibili_gate_compatibility = async () => {
     const {state} = await elUtil.findElement('.bilibili-gate-root', {interval: 300, timeout: 5000})
     if (state) {
         if (!globalValue.adaptationBAppCommerce) {
-            eventEmitter.send('el-alert', "检测到使用bilibili_gate脚本但未开启兼容，需要启用相关兼容选项才可正常使用");
+            eventEmitter.send('el-alert', "检测到使用bilibili_gate脚本但未开启兼容选项，需要启用相关兼容选项才可正常使用");
         } else {
             eventEmitter.send('el-notify', {
                 title: "tip",

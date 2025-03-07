@@ -34,11 +34,11 @@ const staticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url)) {
         if (globalValue.compatibleBEWLYBEWLY) {
             compatibleBewlyBewly.startRun(url)
-            return;
         }
     }
     if (bilibiliHome.isHome(url, title)) {
         BLBLGate.check_bilibili_gate_compatibility()
+        compatibleBewlyBewly.check_BEWLYPage_compatibility()
         if (globalValue.compatibleBEWLYBEWLY) {
             return;
         }
