@@ -14,6 +14,7 @@ import messagePage from "./pagesModel/message/messagePage.js";
 import topInput from "./pagesModel/search/topInput.js";
 import space from "./pagesModel/space/space.js";
 import {eventEmitter} from "./model/EventEmitter.js";
+import BLBLGate from "./pagesModel/home/BLBLGate.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -36,7 +37,7 @@ const staticRoute = (title, url) => {
         }
     }
     if (bilibiliHome.isHome(url, title)) {
-        bilibiliHome.check_bilibili_gate_compatibility()
+        BLBLGate.check_bilibili_gate_compatibility()
         if (localMKData.isCompatible_BEWLY_BEWLY()) {
             return;
         }

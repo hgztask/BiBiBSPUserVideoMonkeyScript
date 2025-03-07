@@ -143,8 +143,8 @@ window.addEventListener('load', () => {
                 this.drawer = !tempBool;
             })
 
-            eventEmitter.on('el-notify', (...options) => {
-                this.$notify(...options)
+            eventEmitter.on('el-notify', (options) => {
+                this.$notify(options)
             })
             eventEmitter.on('el-msg', (...options) => {
                 this.$message(...options)

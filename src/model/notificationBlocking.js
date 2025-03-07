@@ -14,6 +14,7 @@ import liveHome from "../pagesModel/live/liveHome.js";
 import oldHistory from "../pagesModel/history/oldHistory.js";
 import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
+import BLBLGate from "../pagesModel/home/BLBLGate.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -38,7 +39,7 @@ eventEmitter.on('通知屏蔽', () => {
             return;
         }
         if (globalValue.adaptationBAppCommerce) {
-            bilibiliHome.startIntervalShieldingGateVideoList();
+            BLBLGate.startIntervalShieldingGateVideoList();
         }
         bilibiliHome.startDebounceShieldingHomeVideoList();
     }
