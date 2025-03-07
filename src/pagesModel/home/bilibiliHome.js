@@ -1,9 +1,9 @@
 import elUtil from "../../utils/elUtil.js";
 import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
-import localMKData from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import globalValue from "../../data/globalValue.js";
 
 
 // 判断是否是首页
@@ -16,10 +16,6 @@ const isHome = (url, title) => {
     }
     return url.includes('https://www.bilibili.com/?spm_id_from=')
 }
-
-// 是否适配BAppcommerce脚本
-const adaptationBAppCommerce = localMKData.getAdaptationBAppCommerce();
-
 
 // 删除下载提示
 const deDesktopDownloadTipEl = async () => {
@@ -187,6 +183,30 @@ const startShieldingGateVideoList = async () => {
     }
 }
 
+
+/**
+ * 检查页面的 bilibili-gate 兼容性
+ */
+const check_bilibili_gate_compatibility = async () => {
+    const {state} = await elUtil.findElement('.bilibili-gate-root', {interval: 300, timeout: 5000})
+    if (state) {
+        if (!globalValue.adaptationBAppCommerce) {
+            eventEmitter.send('el-alert', "检测到使用bilibili_gate脚本但未开启兼容，需要启用相关兼容选项才可正常使用");
+        } else {
+            eventEmitter.send('el-notify', {
+                title: "tip",
+                message: '启用兼容bilibili-gate脚本',
+                position: 'bottom-right',
+            })
+        }
+        return
+    }
+    if (globalValue.adaptationBAppCommerce) {
+        eventEmitter.send('el-alert', "检测到未使用bilibili_gate脚本却开启了兼容选项，请关闭兼容选项或启用bilibili_gate脚本后再启用相关兼容选项");
+    }
+}
+
+
 /**
  * 每秒检测是否需要屏蔽首页中视频列表(适配BAppcommerce脚本)
  */
@@ -204,7 +224,7 @@ const startIntervalShieldingGateVideoList = () => {
  */
 const startClearExcessContentList = () => {
     //如果开启适配BAppcommerce脚本，则不执行此功能
-    if (adaptationBAppCommerce) return;
+    if (globalValue.adaptationBAppCommerce) return;
     //每秒清理一次
     setInterval(() => {
         const otherElList = document.querySelectorAll(".floor-single-card");
@@ -258,7 +278,7 @@ const startDebounceShieldingHomeVideoList = defUtil.debounce(startShieldingHomeV
  */
 const scrollMouseUpAndDown = async () => {
     //如果开启适配BAppcommerce脚本，则不执行此功能
-    if (adaptationBAppCommerce) return;
+    if (globalValue.adaptationBAppCommerce) return;
     await defUtil.smoothScroll(false, 100);
     return defUtil.smoothScroll(true, 600);
 }
@@ -271,5 +291,6 @@ export default {
     startDebounceShieldingHomeVideoList,
     scrollMouseUpAndDown,
     deDesktopDownloadTipEl,
-    startIntervalShieldingGateVideoList
+    startIntervalShieldingGateVideoList,
+    check_bilibili_gate_compatibility
 }

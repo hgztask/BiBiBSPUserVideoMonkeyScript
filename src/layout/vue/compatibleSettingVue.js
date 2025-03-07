@@ -1,4 +1,5 @@
 import localMKData from "../../data/localMKData.js";
+import globalValue from "../../data/globalValue.js";
 
 // 兼容性设置组件
 export const compatible_setting_vue = {
@@ -27,7 +28,7 @@ export const compatible_setting_vue = {
     data() {
         return {
             //是否适配bilibili-app-commerce脚本(Bilibili-Gate脚本)
-            adaptationBAppRecommend: localMKData.getAdaptationBAppCommerce(),
+            adaptationBAppRecommend: globalValue.adaptationBAppCommerce,
             //是否兼容BewlyBewly插件
             compatible_BEWLY_BEWLY: localMKData.isCompatible_BEWLY_BEWLY(),
             //是否全部兼容新版评论区

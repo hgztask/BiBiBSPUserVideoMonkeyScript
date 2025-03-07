@@ -21,7 +21,7 @@ const setTopInputPlaceholder = async () => {
     }
     const targetInput = await elUtil.findElement('.nav-search-input')
     targetInput.placeholder = placeholder
-    eventEmitter.send('el-notification', {
+    eventEmitter.send('el-notify', {
         title: "tip",
         message: '已恢复顶部搜索框提示内容',
         position: 'bottom-right',

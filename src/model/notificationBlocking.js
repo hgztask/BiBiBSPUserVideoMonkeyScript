@@ -13,14 +13,13 @@ import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import liveHome from "../pagesModel/live/liveHome.js";
 import oldHistory from "../pagesModel/history/oldHistory.js";
 import partition from "../pagesModel/partition.js";
+import globalValue from "../data/globalValue.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 
 const compatibleBEWLYBEWLY = localMKData.isCompatible_BEWLY_BEWLY();
 
-// 是否适配bilibili-app-commerce脚本(Bilibili-Gate脚本)
-const adaptationBAppCommerce = localMKData.getAdaptationBAppCommerce();
 
 
 /**
@@ -38,7 +37,7 @@ eventEmitter.on('通知屏蔽', () => {
         if (compatibleBEWLYBEWLY) {
             return;
         }
-        if (adaptationBAppCommerce) {
+        if (globalValue.adaptationBAppCommerce) {
             bilibiliHome.startIntervalShieldingGateVideoList();
         }
         bilibiliHome.startDebounceShieldingHomeVideoList();

@@ -18,7 +18,7 @@ const saveTable = (tableData) => {
     }
     if (newList.length === 0) return;
     gmUtil.setData('time_range_masking', newList)
-    eventEmitter.send('el-notification', {
+    eventEmitter.send('el-notify', {
         title: '保存成功',
         message: '已保存该时间范围屏蔽',
         type: 'success'

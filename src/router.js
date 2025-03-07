@@ -36,6 +36,7 @@ const staticRoute = (title, url) => {
         }
     }
     if (bilibiliHome.isHome(url, title)) {
+        bilibiliHome.check_bilibili_gate_compatibility()
         if (localMKData.isCompatible_BEWLY_BEWLY()) {
             return;
         }
