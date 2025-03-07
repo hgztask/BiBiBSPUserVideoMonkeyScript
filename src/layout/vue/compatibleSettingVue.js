@@ -30,7 +30,7 @@ export const compatible_setting_vue = {
             //是否适配bilibili-app-commerce脚本(Bilibili-Gate脚本)
             adaptationBAppRecommend: globalValue.adaptationBAppCommerce,
             //是否兼容BewlyBewly插件
-            compatible_BEWLY_BEWLY: localMKData.isCompatible_BEWLY_BEWLY(),
+            compatible_BEWLY_BEWLY: globalValue.compatibleBEWLYBEWLY,
             //是否全部兼容新版评论区
             discardOldCommentAreasV: localMKData.isDiscardOldCommentAreas()
         }

@@ -1,9 +1,9 @@
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
-import localMKData from "../../data/localMKData.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
 import defUtil from "../../utils/defUtil.js";
+import globalValue from "../../data/globalValue.js";
 
 
 /**
@@ -12,7 +12,7 @@ import defUtil from "../../utils/defUtil.js";
  */
 const setTopInputPlaceholder = async () => {
     // 是否兼容BewlyBewly插件，如果开启之后，不处理
-    if (localMKData.isCompatible_BEWLY_BEWLY()) {
+    if (globalValue.compatibleBEWLYBEWLY) {
         return
     }
     const placeholder = valueCache.get('topInputPlaceholder');
@@ -35,7 +35,7 @@ const setTopInputPlaceholder = async () => {
  */
 const processTopInputContent = async () => {
     // 是否兼容BewlyBewly插件，如果开启之后，不处理
-    if (localMKData.isCompatible_BEWLY_BEWLY()) {
+    if (globalValue.compatibleBEWLYBEWLY) {
         return
     }
     if (!gmUtil.getData('isClearTopInputTipContent', false)) {

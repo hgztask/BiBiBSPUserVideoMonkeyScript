@@ -17,6 +17,8 @@ const update_log_url = 'https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj'
 // 是否适配bilibili-app-commerce脚本(Bilibili-Gate脚本)
 const adaptationBAppCommerce = localMKData.getAdaptationBAppCommerce();
 
+const compatibleBEWLYBEWLY = localMKData.isCompatible_BEWLY_BEWLY();
+
 //默认返回值-不符合屏蔽条件-{state: false}
 export const returnTempVal = {state: false}
 
@@ -26,5 +28,6 @@ export default {
     b_url,
     common_question_url,
     update_log_url,
-    adaptationBAppCommerce
+    adaptationBAppCommerce,
+    compatibleBEWLYBEWLY
 }

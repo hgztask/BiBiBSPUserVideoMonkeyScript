@@ -6,12 +6,11 @@ import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import liveHome from "../pagesModel/live/liveHome.js";
 import localMKData from "../data/localMKData.js";
 import partition from "../pagesModel/partition.js";
+import globalValue from "../data/globalValue.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 
-// 是否兼容BewlyBewly插件
-const compatible_BEWLY_BEWLY = localMKData.isCompatible_BEWLY_BEWLY()
 /**
  * 监听网络请求
  * @param url {string} 请求的url
@@ -31,7 +30,7 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
         }
     }
     if (url.startsWith("https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?web_location=")) {
-        if (compatible_BEWLY_BEWLY) {
+        if (globalValue.compatibleBEWLYBEWLY) {
             return;
         }
         bilibiliHome.startDebounceShieldingChangeVideoList();

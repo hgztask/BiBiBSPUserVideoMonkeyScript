@@ -15,6 +15,7 @@ import topInput from "./pagesModel/search/topInput.js";
 import space from "./pagesModel/space/space.js";
 import {eventEmitter} from "./model/EventEmitter.js";
 import BLBLGate from "./pagesModel/home/BLBLGate.js";
+import globalValue from "./data/globalValue.js";
 
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
@@ -31,14 +32,14 @@ const staticRoute = (title, url) => {
     hotSearch.startShieldingHotList()
     eventEmitter.send('通知屏蔽')
     if (compatibleBewlyBewly.isBEWLYPage(url)) {
-        if (localMKData.isCompatible_BEWLY_BEWLY()) {
+        if (globalValue.compatibleBEWLYBEWLY) {
             compatibleBewlyBewly.startRun(url)
             return;
         }
     }
     if (bilibiliHome.isHome(url, title)) {
         BLBLGate.check_bilibili_gate_compatibility()
-        if (localMKData.isCompatible_BEWLY_BEWLY()) {
+        if (globalValue.compatibleBEWLYBEWLY) {
             return;
         }
         bilibiliHome.scrollMouseUpAndDown().then(() => bilibiliHome.startDebounceShieldingChangeVideoList());

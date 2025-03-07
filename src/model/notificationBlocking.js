@@ -19,10 +19,6 @@ import BLBLGate from "../pagesModel/home/BLBLGate.js";
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 
-const compatibleBEWLYBEWLY = localMKData.isCompatible_BEWLY_BEWLY();
-
-
-
 /**
  * 监听通知屏蔽事件
  * 目前作用域添加规则成功之后通知执行
@@ -35,7 +31,7 @@ eventEmitter.on('通知屏蔽', () => {
         searchModel.startShieldingVideoList()
     }
     if (bilibiliHome.isHome(url, title)) {
-        if (compatibleBEWLYBEWLY) {
+        if (globalValue.compatibleBEWLYBEWLY) {
             return;
         }
         if (globalValue.adaptationBAppCommerce) {
