@@ -28,11 +28,11 @@ export default {
           <el-tab-pane label="基础规则">
             <basic_rules_vue/>
           </el-tab-pane>
-          <el-tab-pane label="其他规则">
-            <other_parameter_filter/>
-          </el-tab-pane>
           <el-tab-pane label="高级规则" lazy>
             <high_level_rule_vue/>
+          </el-tab-pane>
+          <el-tab-pane label="其他规则">
+            <other_parameter_filter/>
           </el-tab-pane>
           <el-tab-pane label="指标屏蔽" lazy>
             <video_metrics_filter_vue/>

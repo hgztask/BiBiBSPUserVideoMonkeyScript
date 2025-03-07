@@ -1,52 +1,55 @@
 import gmUtil from "../../../utils/gmUtil.js";
 import ruleKeyListData from "../../../data/ruleKeyListData.js";
+import {comment_word_limit_vue} from "../../commentWordLimitVue.js";
 
 /**
  * 其他规则组件
  */
 export default {
+    components: {comment_word_limit_vue},
     template: `
       <div>
-      <div style="display: flex">
-        <div style="width: 70vw">
-          <el-card>
-            <template #header>
-              <span>使用说明</span>
-            </template>
-            <ol>
-              <li>如设置时长相关单位为秒</li>
-              <li>如设置播放量和弹幕量相关单位为个</li>
-              <li>设置最小播放量则小于该值的视频会屏蔽</li>
-              <li>设置最大播放量则大于该值的视频会屏蔽</li>
-              <li>设置最小弹幕量则小于该值的视频会屏蔽</li>
-              <li>设置最大弹幕量则大于该值的视频会屏蔽</li>
-              <li>设置最小时长则小于该值的视频会屏蔽</li>
-              <li>设置最大时长则大于该值的视频会屏蔽</li>
-              <li>设置最小用户等级则小于该值的会屏蔽，低于该值的会屏蔽掉</li>
-              <li>设置最大用户等级则大于该值的会屏蔽，高于该值的会屏蔽掉</li>
-              <li>取消相关限制条件则不做限制处理</li>
-              <li>右侧信息关键条件-1则为未做任何限制处理</li>
-              <li>最后因为设置限制条件冲突或限制太多，视频未能限制的情况下，请按需设置限制条件</li>
-            </ol>
-          </el-card>
-          <input gz_type type="number" :min="inputMin" :max="inputMax" v-model="num">
-          <el-select v-model="selectValue" filterable>
-            <el-option :value="item.value" v-for="item in selectList" :label="item.name"></el-option>
-          </el-select>
+        <div style="display: flex">
+          <div style="width: 70vw">
+            <el-card>
+              <template #header>
+                <span>使用说明</span>
+              </template>
+              <ol>
+                <li>如设置时长相关单位为秒</li>
+                <li>如设置播放量和弹幕量相关单位为个</li>
+                <li>设置最小播放量则小于该值的视频会屏蔽</li>
+                <li>设置最大播放量则大于该值的视频会屏蔽</li>
+                <li>设置最小弹幕量则小于该值的视频会屏蔽</li>
+                <li>设置最大弹幕量则大于该值的视频会屏蔽</li>
+                <li>设置最小时长则小于该值的视频会屏蔽</li>
+                <li>设置最大时长则大于该值的视频会屏蔽</li>
+                <li>设置最小用户等级则小于该值的会屏蔽，低于该值的会屏蔽掉</li>
+                <li>设置最大用户等级则大于该值的会屏蔽，高于该值的会屏蔽掉</li>
+                <li>取消相关限制条件则不做限制处理</li>
+                <li>右侧信息关键条件-1则为未做任何限制处理</li>
+                <li>最后因为设置限制条件冲突或限制太多，视频未能限制的情况下，请按需设置限制条件</li>
+              </ol>
+            </el-card>
+            <input gz_type type="number" :min="inputMin" :max="inputMax" v-model="num">
+            <el-select v-model="selectValue" filterable>
+              <el-option :value="item.value" v-for="item in selectList" :label="item.name"></el-option>
+            </el-select>
+            <div>
+              <el-button @click="okVideoSelectBut">设置</el-button>
+              <el-button @click="cancelBut">取消</el-button>
+              <el-button @click="allCancelBut">全部取消</el-button>
+            </div>
+          </div>
           <div>
-            <el-button @click="okVideoSelectBut">设置</el-button>
-            <el-button @click="cancelBut">取消</el-button>
-            <el-button @click="allCancelBut">全部取消</el-button>
+            <el-button @click="updateInfoBut">刷新</el-button>
+            <div v-for="item in selectList" style="padding: 5px">
+              {{ item.name }}{{ item.defVal }}
+              {{ item.name.includes('时长') ? '秒' : '' }}
+            </div>
           </div>
         </div>
-        <div>
-          <el-button @click="updateInfoBut">刷新</el-button>
-          <div v-for="item in selectList" style="padding: 5px">
-            {{ item.name }}{{ item.defVal }}
-            {{ item.name.includes('时长') ? '秒' : '' }}
-          </div>
-        </div>
-      </div>
+        <comment_word_limit_vue/>
       </div>`,
     data() {
         return {

@@ -1,6 +1,21 @@
 import {eventEmitter} from "../EventEmitter.js";
 import {blockByLevel, blockComment, blockUserUidAndName} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
+import localMKData from "../../data/localMKData.js";
+
+
+// 根据评论字数限制
+const blockCommentWordLimit = (content) => {
+    const commentWordLimit = localMKData.getCommentWordLimitVal();
+    if (commentWordLimit.length < 3) {
+        return returnTempVal
+    }
+    if (content.length > commentWordLimit) {
+        return {state: true, type: '屏蔽字数限制', matching: `字数限制为${commentWordLimit}`}
+    }
+    return returnTempVal;
+}
+
 
 /**
  * 屏蔽单个评论项
@@ -23,7 +38,7 @@ const shieldingComment = (commentsData) => {
     if (level !== -1) {
         return blockByLevel(level);
     }
-    return returnTempVal;
+    return blockCommentWordLimit(content);
 }
 
 
