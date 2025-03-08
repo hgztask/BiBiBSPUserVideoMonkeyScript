@@ -343,7 +343,6 @@ const startRun = async (url) => {
         homeTopTabsInsertListener()
     }
     if (page === 'History') {
-
         startShieldingHistoryVideo().start()
         searchBoxInsertListener()
     }

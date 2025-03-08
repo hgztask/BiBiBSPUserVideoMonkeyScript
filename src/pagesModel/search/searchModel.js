@@ -129,7 +129,7 @@ const getTabComprehensiveSortedVideoList = () => {
  * @returns {Promise<[{}]>}
  */
 const getOtherVideoList = () => {
-    return getVideoList(".search-page.search-page-video>.video-list.row>div");
+    return getVideoList(".search-page.search-page-video>.video-list.row>div:not(:empty)");
 }
 
 //处理搜索页综合选项卡中的综合排序视频列表
