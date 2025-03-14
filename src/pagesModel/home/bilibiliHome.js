@@ -146,12 +146,19 @@ const startClearExcessContentList = () => {
         const otherElList = document.querySelectorAll(".floor-single-card");
         const liveList = document.querySelectorAll(".bili-live-card")
         const elList = [...otherElList, ...liveList]
-        const rightAdEl = document.querySelector('.adcard');
+        //右侧大卡片的广告
+        let rightAdEl = document.querySelector('.adcard');
         if (rightAdEl) {
-            rightAdEl.remove();
+            elList.push(rightAdEl)
+        }
+        //右侧小卡片的广告
+        rightAdEl = document.querySelector('.fixed-card');
+        if (rightAdEl) {
+            elList.push(rightAdEl)
         }
         for (let el of elList) {
             el?.remove();
+            console.log("已清理首页视频列表中多余的内容，直播选项卡，右侧大卡片广告，右侧小卡片广告等", el)
         }
     }, 1000);
     console.log("已启动每秒清理首页视频列表中多余的内容");

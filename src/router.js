@@ -27,7 +27,6 @@ const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
  */
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
-    topInput.processTopInputContent()
     if (bilibiliHome.isHome(url, title)) {
         BLBLGate.check_bilibili_gate_compatibility()
         compatibleBewlyBewly.check_BEWLYPage_compatibility()
@@ -37,6 +36,7 @@ const staticRoute = (title, url) => {
         bilibiliHome.deDesktopDownloadTipEl();
     }
     if (bOnlyTheHomepageIsBlocked) return;
+    topInput.processTopInputContent()
     hotSearch.startShieldingHotList()
     eventEmitter.send('通知屏蔽')
     if (compatibleBewlyBewly.isBEWLYPage(url)) {
