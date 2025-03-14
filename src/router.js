@@ -28,6 +28,14 @@ const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
     topInput.processTopInputContent()
+    if (bilibiliHome.isHome(url, title)) {
+        BLBLGate.check_bilibili_gate_compatibility()
+        compatibleBewlyBewly.check_BEWLYPage_compatibility()
+        if (globalValue.compatibleBEWLYBEWLY) return;
+        bilibiliHome.scrollMouseUpAndDown().then(() => bilibiliHome.startDebounceShieldingChangeVideoList());
+        bilibiliHome.startClearExcessContentList();
+        bilibiliHome.deDesktopDownloadTipEl();
+    }
     if (bOnlyTheHomepageIsBlocked) return;
     hotSearch.startShieldingHotList()
     eventEmitter.send('通知屏蔽')
@@ -35,16 +43,6 @@ const staticRoute = (title, url) => {
         if (globalValue.compatibleBEWLYBEWLY) {
             compatibleBewlyBewly.startRun(url)
         }
-    }
-    if (bilibiliHome.isHome(url, title)) {
-        BLBLGate.check_bilibili_gate_compatibility()
-        compatibleBewlyBewly.check_BEWLYPage_compatibility()
-        if (globalValue.compatibleBEWLYBEWLY) {
-            return;
-        }
-        bilibiliHome.scrollMouseUpAndDown().then(() => bilibiliHome.startDebounceShieldingChangeVideoList());
-        bilibiliHome.startClearExcessContentList();
-        bilibiliHome.deDesktopDownloadTipEl();
     }
     if (searchModel.isSearch(url)) {
         searchModel.searchTopTabsIWrapperInstallListener()

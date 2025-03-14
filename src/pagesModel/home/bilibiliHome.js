@@ -146,6 +146,10 @@ const startClearExcessContentList = () => {
         const otherElList = document.querySelectorAll(".floor-single-card");
         const liveList = document.querySelectorAll(".bili-live-card")
         const elList = [...otherElList, ...liveList]
+        const rightAdEl = document.querySelector('.adcard');
+        if (rightAdEl) {
+            rightAdEl.remove();
+        }
         for (let el of elList) {
             el?.remove();
         }
