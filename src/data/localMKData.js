@@ -344,6 +344,22 @@ const isDelPlayerEndingPanel = () => {
     return gmUtil.getData('is_del_player_ending_panel', false)
 }
 
+// 是否开启开发者模式
+export const isOpenDev = () => {
+    return gmUtil.getData('open-dev', false)
+}
+
+// 设置是否开启开发者模式
+export const setOpenDev = (bool) => {
+    gmUtil.setData('open-dev', bool)
+}
+
+// 获取评论字数限制
+const getCommentWordLimitVal = () => {
+    return gmUtil.getData('comment_word_limit', -1)
+}
+
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
@@ -394,5 +410,6 @@ export default {
     isUidRangeMaskingStatus,
     isTimeRangeMaskingStatus,
     isDelPlayerEndingPanel,
-    getTimeRangeMaskingArr
+    getTimeRangeMaskingArr,
+    getCommentWordLimitVal
 }

@@ -1,6 +1,5 @@
-import localMKData from "../../data/localMKData.js";
+import localMKData, {setOpenDev} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 //面板设置组件
 export const panel_settings_vue = {
@@ -81,12 +80,12 @@ export const panel_settings_vue = {
         },
         changeDevToolsInput() {
             if (this.devToolsInputVal === 'show-dev') {
-                gmUtil.setData('open-dev', true)
+                setOpenDev(true)
                 eventEmitter.send('debugger-dev-show', true)
                 this.devToolsInputVal = ''
             }
             if (this.devToolsInputVal === 'stop-dev') {
-                gmUtil.setData('open-dev', false)
+                setOpenDev(false)
                 eventEmitter.send('debugger-dev-show', false)
                 this.devToolsInputVal = ''
             }

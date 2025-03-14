@@ -18,6 +18,8 @@ import {about_and_feedback_vue} from "../vue/aboutAndFeedbackVue.js";
 import {show_img_dialog_vue} from "../eventEmitter_components/showImgDialogVue.js";
 import {sheet_dialog_vue} from "../components/sheetDialogVue.js";
 import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
+import {bullet_word_management_vue} from "../bulletWordManagementVue.js";
+import {isOpenDev} from "../../data/localMKData.js";
 
 const mainLayoutEl = document.createElement('div');
 
@@ -63,6 +65,9 @@ window.addEventListener('load', () => {
                 <el-tab-pane label="页面处理" name="页面处理" lazy>
                   <page_processing_vue/>
                 </el-tab-pane>
+                <el-tab-pane v-if="debug_panel_show" label="弹幕词管理" name="弹幕词管理" lazy>
+                  <bullet_word_management_vue/>
+                </el-tab-pane>
                 <el-tab-pane label="输出信息" name="输出信息" lazy>
                   <output_information_vue/>
                 </el-tab-pane>
@@ -98,13 +103,14 @@ window.addEventListener('load', () => {
             page_processing_vue,
             about_and_feedback_vue,
             show_img_dialog_vue,
-            sheet_dialog_vue
+            sheet_dialog_vue,
+            bullet_word_management_vue
         },
         data() {
             return {
                 drawer: false,
                 tabsActiveName: '规则管理',
-                debug_panel_show: gmUtil.getData('open-dev', false),
+                debug_panel_show: isOpenDev(),
                 sheet_dialog: {
                     show: false,
                     list: [],

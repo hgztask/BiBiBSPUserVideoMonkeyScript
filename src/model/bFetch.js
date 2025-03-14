@@ -13,6 +13,36 @@ const apiStyle = [
     },
 ]
 
+// 请求获取弹幕屏蔽词
+const fetchGetBarrageBlockingWords = () => {
+    return new Promise((resolve, reject) => {
+        fetch('https://api.bilibili.com/x/dm/filter/user', {
+            credentials: 'include'
+        })
+            .then(response => response.json())
+            .then(({code, data, message}) => {
+                if (code !== 0) {
+                    reject({state: false, msg: `请求相应内容失败：msg=${message} code=` + code})
+                    return
+                }
+                /**
+                 * type类型,0为文本，1为正则，2为屏蔽用户。
+                 * 但是2的内容不是uid或者用户名，目前不清楚实际内容用途
+                 */
+                const {rule} = data
+                const list = []
+                for (let r of rule) {
+                    const {type, filter, ctime} = r
+                    if (type === 2) {
+                        continue
+                    }
+                    list.push({type, filter, ctime})
+                }
+                resolve({state: true, data, list, msg: '获取成功'})
+            })
+    })
+}
+
 /**
  * 发起网络请求获取视频信息
  * 已测试data.View.is_view_self属性【是否为自己上传的视频】值对不上实际情况
@@ -193,5 +223,6 @@ const fetchGetVideoInfo = async (bvId) => {
 }
 
 export default {
-    fetchGetVideoInfo
+    fetchGetVideoInfo,
+    fetchGetBarrageBlockingWords
 }

@@ -32,9 +32,11 @@ export const debugger_management_vue = {
             <el-card shadow="never">
               <template #header><span>测试</span></template>
               <el-button @click="demoBut">测试网络请求</el-button>
+              <el-button @click="fetchGetVideoInfoBut">请求获取视频信息</el-button>
               <el-button @click="printValueCacheBut">打印valueCache值</el-button>
               <el-button @click="printEventBut">打印事件中心值</el-button>
               <el-button @click="printReqIntervalQueueVal">打印requestIntervalQueue值</el-button>
+
               <el-divider/>
               <el-switch v-model="bAfterLoadingThePageOpenMainPanel" active-text="加载完页面打开主面板"/>
             </el-card>
@@ -55,6 +57,20 @@ export const debugger_management_vue = {
             bFetch.fetchGetVideoInfo('BV152cWeXEhW').then(data => {
                 console.log(data);
                 debugger
+            })
+        },
+        fetchGetVideoInfoBut() {
+            this.$prompt('请输入视频bv号', {
+                title: '请输入视频bv号',
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                inputPattern: /^BV[A-Za-z0-9]{10}$/,
+                inputErrorMessage: '请输入正确的视频bv号'
+            }).then(({value}) => {
+                bFetch.fetchGetVideoInfo(value).then(data => {
+                    console.log(data);
+                    debugger
+                })
             })
         },
         printEventBut() {
