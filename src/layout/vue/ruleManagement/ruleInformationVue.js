@@ -30,16 +30,20 @@ export default {
         }
     },
     methods: {
-        // 刷新规则信息
-        refreshInfoBut() {
+        refreshInfo(isTip = true) {
             for (let x of this.ruleInfoArr) {
                 x.len = gmUtil.getData(x.type, []).length;
             }
+            if (!isTip) return;
             this.$notify({
                 title: 'tip',
                 message: '刷新规则信息成功',
                 type: 'success',
             })
+        },
+        // 刷新规则信息
+        refreshInfoBut() {
+            this.refreshInfo()
         },
     },
     created() {
@@ -51,8 +55,8 @@ export default {
             })
         }
         this.refreshInfoBut();
-        eventEmitter.on('刷新规则信息', () => {
-            this.refreshInfoBut();
+        eventEmitter.on('刷新规则信息', (isTip = true) => {
+            this.refreshInfo(isTip);
         })
     }
 };
