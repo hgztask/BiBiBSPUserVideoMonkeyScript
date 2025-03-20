@@ -4,23 +4,26 @@ import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import gmUtil from "../../utils/gmUtil.js";
 import shielding, {
-    blockAvatarPendant,
-    blockBasedVideoTag,
-    blockByLevel,
-    blockGender,
-    blockSeniorMember,
-    blockSignature,
-    blockTimeRangeMasking,
-    blockUserUidAndName,
-    blockUserVip,
-    blockVerticalVideo,
-    blockVideoCoinLikesRatioRate,
-    blockVideoCopyright,
-    blockVideoDesc,
-    blockVideoInteractiveRate,
-    blockVideoLikeRate,
-    blockVideoTeamMember,
-    blockVideoTripleRate
+    asyncBlockAvatarPendant,
+    asyncBlockBasedVideoTag,
+    asyncBlockByLevel,
+    asyncBlockChargeVideo,
+    asyncBlockFollowedVideo,
+    asyncBlockGender,
+    asyncBlockSeniorMember,
+    asyncBlockSignature,
+    asyncBlockTimeRangeMasking,
+    asyncBlockUserUidAndName,
+    asyncBlockUserVip,
+    asyncBlockVerticalVideo,
+    asyncBlockVideoCoinLikesRatioRate,
+    asyncBlockVideoCopyright,
+    asyncBlockVideoDesc,
+    asyncBlockVideoInteractiveRate,
+    asyncBlockVideoLikeRate,
+    asyncBlockVideoTeamMember,
+    asyncBlockVideoTripleRate,
+    blockUserUidAndName
 } from "./shielding.js";
 import {videoInfoCache} from "../cache/videoInfoCache.js";
 import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
@@ -31,7 +34,7 @@ import arrUtil from "../../utils/arrUtil.js";
 
 
 // 检查视频tag执行多重tag检查屏蔽
-const blockVideoTagPreciseCombination = async (tags) => {
+const asyncBlockVideoTagPreciseCombination = async (tags) => {
     if (tags.length <= 0) return;
     const mkArrTags = ruleKeyListData.getVideoTagPreciseCombination();
     for (let mkTags of mkArrTags) {
@@ -42,7 +45,6 @@ const blockVideoTagPreciseCombination = async (tags) => {
         })
     }
 }
-
 
 /**
  * 屏蔽视频
@@ -115,47 +117,42 @@ const shieldingVideo = (videoData) => {
  */
 const shieldingVideoDecorated = (videoData, method = "remove") => {
     const {el} = videoData;
-    if (el.style.display === "none") {
-        return true
-    }
+    if (el.style.display === "none") return true;
     const {state, type, matching = null} = shieldingVideo(videoData);
     if (state) {
-        if (method === "remove") {
-            el?.remove();
-        } else {
-            el.style.display = "none";
-        }
-        /**
-         * 如果在搜索页面里使用Qmsg库相关的方法，会暂停一些setTimeOut函数对应的事件，这个问题后续排查
-         * 不知为什么这里如果使用Qmsg库相关的方法，会暂停一些setTimeOut函数对应的事件
-         */
-        eventEmitter.send('屏蔽视频信息', type, matching, videoData)
+        eventEmitter.send('event-屏蔽视频元素', {res: {state, type, matching}, method, videoData})
         return true;
     }
-    if (localMKData.isDisableNetRequestsBvVideoInfo()) {
-        return state
-    }
-    shieldingOtherVideoParameter(videoData).then(res => {
-        if (!res) {
-            return
-        }
-        const {type, matching} = res
-        if (method === "remove") {
-            el.remove();
-        } else {
-            el.style.display = "none";
-        }
-        eventEmitter.send('屏蔽视频信息', type, matching, videoData)
-    })
+    if (localMKData.isDisableNetRequestsBvVideoInfo()) return state;
+    shieldingOtherVideoParameter(videoData, method)
     return state;
 }
 
 /**
+ * 屏蔽视频元素回调事件
+ * 回调参数：
+ * res 结果对象，其中包括状态state，和消息msg
+ * method 屏蔽方式，remove为直接删除，hide为隐藏，默认为remove
+ */
+eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}) => {
+    if (!res) return
+    const {type, matching} = res
+    const {el} = videoData
+    if (method === "remove") {
+        el?.remove();
+    } else {
+        el.style.display = "none";
+    }
+    eventEmitter.send('屏蔽视频信息', type, matching, videoData)
+})
+
+/**
  * 检查其他视频参数执行屏蔽
  * @param videoData {{}} 视频数据
- * @returns {Promise<{state:boolean,type:string,matching:string}|any>}
+ * @param method {string} 屏蔽方式，remove为直接删除，hide为隐藏，默认为remove
+ * @returns null
  */
-const shieldingOtherVideoParameter = async (videoData) => {
+const shieldingOtherVideoParameter = async (videoData, method) => {
     const {bv = '-1'} = videoData
     //如果没有bv号参数，则不执行
     if (bv === '-1') return
@@ -180,75 +177,34 @@ const shieldingOtherVideoParameter = async (videoData) => {
         result = find
     }
     const {tags = [], userInfo, videoInfo} = result
-    //屏蔽已关注视频
-    if (videoInfo?.following && localMKData.isBlockFollowed()) {
-        return {state: true, type: '已关注'}
-    }
-    const isUpOwnerExclusive = videoInfo?.is_upower_exclusive;
-    if (isUpOwnerExclusive && localMKData.isUpOwnerExclusive()) {
-        return {state: true, type: '充电专属视频'}
-    }
-    /**
-     * @type {state:boolean,type:string,matching:string|any}
-     */
-    let returnValue;
-    //开始验证
-    //当tags长度不为0时，执行根据tags屏蔽视频
-    if (tags.length !== 0) {
-        returnValue = blockBasedVideoTag(tags);
-        if (returnValue.state) {
-            return returnValue
-        }
-    }
-    //检查用户等级，当前用户等级
-    const currentLevel = userInfo?.current_level || -1;
-    returnValue = blockByLevel(currentLevel);
-    if (returnValue.state) {
-        return returnValue
-    }
-    //头像挂件
-    const avatarPendantName = userInfo?.pendant?.name || null;
-    if (avatarPendantName) {
-        returnValue = blockAvatarPendant(avatarPendantName);
-        if (returnValue.state) {
-            return returnValue
-        }
-    }
-    //根据用户签名屏蔽
-    const signContent = userInfo?.sign;
-    if (signContent) {
-        returnValue = blockSignature(signContent)
-        if (returnValue.state) {
-            return returnValue
-        }
-    }
-    //根据视频简介屏蔽
-    const desc = videoInfo?.desc || null;
-    if (desc) {
-        returnValue = blockVideoDesc(desc)
-        if (returnValue.state) {
-            return returnValue
-        }
-    }
-    const tempList = [
-        blockUserUidAndName(userInfo.mid, userInfo.name),
-        blockGender(userInfo?.sex), blockUserVip(userInfo.vip.type),
-        blockSeniorMember(userInfo.is_senior_member), blockVideoCopyright(videoInfo.copyright),
-        blockVerticalVideo(videoInfo.dimension), blockVideoTeamMember(videoInfo.staff),
-        blockVideoLikeRate(videoInfo.like, videoInfo.view), blockVideoInteractiveRate(videoInfo.danmaku, videoInfo.reply, videoInfo.view),
-        blockVideoTripleRate(videoInfo.favorite, videoInfo.coin, videoInfo.share, videoInfo.view),
-        blockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like)
-        , blockTimeRangeMasking(videoInfo.pubdate)
-    ]
-    for (let v of tempList) {
-        if (v.state) {
-            return v
-        }
-        const msg = v['msg'];
-        if (msg) {
-            console.warn(msg);
-        }
-    }
+    asyncBlockUserUidAndName(userInfo.mid, userInfo.name)
+        .then(() => asyncBlockVideoTagPreciseCombination(tags))
+        .then(() => asyncBlockBasedVideoTag(tags))
+        .then(() => asyncBlockVerticalVideo(videoInfo.dimension))
+        .then(() => asyncBlockVideoCopyright(videoInfo.copyright))
+        .then(() => asyncBlockChargeVideo(videoInfo?.is_upower_exclusive))
+        .then(() => asyncBlockFollowedVideo(videoInfo?.following))
+        .then(() => asyncBlockSeniorMember(userInfo.is_senior_member))
+        .then(() => asyncBlockVideoTeamMember(userInfo.mid))
+        .then(() => asyncBlockVideoLikeRate(videoInfo.like, videoInfo.view))
+        .then(() => asyncBlockVideoInteractiveRate(videoInfo.danmaku, videoInfo.reply, videoInfo.view))
+        .then(() => asyncBlockVideoTripleRate(videoInfo.favorite, videoInfo.coin, videoInfo.share, videoInfo.view))
+        .then(() => asyncBlockVideoCoinLikesRatioRate(videoInfo.coin, videoInfo.like))
+        .then(() => asyncBlockTimeRangeMasking(videoInfo.pubdate))
+        .then(() => asyncBlockVideoDesc(videoInfo?.desc))
+        .then(() => asyncBlockSignature(videoInfo?.sign))
+        .then(() => asyncBlockAvatarPendant(userInfo?.pendant?.name))
+        .then(() => asyncBlockByLevel(userInfo?.current_level || -1))
+        .then(() => asyncBlockGender(userInfo?.sex))
+        .then(() => asyncBlockUserVip(userInfo.vip.type))
+        .catch((v) => {
+            const msg = v['msg'];
+            if (msg) {
+                console.warn(msg);
+            }
+            //这里通知屏蔽
+            eventEmitter.send('event-屏蔽视频元素', {res: v, method, videoData})
+        })
 }
 /**
  * 添加热门视频屏蔽按钮

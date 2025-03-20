@@ -174,11 +174,24 @@ export const blockAvatarPendant = (name) => {
         exactTypeName: '精确头像挂件名', fuzzyKey: 'avatarPendantName', fuzzyTypeName: '模糊头像挂件名'
     })
 }
+
+//异步根据头像挂件名屏蔽，匹配成功抛出异常
+export const asyncBlockAvatarPendant = async (name) => {
+    const res = blockAvatarPendant(name);
+    if (res.state) return Promise.reject(res);
+}
+
 //根据用户签名屏蔽
 export const blockSignature = (signature) => {
     return blockExactAndFuzzyMatching(signature, {
         fuzzyKey: 'signature', fuzzyTypeName: '模糊用户签名', regexKey: 'signatureCanonical', regexTypeName: '正则用户签名'
     })
+}
+
+//异步根据用户签名屏蔽，匹配成功抛出异常
+export const asyncBlockSignature = async (signature) => {
+    const res = blockSignature(signature);
+    if (res.state) return Promise.reject(res);
 }
 
 //根据视频简介屏蔽
@@ -189,6 +202,13 @@ export const blockVideoDesc = (desc) => {
     })
 }
 
+//异步根据视频简介屏蔽，匹配成功抛出异常
+export const asyncBlockVideoDesc = async (desc) => {
+    const res = blockVideoDesc(desc);
+    if (res.state) return Promise.reject(res);
+}
+
+
 //根据性别屏蔽
 export const blockGender = (gender) => {
     const val = localMKData.isGenderRadioVal();
@@ -197,6 +217,14 @@ export const blockGender = (gender) => {
         return {state: true, type: '性别屏蔽', matching: val}
     }
     return returnTempVal;
+}
+
+//异步根据性别屏蔽，匹配成功抛出异常
+export const asyncBlockGender = async (gender) => {
+    const res = blockGender(gender);
+    if (res.state) {
+        return Promise.reject(res)
+    }
 }
 
 //根据会员类型屏蔽
@@ -213,12 +241,29 @@ export const blockUserVip = (vipId) => {
     return returnTempVal
 }
 
+//异步根据会员类型屏蔽，匹配成功抛出异常
+export const asyncBlockUserVip = async (vipId) => {
+    const res = blockUserVip(vipId);
+    if (res.state) {
+        return Promise.reject(res)
+    }
+}
+
+
 //根据硬核会员屏蔽
 export const blockSeniorMember = (num) => {
     if (num === 1 && localMKData.isSeniorMember()) {
         return {state: true, type: '屏蔽硬核会员'}
     }
     return returnTempVal
+}
+
+//异步根据硬核会员屏蔽，匹配成功抛出异常
+export const asyncBlockSeniorMember = async (num) => {
+    const res = blockSeniorMember(num);
+    if (res.state) {
+        return Promise.reject(res)
+    }
 }
 
 //根据视频类型屏蔽，1原创，2转载
@@ -232,6 +277,14 @@ export const blockVideoCopyright = (num) => {
         return {state: true, type: '视频类型屏蔽', matching: val}
     }
     return returnTempVal
+}
+
+//异步根据视频类型屏蔽，匹配成功抛出异常
+export const asyncBlockVideoCopyright = async (num) => {
+    const res = blockVideoCopyright(num);
+    if (res.state) {
+        return Promise.reject(res)
+    }
 }
 
 //根据视频是否是竖屏屏蔽
@@ -248,6 +301,12 @@ export const blockVerticalVideo = (dimension) => {
         return {state: true, type: '竖屏视频屏蔽', matching: vertical}
     }
     return returnTempVal
+}
+
+//异步根据视频是否是竖屏屏蔽，匹配成功抛出异常
+export const asyncBlockVerticalVideo = async (dimension) => {
+    const res = blockVerticalVideo(dimension);
+    if (res.state) return Promise.reject(res);
 }
 
 //根据视频点赞率屏蔽
@@ -270,6 +329,13 @@ export const blockVideoLikeRate = (like, view) => {
     }
     return returnTempVal
 }
+
+//异步根据视频点赞率屏蔽，匹配成功抛出异常
+export const asyncBlockVideoLikeRate = async (like, view) => {
+    const res = blockVideoLikeRate(like, view);
+    if (res.state) return Promise.reject(res);
+}
+
 /**
  * 根据视频互动率屏蔽
  * @param danmaku {number} 弹幕数
@@ -294,6 +360,13 @@ export const blockVideoInteractiveRate = (danmaku, reply, view) => {
     return returnTempVal
 }
 
+//异步根据视频互动率屏蔽，匹配成功抛出异常
+export const asyncBlockVideoInteractiveRate = async (danmaku, reply, view) => {
+    const res = blockVideoInteractiveRate(danmaku, reply, view);
+    if (res.state) return Promise.reject(res);
+}
+
+
 //根据视频三连率屏蔽
 export const blockVideoTripleRate = (favorite, coin, share, view) => {
     if (!favorite || !coin || !share || !view || !localMKData.isTripleRateBlockingStatus()) {
@@ -310,6 +383,12 @@ export const blockVideoTripleRate = (favorite, coin, share, view) => {
         }
     }
     return returnTempVal
+}
+
+//异步根据视频三连率屏蔽，匹配成功抛出异常
+export const asyncBlockVideoTripleRate = async (favorite, coin, share, view) => {
+    const res = blockVideoTripleRate(favorite, coin, share, view);
+    if (res.state) return Promise.reject(res);
 }
 
 //根据视频投币/点赞比（内容价值）屏蔽
@@ -332,6 +411,12 @@ export const blockVideoCoinLikesRatioRate = (coin, like) => {
     return returnTempVal
 }
 
+//异步根据视频投币/点赞比（内容价值）屏蔽，匹配成功抛出异常
+export const asyncBlockVideoCoinLikesRatioRate = async (coin, like) => {
+    const res = blockVideoCoinLikesRatioRate(coin, like);
+    if (res.state) return Promise.reject(res);
+}
+
 /**
  * 根据等级屏蔽
  * @param level {number} 用户等级
@@ -352,6 +437,12 @@ export const blockByLevel = (level) => {
     return returnTempVal
 }
 
+//异步根据等级屏蔽，匹配成功抛出异常
+export const asyncBlockByLevel = async (level) => {
+    const res = blockByLevel(level);
+    if (res.state) return Promise.reject(res);
+}
+
 //根据用户uid和name检查屏蔽，执行相关uid检查
 export const blockUserUidAndName = (uid, name) => {
     if (!uid || !name) {
@@ -367,6 +458,14 @@ export const blockUserUidAndName = (uid, name) => {
         return returnVal
     }
     return returnTempVal
+}
+
+//异步根据用户uid和name检查屏蔽，执行相关uid检查，匹配成功则抛出reject
+export const asyncBlockUserUidAndName = async (uid, name) => {
+    const res = blockUserUidAndName(uid, name);
+    if (res.state) {
+        return Promise.reject(res)
+    }
 }
 
 /**
@@ -385,6 +484,12 @@ export const blockVideoTeamMember = (teamMember) => {
         }
     }
     return returnTempVal
+}
+
+//异步检查视频创作团队成员屏蔽，匹配成功则抛出reject
+export const asyncBlockVideoTeamMember = async (teamMember) => {
+    const res = blockVideoTeamMember(teamMember)
+    if (res.state) return Promise.reject(res)
 }
 
 //根据用户名检查屏蔽
@@ -432,6 +537,13 @@ export const blockBasedVideoTag = (tags) => {
     return returnTempVal
 }
 
+//异步检查视频tag执行屏蔽，匹配成功则抛出reject
+export const asyncBlockBasedVideoTag = async (tags) => {
+    const res = blockBasedVideoTag(tags);
+    if (res.state) return Promise.reject(res);
+}
+
+
 //检查uid是否在范围屏蔽
 export const blockByUidRange = (uid) => {
     if (!localMKData.isUidRangeMaskingStatus()) {
@@ -454,6 +566,19 @@ export const blockUidWholeProcess = (uid) => {
     return blockByUidRange(uid)
 }
 
+//异步检查屏蔽已关注视频，匹配成则抛出reject
+export const asyncBlockFollowedVideo = (following) => {
+    if (following && localMKData.isBlockFollowed()) {
+        return Promise.reject({state: true, type: '已关注'})
+    }
+}
+
+//异步检查屏蔽充电专属视频
+export const asyncBlockChargeVideo = (isUpOwnerExclusive) => {
+    if (isUpOwnerExclusive && localMKData.isUpOwnerExclusive()) {
+        return Promise.reject({state: true, type: '充电专属视频'})
+    }
+}
 
 //检查时间范围屏蔽
 export const blockTimeRangeMasking = (timestamp) => {
@@ -477,6 +602,12 @@ export const blockTimeRangeMasking = (timestamp) => {
         }
     }
     return returnTempVal
+}
+
+//异步检查时间范围屏蔽，匹配成功则抛出reject
+export const asyncBlockTimeRangeMasking = async (timestamp) => {
+    const res = blockTimeRangeMasking(timestamp)
+    if (res.state) return Promise.reject(res);
 }
 
 /**
