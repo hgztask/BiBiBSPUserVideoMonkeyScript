@@ -1,6 +1,5 @@
 import {eventEmitter} from "../EventEmitter.js";
 import localMKData from "../../data/localMKData.js";
-import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import gmUtil from "../../utils/gmUtil.js";
 import shielding, {
@@ -23,7 +22,8 @@ import shielding, {
     asyncBlockVideoLikeRate,
     asyncBlockVideoTeamMember,
     asyncBlockVideoTripleRate,
-    blockUserUidAndName
+    blockUserUidAndName,
+    blockVideoOrOtherTitle
 } from "./shielding.js";
 import {videoInfoCache} from "../cache/videoInfoCache.js";
 import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
@@ -65,13 +65,9 @@ const shieldingVideo = (videoData) => {
     if (returnVal.state) {
         return returnVal;
     }
-    let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
-    if (matching !== null) {
-        return {state: true, type: "模糊标题", matching};
-    }
-    matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
-    if (matching !== null) {
-        return {state: true, type: "正则标题", matching};
+    returnVal = blockVideoOrOtherTitle(title)
+    if (returnVal.state) {
+        return returnVal
     }
     //限制时长
     if (nDuration !== -1) {

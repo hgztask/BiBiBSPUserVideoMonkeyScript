@@ -448,7 +448,6 @@ export const blockUserUidAndName = (uid, name) => {
     if (!uid || !name) {
         return returnTempVal
     }
-
     let returnVal = blockUidWholeProcess(uid)
     if (returnVal.state) {
         return returnVal
