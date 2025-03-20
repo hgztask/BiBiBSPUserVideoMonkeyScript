@@ -27,6 +27,21 @@ import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
 import bFetch from '../bFetch.js'
 import bvDexie from "../bvDexie.js";
 import {returnTempVal} from "../../data/globalValue.js";
+import arrUtil from "../../utils/arrUtil.js";
+
+
+// 检查视频tag执行多重tag检查屏蔽
+const blockVideoTagPreciseCombination = async (tags) => {
+    if (tags.length <= 0) return;
+    const mkArrTags = ruleKeyListData.getVideoTagPreciseCombination();
+    for (let mkTags of mkArrTags) {
+        if (arrUtil.arrayContains(tags, mkTags)) return Promise.reject({
+            state: true,
+            type: "多重tag屏蔽",
+            matching: mkTags
+        })
+    }
+}
 
 
 /**

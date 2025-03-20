@@ -64,10 +64,6 @@ const arrayContains = (a, b) => {
     return true;
 }
 
-
-console.log(arrayContains([2, 3, 1], [1, 2, 3, 4, 5]));
-
-
 export default {
     arraysLooseEqual,
     arrayContains

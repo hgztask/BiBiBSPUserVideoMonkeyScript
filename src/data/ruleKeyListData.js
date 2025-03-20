@@ -16,6 +16,11 @@ const getSelectOptions = () => {
             children: []
         },
         {
+            value: '多重匹配',
+            label: '多重匹配',
+            children: []
+        },
+        {
             value: '精确匹配',
             label: '精确匹配',
             children: []
@@ -23,18 +28,17 @@ const getSelectOptions = () => {
     ]
     for (let {name, key} of ruleKeyListData) {
         let children;
-        let label;
-        if (name.includes('模糊匹配')) {
+        if (name.includes('(模糊匹配)')) {
             children = options[0].children
-            // label = name.match(/(.+)\(模糊匹配/)[1]
         }
-        if (name.includes('正则匹配')) {
+        if (name.includes('(正则匹配)')) {
             children = options[1].children
-            // label = name.match(/(.+)\(正则匹配/)[1]
         }
-        if (name.includes('精确匹配')) {
+        if (name.includes('(组合精确匹配)')) {
             children = options[2].children
-            // label = name.match(/(.+)\(精确匹配/)[1]
+        }
+        if (name.includes('(精确匹配)')) {
+            children = options[3].children
         }
         children.push({
             value: key,
@@ -121,6 +125,9 @@ const ruleKeyListData = [{
 }, {
     key: 'videoTagCanonical',
     name: '视频tag(正则匹配)',
+}, {
+    key: 'videoTag_preciseCombination',
+    name: '视频tag(组合精确匹配)'
 }, {
     key: 'hotSearchKey',
     name: '热搜关键词(模糊匹配)',
@@ -375,6 +382,22 @@ const clearKeyItem = (ruleKey) => {
     gmUtil.delData(ruleKey)
 }
 
+/**
+ * 获取视频tag(组合精确匹配)数组
+ * @returns {[[string]]}
+ */
+const getVideoTagPreciseCombination = () => {
+    return gmUtil.getData("videoTag_preciseCombination", []);
+}
+
+/**
+ * 设置视频tag(组合精确匹配)数组
+ * @param list {Array}
+ */
+const setVideoTagPreciseCombination = (list) => {
+    gmUtil.setData("videoTag_preciseCombination", list);
+}
+
 export default {
     getNameArr,
     getPreciseNameArr,
@@ -398,5 +421,7 @@ export default {
     getHotSearchKeyCanonicalArr,
     otherKeyListData,
     clearKeyItem,
-    getSelectOptions
+    getSelectOptions,
+    getVideoTagPreciseCombination,
+    setVideoTagPreciseCombination
 }
