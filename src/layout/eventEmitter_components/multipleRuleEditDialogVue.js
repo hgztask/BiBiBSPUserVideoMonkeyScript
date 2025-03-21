@@ -24,6 +24,7 @@ export const multiple_rule_edit_dialog_vue = {
             <div>3.每组中的项不能超过15个字符</div>
             <div>4.不能重复添加已有的组合</div>
             <div>5.每组不能添加过包括已有的组合</div>
+            <div>6.不能添加视频tag(精确匹配)已有的项，如需要，请先移除对应的项！包括视频tag(模糊匹配)</div>
           </el-card>
           <el-card>
             <el-input
@@ -90,10 +91,20 @@ export const multiple_rule_edit_dialog_vue = {
                 this.$message.error('最少添加' + this.min + '项')
                 return;
             }
+            const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
+            const videoTagArr = ruleKeyListData.getVideoTagArr();
             for (let showTag of split) {
                 showTag = showTag.trim()
                 if (showTag === "") {
                     this.$message.error('不能添加空项')
+                    return;
+                }
+                if (preciseVideoTagArr.includes(showTag)) {
+                    this.$message.error('不能添加视频tag(精确匹配)已有的项，请先移除对应的项！')
+                    return;
+                }
+                if (videoTagArr.includes(showTag)) {
+                    this.$message.error('不能添加视频tag(模糊匹配)已有的项，请先移除对应的项！')
                     return;
                 }
                 if (showTag.length > 15) {
