@@ -4,10 +4,6 @@ import arrUtil from "../../utils/arrUtil.js";
 
 /**
  * 多重规则编辑对话框
- *
- *
- *
- * todo 待对接视频屏蔽，并且需要优化所有的验证函数，目前发现采用异步函数方式，根据返回的promise进行判断好点
  * @type {{}}
  */
 export const multiple_rule_edit_dialog_vue = {
@@ -38,7 +34,7 @@ export const multiple_rule_edit_dialog_vue = {
                 @blur="handleInputConfirm"
             >
             </el-input>
-            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+            <el-button v-else size="small" @click="showInput">+ New Tag</el-button>
             <el-tag closable v-for="(item,index) in showTags" @close="handleTagClose(item,index)">{{ item|filterTag }}
             </el-tag>
           </el-card>

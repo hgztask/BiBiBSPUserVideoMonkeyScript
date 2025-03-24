@@ -79,7 +79,7 @@ export const rule_set_value_dialog = {
         }
     },
     created() {
-        eventEmitter.on('修改规则对话框', (type, name) => {
+        eventEmitter.on('修改规则对话框', ({type, name}) => {
             this.show = true;
             this.ruleType = type;
             this.ruleName = name

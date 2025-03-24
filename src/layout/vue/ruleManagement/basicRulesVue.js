@@ -86,7 +86,7 @@ export const basic_rules_vue = {
                 eventEmitter.send('打开多重规则编辑对话框', typeMap)
                 return
             }
-            eventEmitter.send('修改规则对话框', type, name)
+            eventEmitter.send('修改规则对话框', typeMap)
         },
         findItemAllBut() {
             const [model, type] = this.cascaderVal;
