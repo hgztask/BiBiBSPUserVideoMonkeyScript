@@ -42,7 +42,7 @@ export const shielding_user_vue = {
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    const {status, res} = ruleUtil.addRulePreciseUid(uid, false);
+                    const {status, res} = ruleUtil.addRulePreciseUid(uid);
                     this.$alert(res)
                     if (status) {
                         // 屏蔽成功后隐藏屏蔽按钮并显示取消屏蔽按钮

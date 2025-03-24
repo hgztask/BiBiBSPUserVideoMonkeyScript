@@ -54,18 +54,18 @@ const addBlockButton = (data, tagCss = '', position = []) => {
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
-        const {uid, name} = data.data;
+        const {uid = -1, name = null} = data.data;
+        const showList = []
+        showList.push(uid !== -1 ? {
+            label: `uid精确屏蔽-用户uid=${uid}-name=${name}`,
+            value: "uid"
+        } : {
+            label: `用户名精确屏蔽(不推荐)-用户name=${name}`,
+            value: 'name'
+        })
         eventEmitter.send('sheet-dialog', {
             title: "屏蔽选项",
-            list: [
-                {
-                    label: `uid精确屏蔽-用户uid=${uid}-name=${name}`,
-                    value: "uid"
-                }, {
-                    label: `用户名精确屏蔽(不推荐)-用户name=${name}`,
-                    value: 'name'
-                }
-            ],
+            list: showList,
             optionsClick: (item) => {
                 const {value} = item
                 if (value === 'uid') {
@@ -74,18 +74,13 @@ const addBlockButton = (data, tagCss = '', position = []) => {
                         eventEmitter.send('el-msg', "该页面数据不存在uid字段")
                         return;
                     }
-                    const {status, res} = ruleUtil.addRulePreciseUid(uid, false);
+                    const {status} = ruleUtil.addRulePreciseUid(uid);
                     if (status) {
                         data.maskingFunc();
                     }
-                    eventEmitter.send('el-alert', res)
                     return;
                 }
                 // 用户名精确屏蔽
-                if (!name) {
-                    eventEmitter.send('el-alert', "该页面数据不存在name字段" + name)
-                    return;
-                }
                 eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
                     ruleUtil.addRulePreciseName(name)
                 })

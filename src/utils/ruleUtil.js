@@ -231,13 +231,16 @@ const overwriteImportRulesV1 = (content) => {
  * 添加精确uid
  * @param uid {number}
  * @param isTip {boolean} 是否提示，默认true，则默认提示，如果为false则不提示，返回结果
- * @returns {{status: boolean, res: string}|null}
+ * @returns {{res: string, status: boolean}|{res: string, status: boolean}}
  */
 const addRulePreciseUid = (uid, isTip = true) => {
     const results = addRule(uid, "precise_uid");
     if (isTip) {
-        eventEmitter.send('el-alert', results.res)
-        return null
+        eventEmitter.send('el-notify', {
+            title: '添加精确uid操作提示',
+            message: results.res
+        })
+        return results
     }
     return results;
 }
