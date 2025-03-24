@@ -4,14 +4,6 @@ import {requestIntervalQueue} from "../../../model/asynchronousIntervalQueue.js"
 import {eventEmitter} from "../../../model/EventEmitter.js";
 
 /**
- * 设置请求频率
- * @param v {number}
- */
-const setRequestFrequencyVal = (v) => {
-    gmUtil.setData('requestFrequencyVal', v > 0 && v <= 5 ? v : 0.2)
-}
-
-/**
  * 条件限制组件
  */
 export default {
@@ -20,7 +12,7 @@ export default {
         <el-switch v-model="bOnlyTheHomepageIsBlocked" active-text="仅首页屏蔽生效屏蔽"/>
         <el-tooltip content="模糊和正则匹配时，将匹配词转小写与规则值匹配。修改后刷新页面生效">
           <el-switch v-model="bFuzzyAndRegularMatchingWordsToLowercase"
-                     active-text="模糊和正则匹配词转小写"></el-switch>
+                     active-text="模糊和正则匹配词转小写"/>
         </el-tooltip>
         <el-card>
           <template #header>
@@ -49,16 +41,17 @@ export default {
     methods: {},
     watch: {
         bOnlyTheHomepageIsBlocked(newVal) {
-            localMKData.setBOnlyTheHomepageIsBlocked(newVal);
+            gmUtil.setData("bOnlyTheHomepageIsBlocked", newVal === true);
         },
         bFuzzyAndRegularMatchingWordsToLowercase(newVal) {
-            localMKData.setFuzzyAndRegularMatchingWordsToLowercase(newVal)
+            gmUtil.setData("bFuzzyAndRegularMatchingWordsToLowercase", newVal === true)
         },
         isDisableNetRequestsBvVideoInfo(b) {
-            localMKData.setDisableNetRequestsBvVideoInfo(b)
+            gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
         },
         requestFrequencyVal(n) {
-            setRequestFrequencyVal(n)
+            //设置请求频率
+            gmUtil.setData('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
             requestIntervalQueue.setInterval(n * 1000)
         }
     },

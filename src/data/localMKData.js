@@ -64,15 +64,6 @@ const setDefaultColorInfo = () => {
     setHighlightInformationColor(defHighlightInformationColor);
 }
 
-
-/**
- * 设置是否只对首页屏蔽
- * @param bool {boolean}
- */
-const setBOnlyTheHomepageIsBlocked = (bool) => {
-    gmUtil.setData("bOnlyTheHomepageIsBlocked", bool === true);
-}
-
 /**
  * 获取是否只对首页屏蔽
  * @returns {boolean}
@@ -80,7 +71,6 @@ const setBOnlyTheHomepageIsBlocked = (bool) => {
 const getBOnlyTheHomepageIsBlocked = () => {
     return gmUtil.getData("bOnlyTheHomepageIsBlocked", false);
 }
-
 
 /**
  * 获取是否适配Bilibili-Gate脚本，原bilibili-app-recommend脚本
@@ -186,16 +176,9 @@ const isDelPlayerPageRightVideoList = () => {
  * @returns {boolean}
  */
 const bFuzzyAndRegularMatchingWordsToLowercase = () => {
-    return gmUtil.getData("bFuzzyAndRegularMatchingWordsToLowercase", true) === true
+    return gmUtil.getData("bFuzzyAndRegularMatchingWordsToLowercase", false)
 }
 
-/**
- * 设置是否模糊和正则匹配词转小写
- * @param bool {boolean}
- */
-const setFuzzyAndRegularMatchingWordsToLowercase = (bool) => {
-    gmUtil.setData("bFuzzyAndRegularMatchingWordsToLowercase", bool === true)
-}
 
 /**
  * 获取请求频率，默认0.2，单位秒
@@ -211,14 +194,6 @@ const isRequestFrequencyVal = () => {
  */
 const isDisableNetRequestsBvVideoInfo = () => {
     return gmUtil.getData('isDisableNetRequestsBvVideoInfo', false)
-}
-
-/**
- * 设置是否禁用根据bv号网络请求获取视频信息
- * @param b {boolean}
- */
-const setDisableNetRequestsBvVideoInfo = (b) => {
-    gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
 }
 
 // 是否屏蔽已关注用户
@@ -369,7 +344,6 @@ export default {
     getOutputInformationFontColor,
     setHighlightInformationColor,
     getHighlightInformationColor,
-    setBOnlyTheHomepageIsBlocked,
     getBOnlyTheHomepageIsBlocked,
     getAdaptationBAppCommerce,
     setAdaptationBAppCommerce,
@@ -386,10 +360,8 @@ export default {
     setHalfHiddenIntervalAfterInitialDisplay,
     isDelPlayerPageRightVideoList,
     bFuzzyAndRegularMatchingWordsToLowercase,
-    setFuzzyAndRegularMatchingWordsToLowercase,
     isRequestFrequencyVal,
     isDisableNetRequestsBvVideoInfo,
-    setDisableNetRequestsBvVideoInfo,
     isBlockFollowed,
     isUpOwnerExclusive,
     isGenderRadioVal,
