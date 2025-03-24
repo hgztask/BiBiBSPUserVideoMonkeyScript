@@ -157,11 +157,10 @@ const verificationRuleMap = (keyArr, content) => {
 
 /**
  * 覆盖导入规则
- * @param keyArr {[]}
  * @param content {string}
  */
-const overwriteImportRules = (keyArr, content) => {
-    const map = verificationRuleMap(keyArr, content);
+const overwriteImportRules = (content) => {
+    const map = verificationRuleMap(ruleKeyListData.getRuleKeyList(), content);
     if (map === false) return false;
     for (let key of Object.keys(map)) {
         gmUtil.setData(key, map[key]);
@@ -171,11 +170,10 @@ const overwriteImportRules = (keyArr, content) => {
 
 /**
  * 追加导入规则
- * @param keyArr {[]}
  * @param content {string}
  */
-const appendImportRules = (keyArr, content) => {
-    const map = verificationRuleMap(keyArr, content);
+const appendImportRules = (content) => {
+    const map = verificationRuleMap(ruleKeyListData.getRuleKeyList(), content);
     if (map === false) return false;
     for (let key of Object.keys(map)) {
         const arr = gmUtil.getData(key, []);

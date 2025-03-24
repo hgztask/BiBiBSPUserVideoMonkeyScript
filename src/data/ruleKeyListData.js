@@ -215,12 +215,23 @@ const otherKeyListData = [
 
 
 /**
- * 获取规则key列表
+ * 获取完整规则k-v列表数据
  * @returns {[]}
  */
 const getRuleKeyListData = () => {
     return ruleKeyListData;
 }
+
+/**
+ * 获取规则key列表，只获取key，不获取value
+ * @returns {[string]} key列表，数组里每一项为key
+ */
+const getRuleKeyList = () => {
+    return ruleKeyListData.map(item => {
+        return item.key
+    })
+}
+
 
 /**
  * 获取用户名黑名单数组(模糊匹配)
@@ -423,5 +434,6 @@ export default {
     clearKeyItem,
     getSelectOptions,
     getVideoTagPreciseCombination,
-    setVideoTagPreciseCombination
+    setVideoTagPreciseCombination,
+    getRuleKeyList
 }

@@ -79,8 +79,7 @@ export default {
         overwriteImportRulesBut() {
             this.$confirm('是否要覆盖导入规则？').then(() => {
                 const trim = this.ruleContentImport.trim();
-                debugger
-                if (ruleUtil.overwriteImportRules(this.ruleKeyArr, trim)) {
+                if (ruleUtil.overwriteImportRules(trim)) {
                     this.$alert('已覆盖导入成功！')
                     eventEmitter.send('刷新规则信息');
                 }
@@ -90,7 +89,7 @@ export default {
         appendImportRulesBut() {
             this.$confirm('是否要追加导入规则？').then(() => {
                 const trim = this.ruleContentImport.trim();
-                if (ruleUtil.appendImportRules(this.ruleKeyArr, trim)) {
+                if (ruleUtil.appendImportRules(trim)) {
                     this.$message('已追加导入成功！')
                     eventEmitter.send('刷新规则信息');
                 }
