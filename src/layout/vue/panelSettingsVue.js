@@ -1,5 +1,6 @@
 import localMKData, {setOpenDev} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import gmUtil from "../../utils/gmUtil.js";
 
 //面板设置组件
 export const panel_settings_vue = {
@@ -93,14 +94,17 @@ export const panel_settings_vue = {
     },
     watch: {
         showRightTopMainButSwitch(newVal) {
-            localMKData.setShowRightTopMainButSwitch(newVal);
+            //设置是否显示右上角主面板按钮开关
+            gmUtil.setData("showRightTopMainButSwitch", newVal === true)
             eventEmitter.send('显隐主面板开关', newVal)
         },
         isFirstFullDisplay(newVal) {
-            localMKData.setFirstFullDisplay(newVal)
+            //设置是否第一次完整显示外部开关主面板按钮
+            gmUtil.setData('isFirstFullDisplay', newVal === true)
         },
         isHalfHiddenIntervalAfterInitialDisplay(newBool) {
-            localMKData.setHalfHiddenIntervalAfterInitialDisplay(newBool)
+            //设置初次显示后间隔半隐藏主面板开关按钮
+            gmUtil.setData('is_half_hidden_interval_after_initial_display', newBool === true)
         }
     }
 };

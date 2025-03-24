@@ -1,5 +1,6 @@
 import localMKData from "../../data/localMKData.js";
 import globalValue from "../../data/globalValue.js";
+import gmUtil from "../../utils/gmUtil.js";
 
 // 兼容性设置组件
 export const compatible_setting_vue = {
@@ -37,13 +38,15 @@ export const compatible_setting_vue = {
     },
     watch: {
         adaptationBAppRecommend(newVal) {
-            localMKData.setAdaptationBAppCommerce(newVal);
+            //设置是否适配Bilibili-Gate脚本，原bilibili-app-recommend脚本
+            gmUtil.setData("adaptation-b-app-recommend", newVal === true)
         },
         compatible_BEWLY_BEWLY(newVal) {
-            localMKData.setCompatible_BEWLY_BEWLY(newVal)
+            //设置是否兼容BewlyBewly插件
+            gmUtil.setData("compatible_BEWLY_BEWLY", newVal === true)
         },
         discardOldCommentAreasV(newVal) {
-            localMKData.setDiscardOldCommentAreas(newVal)
+            gmUtil.setData("discardOldCommentAreas", newVal === true)
         }
     }
 };

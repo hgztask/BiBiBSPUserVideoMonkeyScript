@@ -80,22 +80,9 @@ const getAdaptationBAppCommerce = () => {
     return gmUtil.getData("adaptation-b-app-recommend", false) === true;
 }
 
-/**
- * 设置是否适配Bilibili-Gate脚本，原bilibili-app-recommend脚本
- * @param bool
- */
-export const setAdaptationBAppCommerce = (bool) => {
-    gmUtil.setData("adaptation-b-app-recommend", bool === true)
-}
-
 // 是否显示右上角主面板按钮开关，默认为true
 const isShowRightTopMainButSwitch = () => {
     return gmUtil.getData("showRightTopMainButSwitch", true) === true;
-}
-
-// 设置是否显示右上角主面板按钮开关
-const setShowRightTopMainButSwitch = (bool) => {
-    gmUtil.setData("showRightTopMainButSwitch", bool === true)
 }
 
 /**
@@ -107,28 +94,11 @@ const isFirstFullDisplay = () => {
 }
 
 /**
- * 设置是否第一次完整显示外部开关主面板按钮
- * @param bool {boolean}
- */
-export const setFirstFullDisplay = (bool) => {
-    gmUtil.setData('isFirstFullDisplay', bool === true)
-}
-
-/**
  * 是否初次显示后间隔半隐藏主面板开关按钮，默认true
  * @returns {boolean}
  */
 const isHalfHiddenIntervalAfterInitialDisplay = () => {
     return gmUtil.getData('is_half_hidden_interval_after_initial_display', true) === true
-}
-
-
-/**
- * 设置初次显示后间隔半隐藏主面板开关按钮
- * @param bool {boolean}
- */
-const setHalfHiddenIntervalAfterInitialDisplay = (bool) => {
-    gmUtil.setData('is_half_hidden_interval_after_initial_display', bool === true)
 }
 
 /**
@@ -137,22 +107,6 @@ const setHalfHiddenIntervalAfterInitialDisplay = (bool) => {
  */
 const isCompatible_BEWLY_BEWLY = () => {
     return gmUtil.getData("compatible_BEWLY_BEWLY", false) === true;
-}
-
-/**
- * 设置是否兼容BewlyBewly插件
- * @param bool
- */
-const setCompatible_BEWLY_BEWLY = (bool) => {
-    gmUtil.setData("compatible_BEWLY_BEWLY", bool === true)
-}
-
-/**
- * 设置弃用旧版评论区处理
- * @param bool {boolean}
- */
-const setDiscardOldCommentAreas = (bool) => {
-    gmUtil.setData("discardOldCommentAreas", bool === true)
 }
 
 /**
@@ -346,18 +300,12 @@ export default {
     getHighlightInformationColor,
     getBOnlyTheHomepageIsBlocked,
     getAdaptationBAppCommerce,
-    setAdaptationBAppCommerce,
     setDefaultColorInfo,
     isCompatible_BEWLY_BEWLY,
-    setCompatible_BEWLY_BEWLY,
-    setDiscardOldCommentAreas,
     isDiscardOldCommentAreas,
     isShowRightTopMainButSwitch,
-    setShowRightTopMainButSwitch,
     isFirstFullDisplay,
-    setFirstFullDisplay,
     isHalfHiddenIntervalAfterInitialDisplay,
-    setHalfHiddenIntervalAfterInitialDisplay,
     isDelPlayerPageRightVideoList,
     bFuzzyAndRegularMatchingWordsToLowercase,
     isRequestFrequencyVal,
