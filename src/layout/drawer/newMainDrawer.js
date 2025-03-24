@@ -109,7 +109,8 @@ window.addEventListener('load', () => {
         data() {
             return {
                 drawer: false,
-                tabsActiveName: '规则管理',
+                // 默认打开的tab
+                tabsActiveName: gmUtil.getData('mainTabsActiveName', '规则管理'),
                 debug_panel_show: isOpenDev(),
                 sheet_dialog: {
                     show: false,
@@ -163,9 +164,6 @@ window.addEventListener('load', () => {
             eventEmitter.handler('el-confirm', (...options) => {
                 return this.$confirm(...options);
             })
-
-            //记忆主面板激活的tab
-            this.tabsActiveName = gmUtil.getData('mainTabsActiveName', '规则管理')
 
             eventEmitter.on('debugger-dev-show', (bool) => {
                 debugger
