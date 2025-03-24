@@ -22,6 +22,7 @@ export const cache_management_vue = {
           <el-button @click="clearPageVideoCacheDataBut">清空当前域名的视频缓存数据</el-button>
           <el-button @click="lookContentBut">查看内容</el-button>
           <el-button @click="lookContentLenBut">查看数据量</el-button>
+          <el-button type="warning" @click="batchDelBut">批量删除</el-button>
         </el-card>
         <el-card>
           <template #header>导出</template>
@@ -139,6 +140,39 @@ export const cache_management_vue = {
         lookContentLenBut() {
             bvDexie.getVideoInfoCount().then((len) => {
                 this.$alert(`数据量${len}`)
+            })
+        },
+        batchDelBut() {
+            this.$prompt('请输入删除的bv号，多个bv号用逗号隔开', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+            }).then(async ({value}) => {
+                value = value?.trim() || null || ""
+                if (value === null) return;
+                const bvs = value.split(',');
+                if (bvs.length === 1) {
+                    const bool = await bvDexie.delVideoInfoItem(bvs[0])
+                    if (bool) {
+                        this.$message.success(`删除${value}的视频缓存数据成功`)
+                    } else {
+                        this.$message.warning(`删除失败，未找到${value}的视频缓存数据`)
+                    }
+                    return
+                }
+                const data = await bvDexie.bulkDelVideoInfoItem(bvs);
+                if (data.state) {
+                    if (data.success.length === bvs.length) {
+                        this.$alert(`删除${data.success.join(',')}的视频缓存数据成功`, {
+                            type: 'success'
+                        })
+                    } else {
+                        this.$alert(`删除${data.success.join(',')}的视频缓存数据成功，${data.fail.join(',')}的视频缓存数据未找到`, {
+                            type: 'warning'
+                        })
+                    }
+                } else {
+                    this.$message.warning(`删除失败,错误信息请看控制台`)
+                }
             })
         }
     },

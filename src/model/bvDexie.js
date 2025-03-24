@@ -61,6 +61,15 @@ const getVideoInfoCount = async () => {
     return await mk_db.videoInfos.count()
 }
 
+/**
+ * 根据主键bv号查询视频数据
+ * @param bv {string} bv号
+ * @returns {Promise<{}>} 视频数据
+ */
+const findVideoInfoByBv = async (bv) => {
+    return await mk_db.videoInfos.get(bv)
+}
+
 
 /**
  * 清除视频缓存表
@@ -77,10 +86,57 @@ const clearVideoInfosTable = async () => {
 }
 
 
+/**
+ * 删除数据库中指定bv号的数据-主键是bv号
+ * @param bv {string} bv号
+ * @returns {Promise<boolean>} 删除成功返回true，反之false
+ */
+const delVideoInfoItem = async (bv) => {
+    try {
+        const item = await findVideoInfoByBv(bv);
+        if (!item) return false;
+        await mk_db.videoInfos.delete(bv)
+        return true
+    } catch (e) {
+        return false
+    }
+}
+
+/**
+ * 批量删除数据库中指定bv号的数据-主键是bv号
+ * @param bvArr {string[]} bv号数组
+ * @returns {Promise<{fail: string[],success: string[], state: boolean}>} 返回状态和成功失败的bv号数组
+ */
+const bulkDelVideoInfoItem = async (bvArr) => {
+    const data = {state: false, success: [], fail: []}
+    try {
+        const existingItem = await mk_db.videoInfos.bulkGet(bvArr)
+        const existingKeys = existingItem.filter(item => item).map(item => item.bv)
+        if (existingKeys.length === 0) {
+            data.fail = bvArr
+            return data
+        }
+        data.state = true;
+        data.success.push(...existingKeys)
+        if (existingKeys.length !== bvArr.length) {
+            //bv号数组里存在不存在的bv号
+            data.fail.push(...bvArr.filter(item => !existingKeys.includes(item)))
+        }
+        await mk_db.videoInfos.bulkDelete(bvArr)
+        return data
+    } catch (e) {
+        console.log('批量删除数据库中指定bv号失败:', e)
+        return data
+    }
+}
+
+
 export default {
     addVideoData,
     clearVideoInfosTable,
     bulkImportVideoInfos,
     getVideoInfo,
-    getVideoInfoCount
+    getVideoInfoCount,
+    delVideoInfoItem,
+    bulkDelVideoInfoItem
 }
