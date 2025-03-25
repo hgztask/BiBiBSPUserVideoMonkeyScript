@@ -498,7 +498,7 @@ export const blockUserName = (name) => {
 // 根据视频标题或其他标题检查屏蔽
 export const blockVideoOrOtherTitle = (title) => {
     return blockExactAndFuzzyMatching(title, {
-        exactKey: 'title', fuzzyTypeName: '模糊标题',
+        fuzzyKey: 'title', fuzzyTypeName: '模糊标题',
         regexKey: 'titleCanonical', regexTypeName: '正则标题'
     })
 }
