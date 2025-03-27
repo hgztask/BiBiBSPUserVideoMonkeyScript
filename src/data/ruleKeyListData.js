@@ -152,6 +152,9 @@ const ruleKeyListData = [{
 }, {
     key: 'videoDescCanonical',
     name: '视频简介(正则匹配)'
+}, {
+    key: 'precise_video_bv',
+    name: '视频bv号(精确匹配)'
 }
 ]
 
@@ -409,6 +412,15 @@ const setVideoTagPreciseCombination = (list) => {
     gmUtil.setData("videoTag_preciseCombination", list);
 }
 
+/**
+ * 获取视频bv(精确匹配)数组
+ * @returns {string[]}
+ */
+const getPreciseVideoBV = () => {
+    return gmUtil.getData("precise_video_bv", []);
+}
+
+
 export default {
     getNameArr,
     getPreciseNameArr,
@@ -435,5 +447,6 @@ export default {
     getSelectOptions,
     getVideoTagPreciseCombination,
     setVideoTagPreciseCombination,
-    getRuleKeyList
+    getRuleKeyList,
+    getPreciseVideoBV
 }

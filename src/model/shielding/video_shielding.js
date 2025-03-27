@@ -46,6 +46,17 @@ const asyncBlockVideoTagPreciseCombination = async (tags) => {
     }
 }
 
+// 检查视频bv执行屏蔽
+const blockVideoBV = (bv) => {
+    const bvs = ruleKeyListData.getPreciseVideoBV();
+    if (bvs.includes(bv)) return Promise.reject({
+        state: true,
+        type: "精确bv号屏蔽",
+        matching: bv
+    })
+    return returnTempVal
+}
+
 /**
  * 屏蔽视频
  * @param videoData {{}} 视频数据
@@ -59,7 +70,8 @@ const shieldingVideo = (videoData) => {
     const {
         title, uid = -1,
         name, nDuration = -1,
-        nBulletChat = -1, nPlayCount = -1
+        nBulletChat = -1, nPlayCount = -1,
+        bv = null
     } = videoData;
     let returnVal = blockUserUidAndName(uid, name);
     if (returnVal.state) {
@@ -69,6 +81,8 @@ const shieldingVideo = (videoData) => {
     if (returnVal.state) {
         return returnVal
     }
+    returnVal = blockVideoBV(bv)
+    if (returnVal.state) return returnVal;
     //限制时长
     if (nDuration !== -1) {
         const min = gmUtil.getData('nMinimumDuration', -1);
