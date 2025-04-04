@@ -75,6 +75,7 @@ const shieldingCommentDecorated = (commentsData) => {
         commentsData.el?.remove()
         eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
     }
+    eventEmitter.send('event-评论通知替换关键词', commentsData)
     return state;
 }
 

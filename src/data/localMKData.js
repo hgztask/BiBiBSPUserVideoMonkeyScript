@@ -288,6 +288,26 @@ const getCommentWordLimitVal = () => {
     return gmUtil.getData('comment_word_limit', -1)
 }
 
+// 获取替换词
+export const getSubstituteWordsArr = () => {
+    return gmUtil.getData('substitute_words', [])
+}
+
+// 是否清除评论表情
+export const isClearCommentEmoticons = () => {
+    return gmUtil.getData('is_clear_comment_emoticons', false)
+}
+
+// 是否替换评论搜索词
+export const isReplaceCommentSearchTerms = () => {
+    return gmUtil.getData('is_replace_comment_search_terms', false)
+}
+
+// 是否开启替换处理功能
+export const enableReplacementProcessing = () => {
+    return gmUtil.getData('enable_replacement_processing', false)
+}
+
 
 export default {
     getTripleRate,

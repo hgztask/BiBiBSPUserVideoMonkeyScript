@@ -100,7 +100,8 @@ const getCommentSectionList = async () => {
             replies,
             el,
             insertionPositionEl: theOPUserInfo,
-            explicitSubjectEl: theOPEl.querySelector("#body")
+            explicitSubjectEl: theOPEl.querySelector("#body"),
+            contentsEl: theOPContentEl
         });
         //楼中层
         const inTheBuildingEls = el.shadowRoot.querySelector("bili-comment-replies-renderer")
@@ -116,7 +117,8 @@ const getCommentSectionList = async () => {
             const inTheBuildingUid = elUtil.getUrlUID(inTheBuildingUserUrl);
             //评论内容元素
             const biliRichTextEL = inTheContentEl.querySelector("bili-rich-text");
-            const inTheBuildingContent = biliRichTextEL.shadowRoot.getElementById("contents").textContent.trim();
+            const contentsEl = biliRichTextEL.shadowRoot.querySelector("#contents");
+            const inTheBuildingContent = contentsEl.textContent.trim();
             const userLevelSrc = inTheBuildingUserInfo.querySelector('#user-level>img')?.src || null;
             const level = getUrlUserLevel(userLevelSrc)
             replies.push({
@@ -127,7 +129,8 @@ const getCommentSectionList = async () => {
                 content: inTheBuildingContent,
                 el: inTheBuildingEl,
                 insertionPositionEl: inTheBuildingUserInfo,
-                explicitSubjectEl: inTheBuildingEl
+                explicitSubjectEl: inTheBuildingEl,
+                contentsEl
             })
         }
     }

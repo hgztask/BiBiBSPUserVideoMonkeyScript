@@ -8,6 +8,7 @@ import {blacklist_management_vue} from "../blacklistManagementVue.js";
 import {high_level_rule_vue} from "./ruleManagement/highLevelRuleVue.js";
 import {video_metrics_filter_vue} from "../videoMetricsFilterVue.js";
 import {time_range_masking_vue} from "../timeRangeMaskingVue.js";
+import {repl_processing_vue} from "../replProcessingVue.js";
 
 // 规则管理组件
 export default {
@@ -20,7 +21,8 @@ export default {
         blacklist_management_vue,
         high_level_rule_vue,
         video_metrics_filter_vue,
-        time_range_masking_vue
+        time_range_masking_vue,
+        repl_processing_vue
     },
     template: `
       <div>
@@ -31,7 +33,7 @@ export default {
           <el-tab-pane label="高级规则" lazy>
             <high_level_rule_vue/>
           </el-tab-pane>
-          <el-tab-pane label="其他规则">
+          <el-tab-pane label="其他规则" lazy>
             <other_parameter_filter/>
           </el-tab-pane>
           <el-tab-pane label="指标屏蔽" lazy>
@@ -39,6 +41,9 @@ export default {
           </el-tab-pane>
           <el-tab-pane label="范围屏蔽" lazy>
             <time_range_masking_vue/>
+          </el-tab-pane>
+          <el-tab-pane label="替换处理" lazy>
+            <repl_processing_vue/>
           </el-tab-pane>
           <el-tab-pane label="导出导入" lazy>
             <rule_export_import_vue/>
