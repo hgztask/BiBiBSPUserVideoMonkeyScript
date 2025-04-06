@@ -1,7 +1,6 @@
 import {eventEmitter} from "./EventEmitter.js";
 import searchModel from '../pagesModel/search/searchModel.js'
 import bilibiliHome from "../pagesModel/home/bilibiliHome.js";
-import localMKData from "../data/localMKData.js";
 import videoPlayModel from "../pagesModel/videoPlay/videoPlayModel.js";
 import collectionVideoPlayPageModel from "../pagesModel/videoPlay/collectionVideoPlayPageModel.js";
 import popular from "../pagesModel/popular/popular.js";
@@ -16,9 +15,6 @@ import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import BLBLGate from "../pagesModel/home/BLBLGate.js";
 
-// 是否只屏蔽首页
-const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
-
 /**
  * 监听通知屏蔽事件
  * 目前作用域添加规则成功之后通知执行
@@ -26,7 +22,7 @@ const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 eventEmitter.on('通知屏蔽', () => {
     const url = window.location.href;
     const title = document.title;
-    if (bOnlyTheHomepageIsBlocked) return;
+    if (globalValue.bOnlyTheHomepageIsBlocked) return;
     if (searchModel.isSearch(url)) {
         searchModel.startShieldingVideoList()
     }

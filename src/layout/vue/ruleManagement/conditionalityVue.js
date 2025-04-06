@@ -2,6 +2,7 @@ import localMKData from "../../../data/localMKData.js";
 import gmUtil from "../../../utils/gmUtil.js";
 import {requestIntervalQueue} from "../../../model/asynchronousIntervalQueue.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
+import globalValue from "../../../data/globalValue.js";
 
 /**
  * 条件限制组件
@@ -32,7 +33,7 @@ export default {
         return {
             requestFrequencyVal: localMKData.isRequestFrequencyVal(),
             //是否仅首页屏蔽生效
-            bOnlyTheHomepageIsBlocked: localMKData.getBOnlyTheHomepageIsBlocked(),
+            bOnlyTheHomepageIsBlocked: globalValue.bOnlyTheHomepageIsBlocked,
             //是否模糊和正则匹配词转小写
             bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
             isDisableNetRequestsBvVideoInfo: false

@@ -4,7 +4,6 @@ import videoPlayModel from "./pagesModel/videoPlay/videoPlayModel.js";
 import collectionVideoPlayPageModel from "./pagesModel/videoPlay/collectionVideoPlayPageModel.js";
 import liveRoomModel from "./pagesModel/live/liveRoomModel.js";
 import videoPlayWatchLater from "./pagesModel/videoPlay/videoPlayWatchLater.js";
-import localMKData from "./data/localMKData.js";
 import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
 import searchLive from "./pagesModel/search/searchLive.js";
@@ -17,8 +16,20 @@ import {eventEmitter} from "./model/EventEmitter.js";
 import BLBLGate from "./pagesModel/home/BLBLGate.js";
 import globalValue from "./data/globalValue.js";
 
-// 是否只屏蔽首页
-const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
+const homeStaticRoute = (title, url) => {
+    if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
+        compatibleBewlyBewly.startRun(url)
+    }
+    if (bilibiliHome.isHome(url, title)) {
+        BLBLGate.check_bilibili_gate_compatibility()
+        compatibleBewlyBewly.check_BEWLYPage_compatibility()
+        eventEmitter.send('通知屏蔽');
+        if (globalValue.compatibleBEWLYBEWLY) return;
+        bilibiliHome.scrollMouseUpAndDown().then(() => bilibiliHome.startDebounceShieldingChangeVideoList());
+        bilibiliHome.startClearExcessContentList();
+        bilibiliHome.deDesktopDownloadTipEl();
+    }
+}
 
 /**
  * 静态路由
@@ -27,23 +38,11 @@ const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
  */
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
-    if (bilibiliHome.isHome(url, title)) {
-        BLBLGate.check_bilibili_gate_compatibility()
-        compatibleBewlyBewly.check_BEWLYPage_compatibility()
-        if (globalValue.compatibleBEWLYBEWLY) return;
-        bilibiliHome.scrollMouseUpAndDown().then(() => bilibiliHome.startDebounceShieldingChangeVideoList());
-        bilibiliHome.startClearExcessContentList();
-        bilibiliHome.deDesktopDownloadTipEl();
-    }
-    if (bOnlyTheHomepageIsBlocked) return;
+    homeStaticRoute(title, url)
+    if (globalValue.bOnlyTheHomepageIsBlocked) return;
     topInput.processTopInputContent()
     hotSearch.startShieldingHotList()
     eventEmitter.send('通知屏蔽')
-    if (compatibleBewlyBewly.isBEWLYPage(url)) {
-        if (globalValue.compatibleBEWLYBEWLY) {
-            compatibleBewlyBewly.startRun(url)
-        }
-    }
     if (searchModel.isSearch(url)) {
         searchModel.searchTopTabsIWrapperInstallListener()
         searchModel.startShieldingVideoList();
@@ -88,7 +87,7 @@ const staticRoute = (title, url) => {
 const dynamicRouting = (title, url) => {
     console.log("动态路由", title, url);
     //如果只屏蔽首页，则不执行以下代码
-    if (bOnlyTheHomepageIsBlocked) return;
+    if (globalValue.bOnlyTheHomepageIsBlocked) return;
     eventEmitter.send('通知屏蔽');
 }
 

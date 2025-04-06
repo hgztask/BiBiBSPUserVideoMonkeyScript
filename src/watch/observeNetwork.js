@@ -4,12 +4,8 @@ import popularAll from "../pagesModel/popular/popularAll.js";
 import dynamic from "../pagesModel/space/dynamic.js";
 import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import liveHome from "../pagesModel/live/liveHome.js";
-import localMKData from "../data/localMKData.js";
 import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
-
-// 是否只屏蔽首页
-const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
 
 /**
  * 监听网络请求
@@ -23,7 +19,7 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
         //如果不是api请求，就直接返回
         return;
     }
-    if (bOnlyTheHomepageIsBlocked) {
+    if (globalValue.bOnlyTheHomepageIsBlocked) {
         if (!bilibiliHome.isHome(windowUrl, winTitle)) {
             //如果开启了只屏蔽首页，且当前窗口不是首页，就直接返回
             return;
