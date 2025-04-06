@@ -6,6 +6,8 @@ import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import liveHome from "../pagesModel/live/liveHome.js";
 import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
+import searchModel from "../pagesModel/search/searchModel.js";
+import {eventEmitter} from "../model/EventEmitter.js";
 
 /**
  * 监听网络请求
@@ -15,20 +17,14 @@ import globalValue from "../data/globalValue.js";
  * @param initiatorType {string} 请求发起者类型
  */
 const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
-    if (!url.includes('api')) {
-        //如果不是api请求，就直接返回
-        return;
-    }
+    //如果不是api请求，就直接返回
+    if (!url.includes('api')) return;
     if (globalValue.bOnlyTheHomepageIsBlocked) {
-        if (!bilibiliHome.isHome(windowUrl, winTitle)) {
-            //如果开启了只屏蔽首页，且当前窗口不是首页，就直接返回
-            return;
-        }
+        //如果开启了只屏蔽首页，且当前窗口不是首页，就直接返回
+        if (!bilibiliHome.isHome(windowUrl, winTitle)) return;
     }
     if (url.startsWith("https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?web_location=")) {
-        if (globalValue.compatibleBEWLYBEWLY) {
-            return;
-        }
+        if (globalValue.compatibleBEWLYBEWLY) return;
         bilibiliHome.startDebounceShieldingChangeVideoList();
         bilibiliHome.startDebounceShieldingHomeVideoList();
         console.log("检测到首页加载了换一换视频列表和其下面的视频列表")
@@ -64,6 +60,9 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     if (url.startsWith('https://api.bilibili.com/x/web-interface/ranking/region?day=')) {
         console.log("检测到专区热门排行榜加载了");
         partition.startShieldingHotVideoDayList()
+    }
+    if (searchModel.isSearchVideoNetWorkUrl(url) || searchModel.isSearchLiveRoomNetWorkUrl(url)) {
+        eventEmitter.send('通知屏蔽');
     }
     /**
      *

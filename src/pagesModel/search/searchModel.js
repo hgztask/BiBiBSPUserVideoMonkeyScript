@@ -4,7 +4,6 @@ import defUtil from "../../utils/defUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
-import searchLive from "./searchLive.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
@@ -17,50 +16,32 @@ const isSearch = (url) => {
     return url.includes("search.bilibili.com")
 }
 
-/**
- * 当前激活的选项卡
- * @returns {Promise<void>|null}
- */
-const currentlyActivatedOptions = async () => {
-    const el = await elUtil.findElement('.vui_tabs--nav-item-active .vui_tabs--nav-text')
-    const label = el.textContent.trim();
-    if (label === '直播') {
-        await searchLive.startShieldingLiveRoomList()
-        searchLive.InstallLiveTopTabsListener()
-        searchLive.InstallBottomPagingListener()
-        elUtil.findElementUntilFound('.live-condition>.vui_button--active').then(activeEl => {
-            // 当直播项中的，二级选项卡激活的选项不等于主播时，插入顶部房间排序监听器
-            if (activeEl.textContent.trim() !== '主播') {
-                searchLive.installTopRoomOrderListener()
-            }
-        })
-    }
+//是否是搜索视频网络请求的url
+const isSearchVideoNetWorkUrl = (netUrl) => {
+    //综合-综合排序
+    if (netUrl.includes('api.bilibili.com/x/web-interface/wbi/search/all/v2')) return true;
+    //非该接口时返回false
+    if (!netUrl.includes('api.bilibili.com/x/web-interface/wbi/search/type')) return false;
+    const parseUrl = defUtil.parseUrl(netUrl);
+    /**
+     * 判断是否为搜索网络请求的url
+     * 当search_type等于
+     * media_bangumi为番剧
+     * media_ft为影视
+     * live为直播,live_user为主播
+     * article为专栏,bili_user为用户
+     */
+    const search_type = parseUrl.queryParams['search_type'] || null;
+    return search_type === 'video';
 }
 
-// 搜索顶部的选项卡安装监听器
-const searchTopTabsIWrapperInstallListener = async () => {
-    const tempTabs = ['番剧', '影视', '用户']
-    const el = await elUtil.findElement('.vui_tabs--navbar>ul');
-    el.addEventListener("click", async (event) => {
-        /**
-         *
-         * @type {Element|Document}
-         */
-        const eventTarget = event.target;
-        if (eventTarget.className !== 'vui_tabs--nav-text') {
-            return
-        }
-        const tabName = eventTarget.textContent.trim();
-        if (tempTabs.includes(tabName)) {
-            return
-        }
-        if (tabName === '直播') {
-            searchLive.installTopRoomOrderListener()
-            return
-        }
-        console.log("搜索页顶部选项卡监听器触发了", tabName)
-    })
-    console.log("搜索页顶部选项卡安装监听器已安装")
+//是否是搜索直播网络请求的url
+const isSearchLiveRoomNetWorkUrl = (netUrl) => {
+    //非该接口时返回false
+    if (!netUrl.includes('api.bilibili.com/x/web-interface/wbi/search/type')) return false;
+    const parseUrl = defUtil.parseUrl(netUrl);
+    const search_type = parseUrl.queryParams['search_type'] || null;
+    return search_type === 'live';
 }
 
 const getVideoList = async (css) => {
@@ -191,7 +172,7 @@ const startShieldingVideoList = async () => {
         await startShieldingOtherVideoList()
     } else {
         await startShieldingCSVideoList()
-        processingExactSearchVideoCardContent()
+        await processingExactSearchVideoCardContent()
     }
 }
 
@@ -284,8 +265,8 @@ const delFooterContent = () => {
 //搜索模块
 export default {
     isSearch,
-    searchTopTabsIWrapperInstallListener,
     startShieldingVideoList,
-    currentlyActivatedOptions,
-    delFooterContent
+    delFooterContent,
+    isSearchVideoNetWorkUrl,
+    isSearchLiveRoomNetWorkUrl
 }

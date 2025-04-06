@@ -14,6 +14,7 @@ import oldHistory from "../pagesModel/history/oldHistory.js";
 import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import BLBLGate from "../pagesModel/home/BLBLGate.js";
+import searchLive from "../pagesModel/search/searchLive.js";
 
 /**
  * 监听通知屏蔽事件
@@ -23,13 +24,14 @@ eventEmitter.on('通知屏蔽', () => {
     const url = window.location.href;
     const title = document.title;
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
+    if (searchLive.isSearchLivePage(url)) {
+        searchLive.startShieldingLiveRoomList();
+    }
     if (searchModel.isSearch(url)) {
         searchModel.startShieldingVideoList()
     }
     if (bilibiliHome.isHome(url, title)) {
-        if (globalValue.compatibleBEWLYBEWLY) {
-            return;
-        }
+        if (globalValue.compatibleBEWLYBEWLY) return;
         if (globalValue.adaptationBAppCommerce) {
             BLBLGate.startIntervalShieldingGateVideoList();
         }

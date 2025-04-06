@@ -44,9 +44,6 @@ const staticRoute = (title, url) => {
     hotSearch.startShieldingHotList()
     eventEmitter.send('通知屏蔽')
     if (searchModel.isSearch(url)) {
-        searchModel.searchTopTabsIWrapperInstallListener()
-        searchModel.startShieldingVideoList();
-        searchModel.currentlyActivatedOptions()
         searchLive.installStyle()
         searchModel.delFooterContent()
     }
