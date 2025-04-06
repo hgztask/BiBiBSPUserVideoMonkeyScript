@@ -3,7 +3,7 @@
   "alias": "BIBIShield_v2",
   "@namespace": "http://tampermonkey.net/",
   "@license": "Apache-2.0",
-  "@version": "2.9",
+  "@version": "2.9.1",
   "@author": "byhgz",
   "@description": "对B站视频或评论进行屏蔽，支持关键词模糊正则等，支持时长播放弹幕过滤等，如视频、评论、动态、直播间的评论等，详情可看下面支持的屏蔽类型",
   "@icon": "https://static.hdslb.com/images/favicon.ico",
