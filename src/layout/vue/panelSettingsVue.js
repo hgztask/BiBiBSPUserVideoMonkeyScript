@@ -1,4 +1,4 @@
-import localMKData, {setOpenDev} from "../../data/localMKData.js";
+import localMKData, {isOpenDev, setOpenDev} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 
@@ -93,7 +93,9 @@ export const panel_settings_vue = {
                 this.devToolsInputVal = ''
                 return;
             }
-            eventEmitter.send(toolsInputVal)
+            if (isOpenDev()) {
+                eventEmitter.send(toolsInputVal)
+            }
         }
     },
     watch: {
