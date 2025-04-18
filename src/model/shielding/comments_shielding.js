@@ -7,9 +7,7 @@ import localMKData from "../../data/localMKData.js";
 // 根据评论字数限制
 const blockCommentWordLimit = (content) => {
     const commentWordLimit = localMKData.getCommentWordLimitVal();
-    if (commentWordLimit.length < 3) {
-        return returnTempVal
-    }
+    if (commentWordLimit < 3) return returnTempVal;
     if (content.length > commentWordLimit) {
         return {state: true, type: '屏蔽字数限制', matching: `字数限制为${commentWordLimit}`}
     }
@@ -28,15 +26,12 @@ const blockCommentWordLimit = (content) => {
 const shieldingComment = (commentsData) => {
     const {content, uid, name, level = -1} = commentsData;
     let returnVal = blockUserUidAndName(uid, name)
-    if (returnVal.state) {
-        return returnVal
-    }
+    if (returnVal.state) return returnVal;
     returnVal = blockComment(content)
-    if (returnVal.state) {
-        return returnVal
-    }
+    if (returnVal.state) return returnVal;
     if (level !== -1) {
-        return blockByLevel(level);
+        returnVal = blockByLevel(level);
+        if (returnVal.state) return returnVal;
     }
     return blockCommentWordLimit(content);
 }
