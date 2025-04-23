@@ -12,8 +12,8 @@ const highlightInformationColor = localMKData.getHighlightInformationColor();
 export default {
     template: `
       <div>
-      <el-button type="info" @click="clearInfoBut">清空消息</el-button>
-      <div v-for="item in outputInfoArr" v-html="item"></div>
+        <el-button type="info" @click="clearInfoBut">清空消息</el-button>
+        <div v-for="item in outputInfoArr" v-html="item"></div>
       </div>`,
     data() {
         return {
@@ -29,7 +29,10 @@ export default {
                 type: 'warning'
             }).then(() => {
                 this.outputInfoArr = [];
-                this.$message('已清空信息')
+                this.$notify({
+                    message: '已清空信息',
+                    type: 'success'
+                })
             })
         }
     },

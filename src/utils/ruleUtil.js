@@ -238,7 +238,8 @@ const addRulePreciseUid = (uid, isTip = true) => {
     if (isTip) {
         eventEmitter.send('el-notify', {
             title: '添加精确uid操作提示',
-            message: results.res
+            message: results.res,
+            type: 'success'
         })
         return results
     }

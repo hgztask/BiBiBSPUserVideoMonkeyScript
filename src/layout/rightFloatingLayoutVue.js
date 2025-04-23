@@ -21,7 +21,10 @@ const addLayout = () => {
         if (localMKData.isHalfHiddenIntervalAfterInitialDisplay()) {
             setTimeout(() => {
                 divStyle.transform = 'translateX(80%)'
-                eventEmitter.send('el-msg', '自动隐藏外部主面板显隐按钮')
+                eventEmitter.send('el-notify', {
+                    message: '自动隐藏外部主面板显隐按钮',
+                    position: 'button-right',
+                })
             }, 8000);
         }
     }
