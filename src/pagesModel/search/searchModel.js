@@ -168,7 +168,7 @@ const startShieldingVideoList = async () => {
      * 当url中有page参数时，说明是搜索页的其他选项卡中的视频列表
      * 否则是搜索页综合选项卡中的第一页的综合排序视频列表
      */
-    if (parseUrl.queryParams['page']) {
+    if (parseUrl.queryParams['page'] || parseUrl.queryParams['pubtime_begin_s']) {
         await startShieldingOtherVideoList()
     } else {
         await startShieldingCSVideoList()
