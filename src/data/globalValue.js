@@ -15,6 +15,8 @@ const adaptationBAppCommerce = localMKData.getAdaptationBAppCommerce();
 const compatibleBEWLYBEWLY = localMKData.isCompatible_BEWLY_BEWLY();
 // 是否只屏蔽首页
 const bOnlyTheHomepageIsBlocked = localMKData.getBOnlyTheHomepageIsBlocked();
+
+export const httpLocalHost = 'http://localhost:3000'
 //默认返回值-不符合屏蔽条件-{state: false}
 export const returnTempVal = {state: false}
 export default {

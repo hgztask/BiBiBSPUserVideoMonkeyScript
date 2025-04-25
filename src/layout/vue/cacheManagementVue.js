@@ -1,6 +1,8 @@
 import bvDexie from "../../model/bvDexie.js";
 import defUtil from "../../utils/defUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import {defTmRequest} from "../../model/request/TmRequest.js";
+import {httpLocalHost} from "../../data/globalValue.js";
 
 export const cache_management_vue = {
     template: `
@@ -26,8 +28,9 @@ export const cache_management_vue = {
         </el-card>
         <el-card>
           <template #header>导出</template>
-          <el-button @click="outDbDataBut">导出至文件</el-button>
-          <el-button @click="outToConsoleBut">导出至控制台</el-button>
+          <el-button @click="outDbDataBut">至文件</el-button>
+          <el-button @click="outToConsoleBut">至控制台</el-button>
+          <el-button @click="outToLocalServerBut">至本地服务器</el-button>
         </el-card>
       </div>`,
     data() {
@@ -136,6 +139,37 @@ export const cache_management_vue = {
                 console.log(r)
                 console.log(`${hostname}的视频数据=====end`)
             })
+        },
+        async outToLocalServerBut() {
+            let loading = this.$loading({text: '请求中...'});
+            try {
+                await defTmRequest.get(httpLocalHost)
+            } catch (e) {
+                console.warn(e);
+                this.$alert('请先运行本地localhost服务器，并开放3000端口')
+                return
+            } finally {
+                loading.close();
+            }
+            loading = this.$loading({text: '获取缓存数据中...'});
+            const r = await bvDexie.getVideoInfo();
+            loading.close();
+            if (r.length === 0) {
+                this.$alert('当前域名下没有缓存视频数据')
+                return
+            }
+            loading = this.$loading({text: '请求中...'});
+            defTmRequest.post(httpLocalHost + '/data', r).then(res => {
+                console.log(res);
+                if (res.status !== 200) {
+                    this.$alert('服务器返回错误')
+                    return
+                }
+                this.$alert(res.data.msg);
+            }).catch((e) => {
+                this.$alert('请求失败')
+                console.warn(e);
+            }).finally(() => loading.close());
         },
         lookContentLenBut() {
             bvDexie.getVideoInfoCount().then((len) => {
