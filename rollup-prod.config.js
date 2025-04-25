@@ -2,7 +2,7 @@ import importContent from 'rollup-plugin-import-content'
 import {terser} from "rollup-plugin-terser";
 
 export default {
-    input: 'src/main.js',
+    input: 'src/web/main.js',
     external: ['vue', 'dexie'],
     plugins: [
         importContent({

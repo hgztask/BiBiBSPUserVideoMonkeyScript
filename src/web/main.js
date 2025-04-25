@@ -8,6 +8,7 @@ import {eventEmitter} from "./model/EventEmitter.js";
 import rightFloatingLayoutVue from "./layout/rightFloatingLayoutVue.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
+import './webSocket/index.js'
 
 window.addEventListener('load', () => {
     console.log('页面加载完成')
@@ -17,6 +18,7 @@ window.addEventListener('load', () => {
     watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
         router.dynamicRouting(title, newUrl);
     })
+
 })
 
 watch.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
@@ -28,3 +30,5 @@ document.addEventListener('keydown', function (event) {
         eventEmitter.send('主面板开关')
     }
 });
+
+

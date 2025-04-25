@@ -32,6 +32,7 @@ export const debugger_management_vue = {
             <el-card shadow="never">
               <template #header><span>测试</span></template>
               <el-button @click="demoBut">测试网络请求</el-button>
+              <el-button @click="newWsNetmaskBut">新建ws网络链接</el-button>
               <el-button @click="fetchGetVideoInfoBut">请求获取视频信息</el-button>
               <el-button @click="printValueCacheBut">打印valueCache值</el-button>
               <el-button @click="printEventBut">打印事件中心值</el-button>
@@ -50,6 +51,9 @@ export const debugger_management_vue = {
         }
     },
     methods: {
+        newWsNetmaskBut() {
+
+        },
         printValueCacheBut() {
             console.log(valueCache.getAll());
         },

@@ -1,7 +1,7 @@
 import importContent from 'rollup-plugin-import-content'
 
 export default {
-    input: 'src/main.js',
+    input: 'src/web/main.js',
     external: ['vue', 'dexie'],
     plugins: [
         importContent({
