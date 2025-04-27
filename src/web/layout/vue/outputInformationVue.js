@@ -1,6 +1,7 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import defUtil from "../../utils/defUtil.js";
 import localMKData from "../../data/localMKData.js";
+import {isWsService} from "./debuggerMeanagementVue.js";
 
 // 输出信息字体颜色
 const outputInformationFontColor = localMKData.getOutputInformationFontColor();
@@ -43,6 +44,9 @@ export default {
             this.outputInfoArr.push(liEL.innerHTML)
         })
         eventEmitter.on('屏蔽视频信息', (type, matching, videoData) => {
+            if (isWsService()) {
+                eventEmitter.send('ws-send-json', {type, matching, videoData})
+            }
             const toTimeString = defUtil.toTimeString();
             const {name, uid, title, videoUrl} = videoData;
             const info = `<b style="color: ${outputInformationFontColor}; " gz_bezel>

@@ -68,7 +68,7 @@ window.addEventListener('load', () => {
                 <el-tab-pane v-if="debug_panel_show" label="弹幕词管理" name="弹幕词管理" lazy>
                   <bullet_word_management_vue/>
                 </el-tab-pane>
-                <el-tab-pane label="输出信息" name="输出信息" lazy>
+                <el-tab-pane label="输出信息" name="输出信息">
                   <output_information_vue/>
                 </el-tab-pane>
                 <el-tab-pane label="支持打赏" name="支持打赏" lazy>

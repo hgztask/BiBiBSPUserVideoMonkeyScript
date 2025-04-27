@@ -8,7 +8,7 @@
     "build:prod": "rollup -c rollup-prod.config.js",
     "watch:dev": "rollup -w -c",
     "watch:prod": "rollup -w -c rollup-prod.config.js",
-    "start-ws": "nodemon src/server/ws-index.js"
+    "start-ws": "nodemon src/server/server-ws-index.js"
   },
   "private": true,
   "devDependencies": {
