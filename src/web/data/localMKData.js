@@ -308,6 +308,11 @@ export const enableReplacementProcessing = () => {
     return gmUtil.getData('enable_replacement_processing', false)
 }
 
+//  是否仅生效UID屏蔽(限视频)
+export const isEffectiveUIDShieldingOnlyVideo = () => {
+    return gmUtil.getData('is_effective_uid_shielding_only_video', false)
+}
+
 
 export default {
     getTripleRate,

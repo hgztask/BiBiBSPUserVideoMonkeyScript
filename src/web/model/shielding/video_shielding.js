@@ -1,5 +1,5 @@
 import {eventEmitter} from "../EventEmitter.js";
-import localMKData from "../../data/localMKData.js";
+import localMKData, {isEffectiveUIDShieldingOnlyVideo} from "../../data/localMKData.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import gmUtil from "../../utils/gmUtil.js";
 import shielding, {
@@ -74,13 +74,10 @@ const shieldingVideo = (videoData) => {
         bv = null
     } = videoData;
     let returnVal = blockUserUidAndName(uid, name);
-    if (returnVal.state) {
-        return returnVal;
-    }
+    if (returnVal.state) return returnVal;
+    if (isEffectiveUIDShieldingOnlyVideo()) return returnTempVal;
     returnVal = blockVideoOrOtherTitle(title)
-    if (returnVal.state) {
-        return returnVal
-    }
+    if (returnVal.state) return returnVal;
     returnVal = blockVideoBV(bv)
     if (returnVal.state) return returnVal;
     //限制时长
@@ -188,6 +185,12 @@ const shieldingOtherVideoParameter = async (videoData, method) => {
     }
     const {tags = [], userInfo, videoInfo} = result
     asyncBlockUserUidAndName(userInfo.mid, userInfo.name)
+        .then(() => {
+            if (!isEffectiveUIDShieldingOnlyVideo()) {
+                return
+            }
+            return Promise.reject({type: '中断', msg: '仅生效UID屏蔽(限视频)'});
+        })
         .then(() => asyncBlockVideoTagPreciseCombination(tags))
         .then(() => asyncBlockBasedVideoTag(tags))
         .then(() => asyncBlockVerticalVideo(videoInfo.dimension))
@@ -208,9 +211,12 @@ const shieldingOtherVideoParameter = async (videoData, method) => {
         .then(() => asyncBlockGender(userInfo?.sex))
         .then(() => asyncBlockUserVip(userInfo.vip.type))
         .catch((v) => {
-            const msg = v['msg'];
+            const {msg, type} = v;
             if (msg) {
                 console.warn(msg);
+            }
+            if (type === '中断') {
+                return;
             }
             //这里通知屏蔽
             eventEmitter.send('event-屏蔽视频元素', {res: v, method, videoData})

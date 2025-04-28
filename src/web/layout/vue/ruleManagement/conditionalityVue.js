@@ -1,4 +1,4 @@
-import localMKData from "../../../data/localMKData.js";
+import localMKData, {isEffectiveUIDShieldingOnlyVideo} from "../../../data/localMKData.js";
 import gmUtil from "../../../utils/gmUtil.js";
 import {requestIntervalQueue} from "../../../model/asynchronousIntervalQueue.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
@@ -14,6 +14,9 @@ export default {
         <el-tooltip content="模糊和正则匹配时，将匹配词转小写与规则值匹配。修改后刷新页面生效">
           <el-switch v-model="bFuzzyAndRegularMatchingWordsToLowercase"
                      active-text="模糊和正则匹配词转小写"/>
+        </el-tooltip>
+        <el-tooltip content="改动实时生效">
+          <el-switch v-model="isEffectiveUIDShieldingOnlyVideoVal" active-text="仅生效UID屏蔽(限视频)"/>
         </el-tooltip>
         <el-card>
           <template #header>
@@ -34,6 +37,7 @@ export default {
             requestFrequencyVal: localMKData.isRequestFrequencyVal(),
             //是否仅首页屏蔽生效
             bOnlyTheHomepageIsBlocked: globalValue.bOnlyTheHomepageIsBlocked,
+            isEffectiveUIDShieldingOnlyVideoVal: isEffectiveUIDShieldingOnlyVideo(),
             //是否模糊和正则匹配词转小写
             bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
             isDisableNetRequestsBvVideoInfo: false
@@ -49,6 +53,9 @@ export default {
         },
         isDisableNetRequestsBvVideoInfo(b) {
             gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
+        },
+        isEffectiveUIDShieldingOnlyVideoVal(b) {
+            gmUtil.setData('is_effective_uid_shielding_only_video', b)
         },
         requestFrequencyVal(n) {
             //设置请求频率
