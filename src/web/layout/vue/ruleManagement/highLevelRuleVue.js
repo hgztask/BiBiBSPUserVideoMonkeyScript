@@ -1,5 +1,5 @@
 import gmUtil from "../../../utils/gmUtil.js";
-import localMKData from "../../../data/localMKData.js";
+import localMKData, {isSeniorMemberOnly} from "../../../data/localMKData.js";
 import {uid_range_masking_vue} from "../../uidRangeMaskingVue.js";
 
 /**
@@ -49,12 +49,16 @@ export const high_level_rule_vue = {
               </el-card>
             </el-col>
           </el-row>
-          <el-card>
+          <el-card shadow="never">
             <template #header>计算创作团队</template>
             <el-tooltip content="当作者未匹配上时检查其他成员">
               <el-switch v-model="is_check_team_member" active-text="检查创作团队中成员"/>
             </el-tooltip>
           </el-card>
+        </el-card>
+        <el-card>
+          <template #header>评论</template>
+          <el-switch v-model="isSeniorMemberOnlyVal" active-text="仅看硬核会员"/>
         </el-card>
       </div>`,
     data() {
@@ -66,7 +70,8 @@ export const high_level_rule_vue = {
             is_senior_member_val: localMKData.isSeniorMember(),
             copyrightRadioVal: localMKData.isCopyrightRadio(),
             is_vertical_val: localMKData.isBlockVerticalVideo(),
-            is_check_team_member: localMKData.isCheckTeamMember()
+            is_check_team_member: localMKData.isCheckTeamMember(),
+            isSeniorMemberOnlyVal: isSeniorMemberOnly()
         }
     },
     methods: {},
@@ -94,6 +99,9 @@ export const high_level_rule_vue = {
         },
         is_check_team_member(n) {
             gmUtil.setData('checkTeamMember', n)
+        },
+        isSeniorMemberOnlyVal(n) {
+            gmUtil.setData('is_senior_member_only', n)
         }
     }
 }

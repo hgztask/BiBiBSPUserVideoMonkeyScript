@@ -1,5 +1,5 @@
 import {eventEmitter} from "../EventEmitter.js";
-import {blockByLevel, blockComment, blockUserUidAndName} from "./shielding.js";
+import {blockByLevel, blockComment, blockSeniorMemberOnly, blockUserUidAndName} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
 import localMKData from "../../data/localMKData.js";
 
@@ -25,7 +25,9 @@ const blockCommentWordLimit = (content) => {
  */
 const shieldingComment = (commentsData) => {
     const {content, uid, name, level = -1} = commentsData;
-    let returnVal = blockUserUidAndName(uid, name)
+    let returnVal = blockSeniorMemberOnly(level)
+    if (returnVal.state) return returnVal;
+    returnVal = blockUserUidAndName(uid, name)
     if (returnVal.state) return returnVal;
     returnVal = blockComment(content)
     if (returnVal.state) return returnVal;
@@ -66,6 +68,9 @@ const shieldingComments = (commentsDataList) => {
  */
 const shieldingCommentDecorated = (commentsData) => {
     const {state, type, matching} = shieldingComment(commentsData);
+    if (state && type === '只看硬核会员') {
+        return {state: false, type: '屏蔽只看硬核会员', matching: '只看硬核会员'}
+    }
     if (state) {
         commentsData.el?.remove()
         eventEmitter.send('屏蔽评论信息', type, matching, commentsData)

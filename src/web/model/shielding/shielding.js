@@ -5,7 +5,7 @@ import output_informationTab from "../../layout/output_informationTab.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
-import localMKData from "../../data/localMKData.js";
+import localMKData, {isSeniorMemberOnly} from "../../data/localMKData.js";
 import defUtil from "../../utils/defUtil.js";
 import {returnTempVal} from "../../data/globalValue.js";
 
@@ -604,6 +604,14 @@ export const asyncBlockTimeRangeMasking = async (timestamp) => {
     if (res.state) return Promise.reject(res);
 }
 
+//检查是否只看硬核会员
+export const blockSeniorMemberOnly = (level) => {
+    if (level === 7 && isSeniorMemberOnly()) {
+        return {state: true, type: '只看硬核会员'}
+    }
+    return returnTempVal
+}
+
 /**
  * 屏蔽动态中的项
  * @param dynamicData {{}} 动态内容
@@ -708,6 +716,7 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
     }
     return {start, stop}
 }
+
 
 export default {
     shieldingDynamicDecorated,

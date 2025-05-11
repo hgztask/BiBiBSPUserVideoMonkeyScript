@@ -313,6 +313,11 @@ export const isEffectiveUIDShieldingOnlyVideo = () => {
     return gmUtil.getData('is_effective_uid_shielding_only_video', false)
 }
 
+//仅看硬核会员
+export const isSeniorMemberOnly = () => {
+    return gmUtil.getData('is_senior_member_only', false)
+}
+
 
 export default {
     getTripleRate,

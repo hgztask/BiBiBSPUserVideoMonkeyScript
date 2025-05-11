@@ -21,6 +21,7 @@ eventEmitter.on('评论添加屏蔽按钮', (commentsData) => {
 
 /**
  * 获取url中的用户等级
+ * 硬核会员等级为7，原h转换为7
  * @param src {string}
  * @returns {number}
  */
