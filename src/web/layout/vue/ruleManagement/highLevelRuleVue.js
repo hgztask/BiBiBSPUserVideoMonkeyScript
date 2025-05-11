@@ -49,11 +49,12 @@ export const high_level_rule_vue = {
               </el-card>
             </el-col>
           </el-row>
-        </el-card>
-        <el-card>
-          <template #header>计算创作团队</template>
-          <el-tooltip content="当作者未匹配上时检查其他成员"></el-tooltip>
-          <el-switch v-model="is_check_team_member" active-text="检查创作团队中成员"/>
+          <el-card>
+            <template #header>计算创作团队</template>
+            <el-tooltip content="当作者未匹配上时检查其他成员">
+              <el-switch v-model="is_check_team_member" active-text="检查创作团队中成员"/>
+            </el-tooltip>
+          </el-card>
         </el-card>
       </div>`,
     data() {
