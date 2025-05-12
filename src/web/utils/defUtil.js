@@ -378,7 +378,7 @@ const calculateTripleRate = (favorite, coin, share, view) => {
  * @returns {number}
  */
 const calculateCoinLikesRatioRate = (coin, like) => {
-    return parseInt((coin + like) / view * 100)
+    return parseInt((coin / like) * 100)
 }
 
 
