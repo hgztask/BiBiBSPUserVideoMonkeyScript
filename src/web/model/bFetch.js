@@ -1,7 +1,7 @@
 import video_zoneData from "../data/video_zoneData.js";
 import {eventEmitter} from "./EventEmitter.js";
 
-const apiStyle = [
+/*const apiStyle = [
     {
         txt: '返回视频的所有标签及其基本属性，适合在需要显示标签列表的场景中使用',
         url: "https://api.bilibili.com/x/tag/archive/tags?bvid="
@@ -11,7 +11,7 @@ const apiStyle = [
         返回视频的所有标签及其基本属性，还提供了标签的类型和跳转链接，适合在需要根据标签类型进行特殊处理或跳转的场景中使用`,
         url: 'https://api.bilibili.com/x/web-interface/view/detail/tag?bvid='
     },
-]
+]*/
 
 // 请求获取弹幕屏蔽词
 const fetchGetBarrageBlockingWords = () => {
@@ -113,6 +113,8 @@ const fetchGetVideoInfo = async (bvId) => {
             following,
             // 专栏数量
             article_count, card: {
+                //关注数
+                friend,
                 mid: uid,
                 name,
                 // 性别
@@ -182,6 +184,8 @@ const fetchGetVideoInfo = async (bvId) => {
     const userInfo = {
         // 粉丝数
         follower,
+        // 关注数
+        friend,
         // 获赞数
         like_num,
         // 视频数量
@@ -195,7 +199,7 @@ const fetchGetVideoInfo = async (bvId) => {
         //会员信息对象
         vip,
         // 获取用户信息
-        uid,
+        uid: parseInt(uid),
         name,
         // 性别
         sex,
