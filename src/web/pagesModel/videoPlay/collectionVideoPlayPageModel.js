@@ -3,7 +3,7 @@ import generalFuc from "./generalFuc.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 // 判断是否为收藏的视频播放页
-const iscCollectionVideoPlayPage = (url) => {
+const iscCollectionVideoPlayPage = (url = window.location.href) => {
     return url.includes("www.bilibili.com/list/ml")
 }
 

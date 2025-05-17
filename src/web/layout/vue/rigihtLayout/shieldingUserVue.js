@@ -3,6 +3,7 @@ import space from "../../../pagesModel/space/space.js";
 import ruleKeyListData from "../../../data/ruleKeyListData.js";
 import ruleUtil from "../../../utils/ruleUtil.js";
 import videoPlayModel from "../../../pagesModel/videoPlay/videoPlayModel.js";
+import collectionVideoPlayPageModel from "../../../pagesModel/videoPlay/collectionVideoPlayPageModel.js";
 
 //个人空间页面右侧屏蔽按钮组件
 export const shielding_user_vue = {
@@ -65,7 +66,7 @@ export const shielding_user_vue = {
         }
     },
     async created() {
-        if (videoPlayModel.isVideoPlayPage()) {
+        if (videoPlayModel.isVideoPlayPage() || collectionVideoPlayPageModel.iscCollectionVideoPlayPage()) {
             this.selectUserBlockingButShow = true
         }
         if (space.isSpacePage()) {

@@ -54,6 +54,7 @@ const staticRoute = (title, url) => {
         videoPlayModel.delElManagement();
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
+        elUtil.updateCssVModal();
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
     }
     if (liveRoomModel.isLiveRoom(url)) {
