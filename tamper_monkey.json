@@ -36,7 +36,6 @@
     "https://cdn.jsdelivr.net/npm/vue@2",
     "https://unpkg.com/element-ui/lib/index.js",
     "https://cdn.jsdelivr.net/npm/dexie@4.0.10/dist/dexie.min.js",
-    "https://scriptcat.org/lib/2697/0.5/gz_ui_css-v1.js"
   ],
   "@source": "https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript",
   "homepage": "https://scriptcat.org/zh-CN/script-show-page/1029"

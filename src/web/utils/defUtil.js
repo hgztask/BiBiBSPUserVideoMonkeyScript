@@ -1,3 +1,5 @@
+import gzStyleCss from '../css/gz-style.css'
+
 /**
  * 等待一段时间
  * @param milliseconds{Number} 等待时间，单位毫秒，默认1000毫秒，即1秒
@@ -381,6 +383,23 @@ const calculateCoinLikesRatioRate = (coin, like) => {
     return parseInt((coin / like) * 100)
 }
 
+/**
+ * 插个人常用样式
+ * @param el {Document}该元素下是否已经插入过样式
+ * @param insertionPosition {Element|Document} 要插入样式的位置
+ */
+const addGzStyle = (el, insertionPosition = document.head) => {
+    const styleEl = el.querySelector("style[gz_style]");
+    if (styleEl !== null) {
+        console.log("已有gz_style样式，故不再插入该样式内容");
+        return;
+    }
+    const style = document.createElement('style');
+    style.setAttribute("gz_style", "");
+    style.textContent = gzStyleCss;
+    insertionPosition.appendChild(style);
+}
+
 
 export default {
     wait,
@@ -388,9 +407,7 @@ export default {
     toTimeString,
     smoothScroll,
     debounce,
-    debounceAsync,
     throttle,
-    throttleAsync,
     parseUrl,
     handleFileReader,
     isIterable,
