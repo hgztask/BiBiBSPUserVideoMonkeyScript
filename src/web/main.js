@@ -9,6 +9,7 @@ import rightFloatingLayoutVue from "./layout/rightFloatingLayoutVue.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
 import './webSocket/index.js'
+import {addGzStyle} from "./utils/defUtil.js";
 
 window.addEventListener('load', () => {
     console.log('页面加载完成')
@@ -18,7 +19,7 @@ window.addEventListener('load', () => {
     watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
         router.dynamicRouting(title, newUrl);
     })
-
+    addGzStyle(document);
 })
 
 watch.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {

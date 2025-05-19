@@ -388,7 +388,7 @@ const calculateCoinLikesRatioRate = (coin, like) => {
  * @param el {Document}该元素下是否已经插入过样式
  * @param insertionPosition {Element|Document} 要插入样式的位置
  */
-const addGzStyle = (el, insertionPosition = document.head) => {
+export const addGzStyle = (el, insertionPosition = document.head) => {
     const styleEl = el.querySelector("style[gz_style]");
     if (styleEl !== null) {
         console.log("已有gz_style样式，故不再插入该样式内容");
