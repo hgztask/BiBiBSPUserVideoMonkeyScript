@@ -10,7 +10,7 @@ import bilibiliHome from "./bilibiliHome.js";
  * @returns {Promise<string>}
  */
 const getGateActivatedTab = async () => {
-    const el = await elUtil.findElementUntilFound(".ant-radio-group>.ant-radio-button-wrapper-checked .css-1k4kcw8")
+    const el = await elUtil.findElementUntilFound(".ant-radio-group>.ant-radio-button-wrapper-checked")
     return el?.textContent.trim();
 }
 
