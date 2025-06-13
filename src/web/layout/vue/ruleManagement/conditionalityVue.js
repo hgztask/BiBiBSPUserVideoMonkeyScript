@@ -40,7 +40,7 @@ export default {
             isEffectiveUIDShieldingOnlyVideoVal: isEffectiveUIDShieldingOnlyVideo(),
             //是否模糊和正则匹配词转小写
             bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
-            isDisableNetRequestsBvVideoInfo: false
+            isDisableNetRequestsBvVideoInfo: localMKData.isDisableNetRequestsBvVideoInfo()
         }
     },
     methods: {},
