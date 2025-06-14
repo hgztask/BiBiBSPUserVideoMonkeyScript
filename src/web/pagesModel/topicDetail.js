@@ -55,7 +55,6 @@ const __shieldingDynamic = (dynamicData) => {
     shielding.addTopicDetailContentsBlockButton({data: dynamicData, maskingFunc: startShielding});
 }
 
-
 //开始屏蔽
 const startShielding = async () => {
     const list = await getDataList();

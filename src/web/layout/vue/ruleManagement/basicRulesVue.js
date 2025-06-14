@@ -4,9 +4,10 @@ import {eventEmitter} from "../../../model/EventEmitter.js";
 import ruleKeyListData from "../../../data/ruleKeyListData.js";
 import {rule_set_value_dialog} from "./ruleSetValueDialog.js";
 import {multiple_rule_edit_dialog_vue} from "../../eventEmitter_components/multipleRuleEditDialogVue.js";
+import addRuleDialogVue from './addRuleDialogVue.js';
 //基础规则管理
 export const basic_rules_vue = {
-    components: {rule_set_value_dialog, multiple_rule_edit_dialog_vue},
+    components: {rule_set_value_dialog, multiple_rule_edit_dialog_vue, addRuleDialogVue},
     template: `
       <div>
         <el-card shadow="never">
@@ -39,9 +40,9 @@ export const basic_rules_vue = {
           <el-row>
             <el-col :span="12">
               <el-button-group>
-                <el-button @click="addRuleBut">添加</el-button>
+                <el-button @click="batchAddBut">批量添加</el-button>
                 <el-button @click="setRuleBut">修改</el-button>
-                <el-button @click="findItemAllBut">查询</el-button>
+                <el-button @click="findItemAllBut">查看项内容</el-button>
                 <el-button @click="delBut">移除</el-button>
               </el-button-group>
             </el-col>
@@ -57,6 +58,7 @@ export const basic_rules_vue = {
         </el-card>
         <rule_set_value_dialog/>
         <multiple_rule_edit_dialog_vue/>
+        <add-rule-dialog-vue v-model="addRuleDialogVisible" :rule-info="addRuleDialogRuleInfo"/>
       </div>`,
     data() {
         return {
@@ -64,20 +66,16 @@ export const basic_rules_vue = {
             cascaderOptions: ruleKeyListData.getSelectOptions(),
             //规则信息
             ruleInfoArr: [],
+            addRuleDialogVisible: false,
+            addRuleDialogRuleInfo: {
+                type: '',
+                name: ''
+            }
         }
     },
     methods: {
         handleChangeCascader(val) {
             console.log(val)
-        },
-        addRuleBut() {
-            const [model, mk_type] = this.cascaderVal;
-            if (model === '多重匹配') {
-                const typeMap = this.ruleInfoArr.find(item => item.type === mk_type);
-                eventEmitter.send('打开多重规则编辑对话框', typeMap)
-                return
-            }
-            ruleUtil.showAddRuleInput(mk_type);
         },
         setRuleBut() {
             const [model, type] = this.cascaderVal;
@@ -123,6 +121,19 @@ export const basic_rules_vue = {
                 ruleKeyListData.clearKeyItem(type);
                 this.$alert(`已清空${find.name}的规则内容`)
             })
+        },
+        batchAddBut() {
+            const [model, type] = this.cascaderVal;
+            if (model === '多重匹配') {
+                const typeMap = this.ruleInfoArr.find(item => item.type === type);
+                eventEmitter.send('打开多重规则编辑对话框', typeMap)
+                return
+            }
+            this.addRuleDialogVisible = true
+            this.addRuleDialogRuleInfo = {
+                type: type,
+                name: this.ruleInfoArr.find(item => item.type === type).name
+            }
         }
     },
     watch: {},

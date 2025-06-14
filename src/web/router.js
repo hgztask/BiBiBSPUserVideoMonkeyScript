@@ -8,7 +8,6 @@ import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
 import searchLive from "./pagesModel/search/searchLive.js";
 import hotSearch from "./pagesModel/search/hotSearch.js";
-import elUtil from "./utils/elUtil.js";
 import messagePage from "./pagesModel/message/messagePage.js";
 import topInput from "./pagesModel/search/topInput.js";
 import space from "./pagesModel/space/space.js";
@@ -47,20 +46,17 @@ const staticRoute = (title, url) => {
         searchModel.delFooterContent()
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
-        elUtil.updateCssVModal();
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.setVideoPlayerEnded()
         videoPlayModel.delElManagement();
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
-        elUtil.updateCssVModal();
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.addWatchLiveRoomChatItemsListener();
     }
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
-        elUtil.updateCssVModal();
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
     }
     if (newHistory.isNewHistoryPage(url)) {

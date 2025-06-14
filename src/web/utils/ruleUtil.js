@@ -48,25 +48,40 @@ const addRule = (ruleValue, type) => {
 }
 
 /**
- * 添加规则对话框
- * @param type {string} 类型
- * @returns {null}
+ * 批量添加指定类型
+ * @param ruleValues {[string]|[number]}
+ * @param type {string}
+ * @returns {{successList: [string|number], failList: [string|number]}}
  */
-const showAddRuleInput = async (type) => {
-    let ruleValue;
-    try {
-        const {value} = await eventEmitter.invoke('el-prompt', '请输入要添加的规则内容', 'tip');
-        ruleValue = value
-    } catch (e) {
-        return
+const batchAddRule = (ruleValues, type) => {
+    const successList = [];
+    const failList = [];
+    const arr = gmUtil.getData(type, []);
+    //是否是uid类型
+    const isUidType = type.includes('uid');
+    for (let v of ruleValues) {
+        if (isUidType) {
+            if (isNaN(v)) {
+                failList.push(v);
+                continue;
+            }
+            v = parseInt(v);
+        }
+        if (arr.includes(v)) {
+            failList.push(v);
+            continue;
+        }
+        arr.push(v);
+        successList.push(v);
     }
-    const {res, status} = addRule(ruleValue, type)
-    eventEmitter.send('el-msg', res)
-    status && eventEmitter.send('刷新规则信息');
-    status && eventEmitter.send('通知屏蔽');
-
+    if (successList.length > 0) {
+        gmUtil.setData(type, arr);
+    }
+    return {
+        successList,
+        failList
+    }
 }
-
 
 /**
  * 删除单个规则值
@@ -122,7 +137,6 @@ const getRuleContent = (space = 0) => {
     return JSON.stringify(ruleMap, null, space);
 }
 
-
 /**
  * 验证规则内容并获取核心的规则
  * @param keyArr {Array}
@@ -153,7 +167,6 @@ const verificationRuleMap = (keyArr, content) => {
     }
     return newRule;
 }
-
 
 /**
  * 覆盖导入规则
@@ -186,7 +199,6 @@ const appendImportRules = (content) => {
     }
     return true;
 }
-
 
 /**
  * 覆盖导入规则V1
@@ -246,7 +258,6 @@ const addRulePreciseUid = (uid, isTip = true) => {
     return results;
 }
 
-
 /**
  * 删除精确uid
  * @param uid {number}
@@ -261,7 +272,6 @@ const delRUlePreciseUid = (uid, isTip = true) => {
     }
     return results
 }
-
 
 /**
  * 添加精确name
@@ -329,10 +339,9 @@ const addPreciseUidItemRule = (uidArr, isTip = true, coverage = true) => {
     return {status, msg}
 }
 
-
 export default {
     addRule,
-    showAddRuleInput,
+    batchAddRule,
     showDelRuleInput,
     getRuleContent,
     overwriteImportRules,

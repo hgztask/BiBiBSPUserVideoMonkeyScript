@@ -10,12 +10,13 @@ import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
 import './webSocket/index.js'
 import {addGzStyle} from "./utils/defUtil.js";
+import elUtil from "./utils/elUtil.js";
 
 window.addEventListener('load', () => {
     console.log('页面加载完成')
-    rightFloatingLayoutVue.addLayout()
+    elUtil.updateCssVModal();
+    rightFloatingLayoutVue.addLayout();
     router.staticRoute(document.title, window.location.href);
-
     watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
         router.dynamicRouting(title, newUrl);
     })
