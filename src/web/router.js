@@ -14,6 +14,7 @@ import space from "./pagesModel/space/space.js";
 import {eventEmitter} from "./model/EventEmitter.js";
 import BLBLGate from "./pagesModel/home/BLBLGate.js";
 import globalValue from "./data/globalValue.js";
+import {checkAndExcludePage} from "./layout/excludeURLsVue.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -36,6 +37,7 @@ const homeStaticRoute = (title, url) => {
  */
 const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
+    if (checkAndExcludePage(url)) return;
     homeStaticRoute(title, url)
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     topInput.processTopInputContent()

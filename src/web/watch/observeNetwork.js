@@ -8,6 +8,7 @@ import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import searchModel from "../pagesModel/search/searchModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
+import {checkAndExcludePage} from "../layout/excludeURLsVue.js";
 
 /**
  * 监听网络请求
@@ -19,6 +20,7 @@ import {eventEmitter} from "../model/EventEmitter.js";
 const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     //如果不是api请求，就直接返回
     if (!url.includes('api')) return;
+    if (checkAndExcludePage(url)) return;
     if (globalValue.bOnlyTheHomepageIsBlocked) {
         //如果开启了只屏蔽首页，且当前窗口不是首页，就直接返回
         if (!bilibiliHome.isHome(windowUrl, winTitle)) return;

@@ -7,6 +7,7 @@ import donateLayoutVue from '../vue/donateLayoutVue.js'
 import outputInformationVue from '../vue/outputInformationVue.js'
 import ruleManagementVue from '../vue/ruleManagementVue.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
+import excludeURLsVue from '../excludeURLsVue.js'
 import {cache_management_vue} from "../vue/cacheManagementVue.js";
 import {panel_settings_vue} from "../vue/panelSettingsVue.js";
 import {compatible_setting_vue} from "../vue/compatibleSettingVue.js";
@@ -56,6 +57,9 @@ window.addEventListener('load', () => {
                 <el-tab-pane label="规则管理" name="规则管理" lazy>
                   <rule_management_vue/>
                 </el-tab-pane>
+                <el-tab-pane lazy label="排除页面" name="排除页面">
+                  <exclude-u-r-ls-vue/>
+                </el-tab-pane>
                 <el-tab-pane label="兼容设置" name="兼容设置" lazy>
                   <compatible_setting_vue/>
                 </el-tab-pane>
@@ -104,7 +108,8 @@ window.addEventListener('load', () => {
             about_and_feedback_vue,
             show_img_dialog_vue,
             sheet_dialog_vue,
-            bullet_word_management_vue
+            bullet_word_management_vue,
+            excludeURLsVue
         },
         data() {
             return {

@@ -133,7 +133,6 @@ const bFuzzyAndRegularMatchingWordsToLowercase = () => {
     return gmUtil.getData("bFuzzyAndRegularMatchingWordsToLowercase", false)
 }
 
-
 /**
  * 获取请求频率，默认0.2，单位秒
  * @returns {number}
@@ -318,6 +317,18 @@ export const isSeniorMemberOnly = () => {
     return gmUtil.getData('is_senior_member_only', false)
 }
 
+// 是否启用排除URL总开关
+export const isExcludeURLSwitchGm = () => {
+    return gmUtil.getData('is_exclude_url_switch_gm', false)
+}
+
+/**
+ * 获取排除URL
+ * @returns {[{state:boolean,regularURL:string,desc:string}]}
+ */
+export const getExcludeURLsGm = () => {
+    return gmUtil.getData('exclude_urls_gm', [])
+}
 
 export default {
     getTripleRate,

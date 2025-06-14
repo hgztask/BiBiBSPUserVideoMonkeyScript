@@ -31,7 +31,7 @@ const setTopInputPlaceholder = async () => {
 
 /**
  * 处理顶部搜索框内容
- * @returns {Promise<void>}
+ * @returns {Promise<void>|null}
  */
 const processTopInputContent = async () => {
     // 是否兼容BewlyBewly插件，如果开启之后，不处理
