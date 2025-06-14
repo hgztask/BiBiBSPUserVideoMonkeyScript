@@ -25,51 +25,6 @@ const deDesktopDownloadTipEl = async () => {
 }
 
 /**
- * //首页中的换一换区域视频列表
- * @returns {Promise<[]>}
- * @type function
- */
-const getChangeTheVideoElList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".container.is-version8>.feed-card")
-    const list = [];
-    for (let el of elList) {
-        try {
-            const tempData = getVideoData(el)
-            const {userUrl} = tempData
-            /**
-             *
-             * @type {string|null}
-             */
-            const videoUrl = el.querySelector(".bili-video-card__info--tit>a")?.href || null;
-            //过滤非视频内容
-            if (!userUrl.includes("//space.bilibili.com/")) {
-                el?.remove();
-                const log = "遍历换一换视频列表中检测到异常内容，已将该元素移除";
-                console.log(log, el);
-                continue;
-            }
-            const items = {
-                ...tempData, ...{
-                    videoUrl,
-                    el,
-                    insertionPositionEl: el.querySelector(".bili-video-card__info--bottom"),
-                    explicitSubjectEl: el.querySelector(".bili-video-card__info")
-                }
-            };
-            if (videoUrl?.includes('www.bilibili.com/video')) {
-                items.bv = elUtil.getUrlBV(videoUrl)
-            }
-            list.push(items);
-        } catch (e) {
-            el.remove();
-            console.warn("获取视频信息失败");
-        }
-    }
-    return list
-}
-
-
-/**
  * 获取视频数据
  * @param el
  * @returns {{title, userUrl, name, uid, videoUrl, nPlayCount, nBulletChat, nDuration}}
@@ -96,9 +51,9 @@ const getVideoData = (el) => {
     }
 }
 
-//首页中的视频列表，不包括换一换中的视频列表
+//首页中的视频列表，包括换一换中的视频列表
 const getHomeVideoELList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".container.is-version8>.bili-video-card");
+    const elList = await elUtil.findElementsUntilFound(".container.is-version8>.feed-card,.container.is-version8>.bili-feed-card");
     let list = [];
     for (let el of elList) {
         try {
@@ -164,24 +119,7 @@ const startClearExcessContentList = () => {
     console.log("已启动每秒清理首页视频列表中多余的内容");
 }
 
-//开始屏蔽换一换的视频
-const startShieldingChangeVideoList = async () => {
-    const list = await getChangeTheVideoElList();
-    for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingChangeVideoList})
-    }
-}
-
-/**
- * 屏蔽换一换视频列表的防抖
- * @type function
- */
-const startDebounceShieldingChangeVideoList = defUtil.debounce(startShieldingChangeVideoList, 200);
-
-//开始屏蔽首页中换一换下面的视频列表
+//开始屏蔽首页中的视频列表
 const startShieldingHomeVideoList = async () => {
     const homeVideoELList = await getHomeVideoELList();
     for (const videoData of homeVideoELList) {
@@ -213,7 +151,6 @@ const scrollMouseUpAndDown = async () => {
 export default {
     isHome,
     startClearExcessContentList,
-    startDebounceShieldingChangeVideoList,
     startDebounceShieldingHomeVideoList,
     scrollMouseUpAndDown,
     deDesktopDownloadTipEl,

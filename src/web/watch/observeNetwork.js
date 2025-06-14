@@ -25,7 +25,6 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     }
     if (url.startsWith("https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd?web_location=")) {
         if (globalValue.compatibleBEWLYBEWLY) return;
-        bilibiliHome.startDebounceShieldingChangeVideoList();
         bilibiliHome.startDebounceShieldingHomeVideoList();
         console.log("检测到首页加载了换一换视频列表和其下面的视频列表")
         return;
