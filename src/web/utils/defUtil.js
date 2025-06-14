@@ -29,6 +29,28 @@ const fileDownload = (content, fileName) => {
 }
 
 /**
+ * 保存大文本到文件
+ * @param text {string} 文本内容
+ * @param filename {string} 文件名
+ */
+export function saveTextAsFile(text, filename = 'data.txt') {
+    // 创建Blob对象（处理大文本）
+    const blob = new Blob([text], {type: 'text/plain'});
+    // 创建下载链接
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = filename;
+    // 触发下载
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    // 清理
+    setTimeout(() => {
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(downloadLink.href);
+    }, 100);
+}
+
+/**
  *封装file标签handle的回调，用于读取文件内容
  * @param event
  * @returns {Promise<{any,content:string|string}>}

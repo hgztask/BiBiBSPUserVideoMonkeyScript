@@ -1,7 +1,8 @@
 import ruleUtil from "../../../utils/ruleUtil.js";
 import ruleConversion from "../../../model/ruleConversion.js";
-import defUtil from "../../../utils/defUtil.js";
+import defUtil, {saveTextAsFile} from "../../../utils/defUtil.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
+
 
 //规则导入导出组件
 export default {
@@ -144,9 +145,9 @@ export default {
                     this.$alert('文件名不能为空或包含空格')
                     return
                 }
-                const ruleContent = ruleUtil.getRuleContent(4);
-                defUtil.fileDownload(ruleContent, value + ".json");
+                saveTextAsFile(ruleUtil.getRuleContent(4), value + ".json");
             })
+
         },
         ruleOutToConsoleBut() {
             console.log(ruleUtil.getRuleContent());

@@ -103,8 +103,8 @@ export const basic_rules_vue = {
                 for (let x of this.ruleInfoArr) {
                     gmUtil.delData(x.type);
                 }
-                this.$alert("删除全部规则成功");
-                eventEmitter.send('刷新规则信息');
+                this.$message.success("删除全部规则成功");
+                eventEmitter.send('刷新规则信息', false);
             })
         },
         delBut() {
