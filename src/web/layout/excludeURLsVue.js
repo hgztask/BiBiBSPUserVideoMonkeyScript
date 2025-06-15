@@ -13,6 +13,7 @@ export default {
             <el-col :span="12">
               <div>1.被排除的页面大部分功能会失效</div>
               <div>2.修改后建议刷新页面</div>
+              <el-switch v-model="excludeURLSwitchVal" active-text="启用设置"/>
             </el-col>
             <el-col :span="12">
               <el-input v-model.trim="testInputRegVal">
@@ -26,7 +27,6 @@ export default {
               </div>
             </el-col>
           </el-row>
-          <el-switch v-model="excludeURLSwitchVal" active-text="启用设置"/>
         </el-card>
         <el-table :data="data" stripe border>
           <el-table-column label="启用" width="100">
