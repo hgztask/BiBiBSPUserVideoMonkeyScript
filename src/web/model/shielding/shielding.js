@@ -606,10 +606,14 @@ export const asyncBlockTimeRangeMasking = async (timestamp) => {
 
 //检查是否只看硬核会员
 export const blockSeniorMemberOnly = (level) => {
-    if (level === 7 && isSeniorMemberOnly()) {
-        return {state: true, type: '只看硬核会员'}
+    if (!isSeniorMemberOnly() || level === -1) {
+        //未开启仅看硬核会员或未知等级-1时，直接返回
+        return returnTempVal
     }
-    return returnTempVal
+    if (level === 7) {
+        return {state: true, type: '保留硬核会员'}
+    }
+    return {state: true, type: '非硬核会员'}
 }
 
 /**

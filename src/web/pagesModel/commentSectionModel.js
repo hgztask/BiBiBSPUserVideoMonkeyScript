@@ -225,7 +225,7 @@ const startShieldingComments = async () => {
         //新版评论区
         list = await getCommentSectionList();
     }
-    comments_shielding.shieldingComments(list);
+    comments_shielding.shieldingCommentsAsync(list);
 }
 
 /**

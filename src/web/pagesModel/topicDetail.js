@@ -48,8 +48,8 @@ const __shieldingVideo = (videoData) => {
     }
     shielding.addTopicDetailVideoBlockButton({data: videoData, maskingFunc: startShielding})
 }
-const __shieldingDynamic = (dynamicData) => {
-    if (comments_shielding.shieldingCommentDecorated(dynamicData)) {
+const __shieldingDynamic = async (dynamicData) => {
+    if (await comments_shielding.shieldingCommentAsync(dynamicData)) {
         return;
     }
     shielding.addTopicDetailContentsBlockButton({data: dynamicData, maskingFunc: startShielding});
