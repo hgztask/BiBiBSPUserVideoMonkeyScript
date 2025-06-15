@@ -9,8 +9,23 @@ export default {
       <div>
         <el-card shadow="never">
           <template #header>说明</template>
-          <div>1.被排除的页面大部分功能会失效</div>
-          <div>2.修改后建议刷新页面</div>
+          <el-row>
+            <el-col :span="12">
+              <div>1.被排除的页面大部分功能会失效</div>
+              <div>2.修改后建议刷新页面</div>
+            </el-col>
+            <el-col :span="12">
+              <el-input v-model.trim="testInputRegVal">
+                <template #prepend>正则地址</template>
+              </el-input>
+              <el-input v-model.trim="testInputVal">
+                <template #prepend>测试地址</template>
+              </el-input>
+              <div class="el-horizontal-right">
+                <el-button @click="testVerificationBut">测试验证</el-button>
+              </div>
+            </el-col>
+          </el-row>
           <el-switch v-model="excludeURLSwitchVal" active-text="启用设置"/>
         </el-card>
         <el-table :data="data" stripe border>
@@ -36,7 +51,10 @@ export default {
               <el-button type="success" @click="saveBut">保存</el-button>
             </template>
             <template v-slot="scope">
-              <el-button type="danger" size="mini" @click="tableDelItemBut(scope.$index,scope.row)">删除</el-button>
+              <el-tooltip content="以当前网页url用于验证匹配结果">
+                <el-button @click="tableVerificationItemUrlBut(scope.row.regularURL)">验证当前Url</el-button>
+              </el-tooltip>
+              <el-button type="danger" @click="tableDelItemBut(scope.$index,scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -44,7 +62,9 @@ export default {
     data() {
         return {
             excludeURLSwitchVal: isExcludeURLSwitchGm(),
-            data: getExcludeURLsGm()
+            data: getExcludeURLsGm(),
+            testInputRegVal: "",
+            testInputVal: ''
         }
     },
     methods: {
@@ -67,6 +87,26 @@ export default {
             }
             gmUtil.setData("exclude_urls_gm", this.data)
             this.$message.success("保存成功");
+        },
+        tableVerificationItemUrlBut(url) {
+            if (window.location.href.search(url) !== -1) {
+                this.$message.success('匹配成功！')
+            } else {
+                this.$message.warning('匹配失败！')
+            }
+        },
+        testVerificationBut() {
+            const inputVal = this.testInputVal;
+            const inputRegVal = this.testInputRegVal;
+            if (inputVal.length === 0 || inputRegVal.length === 0) {
+                this.$message.warning('请正确填写内容')
+                return
+            }
+            if (inputVal.search(inputRegVal) !== -1) {
+                this.$message.success('匹配成功！')
+            } else {
+                this.$message.warning('匹配失败！')
+            }
         }
     },
     watch: {
