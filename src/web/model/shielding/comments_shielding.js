@@ -60,22 +60,27 @@ const shieldingCommentAsync = async (commentsData) => {
     return state;
 }
 /**
- * 异步屏蔽评论
+ * 评论区异步屏蔽评论内容
+ * 1.当楼主是硬核会员并且开启仅看硬核会员时，跳过楼中层
  * @param commentsDataList
  * @returns {Promise<void>|null}
  */
 const shieldingCommentsAsync = async (commentsDataList) => {
     for (let commentsData of commentsDataList) {
-        //判断是否为楼主，如果是楼主层，则有楼中层，处理列表中的楼主层
-        const state = await shieldingCommentAsync(commentsData);
+        const {state, type, matching} = await shieldingCommentAsync(commentsData);
+        eventEmitter.send('event-评论通知替换关键词', commentsData)
+        const {replies = []} = commentsData;
+        if (type === '保留硬核会员') continue
         if (state) continue;
         eventEmitter.send('评论添加屏蔽按钮', commentsData)
         //当楼主层执行通过后，检查楼中层
-        const {replies = []} = commentsData;
-        if (replies.length === 0) continue;
         for (let reply of replies) {
             if (await shieldingCommentAsync(reply)) continue;
             eventEmitter.send('评论添加屏蔽按钮', reply)
+        }
+        if (state) {
+            commentsData.el?.remove()
+            eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
         }
     }
 }

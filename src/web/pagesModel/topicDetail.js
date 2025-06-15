@@ -42,19 +42,6 @@ const getDataList = async () => {
     return list;
 }
 
-const __shieldingVideo = (videoData) => {
-    if (video_shielding.shieldingVideoDecorated(videoData)) {
-        return;
-    }
-    shielding.addTopicDetailVideoBlockButton({data: videoData, maskingFunc: startShielding})
-}
-const __shieldingDynamic = async (dynamicData) => {
-    if (await comments_shielding.shieldingCommentAsync(dynamicData)) {
-        return;
-    }
-    shielding.addTopicDetailContentsBlockButton({data: dynamicData, maskingFunc: startShielding});
-}
-
 //开始屏蔽
 const startShielding = async () => {
     const list = await getDataList();
@@ -63,9 +50,11 @@ const startShielding = async () => {
         data.css = css;
         //判断是否是视频
         if (data.judgmentVideo) {
-            __shieldingVideo(data);
+            if (video_shielding.shieldingVideoDecorated(data)) continue;
+            shielding.addTopicDetailVideoBlockButton({data, maskingFunc: startShielding})
         } else {
-            __shieldingDynamic(data);
+            if (await comments_shielding.shieldingCommentAsync(data)) continue;
+            shielding.addTopicDetailContentsBlockButton({data, maskingFunc: startShielding});
         }
     }
 }
