@@ -20,7 +20,9 @@ import {checkAndExcludePage} from "../layout/excludeURLsVue.js";
 const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     //如果不是api请求，就直接返回
     if (!url.includes('api')) return;
-    if (checkAndExcludePage(url)) return;
+    if (checkAndExcludePage(windowUrl)) {
+        throw new Error('stopPerformanceObserver')
+    }
     if (globalValue.bOnlyTheHomepageIsBlocked) {
         //如果开启了只屏蔽首页，且当前窗口不是首页，就直接返回
         if (!bilibiliHome.isHome(windowUrl, winTitle)) return;

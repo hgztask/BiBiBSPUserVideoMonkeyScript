@@ -116,7 +116,6 @@ export default {
     }
 }
 
-
 /**
  * 测试检查url是否排除页面
  * @param url {string}
@@ -127,13 +126,12 @@ const checkAndExcludePageTest = (url) => {
     if (arr.length === 0) return returnTempVal;
     for (let v of arr) {
         if (!v.state) continue;
-        if (url.search(v.regularURL) !== 0) {
+        if (url.search(v.regularURL) !== -1) {
             return {state: true, regularURL: v.regularURL};
         }
     }
     return returnTempVal;
 }
-
 
 /**
  * 检查是否排除页面

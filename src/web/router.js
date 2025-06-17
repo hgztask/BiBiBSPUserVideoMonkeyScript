@@ -83,6 +83,7 @@ const dynamicRouting = (title, url) => {
     console.log("动态路由", title, url);
     //如果只屏蔽首页，则不执行以下代码
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
+    if (checkAndExcludePage(url)) return;
     eventEmitter.send('通知屏蔽');
 }
 

@@ -18,7 +18,7 @@ const addEventListenerUrlChange = (callback) => {
  * @param callback {function} 回调函数
  */
 const addEventListenerNetwork = (callback) => {
-    new PerformanceObserver(() => {
+    const performanceObserver = new PerformanceObserver(() => {
         const entries = performance.getEntriesByType('resource');
         const windowUrl = window.location.href;
         const winTitle = document.title;
@@ -28,10 +28,20 @@ const addEventListenerNetwork = (callback) => {
             if (initiatorType === "img" || initiatorType === "css" || initiatorType === "link" || initiatorType === "beacon") {
                 continue;
             }
-            callback(url, windowUrl,winTitle, initiatorType)
+            try {
+                callback(url, windowUrl, winTitle, initiatorType);
+            } catch (e) {
+                if (e.message === "stopPerformanceObserver") {
+                    performanceObserver.disconnect();
+                    console.log("检测到当前页面在排除列表中，已停止性能观察器对象实例", e)
+                    break;
+                }
+                throw e;
+            }
         }
         performance.clearResourceTimings();//清除资源时间
-    }).observe({entryTypes: ['resource']});
+    });
+    performanceObserver.observe({entryTypes: ['resource']});
 }
 
 
@@ -44,7 +54,7 @@ const addEventListenerNetwork = (callback) => {
  * @param {number} config.interval - 定时检查的时间间隔（毫秒），默认为 1000 毫秒。
  * @returns {function} - 返回一个取消观察的方法，调用此方法可以停止定时器。
  */
-function watchElementListLengthWithInterval(selector, callback, config={}) {
+function watchElementListLengthWithInterval(selector, callback, config = {}) {
     const defConfig = {};
     config = {...defConfig, ...config};
     //先前长度
