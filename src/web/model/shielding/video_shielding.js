@@ -57,6 +57,52 @@ const blockVideoBV = (bv) => {
     return returnTempVal
 }
 
+//检查视频时长屏蔽
+const blockVideoDuration = (duration) => {
+    if (duration !== -1) {
+        const min = gmUtil.getData('nMinimumDuration', -1);
+        if (min > duration && min !== -1) {
+            return {state: true, type: '最小时长', matching: min}
+        }
+        const max = gmUtil.getData('nMaximumDuration', -1)
+        if (max < duration && max !== -1) {
+            return {state: true, type: '最大时长', matching: max}
+        }
+    }
+    return returnTempVal
+}
+
+//检查视频弹幕数量屏蔽
+const blockVideoBulletChat = (bulletChat) => {
+    //限制弹幕数
+    if (bulletChat !== -1) {
+        const min = gmUtil.getData('nMinimumBarrage', -1);
+        if (min > bulletChat && min !== -1) {
+            return {state: true, type: '最小弹幕数', matching: min}
+        }
+        const max = gmUtil.getData('nMaximumBarrage', -1)
+        if (max < bulletChat && max !== -1) {
+            return {state: true, type: '最大弹幕数', matching: max}
+        }
+    }
+    return returnTempVal
+}
+
+//检查视频播放量数量屏蔽
+const blockVideoPlayCount = (playCount) => {
+    if (playCount !== -1) {
+        const min = gmUtil.getData('nMinimumPlay', -1);
+        if (min > playCount && min !== -1) {
+            return {state: true, type: '最小播放量', matching: min}
+        }
+        const max = gmUtil.getData('nMaximumPlayback', -1)
+        if (max < playCount && max !== -1) {
+            return {state: true, type: '最大播放量', matching: max}
+        }
+    }
+    return returnTempVal
+}
+
 /**
  * 屏蔽视频
  * @param videoData {{}} 视频数据
@@ -80,38 +126,12 @@ const shieldingVideo = (videoData) => {
     if (returnVal.state) return returnVal;
     returnVal = blockVideoBV(bv)
     if (returnVal.state) return returnVal;
-    //限制时长
-    if (nDuration !== -1) {
-        const min = gmUtil.getData('nMinimumDuration', -1);
-        if (min > nDuration && min !== -1) {
-            return {state: true, type: '最小时长', matching: min}
-        }
-        const max = gmUtil.getData('nMaximumDuration', -1)
-        if (max < nDuration && max !== -1) {
-            return {state: true, type: '最大时长', matching: max}
-        }
-    }
-    //限制弹幕数
-    if (nBulletChat !== -1) {
-        const min = gmUtil.getData('nMinimumBarrage', -1);
-        if (min > nBulletChat && min !== -1) {
-            return {state: true, type: '最小弹幕数', matching: min}
-        }
-        const max = gmUtil.getData('nMaximumBarrage', -1)
-        if (max < nBulletChat && max !== -1) {
-            return {state: true, type: '最大弹幕数', matching: max}
-        }
-    }
-    if (nPlayCount !== -1) {
-        const min = gmUtil.getData('nMinimumPlay', -1);
-        if (min > nPlayCount && min !== -1) {
-            return {state: true, type: '最小播放量', matching: min}
-        }
-        const max = gmUtil.getData('nMaximumPlayback', -1)
-        if (max < nPlayCount && max !== -1) {
-            return {state: true, type: '最大播放量', matching: max}
-        }
-    }
+    returnVal = blockVideoDuration(nDuration)
+    if (returnVal.state) return returnVal;
+    returnVal = blockVideoBulletChat(nBulletChat)
+    if (returnVal.state) return returnVal;
+    returnVal = blockVideoPlayCount(nPlayCount)
+    if (returnVal.state) return returnVal;
     //表面放行该内容
     return returnTempVal;
 }

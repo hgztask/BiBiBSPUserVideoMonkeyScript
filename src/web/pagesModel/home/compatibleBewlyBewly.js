@@ -6,13 +6,20 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
 
+//获取bewly的shadowRoot元素
+let be_wly_el = null;
+
 /**
  * 获取bewly的shadowRoot元素
- * @returns {Promise<ShadowRoot>}
+ * @returns {Promise<ShadowRoot|Element|Document>}
  */
 const getBewlyEl = async () => {
-    let el = await elUtil.findElementUntilFound('#bewly', {interval: 500})
-    return el.shadowRoot;
+    if (be_wly_el === null) {
+        let el = await elUtil.findElementUntilFound('#bewly', {interval: 500})
+        be_wly_el = el.shadowRoot;
+        return be_wly_el
+    }
+    return be_wly_el
 }
 
 /**
@@ -48,8 +55,10 @@ const check_BEWLYPage_compatibility = async () => {
  * @returns {Promise<[]>}
  */
 const getVideoList = async () => {
-    const beEl = await getBewlyEl();
-    const elList = await elUtil.findElementsUntilFound('.video-card.group', {doc: beEl})
+    if (be_wly_el === null) {
+        await getBewlyEl();
+    }
+    const elList = await elUtil.findElementsUntilFound('.video-card.group', {doc: be_wly_el})
     const list = [];
     for (let el of elList) {
         const parentElement = el.parentElement.parentElement;
@@ -59,8 +68,8 @@ const getVideoList = async () => {
         const uid = elUtil.getUrlUID(userUrl);
         const name = userUrlEl.textContent.trim();
         const playInfoEl = el.querySelector('[flex="~ items-center gap-1 wrap"]>div');
-        let playCount = playInfoEl.querySelector('span:first-child')?.textContent.trim() || null;
-        playCount = sFormatUtil.toPlayCountOrBulletChat(playCount)
+        let nPlayCount = playInfoEl.querySelector('span:first-child')?.textContent.trim() || null;
+        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         let bulletChat = playInfoEl.querySelector('span:last-of-type')?.textContent.trim() || null;
         if (playInfoEl.querySelectorAll('span').length < 2) {
             bulletChat = -1
@@ -79,7 +88,7 @@ const getVideoList = async () => {
             bv,
             userUrl,
             videoUrl,
-            playCount,
+            nPlayCount,
             bulletChat,
             nDuration,
             el: parentElement,
