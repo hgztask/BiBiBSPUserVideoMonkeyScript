@@ -1,7 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import shielding from "../../model/shielding/shielding.js";
-import defUtil from "../../utils/defUtil.js";
+import defUtil, {addGzStyle} from "../../utils/defUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
@@ -306,7 +306,7 @@ const rankingLeftTabsInsertListener = () => {
  */
 const installBEWLStyle = () => {
     getBewlyEl().then(el => {
-        gz_ui_css.addStyle(el, el)
+        addGzStyle(el, el);
     })
 }
 

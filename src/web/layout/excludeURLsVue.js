@@ -1,6 +1,5 @@
 import gmUtil from "../utils/gmUtil.js";
 import {getExcludeURLsGm, isExcludeURLSwitchGm} from "../data/localMKData.js";
-import {eventEmitter} from "../model/EventEmitter.js";
 import {returnTempVal} from "../data/globalValue.js";
 
 // 排除页面组件
@@ -143,7 +142,6 @@ export const checkAndExcludePage = (url) => {
     const {state, regularURL} = checkAndExcludePageTest(url)
     if (state) {
         console.log("排除页面", regularURL)
-        eventEmitter.send('打印信息', '排除页面：' + regularURL);
     }
     return state
 }
