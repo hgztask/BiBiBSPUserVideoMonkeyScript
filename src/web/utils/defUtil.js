@@ -142,38 +142,6 @@ function debounce(func, wait = 1000) {
 }
 
 /**
- * 防抖异步函数
- * @param asyncFunc {function} 需要防抖的异步函数
- * @param wait {number} 等待时间，单位毫秒，默认为 1000毫秒
- * @returns {function(...[*]): Promise<any>}
- */
-function debounceAsync(asyncFunc, wait = 1000) {
-    let timeout;
-    let pendingPromise;
-
-    return async function (...args) {
-        const context = this;
-
-        // 如果有正在进行的异步操作，则取消定时器并等待其完成
-        if (pendingPromise) {
-            clearTimeout(timeout);
-            await pendingPromise;
-        }
-
-        // 创建一个新的 Promise 以便我们可以等待防抖结束
-        pendingPromise = new Promise((resolve) => {
-            timeout = setTimeout(() => {
-                pendingPromise = null; // 清除引用
-                resolve(asyncFunc.apply(context, args));
-            }, wait);
-        });
-
-        // 返回一个 Promise，它会在防抖结束后解析为原始异步函数的结果
-        return pendingPromise;
-    };
-}
-
-/**
  *  节流函数
  * @param func {function} 需要节流的函数
  * @param limit {number} 节流时间，单位毫秒

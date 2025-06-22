@@ -5,7 +5,6 @@ mk_db.version(1).stores({
     videoInfos: 'bv,tags,userInfo,videoInfo',
 });
 
-
 /**
  *添加视频数据
  * @param bv {string}
@@ -52,6 +51,7 @@ const bulkImportVideoInfos = async (friendsData) => {
 const getVideoInfo = async () => {
     return await mk_db.videoInfos.toArray()
 }
+
 
 /**
  * 获取本地db视频数据长度

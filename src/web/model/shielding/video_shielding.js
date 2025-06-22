@@ -25,10 +25,9 @@ import shielding, {
     blockUserUidAndName,
     blockVideoOrOtherTitle
 } from "./shielding.js";
-import {videoInfoCache} from "../cache/videoInfoCache.js";
+import {videoInfoCache, videoInfoCacheUpdateDebounce} from "../cache/videoInfoCache.js";
 import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
 import bFetch from '../bFetch.js'
-import bvDexie from "../bvDexie.js";
 import {returnTempVal} from "../../data/globalValue.js";
 import arrUtil from "../../utils/arrUtil.js";
 
@@ -143,7 +142,7 @@ const shieldingVideo = (videoData) => {
  * @returns {boolean}state 是否屏蔽或屏蔽过
  */
 const shieldingVideoDecorated = (videoData, method = "remove") => {
-    const {el} = videoData;
+    const {el, bv = "-1"} = videoData;
     if (el.style.display === "none") return true;
     const {state, type, matching = null} = shieldingVideo(videoData);
     if (state) {
@@ -151,7 +150,26 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         return true;
     }
     if (localMKData.isDisableNetRequestsBvVideoInfo()) return state;
-    shieldingOtherVideoParameter(videoData, method)
+    //如果没有bv号参数，则不执行
+    if (bv === '-1') return false
+    if (videoInfoCache.getCount() === 0) {
+        videoInfoCacheUpdateDebounce()
+    }
+    const find = videoInfoCache.find(bv);
+    if (find === null) {
+        //获取视频信息
+        requestIntervalQueue.add(() => bFetch.fetchGetVideoInfo(bv)).then(({state, data, msg}) => {
+            if (!state) {
+                console.warn('获取视频信息失败:' + msg);
+                return
+            }
+            videoInfoCache.addResData(bv, data, videoData, method)
+            videoInfoCacheUpdateDebounce()
+        })
+        return false
+    } else {
+        shieldingOtherVideoParameter(find, method)
+    }
     return state;
 }
 
@@ -175,36 +193,13 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
 
 /**
  * 检查其他视频参数执行屏蔽
- * @param videoData {{}} 视频数据
+ * @param result {{}} 请求相应视频数据
  * @param method {string} 屏蔽方式，remove为直接删除，hide为隐藏，默认为remove
  * @returns null
  */
-const shieldingOtherVideoParameter = async (videoData, method) => {
-    const {bv = '-1'} = videoData
-    //如果没有bv号参数，则不执行
-    if (bv === '-1') return
-    if (videoInfoCache.getCount() === 0) {
-        await videoInfoCache.update()
-    }
-    const find = videoInfoCache.find(bv);
-    let result;
-    if (find === null) {
-        //获取视频信息
-        const {state, data, msg} = await requestIntervalQueue.add(() => bFetch.fetchGetVideoInfo(bv))
-        if (!state) {
-            console.warn('获取视频信息失败:' + msg);
-            return
-        }
-        result = data
-        if (await bvDexie.addVideoData(bv, result)) {
-            await videoInfoCache.update()
-            console.log('mk-db-添加视频信息到数据库成功', result, videoData)
-        }
-    } else {
-        result = find
-    }
+const shieldingOtherVideoParameter = async (result, method) => {
     const {tags = [], userInfo, videoInfo} = result
-    asyncBlockUserUidAndName(userInfo.mid, userInfo.name)
+    asyncBlockUserUidAndName(userInfo.uid, userInfo.name)
         .then(() => {
             if (!isEffectiveUIDShieldingOnlyVideo()) {
                 return
@@ -242,6 +237,11 @@ const shieldingOtherVideoParameter = async (videoData, method) => {
             eventEmitter.send('event-屏蔽视频元素', {res: v, method, videoData})
         })
 }
+
+eventEmitter.on('event-检查其他视频参数屏蔽', (result, method) => {
+    shieldingOtherVideoParameter(result, method)
+})
+
 /**
  * 添加热门视频屏蔽按钮
  * @param data{Object}
@@ -274,6 +274,7 @@ eventEmitter.on('视频添加屏蔽按钮', (data) => {
 
 
 export default {
-    shieldingVideoDecorated
+    shieldingVideoDecorated,
+    shieldingOtherVideoParameter
 }
 
