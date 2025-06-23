@@ -43,7 +43,7 @@ export default {
             liEL.innerHTML = content;
             this.outputInfoArr.push(liEL.innerHTML)
         })
-        eventEmitter.on('屏蔽视频信息', (type, matching, videoData) => {
+        eventEmitter.on('event-打印屏蔽视频信息', (type, matching, videoData) => {
             if (isWsService()) {
                 eventEmitter.send('ws-send-json', {type, matching, videoData})
             }

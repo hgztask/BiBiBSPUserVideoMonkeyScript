@@ -81,7 +81,7 @@ export const videoInfoCacheUpdateDebounce = defUtil.debounce(async () => {
         if ((await bvDexie.addVideoData(bv, data))) {
             console.log('mk-db-添加视频信息到数据库成功', elData)
         }
-        eventEmitter.send('event-检查其他视频参数屏蔽', data, method)
+        eventEmitter.send('event-检查其他视频参数屏蔽', data, elData, method)
     }
     videoInfoCache.clearResData();
     await videoInfoCache.update()

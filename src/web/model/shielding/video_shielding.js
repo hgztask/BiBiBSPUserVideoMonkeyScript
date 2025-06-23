@@ -168,7 +168,7 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         })
         return false
     } else {
-        shieldingOtherVideoParameter(find, method)
+        shieldingOtherVideoParameter(find, videoData, method)
     }
     return state;
 }
@@ -188,16 +188,17 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
     } else {
         el.style.display = "none";
     }
-    eventEmitter.send('屏蔽视频信息', type, matching, videoData)
+    eventEmitter.send('event-打印屏蔽视频信息', type, matching, videoData)
 })
 
 /**
  * 检查其他视频参数执行屏蔽
  * @param result {{}} 请求相应视频数据
+ * @param videoData {{}} 视频网页元素数据
  * @param method {string} 屏蔽方式，remove为直接删除，hide为隐藏，默认为remove
  * @returns null
  */
-const shieldingOtherVideoParameter = async (result, method) => {
+const shieldingOtherVideoParameter = async (result, videoData, method) => {
     const {tags = [], userInfo, videoInfo} = result
     asyncBlockUserUidAndName(userInfo.uid, userInfo.name)
         .then(() => {
@@ -228,7 +229,7 @@ const shieldingOtherVideoParameter = async (result, method) => {
         .catch((v) => {
             const {msg, type} = v;
             if (msg) {
-                console.warn(msg);
+                console.warn('warn-type-msg', msg);
             }
             if (type === '中断') {
                 return;
@@ -238,8 +239,8 @@ const shieldingOtherVideoParameter = async (result, method) => {
         })
 }
 
-eventEmitter.on('event-检查其他视频参数屏蔽', (result, method) => {
-    shieldingOtherVideoParameter(result, method)
+eventEmitter.on('event-检查其他视频参数屏蔽', (result, videoData, method) => {
+    shieldingOtherVideoParameter(result, videoData, method)
 })
 
 /**
