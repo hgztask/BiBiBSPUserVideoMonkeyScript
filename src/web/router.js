@@ -39,6 +39,7 @@ const staticRoute = (title, url) => {
     console.log("静态路由", title, url)
     if (checkAndExcludePage(url)) return;
     homeStaticRoute(title, url)
+    hotSearch.run();
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     topInput.processTopInputContent()
     hotSearch.startShieldingHotList()

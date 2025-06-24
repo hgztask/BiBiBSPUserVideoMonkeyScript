@@ -330,6 +330,16 @@ export const getExcludeURLsGm = () => {
     return gmUtil.getData('exclude_urls_gm', [])
 }
 
+//是否隐藏顶部搜索框热搜面板
+export const isHideHotSearchesPanelGm = () => {
+    return gmUtil.getData('is_hide_hot_searches_panel_gm', false)
+}
+
+//是否隐藏顶部搜索框历史记录面板
+export const isHideSearchHistoryPanelGm = () => {
+    return gmUtil.getData('is_hide_search_history_panel_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

@@ -1,7 +1,8 @@
 import gmUtil from "../../utils/gmUtil.js";
-import localMKData from "../../data/localMKData.js";
+import localMKData, {isHideHotSearchesPanelGm, isHideSearchHistoryPanelGm} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import topInput from "../../pagesModel/search/topInput.js";
+import hotSearch from "../../pagesModel/search/hotSearch.js";
 
 //页面处理处理
 export const page_processing_vue = {
@@ -35,6 +36,8 @@ export const page_processing_vue = {
             <span>顶部搜索框</span>
           </template>
           <el-switch v-model="isClearTopInputTipContent" active-text="清空内容"/>
+          <el-switch v-model="isHideHotSearchesPanelVal" active-text="隐藏热搜"/>
+          <el-switch v-model="isHideSearchHistoryPanelVal" active-text="隐藏搜索历史"/>
         </el-card>
       </div>`,
     data() {
@@ -45,7 +48,9 @@ export const page_processing_vue = {
             isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
             isDelBottomComment: localMKData.isDelBottomComment(),
             isClearTopInputTipContent: gmUtil.getData('isClearTopInputTipContent', false),
-            isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel()
+            isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel(),
+            isHideHotSearchesPanelVal: isHideHotSearchesPanelGm(),
+            isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm()
         }
     },
     methods: {},
@@ -75,6 +80,14 @@ export const page_processing_vue = {
         },
         isDelPlayerEndingPanelVal(n) {
             gmUtil.setData('is_del_player_ending_panel', n)
+        },
+        isHideHotSearchesPanelVal(n) {
+            gmUtil.setData('is_hide_hot_searches_panel_gm', n)
+            hotSearch.setTopSearchPanelDisplay(n, '热搜', 4000);
+        },
+        isHideSearchHistoryPanelVal(n) {
+            gmUtil.setData('is_hide_search_history_panel_gm', n)
+            hotSearch.setTopSearchPanelDisplay(n, '搜索历史', 4000);
         }
     }
 }
