@@ -2,7 +2,7 @@ import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding/shielding.js";
 import defUtil from "../utils/defUtil.js";
 import topicDetail from "./topicDetail.js";
-import localMKData from "../data/localMKData.js";
+import localMKData, {isCloseCommentBlockingGm} from "../data/localMKData.js";
 import videoPlayModel from "./videoPlay/videoPlayModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import comments_shielding from "../model/shielding/comments_shielding.js";
@@ -209,8 +209,11 @@ const getOldCommentSectionList = async () => {
 
 //执行屏蔽评论
 const startShieldingComments = async () => {
-    //如果当前是视频播放页并且配置了移除底部评论区时不执行该页的屏蔽评论功能
-    if (videoPlayModel.isVideoPlayPage() && localMKData.isDelBottomComment()) {
+    /*
+    1.如果当前是视频播放页并且配置了移除底部评论区时不执行该页的屏蔽评论功能
+    2.如果开启了关闭评论区屏蔽功能，则不执行屏蔽评论功能
+     */
+    if (videoPlayModel.isVideoPlayPage() && localMKData.isDelBottomComment() || isCloseCommentBlockingGm()) {
         return
     }
     let list;

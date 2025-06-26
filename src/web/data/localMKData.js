@@ -340,6 +340,11 @@ export const isHideSearchHistoryPanelGm = () => {
     return gmUtil.getData('is_hide_search_history_panel_gm', false)
 }
 
+//是否关闭评论区屏蔽
+export const isCloseCommentBlockingGm = () => {
+    return gmUtil.getData('is_close_comment_blocking_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

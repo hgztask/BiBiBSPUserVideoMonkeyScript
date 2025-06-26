@@ -1,5 +1,9 @@
 import gmUtil from "../../utils/gmUtil.js";
-import localMKData, {isHideHotSearchesPanelGm, isHideSearchHistoryPanelGm} from "../../data/localMKData.js";
+import localMKData, {
+    isCloseCommentBlockingGm,
+    isHideHotSearchesPanelGm,
+    isHideSearchHistoryPanelGm
+} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import topInput from "../../pagesModel/search/topInput.js";
 import hotSearch from "../../pagesModel/search/hotSearch.js";
@@ -30,6 +34,9 @@ export const page_processing_vue = {
           <el-tooltip content="视频播放完之后会在播放器上显示推荐内容，开启之后移除播放器上整个推荐内容">
             <el-switch v-model="isDelPlayerEndingPanelVal" active-text="移除播放完推荐层"/>
           </el-tooltip>
+          <el-tooltip content="开启后评论屏蔽功能关闭">
+            <el-switch v-model="isCloseCommentBlockingVal" active-text="关闭评论屏蔽"/>
+          </el-tooltip>
         </el-card>
         <el-card>
           <template #header>
@@ -50,7 +57,8 @@ export const page_processing_vue = {
             isClearTopInputTipContent: gmUtil.getData('isClearTopInputTipContent', false),
             isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel(),
             isHideHotSearchesPanelVal: isHideHotSearchesPanelGm(),
-            isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm()
+            isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm(),
+            isCloseCommentBlockingVal: isCloseCommentBlockingGm(),
         }
     },
     methods: {},
@@ -88,6 +96,9 @@ export const page_processing_vue = {
         isHideSearchHistoryPanelVal(n) {
             gmUtil.setData('is_hide_search_history_panel_gm', n)
             hotSearch.setTopSearchPanelDisplay(n, '搜索历史', 4000);
+        },
+        isCloseCommentBlockingVal(n) {
+            gmUtil.setData('is_close_comment_blocking_gm', n)
         }
     }
 }
