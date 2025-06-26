@@ -134,11 +134,11 @@ const bFuzzyAndRegularMatchingWordsToLowercase = () => {
 }
 
 /**
- * 获取请求频率，默认0.2，单位秒
+ * 获取请求频率，默认0.1，单位秒
  * @returns {number}
  */
 const isRequestFrequencyVal = () => {
-    return gmUtil.getData("requestFrequencyVal", 0.2)
+    return gmUtil.getData("requestFrequencyVal", 0.1)
 }
 
 /**
