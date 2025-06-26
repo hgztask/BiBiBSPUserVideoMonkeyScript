@@ -14,6 +14,7 @@
 - 脚本项目开发文档[===》B站屏蔽器脚本项目开发需知《===](https://docs.qq.com/doc/DSkdTQ1p1aFNnVnRS?no_promotion=1)
   ，可二改，但需要留下作者版权信息
 - 更新日志(包括发布前开发完的内容):[===》更新日志《===](https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj)
+- 推荐使用edge或chrome浏览器，其他浏览器可能存在问题。
 
 完整脚本描述可看(
 持续更新):[【腾讯文档】b站屏蔽增强器v2版自述文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)
@@ -89,7 +90,9 @@
 
 1. 相比v1版本，该版本尽可能的减少非屏蔽相关的功能
 2.
+
 脚本开源在gitee，地址为：[https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript](https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript)
+
 3. 如果有什么问题，欢迎提issue或前往作者交流群或b站个人主页上反馈
 4. 该如还有未补充的，待后续完善描述
 
