@@ -25,8 +25,7 @@ const homeStaticRoute = (title, url) => {
         compatibleBewlyBewly.check_BEWLYPage_compatibility()
         eventEmitter.send('通知屏蔽');
         if (globalValue.compatibleBEWLYBEWLY) return;
-        bilibiliHome.startClearExcessContentList();
-        bilibiliHome.deDesktopDownloadTipEl();
+        bilibiliHome.run();
     }
 }
 

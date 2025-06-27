@@ -4,6 +4,8 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
+import {isHideCarouselImageGm, isHideHomeTopHeaderBannerImageGm} from "../../data/localMKData.js";
+import gmUtil from "../../utils/gmUtil.js";
 
 // 判断是否是首页
 const isHome = (url, title) => {
@@ -22,6 +24,41 @@ const deDesktopDownloadTipEl = async () => {
     el?.remove();
     const log = "已删除下载提示";
     console.log(log, el);
+}
+
+// 隐藏首页轮播图
+const hideHomeCarouselImage = (hide, immediately = false) => {
+    const selector = '.container.is-version8>.recommended-swipe';
+    if (immediately) {
+        try {
+            document.body.querySelector(selector).style.display = hide ? 'none' : '';
+        } catch (e) {
+            console.log("隐藏首页轮播图失败", e)
+        }
+        return
+    }
+    elUtil.findElement(selector).then(el => {
+        el.style.display = hide ? 'none' : '';
+    })
+}
+
+//隐藏首页顶部标题横幅图片
+const hideHomeTopHeaderBannerImage = (hide) => {
+    elUtil.findElement('.bili-header__banner').then(el => {
+        if (hide) {
+            el.style.cssText = `
+                visibility: hidden;
+                height: 0 !important;
+                min-height: 45px !important;
+            `;
+        } else {
+            el.style.cssText = `
+                visibility: visible;
+                height: auto!important;
+                min-height: 155px;
+            `;
+        }
+    })
 }
 
 /**
@@ -147,12 +184,37 @@ const scrollMouseUpAndDown = async () => {
     return defUtil.smoothScroll(true, 600);
 }
 
+const run = () => {
+    deDesktopDownloadTipEl();
+    startClearExcessContentList();
+    if (isHideCarouselImageGm()) {
+        hideHomeCarouselImage(true);
+    }
+    if (isHideHomeTopHeaderBannerImageGm()) {
+        hideHomeTopHeaderBannerImage(true)
+    }
+    gmUtil.addStyle(`
+    .recommended-container_floor-aside .container>*:nth-of-type(7) {
+  /* 这里值改成auto，该视频选项卡对其其他视频*/
+  /* 原先是0，会导致该视频对不齐其他视频选项卡*/
+    margin-top: auto !important;
+}
+/*原先值为40px,该css声明样式会导致前几个高度异常，效果同上*/
+@media (min-width: 1560px) and (max-width: 2059.9px) {
+    .recommended-container_floor-aside .container>*:nth-of-type(n + 8) {
+        margin-top: auto !important;
+    }
+}
+    `);
+}
+
 //b站首页相关辅助逻辑
 export default {
     isHome,
-    startClearExcessContentList,
     startDebounceShieldingHomeVideoList,
     scrollMouseUpAndDown,
-    deDesktopDownloadTipEl,
-    getVideoData
+    getVideoData,
+    hideHomeCarouselImage,
+    hideHomeTopHeaderBannerImage,
+    run
 }

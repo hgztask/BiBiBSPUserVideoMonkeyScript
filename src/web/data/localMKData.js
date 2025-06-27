@@ -345,6 +345,16 @@ export const isCloseCommentBlockingGm = () => {
     return gmUtil.getData('is_close_comment_blocking_gm', false)
 }
 
+//是否隐藏首页左上角的轮播图
+export const isHideCarouselImageGm = () => {
+    return gmUtil.getData('is_hide_carousel_image_gm', false)
+}
+
+//是否隐藏首页顶部标题横幅图片
+export const isHideHomeTopHeaderBannerImageGm = () => {
+    return gmUtil.getData('is_hide_home_top_header_banner_image_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

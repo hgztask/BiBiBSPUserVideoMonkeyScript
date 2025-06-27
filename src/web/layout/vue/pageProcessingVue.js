@@ -1,12 +1,15 @@
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData, {
     isCloseCommentBlockingGm,
+    isHideCarouselImageGm,
+    isHideHomeTopHeaderBannerImageGm,
     isHideHotSearchesPanelGm,
     isHideSearchHistoryPanelGm
 } from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import topInput from "../../pagesModel/search/topInput.js";
 import hotSearch from "../../pagesModel/search/hotSearch.js";
+import bilibiliHome from "../../pagesModel/home/bilibiliHome.js";
 
 //页面处理处理
 export const page_processing_vue = {
@@ -46,6 +49,11 @@ export const page_processing_vue = {
           <el-switch v-model="isHideHotSearchesPanelVal" active-text="隐藏热搜"/>
           <el-switch v-model="isHideSearchHistoryPanelVal" active-text="隐藏搜索历史"/>
         </el-card>
+        <el-card>
+          <template #header>首页</template>
+          <el-switch v-model="isHideCarouselImageVal" active-text="隐藏轮播图"/>
+          <el-switch v-model="isHideHomeTopHeaderBannerImageVal" active-text="隐藏顶部标题横幅图片"/>
+        </el-card>
       </div>`,
     data() {
         return {
@@ -59,6 +67,8 @@ export const page_processing_vue = {
             isHideHotSearchesPanelVal: isHideHotSearchesPanelGm(),
             isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm(),
             isCloseCommentBlockingVal: isCloseCommentBlockingGm(),
+            isHideCarouselImageVal: isHideCarouselImageGm(),
+            isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm()
         }
     },
     methods: {},
@@ -99,6 +109,14 @@ export const page_processing_vue = {
         },
         isCloseCommentBlockingVal(n) {
             gmUtil.setData('is_close_comment_blocking_gm', n)
+        },
+        isHideCarouselImageVal(n) {
+            gmUtil.setData('is_hide_carousel_image_gm', n)
+            bilibiliHome.hideHomeCarouselImage(n, true);
+        },
+        isHideHomeTopHeaderBannerImageVal(n) {
+            gmUtil.setData('is_hide_home_top_header_banner_image_gm', n)
+            bilibiliHome.hideHomeTopHeaderBannerImage(n);
         }
     }
 }
