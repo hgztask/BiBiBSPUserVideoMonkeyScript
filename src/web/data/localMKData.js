@@ -356,8 +356,8 @@ export const isHideHomeTopHeaderBannerImageGm = () => {
 }
 
 //是否隐藏视频列表上方的动态、热门、频道栏一整行
-export const isHideHomeTopHeaderChannel = () => {
-    return gmUtil.getData('is_hide_home_top_header_channel_mg', false)
+export const isHideHomeTopHeaderChannelGm = () => {
+    return gmUtil.getData('is_hide_home_top_header_channel_gm', false)
 }
 
 export default {

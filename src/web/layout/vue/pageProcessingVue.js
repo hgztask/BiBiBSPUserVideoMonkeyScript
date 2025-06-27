@@ -3,7 +3,7 @@ import localMKData, {
     isCloseCommentBlockingGm,
     isHideCarouselImageGm,
     isHideHomeTopHeaderBannerImageGm,
-    isHideHomeTopHeaderChannel,
+    isHideHomeTopHeaderChannelGm,
     isHideHotSearchesPanelGm,
     isHideSearchHistoryPanelGm
 } from "../../data/localMKData.js";
@@ -55,7 +55,7 @@ export const page_processing_vue = {
           <el-switch v-model="isHideCarouselImageVal" active-text="隐藏轮播图"/>
           <el-switch v-model="isHideHomeTopHeaderBannerImageVal" active-text="隐藏顶部标题横幅图片"/>
           <el-tooltip content="隐藏视频列表上方的动态、热门、频道栏一整行">
-            <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道"/>
+            <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道栏"/>
           </el-tooltip>
         </el-card>
       </div>`,
@@ -73,7 +73,7 @@ export const page_processing_vue = {
             isCloseCommentBlockingVal: isCloseCommentBlockingGm(),
             isHideCarouselImageVal: isHideCarouselImageGm(),
             isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
-            isHideTopHeaderChannelVal: isHideHomeTopHeaderChannel()
+            isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm()
         }
     },
     methods: {},
@@ -124,7 +124,7 @@ export const page_processing_vue = {
             bilibiliHome.hideHomeTopHeaderBannerImage(n);
         },
         isHideTopHeaderChannelVal(n) {
-            gmUtil.setData('is_hide_home_top_header_channel_mg', n)
+            gmUtil.setData('is_hide_home_top_header_channel_gm', n)
             bilibiliHome.hideHomeTopHeaderChannel(n);
         }
     }

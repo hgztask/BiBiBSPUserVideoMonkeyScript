@@ -7,7 +7,7 @@ import globalValue from "../../data/globalValue.js";
 import {
     isHideCarouselImageGm,
     isHideHomeTopHeaderBannerImageGm,
-    isHideHomeTopHeaderChannel
+    isHideHomeTopHeaderChannelGm
 } from "../../data/localMKData.js";
 import gmUtil from "../../utils/gmUtil.js";
 
@@ -220,7 +220,7 @@ const run = () => {
     if (isHideHomeTopHeaderBannerImageGm()) {
         hideHomeTopHeaderBannerImage(true)
     }
-    if (isHideHomeTopHeaderChannel()) {
+    if (isHideHomeTopHeaderChannelGm()) {
         hideHomeTopHeaderChannel(true)
     }
     gmUtil.addStyle(`
