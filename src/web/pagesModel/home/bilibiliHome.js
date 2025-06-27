@@ -4,7 +4,11 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
-import {isHideCarouselImageGm, isHideHomeTopHeaderBannerImageGm} from "../../data/localMKData.js";
+import {
+    isHideCarouselImageGm,
+    isHideHomeTopHeaderBannerImageGm,
+    isHideHomeTopHeaderChannel
+} from "../../data/localMKData.js";
 import gmUtil from "../../utils/gmUtil.js";
 
 // 判断是否是首页
@@ -59,6 +63,29 @@ const hideHomeTopHeaderBannerImage = (hide) => {
             `;
         }
     })
+}
+
+//隐藏视频列表上方的动态、热门、频道栏一整行
+const hideHomeTopHeaderChannel = (hide) => {
+    const styleTxt = hide ? `
+        .bili-header__channel{
+        height: 36px!important;
+        visibility: hidden;
+        }
+        /* 向下滚动时顶部的频道栏 */
+        .header-channel{
+        display: none;
+        }
+        ` : `.bili-header__channel{
+        height: 120px!important;
+        visibility: visible;
+        }
+        /* 向下滚动时顶部的频道栏 */
+        .header-channel{
+        display: block;
+        }
+        `;
+    elUtil.installStyle(styleTxt, '.mk-hide-home-top-header-channel');
 }
 
 /**
@@ -193,6 +220,9 @@ const run = () => {
     if (isHideHomeTopHeaderBannerImageGm()) {
         hideHomeTopHeaderBannerImage(true)
     }
+    if (isHideHomeTopHeaderChannel()) {
+        hideHomeTopHeaderChannel(true)
+    }
     gmUtil.addStyle(`
     .recommended-container_floor-aside .container>*:nth-of-type(7) {
   /* 这里值改成auto，该视频选项卡对其其他视频*/
@@ -216,5 +246,6 @@ export default {
     getVideoData,
     hideHomeCarouselImage,
     hideHomeTopHeaderBannerImage,
+    hideHomeTopHeaderChannel,
     run
 }
