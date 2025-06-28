@@ -202,13 +202,14 @@ const startDebounceShieldingHomeVideoList = defUtil.debounce(startShieldingHomeV
 
 /**
  * 模拟鼠标上下滚动
- * @returns {Promise<>}
  */
 const scrollMouseUpAndDown = async () => {
     //如果开启适配BAppcommerce脚本，则不执行此功能
     if (globalValue.adaptationBAppCommerce) return;
-    await defUtil.smoothScroll(false, 100);
-    return defUtil.smoothScroll(true, 600);
+    //定位到底部元素之后定位头部元素，模拟鼠标上下滚动
+    document.querySelector('#immersive-translate-popup').scrollIntoView({behavior: 'smooth', block: "end"});
+    await defUtil.wait(1200);
+    document.querySelector('.browser-tip').scrollIntoView({behavior: 'smooth'});
 }
 
 const run = () => {
@@ -236,13 +237,15 @@ const run = () => {
     }
 }
     `);
+    setTimeout(async () => {
+        await scrollMouseUpAndDown();
+    }, 1500)
 }
 
 //b站首页相关辅助逻辑
 export default {
     isHome,
     startDebounceShieldingHomeVideoList,
-    scrollMouseUpAndDown,
     getVideoData,
     hideHomeCarouselImage,
     hideHomeTopHeaderBannerImage,
