@@ -9,6 +9,7 @@ import shielding, {
     asyncBlockChargeVideo,
     asyncBlockFollowedVideo,
     asyncBlockGender,
+    asyncBlockLimitationFanSum,
     asyncBlockSeniorMember,
     asyncBlockSignature,
     asyncBlockTimeRangeMasking,
@@ -149,14 +150,22 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
         eventEmitter.send('event-屏蔽视频元素', {res: {state, type, matching}, method, videoData})
         return true;
     }
-    if (localMKData.isDisableNetRequestsBvVideoInfo()) return state;
     //如果没有bv号参数，则不执行
     if (bv === '-1') return false
-    if (videoInfoCache.getCount() === 0) {
-        videoInfoCacheUpdateDebounce()
+    const count = videoInfoCache.getCount();
+    const disableNetRequestsBvVideoInfo = localMKData.isDisableNetRequestsBvVideoInfo();
+    //如果禁用了网络请求并且缓存中没有数据
+    if (disableNetRequestsBvVideoInfo && count === 0) {
+        return state;
+    } else {
+        videoInfoCacheUpdateDebounce();
     }
     const find = videoInfoCache.find(bv);
-    if (find === null) {
+    if (find !== null) {
+        shieldingOtherVideoParameter(find, videoData, method)
+        return state;
+    }
+    if (!disableNetRequestsBvVideoInfo) {
         //获取视频信息
         requestIntervalQueue.add(() => bFetch.fetchGetVideoInfo(bv)).then(({state, data, msg}) => {
             if (!state) {
@@ -166,9 +175,6 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
             videoInfoCache.addResData(bv, data, videoData, method)
             videoInfoCacheUpdateDebounce()
         })
-        return false
-    } else {
-        shieldingOtherVideoParameter(find, videoData, method)
     }
     return state;
 }
@@ -209,6 +215,7 @@ const shieldingOtherVideoParameter = async (result, videoData, method) => {
         })
         .then(() => asyncBlockVideoTagPreciseCombination(tags))
         .then(() => asyncBlockBasedVideoTag(tags))
+        .then(() => asyncBlockLimitationFanSum(userInfo.follower))
         .then(() => asyncBlockVerticalVideo(videoInfo.dimension))
         .then(() => asyncBlockVideoCopyright(videoInfo.copyright))
         .then(() => asyncBlockChargeVideo(videoInfo?.is_upower_exclusive))

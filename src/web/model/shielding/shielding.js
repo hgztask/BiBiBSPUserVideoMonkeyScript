@@ -5,7 +5,11 @@ import output_informationTab from "../../layout/output_informationTab.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
-import localMKData, {isSeniorMemberOnly} from "../../data/localMKData.js";
+import localMKData, {
+    getLimitationFanSumGm,
+    isFansNumBlockingStatusGm,
+    isSeniorMemberOnly
+} from "../../data/localMKData.js";
 import defUtil from "../../utils/defUtil.js";
 import {returnTempVal} from "../../data/globalValue.js";
 
@@ -615,6 +619,26 @@ export const blockSeniorMemberOnly = (level) => {
     }
     return {state: true, type: '非硬核会员'}
 }
+
+//检查粉丝数限制
+const blockLimitationFanSum = (fansNum) => {
+    if (fansNum < 0 || !isFansNumBlockingStatusGm()) {
+        return returnTempVal
+    }
+    const limitFansNum = getLimitationFanSumGm();
+    if (limitFansNum === -1) return returnTempVal;
+    if (fansNum <= limitFansNum) {
+        return {state: true, type: '粉丝数限制', matching: `${limitFansNum}>=${fansNum}`}
+    }
+    return returnTempVal
+}
+
+//异步检查粉丝数限制，匹配成功则抛出reject
+export const asyncBlockLimitationFanSum = async (fansNum) => {
+    const res = blockLimitationFanSum(fansNum)
+    if (res.state) return Promise.reject(res);
+}
+
 
 /**
  * 屏蔽动态中的项

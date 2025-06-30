@@ -360,6 +360,16 @@ export const isHideHomeTopHeaderChannelGm = () => {
     return gmUtil.getData('is_hide_home_top_header_channel_gm', false)
 }
 
+//获取限制粉丝数数量
+export const getLimitationFanSumGm = () => {
+    return gmUtil.getData('limitation_fan_sum_gm', -1)
+}
+
+//限制粉丝数数量是否启用
+export const isFansNumBlockingStatusGm = () => {
+    return gmUtil.getData('is_fans_num_blocking_status_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

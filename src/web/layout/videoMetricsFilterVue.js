@@ -1,5 +1,6 @@
 import gmUtil from "../utils/gmUtil.js";
 import {card_slider_vue} from "./components/card_slider_vue.js";
+import {getLimitationFanSumGm, isFansNumBlockingStatusGm} from "../data/localMKData.js";
 
 /**
  * 视频指标过滤项
@@ -51,18 +52,22 @@ const video_metrics_filter_item_vue = {
  * 视频指标过滤页面vue
  */
 export const video_metrics_filter_vue = {
-    components: {video_metrics_filter_item_vue},
+    components: {video_metrics_filter_item_vue, card_slider_vue},
     template: `
       <div>
         <el-card>
           <template #header>指标屏蔽(改动实时生效)</template>
-
           <video_metrics_filter_item_vue v-for="item in metricsFilterList" :key="item.headerTitle"
                                          :header-title="item.headerTitle"
                                          :describe="item.describe"
                                          :mk-rate-status-key="item.mkRateStatusKey"
                                          :mk-type-rate-key="item.mkTypeRateKey"
           />
+          <card_slider_vue v-model="limitationFanSumVal" :max="90000"
+                           :switch-val.sync="fansNumBlockingStatus">
+            <template #header>粉丝数屏蔽</template>
+            <template #describe>限制的粉丝数，小于或等于值限时制的屏蔽该视频，限制上限9万</template>
+          </card_slider_vue>
         </el-card>
       </div>`,
     data() {
@@ -91,8 +96,22 @@ export const video_metrics_filter_vue = {
                     describe: '限制的占比率，默认为2%，小于或等于值限时制的屏蔽该视频，投币成本较高，比值越高内容越优质。公式【投币数 / 获赞数】',
                     mkRateStatusKey: 'coin_likes_ratio_rate_blocking_status',
                     mkTypeRateKey: 'coin_likes_ratio_rate'
+                },
+                {
+                    mkRateStatusKey: 'fans_num_blocking_status',
+                    mkTypeRateKey: 'limitation_fans_num'
                 }
-            ]
+            ],
+            limitationFanSumVal: getLimitationFanSumGm(),
+            fansNumBlockingStatus: isFansNumBlockingStatusGm()
+        }
+    },
+    watch: {
+        limitationFanSumVal(n) {
+            gmUtil.setData('limitation_fan_sum_gm', parseInt(n))
+        },
+        fansNumBlockingStatus(n) {
+            gmUtil.setData('is_fans_num_blocking_status_gm', n)
         }
     }
 }
