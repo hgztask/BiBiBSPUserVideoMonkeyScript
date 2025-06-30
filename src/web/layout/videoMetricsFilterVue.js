@@ -96,10 +96,6 @@ export const video_metrics_filter_vue = {
                     describe: '限制的占比率，默认为2%，小于或等于值限时制的屏蔽该视频，投币成本较高，比值越高内容越优质。公式【投币数 / 获赞数】',
                     mkRateStatusKey: 'coin_likes_ratio_rate_blocking_status',
                     mkTypeRateKey: 'coin_likes_ratio_rate'
-                },
-                {
-                    mkRateStatusKey: 'fans_num_blocking_status',
-                    mkTypeRateKey: 'limitation_fans_num'
                 }
             ],
             limitationFanSumVal: getLimitationFanSumGm(),
