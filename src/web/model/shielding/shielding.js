@@ -628,7 +628,7 @@ const blockLimitationFanSum = (fansNum) => {
     const limitFansNum = getLimitationFanSumGm();
     if (limitFansNum === -1) return returnTempVal;
     if (fansNum <= limitFansNum) {
-        return {state: true, type: '粉丝数限制', matching: `${limitFansNum}>=${fansNum}`}
+        return {state: true, type: '粉丝数限制', matching: `限制数[${limitFansNum}],${fansNum}<=${limitFansNum}`}
     }
     return returnTempVal
 }
