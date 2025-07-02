@@ -207,10 +207,24 @@ const scrollMouseUpAndDown = async () => {
     //如果开启适配BAppcommerce脚本，则不执行此功能
     if (globalValue.adaptationBAppCommerce) return;
     //定位到底部元素之后定位头部元素，模拟鼠标上下滚动
-    document.querySelector('#immersive-translate-popup').scrollIntoView({behavior: 'smooth', block: "end"});
+    const el = await elUtil.findElement('#immersive-translate-popup', {interval: 200});
+    el.scrollIntoView({behavior: 'smooth', block: "end"});
     await defUtil.wait(1200);
     document.querySelector('.browser-tip').scrollIntoView({behavior: 'smooth'});
 }
+
+//检查页面视频列表数量
+const checkVideoListCount = () => {
+    setInterval(async () => {
+        console.log('开始检查视频列表数量')
+        const elList = document.body.querySelectorAll('.container.is-version8>div:is(.feed-card,.bili-feed-card)');
+        if (elList.length === 0) return
+        if (elList.length <= 8) {
+            await scrollMouseUpAndDown();
+        }
+    }, 3500);
+}
+
 
 const run = () => {
     deDesktopDownloadTipEl();
@@ -239,6 +253,7 @@ const run = () => {
     `);
     setTimeout(async () => {
         await scrollMouseUpAndDown();
+        checkVideoListCount();
     }, 1500)
 }
 
