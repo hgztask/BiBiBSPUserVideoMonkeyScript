@@ -219,7 +219,7 @@ const checkVideoListCount = () => {
         console.log('开始检查视频列表数量')
         const elList = document.body.querySelectorAll('.container.is-version8>div:is(.feed-card,.bili-feed-card)');
         if (elList.length === 0) return
-        if (elList.length <= 8) {
+        if (elList.length <= 9) {
             await scrollMouseUpAndDown();
         }
     }, 3500);
