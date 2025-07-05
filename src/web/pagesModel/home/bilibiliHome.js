@@ -251,6 +251,16 @@ const run = () => {
     }
 }
     `);
+    //定位到指定元素之后，在该元素后面插入12个空元素，防止视频列表加载不出来
+    elUtil.findElement('.load-more-anchor~.bili-video-card:last-child').then(el => {
+        let current = el;
+        for (let i = 0; i < 12; i++) {
+            const clone = current.cloneNode(true);
+            current.insertAdjacentElement('afterend', clone);
+            current = clone; // 将当前指针移动到新克隆的元素
+        }
+        console.log("已插入12个空元素至视频列表尾部，最后插入的元素", current);
+    })
     setTimeout(async () => {
         await scrollMouseUpAndDown();
         checkVideoListCount();
