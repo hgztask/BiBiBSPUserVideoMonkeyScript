@@ -49,8 +49,7 @@ const staticRoute = (title, url) => {
     }
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
-        videoPlayModel.setVideoPlayerEnded()
-        videoPlayModel.delElManagement();
+        videoPlayModel.run();
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();

@@ -271,6 +271,5 @@ export default {
     startShieldingVideoList,
     findTheExpandButtonForTheListOnTheRightAndBindTheEvent,
     selectUserBlocking,
-    setVideoPlayerEnded,
-    delElManagement
+    run,
 }
