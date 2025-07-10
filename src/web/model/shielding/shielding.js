@@ -7,7 +7,9 @@ import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
 import localMKData, {
     getLimitationFanSumGm,
+    getLimitationVideoSubmitSumGm,
     isFansNumBlockingStatusGm,
+    isLimitationVideoSubmitStatusGm,
     isSeniorMemberOnly
 } from "../../data/localMKData.js";
 import defUtil from "../../utils/defUtil.js";
@@ -639,6 +641,20 @@ export const asyncBlockLimitationFanSum = async (fansNum) => {
     if (res.state) return Promise.reject(res);
 }
 
+//检查用户投稿视频数量限制屏蔽
+export const blockUserVideoNumLimit = (num) => {
+    if (!isLimitationVideoSubmitStatusGm()) return returnTempVal;
+    const sumGm = getLimitationVideoSubmitSumGm();
+    if (sumGm >= num) {
+        return {state: true, type: '用户投稿视频数量限制', matching: `用户投稿视频数量[${num}],${sumGm}>=${num}`}
+    }
+    return returnTempVal
+}
+//异步检查用户投稿视频数量限制屏蔽，匹配成功则抛出reject
+export const asyncBlockUserVideoNumLimit = async (num) => {
+    const res = blockUserVideoNumLimit(num)
+    if (res.state) return Promise.reject(res);
+}
 
 /**
  * 屏蔽动态中的项

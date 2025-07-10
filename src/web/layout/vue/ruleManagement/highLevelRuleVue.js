@@ -1,5 +1,9 @@
 import gmUtil from "../../../utils/gmUtil.js";
-import localMKData, {isSeniorMemberOnly} from "../../../data/localMKData.js";
+import localMKData, {
+    getLimitationVideoSubmitSumGm,
+    isLimitationVideoSubmitStatusGm,
+    isSeniorMemberOnly
+} from "../../../data/localMKData.js";
 import {uid_range_masking_vue} from "../../uidRangeMaskingVue.js";
 
 /**
@@ -12,6 +16,12 @@ export const high_level_rule_vue = {
     template: `
       <div>
         <uid_range_masking_vue/>
+        <el-card>
+          <template #header>投稿数屏蔽</template>
+          <div>启用后，视频列表中用户投稿数低于该值的屏蔽，改动即生效</div>
+          <el-switch active-text="启用" v-model="isLimitationVideoSubmitStatusVal"/>
+          <el-input-number v-model="LimitationContributeVal" :min="0"></el-input-number>
+        </el-card>
         <el-card>
           <template #header>视频类型</template>
           <div>选中的类型会被屏蔽</div>
@@ -63,6 +73,8 @@ export const high_level_rule_vue = {
       </div>`,
     data() {
         return {
+            isLimitationVideoSubmitStatusVal: isLimitationVideoSubmitStatusGm(),
+            LimitationContributeVal: getLimitationVideoSubmitSumGm(),
             blockFollowed: localMKData.isBlockFollowed(),
             is_up_owner_exclusive: localMKData.isUpOwnerExclusive(),
             genderRadioVal: localMKData.isGenderRadioVal(),
@@ -102,6 +114,12 @@ export const high_level_rule_vue = {
         },
         isSeniorMemberOnlyVal(n) {
             gmUtil.setData('is_senior_member_only', n)
+        },
+        LimitationContributeVal(n) {
+            gmUtil.setData('limitation_video_submit_sum_gm', n)
+        },
+        isLimitationVideoSubmitStatusVal(n) {
+            gmUtil.setData('is_limitation_video_submit_status_gm', n)
         }
     }
 }

@@ -370,6 +370,16 @@ export const isFansNumBlockingStatusGm = () => {
     return gmUtil.getData('is_fans_num_blocking_status_gm', false)
 }
 
+//获取投稿数限制数量
+export const getLimitationVideoSubmitSumGm = () => {
+    return gmUtil.getData('limitation_video_submit_sum_gm', 0)
+}
+
+//投稿数限制数量是否启用
+export const isLimitationVideoSubmitStatusGm = () => {
+    return gmUtil.getData('is_limitation_video_submit_status_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

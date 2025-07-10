@@ -14,6 +14,7 @@ import shielding, {
     asyncBlockSignature,
     asyncBlockTimeRangeMasking,
     asyncBlockUserUidAndName,
+    asyncBlockUserVideoNumLimit,
     asyncBlockUserVip,
     asyncBlockVerticalVideo,
     asyncBlockVideoCoinLikesRatioRate,
@@ -233,15 +234,13 @@ const shieldingOtherVideoParameter = async (result, videoData, method) => {
         .then(() => asyncBlockByLevel(userInfo?.current_level || -1))
         .then(() => asyncBlockGender(userInfo?.sex))
         .then(() => asyncBlockUserVip(userInfo.vip.type))
+        .then(() => asyncBlockUserVideoNumLimit(userInfo.archive_count))
         .catch((v) => {
             const {msg, type} = v;
             if (msg) {
                 console.warn('warn-type-msg', msg);
             }
-            if (type === '中断') {
-                return;
-            }
-            //这里通知屏蔽
+            if (type === '中断') return;
             eventEmitter.send('event-屏蔽视频元素', {res: v, method, videoData})
         })
 }
