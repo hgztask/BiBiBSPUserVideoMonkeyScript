@@ -11,21 +11,17 @@ export const uid_range_masking_vue = {
           <template #header>
             uid范围屏蔽
           </template>
-          <el-switch v-model="status" active-text="启用" style="margin-bottom: 10px"/>
           <div style="margin-bottom: 10px">
             范围内的uid都会被屏蔽掉，改动需重新设置方可生效，且再下次检查时屏蔽(如视频列表加载，评论加载)。比较关系【最小>=uid<=最大】
           </div>
-          <el-form label-position="left" :disabled="!status" style="width: 20%">
-            <el-form-item label="最小">
-              <el-input v-model.number="head"></el-input>
-            </el-form-item>
-            <el-form-item label="最大">
-              <el-input v-model.number="tail"></el-input>
-            </el-form-item>
-            <el-form-item class="el-horizontal-right">
-              <el-button @click="setRangeBut">设置</el-button>
-            </el-form-item>
-          </el-form>
+          <el-switch v-model="status" active-text="启用" style="margin-bottom: 10px"/>
+          <el-input v-model.number="head" style="width: 30%;">
+            <template #prepend>最小</template>
+          </el-input>
+          <el-input v-model.number="tail" style="width: 30%;">
+            <template #prepend>最大</template>
+          </el-input>
+          <el-button @click="setRangeBut">设置</el-button>
         </el-card>
       </div>`,
     data() {
