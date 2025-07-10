@@ -8,7 +8,6 @@ import {eventEmitter} from "./model/EventEmitter.js";
 import rightFloatingLayoutVue from "./layout/rightFloatingLayoutVue.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
-import './webSocket/index.js'
 import {addGzStyle} from "./utils/defUtil.js";
 import elUtil from "./utils/elUtil.js";
 
