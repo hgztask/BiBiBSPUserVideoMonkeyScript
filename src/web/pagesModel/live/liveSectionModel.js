@@ -14,17 +14,25 @@ const getRoomCardDataList = async () => {
     const elList = await elUtil.findElementsUntilFound("#room-card-list>div");
     const list = [];
     for (let el of elList) {
-        //直播链接
-        const liveUrl = el.querySelector("#card").href;
+        const cardEL = el.querySelector("#card");
+        const vueExample = cardEL.__vue__;
+        const props = vueExample.$props;
+        const uid = props.anchorId;
         //直播用户
-        const name = el.querySelector(".Item_nickName_KO2QE").textContent.trim();
+        const name = props.anchorName;
         //直播标题
-        const title = el.querySelector(".Item_roomTitle_ax3eD").textContent.trim();
+        const title = props.roomTitle;
+        //直播房间号
+        const roomId = props.roomId;
         //分区
-        const partition = el.querySelector(".Item_area-name_PXDG4")?.textContent.trim() || null;
+        const partition = props.areaName;
         //人气
-        const popularity = el.querySelector(".Item_onlineCount_FmOW6").textContent.trim();
-        list.push({liveUrl, name, title, partition, popularity, el});
+        const popularity = props.watchedShow.num;
+        //直播封面
+        const roomCover = props.roomCover;
+        //直播链接
+        const liveUrl = "https://live.bilibili.com/" + roomId;
+        list.push({liveUrl, name, uid, roomId, title, partition, popularity, roomCover, el});
     }
     return list;
 }
