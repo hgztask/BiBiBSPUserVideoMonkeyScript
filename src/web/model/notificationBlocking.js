@@ -61,7 +61,7 @@ eventEmitter.on('通知屏蔽', () => {
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.startDebounceShieldingVideoList();
     }
-    if (liveSectionModel.isLiveSection(url)) {
+    if (liveSectionModel.isLiveSection()) {
         liveSectionModel.startShieldingLiveRoom();
     }
     if (liveHome.isLiveHomePage(url)) {

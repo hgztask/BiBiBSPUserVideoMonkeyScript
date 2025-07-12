@@ -1,0 +1,9 @@
+/*调整直播分区房间列表中的选项卡屏蔽按钮在选项卡的位置*/
+#room-card-list > div {
+    display: flex;
+    flex-direction: column;
+}
+
+#room-card-list > div button {
+    margin-top: 15px;
+}

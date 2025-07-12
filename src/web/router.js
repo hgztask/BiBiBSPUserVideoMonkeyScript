@@ -15,6 +15,7 @@ import {eventEmitter} from "./model/EventEmitter.js";
 import BLBLGate from "./pagesModel/home/BLBLGate.js";
 import globalValue from "./data/globalValue.js";
 import {checkAndExcludePage} from "./layout/excludeURLsVue.js";
+import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -70,6 +71,9 @@ const staticRoute = (title, url) => {
         space.getUserInfo().then(userInfo => {
             console.info('userInfo', userInfo)
         })
+    }
+    if (liveSectionModel.isLiveSection()) {
+        liveSectionModel.addStyle();
     }
 }
 
