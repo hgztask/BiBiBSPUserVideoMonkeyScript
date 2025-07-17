@@ -13,30 +13,41 @@ const isDynamicPage = (url) => {
 }
 
 /**
- *
+ * 动态内容如遇到引用其他动态或内容，不用匹配时排除.reference
+ * 1.尝试获取动态内容，不包括嵌套动态，赋值content。获取不到时为空串
+ * 2.当动态有主标题时，会把主标题拼接在content前
+ * 2.动态为视频类型时，获取其标题和简介，为空时为空串
+ * 3.暂不考虑处理嵌套动态内容，待后续改动
  * @returns {Promise<[{}]>}
  */
 const getDataList = async () => {
     const elList = await elUtil.findElementsUntilFound(".bili-dyn-list__items>.bili-dyn-list__item");
     const list = [];
     for (let el of elList) {
-        const videoCardEl = el.querySelector(".bili-dyn-card-video__title");
+        const bodyEl = el.querySelector('.bili-dyn-content')
         const name = el.querySelector(".bili-dyn-title").textContent.trim();
-        const tagEl = el.querySelector(".bili-dyn-topic__text");
+        const tagEl = bodyEl.querySelector(".bili-dyn-topic__text,.bili-topic__text");
         const data = {el, name};
         if (tagEl !== null) {
             data.tag = tagEl.textContent.trim();
         }
-        //如果有视频标题，则获取视频标题，说明是视频动态
-        data.judgmentVideo = videoCardEl !== null;
+        const biliEllipsis = el.querySelector('.bili-dyn-time.fs-small.bili-ellipsis')?.textContent?.trim()
+        //动态总内容，不包括嵌套动态里的动态内容
+        let content = bodyEl.querySelector(".bili-dyn-content__orig__desc,.bili-dyn-content__forw__desc,.bili-dyn-content__orig:not(.reference)>.bili-dyn-content__orig__major>.dyn-card-opus .bili-rich-text__content")?.textContent.trim() ?? "";
+        const titleEl = bodyEl.querySelector('.dyn-card-opus:not(.hide-border) .dyn-card-opus__title.bili-ellipsis')
+        const title = titleEl?.textContent.trim() ?? "";
+        data.title = title;
+        data.judgmentVideo = biliEllipsis.includes('投稿了视频');
         if (data.judgmentVideo) {
-            data.title = videoCardEl.textContent.trim();
+            const videoCardEl = el.querySelector(".bili-dyn-content__orig__major.suit-video-card");
+            const vTitleEl = videoCardEl.querySelector('.bili-dyn-card-video__title');
+            const vDescEl = videoCardEl.querySelector('.bili-dyn-card-video__desc');
+            data.videoTitle = vTitleEl.textContent.trim();
+            data.videoDesc = vDescEl?.textContent.trim() ?? "";
         } else {
-            const contentTitleEL = el.querySelector(".dyn-card-opus>.dyn-card-opus__title");
-            const contentTitle = contentTitleEL === null ? "" : contentTitleEL.textContent.trim();
-            const contentElBody = el.querySelector(".bili-rich-text").textContent.trim();
-            data.content = contentTitle + contentElBody;
+            content = title + content;
         }
+        data.content = content;
         list.push(data);
     }
     return list;
@@ -68,5 +79,6 @@ const startThrottleShieldingDynamicContent = defUtil.throttle(startShieldingDyna
 
 export default {
     isDynamicPage,
-    startThrottleShieldingDynamicContent
+    startThrottleShieldingDynamicContent,
+    getDataList
 }
