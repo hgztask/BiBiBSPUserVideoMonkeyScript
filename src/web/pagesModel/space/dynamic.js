@@ -31,12 +31,17 @@ const getDataList = async () => {
         if (tagEl !== null) {
             data.tag = tagEl.textContent.trim();
         }
+        const vueExample = el.querySelector('.bili-dyn-item')?.__vue__
+        const vueData = vueExample?.data ?? null
+        data.uid = vueData?.modules?.['module_author']?.mid ?? -1
         const biliEllipsis = el.querySelector('.bili-dyn-time.fs-small.bili-ellipsis')?.textContent?.trim()
         //动态总内容，不包括嵌套动态里的动态内容
         let content = bodyEl.querySelector(".bili-dyn-content__orig__desc,.bili-dyn-content__forw__desc,.bili-dyn-content__orig:not(.reference)>.bili-dyn-content__orig__major>.dyn-card-opus .bili-rich-text__content")?.textContent.trim() ?? "";
         const titleEl = bodyEl.querySelector('.dyn-card-opus:not(.hide-border) .dyn-card-opus__title.bili-ellipsis')
         const title = titleEl?.textContent.trim() ?? "";
         data.title = title;
+        data.vueExample = vueExample
+        data.vueData = vueData
         data.judgmentVideo = biliEllipsis.includes('投稿了视频');
         if (data.judgmentVideo) {
             const videoCardEl = el.querySelector(".bili-dyn-content__orig__major.suit-video-card");
