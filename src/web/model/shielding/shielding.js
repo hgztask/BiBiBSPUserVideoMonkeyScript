@@ -696,31 +696,26 @@ export const blockDynamicItemContent = (content, ruleArrMap = {}) => {
 }
 
 /**
- * 屏蔽动态中的项
+ * 检查屏蔽动态列表中项的内容
  * @param dynamicData {{}} 动态内容
  * @returns {Object}
  * @property {boolean} state 是否屏蔽
  * @property {string} type 屏蔽类型
  * @property {string} matching 匹配到的规则
  */
-export const shieldingDynamic = (dynamicData) => {
+export const checkDynamicItemContent = (dynamicData) => {
     const {
-        content = null,
+        content = "",
         el,
         title = null,
         tag = null
     } = dynamicData;
     let matching = null;
-    if (content !== null) {
-        matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getCommentOnArr(), content);
-        if (matching !== null) {
+    if (content !== "") {
+        const res = blockDynamicItemContent(content);
+        if (res.state) {
             el?.remove();
-            return {state: true, type: "模糊评论内容", matching};
-        }
-        matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getCommentOnCanonicalArr(), content);
-        if (matching !== null) {
-            el?.remove();
-            return {state: true, type: "正则评论内容", matching};
+            return res
         }
     }
     if (title !== null) {
@@ -763,7 +758,7 @@ export const shieldingDynamic = (dynamicData) => {
  * @property {boolean} state 是否屏蔽了
  */
 const shieldingDynamicDecorated = (dynamicData) => {
-    const {state, type, matching} = shieldingDynamic(dynamicData);
+    const {state, type, matching} = checkDynamicItemContent(dynamicData);
     if (state) {
         const infoHtml = output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData);
         eventEmitter.send('打印信息', infoHtml)
