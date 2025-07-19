@@ -1,10 +1,9 @@
 import elUtil from "../utils/elUtil.js";
 import dynamic from "./space/dynamic.js";
 import gmUtil from "../utils/gmUtil.js";
-import ruleMatchingUtil from "../utils/ruleMatchingUtil.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import defUtil from "../utils/defUtil.js";
-import {blockCheckWhiteUserUid} from "../model/shielding/shielding.js";
+import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../model/shielding/shielding.js";
 import {enableDynamicItemsContentBlockingGm} from "../data/localMKData.js";
 
 //是否是动态首页
@@ -16,17 +15,20 @@ const isUrlPage = () => {
 const checkDynamicList = async () => {
     if (!enableDynamicItemsContentBlockingGm()) return
     const dataList = await dynamic.getDataList();
-    const arr = gmUtil.getData('dynamic', []);
+    const ruleArrMap = {
+        fuzzyRuleArr: gmUtil.getData('dynamic', []),
+        regexRuleArr: gmUtil.getData('dynamicCanonical', [])
+    }
     for (const v of dataList) {
         const {content, name, el, uid = -1} = v;
         if (uid !== -1) {
             if (blockCheckWhiteUserUid(uid)) continue;
         }
         if (content === "") continue;
-        const match = ruleMatchingUtil.fuzzyMatch(arr, content);
-        if (match === null) continue;
+        const {state, matching, type} = blockDynamicItemContent(content, ruleArrMap);
+        if (!state) continue;
         el.remove();
-        eventEmitter.send('打印信息', `用户${name}-动态内容${content}-匹配规则${match}`)
+        eventEmitter.send('打印信息', `用户${name}-动态内容${content}-${type}-规则${matching}`)
         console.log(v);
     }
 }

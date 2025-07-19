@@ -105,6 +105,9 @@ const ruleKeyListData = [{
     oldKey: "dynamicArr",
     oldName: "动态关键词内容黑名单模式(模糊匹配)"
 }, {
+    key: "dynamicCanonical",
+    name: "动态关键词(正则匹配)",
+}, {
     key: "precise_tag",
     name: "话题tag标签(精确匹配)",
 }, {
