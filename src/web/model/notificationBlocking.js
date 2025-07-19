@@ -15,6 +15,7 @@ import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import BLBLGate from "../pagesModel/home/BLBLGate.js";
 import searchLive from "../pagesModel/search/searchLive.js";
+import dynamicPage from "../pagesModel/dynamicPage.js";
 
 /**
  * 监听通知屏蔽事件
@@ -73,5 +74,8 @@ eventEmitter.on('通知屏蔽', () => {
     }
     if (partition.isPartition(url) || partition.isNewPartition(url)) {
         partition.startIntervalShieldingVideoList()
+    }
+    if (dynamicPage.isUrlPage()) {
+        dynamicPage.debounceCheckDynamicList();
     }
 })

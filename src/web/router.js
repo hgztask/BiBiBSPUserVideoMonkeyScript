@@ -16,6 +16,7 @@ import BLBLGate from "./pagesModel/home/BLBLGate.js";
 import globalValue from "./data/globalValue.js";
 import {checkAndExcludePage} from "./layout/excludeURLsVue.js";
 import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
+import dynamicPage from "./pagesModel/dynamicPage.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -74,6 +75,9 @@ const staticRoute = (title, url) => {
     }
     if (liveSectionModel.isLiveSection()) {
         liveSectionModel.addStyle();
+    }
+    if (dynamicPage.isUrlPage()) {
+        dynamicPage.run()
     }
 }
 

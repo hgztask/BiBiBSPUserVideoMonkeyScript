@@ -9,6 +9,7 @@ import globalValue from "../data/globalValue.js";
 import searchModel from "../pagesModel/search/searchModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import {checkAndExcludePage} from "../layout/excludeURLsVue.js";
+import dynamicPage from "../pagesModel/dynamicPage.js";
 
 /**
  * 监听网络请求
@@ -66,6 +67,10 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     }
     if (searchModel.isSearchVideoNetWorkUrl(url) || searchModel.isSearchLiveRoomNetWorkUrl(url)) {
         eventEmitter.send('通知屏蔽');
+    }
+    if (url.includes('api.bilibili.com/x/polymer/web-dynamic/v1/feed/all')) {
+        //动态主页中，动态列表加载新的动态项，非动态评论区
+        dynamicPage.debounceCheckDynamicList()
     }
     /**
      *
