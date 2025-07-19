@@ -5,6 +5,7 @@ import ruleMatchingUtil from "../utils/ruleMatchingUtil.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import defUtil from "../utils/defUtil.js";
 import {blockCheckWhiteUserUid} from "../model/shielding/shielding.js";
+import {enableDynamicItemsContentBlockingGm} from "../data/localMKData.js";
 
 //是否是动态首页
 const isUrlPage = () => {
@@ -13,6 +14,7 @@ const isUrlPage = () => {
 
 //检查动态列表项执行屏蔽
 const checkDynamicList = async () => {
+    if (!enableDynamicItemsContentBlockingGm()) return
     const dataList = await dynamic.getDataList();
     const arr = gmUtil.getData('dynamic', []);
     for (const v of dataList) {

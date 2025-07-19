@@ -1,5 +1,6 @@
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData, {
+    enableDynamicItemsContentBlockingGm,
     isCloseCommentBlockingGm,
     isHideCarouselImageGm,
     isHideHomeTopHeaderBannerImageGm,
@@ -58,6 +59,12 @@ export const page_processing_vue = {
             <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道栏"/>
           </el-tooltip>
         </el-card>
+        <el-card>
+          <template #header>动态首页</template>
+          <el-tooltip content="启用该项后，对应页面中的动态会对uid白名单处理，和动态内容处理">
+            <el-switch v-model="enableDynamicItemsContentBlockingVal" active-text="启用动态内容屏蔽"/>
+          </el-tooltip>
+        </el-card>
       </div>`,
     data() {
         return {
@@ -73,7 +80,8 @@ export const page_processing_vue = {
             isCloseCommentBlockingVal: isCloseCommentBlockingGm(),
             isHideCarouselImageVal: isHideCarouselImageGm(),
             isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
-            isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm()
+            isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
+            enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm()
         }
     },
     methods: {},
@@ -126,6 +134,9 @@ export const page_processing_vue = {
         isHideTopHeaderChannelVal(n) {
             gmUtil.setData('is_hide_home_top_header_channel_gm', n)
             bilibiliHome.hideHomeTopHeaderChannel(n);
+        },
+        enableDynamicItemsContentBlockingVal(n) {
+            gmUtil.setData('enable_dynamic_items_content_blocking_gm', n)
         }
     }
 }

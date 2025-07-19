@@ -380,6 +380,11 @@ export const isLimitationVideoSubmitStatusGm = () => {
     return gmUtil.getData('is_limitation_video_submit_status_gm', false)
 }
 
+//是否启用动态首页中动态项的内容屏蔽
+export const enableDynamicItemsContentBlockingGm = () => {
+    return gmUtil.getData('enable_dynamic_items_content_blocking_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
