@@ -1,4 +1,5 @@
 import gzStyleCss from '../css/gz-style.css'
+import Vue from "vue";
 
 /**
  * 等待一段时间
@@ -388,6 +389,12 @@ export const addGzStyle = (el, insertionPosition = document.head) => {
     style.setAttribute("gz_style", "");
     style.textContent = gzStyleCss;
     insertionPosition.appendChild(style);
+}
+
+export function initVueApp(el, App, props = {}) {
+    return new Vue({
+        render: h => h(App, {props})
+    }).$mount(el);
 }
 
 

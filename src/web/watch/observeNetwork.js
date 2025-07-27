@@ -8,7 +8,7 @@ import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import searchModel from "../pagesModel/search/searchModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
-import {checkAndExcludePage} from "../layout/excludeURLsVue.js";
+import {checkAndExcludePage} from "../layout/excludeURLs.js";
 import dynamicPage from "../pagesModel/dynamicPage.js";
 
 /**

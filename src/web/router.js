@@ -14,7 +14,7 @@ import space from "./pagesModel/space/space.js";
 import {eventEmitter} from "./model/EventEmitter.js";
 import BLBLGate from "./pagesModel/home/BLBLGate.js";
 import globalValue from "./data/globalValue.js";
-import {checkAndExcludePage} from "./layout/excludeURLsVue.js";
+import {checkAndExcludePage} from "./layout/excludeURLs.js";
 import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import dynamicPage from "./pagesModel/dynamicPage.js";
 
