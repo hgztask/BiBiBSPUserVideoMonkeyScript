@@ -265,6 +265,11 @@ const delElManagement = () => {
     delBottomCommentApp()
 }
 
+const run = () => {
+    delElManagement();
+    setVideoPlayerEnded()
+}
+
 //视频播放模块
 export default {
     isVideoPlayPage,
