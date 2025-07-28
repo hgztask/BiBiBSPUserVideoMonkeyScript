@@ -8,7 +8,6 @@ import basicRulesView from "../views/basicRulesView.vue";
 import ruleExportImportView from './ruleExportImportView.vue'
 import otherParameterFilterView from './otherParameterFilterView.vue'
 import ruleInformationView from './ruleInformationView.vue'
-import conditionalityView from './conditionalityView.vue'
 
 
 export default {
@@ -16,7 +15,6 @@ export default {
     ruleExportImportView,
     otherParameterFilterView,
     ruleInformationView,
-    conditionalityView,
     basicRulesView,
     blacklistManagementView,
     highLevelRuleView,
@@ -50,9 +48,6 @@ export default {
       </el-tab-pane>
       <el-tab-pane label="导出导入" lazy>
         <ruleExportImportView/>
-      </el-tab-pane>
-      <el-tab-pane label="条件限制" lazy>
-        <conditionalityView/>
       </el-tab-pane>
       <el-tab-pane label="规则信息">
         <ruleInformationView/>

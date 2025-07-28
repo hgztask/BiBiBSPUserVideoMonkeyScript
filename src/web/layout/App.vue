@@ -19,6 +19,7 @@ import donateLayoutView from './views/donateLayoutView.vue'
 import ruleManagementView from './views/ruleManagementView.vue'
 import excludeURLsView from './views/excludeURLsView.vue'
 import RightFloatingLayoutView from "./views/rightFloatingLayoutView.vue";
+import conditionalityView from "./views/conditionalityView.vue";
 
 
 /**
@@ -41,7 +42,8 @@ export default {
     showImgDialog,
     sheetDialog,
     bulletWordManagementView,
-    excludeURLsView
+    excludeURLsView,
+    conditionalityView
   },
   data() {
     return {
@@ -169,6 +171,9 @@ export default {
         </el-tab-pane>
         <el-tab-pane label="页面处理" lazy name="页面处理">
           <pageProcessingView/>
+        </el-tab-pane>
+        <el-tab-pane label="条件限制" lazy name="条件限制">
+          <conditionalityView/>
         </el-tab-pane>
         <el-tab-pane v-if="debug_panel_show" label="弹幕词管理" lazy name="弹幕词管理">
           <bulletWordManagementView/>
