@@ -2,7 +2,7 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
 import gmUtil from "../../utils/gmUtil.js";
-import localMKData, {isEffectiveUIDShieldingOnlyVideo} from "../../data/localMKData.js";
+import localMKData, {hideBlockButtonGm, isEffectiveUIDShieldingOnlyVideo} from "../../data/localMKData.js";
 import globalValue from "../../data/globalValue.js";
 
 /**
@@ -17,7 +17,8 @@ export default {
       isEffectiveUIDShieldingOnlyVideoVal: isEffectiveUIDShieldingOnlyVideo(),
       //是否模糊和正则匹配词转小写
       bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
-      isDisableNetRequestsBvVideoInfo: localMKData.isDisableNetRequestsBvVideoInfo()
+      isDisableNetRequestsBvVideoInfo: localMKData.isDisableNetRequestsBvVideoInfo(),
+      hideBlockButtonVal: hideBlockButtonGm()
     }
   },
   methods: {},
@@ -38,6 +39,12 @@ export default {
       //设置请求频率
       gmUtil.setData('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
       requestIntervalQueue.setInterval(n * 1000)
+    },
+    hideBlockButtonVal(n) {
+      gmUtil.setData('hide_block_button_gm', n)
+      if (n) {
+        document.body.querySelectorAll('.gz_shielding_button').forEach(el => el.remove());
+      }
     }
   },
   created() {
@@ -57,6 +64,7 @@ export default {
     <el-tooltip content="改动实时生效">
       <el-switch v-model="isEffectiveUIDShieldingOnlyVideoVal" active-text="仅生效UID屏蔽(限视频)"/>
     </el-tooltip>
+    <el-switch v-model="hideBlockButtonVal" active-text="不显示屏蔽按钮"/>
     <el-card>
       <template #header>
         <span>网络请求频率(单位秒)</span>
@@ -66,8 +74,9 @@ export default {
         <div>修改实时生效</div>
       </template>
       <el-switch v-model="isDisableNetRequestsBvVideoInfo" active-text="禁用根据bv号网络请求获取视频信息"/>
-      <el-slider v-model="requestFrequencyVal" :disabled="isDisableNetRequestsBvVideoInfo" max="5" show-input show-stops
-                 step="0.1"
+      <el-slider v-model="requestFrequencyVal" :disabled="isDisableNetRequestsBvVideoInfo" :max="5" :step="0.1"
+                 show-input
+                 show-stops
       ></el-slider>
     </el-card>
   </div>

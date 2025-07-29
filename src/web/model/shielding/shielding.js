@@ -8,6 +8,7 @@ import {elEventEmitter} from "../elEventEmitter.js";
 import localMKData, {
     getLimitationFanSumGm,
     getLimitationVideoSubmitSumGm,
+    hideBlockButtonGm,
     isFansNumBlockingStatusGm,
     isLimitationVideoSubmitStatusGm,
     isSeniorMemberOnly
@@ -25,6 +26,7 @@ import {returnTempVal} from "../../data/globalValue.js";
  * @param position {[]} 位置
  */
 const addBlockButton = (data, tagCss = '', position = []) => {
+    if (hideBlockButtonGm()) return;
     //插入位置元素,显隐主体元素,主el元素
     const {insertionPositionEl, explicitSubjectEl, css} = data.data;
     if (tagCss !== '') {

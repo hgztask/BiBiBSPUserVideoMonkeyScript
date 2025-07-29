@@ -384,6 +384,10 @@ export const isLimitationVideoSubmitStatusGm = () => {
 export const enableDynamicItemsContentBlockingGm = () => {
     return gmUtil.getData('enable_dynamic_items_content_blocking_gm', false)
 }
+// 是否隐藏屏蔽按钮
+export const hideBlockButtonGm = () => {
+    return gmUtil.getData('hide_block_button_gm', false)
+}
 
 export default {
     getTripleRate,
