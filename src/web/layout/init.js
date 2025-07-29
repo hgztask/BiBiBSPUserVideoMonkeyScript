@@ -1,7 +1,7 @@
 import gmUtil from "../utils/gmUtil.js";
 import localMKData from "../data/localMKData.js";
 import defCss from '../css/def.css'
-import {initVueApp} from "../utils/defUtil.js";
+import {addGzStyle, initVueApp} from "../utils/defUtil.js";
 import App from "./App.vue";
 
 if (document.head.querySelector('#element-ui-css') === null) {
@@ -13,10 +13,11 @@ if (document.head.querySelector('#element-ui-css') === null) {
     console.log('挂载element-ui样式成功')
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
     const mainLayoutEl = document.createElement('div');
     document.body.appendChild(mainLayoutEl)
     window.mk_vue_app = initVueApp(mainLayoutEl, App);
+    addGzStyle(document);
 })
 
 // 设置边框样式

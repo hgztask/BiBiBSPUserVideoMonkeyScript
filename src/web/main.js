@@ -7,7 +7,6 @@ import observeNetwork from "./watch/observeNetwork.js";
 import {eventEmitter} from "./model/EventEmitter.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
-import {addGzStyle} from "./utils/defUtil.js";
 import elUtil from "./utils/elUtil.js";
 
 window.addEventListener('load', () => {
@@ -17,7 +16,6 @@ window.addEventListener('load', () => {
     watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
         router.dynamicRouting(title, newUrl);
     })
-    addGzStyle(document);
 })
 
 watch.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
