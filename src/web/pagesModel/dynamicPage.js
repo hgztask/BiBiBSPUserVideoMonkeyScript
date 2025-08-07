@@ -5,6 +5,7 @@ import {eventEmitter} from "../model/EventEmitter.js";
 import defUtil from "../utils/defUtil.js";
 import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../model/shielding/shielding.js";
 import {enableDynamicItemsContentBlockingGm} from "../data/localMKData.js";
+import hotSearch from "./search/hotSearch.js";
 
 //是否是动态首页
 const isUrlPage = () => {
@@ -45,7 +46,7 @@ const run = () => {
             checkDynamicList()
         })
     })
-
+    hotSearch.startShieldingHotListDynamic();
 }
 
 

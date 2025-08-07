@@ -4,6 +4,22 @@ import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {isHideHotSearchesPanelGm, isHideSearchHistoryPanelGm} from "../../data/localMKData.js";
 
+//处理热搜词
+const dealingWithHotSearchTerms = (el, label) => {
+    const hotSearchKeyArr = ruleKeyListData.getHotSearchKeyArr();
+    const hotSearchKeyCanonicalArr = ruleKeyListData.getHotSearchKeyCanonicalArr();
+    let match = ruleMatchingUtil.fuzzyMatch(hotSearchKeyArr, label);
+    if (match) {
+        el.remove();
+        eventEmitter.send('打印信息', `根据模糊热搜关键词-【${match}】-屏蔽-${label}`);
+        return;
+    }
+    match = ruleMatchingUtil.regexMatch(hotSearchKeyCanonicalArr, label);
+    if (match) {
+        eventEmitter.send('打印信息', `根据正则热搜关键词-【${match}】-屏蔽-${label}`);
+        el.remove();
+    }
+};
 
 /**
  * 开始屏蔽热门搜索
@@ -13,24 +29,23 @@ export const startShieldingHotList = async () => {
     if (isHideHotSearchesPanelGm()) {
         return;
     }
+    console.log("检查热搜关键词中...");
     const elList = await elUtil.findElements(".trendings-col>.trending-item",
         {interval: 2000})
-    console.log("检查热搜关键词中...");
-    const hotSearchKeyArr = ruleKeyListData.getHotSearchKeyArr();
-    const hotSearchKeyCanonicalArr = ruleKeyListData.getHotSearchKeyCanonicalArr();
+    console.log('热搜元素列表', elList);
     for (let el of elList) {
         const label = el.textContent.trim()
-        let match = ruleMatchingUtil.fuzzyMatch(hotSearchKeyArr, label);
-        if (match) {
-            el.remove();
-            eventEmitter.send('打印信息', `根据模糊热搜关键词-【${match}】-屏蔽-${label}`)
-            continue;
-        }
-        match = ruleMatchingUtil.regexMatch(hotSearchKeyCanonicalArr, label);
-        if (match) {
-            eventEmitter.send('打印信息', `根据正则热搜关键词-【${match}】-屏蔽-${label}`);
-            el.remove();
-        }
+        dealingWithHotSearchTerms(el, label);
+    }
+}
+
+//处理动态首页右侧热搜列表
+const startShieldingHotListDynamic = async () => {
+    const elList = await elUtil.findElements('.trending-list>a');
+    console.log('动态首页右侧热搜列表', elList);
+    for (const el of elList) {
+        const label = el.querySelector('.text').textContent.trim();
+        dealingWithHotSearchTerms(el, label);
     }
 }
 
@@ -64,7 +79,8 @@ const run = () => {
 export default {
     startShieldingHotList,
     setTopSearchPanelDisplay,
-    run
+    run,
+    startShieldingHotListDynamic
 }
 
 
