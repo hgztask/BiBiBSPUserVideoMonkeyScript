@@ -64,7 +64,7 @@ const getGetTheVideoListOnTheRight = async () => {
     await elUtil.findElementUntilFound(".video-page-card-small .b-img img");
     delAd()
     delGameAd()
-    const elList = await elUtil.findElements(".rec-list>.video-page-card-small", {interval: 1000})
+    const elList = await elUtil.findElements(".rec-list>.video-page-card-small,.video-page-operator-card-small", {interval: 1000})
     const nextPlayEl = document.querySelector('.next-play>.video-page-card-small');
     if (nextPlayEl) {
         elList.push(nextPlayEl)
