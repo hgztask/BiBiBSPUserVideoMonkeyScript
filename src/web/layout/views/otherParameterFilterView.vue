@@ -1,6 +1,6 @@
 <script>
 import gmUtil from "../../utils/gmUtil.js";
-import ruleKeyListData from "../../data/ruleKeyListData.js";
+import otherKeyListDataJson from "../../res/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
 
 /**
@@ -11,7 +11,7 @@ export default {
   data() {
     return {
       num: 0,
-      selectList: ruleKeyListData.otherKeyListData,
+      selectList: otherKeyListDataJson,
       selectValue: 'nMinimumPlay',
       inputMax: "",
       inputMin: 0

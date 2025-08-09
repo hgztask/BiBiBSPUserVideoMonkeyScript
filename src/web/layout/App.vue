@@ -204,7 +204,3 @@ export default {
     <RightFloatingLayoutView/>
   </div>
 </template>
-
-<style>
-
-</style>
