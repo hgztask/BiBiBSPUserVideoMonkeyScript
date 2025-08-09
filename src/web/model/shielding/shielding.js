@@ -62,7 +62,7 @@ const addBlockButton = (data, className = '', position = []) => {
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
-        const {uid = -1, name = null, bv = null} = data.data;
+        const {uid = -1, name = null, bv = null, title = ''} = data.data;
         const showList = []
         if (uid !== -1) {
             showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
@@ -70,7 +70,7 @@ const addBlockButton = (data, className = '', position = []) => {
             showList.push({label: `用户名精确屏蔽(不推荐)-用户name=${name}`, value: 'name'})
         }
         if (bv !== null) {
-            showList.push({label: `bv号屏蔽-视频bv=${bv}`, value: "bv"})
+            showList.push({label: `bv号屏蔽-视频bv=${bv}`, value: "bv", title: title})
         }
         eventEmitter.send('sheet-dialog', {
             title: "屏蔽选项",
