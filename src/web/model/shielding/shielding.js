@@ -22,20 +22,20 @@ import {returnTempVal} from "../../data/globalValue.js";
  * @param data.data {{}} 数据
  * @param data.maskingFunc {function} 屏蔽函数
  * @param data.css {string|null} css
- * @param tagCss {string} 标记css，用于标记是否已添加
+ * @param className {string} class名称，标记css，用于标记是否已添加
  * @param position {[]} 位置
  */
-const addBlockButton = (data, tagCss = '', position = []) => {
+const addBlockButton = (data, className = '', position = []) => {
     if (hideBlockButtonGm()) return;
     //插入位置元素,显隐主体元素,主el元素
     const {insertionPositionEl, explicitSubjectEl, css} = data.data;
-    if (tagCss !== '') {
-        if (insertionPositionEl.querySelector("." + tagCss)) return;
+    if (className !== '') {
+        if (insertionPositionEl.querySelector("." + className)) return;
     }
     const buttonEL = document.createElement("button")
     buttonEL.setAttribute("gz_type", "")
-    if (tagCss !== '') {
-        buttonEL.className = tagCss;
+    if (className !== '') {
+        buttonEL.className = className;
     }
     buttonEL.textContent = "屏蔽";
     if (position.length !== 0) {
