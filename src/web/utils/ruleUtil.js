@@ -257,6 +257,24 @@ const addRulePreciseUid = (uid, isTip = true) => {
     }
     return results;
 }
+/**
+ * 添加精确bv
+ * @param bv {string} bv
+ * @param isTip {boolean} 是否提示，默认true，则默认提示，如果为false则不提示，返回结果
+ * @returns {{status: boolean, res: (string|number)}|{status: boolean, res: string}|{status: boolean, res: string}}
+ */
+const addRulePreciseBv = (bv, isTip = true) => {
+    const results = addRule(bv, "precise_video_bv");
+    if (isTip) {
+        eventEmitter.send('el-notify', {
+            title: '添加精确bv操作提示',
+            message: results.res,
+            type: 'success'
+        })
+        return results
+    }
+    return results;
+}
 
 /**
  * 删除精确uid
@@ -352,5 +370,6 @@ export default {
     delRUlePreciseUid,
     findRuleItemValue,
     addItemRule,
-    addPreciseUidItemRule
+    addPreciseUidItemRule,
+    addRulePreciseBv
 }

@@ -62,36 +62,45 @@ const addBlockButton = (data, className = '', position = []) => {
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
-        const {uid = -1, name = null} = data.data;
+        const {uid = -1, name = null, bv = null} = data.data;
         const showList = []
-        showList.push(uid !== -1 ? {
-            label: `uid精确屏蔽-用户uid=${uid}-name=${name}`,
-            value: "uid"
-        } : {
-            label: `用户名精确屏蔽(不推荐)-用户name=${name}`,
-            value: 'name'
-        })
+        if (uid !== -1) {
+            showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
+        } else {
+            showList.push({label: `用户名精确屏蔽(不推荐)-用户name=${name}`, value: 'name'})
+        }
+        if (bv !== null) {
+            showList.push({label: `bv号屏蔽-视频bv=${bv}`, value: "bv"})
+        }
         eventEmitter.send('sheet-dialog', {
             title: "屏蔽选项",
             list: showList,
             optionsClick: (item) => {
                 const {value} = item
-                if (value === 'uid') {
-                    // uid精确屏蔽
-                    if (uid === -1) {
-                        eventEmitter.send('el-msg', "该页面数据不存在uid字段")
-                        return;
-                    }
-                    const {status} = ruleUtil.addRulePreciseUid(uid);
-                    if (status) {
-                        data.maskingFunc();
-                    }
-                    return;
+                switch (value) {
+                    case "uid":
+                        if (uid === -1) {
+                            eventEmitter.send('el-msg', "该页面数据不存在uid字段")
+                            return;
+                        }
+                        const {status} = ruleUtil.addRulePreciseUid(uid);
+                        if (status) {
+                            data.maskingFunc();
+                        }
+                        break;
+                    case "name":
+                        ruleUtil.addRulePreciseName(name);
+                        break;
+                    case "bv":
+                        console.log(data)
+                        ruleUtil.addRulePreciseBv(bv);
+                        break;
+                    default:
+                        // 用户名精确屏蔽
+                        eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
+                            ruleUtil.addRulePreciseName(name)
+                        })
                 }
-                // 用户名精确屏蔽
-                eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
-                    ruleUtil.addRulePreciseName(name)
-                })
             }
         })
     })
