@@ -28,6 +28,11 @@ export default {
         eventEmitter.send('刷新规则信息', false)
       })
     },
+    closedHandle() {
+      console.log('closed')
+      this.typeMap = {}
+      this.showTags.splice(0, this.showTags.length);
+    }
   },
   created() {
     eventEmitter.on('event-lookRuleDialog', (typeMap) => {
@@ -42,6 +47,7 @@ export default {
   <div>
     <el-dialog :close-on-click-modal="false" :close-on-press-escape="false"
                :fullscreen="true" :modal="false"
+               @closed="closedHandle"
                :visible.sync="dialogVisible" title="查看规则内容">
       <el-card>
         <template #header>规则信息</template>
