@@ -28,7 +28,8 @@ export default {
       dialogVisible: false,
       inputVal: '',
       fragments: [],
-      separator: ','
+      separator: ',',
+      successAfterCloseVal: true
     }
   },
   methods: {
@@ -44,6 +45,9 @@ export default {
       this.$alert(`成功项${successList.length}个:${successList.join(this.separator)}\n
                 失败项${failList.length}个:${failList.join(this.separator)}
                 `, 'tip')
+      if (successList.length > 0 && this.successAfterCloseVal) {
+        this.dialogVisible = false
+      }
       eventEmitter.send('刷新规则信息');
     }
   },
@@ -81,9 +85,19 @@ export default {
                :title="'批量添加'+ruleInfo.name+'-'+ruleInfo.type" :visible.sync="dialogVisible"
                @close="closeHandle">
       <el-card shadow="never">
-        <div>1.分割项唯一，即重复xxx，只算1个</div>
-        <div>2.uid类时，非数字跳过</div>
-        <div>3.空项跳过</div>
+        <el-row>
+          <el-col :span="8">
+            <div>1.分割项唯一，即重复xxx，只算1个</div>
+            <div>2.uid类时，非数字跳过</div>
+            <div>3.空项跳过</div>
+          </el-col>
+          <el-col :span="16">
+            <el-input v-model="separator" style="width: 200px">
+              <template #prepend>分隔符</template>
+            </el-input>
+            <el-switch v-model="successAfterCloseVal" active-text="添加成功后关闭对话框"/>
+          </el-col>
+        </el-row>
       </el-card>
       <el-form>
         <el-form-item v-show="fragments.length!==0" label="分割项">
@@ -93,9 +107,6 @@ export default {
             </template>
             <el-tag v-for="v in fragments" :key="v" style="margin-left: 5px;">{{ v }}</el-tag>
           </el-card>
-        </el-form-item>
-        <el-form-item label="分隔符">
-          <el-input v-model="separator"></el-input>
         </el-form-item>
         <el-form-item label="输入项">
           <el-input v-model="inputVal" type="textarea"></el-input>
