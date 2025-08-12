@@ -1,15 +1,11 @@
 [
   {
     "key": "name",
-    "name": "用户名(模糊匹配)",
-    "oldKey": "userNameKeyArr",
-    "oldName": "用户名黑名单模式(模糊匹配)"
+    "name": "用户名(模糊匹配)"
   },
   {
     "key": "precise_name",
-    "name": "用户名(精确匹配)",
-    "oldKey": "userNameArr",
-    "oldName": "用户名黑名单模式(精确匹配)"
+    "name": "用户名(精确匹配)"
   },
   {
     "key": "nameCanonical",
@@ -17,51 +13,35 @@
   },
   {
     "key": "precise_uid",
-    "name": "用户uid(精确匹配)",
-    "oldKey": "userUIDArr",
-    "oldName": "用户uid黑名单模式(精确匹配)"
+    "name": "用户uid(精确匹配)"
   },
   {
     "key": "precise_uid_white",
-    "name": "用户uid白名单(精确匹配)",
-    "oldKey": "userWhiteUIDArr",
-    "oldName": "用户uid白名单模式(精确匹配)"
+    "name": "用户uid白名单(精确匹配)"
   },
   {
     "key": "title",
-    "name": "标题(模糊匹配)",
-    "oldKey": "titleKeyArr",
-    "oldName": "标题黑名单模式(模糊匹配)"
+    "name": "标题(模糊匹配)"
   },
   {
     "key": "titleCanonical",
-    "name": "标题(正则匹配)",
-    "oldKey": "titleKeyCanonicalArr",
-    "oldName": "标题黑名单模式(正则匹配)"
+    "name": "标题(正则匹配)"
   },
   {
     "key": "commentOn",
-    "name": "评论关键词(模糊匹配)",
-    "oldKey": "commentOnKeyArr",
-    "oldName": "评论关键词黑名单模式(模糊匹配)"
+    "name": "评论关键词(模糊匹配)"
   },
   {
     "key": "commentOnCanonical",
-    "name": "评论关键词(正则匹配)",
-    "oldKey": "contentOnKeyCanonicalArr",
-    "oldName": "评论关键词黑名单模式(正则匹配)"
+    "name": "评论关键词(正则匹配)"
   },
   {
     "key": "precise_fanCard",
-    "name": "粉丝牌(精确匹配)",
-    "oldKey": "fanCardArr",
-    "oldName": "粉丝牌黑名单模式(精确匹配)"
+    "name": "粉丝牌(精确匹配)"
   },
   {
     "key": "dynamic",
-    "name": "动态关键词(模糊匹配)",
-    "oldKey": "dynamicArr",
-    "oldName": "动态关键词内容黑名单模式(模糊匹配)"
+    "name": "动态关键词(模糊匹配)"
   },
   {
     "key": "dynamicCanonical",

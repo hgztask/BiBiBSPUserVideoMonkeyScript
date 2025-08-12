@@ -201,45 +201,6 @@ const appendImportRules = (content) => {
 }
 
 /**
- * 覆盖导入规则V1
- * 该函数用于解析和重写从V1版本升级上来的规则内容
- * 它会尝试解析给定的内容，然后根据预定义的规则键列表数据来更新或重写现有的规则
- *
- * @param {string} content - 包含规则的字符串内容，通常是从文件或输入中获取的
- * @returns {boolean} - 返回一个布尔值，表示规则解析和重写是否成功
- */
-const overwriteImportRulesV1 = (content) => {
-    // 初始化解析变量
-    let parse;
-    try {
-        // 尝试解析输入内容，如果解析失败则弹出警报并返回false
-        parse = JSON.parse(content);
-    } catch (e) {
-        alert('规则内容有误');
-        return false;
-    }
-    // 遍历规则键列表数据，以便更新或重写规则
-    for (let ruleKeyListDatum of ruleKeyListData.getRuleKeyListData()) {
-        // 获取旧规则名称和对应的键
-        const name = ruleKeyListDatum.oldName;
-        const jsonRuleList = parse[name];
-        // 如果当前规则不存在，则跳过
-        if (!jsonRuleList) {
-            continue;
-        }
-        // 如果规则列表为空，则跳过
-        if (jsonRuleList.length === 0) {
-            continue;
-        }
-        // 使用gmUtil工具类设置数据，更新或重写规则
-        gmUtil.setData(ruleKeyListDatum.key, jsonRuleList);
-    }
-
-    // 规则解析和重写成功，返回true
-    return true;
-}
-
-/**
  * 添加精确uid
  * @param uid {number}
  * @param isTip {boolean} 是否提示，默认true，则默认提示，如果为false则不提示，返回结果
@@ -364,7 +325,6 @@ export default {
     getRuleContent,
     overwriteImportRules,
     appendImportRules,
-    overwriteImportRulesV1,
     addRulePreciseUid,
     addRulePreciseName,
     delRUlePreciseUid,
