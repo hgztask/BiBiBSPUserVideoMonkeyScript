@@ -688,7 +688,9 @@ export const asyncBlockUserVideoNumLimit = async (num) => {
 
 /**
  * 根据动态内容执行屏蔽检查，支持模糊匹配和正则匹配
+ * 如传入动态视频标题，则前条件不成立时根据视频标题执行模糊匹配和正则匹配
  * @param content {string} 需要检查的动态内容文本
+ * @param videoTitle {string|null} 视频标题
  * @param ruleArrMap {{}} 规则列表配置对象（可选）
  * @param [ruleArrMap.fuzzyRuleArr] {string[]} 模糊匹配规则数组（可选，若未提供则通过fuzzyKey从存储获取）
  * @param [ruleArrMap.regexRuleArr] {string[]} 正则匹配规则数组（可选，若未提供则通过regexKey从存储获取）
@@ -696,14 +698,27 @@ export const asyncBlockUserVideoNumLimit = async (num) => {
  *          匹配成功返回包含状态、匹配类型和匹配值的对象；
  *          无匹配时返回returnTempVal（预定义的默认返回值对象）
  */
-export const blockDynamicItemContent = (content, ruleArrMap = {}) => {
-    return blockExactAndFuzzyMatching(content, {
-        fuzzyKey: 'dynamic',
-        fuzzyTypeName: '动态内容(模糊匹配)',
-        regexKey: 'dynamicCanonical',
-        regexTypeName: '动态内容(正则匹配)',
-        ...ruleArrMap
-    })
+export const blockDynamicItemContent = (content, videoTitle = null, ruleArrMap = {}) => {
+    let res;
+    if (content !== '') {
+        res = blockExactAndFuzzyMatching(content, {
+            fuzzyKey: 'dynamic',
+            fuzzyTypeName: '动态内容(模糊匹配)',
+            regexKey: 'dynamicCanonical',
+            regexTypeName: '动态内容(正则匹配)',
+            ...ruleArrMap
+        });
+        if (res.state) return res;
+    }
+    if (videoTitle) {
+        res = blockExactAndFuzzyMatching(videoTitle, {
+            fuzzyKey: 'dynamic_video',
+            fuzzyTypeName: '动态视频(模糊匹配)',
+            regexKey: 'dynamic_videoCanonical',
+            regexTypeName: '动态视频(正则匹配)'
+        })
+    }
+    return res
 }
 
 /**

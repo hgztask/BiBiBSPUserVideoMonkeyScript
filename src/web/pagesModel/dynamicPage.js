@@ -21,12 +21,12 @@ const checkDynamicList = async () => {
         regexRuleArr: gmUtil.getData('dynamicCanonical', [])
     }
     for (const v of dataList) {
-        const {content, name, el, uid = -1} = v;
+        const {content, name, el, uid = -1, videoTitle = null} = v;
         if (uid !== -1) {
             if (blockCheckWhiteUserUid(uid)) continue;
         }
-        if (content === "") continue;
-        const {state, matching, type} = blockDynamicItemContent(content, ruleArrMap);
+        if (content === "" && videoTitle === null) continue;
+        const {state, matching, type} = blockDynamicItemContent(content, videoTitle, ruleArrMap);
         if (!state) continue;
         el.remove();
         eventEmitter.send('打印信息', `用户${name}-动态内容${content}-${type}-规则${matching}`)
