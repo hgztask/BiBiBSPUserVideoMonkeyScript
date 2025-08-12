@@ -42,8 +42,7 @@ export default {
         eventEmitter.send('打开多重规则编辑对话框', typeMap)
         return
       }
-      const ruleData = gmUtil.getData(type, []);
-      eventEmitter.send('展示内容对话框', JSON.stringify(ruleData, null, 4))
+      eventEmitter.send('event-lookRuleDialog', typeMap);
     },
     delAllBut() {
       this.$confirm('确定要删除所有规则吗？').then(() => {

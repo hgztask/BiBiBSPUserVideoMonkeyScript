@@ -8,6 +8,7 @@ import basicRulesView from "../views/basicRulesView.vue";
 import ruleExportImportView from './ruleExportImportView.vue'
 import otherParameterFilterView from './otherParameterFilterView.vue'
 import ruleInformationView from './ruleInformationView.vue'
+import viewRulesRuleDialog from "../eventEmitter_components/viewRulesRuleDialog.vue";
 
 
 export default {
@@ -20,7 +21,8 @@ export default {
     highLevelRuleView,
     videoMetricsFilterView,
     timeRangeMaskingView,
-    replProcessingView
+    replProcessingView,
+    viewRulesRuleDialog,
   }
 }
 </script>
@@ -56,5 +58,6 @@ export default {
         <blacklistManagementView/>
       </el-tab-pane>
     </el-tabs>
+    <viewRulesRuleDialog/>
   </div>
 </template>
