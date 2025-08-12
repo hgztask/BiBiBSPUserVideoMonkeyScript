@@ -71,7 +71,7 @@ export default {
 </script>
 <template>
   <div>
-    <el-dialog :close-on-click-modal="false" :modal="false" :visible="show"
+    <el-dialog :close-on-click-modal="false" :modal="false" :visible.sync="show"
                title="修改单项规则值" width="30%">
       {{ ruleName }}-{{ ruleType }}
       <el-form>
