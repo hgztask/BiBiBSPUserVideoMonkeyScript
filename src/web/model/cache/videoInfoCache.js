@@ -87,5 +87,5 @@ export const videoInfoCacheUpdateDebounce = defUtil.debounce(async () => {
     await videoInfoCache.update()
     const msg = `已更新videoInfoCache，当前缓存数量：${videoInfoCache.getCount()}`;
     console.log(msg)
-    eventEmitter.send('打印信息', msg)
+    eventEmitter.send('event-update-out-info', {id: '更新videoInfoCache', msg})
 }, 2400);
