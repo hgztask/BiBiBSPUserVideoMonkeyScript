@@ -54,7 +54,7 @@ const getLiveRoomDataList = async () => {
         const partition = el.querySelector(".area-name").textContent.trim();
         const popularity = el.querySelector(".room-anchor .v-middle").textContent.trim();
         list.push({
-            name, title, partition, popularity, liveUrl, uid, el,
+            name, title, partition, popularity, liveUrl, uid, el, roomId: room_id,
             explicitSubjectEl: el, insertionPositionEl: el.querySelector('a')
         });
     }

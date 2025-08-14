@@ -62,7 +62,7 @@ const addBlockButton = (data, className = '', position = []) => {
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
-        const {uid = -1, name = null, bv = null, title = ''} = data.data;
+        const {uid = -1, name = null, bv = null, title = '', roomId = null} = data.data;
         const showList = []
         if (uid !== -1) {
             showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
@@ -71,6 +71,9 @@ const addBlockButton = (data, className = '', position = []) => {
         }
         if (bv !== null) {
             showList.push({label: `bv号屏蔽-视频bv=${bv}`, value: "bv", title: title})
+        }
+        if (roomId !== null) {
+            showList.push({label: `直播间id屏蔽-直播间id=${roomId}`, value: "roomId"});
         }
         eventEmitter.send('sheet-dialog', {
             title: "屏蔽选项",
@@ -92,8 +95,15 @@ const addBlockButton = (data, className = '', position = []) => {
                         ruleUtil.addRulePreciseName(name);
                         break;
                     case "bv":
-                        console.log(data)
                         ruleUtil.addRulePreciseBv(bv);
+                        break;
+                    case "roomId":
+                        const results = ruleUtil.addRule(roomId, "precise_liveRoomId");
+                        eventEmitter.send('el-notify', {
+                            title: '添加精确直播间id操作提示',
+                            message: results.res,
+                            type: 'success'
+                        })
                         break;
                     default:
                         // 用户名精确屏蔽

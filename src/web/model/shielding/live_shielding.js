@@ -5,7 +5,15 @@ import output_informationTab from "../../layout/output_informationTab.js";
 import {eventEmitter} from "../EventEmitter.js";
 import shielding, {blockCheckWhiteUserUid, blockUserUidAndName, blockVideoOrOtherTitle} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
+import gmUtil from "../../utils/gmUtil.js";
 
+//检查直播间id屏蔽
+export const blockLiveRoomId = (liveRoomId) => {
+    if (gmUtil.getData('precise_liveRoomId', []).includes(liveRoomId)) {
+        return {state: true, type: "精确直播间id", matching: liveRoomId};
+    }
+    return returnTempVal;
+}
 
 /**
  * 装饰过的屏蔽直播间评论
@@ -35,7 +43,7 @@ export const shieldingLiveRoomContentDecorated = (liveRoomContent) => {
 
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
-    const {name, title, partition, uid = -1} = liveRoomData;
+    const {name, title, partition, uid = -1, roomId} = liveRoomData;
     let returnVal;
     if (uid !== -1) {
         if (blockCheckWhiteUserUid(uid)) {
@@ -55,9 +63,11 @@ const shieldingLiveRoom = (liveRoomData) => {
             return {state: true, type: "精确直播分区"};
         }
     }
+    if (roomId) {
+        return blockLiveRoomId(roomId);
+    }
     return returnTempVal;
 }
-
 
 /**
  * 装饰过的屏蔽直播间

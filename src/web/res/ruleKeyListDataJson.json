@@ -72,6 +72,10 @@
     "name": "直播分区(精确匹配)"
   },
   {
+    "key": "precise_liveRoomId",
+    "name": "直播间id(精确匹配)"
+  },
+  {
     "key": "videoTag",
     "name": "视频tag(模糊匹配)"
   },
