@@ -1,7 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import live_shielding from "../../model/shielding/live_shielding.js";
 import shielding from "../../model/shielding/shielding.js";
-import cssContent from '../../css/live-partition.css'
 
 // 判断是否是直播分区
 const isLiveSection = (url = window.location.href) => {
@@ -54,16 +53,8 @@ const startShieldingLiveRoom = async () => {
     }
 }
 
-const addStyle = () => {
-    const style = document.createElement('style');
-    style.textContent = cssContent;
-    document.head.appendChild(style);
-}
-
-
 //直播分区业务逻辑
 export default {
     isLiveSection,
-    startShieldingLiveRoom,
-    addStyle
+    startShieldingLiveRoom
 }

@@ -3,7 +3,6 @@ import commentSectionModel from "../pagesModel/commentSectionModel.js";
 import popularAll from "../pagesModel/popular/popularAll.js";
 import dynamic from "../pagesModel/space/dynamic.js";
 import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
-import liveHome from "../pagesModel/live/liveHome.js";
 import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import searchModel from "../pagesModel/search/searchModel.js";
@@ -56,10 +55,6 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     if (url.startsWith("https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=")) {
         console.log("检测到直播间加载了分区下的房间列表");
         liveSectionModel.startShieldingLiveRoom();
-    }
-    if (url.startsWith("https://api.live.bilibili.com/xlive/web-interface/v1/index/getList?platform=web")) {
-        console.log("检测到直播间加载了推荐房间列表");
-        liveHome.startShieldingLiveRoom();
     }
     if (url.startsWith('https://api.bilibili.com/x/web-interface/ranking/region?day=')) {
         console.log("检测到专区热门排行榜加载了");

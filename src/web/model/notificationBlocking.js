@@ -67,7 +67,6 @@ eventEmitter.on('通知屏蔽', () => {
     }
     if (liveHome.isLiveHomePage(url)) {
         liveHome.startShieldingLiveRoom();
-        liveHome.startShieldingTopLiveRoom();
     }
     if (oldHistory.isOldHistory(url)) {
         oldHistory.intervalExecutionStartShieldingVideo()

@@ -7,3 +7,12 @@
 #room-card-list > div button {
     margin-top: 15px;
 }
+
+/*直播首页列表项屏蔽按钮样式*/
+.gz-live-home-room-card-list-item {
+    z-index: 10;
+    width: 100%;
+    position: relative;
+    top: 20px;
+
+}

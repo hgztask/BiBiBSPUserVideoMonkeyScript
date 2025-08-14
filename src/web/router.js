@@ -17,6 +17,8 @@ import globalValue from "./data/globalValue.js";
 import {checkAndExcludePage} from "./layout/excludeURLs.js";
 import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import dynamicPage from "./pagesModel/dynamicPage.js";
+import LiveCommon from "./pagesModel/live/liveCommon.js";
+import liveHome from "./pagesModel/live/liveHome.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -74,7 +76,10 @@ const staticRoute = (title, url) => {
         })
     }
     if (liveSectionModel.isLiveSection()) {
-        liveSectionModel.addStyle();
+        LiveCommon.addStyle();
+    }
+    if (liveHome.isLiveHomePage(url)) {
+        liveHome.run();
     }
     if (dynamicPage.isUrlPage()) {
         dynamicPage.run()

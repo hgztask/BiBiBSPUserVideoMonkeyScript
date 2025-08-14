@@ -83,6 +83,9 @@ const addLiveContentBlockButton = (commentsData) => {
     shielding.addBlockButton(commentsData, "gz_shielding_live_danmaku_button");
 }
 
+eventEmitter.on('event-直播首页列表添加屏蔽按钮', (liveCardItemData) => {
+    shielding.addBlockButton(liveCardItemData, "gz-live-home-room-card-list-item");
+})
 
 export default {
     shieldingLiveRoomDecorated,

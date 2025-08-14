@@ -1,5 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import live_shielding from "../../model/shielding/live_shielding.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
+import liveCommon from "./liveCommon.js";
 
 const isLiveHomePage = (url) => {
     return url.includes("https://live.bilibili.com/?spm_id_from=333.1007.0.0") ||
@@ -31,10 +33,8 @@ const getTopLiveRoomDataList = async () => {
     return list;
 }
 
-
 /**
  *获取直播首页中的直播间列表
- * //todo 补充，尝试加入插入位置和触发屏蔽按钮，但受限于，结构机制，暂时无法实现，可考虑通过悬停元素xxx秒弹出对话框来实现
  * @returns {Promise<[{}]>}
  */
 const getLiveRoomDataList = async () => {
@@ -53,7 +53,10 @@ const getLiveRoomDataList = async () => {
         //直播分区
         const partition = el.querySelector(".area-name").textContent.trim();
         const popularity = el.querySelector(".room-anchor .v-middle").textContent.trim();
-        list.push({name, title, partition, popularity, liveUrl, uid, el});
+        list.push({
+            name, title, partition, popularity, liveUrl, uid, el,
+            explicitSubjectEl: el, insertionPositionEl: el.querySelector('a')
+        });
     }
     return list;
 }
@@ -66,7 +69,8 @@ const startShieldingLiveRoom = async () => {
     const list = await getLiveRoomDataList();
     for (let liveData of list) {
         //屏蔽直播间
-        live_shielding.shieldingLiveRoomDecorated(liveData);
+        if (live_shielding.shieldingLiveRoomDecorated(liveData)) continue;
+        eventEmitter.send('event-直播首页列表添加屏蔽按钮', {data: liveData, maskingFunc: startShieldingLiveRoom});
     }
 }
 
@@ -78,14 +82,21 @@ const startShieldingLiveRoom = async () => {
 const startShieldingTopLiveRoom = async () => {
     const list = await getTopLiveRoomDataList();
     for (let liveData of list) {
-        //屏蔽直播间
         live_shielding.shieldingLiveRoomDecorated(liveData)
     }
 }
 
+const run = () => {
+    liveCommon.addStyle();
+    startShieldingTopLiveRoom()
+    startShieldingLiveRoom()
+    setInterval(async () => {
+        await startShieldingLiveRoom();
+    }, 2000)
+}
 
 export default {
     isLiveHomePage,
     startShieldingLiveRoom,
-    startShieldingTopLiveRoom
+    run
 }
