@@ -207,7 +207,7 @@ const scrollMouseUpAndDown = async () => {
     //如果开启适配BAppcommerce脚本，则不执行此功能
     if (globalValue.adaptationBAppCommerce) return;
     //定位到底部元素之后定位头部元素，模拟鼠标上下滚动
-    const el = await elUtil.findElement('#immersive-translate-popup', {interval: 200});
+    const el = document.body.querySelector('#home-bottom-div');
     el.scrollIntoView({behavior: 'smooth', block: "end"});
     await defUtil.wait(1200);
     document.querySelector('.browser-tip').scrollIntoView({behavior: 'smooth'});
@@ -222,7 +222,7 @@ const checkVideoListCount = () => {
         if (elList.length <= 9) {
             await scrollMouseUpAndDown();
         }
-    }, 3500);
+    }, 3000);
 }
 
 
@@ -261,6 +261,10 @@ const run = () => {
         }
         console.log("已插入12个空元素至视频列表尾部，最后插入的元素", current);
     })
+    const bottomDiv = document.createElement('div');
+    bottomDiv.id = 'home-bottom-div';
+    bottomDiv.style.all = 'initial';
+    document.body.appendChild(bottomDiv);
     setTimeout(async () => {
         await scrollMouseUpAndDown();
         checkVideoListCount();
