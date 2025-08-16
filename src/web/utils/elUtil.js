@@ -112,24 +112,24 @@ function findElementsByAttempts(selector, config) {
 }
 
 /**
- * 不断尝试查找单个元素，每次查找之间有指定的间隔时间，直到找到为止
+ * 持续查找单个元素，每次查找之间有指定的间隔时间，直到找到为止
  * 结合异步操作await可用于监听元素加载完成之后继续执行
- * 如设置超时时间，则当超过指定时间后，将返回null，需要cry异常处理
+ * 如设置超时时间超过指定时间后，将返回null
  * @param {string} selector - CSS 选择器，用于选择元素
  * @param config{Object} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
- * @returns {Promise<Element|Document>} - 成功时返回找到的元素，失败时需要cry处理
+ * @returns {Promise<Element|Document>}-返回找到的元素，如设置超时超出时间则返回null
  */
-function findElementUntilFound(selector, config = {}) {
+const findElement = async (selector, config = {}) => {
     const defConfig = {
         doc: document,
         interval: 1000,
         timeout: -1,
     }
     config = {...defConfig, ...config}
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const i1 = setInterval(() => {
             const element = config.doc.querySelector(selector);
             if (element) {
@@ -140,82 +140,27 @@ function findElementUntilFound(selector, config = {}) {
         if (config.timeout > 0) {
             setTimeout(() => {
                 clearInterval(i1);
-                reject(null); // 超时则返回 null
+                resolve(null); // 超时则返回 null
             }, config.timeout);
         }
     });
 }
 
-
-/**
- * 持续查找单个元素，每次查找之间有指定的间隔时间，直到找到为止
- * 结合异步操作await可用于监听元素加载完成之后继续执行
- * 如设置超时时间，返回则返回对象，详情看返回值描述。未设置时返回对应网页元素
- * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
- * @returns {Promise<{data:Element|Document,state:boolean}|Element|Document>}-如未设置超时时间，直接返回元素。设置了成功或失败都会返回对象，对象state为状态，data为结果
- */
-const findElement = async (selector, config = {}) => {
-    try {
-        const defConfig = {
-            doc: document,
-            interval: 1000,
-            timeout: -1,
-        }
-        config = {...defConfig, ...config}
-        const el = await findElementUntilFound(selector, config)
-        if (config.timeout === -1) {
-            return el
-        }
-        return {state: true, data: el}
-    } catch (e) {
-        return {state: false, data: e}
-    }
-}
-
 /**
  * 持续查找多个个元素，每次查找之间有指定的间隔时间，直到找到为止
  * 结合异步操作await可用于监听元素加载完成之后继续执行
- * 如设置超时时间，返回则返回对象，详情看返回值描述。未设置时返回对应元素列表
+ * 如设置超时时间超过指定时间后，将返回空数组
  * @param {string} selector - CSS 选择器，用于选择元素
  * @param config{Object} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，去问问1即无限等待
- * @returns {Promise<[Element|Document]|{state:boolean,data:[Element|Document]}>}-如未设置超时时间，直接返回找到的Element列表。设置了成功或失败都会返回对象，对象state为状态，data为结果
+ * @returns {Promise<[Element|Document]>}-返回找到的Element列表，如设置超时超出时间则返回空数组
  */
 const findElements = async (selector, config = {}) => {
     const defConfig = {doc: document, interval: 1000, timeout: -1}
     config = {...defConfig, ...config}
-    try {
-        const elList = await findElementsUntilFound(selector, config)
-        if (config.timeout === -1) {
-            return elList
-        }
-        return {state: true, data: elList}
-    } catch (e) {
-        return {state: false, data: e}
-    }
-}
-
-/**
- * 不断尝试查找多个元素，每次查找之间有指定的间隔时间，直到找到为止
- * 结合异步操作await可用于监听元素加载完成之后继续执行
- * 如设置超时时间，则当超过指定时间后，将返回null，需要cry异常处理
- * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
- * @returns {Promise<Array<Element|Document>>} - 返回找到的 Element列表
- */
-function findElementsUntilFound(selector, config = {}) {
-    const defConfig = {doc: document, interval: 1000, timeout: -1}
-    config = {...defConfig, ...config}
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const i1 = setInterval(() => {
             const elements = config.doc.querySelectorAll(selector);
             if (elements.length > 0) {
@@ -226,7 +171,7 @@ function findElementsUntilFound(selector, config = {}) {
         if (config.timeout > 0) {
             setTimeout(() => {
                 clearInterval(i1);
-                reject(null); // 超时则返回 null
+                resolve([]); // 超时则返回 空数组
             }, config.timeout);
         }
     });
