@@ -6,6 +6,7 @@ import topInput from "../../pagesModel/search/topInput.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import localMKData, {
   enableDynamicItemsContentBlockingGm,
+  isBlockRepostDynamicGm,
   isCloseCommentBlockingGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
@@ -31,7 +32,8 @@ export default {
       isHideCarouselImageVal: isHideCarouselImageGm(),
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
-      enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm()
+      enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm(),
+      isBlockRepostDynamicVal: isBlockRepostDynamicGm(),
     }
   },
   methods: {},
@@ -87,6 +89,9 @@ export default {
     },
     enableDynamicItemsContentBlockingVal(n) {
       gmUtil.setData('enable_dynamic_items_content_blocking_gm', n)
+    },
+    isBlockRepostDynamicVal(n) {
+      gmUtil.setData('is_block_repost_dynamic_gm', n)
     }
   }
 }
@@ -140,6 +145,10 @@ export default {
       <el-tooltip content="启用该项后，对应页面中的动态会对uid白名单处理，和动态内容处理">
         <el-switch v-model="enableDynamicItemsContentBlockingVal" active-text="启用动态内容屏蔽"/>
       </el-tooltip>
+    </el-card>
+    <el-card>
+      <template #header>动态</template>
+      <el-switch v-model="isBlockRepostDynamicVal" active-text="屏蔽转发类型"/>
     </el-card>
   </div>
 </template>

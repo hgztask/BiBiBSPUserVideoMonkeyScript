@@ -1,7 +1,55 @@
+import elUtil from "../../utils/elUtil.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../../model/shielding/shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import elUtil from "../../utils/elUtil.js";
+import {isBlockRepostDynamicGm, isCheckNestedDynamicContentGm} from "../../data/localMKData.js";
+
+/**
+ * 获取动态主体信息
+ * @param vueData
+ * @returns {{}}
+ */
+const getDynamicCardModulesData = (vueData) => {
+    const data = {};
+    /**
+     * 动态主体信息
+     * 依次为，up信息，动态内容
+     */
+    const {module_author, module_dynamic} = vueData.modules;
+    data.name = module_author.name;
+    data.uid = module_author.mid;
+    data.desc = module_dynamic.desc?.text ?? "";//其他动态时为null
+    const topic = module_dynamic['topic'];//无时为null
+    if (topic !== null) {
+        data.topic = topic.name;
+    }
+    const major = module_dynamic['major'];//动态主体对象，无时为null
+    if (module_dynamic['additional'] !== null) {
+        //这个相关内容卡片信息,待观察
+        console.warn('这个相关内容卡片信息,待观察', vueData)
+    }
+    if (major !== null) {
+        //动态主体类型
+        const majorType = major['type'];
+        if (majorType === 'MAJOR_TYPE_ARCHIVE') {
+            //视频类
+            const archive = major['archive'];
+            data.videoTitle = archive.title;
+            data.videoDesc = archive.desc;
+        }
+        if (majorType === 'MAJOR_TYPE_OPUS') {
+            //图文动态
+            const opus = major['opus'];
+            const opusTitle = opus.title ?? '';
+            const opusDesc = opus.summary.text ?? '';
+            data.opusTitle = opusTitle;
+            data.opusDesc = opusDesc;
+            data.desc += opusTitle + opusDesc;
+        }
+    }
+    return data;
+}
+
 
 /**
  * 动态内容如遇到引用其他动态或内容，不用匹配时排除.reference
@@ -15,39 +63,46 @@ const getDataList = async () => {
     const elList = await elUtil.findElementsUntilFound(".bili-dyn-list__items>.bili-dyn-list__item");
     const list = [];
     for (let el of elList) {
-        const bodyEl = el.querySelector('.bili-dyn-content')
-        const name = el.querySelector(".bili-dyn-title").textContent.trim();
-        //todo 发现外层动态话题tag不存在时会定位到嵌套动态的话题tag，待后续调整
-        const tagEl = bodyEl.querySelector(".bili-dyn-topic__text,.bili-topic__text");
-        const data = {el, name};
-        if (tagEl !== null) {
-            data.tag = tagEl.textContent.trim();
-        }
-        const vueExample = el.querySelector('.bili-dyn-item')?.__vue__
+        const dynItemEl = el.querySelector('.bili-dyn-item');
+        const vueExample = dynItemEl?.__vue__
+        let data = {el};
         const vueData = vueExample?.data ?? null
-        data.uid = vueData?.modules?.['module_author']?.mid ?? -1
-        const biliEllipsis = el.querySelector('.bili-dyn-time.fs-small.bili-ellipsis')?.textContent?.trim()
-        //动态总内容，不包括嵌套动态里的动态内容
-        let content = bodyEl.querySelector(".bili-dyn-content__orig__desc,.bili-dyn-content__forw__desc,.bili-dyn-content__orig:not(.reference)>.bili-dyn-content__orig__major>.dyn-card-opus .bili-rich-text__content")?.textContent.trim() ?? "";
-        const titleEl = bodyEl.querySelector('.dyn-card-opus:not(.hide-border) .dyn-card-opus__title.bili-ellipsis')
-        const title = titleEl?.textContent.trim() ?? "";
-        data.title = title;
         data.vueExample = vueExample
-        data.vueData = vueData
-        data.judgmentVideo = biliEllipsis.includes('投稿了视频');
-        if (data.judgmentVideo) {
-            const videoCardEl = el.querySelector(".bili-dyn-content__orig__major.suit-video-card");
-            const vTitleEl = videoCardEl.querySelector('.bili-dyn-card-video__title');
-            const vDescEl = videoCardEl.querySelector('.bili-dyn-card-video__desc');
-            data.videoTitle = vTitleEl.textContent.trim();
-            data.videoDesc = vDescEl?.textContent.trim() ?? "";
-        } else {
-            content = title + content;
+        data.vueData = vueData;
+        if (vueData.visible === false) {//跳过折叠的动态
+            continue;
         }
-        data.content = content;
+        const modulesData = getDynamicCardModulesData(vueData);
+        data = {...data, ...modulesData}
+        if (vueData.type === 'DYNAMIC_TYPE_FORWARD') {
+            //转发类动态
+            const {orig} = vueData;
+            data.orig = getDynamicCardModulesData(orig);
+        }
         list.push(data);
     }
     return list;
+}
+
+const checkEachItem = (dynamicData, ruleArrMap) => {
+    const {desc, name, el, uid = -1, videoTitle = null, orig = null} = dynamicData;
+    const blockRepostDynamicGm = isBlockRepostDynamicGm();
+    if (orig && blockRepostDynamicGm) {
+        el.remove();
+        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-规则转发类动态`)
+        return true;
+    }
+    if (uid !== -1) {
+        if (blockCheckWhiteUserUid(uid)) return false;
+    }
+    if (desc === "" && videoTitle === null) return false;
+    let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);
+    if (!state) {
+        return false;
+    }
+    el.remove();
+    eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-${type}-规则${matching}`)
+    return true;
 }
 
 /**
@@ -61,17 +116,16 @@ const commonCheckDynamicList = async () => {
         fuzzyRuleArr: gmUtil.getData('dynamic', []),
         regexRuleArr: gmUtil.getData('dynamicCanonical', [])
     }
+    const checkNestedDynamicContentGm = isCheckNestedDynamicContentGm();
     for (const v of dataList) {
-        const {content, name, el, uid = -1, videoTitle = null} = v;
-        if (uid !== -1) {
-            if (blockCheckWhiteUserUid(uid)) continue;
+        if (checkEachItem(v, ruleArrMap)) {
+            continue;
         }
-        if (content === "" && videoTitle === null) continue;
-        const {state, matching, type} = blockDynamicItemContent(content, videoTitle, ruleArrMap);
-        if (!state) continue;
-        el.remove();
-        eventEmitter.send('打印信息', `用户${name}-动态内容${content}-${type}-规则${matching}`)
-        console.log(v);
+        const {orig = null} = v;
+        if (orig === null || !checkNestedDynamicContentGm) {
+            continue;
+        }
+        checkEachItem(orig, ruleArrMap);
     }
 }
 

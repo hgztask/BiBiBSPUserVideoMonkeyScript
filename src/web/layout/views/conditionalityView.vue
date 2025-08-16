@@ -2,7 +2,11 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
 import gmUtil from "../../utils/gmUtil.js";
-import localMKData, {hideBlockButtonGm, isEffectiveUIDShieldingOnlyVideo} from "../../data/localMKData.js";
+import localMKData, {
+  hideBlockButtonGm,
+  isCheckNestedDynamicContentGm,
+  isEffectiveUIDShieldingOnlyVideo
+} from "../../data/localMKData.js";
 import globalValue from "../../data/globalValue.js";
 
 /**
@@ -18,7 +22,8 @@ export default {
       //是否模糊和正则匹配词转小写
       bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
       isDisableNetRequestsBvVideoInfo: localMKData.isDisableNetRequestsBvVideoInfo(),
-      hideBlockButtonVal: hideBlockButtonGm()
+      hideBlockButtonVal: hideBlockButtonGm(),
+      isCheckNestedDynamicContentVal: isCheckNestedDynamicContentGm()
     }
   },
   methods: {},
@@ -45,6 +50,9 @@ export default {
       if (n) {
         document.body.querySelectorAll('.gz_shielding_button').forEach(el => el.remove());
       }
+    },
+    isCheckNestedDynamicContentVal(n) {
+      gmUtil.setData('is_check_nested_dynamic_content_gm', n)
     }
   },
   created() {
@@ -65,6 +73,7 @@ export default {
       <el-switch v-model="isEffectiveUIDShieldingOnlyVideoVal" active-text="仅生效UID屏蔽(限视频)"/>
     </el-tooltip>
     <el-switch v-model="hideBlockButtonVal" active-text="不显示屏蔽按钮"/>
+    <el-switch v-model="isCheckNestedDynamicContentVal" active-text="动态项屏蔽检查嵌套动态"/>
     <el-card>
       <template #header>
         <span>网络请求频率(单位秒)</span>

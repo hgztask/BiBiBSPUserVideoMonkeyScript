@@ -389,6 +389,16 @@ export const hideBlockButtonGm = () => {
     return gmUtil.getData('hide_block_button_gm', false)
 }
 
+//是否检查嵌套动态内容
+export const isCheckNestedDynamicContentGm = () => {
+    return gmUtil.getData('is_check_nested_dynamic_content_gm', false)
+}
+
+//是否屏蔽转发类的动态
+export const isBlockRepostDynamicGm = () => {
+    return gmUtil.getData('is_block_repost_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
