@@ -181,17 +181,8 @@ const startShieldingVideoList = async () => {
  * @returns {Promise<void>|null}
  */
 const processingExactSearchVideoCardContent = async () => {
-    let res;
-    try {
-        res = await elUtil.findElement('.user-list.search-all-list', {interval: 50, timeout: 4000})
-    } catch (e) {
-        return
-    }
-    let el;
-    if (!res.state) {
-        return
-    }
-    el = res.data
+    let el = await elUtil.findElement('.user-list.search-all-list', {interval: 50, timeout: 4000})
+    if (el === null) return;
     const infoCardEl = el.querySelector('.info-card');
     const userNameEl = infoCardEl.querySelector('.user-name')
     const name = userNameEl.textContent.trim()

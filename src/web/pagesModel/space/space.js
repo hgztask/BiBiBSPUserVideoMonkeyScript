@@ -32,19 +32,16 @@ const isPersonalHomepage = async () => {
         return cache
     }
     //先尝试获取新版ui
-    const {
-        state: newState,
-        data: newData
-    } = await elUtil.findElements('.nav-tab__item .nav-tab__item-text', {timeout: 2500})
-    if (newState) {
-        const bool = newData.some(el => el.textContent.trim() === '设置');
+    const elList = await elUtil.findElements('.nav-tab__item .nav-tab__item-text', {timeout: 2500})
+    if (elList.length > 0) {
+        const bool = elList.some(el => el.textContent.trim() === '设置');
         valueCache.set('space_version', 'new')
         return valueCache.set(keyStr, bool);
     }
     //旧ui定位设置
-    let {state} = await elUtil.findElement('.n-tab-links>.n-btn.n-setting>.n-text', {timeout: 1500});
+    const el = await elUtil.findElement('.n-tab-links>.n-btn.n-setting>.n-text', {timeout: 1500});
     valueCache.set('space_version', 'old')
-    return valueCache.set(keyStr, state);
+    return valueCache.set(keyStr, el);
 }
 
 /**

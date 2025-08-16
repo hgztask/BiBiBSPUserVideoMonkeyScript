@@ -144,12 +144,7 @@ const getCommentSectionList = async () => {
 
 //获取旧评论列表，适用于旧版本评论区，新版评论区使用shadowRoot
 const getOldCommentSectionList = async () => {
-    let results
-    try {
-        results = await elUtil.findElements(".reply-list>.reply-item", {timeout: 5000});
-    } catch (e) {
-        return []
-    }
+    let results = await elUtil.findElements(".reply-list>.reply-item", {timeout: 5000});
     /**
      *
      * @type {[{}]}

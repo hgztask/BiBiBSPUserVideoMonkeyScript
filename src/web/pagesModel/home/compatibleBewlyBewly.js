@@ -37,8 +37,8 @@ const isBEWLYPage = (url) => {
  * @returns {Promise<void>|null}
  */
 const check_BEWLYPage_compatibility = async () => {
-    const {state} = await elUtil.findElement('#bewly', {interval: 200, timeout: 5000})
-    if (state) {
+    const el = await elUtil.findElement('#bewly', {interval: 200, timeout: 5000})
+    if (el) {
         if (!globalValue.compatibleBEWLYBEWLY) {
             eventEmitter.send('el-alert', '检测到使用BewlyBewly插件但未开启兼容选项，需要启用相关兼容选项才可正常使用')
         }

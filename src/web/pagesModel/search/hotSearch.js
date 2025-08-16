@@ -62,9 +62,8 @@ const startShieldingHotListDynamic = async () => {
 const setTopSearchPanelDisplay = (hide, name = "搜索历史", timeout = -1) => {
     const css = name === "搜索历史" ? ".search-panel>.history" : ".search-panel>.trending";
     const msg = name === "搜索历史" ? "搜索历史" : "热搜";
-    elUtil.findElement(css, {timeout}).then(res => {
-        const el = timeout === -1 ? res : res.data;
-        if (res['state'] === false) {
+    elUtil.findElement(css, {timeout}).then(el => {
+        if (el === null) {
             eventEmitter.send('el-msg', "未找到元素，可能是页面加载未完成，请稍后再试！");
             return
         }

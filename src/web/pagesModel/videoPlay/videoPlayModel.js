@@ -18,8 +18,8 @@ const isVideoPlayPage = (url = window.location.href) => {
  */
 const selectUserBlocking = async () => {
     //查找是否是多个作者
-    const {state} = await elUtil.findElement('.header.can-pointer', {timeout: 1800})
-    if (state) {
+    const el = await elUtil.findElement('.header.can-pointer', {timeout: 1800})
+    if (el) {
         //多作者
         const elList = document.querySelectorAll('.container>.membersinfo-upcard-wrap>.membersinfo-upcard')
         const list = []
@@ -235,12 +235,12 @@ const delGameAd = () => {
     if (!gmUtil.getData('isDelPlayerPageRightGameAd', false)) {
         return
     }
-    elUtil.findElement('.video-page-game-card-small', {timeout: 10000}).then(({state, data}) => {
-        if (!state) {
+    elUtil.findElement('.video-page-game-card-small', {timeout: 10000}).then(el => {
+        if (el === null) {
             eventEmitter.send('打印信息', '没有找到播放页的右侧游戏推荐')
             return
         }
-        data?.remove();
+        el.remove();
         eventEmitter.send('打印信息', '屏蔽了游戏推荐')
     })
 }
