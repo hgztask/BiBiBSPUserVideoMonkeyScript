@@ -14,12 +14,12 @@ const isLiveHomePage = (url) => {
  */
 const getTopLiveRoomDataList = async () => {
     //等待顶部的推荐列表加载完成
-    const verification = await elUtil.findElementUntilFound(".v-top>.aside-item .t-left.aside-item-tips.p-absolute.w-100.border-box");
+    const verification = await elUtil.findElement(".v-top>.aside-item .t-left.aside-item-tips.p-absolute.w-100.border-box");
     if (verification.textContent.trim() === "--") {
         //当前的元素为--时，则重新获取
         return await getTopLiveRoomDataList();
     }
-    const elList = await elUtil.findElementsUntilFound(".v-top>.aside-item", {interval: 2000})
+    const elList = await elUtil.findElements(".v-top>.aside-item", {interval: 2000})
     const list = [];
     //目前没找到name相关信息
     for (let el of elList) {
@@ -38,7 +38,7 @@ const getTopLiveRoomDataList = async () => {
  * @returns {Promise<[{}]>}
  */
 const getLiveRoomDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".room-card-wrapper.p-relative.dp-i-block")
+    const elList = await elUtil.findElements(".room-card-wrapper.p-relative.dp-i-block")
     const list = [];
     for (let el of elList) {
         //直播间卡片元素

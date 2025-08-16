@@ -16,7 +16,7 @@ const isOldHistory = (url) => {
  * @returns {Promise<[{}]>}
  */
 const getVideoDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound('#history_list>.history-record')
+    const elList = await elUtil.findElements('#history_list>.history-record')
     const list = [];
     for (let el of elList) {
         const labelEL = el.querySelector('.cover-contain>.label');

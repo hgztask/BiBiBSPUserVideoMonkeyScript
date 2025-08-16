@@ -248,7 +248,7 @@ const findElementsAndBindEvents = (css, callback, config = {}) => {
         }, config
     }
     setTimeout(() => {
-        findElementUntilFound(css, {interval: config.interval}).then((el) => {
+        findElement(css, {interval: config.interval}).then((el) => {
             el.addEventListener("click", () => {
                 callback();
             })
@@ -326,8 +326,6 @@ export default {
     getUrlBV,
     findElement,
     findElements,
-    findElementUntilFound,
-    findElementsUntilFound,
     findElementsAndBindEvents,
     updateCssVModal,
     installStyle

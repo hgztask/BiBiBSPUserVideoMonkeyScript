@@ -64,9 +64,9 @@ const getOldUserLevel = (iEl) => {
  */
 const getCommentSectionList = async () => {
     // await defUtil.wait(2000);
-    const commentApp = await elUtil.findElementUntilFound("bili-comments",
+    const commentApp = await elUtil.findElement("bili-comments",
         {interval: 500});
-    const comments = await elUtil.findElementsUntilFound("#feed>bili-comment-thread-renderer",
+    const comments = await elUtil.findElements("#feed>bili-comment-thread-renderer",
         {doc: commentApp.shadowRoot, interval: 500});
     const commentsData = [];
     //是否加载完毕，如果评论内容不为空，说明内容已经加载完毕，用于解决评论内容未能加载完问题
@@ -146,7 +146,7 @@ const getCommentSectionList = async () => {
 const getOldCommentSectionList = async () => {
     let results
     try {
-        results = await elUtil.findElementsUntilFound(".reply-list>.reply-item", {timeout: 5000});
+        results = await elUtil.findElements(".reply-list>.reply-item", {timeout: 5000});
     } catch (e) {
         return []
     }

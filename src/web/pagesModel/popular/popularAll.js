@@ -11,7 +11,7 @@ import video_shielding from "../../model/shielding/video_shielding.js";
  */
 const getVideDataList = async (isWeekly = false) => {
     const css = isWeekly ? ".video-list>.video-card" : ".card-list>.video-card";
-    const elList = await elUtil.findElementsUntilFound(css);
+    const elList = await elUtil.findElements(css);
     const list = [];
     for (let el of elList) {
         const videoCardInfoEl = el.querySelector(".video-card__info");

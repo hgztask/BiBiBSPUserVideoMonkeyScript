@@ -61,7 +61,7 @@ const selectUserBlocking = async () => {
 // 获取右侧视频列表
 const getGetTheVideoListOnTheRight = async () => {
     //等待，直到列表中封面加载完
-    await elUtil.findElementUntilFound(".video-page-card-small .b-img img");
+    await elUtil.findElement(".video-page-card-small .b-img img");
     delAd()
     delGameAd()
     const elList = await elUtil.findElements(".rec-list>.video-page-card-small,.video-page-operator-card-small", {interval: 1000})
@@ -129,7 +129,7 @@ const startShieldingVideoList = () => {
  */
 const findTheExpandButtonForTheListOnTheRightAndBindTheEvent = () => {
     setTimeout(() => {
-        elUtil.findElementUntilFound(".rec-footer", {interval: 2000}).then((el) => {
+        elUtil.findElement(".rec-footer", {interval: 2000}).then((el) => {
             console.log("找到右侧视频列表的展开按钮", el);
             el.addEventListener("click", () => {
                 startShieldingVideoList();

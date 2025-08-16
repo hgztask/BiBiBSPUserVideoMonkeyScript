@@ -17,7 +17,7 @@ const isVideoPlayWatchLaterPage = (url) => {
  * @returns {Promise<[{}]>}
  */
 const getRightVideoDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".recommend-video-card.video-card")
+    const elList = await elUtil.findElements(".recommend-video-card.video-card")
     return generalFuc.getRightVideoDataList(elList);
 }
 

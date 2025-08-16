@@ -10,7 +10,7 @@ const iscCollectionVideoPlayPage = (url = window.location.href) => {
 
 // 获取右侧视频列表
 const getGetTheVideoListOnTheRight = async () => {
-    const elList = await elUtil.findElementsUntilFound(".recommend-list-container>.video-card");
+    const elList = await elUtil.findElements(".recommend-list-container>.video-card");
     return generalFuc.getRightVideoDataList(elList);
 }
 
@@ -34,7 +34,7 @@ const startShieldingVideoList = () => {
  */
 const findTheExpandButtonForTheListOnTheRightAndBindTheEvent = () => {
     setTimeout(() => {
-        elUtil.findElementUntilFound(".rec-footer", {interval: 2000}).then((el) => {
+        elUtil.findElement(".rec-footer", {interval: 2000}).then((el) => {
             el.addEventListener("click", () => {
                 startShieldingVideoList();
             })

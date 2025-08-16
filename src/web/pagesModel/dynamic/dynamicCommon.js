@@ -60,7 +60,7 @@ const getDynamicCardModulesData = (vueData) => {
  * @returns {Promise<[{}]>}
  */
 const getDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".bili-dyn-list__items>.bili-dyn-list__item");
+    const elList = await elUtil.findElements(".bili-dyn-list__items>.bili-dyn-list__item");
     const list = [];
     for (let el of elList) {
         const dynItemEl = el.querySelector('.bili-dyn-item');

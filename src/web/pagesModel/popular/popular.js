@@ -64,7 +64,7 @@ const isGeneralPopularRank=(url)=>{
  * @returns {Promise<[{}]>}
  */
 const getVideoDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".rank-list>li")
+    const elList = await elUtil.findElements(".rank-list>li")
     const list = [];
     for (let el of elList) {
         const title = el.querySelector(".title").textContent.trim();

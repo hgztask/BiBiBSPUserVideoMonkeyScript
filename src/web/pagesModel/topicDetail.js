@@ -13,7 +13,7 @@ const isTopicDetailPage = (url) => {
  * @returns {Promise<>}
  */
 const getDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".list__topic-card")
+    const elList = await elUtil.findElements(".list__topic-card")
     const list = [];
     for (let el of elList) {
         const name = el.querySelector(".bili-dyn-title").textContent.trim();

@@ -15,7 +15,7 @@ let be_wly_el = null;
  */
 const getBewlyEl = async () => {
     if (be_wly_el === null) {
-        let el = await elUtil.findElementUntilFound('#bewly', {interval: 500})
+        let el = await elUtil.findElement('#bewly', {interval: 500})
         be_wly_el = el.shadowRoot;
         return be_wly_el
     }
@@ -58,7 +58,7 @@ const getVideoList = async () => {
     if (be_wly_el === null) {
         await getBewlyEl();
     }
-    const elList = await elUtil.findElementsUntilFound('.video-card.group', {doc: be_wly_el})
+    const elList = await elUtil.findElements('.video-card.group', {doc: be_wly_el})
     const list = [];
     for (let el of elList) {
         const parentElement = el.parentElement.parentElement;
@@ -105,7 +105,7 @@ const getVideoList = async () => {
  */
 const getRightTabs = async () => {
     const beEl = await getBewlyEl();
-    const els = await elUtil.findElementsUntilFound(".dock-content-inner>.b-tooltip-wrapper", {doc: beEl})
+    const els = await elUtil.findElements(".dock-content-inner>.b-tooltip-wrapper", {doc: beEl})
     const list = [];
     for (let el of els) {
         const label = el.querySelector('.b-tooltip').textContent.trim()
@@ -118,7 +118,7 @@ const getRightTabs = async () => {
 //获取历史记录中的视频列表数据
 const getHistoryVideoDataList = async () => {
     const beEL = await getBewlyEl()
-    const elList = await elUtil.findElementsUntilFound("a.group[flex][cursor-pointer]", {doc: beEL})
+    const elList = await elUtil.findElements("a.group[flex][cursor-pointer]", {doc: beEL})
     const list = []
     for (let el of elList) {
         const titleEl = el.querySelector('h3.keep-two-lines');
@@ -283,7 +283,7 @@ const homeTopTabsInsertListener = () => {
  */
 const getRankingLeftTabs = async () => {
     const beEl = await getBewlyEl();
-    const elList = await elUtil.findElementsUntilFound('ul[flex="~ col gap-2"]>li', {doc: beEl})
+    const elList = await elUtil.findElements('ul[flex="~ col gap-2"]>li', {doc: beEl})
     const list = [];
     for (let el of elList) {
         const label = el.textContent.trim()
@@ -325,7 +325,7 @@ const installBEWLStyle = () => {
  */
 const searchBoxInsertListener = async () => {
     const beEl = await getBewlyEl()
-    const input = await elUtil.findElementUntilFound('[placeholder="搜索观看历史"]', {doc: beEl})
+    const input = await elUtil.findElement('[placeholder="搜索观看历史"]', {doc: beEl})
     input.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.keyCode === 13) {
             console.log('回车键被按下');

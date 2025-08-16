@@ -15,7 +15,7 @@ const isLiveRoom = (url) => {
 
 // 获取直播间弹幕
 const getChatItems = async () => {
-    const elList = await elUtil.findElementsUntilFound("#chat-items>div");
+    const elList = await elUtil.findElements("#chat-items>div");
     if (elList.length >= 200) {
         for (let i = 0; i < 100; i++) {
             elList[i]?.remove();

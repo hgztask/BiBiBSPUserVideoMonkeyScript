@@ -11,7 +11,7 @@ const isLiveSection = (url = window.location.href) => {
  * @returns {Promise<[{liveUrl,name,title,partition,popularity}]>}
  */
 const getRoomCardDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound("#room-card-list>div");
+    const elList = await elUtil.findElements("#room-card-list>div");
     const list = [];
     for (let el of elList) {
         const cardEL = el.querySelector("#card");

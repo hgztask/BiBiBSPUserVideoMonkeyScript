@@ -34,7 +34,7 @@ const getDuration = (str) => {
  * @returns {Promise<[]>}
  */
 const getVideoDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound('.section-cards.grid-mode>div')
+    const elList = await elUtil.findElements('.section-cards.grid-mode>div')
     const list = [];
     for (let el of elList) {
         const titleEl = el.querySelector('.bili-video-card__title');
@@ -102,13 +102,13 @@ const intervalExecutionStartShieldingVideo = () => {
 const executionStartShieldingVideo = intervalExecutionStartShieldingVideo();
 
 const getTopFilterLabel = async () => {
-    const el = await elUtil.findElementUntilFound('.radio-filter>.radio-filter__item--active')
+    const el = await elUtil.findElement('.radio-filter>.radio-filter__item--active')
     return el.textContent?.trim()
 }
 
 // 监听顶部筛选器
 const topFilterInsertListener = () => {
-    elUtil.findElementUntilFound('.radio-filter').then((el => {
+    elUtil.findElement('.radio-filter').then((el => {
         el.addEventListener('click', (e) => {
             /**
              *

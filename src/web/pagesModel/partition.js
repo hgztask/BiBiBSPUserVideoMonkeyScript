@@ -27,7 +27,7 @@ const isNewPartition = (url = window.location.href) => {
  * @returns {Promise<[]>}
  */
 const getHotVideoDayList = async () => {
-    const elList = await elUtil.findElementsUntilFound('.bili-rank-list-video__item')
+    const elList = await elUtil.findElements('.bili-rank-list-video__item')
     const list = []
     for (let el of elList) {
         let videoUrlEl = el.querySelector('a.rank-video-card');
@@ -47,7 +47,7 @@ const getHotVideoDayList = async () => {
  * @returns {Promise<[]>}
  */
 const getVVideoDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound('.bili-video-card')
+    const elList = await elUtil.findElements('.bili-video-card')
     const list = []
     const oneTitleEl = elList[0].querySelector('.bili-video-card__info--tit>a')
     if (oneTitleEl === null) {
@@ -87,7 +87,7 @@ const getVVideoDataList = async () => {
 
 //获取新版分区视频列表_路径c/
 const getCVideoDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound('.bili-video-card')
+    const elList = await elUtil.findElements('.bili-video-card')
     const list = []
     for (let el of elList) {
         const titleEl = el.querySelector('.bili-video-card__title');

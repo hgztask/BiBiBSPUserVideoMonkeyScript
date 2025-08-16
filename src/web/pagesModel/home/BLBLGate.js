@@ -10,7 +10,7 @@ import bilibiliHome from "./bilibiliHome.js";
  * @returns {Promise<string>}
  */
 const getGateActivatedTab = async () => {
-    const el = await elUtil.findElementUntilFound(".ant-radio-group>.ant-radio-button-wrapper-checked")
+    const el = await elUtil.findElement(".ant-radio-group>.ant-radio-button-wrapper-checked")
     return el?.textContent.trim();
 }
 
@@ -43,7 +43,7 @@ const check_bilibili_gate_compatibility = async () => {
  * @returns {Promise<[{}]>}
  */
 const getGateDataList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".bilibili-gate-video-grid>[data-bvid].bili-video-card")
+    const elList = await elUtil.findElements(".bilibili-gate-video-grid>[data-bvid].bili-video-card")
     const list = [];
     for (let el of elList) {
         const tempData = bilibiliHome.getVideoData(el)

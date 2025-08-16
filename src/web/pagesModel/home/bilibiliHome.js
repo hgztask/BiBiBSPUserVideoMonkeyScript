@@ -24,7 +24,7 @@ const isHome = (url, title) => {
 
 // 删除下载提示
 const deDesktopDownloadTipEl = async () => {
-    const el = await elUtil.findElementUntilFound(".desktop-download-tip")
+    const el = await elUtil.findElement(".desktop-download-tip")
     el?.remove();
     const log = "已删除下载提示";
     console.log(log, el);
@@ -117,7 +117,7 @@ const getVideoData = (el) => {
 
 //首页中的视频列表，包括换一换中的视频列表
 const getHomeVideoELList = async () => {
-    const elList = await elUtil.findElementsUntilFound(".container.is-version8>.feed-card,.container.is-version8>.bili-feed-card");
+    const elList = await elUtil.findElements(".container.is-version8>.feed-card,.container.is-version8>.bili-feed-card");
     let list = [];
     for (let el of elList) {
         try {
