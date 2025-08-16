@@ -6,7 +6,6 @@ const outputInformationFontColor = localMKData.getOutputInformationFontColor();
 // 高亮信息字体颜色
 const highlightInformationColor = localMKData.getHighlightInformationColor();
 
-
 /**
  *
  * @param type {string} 屏蔽的类型
@@ -23,26 +22,6 @@ ${toTimeString}-根据${type}-${matching ? `<b style="color: ${highlightInformat
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>
             直播评论【${content}】
-            </b>`
-}
-
-
-/**
- * 获取动态html格式化排版信息
- * @param type {string} 屏蔽的类型
- * @param matching {string|number|null}
- * @param dynamicData {{}} 动态数据
- * @returns string
- */
-const getDynamicContentInfoHtml = (type, matching, dynamicData) => {
-    const toTimeString = defUtil.toTimeString();
-    const {name, uid, content} = dynamicData;
-    return `<b style="color: ${outputInformationFontColor}; " gz_bezel>
-${toTimeString}-根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
-            <a href="https://space.bilibili.com/${uid}" 
-            style="color: ${highlightInformationColor}"
-            target="_blank">【${uid}】</a>
-            动态【${content}】
             </b>`
 }
 
@@ -65,9 +44,7 @@ ${toTimeString}-根据${type}${matching ? `<b style="color: ${highlightInformati
 </b>`
 }
 
-
 export default {
     getLiveRoomCommentInfoHtml,
-    getDynamicContentInfoHtml,
     getLiveRoomInfoHtml
 }

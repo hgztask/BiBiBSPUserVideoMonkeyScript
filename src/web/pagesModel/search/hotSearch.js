@@ -39,7 +39,10 @@ export const startShieldingHotList = async () => {
     }
 }
 
-//处理动态首页右侧热搜列表
+/**
+ * //处理动态首页右侧热搜列表
+ * @returns {Promise<void>|null}
+ */
 const startShieldingHotListDynamic = async () => {
     const elList = await elUtil.findElements('.trending-list>a');
     console.log('动态首页右侧热搜列表', elList);

@@ -1,16 +1,7 @@
+import gmUtil from "../../utils/gmUtil.js";
+import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../../model/shielding/shielding.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 import elUtil from "../../utils/elUtil.js";
-import shielding from "../../model/shielding/shielding.js";
-import defUtil from "../../utils/defUtil.js";
-import space from "./space.js";
-
-/**
- *url是否是用户空间动态页面
- * @param url {string}
- * @returns {boolean}
- */
-const isDynamicPage = (url) => {
-    return url.search("space.bilibili.com/\\d+/dynamic") !== -1;
-}
 
 /**
  * 动态内容如遇到引用其他动态或内容，不用匹配时排除.reference
@@ -26,6 +17,7 @@ const getDataList = async () => {
     for (let el of elList) {
         const bodyEl = el.querySelector('.bili-dyn-content')
         const name = el.querySelector(".bili-dyn-title").textContent.trim();
+        //todo 发现外层动态话题tag不存在时会定位到嵌套动态的话题tag，待后续调整
         const tagEl = bodyEl.querySelector(".bili-dyn-topic__text,.bili-topic__text");
         const data = {el, name};
         if (tagEl !== null) {
@@ -58,32 +50,32 @@ const getDataList = async () => {
     return list;
 }
 
-
 /**
- * 开始屏蔽动态内容
- * 仅针对于动态中的动态内容和动态视频标题进行处理
- * @returns null
+ * 公共检查动态列表项执行屏蔽函数
+ * @returns {Promise<void>|null}
  */
-const startShieldingDynamicContent = async () => {
-    const personalHomepage = await space.isPersonalHomepage();
-    //个人主页，不做动态屏蔽处理
-    if (personalHomepage) return;
-    const list = await getDataList();
-    for (let dynamicContent of list) {
-        shielding.shieldingDynamicDecorated(dynamicContent);
+const commonCheckDynamicList = async () => {
+    const dataList = await getDataList();
+    console.log('动态列表', dataList);
+    const ruleArrMap = {
+        fuzzyRuleArr: gmUtil.getData('dynamic', []),
+        regexRuleArr: gmUtil.getData('dynamicCanonical', [])
+    }
+    for (const v of dataList) {
+        const {content, name, el, uid = -1, videoTitle = null} = v;
+        if (uid !== -1) {
+            if (blockCheckWhiteUserUid(uid)) continue;
+        }
+        if (content === "" && videoTitle === null) continue;
+        const {state, matching, type} = blockDynamicItemContent(content, videoTitle, ruleArrMap);
+        if (!state) continue;
+        el.remove();
+        eventEmitter.send('打印信息', `用户${name}-动态内容${content}-${type}-规则${matching}`)
+        console.log(v);
     }
 }
 
-/**
- * 节流，开始屏蔽动态内容
- * 仅针对于动态中的动态内容和动态视频标题进行处理
- * @type function
- */
-const startThrottleShieldingDynamicContent = defUtil.throttle(startShieldingDynamicContent, 2000);
-
-
+//动态公共方法
 export default {
-    isDynamicPage,
-    startThrottleShieldingDynamicContent,
-    getDataList
+    commonCheckDynamicList
 }

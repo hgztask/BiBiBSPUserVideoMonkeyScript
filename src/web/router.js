@@ -16,7 +16,7 @@ import BLBLGate from "./pagesModel/home/BLBLGate.js";
 import globalValue from "./data/globalValue.js";
 import {checkAndExcludePage} from "./layout/excludeURLs.js";
 import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
-import dynamicPage from "./pagesModel/dynamicPage.js";
+import dynamicPage from "./pagesModel/dynamic/dynamicPage.js";
 import LiveCommon from "./pagesModel/live/liveCommon.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 
@@ -81,7 +81,7 @@ const staticRoute = (title, url) => {
     if (liveHome.isLiveHomePage(url)) {
         liveHome.run();
     }
-    if (dynamicPage.isUrlPage()) {
+    if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.run()
     }
 }

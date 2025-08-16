@@ -6,7 +6,6 @@ import collectionVideoPlayPageModel from "../pagesModel/videoPlay/collectionVide
 import popular from "../pagesModel/popular/popular.js";
 import popularAll from "../pagesModel/popular/popularAll.js";
 import topicDetail from "../pagesModel/topicDetail.js";
-import dynamic from "../pagesModel/space/dynamic.js";
 import videoPlayWatchLater from "../pagesModel/videoPlay/videoPlayWatchLater.js";
 import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import liveHome from "../pagesModel/live/liveHome.js";
@@ -15,7 +14,8 @@ import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import BLBLGate from "../pagesModel/home/BLBLGate.js";
 import searchLive from "../pagesModel/search/searchLive.js";
-import dynamicPage from "../pagesModel/dynamicPage.js";
+import dynamicPage from "../pagesModel/dynamic/dynamicPage.js";
+import space from "../pagesModel/space/space.js";
 
 /**
  * 监听通知屏蔽事件
@@ -56,8 +56,8 @@ eventEmitter.on('通知屏蔽', () => {
     if (topicDetail.isTopicDetailPage(url)) {
         topicDetail.startShielding();
     }
-    if (dynamic.isDynamicPage(url)) {
-        dynamic.startThrottleShieldingDynamicContent();
+    if (space.isUserSpaceDynamicPage(url)) {
+        space.checkUserSpaceShieldingDynamicContentThrottle();
     }
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.startDebounceShieldingVideoList();
@@ -74,7 +74,7 @@ eventEmitter.on('通知屏蔽', () => {
     if (partition.isPartition(url) || partition.isNewPartition(url)) {
         partition.startIntervalShieldingVideoList()
     }
-    if (dynamicPage.isUrlPage()) {
+    if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.debounceCheckDynamicList();
     }
 })

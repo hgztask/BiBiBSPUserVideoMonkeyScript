@@ -1,9 +1,21 @@
 import elUtil from "../../utils/elUtil.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
+import dynamicCommon from "../dynamic/dynamicCommon.js";
+import defUtil from "../../utils/defUtil.js";
 
 //是否是用户空间页面
 const isSpacePage = (url = window.location.href) => {
     return url.startsWith('https://space.bilibili.com/')
+}
+
+/**
+ *url是否是用户空间动态页面
+ *
+ * @param url {string}
+ * @returns {boolean}
+ */
+const isUserSpaceDynamicPage = (url) => {
+    return url.search("space.bilibili.com/\\d+/dynamic") !== -1;
 }
 
 /**
@@ -35,7 +47,6 @@ const isPersonalHomepage = async () => {
     return valueCache.set(keyStr, state);
 }
 
-
 /**
  * 获取当前用户空间的uid和name信息
  * 已做缓存处理，第一次获取后会缓存，后续获取直接返回缓存数据
@@ -65,10 +76,22 @@ const getUserInfo = async () => {
     return nameData
 }
 
+/**
+ * 节流，检查空间动态列表，屏蔽动态内容
+ * @type function
+ */
+const checkUserSpaceShieldingDynamicContentThrottle = defUtil.throttle(async () => {
+    const personalHomepage = await isPersonalHomepage();
+    //个人主页，不做动态屏蔽处理
+    if (personalHomepage) return;
+    dynamicCommon.commonCheckDynamicList();
+}, 2000);
 
 //个人空间主页相关
 export default {
     isPersonalHomepage,
     isSpacePage,
-    getUserInfo
+    getUserInfo,
+    isUserSpaceDynamicPage,
+    checkUserSpaceShieldingDynamicContentThrottle
 }

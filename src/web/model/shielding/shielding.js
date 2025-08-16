@@ -1,7 +1,6 @@
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
-import output_informationTab from "../../layout/output_informationTab.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
@@ -732,77 +731,6 @@ export const blockDynamicItemContent = (content, videoTitle = null, ruleArrMap =
 }
 
 /**
- * 检查屏蔽动态列表中项的内容
- * @param dynamicData {{}} 动态内容
- * @returns {Object}
- * @property {boolean} state 是否屏蔽
- * @property {string} type 屏蔽类型
- * @property {string} matching 匹配到的规则
- */
-export const checkDynamicItemContent = (dynamicData) => {
-    const {
-        content = "",
-        el,
-        title = null,
-        tag = null
-    } = dynamicData;
-    let matching = null;
-    if (content !== "") {
-        const res = blockDynamicItemContent(content);
-        if (res.state) {
-            el?.remove();
-            return res
-        }
-    }
-    if (title !== null) {
-        //模糊匹配标题
-        matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title);
-        if (matching !== null) {
-            el?.remove();
-            return {state: true, type: "模糊标题", matching};
-        }
-        //正则匹配标题
-        matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title);
-        if (matching !== null) {
-            el?.remove();
-            return {state: true, type: "正则标题", matching};
-        }
-    }
-    if (tag !== null) {
-        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseTagArr(), tag)) {
-            el?.remove();
-            return {state: true, type: "精确话题tag"};
-        }
-        matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTagArr(), tag);
-        if (matching !== null) {
-            el?.remove();
-            return {state: true, type: "模糊话题tag", matching};
-        }
-        matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTagCanonicalArr(), tag);
-        if (matching !== null) {
-            el?.remove();
-            return {state: true, type: "正则话题tag", matching};
-        }
-    }
-    return returnTempVal
-}
-
-/**
- * 装饰过的屏蔽动态中的项
- * @param dynamicData {{}} 动态内容
- * @returns {Object}
- * @property {boolean} state 是否屏蔽了
- */
-const shieldingDynamicDecorated = (dynamicData) => {
-    const {state, type, matching} = checkDynamicItemContent(dynamicData);
-    if (state) {
-        const infoHtml = output_informationTab.getDynamicContentInfoHtml(type, matching, dynamicData);
-        eventEmitter.send('打印信息', infoHtml)
-    }
-    return state;
-}
-
-/**
  * 惰性函数，间隔执行屏蔽视频列表
  * @param {function} func 执行屏蔽的函数
  * @param name {string} 执行的名称
@@ -832,7 +760,6 @@ const intervalExecutionStartShieldingVideoInert = (func, name = '') => {
 }
 
 export default {
-    shieldingDynamicDecorated,
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,
     intervalExecutionStartShieldingVideoInert,

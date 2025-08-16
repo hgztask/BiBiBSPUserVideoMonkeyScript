@@ -1,14 +1,14 @@
 import bilibiliHome from "../pagesModel/home/bilibiliHome.js";
 import commentSectionModel from "../pagesModel/commentSectionModel.js";
 import popularAll from "../pagesModel/popular/popularAll.js";
-import dynamic from "../pagesModel/space/dynamic.js";
 import liveSectionModel from "../pagesModel/live/liveSectionModel.js";
 import partition from "../pagesModel/partition.js";
 import globalValue from "../data/globalValue.js";
 import searchModel from "../pagesModel/search/searchModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import {checkAndExcludePage} from "../layout/excludeURLs.js";
-import dynamicPage from "../pagesModel/dynamicPage.js";
+import dynamicPage from "../pagesModel/dynamic/dynamicPage.js";
+import space from "../pagesModel/space/space.js";
 
 /**
  * 监听网络请求
@@ -49,8 +49,8 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
         popularAll.startShieldingVideoList(true);
     }
     if (url.startsWith("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space?offset=")) {
-        console.log("检测到用户动态加载了");
-        dynamic.startThrottleShieldingDynamicContent();
+        console.log("用户空间动态api加载了");
+        space.checkUserSpaceShieldingDynamicContentThrottle();
     }
     if (url.startsWith("https://api.live.bilibili.com/xlive/web-interface/v1/second/getList?platform=web&parent_area_id=")) {
         console.log("检测到直播间加载了分区下的房间列表");
@@ -65,6 +65,7 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     }
     if (url.includes('api.bilibili.com/x/polymer/web-dynamic/v1/feed/all')) {
         //动态主页中，动态列表加载新的动态项，非动态评论区
+        console.log('动态首页api加载了');
         dynamicPage.debounceCheckDynamicList()
     }
     /**
