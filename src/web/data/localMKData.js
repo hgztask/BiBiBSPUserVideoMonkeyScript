@@ -424,6 +424,11 @@ export const isBlockSpecialColumnForChargingDynamicGm = () => {
     return gmUtil.getData('is_block_special_column_for_charging_dynamic_gm', false)
 }
 
+//是否屏蔽充电专属视频动态
+export const isBlockVideoChargingExclusiveDynamicGm = () => {
+    return gmUtil.getData('is_block_video_charging_exclusive_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

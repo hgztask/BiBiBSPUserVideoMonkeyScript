@@ -8,6 +8,7 @@ import {
     isBlockRepostDynamicGm,
     isBlockSpecialColumnForChargingDynamicGm,
     isBlockUPowerLotteryDynamicGm,
+    isBlockVideoChargingExclusiveDynamicGm,
     isBlockVoteDynamicGm,
     isCheckNestedDynamicContentGm
 } from "../../data/localMKData.js";
@@ -177,6 +178,10 @@ const checkEachItem = (dynamicData, ruleArrMap) => {
     }
     if (dynamicData['specialColumnForCharging'] && isBlockSpecialColumnForChargingDynamicGm()) {
         eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽充电专属专栏动态`)
+        return true;
+    }
+    if (dynamicData['videoChargingExclusive'] && isBlockVideoChargingExclusiveDynamicGm()) {
+        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽充电专属视频动态`)
         return true;
     }
     let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);
