@@ -24,27 +24,78 @@ const getDynamicCardModulesData = (vueData) => {
         data.topic = topic.name;
     }
     const major = module_dynamic['major'];//动态主体对象，无时为null
-    if (module_dynamic['additional'] !== null) {
-        //这个相关内容卡片信息,待观察
-        console.warn('这个相关内容卡片信息,待观察', vueData)
+    const additional = module_dynamic['additional'];
+    if (additional !== null) {
+        //这个相关内容卡片信息
+        switch (additional.type) {
+            case 'ADDITIONAL_TYPE_RESERVE':
+                //预约信息，直播预约，不确定是否还有其他预约类型
+                const reserve = additional['reserve'];
+                // 预约标题
+                data.reserveTitle = reserve.title;
+                break;
+            case 'ADDITIONAL_TYPE_VOTE':
+                //投票信息
+                const vote = additional['vote'];
+                data.voteTitle = vote.desc;
+                break;
+            case 'ADDITIONAL_TYPE_UPOWER_LOTTERY':
+                //充电专属抽奖信息
+                const uPowerLottery = additional['upower_lottery'];
+                data.uPowerLotteryTitle = uPowerLottery.title;
+                data.uPowerLotteryDesc = uPowerLottery.desc.text;
+                console.warn('充电专属抽奖信息，待观察', uPowerLottery);
+                break;
+            case 'ADDITIONAL_TYPE_GOODS':
+                //商品信息
+                data.gools = additional['goods'];
+                break;
+            default:
+                console.warn('相关内容卡片信息,待观察', vueData);
+                break;
+        }
     }
     if (major !== null) {
         //动态主体类型
-        const majorType = major['type'];
-        if (majorType === 'MAJOR_TYPE_ARCHIVE') {
-            //视频类
-            const archive = major['archive'];
-            data.videoTitle = archive.title;
-            data.videoDesc = archive.desc;
-        }
-        if (majorType === 'MAJOR_TYPE_OPUS') {
-            //图文动态
-            const opus = major['opus'];
-            const opusTitle = opus.title ?? '';
-            const opusDesc = opus.summary.text ?? '';
-            data.opusTitle = opusTitle;
-            data.opusDesc = opusDesc;
-            data.desc += opusTitle + opusDesc;
+        switch (major['type']) {
+            case 'MAJOR_TYPE_ARCHIVE':
+                //视频类
+                const archive = major['archive'];
+                data.videoTitle = archive.title;
+                data.videoDesc = archive.desc;
+                //角标信息
+                const badge = archive.badge;
+                //角标文本，如果是充电专属视频时，这里的值会是充电专属
+                data.videoBadgeText = badge.text;
+                //是否充电专属视频
+                data.videoChargingExclusive = badge.text === '充电专属';
+                break;
+            case 'MAJOR_TYPE_OPUS':
+                //图文动态
+                const opus = major['opus'];
+                const opusTitle = opus.title ?? '';
+                const opusDesc = opus.summary.text ?? '';
+                data.opusTitle = opusTitle;
+                data.opusDesc = opusDesc;
+                data.desc += opusTitle + opusDesc;
+                break;
+            case 'MAJOR_TYPE_BLOCKED':
+                //该类型目前不确定，猜测属于需要条件才能看的内容
+                const blocked = major['blocked'];
+                data.blockedTitle = blocked.title;
+                //图标徽章名称
+                const iconBadgeText = module_author?.['icon_badge']?.text;
+                if (iconBadgeText) {
+                    data.iconBadgeText = iconBadgeText;
+                    if (iconBadgeText === '充电专属') {
+                        //是否是充电专属专栏
+                        data.specialColumnForCharging = true;
+                    }
+                }
+                break;
+            default:
+                console.warn('动态主体类型,待观察', vueData);
+                break;
         }
     }
     return data;
@@ -74,10 +125,15 @@ const getDataList = async () => {
         }
         const modulesData = getDynamicCardModulesData(vueData);
         data = {...data, ...modulesData}
-        if (vueData.type === 'DYNAMIC_TYPE_FORWARD') {
-            //转发类动态
-            const {orig} = vueData;
-            data.orig = getDynamicCardModulesData(orig);
+        switch (vueData.type) {
+            case 'DYNAMIC_TYPE_FORWARD':
+                //转发类动态
+                const {orig} = vueData;
+                data.orig = getDynamicCardModulesData(orig);
+                break;
+            case 'DYNAMIC_TYPE_ARTICLE':
+                //投稿专栏
+                break
         }
         list.push(data);
     }
