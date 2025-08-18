@@ -399,6 +399,11 @@ export const isBlockRepostDynamicGm = () => {
     return gmUtil.getData('is_block_repost_dynamic_gm', false)
 }
 
+//是否屏蔽预约类的动态
+export const isBlockAppointmentDynamicGm = () => {
+    return gmUtil.getData('is_block_appointment_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

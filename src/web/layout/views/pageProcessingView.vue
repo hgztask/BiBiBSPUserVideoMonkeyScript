@@ -4,9 +4,8 @@ import bilibiliHome from "../../pagesModel/home/bilibiliHome.js";
 import hotSearch from "../../pagesModel/search/hotSearch.js";
 import topInput from "../../pagesModel/search/topInput.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import dynamicCard from "./page-processing/dynamicCard.vue";
 import localMKData, {
-  enableDynamicItemsContentBlockingGm,
-  isBlockRepostDynamicGm,
   isCloseCommentBlockingGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
@@ -17,6 +16,7 @@ import localMKData, {
 
 //页面处理处理
 export default {
+  components: {dynamicCard},
   data() {
     return {
       isRemoveSearchBottomContent: gmUtil.getData('isRemoveSearchBottomContent', false),
@@ -32,8 +32,6 @@ export default {
       isHideCarouselImageVal: isHideCarouselImageGm(),
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
-      enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm(),
-      isBlockRepostDynamicVal: isBlockRepostDynamicGm(),
     }
   },
   methods: {},
@@ -86,12 +84,6 @@ export default {
     isHideTopHeaderChannelVal(n) {
       gmUtil.setData('is_hide_home_top_header_channel_gm', n)
       bilibiliHome.hideHomeTopHeaderChannel(n);
-    },
-    enableDynamicItemsContentBlockingVal(n) {
-      gmUtil.setData('enable_dynamic_items_content_blocking_gm', n)
-    },
-    isBlockRepostDynamicVal(n) {
-      gmUtil.setData('is_block_repost_dynamic_gm', n)
     }
   }
 }
@@ -140,15 +132,6 @@ export default {
         <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道栏"/>
       </el-tooltip>
     </el-card>
-    <el-card>
-      <template #header>动态首页</template>
-      <el-tooltip content="启用该项后，对应页面中的动态会对uid白名单处理，和动态内容处理">
-        <el-switch v-model="enableDynamicItemsContentBlockingVal" active-text="启用动态内容屏蔽"/>
-      </el-tooltip>
-    </el-card>
-    <el-card>
-      <template #header>动态</template>
-      <el-switch v-model="isBlockRepostDynamicVal" active-text="屏蔽转发类型"/>
-    </el-card>
+    <dynamicCard/>
   </div>
 </template>

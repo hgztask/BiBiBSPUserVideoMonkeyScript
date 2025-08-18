@@ -2,7 +2,11 @@ import elUtil from "../../utils/elUtil.js";
 import gmUtil from "../../utils/gmUtil.js";
 import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../../model/shielding/shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import {isBlockRepostDynamicGm, isCheckNestedDynamicContentGm} from "../../data/localMKData.js";
+import {
+    isBlockAppointmentDynamicGm,
+    isBlockRepostDynamicGm,
+    isCheckNestedDynamicContentGm
+} from "../../data/localMKData.js";
 
 /**
  * 获取动态主体信息
@@ -141,10 +145,9 @@ const getDataList = async () => {
 }
 
 const checkEachItem = (dynamicData, ruleArrMap) => {
-    const {desc, name, el, uid = -1, videoTitle = null, orig = null} = dynamicData;
+    const {desc, name, uid = -1, videoTitle = null, orig = null} = dynamicData;
     const blockRepostDynamicGm = isBlockRepostDynamicGm();
     if (orig && blockRepostDynamicGm) {
-        el.remove();
         eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-规则转发类动态`)
         return true;
     }
@@ -152,11 +155,14 @@ const checkEachItem = (dynamicData, ruleArrMap) => {
         if (blockCheckWhiteUserUid(uid)) return false;
     }
     if (desc === "" && videoTitle === null) return false;
+    if (dynamicData['reserveTitle'] && isBlockAppointmentDynamicGm()) {
+        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽预约类动态`)
+        return true;
+    }
     let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);
     if (!state) {
         return false;
     }
-    el.remove();
     eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-${type}-规则${matching}`)
     return true;
 }
@@ -175,13 +181,16 @@ const commonCheckDynamicList = async () => {
     const checkNestedDynamicContentGm = isCheckNestedDynamicContentGm();
     for (const v of dataList) {
         if (checkEachItem(v, ruleArrMap)) {
+            v.el.remove();
             continue;
         }
         const {orig = null} = v;
         if (orig === null || !checkNestedDynamicContentGm) {
             continue;
         }
-        checkEachItem(orig, ruleArrMap);
+        if (checkEachItem(orig, ruleArrMap)) {
+            v.el.remove();
+        }
     }
 }
 
