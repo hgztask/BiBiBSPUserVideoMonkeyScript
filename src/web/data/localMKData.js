@@ -409,6 +409,11 @@ export const isBlockVoteDynamicGm = () => {
     return gmUtil.getData('is_block_vote_dynamic_gm', false)
 }
 
+//是否屏蔽充电专属抽奖动态
+export const isBlockUPowerLotteryDynamicGm = () => {
+    return gmUtil.getData('is_block_u_power_lottery_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

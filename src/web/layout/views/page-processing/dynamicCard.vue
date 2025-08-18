@@ -3,6 +3,7 @@ import {
   enableDynamicItemsContentBlockingGm,
   isBlockAppointmentDynamicGm,
   isBlockRepostDynamicGm,
+  isBlockUPowerLotteryDynamicGm,
   isBlockVoteDynamicGm
 } from "../../../data/localMKData.js";
 import gmUtil from "../../../utils/gmUtil.js";
@@ -14,6 +15,7 @@ export default {
       isBlockRepostDynamicVal: isBlockRepostDynamicGm(),
       isBlockAppointmentDynamicVal: isBlockAppointmentDynamicGm(),
       isBlockVoteDynamicVal: isBlockVoteDynamicGm(),
+      isBlockUPowerLotteryDynamicVal: isBlockUPowerLotteryDynamicGm(),
     }
   },
   watch: {
@@ -28,6 +30,9 @@ export default {
     },
     isBlockVoteDynamicVal(n) {
       gmUtil.setData('is_block_vote_dynamic_gm', n)
+    },
+    isBlockUPowerLotteryDynamicVal(n) {
+      gmUtil.setData('is_block_u_power_lottery_dynamic_gm', n)
     }
   }
 }
@@ -48,6 +53,7 @@ export default {
         <el-switch v-model="isBlockAppointmentDynamicVal" active-text="屏蔽预约类型"/>
       </el-tooltip>
       <el-switch v-model="isBlockVoteDynamicVal" active-text="屏蔽投票类型"/>
+      <el-switch v-model="isBlockUPowerLotteryDynamicVal" active-text="屏蔽充电专属抽奖类型"/>
     </el-card>
   </div>
 </template>
