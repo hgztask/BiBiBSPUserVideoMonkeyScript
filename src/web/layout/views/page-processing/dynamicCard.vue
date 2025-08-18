@@ -4,6 +4,7 @@ import {
   isBlockAppointmentDynamicGm,
   isBlockGoodsDynamicGm,
   isBlockRepostDynamicGm,
+  isBlockSpecialColumnForChargingDynamicGm,
   isBlockUPowerLotteryDynamicGm,
   isBlockVoteDynamicGm
 } from "../../../data/localMKData.js";
@@ -18,6 +19,7 @@ export default {
       isBlockVoteDynamicVal: isBlockVoteDynamicGm(),
       isBlockUPowerLotteryDynamicVal: isBlockUPowerLotteryDynamicGm(),
       isBlockGoodsDynamicVal: isBlockGoodsDynamicGm(),
+      isBlockSpecialColumnForChargingDynamicVal: isBlockSpecialColumnForChargingDynamicGm()
     }
   },
   watch: {
@@ -39,6 +41,9 @@ export default {
     isBlockGoodsDynamicVal(n) {
       gmUtil.setData('is_block_goods_dynamic_gm', n)
     },
+    isBlockSpecialColumnForChargingDynamicVal(n) {
+      gmUtil.setData('is_block_special_column_for_charging_dynamic_gm', n)
+    }
   }
 }
 </script>
@@ -60,6 +65,7 @@ export default {
       <el-switch v-model="isBlockVoteDynamicVal" active-text="屏蔽投票类型"/>
       <el-switch v-model="isBlockUPowerLotteryDynamicVal" active-text="屏蔽充电专属抽奖类型"/>
       <el-switch v-model="isBlockGoodsDynamicVal" active-text="屏蔽商品类"/>
+      <el-switch v-model="isBlockSpecialColumnForChargingDynamicVal" active-text="屏蔽充电专属专栏"/>
     </el-card>
   </div>
 </template>

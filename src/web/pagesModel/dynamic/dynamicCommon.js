@@ -6,6 +6,7 @@ import {
     isBlockAppointmentDynamicGm,
     isBlockGoodsDynamicGm,
     isBlockRepostDynamicGm,
+    isBlockSpecialColumnForChargingDynamicGm,
     isBlockUPowerLotteryDynamicGm,
     isBlockVoteDynamicGm,
     isCheckNestedDynamicContentGm
@@ -172,6 +173,10 @@ const checkEachItem = (dynamicData, ruleArrMap) => {
     }
     if (dynamicData['goods'] && isBlockGoodsDynamicGm()) {
         eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽商品类动态`)
+        return true;
+    }
+    if (dynamicData['specialColumnForCharging'] && isBlockSpecialColumnForChargingDynamicGm()) {
+        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽充电专属专栏动态`)
         return true;
     }
     let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);

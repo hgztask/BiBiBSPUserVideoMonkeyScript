@@ -419,6 +419,11 @@ export const isBlockGoodsDynamicGm = () => {
     return gmUtil.getData('is_block_goods_dynamic_gm', false)
 }
 
+//是否屏蔽充电专属专栏动态
+export const isBlockSpecialColumnForChargingDynamicGm = () => {
+    return gmUtil.getData('is_block_special_column_for_charging_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
