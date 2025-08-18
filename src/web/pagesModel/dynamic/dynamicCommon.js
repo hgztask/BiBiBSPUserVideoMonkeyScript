@@ -4,6 +4,7 @@ import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../../model/shiel
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {
     isBlockAppointmentDynamicGm,
+    isBlockGoodsDynamicGm,
     isBlockRepostDynamicGm,
     isBlockUPowerLotteryDynamicGm,
     isBlockVoteDynamicGm,
@@ -54,7 +55,7 @@ const getDynamicCardModulesData = (vueData) => {
                 break;
             case 'ADDITIONAL_TYPE_GOODS':
                 //商品信息
-                data.gools = additional['goods'];
+                data.goods = additional['goods'];
                 break;
             default:
                 console.warn('相关内容卡片信息,待观察', vueData);
@@ -167,6 +168,10 @@ const checkEachItem = (dynamicData, ruleArrMap) => {
     }
     if (dynamicData['voteTitle'] && isBlockVoteDynamicGm()) {
         eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽投票类动态`)
+        return true;
+    }
+    if (dynamicData['goods'] && isBlockGoodsDynamicGm()) {
+        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽商品类动态`)
         return true;
     }
     let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);

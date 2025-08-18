@@ -414,6 +414,11 @@ export const isBlockUPowerLotteryDynamicGm = () => {
     return gmUtil.getData('is_block_u_power_lottery_dynamic_gm', false)
 }
 
+//是否屏蔽商品类的动态
+export const isBlockGoodsDynamicGm = () => {
+    return gmUtil.getData('is_block_goods_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

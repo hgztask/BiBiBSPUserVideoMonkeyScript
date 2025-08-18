@@ -2,6 +2,7 @@
 import {
   enableDynamicItemsContentBlockingGm,
   isBlockAppointmentDynamicGm,
+  isBlockGoodsDynamicGm,
   isBlockRepostDynamicGm,
   isBlockUPowerLotteryDynamicGm,
   isBlockVoteDynamicGm
@@ -16,6 +17,7 @@ export default {
       isBlockAppointmentDynamicVal: isBlockAppointmentDynamicGm(),
       isBlockVoteDynamicVal: isBlockVoteDynamicGm(),
       isBlockUPowerLotteryDynamicVal: isBlockUPowerLotteryDynamicGm(),
+      isBlockGoodsDynamicVal: isBlockGoodsDynamicGm(),
     }
   },
   watch: {
@@ -33,7 +35,10 @@ export default {
     },
     isBlockUPowerLotteryDynamicVal(n) {
       gmUtil.setData('is_block_u_power_lottery_dynamic_gm', n)
-    }
+    },
+    isBlockGoodsDynamicVal(n) {
+      gmUtil.setData('is_block_goods_dynamic_gm', n)
+    },
   }
 }
 </script>
@@ -54,6 +59,7 @@ export default {
       </el-tooltip>
       <el-switch v-model="isBlockVoteDynamicVal" active-text="屏蔽投票类型"/>
       <el-switch v-model="isBlockUPowerLotteryDynamicVal" active-text="屏蔽充电专属抽奖类型"/>
+      <el-switch v-model="isBlockGoodsDynamicVal" active-text="屏蔽商品类"/>
     </el-card>
   </div>
 </template>
