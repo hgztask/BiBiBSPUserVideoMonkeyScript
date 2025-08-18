@@ -404,6 +404,11 @@ export const isBlockAppointmentDynamicGm = () => {
     return gmUtil.getData('is_block_appointment_dynamic_gm', false)
 }
 
+//是否屏蔽投票类的动态
+export const isBlockVoteDynamicGm = () => {
+    return gmUtil.getData('is_block_vote_dynamic_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

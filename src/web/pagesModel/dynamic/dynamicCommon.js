@@ -5,6 +5,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import {
     isBlockAppointmentDynamicGm,
     isBlockRepostDynamicGm,
+    isBlockVoteDynamicGm,
     isCheckNestedDynamicContentGm
 } from "../../data/localMKData.js";
 
@@ -157,6 +158,10 @@ const checkEachItem = (dynamicData, ruleArrMap) => {
     if (desc === "" && videoTitle === null) return false;
     if (dynamicData['reserveTitle'] && isBlockAppointmentDynamicGm()) {
         eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽预约类动态`)
+        return true;
+    }
+    if (dynamicData['voteTitle'] && isBlockVoteDynamicGm()) {
+        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽投票类动态`)
         return true;
     }
     let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);

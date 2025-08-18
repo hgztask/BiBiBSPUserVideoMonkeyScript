@@ -2,7 +2,8 @@
 import {
   enableDynamicItemsContentBlockingGm,
   isBlockAppointmentDynamicGm,
-  isBlockRepostDynamicGm
+  isBlockRepostDynamicGm,
+  isBlockVoteDynamicGm
 } from "../../../data/localMKData.js";
 import gmUtil from "../../../utils/gmUtil.js";
 
@@ -11,7 +12,8 @@ export default {
     return {
       enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm(),
       isBlockRepostDynamicVal: isBlockRepostDynamicGm(),
-      isBlockAppointmentDynamicVal: isBlockAppointmentDynamicGm()
+      isBlockAppointmentDynamicVal: isBlockAppointmentDynamicGm(),
+      isBlockVoteDynamicVal: isBlockVoteDynamicGm(),
     }
   },
   watch: {
@@ -23,6 +25,9 @@ export default {
     },
     isBlockAppointmentDynamicVal(n) {
       gmUtil.setData('is_block_appointment_dynamic_gm', n)
+    },
+    isBlockVoteDynamicVal(n) {
+      gmUtil.setData('is_block_vote_dynamic_gm', n)
     }
   }
 }
@@ -42,6 +47,7 @@ export default {
       <el-tooltip content="如直播预约动态">
         <el-switch v-model="isBlockAppointmentDynamicVal" active-text="屏蔽预约类型"/>
       </el-tooltip>
+      <el-switch v-model="isBlockVoteDynamicVal" active-text="屏蔽投票类型"/>
     </el-card>
   </div>
 </template>
