@@ -429,6 +429,11 @@ export const isBlockVideoChargingExclusiveDynamicGm = () => {
     return gmUtil.getData('is_block_video_charging_exclusive_dynamic_gm', false)
 }
 
+//获取主面板展开关闭快捷键
+export const getDrawerShortcutKeyGm = () => {
+    return gmUtil.getData('drawer_shortcut_key_gm', '`')
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

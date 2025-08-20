@@ -13,7 +13,7 @@ import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../model/EventEmitter.js";
 import {requestIntervalQueue} from "../model/asynchronousIntervalQueue.js";
 import gmUtil from "../utils/gmUtil.js";
-import {isOpenDev} from "../data/localMKData.js";
+import {getDrawerShortcutKeyGm, isOpenDev} from "../data/localMKData.js";
 import outputInformationView from './views/outputInformationView.vue'
 import donateLayoutView from './views/donateLayoutView.vue'
 import ruleManagementView from './views/ruleManagementView.vue'
@@ -85,9 +85,14 @@ export default {
   },
   created() {
     eventEmitter.on('主面板开关', () => {
-      const tempBool = this.drawer;
-      this.drawer = !tempBool;
+      this.drawer = !this.drawer;
     })
+    document.addEventListener('keydown', (event) => {
+      eventEmitter.send('event-keydownEvent', event);
+      if (event.key === getDrawerShortcutKeyGm()) {
+        this.drawer = !this.drawer;
+      }
+    });
 
     eventEmitter.on('el-notify', (options) => {
       this.$notify(options)

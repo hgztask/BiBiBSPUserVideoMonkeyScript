@@ -1,5 +1,5 @@
 <script>
-import localMKData, {isOpenDev, setOpenDev} from "../../data/localMKData.js";
+import localMKData, {getDrawerShortcutKeyGm, isOpenDev, setOpenDev} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 
@@ -10,7 +10,9 @@ export default {
       showRightTopMainButSwitch: localMKData.isShowRightTopMainButSwitch(),
       isFirstFullDisplay: localMKData.isFirstFullDisplay(),
       isHalfHiddenIntervalAfterInitialDisplay: localMKData.isHalfHiddenIntervalAfterInitialDisplay(),
-      devToolsInputVal: ''
+      devToolsInputVal: '',
+      drawerShortcutKeyVal: getDrawerShortcutKeyGm(),
+      theKeyPressedKeyVal: ''
     }
   },
   methods: {
@@ -53,6 +55,17 @@ export default {
       if (isOpenDev()) {
         eventEmitter.send(toolsInputVal)
       }
+    },
+    setDrawerShortcutKeyBut() {
+      const theKeyPressedKey = this.theKeyPressedKeyVal;
+      const drawerShortcutKey = this.drawerShortcutKeyVal;
+      if (drawerShortcutKey === theKeyPressedKey) {
+        this.$message('不需要重复设置');
+        return;
+      }
+      gmUtil.setData('drawer_shortcut_key_gm', theKeyPressedKey);
+      this.$notify({message: '已设置打开关闭主面板快捷键', type: 'success'});
+      this.drawerShortcutKeyVal = theKeyPressedKey;
     }
   },
   watch: {
@@ -69,6 +82,11 @@ export default {
       //设置初次显示后间隔半隐藏主面板开关按钮
       gmUtil.setData('is_half_hidden_interval_after_initial_display', newBool === true)
     }
+  },
+  created() {
+    eventEmitter.on('event-keydownEvent', (event) => {
+      this.theKeyPressedKeyVal = event.key;
+    })
   }
 }
 </script>
@@ -105,9 +123,15 @@ export default {
     </el-card>
     <el-card shadow="never">
       <template #header>
-        <span>说明</span>
+        <span>快捷键</span>
       </template>
-      <div>按键盘tab键上的~键为展开关闭主面板</div>
+      <div>1.默认情况下，按键盘tab键上的~键为展开关闭主面板</div>
+      <div>2.当前展开关闭主面板快捷键：
+        <el-tag>{{ drawerShortcutKeyVal }}</el-tag>
+      </div>
+      当前按下的键
+      <el-tag>{{ theKeyPressedKeyVal }}</el-tag>
+      <el-button @click="setDrawerShortcutKeyBut">设置打开关闭主面板快捷键</el-button>
     </el-card>
     <el-card shadow="never">
       <template #header>
