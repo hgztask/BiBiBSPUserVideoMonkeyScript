@@ -434,6 +434,11 @@ export const getDrawerShortcutKeyGm = () => {
     return gmUtil.getData('drawer_shortcut_key_gm', '`')
 }
 
+//获取视频缓存最长保存时间
+export const getExpiresMaxAgeGm = () => {
+    return gmUtil.getData('expires_max_age_gm', 7)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

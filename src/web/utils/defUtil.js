@@ -397,6 +397,30 @@ export function initVueApp(el, App, props = {}) {
     }).$mount(el);
 }
 
+/**
+ * 计算未来时间戳
+ * @param {number} days - 天数偏移量，默认为0
+ * @param {number} hours - 小时数偏移量，默认为0
+ * @param {number} minutes - 分钟数偏移量，默认为0
+ * @param {number} seconds - 秒数偏移量，默认为0
+ * @returns {number} 未来时间戳-毫秒级
+ */
+export function getFutureTimestamp(days = 0, hours = 0, minutes = 0, seconds = 0) {
+    const now = new Date();
+
+    // 将所有时间偏移量转换为毫秒
+    const ms = days * 24 * 60 * 60 * 1000 +
+        hours * 60 * 60 * 1000 +
+        minutes * 60 * 1000 +
+        seconds * 1000;
+
+    const future = new Date(now.getTime() + ms);
+
+    // 转换为秒级浮点数
+    return future.getTime();
+}
+
+
 
 export default {
     wait,

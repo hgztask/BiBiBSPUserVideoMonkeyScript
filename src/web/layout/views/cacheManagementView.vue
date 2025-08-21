@@ -4,11 +4,13 @@ import {httpLocalHost} from "../../data/globalValue.js";
 import {defTmRequest} from "../../model/request/TmRequest.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import defUtil from "../../utils/defUtil.js";
+import gmUtil from "../../utils/gmUtil.js";
 
 export default {
   data() {
     return {
-      hostname: window.location.hostname
+      hostname: window.location.hostname,
+      expiresMaxAgeVal: 7,
     }
   },
   methods: {
@@ -181,6 +183,31 @@ export default {
           this.$message.warning(`删除失败,错误信息请看控制台`)
         }
       })
+    },
+    modifyCacheTimeoutBut() {
+      this.$prompt('请输入缓存超时时间，单位为天', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputType: 'number',
+        inputPattern: /^\d+$/, // 仅允许整数
+        inputValidator: (value) => {
+          if (!/^\d+$/.test(value)) {
+            return '请输入有效的整数';
+          }
+          const num = parseInt(value);
+          if (num < 1) {
+            return '不能低于1天'
+          }
+          if (num <= 365) {
+            return true
+          }
+          return '不能超出365天';
+        }
+      }).then(async ({value}) => {
+        gmUtil.setData('expires_max_age_gm', parseInt(value));
+        this.expiresMaxAgeVal = value;
+        this.$message.success(`已修改视频缓存超时时间为${value}天`)
+      })
     }
   }
 }
@@ -195,9 +222,11 @@ export default {
       <div>4.当前域名
         <el-tag>{{ hostname }}</el-tag>
       </div>
+      <div>5.缓存超时时间:{{ expiresMaxAgeVal }}天</div>
     </el-card>
     <el-card>
       <template #header>操作</template>
+      <el-button @click="modifyCacheTimeoutBut">修改缓存超时时间</el-button>
       <el-button @click="inputFIleBut">追加导入视频缓存数据</el-button>
       <input ref="inputDemo" accept="application/json" style="display: none" type="file"
              @change="handleFileUpload">

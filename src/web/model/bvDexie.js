@@ -1,8 +1,10 @@
 import Dexie from "dexie";
+import {getFutureTimestamp} from "../utils/defUtil.js";
+import {getExpiresMaxAgeGm} from "../data/localMKData.js";
 
 const mk_db = new Dexie('mk-db');
 mk_db.version(1).stores({
-    videoInfos: 'bv,tags,userInfo,videoInfo',
+    videoInfos: 'bv,tags,userInfo,videoInfo,expiresMaxAge',
 });
 
 /**
@@ -16,9 +18,11 @@ mk_db.version(1).stores({
  */
 const addVideoData = async (bv, data) => {
     const {tags, userInfo, videoInfo} = data
+
     try {
         await mk_db.videoInfos.add({
-            bv, tags, userInfo, videoInfo
+            bv, tags, userInfo, videoInfo,
+            expiresMaxAge: getFutureTimestamp(getExpiresMaxAgeGm())
         })
     } catch (e) {
         console.log(`添加视频数据失败`, data, e)
@@ -84,6 +88,30 @@ const clearVideoInfosTable = async () => {
         return false
     }
 }
+
+//检查列表中视频遗漏的过期时间戳参数
+const checkVideoInfoExpire = async () => {
+    console.log('开始检查视频缓存表过期数据')
+    const list = await getVideoInfo();
+    const currentTimestamp = new Date().getTime();
+    for (let item of list) {
+        const {bv, expiresMaxAge = -1} = item
+        if (expiresMaxAge === -1) {
+            await mk_db.videoInfos.update(bv, {expiresMaxAge: getFutureTimestamp(7)});
+            console.log(`更新bv号为${bv}的过期时间戳为7天后`, item)
+            continue;
+        }
+        if (currentTimestamp > expiresMaxAge) {
+            await mk_db.videoInfos.delete(bv);
+            console.log(`删除bv号为${bv}的过期数据`, item, currentTimestamp)
+        }
+    }
+    console.log('检查视频缓存表过期数据结束')
+}
+
+setTimeout(async () => {
+    await checkVideoInfoExpire();
+}, 1000 * 15)
 
 
 /**
