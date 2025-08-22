@@ -7,19 +7,19 @@
 - 所有屏蔽规则都可以在主面板，快捷键~打开或点击页面左上角按钮展开，中的规则管理按需添加规则
 - 脚本发布在[脚本猫](https://scriptcat.org/zh-CN/script-show-page/1029/)
   和[greasyfork](https://greasyfork.org/zh-CN/scripts/461382)平台，脚本更新会优先更新到脚本猫上，其次greasyfork平台
-    - 可使用[脚本猫](https://scriptcat.org/)或者[篡改猴](https://chrome.zzzmh.cn/info/dhdgffkkebhmkfjojejmpbldmpobfkfo)
-      插件安装，具体操作可看脚本猫或篡改猴平台介绍
-- 哔哩哔哩增强屏蔽器常见问题汇总(
-  持续更新)[https://docs.qq.com/doc/DSlJNR1NVcGR3eEto](https://docs.qq.com/doc/DSlJNR1NVcGR3eEto)
+  - 可使用下方插件安装，具体操作可看脚本猫或篡改猴平台介绍
+  - [脚本猫](https://scriptcat.org/)
+  - [篡改猴](https://chrome.zzzmh.cn/info/dhdgffkkebhmkfjojejmpbldmpobfkfo)
+- 常见问题汇总(持续更新)[https://docs.qq.com/doc/DSlJNR1NVcGR3eEto](https://docs.qq.com/doc/DSlJNR1NVcGR3eEto)
 - 脚本项目开发文档[===》B站屏蔽器脚本项目开发需知《===](https://docs.qq.com/doc/DSkdTQ1p1aFNnVnRS?no_promotion=1)
   ，可二改，但需要留下作者版权信息
 - 更新日志(包括发布前开发完的内容):[===》更新日志《===](https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj)
 - 推荐使用edge或chrome浏览器(包括奔跑中的奶酪相关edge和chrome版本)，其他浏览器可能存在问题。
--
-如遇到插件的脚本不执行，请尝试关闭插件或浏览器的开发者人员模式再开启并重启浏览器尝试，如依旧不行，请下载[奔跑中的奶酪版本的便携版本edge或chrome](https://www.runningcheese.com/edge)
+  ``
+  如遇到插件的脚本不执行，请尝试关闭插件或浏览器的开发者人员模式再开启并重启浏览器尝试，如依旧不行，请下载[奔跑中的奶酪版本的便携版本edge或chrome](https://www.runningcheese.com/edge)
+  ``
 
-完整脚本描述可看(
-持续更新):[【腾讯文档】b站屏蔽增强器v2版自述文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)
+完整脚本描述可看(持续更新):[自述文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)
 
 ## 屏蔽的类型
 
