@@ -11,7 +11,9 @@ if (document.head.querySelector('#element-ui-css') === null) {
     linkElement.href = 'https://unpkg.com/element-ui@2.15.14/lib/theme-chalk/index.css'
     linkElement.id = 'element-ui-css'
     document.head.appendChild(linkElement)
-    console.log('挂载element-ui样式成功')
+    linkElement.addEventListener('load', () => {
+        console.log('element-ui样式加载完成')
+    })
 }
 
 window.addEventListener('DOMContentLoaded', () => {
