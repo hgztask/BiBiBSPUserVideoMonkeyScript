@@ -3,6 +3,7 @@ import localMKData from "../data/localMKData.js";
 import defCss from '../css/def.css'
 import {addGzStyle, initVueApp} from "../utils/defUtil.js";
 import App from "./App.vue";
+import elUtil from "../utils/elUtil.js";
 
 if (document.head.querySelector('#element-ui-css') === null) {
     const linkElement = document.createElement('link');
@@ -18,6 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(mainLayoutEl)
     window.mk_vue_app = initVueApp(mainLayoutEl, App);
     addGzStyle(document);
+    elUtil.updateCssVModal();
 })
 
 // 设置边框样式

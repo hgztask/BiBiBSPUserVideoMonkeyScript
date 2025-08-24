@@ -6,11 +6,9 @@ import watch from './watch/watch.js'
 import observeNetwork from "./watch/observeNetwork.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
-import elUtil from "./utils/elUtil.js";
 
 window.addEventListener('load', () => {
-    console.log('页面加载完成')
-    elUtil.updateCssVModal();
+    console.log('页面加载完成');
     router.staticRoute(document.title, window.location.href);
     watch.addEventListenerUrlChange((newUrl, oldUrl, title) => {
         router.dynamicRouting(title, newUrl);

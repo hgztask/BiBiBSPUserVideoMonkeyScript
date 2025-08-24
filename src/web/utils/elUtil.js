@@ -234,13 +234,11 @@ function hoverTimeout(element, callback, timeout = 2000) {
 
 // 更新弹窗样式
 const updateCssVModal = () => {
-    findElement('.v-modal').then(() => {
-        const styleEl = document.createElement('style');
-        styleEl.innerHTML = `.v-modal  {
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `.v-modal  {
     z-index: auto !important;
 }`
-        document.head.appendChild(styleEl)
-    })
+    document.head.appendChild(styleEl)
 }
 
 /**
