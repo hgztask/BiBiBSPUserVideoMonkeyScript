@@ -47,7 +47,11 @@ const getUrlBV = (url) => {
         //例子:https://www.bilibili.com/video/BV1B1cxewECr
         match = url.match(/video\/(.+)/)
     }
-    return match?.[1]?.trim() || null;
+    if (match !== null) {
+        return match?.[1]?.trim();
+    }
+    const {queryParams: {bvid = null}} = defUtil.parseUrl(url);
+    return bvid;
 }
 
 /**

@@ -5,6 +5,7 @@ import space from "../../pagesModel/space/space.js";
 import elUtil from "../../utils/elUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
+import videoPlayWatchLater from "../../pagesModel/videoPlay/videoPlayWatchLater.js";
 //个人空间页面右侧屏蔽按钮组件
 export default {
   data() {
@@ -18,37 +19,55 @@ export default {
   },
   methods: {
     async dropdownEvent(item) {
-      if (item === '屏蔽uid') {
-        const {name, uid} = await space.getUserInfo()
-        this.$confirm(`是否屏蔽当前用户【${name}】uid=【${uid}】`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          const {status, res} = ruleUtil.addRulePreciseUid(uid);
-          this.$alert(res)
-          if (status) {
-            // 屏蔽成功后隐藏屏蔽按钮并显示取消屏蔽按钮
-            this.shieldingUseUIDrButShow = false
-            this.removedShieldingUIDrButShow = true
-          }
-        })
-        return
-      }
       if (item === '移除屏蔽uid') {
         const {uid} = await space.getUserInfo()
         ruleUtil.delRUlePreciseUid(uid)
         return
       }
-      if (item === '选择用户屏蔽') {
-        await videoPlayModel.selectUserBlocking()
-        return
+      switch (item) {
+        case '屏蔽uid':
+          const {name, uid} = await space.getUserInfo()
+          this.$confirm(`是否屏蔽当前用户【${name}】uid=【${uid}】`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            const {status, res} = ruleUtil.addRulePreciseUid(uid);
+            this.$alert(res)
+            if (status) {
+              // 屏蔽成功后隐藏屏蔽按钮并显示取消屏蔽按钮
+              this.shieldingUseUIDrButShow = false
+              this.removedShieldingUIDrButShow = true
+            }
+          })
+          break;
+        case '选择用户屏蔽':
+          await videoPlayModel.selectUserBlocking()
+          break;
+        case '添加bv号屏蔽':
+          const urlBvId = elUtil.getUrlBV(window.location.href);
+          this.$prompt(`确认添加该bv号【${urlBvId}】屏蔽吗？`, '提示', {
+            inputValue: urlBvId,
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            inputValidator: (value) => {
+              if (value.length >= 20) {
+                return 'bv号格式不正确';
+              }
+              return value.startsWith('BV');
+            }
+          }).then(async ({value}) => {
+            ruleUtil.addRulePreciseBv(value);
+          })
+          break;
+        default:
+          this.$message('未知选项')
       }
-      this.$message('未知选项')
     }
   },
   async created() {
-    if (videoPlayModel.isVideoPlayPage() || collectionVideoPlayPageModel.iscCollectionVideoPlayPage()) {
+    if (videoPlayModel.isVideoPlayPage() || collectionVideoPlayPageModel.iscCollectionVideoPlayPage() ||
+        videoPlayWatchLater.isVideoPlayWatchLaterPage()) {
       this.selectUserBlockingButShow = true
     }
     if (space.isSpacePage()) {
@@ -85,6 +104,7 @@ export default {
                           command="移除屏蔽uid">移除屏蔽(uid)
         </el-dropdown-item>
         <el-dropdown-item v-if="selectUserBlockingButShow" command="选择用户屏蔽">选择用户屏蔽</el-dropdown-item>
+        <el-dropdown-item v-if="selectUserBlockingButShow" command="添加bv号屏蔽">添加bv号屏蔽</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>

@@ -8,7 +8,7 @@ import video_shielding from "../../model/shielding/video_shielding.js";
  *判断是否为稍后再看播放页
  * @param url {string}
  */
-const isVideoPlayWatchLaterPage = (url) => {
+const isVideoPlayWatchLaterPage = (url = location.href) => {
     return url.startsWith("https://www.bilibili.com/list/watchlater")
 }
 
