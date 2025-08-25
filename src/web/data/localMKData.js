@@ -439,6 +439,11 @@ export const getExpiresMaxAgeGm = () => {
     return gmUtil.getData('expires_max_age_gm', 7)
 }
 
+//是否清除搜索页综合选项卡下视频列表中推荐的直播卡片
+export const isClearLiveCardGm = () => {
+    return gmUtil.getData('is_clear_live_card_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

@@ -6,6 +6,7 @@ import topInput from "../../pagesModel/search/topInput.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import dynamicCard from "./page-processing/dynamicCard.vue";
 import localMKData, {
+  isClearLiveCardGm,
   isCloseCommentBlockingGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
@@ -20,6 +21,7 @@ export default {
   data() {
     return {
       isRemoveSearchBottomContent: gmUtil.getData('isRemoveSearchBottomContent', false),
+      isClearLiveCardVal: isClearLiveCardGm(),
       isDelPlayerPageAd: gmUtil.getData('isDelPlayerPageAd', false),
       isDelPlayerPageRightGameAd: gmUtil.getData('isDelPlayerPageRightGameAd', false),
       isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
@@ -38,6 +40,9 @@ export default {
   watch: {
     isRemoveSearchBottomContent(b) {
       gmUtil.setData('isRemoveSearchBottomContent', b)
+    },
+    isClearLiveCardVal(b) {
+      gmUtil.setData('is_clear_live_card_gm', b)
     },
     isDelPlayerPageAd(b) {
       gmUtil.setData('isDelPlayerPageAd', b)
@@ -96,6 +101,9 @@ export default {
       </template>
       <el-switch v-model="isRemoveSearchBottomContent"
                  active-text="屏蔽底部额外内容"/>
+      <el-tooltip content="综合选项卡视频列表中出现的直播卡片">
+        <el-switch v-model="isClearLiveCardVal" active-text="屏蔽推荐直播类"/>
+      </el-tooltip>
     </el-card>
     <el-card>
       <template #header>

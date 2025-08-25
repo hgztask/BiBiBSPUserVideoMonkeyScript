@@ -7,6 +7,7 @@ import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import {isClearLiveCardGm} from "../../data/localMKData.js";
 
 /**
  * 判断是否为搜索页
@@ -47,6 +48,7 @@ const isSearchLiveRoomNetWorkUrl = (netUrl) => {
 const getVideoList = async (css) => {
     const elList = await elUtil.findElements(css, {interval: 200});
     const list = [];
+    const isClearLiveCard = isClearLiveCardGm();
     for (let el of elList) {
         const title = el.querySelector(".bili-video-card__info--tit").title;
         const userEl = el.querySelector(".bili-video-card__info--owner");
@@ -63,7 +65,11 @@ const getVideoList = async (css) => {
         }
         const videoUrl = el.querySelector(".bili-video-card__info--right>a")?.href
         if (videoUrl?.includes('live.bilibili.com/')) {
-            //如果卡片为直播卡片,则不做任何处理
+            if (isClearLiveCard) {
+                console.log('移除了综合选项卡视频列表中的直播内容', title, videoUrl, el);
+                el?.remove();
+
+            }
             continue
         }
         const bv = elUtil.getUrlBV(videoUrl)
