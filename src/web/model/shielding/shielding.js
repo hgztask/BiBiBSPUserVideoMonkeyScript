@@ -24,7 +24,7 @@ import {returnTempVal} from "../../data/globalValue.js";
  * @param className {string} class名称，标记css，用于标记是否已添加
  * @param position {[]} 位置
  */
-const addBlockButton = (data, className = '', position = []) => {
+const addBlockButton = (data, className = 'gz_def_shielding_button', position = []) => {
     if (hideBlockButtonGm()) return;
     //插入位置元素,显隐主体元素,主el元素
     const {insertionPositionEl, explicitSubjectEl, css} = data.data;
