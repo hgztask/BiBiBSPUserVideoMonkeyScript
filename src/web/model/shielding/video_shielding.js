@@ -50,11 +50,9 @@ const asyncBlockVideoTagPreciseCombination = async (tags) => {
 // 检查视频bv执行屏蔽
 const blockVideoBV = (bv) => {
     const bvs = ruleKeyListData.getPreciseVideoBV();
-    if (bvs.includes(bv)) return Promise.reject({
-        state: true,
-        type: "精确bv号屏蔽",
-        matching: bv
-    })
+    if (bvs.includes(bv)) {
+        return {state: true, type: "精确bv号屏蔽", matching: bv};
+    }
     return returnTempVal
 }
 
