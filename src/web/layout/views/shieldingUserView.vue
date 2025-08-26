@@ -6,6 +6,7 @@ import elUtil from "../../utils/elUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import videoPlayWatchLater from "../../pagesModel/videoPlay/videoPlayWatchLater.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 //个人空间页面右侧屏蔽按钮组件
 export default {
   data() {
@@ -35,6 +36,7 @@ export default {
             const {status, res} = ruleUtil.addRulePreciseUid(uid);
             this.$alert(res)
             if (status) {
+              eventEmitter.send('通知屏蔽');
               // 屏蔽成功后隐藏屏蔽按钮并显示取消屏蔽按钮
               this.shieldingUseUIDrButShow = false
               this.removedShieldingUIDrButShow = true

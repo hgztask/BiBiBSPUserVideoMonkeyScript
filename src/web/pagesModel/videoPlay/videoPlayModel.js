@@ -36,7 +36,7 @@ const selectUserBlocking = async () => {
             title: '选择要屏蔽的用户(uid精确)',
             list,
             optionsClick: (item) => {
-                ruleUtil.addRulePreciseUid(item.uid);
+                ruleUtil.addRulePreciseUid(item.uid).status && eventEmitter.send('通知屏蔽');
                 return true
             }
         })
@@ -53,7 +53,7 @@ const selectUserBlocking = async () => {
                 eventEmitter.send('el-msg', "该页面数据不存在uid字段")
                 return;
             }
-            ruleUtil.addRulePreciseUid(uid);
+            ruleUtil.addRulePreciseUid(uid) && eventEmitter.send('通知屏蔽');
         })
     }
 }
