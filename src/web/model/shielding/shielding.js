@@ -79,25 +79,23 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
             list: showList,
             optionsClick: (item) => {
                 const {value} = item
+                let results;
                 switch (value) {
                     case "uid":
                         if (uid === -1) {
                             eventEmitter.send('el-msg', "该页面数据不存在uid字段")
                             return;
                         }
-                        const {status} = ruleUtil.addRulePreciseUid(uid);
-                        if (status) {
-                            data.maskingFunc();
-                        }
+                        results = ruleUtil.addRulePreciseUid(uid);
                         break;
                     case "name":
-                        ruleUtil.addRulePreciseName(name);
+                        results = ruleUtil.addRulePreciseName(name);
                         break;
                     case "bv":
-                        ruleUtil.addRulePreciseBv(bv);
+                        results = ruleUtil.addRulePreciseBv(bv);
                         break;
                     case "roomId":
-                        const results = ruleUtil.addRule(roomId, "precise_liveRoomId");
+                        results = ruleUtil.addRule(roomId, "precise_liveRoomId");
                         eventEmitter.send('el-notify', {
                             title: '添加精确直播间id操作提示',
                             message: results.res,
@@ -107,8 +105,13 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
                     default:
                         // 用户名精确屏蔽
                         eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
-                            ruleUtil.addRulePreciseName(name)
+                            if (ruleUtil.addRulePreciseName(name).status) {
+                                data.maskingFunc();
+                            }
                         })
+                }
+                if (results.status) {
+                    data.maskingFunc();
                 }
             }
         })
