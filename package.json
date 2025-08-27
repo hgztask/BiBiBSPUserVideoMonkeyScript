@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --environment ROLLUP_ENV:production",
     "build:perf": "rollup -c --perf",
     "build:no-perf": "rollup -c --no-perf",
     "build:prod": "rollup -c rollup-prod.config.js",
@@ -13,11 +13,12 @@
   },
   "private": true,
   "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.2",
     "dexie": "^4.0.10",
     "element-ui": "^2.15.14",
     "esbuild": "^0.25.8",
     "nodemon": "^3.1.10",
-    "rollup": "^4.28.0",
+    "rollup": "^4.49.0",
     "rollup-plugin-esbuild": "^6.2.1",
     "rollup-plugin-import-content": "^1.1.0",
     "rollup-plugin-serve": "^3.0.0",
