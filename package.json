@@ -5,11 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "rollup -c --environment ROLLUP_ENV:production",
-    "build:perf": "rollup -c --perf",
-    "build:no-perf": "rollup -c --no-perf",
-    "build:prod": "rollup -c rollup-prod.config.js",
-    "watch:dev": "rollup -w -c",
-    "watch:prod": "rollup -w -c rollup-prod.config.js"
+    "watch:dev": "rollup -w -c"
   },
   "private": true,
   "devDependencies": {
