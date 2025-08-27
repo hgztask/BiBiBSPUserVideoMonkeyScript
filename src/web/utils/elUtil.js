@@ -120,7 +120,7 @@ function findElementsByAttempts(selector, config) {
  * 结合异步操作await可用于监听元素加载完成之后继续执行
  * 如设置超时时间超过指定时间后，将返回null
  * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
+ * @param config{{}} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
@@ -163,20 +163,30 @@ const findElement = async (selector, config = {}) => {
  * 结合异步操作await可用于监听元素加载完成之后继续执行
  * 如设置超时时间超过指定时间后，将返回空数组
  * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
+ * @param config{{}} 配置对象
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，去问问1即无限等待
+ * @param config.parseShadowRoot  {boolean} - 如匹配元素为shadowRoot时，是否解析shadowRoot，默认为false
  * @returns {Promise<[Element|Document]>}-返回找到的Element列表，如设置超时超出时间则返回空数组
  */
 const findElements = async (selector, config = {}) => {
-    const defConfig = {doc: document, interval: 1000, timeout: -1}
+    const defConfig = {doc: document, interval: 1000, timeout: -1, parseShadowRoot: false}
     config = {...defConfig, ...config}
     return new Promise((resolve) => {
         const i1 = setInterval(() => {
-            const elements = config.doc.querySelectorAll(selector);
-            if (elements.length > 0) {
-                resolve(Array.from(elements));
+            const els = config.doc.querySelectorAll(selector);
+            if (els.length > 0) {
+                const list = [];
+                for (const el of els) {
+                    if (config.parseShadowRoot) {
+                        const shadowRoot = el?.shadowRoot;
+                        list.push(shadowRoot ? shadowRoot : el)
+                        continue;
+                    }
+                    list.push(el);
+                }
+                resolve(list);
                 clearInterval(i1)
             }
         }, config.interval);
