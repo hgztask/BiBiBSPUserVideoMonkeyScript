@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import watch from '../../watch/watch.js'
 import defUtil from "../../utils/defUtil.js";
 import live_shielding, {shieldingLiveRoomContentDecorated} from "../../model/shielding/live_shielding.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 /**
  * 判断是否为直播间
@@ -12,6 +13,46 @@ const isLiveRoom = (url) => {
     return url.search('/live.bilibili.com/\\d+') !== -1;
 }
 
+//获取直播间底部直播列表元素项数据
+const getBottomLiveRoomDataItem = (el) => {
+    const data = {};
+    const vueData = el['__vue__'];
+    data.vueData = vueData;
+    data.title = vueData['room_title'];
+    data.name = vueData.uname;
+    data.uid = vueData['up_id'];
+    data.partition = vueData['area_name'];
+    data.roomId = vueData['room_id'];
+    data.text_small = vueData['text_small'];
+    //插入按钮元素位置和悬停元素位置可以优先考虑el
+    data.insertionPositionEl = el.querySelector('.name_line');
+    data.explicitSubjectEl = el;
+    data.el = el;
+    return data;
+}
+
+//获取直播间底部直播列表
+const getBottomLiveRoomList = async () => {
+    const elList = await elUtil.findElements('.card-list>.item_box.card-item');
+    const list = [];
+    for (const el of elList) {
+        list.push(getBottomLiveRoomDataItem(el));
+    }
+    return list;
+}
+
+//检查底部直播间列表
+const checkBottomLiveRoomList = async () => {
+    const elList = await getBottomLiveRoomList();
+    for (const liveData of elList) {
+        if (live_shielding.shieldingLiveRoomDecorated(liveData)) continue;
+        eventEmitter.send('event-直播首页列表添加屏蔽按钮', {
+            data: liveData,
+            updateFunc: getBottomLiveRoomDataItem,
+            maskingFunc: checkBottomLiveRoomList
+        });
+    }
+}
 
 // 获取直播间弹幕
 const getChatItems = async () => {
@@ -68,15 +109,23 @@ const startShieldingLiveChatContents = async () => {
     }
 }
 
-
 // 监听直播间弹幕
 const addWatchLiveRoomChatItemsListener = () => {
     const throttle = defUtil.throttle(startShieldingLiveChatContents, 1000);
     watch.watchElementListLengthWithInterval("#chat-items>div", throttle);
 }
 
+const run = () => {
+    addWatchLiveRoomChatItemsListener();
+    checkBottomLiveRoomList().then(async () => {
+        const switchBtn = await elUtil.findElement('#observerTarget>.switch-btn');
+        switchBtn.addEventListener('click', () => {
+            checkBottomLiveRoomList();
+        })
+    })
+}
 
 export default {
     isLiveRoom,
-    addWatchLiveRoomChatItemsListener
+    run
 }

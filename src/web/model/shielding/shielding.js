@@ -19,6 +19,7 @@ import {returnTempVal} from "../../data/globalValue.js";
  * 添加屏蔽按钮
  * @param data {{}}
  * @param data.data {{}} 数据
+ * @param data.updateFunc {function} 更新数据函数
  * @param data.maskingFunc {function} 屏蔽函数
  * @param data.css {string|null} css
  * @param className {string} class名称，标记css，用于标记是否已添加
@@ -28,9 +29,8 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
     if (hideBlockButtonGm()) return;
     //插入位置元素,显隐主体元素,主el元素
     const {insertionPositionEl, explicitSubjectEl, css} = data.data;
-    if (className !== '') {
-        if (insertionPositionEl.querySelector("." + className)) return;
-    }
+    const butEl = insertionPositionEl.querySelector("." + className);
+    if (butEl) return;
     const buttonEL = document.createElement("button")
     buttonEL.setAttribute("gz_type", "")
     if (className !== '') {
@@ -58,10 +58,18 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
         elEventEmitter.addEvent(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
     }
     insertionPositionEl.appendChild(buttonEL);
+
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
-        const {uid = -1, name = null, bv = null, title = '', roomId = null} = data.data;
+        const {updateFunc, data: {el}} = data;
+        let localData;
+        if (updateFunc) {
+            localData = updateFunc(el);
+        } else {
+            localData = data.data;
+        }
+        const {uid = -1, name = null, bv = null, title = '', roomId = null} = localData;
         const showList = []
         if (uid !== -1) {
             showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});

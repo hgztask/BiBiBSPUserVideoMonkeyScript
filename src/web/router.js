@@ -59,7 +59,7 @@ const staticRoute = (title, url) => {
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
     }
     if (liveRoomModel.isLiveRoom(url)) {
-        liveRoomModel.addWatchLiveRoomChatItemsListener();
+        liveRoomModel.run();
     }
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
