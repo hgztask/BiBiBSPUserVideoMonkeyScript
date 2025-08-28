@@ -35,7 +35,8 @@ export default {
             compileTemplate: true // 编译模板
         }),
         test_plugin({
-            clearComments: true
+            isDev: __DEV__,
+            clearComments: !__DEV__
         }),
         __DEV__ ? serve({
             open: false,
@@ -54,7 +55,7 @@ export default {
         format: 'iife',
         //hidden为隐藏 source map，inline为内联 source map，separate为外部 source map
         // sourcemap: "inline",
-        compact: __DEV__,// 压缩代码
+        compact: true,// 压缩代码
         globals: {
             vue: "Vue", // 这里指定 'vue' 模块对应的全局变量名为 'Vue'
             dexie: 'Dexie'

@@ -19,6 +19,15 @@ export default (userOptions = {}) => {
                 }, ...userOptions
             }
         },
+        transform(code, id) {
+            if (userOptions.isDev) {
+                return null;
+            }
+            if (id.endsWith('dev.js')) {
+                return {code: ''}
+            }
+            return null
+        },
         // 处理每个分块
         renderChunk(code, chunk) {
             let newCode;
