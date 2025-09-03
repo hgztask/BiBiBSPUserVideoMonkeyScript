@@ -1,5 +1,4 @@
 import elUtil from "../../utils/elUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 
@@ -14,22 +13,34 @@ const getVideDataList = async (isWeekly = false) => {
     const elList = await elUtil.findElements(css);
     const list = [];
     for (let el of elList) {
+        const vueData = el.__vue__;
+        const {videoData} = vueData;
         const videoCardInfoEl = el.querySelector(".video-card__info");
-        const title = videoCardInfoEl.querySelector(".video-name").title.trim();
-        const name = videoCardInfoEl.querySelector(".up-name__text").title;
-        const videoUrl = el.querySelector('.video-card__content>a')?.href || null;
-        const bv = elUtil.getUrlBV(videoUrl);
-        let nPlayCount = el.querySelector('.play-text').textContent.trim()
-        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
-        let nBulletChat = el.querySelector('.like-text').textContent.trim()
-        nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+        const {
+            bvid: bv,
+            duration: nDuration,
+            title,
+            owner: {
+                mid: uid,
+                name
+            },
+            stat: {
+                view: nPlayCount,
+                like,
+                danmaku: nBulletChat
+            }
+        } = videoData;
+        const videoUrl = 'https://www.bilibili.com/video/' + bv;
         list.push({
+            vueData,
             el,
             title,
             name,
+            uid,
             videoUrl,
             bv,
-            nPlayCount,
+            like,
+            nPlayCount, nDuration,
             nBulletChat,
             insertionPositionEl: videoCardInfoEl.querySelector("div"),
             explicitSubjectEl: videoCardInfoEl
