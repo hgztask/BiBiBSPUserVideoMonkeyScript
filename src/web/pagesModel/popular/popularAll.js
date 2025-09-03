@@ -2,6 +2,42 @@ import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 
+//获取视频列表项，综合热门和每周必看
+const getVideoDataListItem = (el) => {
+    const vueData = el.__vue__;
+    const {videoData} = vueData;
+    const videoCardInfoEl = el.querySelector(".video-card__info");
+    const {
+        bvid: bv,
+        duration: nDuration,
+        title,
+        owner: {
+            mid: uid,
+            name
+        },
+        stat: {
+            view: nPlayCount,
+            like,
+            danmaku: nBulletChat
+        }
+    } = videoData;
+    const videoUrl = 'https://www.bilibili.com/video/' + bv;
+    return {
+        vueData,
+        el,
+        title,
+        name,
+        uid,
+        videoUrl,
+        bv,
+        like,
+        nPlayCount, nDuration,
+        nBulletChat,
+        insertionPositionEl: videoCardInfoEl.querySelector("div"),
+        explicitSubjectEl: videoCardInfoEl
+    }
+}
+
 /**
  * 获取视频列表
  * 获取综合热门页面和热门中的每周必看页面
@@ -13,38 +49,7 @@ const getVideDataList = async (isWeekly = false) => {
     const elList = await elUtil.findElements(css);
     const list = [];
     for (let el of elList) {
-        const vueData = el.__vue__;
-        const {videoData} = vueData;
-        const videoCardInfoEl = el.querySelector(".video-card__info");
-        const {
-            bvid: bv,
-            duration: nDuration,
-            title,
-            owner: {
-                mid: uid,
-                name
-            },
-            stat: {
-                view: nPlayCount,
-                like,
-                danmaku: nBulletChat
-            }
-        } = videoData;
-        const videoUrl = 'https://www.bilibili.com/video/' + bv;
-        list.push({
-            vueData,
-            el,
-            title,
-            name,
-            uid,
-            videoUrl,
-            bv,
-            like,
-            nPlayCount, nDuration,
-            nBulletChat,
-            insertionPositionEl: videoCardInfoEl.querySelector("div"),
-            explicitSubjectEl: videoCardInfoEl
-        })
+        list.push(getVideoDataListItem(el));
     }
     return list;
 }
@@ -61,7 +66,11 @@ const startShieldingVideoList = async (isWeekly = false) => {
         if (video_shielding.shieldingVideoDecorated(videoData)) {
             continue;
         }
-        eventEmitter.send('添加热门视频屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
+        eventEmitter.send('添加热门视频屏蔽按钮', {
+            data: videoData,
+            updateFunc: getVideoDataListItem,
+            maskingFunc: startShieldingVideoList
+        })
     }
 }
 
