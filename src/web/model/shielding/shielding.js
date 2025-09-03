@@ -21,14 +21,15 @@ import {returnTempVal} from "../../data/globalValue.js";
  * @param data.data {{}} 数据
  * @param data.updateFunc {function} 更新数据函数
  * @param data.maskingFunc {function} 屏蔽函数
- * @param data.css {string|null} css
+ * @param data.data.cssMap {{string:string}} css-style键值对样式
+ * @param data.data.cssText {string} cssText内容
  * @param className {string} class名称，标记css，用于标记是否已添加
  * @param position {[]} 位置
  */
 const addBlockButton = (data, className = 'gz_def_shielding_button', position = []) => {
     if (hideBlockButtonGm()) return;
     //插入位置元素,显隐主体元素,主el元素
-    const {insertionPositionEl, explicitSubjectEl, css} = data.data;
+    const {insertionPositionEl, explicitSubjectEl, cssMap, cssText} = data.data;
     const butEl = insertionPositionEl.querySelector("." + className);
     if (butEl) return;
     const buttonEL = document.createElement("button")
@@ -46,9 +47,12 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
     if (position.includes("bottom")) {
         buttonEL.style.bottom = "0";
     }
-    if (css !== undefined) {
-        for (let key of Object.keys(css)) {
-            buttonEL.style[key] = css[key];
+    if (cssText) {
+        buttonEL.style.cssText = cssText;
+    }
+    if (cssMap) {
+        for (let key of Object.keys(cssMap)) {
+            buttonEL.style[key] = cssMap[key];
         }
     }
     //当没有显隐主体元素，则主动隐藏，不添加鼠标经过显示移开隐藏事件

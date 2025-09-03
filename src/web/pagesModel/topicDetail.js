@@ -47,7 +47,7 @@ const startShielding = async () => {
     const list = await getDataList();
     const css = {width: "100%"};
     for (let data of list) {
-        data.css = css;
+        data.cssMap = css;
         //判断是否是视频
         if (data.judgmentVideo) {
             if (video_shielding.shieldingVideoDecorated(data)) continue;

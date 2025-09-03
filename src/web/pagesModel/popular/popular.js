@@ -4,7 +4,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 
 
-const generalUrl=[
+const generalUrl = [
     "popular/rank/all",
     "popular/rank/douga",
     "popular/rank/music",
@@ -55,7 +55,7 @@ const isPopularWeeklyPage = (url) => {
  * 判断url是否是热门页中的排行榜的通用页面
  * @param url {string}
  */
-const isGeneralPopularRank=(url)=>{
+const isGeneralPopularRank = (url) => {
     return generalUrl.some(itemUrl => url.includes(itemUrl));
 }
 
@@ -78,7 +78,7 @@ const getVideoDataList = async () => {
         nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
         const videoUrl = el.querySelector('.img>a')?.href || null;
         const bv = elUtil.getUrlBV(videoUrl);
-        list.push({
+        const data = {
             title,
             userUrl,
             uid,
@@ -91,11 +91,15 @@ const getVideoDataList = async () => {
             el,
             insertionPositionEl: el.querySelector(".detail-state"),
             explicitSubjectEl: el.querySelector(".info")
-        })
+        };
+        const otherVideosSelectEl = el.querySelector('.more-data.van-popover__reference');
+        if (otherVideosSelectEl) {
+            data.cssMap = {'bottom': '44px'};
+        }
+        list.push(data)
     }
     return list;
 }
-
 
 
 // 屏蔽排行榜中的视频
