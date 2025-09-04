@@ -22,6 +22,10 @@ const getRoomCardDataList = async () => {
         const name = props.anchorName;
         //直播标题
         const title = props.roomTitle;
+        const titleEl = el.querySelector('.Item_roomTitle_ax3eD');
+        if (titleEl) {
+            titleEl.title = title;
+        }
         //直播房间号
         const roomId = props.roomId;
         //分区
