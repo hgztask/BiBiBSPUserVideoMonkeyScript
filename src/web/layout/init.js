@@ -16,9 +16,8 @@ window.addEventListener('DOMContentLoaded', () => {
             console.log('element-ui样式加载完成')
         })
     }
-    const mainLayoutEl = document.createElement('div');
-    document.body.appendChild(mainLayoutEl)
-    window.mk_vue_app = initVueApp(mainLayoutEl, App);
+    const {vueDiv} = elUtil.createVueDiv(document.body);
+    window.mk_vue_app = initVueApp(vueDiv, App);
     addGzStyle(document);
     elUtil.updateCssVModal();
 })

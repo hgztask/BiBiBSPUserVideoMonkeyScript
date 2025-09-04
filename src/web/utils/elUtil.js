@@ -282,6 +282,26 @@ const installStyle = (css, selector = ".mk-def-style") => {
     styleEl.innerHTML = css;
 }
 
+/**
+ * 创建一个Vue容器
+ * @description 创建一个Vue容器，用于挂载Vue组件，如如传入el，则将容器挂载到该元素下，不管el是否存在，都将创建一个容器，并返回容器的元素。
+ * @param el {Element} 容器要挂载的元素，vue容器
+ * @param cssTests {string|null} 要为创建的容器添加的样式，如为null，则不添加样式
+ * @returns {{panelDiv: HTMLDivElement, vueDiv: HTMLDivElement}}
+ */
+const createVueDiv = (el = null, cssTests = null) => {
+    const panelDiv = document.createElement('div');
+    if (cssTests !== null) {
+        panelDiv.style.cssText = cssTests;
+    }
+    const vueDiv = document.createElement("div");
+    panelDiv.appendChild(vueDiv);
+    if (el !== null) {
+        el.appendChild(panelDiv);
+    }
+    return {panelDiv, vueDiv}
+}
+
 
 /**
  * @version 0.2.0
@@ -293,5 +313,6 @@ export default {
     findElements,
     findElementsAndBindEvents,
     updateCssVModal,
-    installStyle
+    installStyle,
+    createVueDiv
 }
