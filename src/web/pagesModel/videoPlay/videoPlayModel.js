@@ -17,19 +17,16 @@ const isVideoPlayPage = (url = window.location.href) => {
  * 选择用户屏蔽
  */
 const selectUserBlocking = async () => {
+    const el = await elUtil.findElement('.up-panel-container')
+    const vueData = el['__vue__'];
+    const {staffInfo, upInfo} = vueData;
     //查找是否是多个作者
-    const el = await elUtil.findElement('.header.can-pointer', {timeout: 1800})
-    if (el) {
-        //多作者
-        const elList = document.querySelectorAll('.container>.membersinfo-upcard-wrap>.membersinfo-upcard')
-        const list = []
-        for (const el of elList) {
-            const userUrl = el.querySelector('.avatar').href
-            const uid = elUtil.getUrlUID(userUrl)
-            const name = el.querySelector('.staff-name').textContent.trim()
+    if (staffInfo.length > 1) {
+        const list = [];
+        for (const {mid, name} of staffInfo) {
             list.push({
-                label: `用户-name=${name}-uid=${uid}`,
-                uid
+                label: `用户-name=${name}-uid=${mid}`,
+                uid: mid
             })
         }
         eventEmitter.send('sheet-dialog', {
@@ -40,22 +37,18 @@ const selectUserBlocking = async () => {
                 return true
             }
         })
-    } else {
-        //单作者
-        const el = document.querySelector('.up-info-container')
-        const nameEl = el.querySelector('.up-info--right a.up-name')
-        const name = nameEl.textContent.trim()
-        const userUrl = nameEl.href
-        const uid = elUtil.getUrlUID(userUrl)
-        console.log('点击了屏蔽按钮', name, userUrl, uid)
-        eventEmitter.invoke('el-confirm', `用户uid=${uid}-name=${name}`, 'uid精确屏蔽方式').then(() => {
-            if (uid === -1) {
-                eventEmitter.send('el-msg', "该页面数据不存在uid字段")
-                return;
-            }
-            ruleUtil.addRulePreciseUid(uid) && eventEmitter.send('通知屏蔽');
-        })
+        return
     }
+    //单作者
+    const {mid, name} = upInfo;
+    const uid = parseInt(mid);
+    eventEmitter.invoke('el-confirm', `用户uid=${uid}-name=${name}`, 'uid精确屏蔽方式').then(() => {
+        if (uid === -1) {
+            eventEmitter.send('el-msg', "该页面数据不存在uid字段")
+            return;
+        }
+        ruleUtil.addRulePreciseUid(uid) && eventEmitter.send('通知屏蔽');
+    })
 }
 
 // 获取右侧视频列表
