@@ -53,7 +53,7 @@ export default {
       <div>
         <el-row>
           <el-col v-for="item in list" :key="item.label">
-            <el-button :title="item.title" style="width: 100%" @click="handleClick(item)">项目{{
+            <el-button :title="item.title" style="width: 100%" @click="handleClick(item)">{{
                 item.label
               }}
             </el-button>
