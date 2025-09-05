@@ -95,6 +95,9 @@ export default {
     });
 
     eventEmitter.on('el-notify', (options) => {
+      if (!options['position']) {
+        options.position='bottom-right';
+      }
       this.$notify(options)
     })
     eventEmitter.on('el-msg', (...options) => {

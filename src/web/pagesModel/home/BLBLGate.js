@@ -27,8 +27,7 @@ const check_bilibili_gate_compatibility = async () => {
         } else {
             eventEmitter.send('el-notify', {
                 title: "tip",
-                message: '启用兼容bilibili-gate脚本',
-                position: 'bottom-right',
+                message: '启用兼容bilibili-gate脚本'
             })
         }
         return
