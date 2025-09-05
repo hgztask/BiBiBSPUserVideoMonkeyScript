@@ -7,6 +7,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData from "../../data/localMKData.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import videoPlayPageCommon from "./videoPlayPageCommon.js";
 
 //判断是否是视频播放页
 const isVideoPlayPage = (url = window.location.href) => {
@@ -200,7 +201,7 @@ const delAd = () => {
         return
     }
     //查找页面广告标签，十秒之后未找到则结束
-    elUtil.findElements('[class|=ad],#slide_ad').then(elList => {
+    elUtil.findElements('[class|=ad],#slide_ad,.activity-m-v1').then(elList => {
         for (const el of elList) {
             el.style.display = 'none'
             // el?.remove()
