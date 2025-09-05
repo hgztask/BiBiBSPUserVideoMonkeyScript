@@ -261,6 +261,7 @@ const delElManagement = () => {
 const run = () => {
     delElManagement();
     setVideoPlayerEnded()
+    videoPlayPageCommon.insertTagShieldButton();
 }
 
 //视频播放模块
