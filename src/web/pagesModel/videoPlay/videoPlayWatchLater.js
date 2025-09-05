@@ -1,6 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import defUtil from "../../utils/defUtil.js";
-import generalFuc from "./generalFuc.js";
+import generalFuc from "./videoPlayPageCommon.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 

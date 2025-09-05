@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import generalFuc from "./generalFuc.js";
+import generalFuc from "./videoPlayPageCommon.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 // 判断是否为收藏的视频播放页
