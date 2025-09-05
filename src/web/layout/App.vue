@@ -8,7 +8,7 @@ import debuggerManagementView from './views/debuggerManagementView.vue';
 import pageProcessingView from "./views/pageProcessingView.vue";
 import aboutAndFeedbackView from "./views/aboutAndFeedbackView.vue";
 import showImgDialog from "./eventEmitter_components/showImgDialog.vue";
-import sheetDialog from "./components/sheetDialog.vue";
+import sheetDialog from "./eventEmitter_components/sheetDialog.vue";
 import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../model/EventEmitter.js";
 import {requestIntervalQueue} from "../model/asynchronousIntervalQueue.js";
@@ -51,37 +51,12 @@ export default {
       // 默认打开的tab
       tabsActiveName: gmUtil.getData('mainTabsActiveName', '规则管理'),
       debug_panel_show: isOpenDev(),
-      sheet_dialog: {
-        show: false,
-        list: [],
-        title: "",
-        /**
-         * @type function
-         * @returns boolean
-         */
-        optionsClick: null,
-        closeOnClickModal: true
-      }
     }
   },
   methods: {
     tabClick(tab) {
       gmUtil.setData('mainTabsActiveName', tab.name);
     },
-    handleClose() {
-      this.sheet_dialog.show = false
-    },
-    handleOptionsClick(item) {
-      let tempBool;
-      //如果回调函数返回true，则不关闭对话框，反之关闭对话框
-      const temp = this.sheet_dialog.optionsClick(item);
-      if (temp === undefined) {
-        tempBool = false
-      } else {
-        tempBool = temp;
-      }
-      this.sheet_dialog.show = tempBool === true;
-    }
   },
   created() {
     eventEmitter.on('主面板开关', () => {
@@ -120,14 +95,6 @@ export default {
       } else {
         this.$alert('已关闭测试调试面板', 'tip')
       }
-    })
-
-    eventEmitter.on('sheet-dialog', ({list, optionsClick, title = '选项', closeOnClickModal = false}) => {
-      this.sheet_dialog.show = true
-      this.sheet_dialog.list = list
-      this.sheet_dialog.title = title
-      this.sheet_dialog.optionsClick = optionsClick
-      this.sheet_dialog.closeOnClickModal = closeOnClickModal
     })
 
     eventEmitter.handler('el-prompt', (...options) => {
@@ -204,11 +171,7 @@ export default {
     </el-drawer>
     <lookContentDialog/>
     <showImgDialog/>
-    <sheetDialog :close-on-click-modal="sheet_dialog.closeOnClickModal" :list="sheet_dialog.list"
-                 :show="sheet_dialog.show"
-                 :title="sheet_dialog.title"
-                 @close="handleClose"
-                 @options-click="handleOptionsClick"/>
+    <sheetDialog/>
     <RightFloatingLayoutView/>
   </div>
 </template>
