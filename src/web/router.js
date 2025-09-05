@@ -19,6 +19,7 @@ import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import dynamicPage from "./pagesModel/dynamic/dynamicPage.js";
 import LiveCommon from "./pagesModel/live/liveCommon.js";
 import liveHome from "./pagesModel/live/liveHome.js";
+import videoPlayPageCommon from "./pagesModel/videoPlay/videoPlayPageCommon.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -57,12 +58,14 @@ const staticRoute = (title, url) => {
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
+        videoPlayPageCommon.insertTagShieldButton()
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.run();
     }
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
+        videoPlayPageCommon.insertTagShieldButton()
     }
     if (newHistory.isNewHistoryPage(url)) {
         newHistory.startRun()
