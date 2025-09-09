@@ -29,7 +29,7 @@ export default {
 
 <template>
   <div>
-    <el-card>
+    <el-card shadow="never">
       <template #header>评论字数限制</template>
       <div>超出设置限制的字数时屏蔽(不包括)，低于3则不生效</div>
       <div>改动即生效</div>

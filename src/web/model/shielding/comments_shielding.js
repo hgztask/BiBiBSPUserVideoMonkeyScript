@@ -1,5 +1,5 @@
 import {eventEmitter} from "../EventEmitter.js";
-import {blockByLevel, blockComment, blockSeniorMemberOnly, blockUserUidAndName} from "./shielding.js";
+import {blockByLevelForComment, blockComment, blockSeniorMemberOnly, blockUserUidAndName} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
 import localMKData from "../../data/localMKData.js";
 
@@ -32,7 +32,7 @@ const shieldingComment = (commentsData) => {
     returnVal = blockComment(content)
     if (returnVal.state) return returnVal;
     if (level !== -1) {
-        returnVal = blockByLevel(level);
+        returnVal = blockByLevelForComment(level);
         if (returnVal.state) return returnVal;
     }
     return blockCommentWordLimit(content);

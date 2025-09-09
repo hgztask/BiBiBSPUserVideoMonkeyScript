@@ -7,7 +7,15 @@ import {elEventEmitter} from "../elEventEmitter.js";
 import localMKData, {
     getLimitationFanSumGm,
     getLimitationVideoSubmitSumGm,
+    getMaximumUserLevelCommentGm,
+    getMaximumUserLevelVideoGm,
+    getMinimumUserLevelCommentGm,
+    getMinimumUserLevelVideoGm,
     hideBlockButtonGm,
+    isEnableMaximumUserLevelCommentGm,
+    isEnableMaximumUserLevelVideoGm,
+    isEnableMinimumUserLevelCommentGm,
+    isEnableMinimumUserLevelVideoGm,
     isFansNumBlockingStatusGm,
     isLimitationVideoSubmitStatusGm,
     isSeniorMemberOnly
@@ -472,29 +480,46 @@ export const asyncBlockVideoCoinLikesRatioRate = async (coin, like) => {
     if (res.state) return Promise.reject(res);
 }
 
-/**
- * 根据等级屏蔽
- * @param level {number} 用户等级
- * @returns {{state: boolean, type: string, matching:number }|any}
- */
-export const blockByLevel = (level) => {
-    if (!level) {
-        return returnTempVal
+//根据等级屏蔽-视频
+export const blockByLevelForVideo = (level) => {
+    if (!level) return returnTempVal;
+    if (isEnableMinimumUserLevelVideoGm()) {
+        const min = getMinimumUserLevelVideoGm();
+        if (level < min) {
+            return {state: true, type: "最小用户等级过滤-视频", matching: min};
+        }
     }
-    const min = gmUtil.getData('nMinimumLevel', -1)
-    if (min > level) {
-        return {state: true, type: "最小用户等级过滤", matching: min};
+    if (isEnableMaximumUserLevelVideoGm()) {
+        const max = getMaximumUserLevelVideoGm();
+        if (level > max) {
+            return {state: true, type: "最大用户等级过滤-视频", matching: max};
+        }
     }
-    const max = gmUtil.getData('nMaximumLevel', -1)
-    if (max > level) {
-        return {state: true, type: "最大用户等级过滤", matching: max};
-    }
-    return returnTempVal
+    return returnTempVal;
 }
+
+//根据等级屏蔽-评论
+export const blockByLevelForComment = (level) => {
+    if (!level) return returnTempVal;
+    if (isEnableMinimumUserLevelCommentGm()) {
+        const min = getMinimumUserLevelCommentGm();
+        if (level < min) {
+            return {state: true, type: "最小用户等级过滤-评论", matching: min};
+        }
+    }
+    if (isEnableMaximumUserLevelCommentGm()) {
+        const max = getMaximumUserLevelCommentGm();
+        if (level > max) {
+            return {state: true, type: "最大用户等级过滤-评论", matching: max};
+        }
+    }
+    return returnTempVal;
+}
+
 
 //异步根据等级屏蔽，匹配成功抛出异常
 export const asyncBlockByLevel = async (level) => {
-    const res = blockByLevel(level);
+    const res = blockByLevelForVideo(level);
     if (res.state) return Promise.reject(res);
 }
 

@@ -2,19 +2,26 @@
 import gmUtil from "../../utils/gmUtil.js";
 import otherKeyListDataJson from "../../res/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
+import UserLevelFilteringView from "./UserLevelFilteringView.vue";
 
 /**
  * 其他规则组件
  */
 export default {
-  components: {commentWordLimitView},
+  components: {commentWordLimitView, UserLevelFilteringView},
   data() {
     return {
       num: 0,
       selectList: otherKeyListDataJson,
       selectValue: 'nMinimumPlay',
       inputMax: "",
-      inputMin: 0
+      inputMin: 0,
+      minimumUserLevelList: [
+        {key: 'minimum_user_level_video_gm', label: '最小用户等级限制-视频', defVal: ''},
+        {key: 'maximum_user_level_video_gm', label: '最大用户等级限制-视频', defVal: ''},
+        {key: 'minimum_user_level_comment_gm', label: '最小用户等级限制-评论', defVal: ''},
+        {key: 'maximum_user_level_comment_gm', label: '最大用户等级限制-评论', defVal: ''}
+      ]
     }
   },
   methods: {
@@ -38,7 +45,7 @@ export default {
     cancelBut() {
       gmUtil.setData(this.selectValue, -1)
       const find = this.selectList.find(item => item.value === this.selectValue);
-      this.$alert(`已取消${find.name}的限制`)
+      this.$message.success(`已取消${find.name}的限制`)
       this.updateInfo()
     },
     allCancelBut() {
@@ -51,31 +58,19 @@ export default {
       for (let item of this.selectList) {
         item.defVal = gmUtil.getData(item.value, -1);
       }
+      for (const v of this.minimumUserLevelList) {
+        v.defVal = gmUtil.getData(v.key, '');
+      }
     },
     updateInfoBut() {
       this.updateInfo()
-      this.$alert('已刷新')
+      this.$notify({type:'info',position: 'bottom-right', message: '已刷新'})
     },
   },
   watch: {
     selectValue(newVal) {
-      const find = this.selectList.find(item => item.value === newVal);
-      if (find.name.includes('用户等级')) {
-        //b站等级最低2级别才能发送评论，设置最小限制等级为3
-        this.inputMin = 3
-        //b站等级目前最高7级，即硬核会员等级，设置最大限制等级为6
-        this.inputMax = 6
-        //修正限制等级
-        if (this.num > 6) {
-          this.num = 6
-        }
-        if (this.num < 3) {
-          this.num = 3
-        }
-      } else {
-        this.inputMin = 0
-        this.inputMax = ''
-      }
+      this.inputMin = 0
+      this.inputMax = ''
     }
   },
   created() {
@@ -88,44 +83,47 @@ export default {
   <div>
     <div style="display: flex">
       <div style="width: 70vw">
-        <el-card>
+        <input v-model="num" :max="inputMax" :min="inputMin" gz_type type="number">
+        <el-select v-model="selectValue" filterable>
+          <el-option v-for="item in selectList" :key="item.name" :label="item.name" :value="item.value"></el-option>
+        </el-select>
+          <el-button @click="okVideoSelectBut">设置</el-button>
+          <el-button @click="cancelBut">取消</el-button>
+          <el-button @click="allCancelBut">全部取消</el-button>
+        <UserLevelFilteringView/>
+        <commentWordLimitView/>
+      </div>
+      <div>
+        <el-card shadow="never">
           <template #header>
             <span>使用说明</span>
           </template>
           <ol>
             <li>如设置时长相关单位为秒</li>
             <li>如设置播放量和弹幕量相关单位为个</li>
-            <li>设置最小播放量则小于该值的视频会屏蔽</li>
-            <li>设置最大播放量则大于该值的视频会屏蔽</li>
-            <li>设置最小弹幕量则小于该值的视频会屏蔽</li>
-            <li>设置最大弹幕量则大于该值的视频会屏蔽</li>
-            <li>设置最小时长则小于该值的视频会屏蔽</li>
-            <li>设置最大时长则大于该值的视频会屏蔽</li>
-            <li>设置最小用户等级则小于该值的会屏蔽，低于该值的会屏蔽掉</li>
-            <li>设置最大用户等级则大于该值的会屏蔽，高于该值的会屏蔽掉</li>
+            <li>最小播放量则小于该值的视频会屏蔽</li>
+            <li>最大播放量则大于该值的视频会屏蔽</li>
+            <li>最小弹幕量则小于该值的视频会屏蔽</li>
+            <li>最大弹幕量则大于该值的视频会屏蔽</li>
+            <li>最小时长则小于该值的视频会屏蔽</li>
+            <li>最大时长则大于该值的视频会屏蔽</li>
+            <li>最小用户等级则小于该值的会屏蔽</li>
+            <li>最大用户等级则大于该值的会屏蔽</li>
             <li>取消相关限制条件则不做限制处理</li>
             <li>右侧信息关键条件-1则为未做任何限制处理</li>
             <li>最后因为设置限制条件冲突或限制太多，视频未能限制的情况下，请按需设置限制条件</li>
           </ol>
         </el-card>
-        <input v-model="num" :max="inputMax" :min="inputMin" gz_type type="number">
-        <el-select v-model="selectValue" filterable>
-          <el-option v-for="item in selectList" :key="item.name" :label="item.name" :value="item.value"></el-option>
-        </el-select>
-        <div>
-          <el-button @click="okVideoSelectBut">设置</el-button>
-          <el-button @click="cancelBut">取消</el-button>
-          <el-button @click="allCancelBut">全部取消</el-button>
-        </div>
-      </div>
-      <div>
         <el-button @click="updateInfoBut">刷新</el-button>
         <div v-for="item in selectList" style="padding: 5px">
           {{ item.name }}{{ item.defVal }}
           {{ item.name.includes('时长') ? '秒' : '' }}
         </div>
+        <div v-for="v in minimumUserLevelList" :key="v.label">
+          {{ v.label }}
+          <el-tag>{{ v.defVal }}</el-tag>
+        </div>
       </div>
     </div>
-    <commentWordLimitView/>
   </div>
 </template>

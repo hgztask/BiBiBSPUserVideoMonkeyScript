@@ -444,6 +444,43 @@ export const isClearLiveCardGm = () => {
     return gmUtil.getData('is_clear_live_card_gm', false)
 }
 
+//获取最小用户等级限制-视频类
+export const getMinimumUserLevelVideoGm = () => {
+    return gmUtil.getData('minimum_user_level_video_gm', 0)
+}
+
+//获取最大用户等级限制-视频类
+export const getMaximumUserLevelVideoGm = () => {
+    return gmUtil.getData('maximum_user_level_video_gm', 1)
+}
+
+//获取最小用户等级限制-评论类
+export const getMinimumUserLevelCommentGm = () => {
+    return gmUtil.getData('minimum_user_level_comment_gm', 0)
+}
+
+ //获取最大用户等级限制-评论类
+ export const getMaximumUserLevelCommentGm = () => {
+    return gmUtil.getData('maximum_user_level_comment_gm', 0)
+}
+
+//是否启用最小用户等级限制-视频类
+export const isEnableMinimumUserLevelVideoGm=() => {
+    return gmUtil.getData('is_enable_minimum_user_level_video_gm', false)
+}
+//是否启用最大用户等级限制-视频类
+export const isEnableMaximumUserLevelVideoGm=() => {
+    return gmUtil.getData('is_enable_maximum_user_level_video_gm', false)
+}
+//是否启用最小用户等级限制-评论类
+export const isEnableMinimumUserLevelCommentGm=() => {
+    return gmUtil.getData('is_enable_minimum_user_level_comment_gm', false)
+}
+//是否启用最大用户等级限制-评论类
+export const isEnableMaximumUserLevelCommentGm=() => {
+    return gmUtil.getData('is_enable_maximum_user_level_comment_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
