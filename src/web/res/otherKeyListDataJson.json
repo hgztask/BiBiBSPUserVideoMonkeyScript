@@ -1,18 +1,5 @@
 [
   {
-    "name": "最小播放量",
-    "value": "nMinimumPlay",
-    "associated": "nMaximumPlayback",
-    "defVal": -1
-  },
-  {
-    "name": "最大播放量",
-    "value": "nMaximumPlayback",
-    "associated": "nMinimumPlay",
-    "bLarge": true,
-    "defVal": -1
-  },
-  {
     "name": "最小弹幕数",
     "value": "nMinimumBarrage",
     "associated": "nMaximumBarrage",

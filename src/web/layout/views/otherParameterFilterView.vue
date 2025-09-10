@@ -3,20 +3,23 @@ import gmUtil from "../../utils/gmUtil.js";
 import otherKeyListDataJson from "../../res/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
 import UserLevelFilteringView from "./other-parameter-filter/UserLevelFilteringView.vue";
+import PlaybackLimitView from "./other-parameter-filter/PlaybackLimitView.vue";
 
 /**
  * 其他规则组件
  */
 export default {
-  components: {commentWordLimitView, UserLevelFilteringView},
+  components: {commentWordLimitView, UserLevelFilteringView, PlaybackLimitView},
   data() {
     return {
       num: 0,
       selectList: otherKeyListDataJson,
-      selectValue: 'nMinimumPlay',
+      selectValue: 'nMinimumBarrage',
       inputMax: "",
       inputMin: 0,
       minimumUserLevelList: [
+        {key: 'minimum_play_gm', label: '最小播放量限制', defVal: ''},
+        {key: 'maximum_play_gm', label: '最大播放量限制', defVal: ''},
         {key: 'minimum_user_level_video_gm', label: '最小用户等级限制-视频', defVal: ''},
         {key: 'maximum_user_level_video_gm', label: '最大用户等级限制-视频', defVal: ''},
         {key: 'minimum_user_level_comment_gm', label: '最小用户等级限制-评论', defVal: ''},
@@ -64,7 +67,7 @@ export default {
     },
     updateInfoBut() {
       this.updateInfo()
-      this.$notify({type:'info',position: 'bottom-right', message: '已刷新'})
+      this.$notify({type: 'info', position: 'bottom-right', message: '已刷新'})
     },
   },
   watch: {
@@ -87,10 +90,11 @@ export default {
         <el-select v-model="selectValue" filterable>
           <el-option v-for="item in selectList" :key="item.name" :label="item.name" :value="item.value"></el-option>
         </el-select>
-          <el-button @click="okVideoSelectBut">设置</el-button>
-          <el-button @click="cancelBut">取消</el-button>
-          <el-button @click="allCancelBut">全部取消</el-button>
+        <el-button @click="okVideoSelectBut">设置</el-button>
+        <el-button @click="cancelBut">取消</el-button>
+        <el-button @click="allCancelBut">全部取消</el-button>
         <UserLevelFilteringView/>
+        <PlaybackLimitView/>
         <commentWordLimitView/>
       </div>
       <div>

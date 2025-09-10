@@ -1,5 +1,11 @@
 import {eventEmitter} from "../EventEmitter.js";
-import localMKData, {isEffectiveUIDShieldingOnlyVideo} from "../../data/localMKData.js";
+import localMKData, {
+    getMaximumPlayGm,
+    getMinimumPlayGm,
+    isEffectiveUIDShieldingOnlyVideo,
+    isMaximumPlayGm,
+    isMinimumPlayGm
+} from "../../data/localMKData.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import gmUtil from "../../utils/gmUtil.js";
 import shielding, {
@@ -89,12 +95,15 @@ const blockVideoBulletChat = (bulletChat) => {
 
 //检查视频播放量数量屏蔽
 const blockVideoPlayCount = (playCount) => {
-    if (playCount !== -1) {
-        const min = gmUtil.getData('nMinimumPlay', -1);
+    if (playCount === -1) return returnTempVal;
+    if (isMinimumPlayGm()) {
+        const min = getMinimumPlayGm()
         if (min > playCount && min !== -1) {
             return {state: true, type: '最小播放量', matching: min}
         }
-        const max = gmUtil.getData('nMaximumPlayback', -1)
+    }
+    if (isMaximumPlayGm()) {
+        const max = getMaximumPlayGm()
         if (max < playCount && max !== -1) {
             return {state: true, type: '最大播放量', matching: max}
         }

@@ -481,6 +481,25 @@ export const isEnableMaximumUserLevelCommentGm=() => {
     return gmUtil.getData('is_enable_maximum_user_level_comment_gm', false)
 }
 
+//获取最小播放数限制
+export const getMinimumPlayGm=()=>{
+    return gmUtil.getData('minimum_play_gm', 100)
+}
+
+//获取最大播放数限制
+export const getMaximumPlayGm=()=>{
+    return gmUtil.getData('maximum_play_gm', 10000)
+}
+
+//获取最小播放数限制是否启用
+export const isMinimumPlayGm=()=>{
+    return gmUtil.getData('is_minimum_play_gm', false)
+}
+//获取最大播放数限制是否启用
+export const isMaximumPlayGm=()=>{
+    return gmUtil.getData('is_maximum_play_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
