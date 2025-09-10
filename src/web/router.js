@@ -20,6 +20,7 @@ import dynamicPage from "./pagesModel/dynamic/dynamicPage.js";
 import LiveCommon from "./pagesModel/live/liveCommon.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 import videoPlayPageCommon from "./pagesModel/videoPlay/videoPlayPageCommon.js";
+import userProfile from "./pagesModel/userProfile.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -44,6 +45,7 @@ const staticRoute = (title, url) => {
     if (checkAndExcludePage(url)) return;
     homeStaticRoute(title, url)
     hotSearch.run();
+    userProfile.run();
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     topInput.processTopInputContent()
     hotSearch.startShieldingHotList()
