@@ -2,7 +2,7 @@
 import gmUtil from "../../utils/gmUtil.js";
 import otherKeyListDataJson from "../../res/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
-import UserLevelFilteringView from "./UserLevelFilteringView.vue";
+import UserLevelFilteringView from "./other-parameter-filter/UserLevelFilteringView.vue";
 
 /**
  * 其他规则组件
@@ -68,7 +68,7 @@ export default {
     },
   },
   watch: {
-    selectValue(newVal) {
+    selectValue() {
       this.inputMin = 0
       this.inputMax = ''
     }

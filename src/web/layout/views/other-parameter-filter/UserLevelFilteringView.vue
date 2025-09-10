@@ -8,8 +8,8 @@ import {
   isEnableMaximumUserLevelVideoGm,
   isEnableMinimumUserLevelCommentGm,
   isEnableMinimumUserLevelVideoGm
-} from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
+} from "../../../data/localMKData.js";
+import gmUtil from "../../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -97,9 +97,6 @@ export default {
     isEnableMaximumUserLevelCommentVal(n) {
       gmUtil.setData("is_enable_maximum_user_level_comment_gm", n)
     }
-  },
-  created() {
-    window.tempData = this.$data;
   }
 }
 </script>
@@ -123,7 +120,7 @@ export default {
         评论类
         <div>启用最小等级{{minimumCommentVal}}
           <el-switch v-model="isEnableMinimumUserLevelCommentVal"/>
-          <el-input-number v-model="minimumCommentVal" :max="maxVal" :min="2"/>
+          <el-input-number v-model="minimumCommentVal" :max="maxVal" :min="3"/>
         </div>
         <div>启用最大等级{{maximumCommentVal}}
           <el-switch v-model="isEnableMaximumUserLevelCommentVal"/>
