@@ -45,7 +45,6 @@ const staticRoute = (title, url) => {
     if (checkAndExcludePage(url)) return;
     homeStaticRoute(title, url)
     hotSearch.run();
-    userProfile.run();
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     topInput.processTopInputContent()
     hotSearch.startShieldingHotList()
@@ -57,17 +56,21 @@ const staticRoute = (title, url) => {
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.run();
+        userProfile.run()
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayPageCommon.insertTagShieldButton()
+        userProfile.run()
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.run();
+        userProfile.run()
     }
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayPageCommon.insertTagShieldButton()
+        userProfile.run()
     }
     if (newHistory.isNewHistoryPage(url)) {
         newHistory.startRun()
@@ -76,6 +79,7 @@ const staticRoute = (title, url) => {
         messagePage.modifyTopItemsZIndex()
     }
     if (space.isSpacePage()) {
+        userProfile.run()
         space.getUserInfo().then(userInfo => {
             console.info('userInfo', userInfo)
         })
@@ -88,6 +92,7 @@ const staticRoute = (title, url) => {
     }
     if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.run()
+        userProfile.run()
     }
 }
 
