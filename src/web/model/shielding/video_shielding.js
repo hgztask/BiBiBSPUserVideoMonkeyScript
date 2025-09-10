@@ -1,13 +1,20 @@
 import {eventEmitter} from "../EventEmitter.js";
 import localMKData, {
+    getMaximumBarrageGm,
+    getMaximumDurationGm,
     getMaximumPlayGm,
+    getMinimumBarrageGm,
+    getMinimumDurationGm,
     getMinimumPlayGm,
     isEffectiveUIDShieldingOnlyVideo,
+    isMaximumBarrageGm,
+    isMaximumDurationGm,
     isMaximumPlayGm,
+    isMinimumBarrageGm,
+    isMinimumDurationGm,
     isMinimumPlayGm
 } from "../../data/localMKData.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
-import gmUtil from "../../utils/gmUtil.js";
 import shielding, {
     asyncBlockAvatarPendant,
     asyncBlockBasedVideoTag,
@@ -65,13 +72,17 @@ const blockVideoBV = (bv) => {
 //检查视频时长屏蔽
 const blockVideoDuration = (duration) => {
     if (duration !== -1) {
-        const min = gmUtil.getData('nMinimumDuration', -1);
-        if (min > duration && min !== -1) {
-            return {state: true, type: '最小时长', matching: min}
+        if (isMinimumDurationGm()) {
+            const min = getMinimumDurationGm()
+            if (min > duration && min !== -1) {
+                return {state: true, type: '最小时长', matching: min}
+            }
         }
-        const max = gmUtil.getData('nMaximumDuration', -1)
-        if (max < duration && max !== -1) {
-            return {state: true, type: '最大时长', matching: max}
+        if (isMaximumDurationGm()) {
+            const max = getMaximumDurationGm()
+            if (max < duration && max !== -1) {
+                return {state: true, type: '最大时长', matching: max}
+            }
         }
     }
     return returnTempVal
@@ -79,15 +90,18 @@ const blockVideoDuration = (duration) => {
 
 //检查视频弹幕数量屏蔽
 const blockVideoBulletChat = (bulletChat) => {
-    //限制弹幕数
     if (bulletChat !== -1) {
-        const min = gmUtil.getData('nMinimumBarrage', -1);
-        if (min > bulletChat && min !== -1) {
-            return {state: true, type: '最小弹幕数', matching: min}
+        if (isMinimumBarrageGm()) {
+            const min = getMinimumBarrageGm()
+            if (min > bulletChat && min !== -1) {
+                return {state: true, type: '最小弹幕数', matching: min}
+            }
         }
-        const max = gmUtil.getData('nMaximumBarrage', -1)
-        if (max < bulletChat && max !== -1) {
-            return {state: true, type: '最大弹幕数', matching: max}
+        if (isMaximumBarrageGm()) {
+            const max = getMaximumBarrageGm()
+            if (max < bulletChat && max !== -1) {
+                return {state: true, type: '最大弹幕数', matching: max}
+            }
         }
     }
     return returnTempVal

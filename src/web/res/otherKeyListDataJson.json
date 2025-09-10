@@ -1,28 +1,35 @@
 [
   {
-    "name": "最小弹幕数",
-    "value": "nMinimumBarrage",
-    "associated": "nMaximumBarrage",
-    "defVal": -1
+    "title": "弹幕量限制",
+    "minInputKey": "minimum_barrage_gm",
+    "maxInputKey": "maximum_barrage_gm",
+    "minLabel": "最小弹幕量限制",
+    "maxLabel": "最大弹幕量限制",
+    "isMaxKey": "is_maximum_barrage_gm",
+    "isMinKey": "is_minimum_barrage_gm",
+    "minDefVal": 20,
+    "maxDefVal": 1000
   },
   {
-    "name": "最大弹幕数",
-    "value": "nMaximumBarrage",
-    "associated": "nMinimumBarrage",
-    "bLarge": true,
-    "defVal": -1
+    "title": "播放量限制",
+    "minInputKey": "minimum_play_gm",
+    "maxInputKey": "maximum_play_gm",
+    "minLabel": "最小播放量限制",
+    "maxLabel": "最大播放量限制",
+    "isMaxKey": "is_maximum_play_gm",
+    "isMinKey": "is_minimum_play_gm",
+    "minDefVal": 100,
+    "maxDefVal": 10000
   },
   {
-    "name": "最小时长",
-    "value": "nMinimumDuration",
-    "associated": "nMaximumDuration",
-    "defVal": -1
-  },
-  {
-    "name": "最大时长",
-    "value": "nMaximumDuration",
-    "associated": "nMinimumDuration",
-    "bLarge": true,
-    "defVal": -1
+    "title": "时长限制",
+    "minInputKey": "minimum_duration_gm",
+    "maxInputKey": "maximum_duration_gm",
+    "minLabel": "最小时长限制",
+    "maxLabel": "最大时长限制",
+    "isMaxKey": "is_maximum_duration_gm",
+    "isMinKey": "is_minimum_duration_gm",
+    "minDefVal": 30,
+    "maxDefVal": 3000
   }
 ]

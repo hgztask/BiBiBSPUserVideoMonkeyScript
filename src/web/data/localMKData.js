@@ -499,7 +499,38 @@ export const isMinimumPlayGm=()=>{
 export const isMaximumPlayGm=()=>{
     return gmUtil.getData('is_maximum_play_gm', false)
 }
-
+//获取最小弹幕数限制
+export const getMinimumBarrageGm=()=>{
+    return gmUtil.getData('minimum_barrage_gm', 20)
+}
+//获取最大弹幕数限制
+export const getMaximumBarrageGm=()=>{
+    return gmUtil.getData('maximum_barrage_gm', 1000)
+}
+//获取最小弹幕数限制是否启用
+export const isMinimumBarrageGm=() => {
+    return gmUtil.getData('is_minimum_barrage_gm', false)
+}
+//获取最大弹幕数限制是否启用
+export const isMaximumBarrageGm=()=>{
+    return gmUtil.getData('is_maximum_barrage_gm', false)
+}
+//获取最小视频时长限制
+export const getMinimumDurationGm=() => {
+    return gmUtil.getData('minimum_duration_gm', 30)
+}
+//获取最大视频时长限制
+export const getMaximumDurationGm=()=>{
+    return gmUtil.getData('maximum_duration_gm', 3000)
+}
+//获取最小视频时长限制是否启用
+export const isMinimumDurationGm=()=>{
+    return gmUtil.getData('is_minimum_duration_gm', false)
+}
+//获取最大视频时长限制是否启用
+export const isMaximumDurationGm=()=>{
+    return gmUtil.getData('is_maximum_duration_gm', false)
+}
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
