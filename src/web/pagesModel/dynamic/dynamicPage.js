@@ -9,6 +9,11 @@ const isUrlDynamicHomePage = () => {
     return window.location.href.includes('t.bilibili.com') && document.title === "动态首页-哔哩哔哩";
 }
 
+//是否是动态内容页
+const isUrlDynamicContentPage = () => {
+    return window.location.href.includes('t.bilibili.com') && document.title.endsWith('的动态-哔哩哔哩');
+}
+
 //检查动态列表项执行屏蔽
 const debounceCheckDynamicList = defUtil.debounce(() => {
     if (!enableDynamicItemsContentBlockingGm()) return
@@ -31,6 +36,7 @@ const run = () => {
 
 export default {
     isUrlDynamicHomePage,
+    isUrlDynamicContentPage,
     run,
     debounceCheckDynamicList,
 }

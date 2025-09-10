@@ -94,6 +94,9 @@ const staticRoute = (title, url) => {
         dynamicPage.run()
         userProfile.run()
     }
+    if (dynamicPage.isUrlDynamicContentPage()) {
+        userProfile.run()
+    }
 }
 
 /**
