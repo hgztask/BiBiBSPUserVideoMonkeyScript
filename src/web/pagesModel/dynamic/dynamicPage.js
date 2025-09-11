@@ -11,7 +11,10 @@ const isUrlDynamicHomePage = () => {
 
 //是否是动态内容页
 const isUrlDynamicContentPage = () => {
-    return window.location.href.includes('t.bilibili.com') && document.title.endsWith('的动态-哔哩哔哩');
+    const href = window.location.href;
+    const title = document.title;
+    return (href.includes('t.bilibili.com') || href.includes('www.bilibili.com/opus')) &&
+        (title.endsWith('的动态-哔哩哔哩') || title.includes('的动态 - 哔哩哔哩'));
 }
 
 //检查动态列表项执行屏蔽
