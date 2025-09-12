@@ -272,14 +272,9 @@ const isDelPlayerEndingPanel = () => {
     return gmUtil.getData('is_del_player_ending_panel', false)
 }
 
-// 是否开启开发者模式
-export const isOpenDev = () => {
-    return gmUtil.getData('open-dev', false)
-}
-
-// 设置是否开启开发者模式
-export const setOpenDev = (bool) => {
-    gmUtil.setData('open-dev', bool)
+// localhost页面自动打开调试面板
+export const isLocalhostPageAutomaticallyOpenTheMainPanelGm = () => {
+    return gmUtil.getData("is_localhost_page_automatically_open_the_main_panel_gm", false)
 }
 
 // 获取评论字数限制

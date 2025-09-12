@@ -3,7 +3,6 @@ import cacheManagementView from "./views/cacheManagementView.vue";
 import panelSettingsView from "./views/panelSettingsView.vue";
 import compatibleSettingView from "./views/compatibleSettingView.vue";
 import lookContentDialog from "./eventEmitter_components/lookContentDialog.vue";
-import {bAfterLoadingThePageOpenMainPanel} from "../model/debuggerMeanagement.js";
 import debuggerManagementView from './views/debuggerManagementView.vue';
 import pageProcessingView from "./views/pageProcessingView.vue";
 import aboutAndFeedbackView from "./views/aboutAndFeedbackView.vue";
@@ -13,7 +12,7 @@ import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../model/EventEmitter.js";
 import {requestIntervalQueue} from "../model/asynchronousIntervalQueue.js";
 import gmUtil from "../utils/gmUtil.js";
-import {getDrawerShortcutKeyGm, isOpenDev} from "../data/localMKData.js";
+import {getDrawerShortcutKeyGm} from "../data/localMKData.js";
 import outputInformationView from './views/outputInformationView.vue'
 import donateLayoutView from './views/donateLayoutView.vue'
 import ruleManagementView from './views/ruleManagementView.vue'
@@ -50,7 +49,7 @@ export default {
       drawer: false,
       // 默认打开的tab
       tabsActiveName: gmUtil.getData('mainTabsActiveName', '规则管理'),
-      debug_panel_show: isOpenDev(),
+      debug_panel_show: __DEV__,
     }
   },
   methods: {
@@ -87,16 +86,6 @@ export default {
       return this.$confirm(...options);
     })
 
-    eventEmitter.on('debugger-dev-show', (bool) => {
-      debugger
-      this.debug_panel_show = bool
-      if (bool) {
-        this.$alert('已开启测试调试面板', 'tip')
-      } else {
-        this.$alert('已关闭测试调试面板', 'tip')
-      }
-    })
-
     eventEmitter.handler('el-prompt', (...options) => {
       return this.$prompt(...options)
     })
@@ -111,10 +100,6 @@ export default {
         type: 'error'
       })
     })
-
-    if (bAfterLoadingThePageOpenMainPanel()) {
-      this.drawer = true
-    }
   }
 }
 </script>
@@ -163,9 +148,7 @@ export default {
           <aboutAndFeedbackView/>
         </el-tab-pane>
         <el-tab-pane v-if="debug_panel_show" label="调试测试" lazy name="调试测试">
-          <div v-show="debug_panel_show">
             <debuggerManagementView/>
-          </div>
         </el-tab-pane>
       </el-tabs>
     </el-drawer>

@@ -1,5 +1,5 @@
 <script>
-import localMKData, {getDrawerShortcutKeyGm, isOpenDev, setOpenDev} from "../../data/localMKData.js";
+import localMKData, {getDrawerShortcutKeyGm} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 
@@ -40,21 +40,8 @@ export default {
     },
     changeDevToolsInput() {
       const toolsInputVal = this.devToolsInputVal;
-      if (toolsInputVal === 'show-dev') {
-        setOpenDev(true)
-        eventEmitter.send('debugger-dev-show', true)
-        this.devToolsInputVal = ''
-        return
-      }
-      if (toolsInputVal === 'stop-dev') {
-        setOpenDev(false)
-        eventEmitter.send('debugger-dev-show', false)
-        this.devToolsInputVal = ''
-        return;
-      }
-      if (isOpenDev()) {
-        eventEmitter.send(toolsInputVal)
-      }
+      if (toolsInputVal.trim()) return;
+      eventEmitter.send(toolsInputVal)
     },
     setDrawerShortcutKeyBut() {
       const theKeyPressedKey = this.theKeyPressedKeyVal;
