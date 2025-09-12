@@ -125,10 +125,11 @@ const showDelRuleInput = async (type) => {
 
 /**
  *获取本地规则内容
+ * @param isToStr {boolean} 是否转为字符串，默认true
  * @param space {number} 缩进
- * @return {string}
+ * @return {string|{[string]: [string|number]}}
  */
-const getRuleContent = (space = 0) => {
+const getRuleContent = (isToStr = true, space = 0) => {
     const ruleMap = {};
     for (let ruleKeyListDatum of ruleKeyListData.getRuleKeyListData()) {
         const key = ruleKeyListDatum.key;
@@ -136,7 +137,10 @@ const getRuleContent = (space = 0) => {
         if (data.length === 0) continue;
         ruleMap[key] = data;
     }
-    return JSON.stringify(ruleMap, null, space);
+    if (isToStr) {
+        return JSON.stringify(ruleMap, null, space);
+    }
+    return ruleMap;
 }
 
 /**
