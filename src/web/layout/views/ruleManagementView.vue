@@ -7,7 +7,6 @@ import blacklistManagementView from "./blacklistManagementView.vue";
 import basicRulesView from "../views/basicRulesView.vue";
 import ruleExportImportView from './ruleExportImportView.vue'
 import otherParameterFilterView from './otherParameterFilterView.vue'
-import ruleInformationView from './ruleInformationView.vue'
 import viewRulesRuleDialog from "../eventEmitter_components/viewRulesRuleDialog.vue";
 
 
@@ -15,7 +14,6 @@ export default {
   components: {
     ruleExportImportView,
     otherParameterFilterView,
-    ruleInformationView,
     basicRulesView,
     blacklistManagementView,
     highLevelRuleView,
@@ -50,9 +48,6 @@ export default {
       </el-tab-pane>
       <el-tab-pane label="导出导入" lazy>
         <ruleExportImportView/>
-      </el-tab-pane>
-      <el-tab-pane label="规则信息">
-        <ruleInformationView/>
       </el-tab-pane>
       <el-tab-pane label="黑名单管理" lazy>
         <blacklistManagementView/>

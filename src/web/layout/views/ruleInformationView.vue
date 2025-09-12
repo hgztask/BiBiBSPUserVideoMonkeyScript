@@ -48,7 +48,7 @@ export default {
 
 <template>
   <div>
-    <el-card>
+    <el-card shadow="never">
       <template #header>
         <el-button @click="refreshInfoBut">刷新信息</el-button>
       </template>
