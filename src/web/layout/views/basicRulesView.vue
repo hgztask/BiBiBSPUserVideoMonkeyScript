@@ -149,7 +149,7 @@ export default {
             基础规则中的项和组合规则互斥，如xxx添加到视频tag多重规则，则不能添加到对应基础规则视频tag，反之同理，限类型，如组合精确匹配
           </div>
         </el-card>
-        <ruleInformationView/>
+        <ruleInformationView :rule-info-arr="ruleInfoArr"/>
       </el-col>
     </el-row>
     <ruleSetValueDialog/>

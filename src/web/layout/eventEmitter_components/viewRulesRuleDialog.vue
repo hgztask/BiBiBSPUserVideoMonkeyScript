@@ -2,7 +2,6 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import gmUtil from "../../utils/gmUtil.js";
 
-//多重规则编辑对话框
 export default {
   data() {
     return {
@@ -29,7 +28,6 @@ export default {
       })
     },
     closedHandle() {
-      console.log('closed')
       this.typeMap = {}
       this.showTags.splice(0, this.showTags.length);
     }

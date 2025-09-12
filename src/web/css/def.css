@@ -22,12 +22,19 @@
     justify-content: flex-start;
 }
 
+/*水平靠外边对齐*/
+.el-horizontal-outside {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 /*修改el-divider组件设置方向垂直时将竖线设置为auto*/
 .height-auto.el-divider.el-divider--vertical {
     height: auto !important;
 }
 
 /*修改el-divider组件方向横向时将top和bottom设置为10px*/
-.margin-top-bottom10.el-divider.el-divider--horizontal{
-margin: 10px 0;
+.margin-top-bottom10.el-divider.el-divider--horizontal {
+    margin: 10px 0;
 }
