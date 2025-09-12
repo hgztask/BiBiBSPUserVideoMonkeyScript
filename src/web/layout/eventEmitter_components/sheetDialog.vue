@@ -54,7 +54,6 @@ export default {
       if (contents) {
         this.contents = contents;
       }
-      console.log(this);
     })
   }
 }

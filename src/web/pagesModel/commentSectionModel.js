@@ -18,7 +18,6 @@ eventEmitter.on('评论添加屏蔽按钮', (commentsData) => {
     }, "gz_shielding_comment_button");
 })
 
-
 /**
  * 获取url中的用户等级
  * 硬核会员等级为7，原h转换为7
@@ -56,7 +55,6 @@ const getOldUserLevel = (iEl) => {
     }
     return level
 }
-
 
 /**
  * 获取评论列表
@@ -200,7 +198,6 @@ const getOldCommentSectionList = async () => {
     }
     return commentsData;
 }
-
 
 //执行屏蔽评论
 const startShieldingComments = async () => {

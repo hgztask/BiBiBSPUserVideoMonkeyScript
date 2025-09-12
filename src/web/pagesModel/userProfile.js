@@ -1,6 +1,7 @@
 import {eventEmitter} from "../model/EventEmitter.js";
 import ruleUtil from "../utils/ruleUtil.js";
 import elUtil from "../utils/elUtil.js";
+import commentSectionModel from "./commentSectionModel.js";
 //查找用户资料悬浮卡片插入屏蔽按钮
 export default {
     run() {
@@ -14,7 +15,10 @@ export default {
                 const {card: {mid, name}} = data
                 eventEmitter.invoke('el-confirm', `是要屏蔽的用户${name}-【${mid}】吗？`).then(() => {
                     const uid = parseInt(mid)
-                    ruleUtil.addRulePreciseUid(uid).status && eventEmitter.send('通知屏蔽');
+                    if (ruleUtil.addRulePreciseUid(uid).status) {
+                        eventEmitter.send('通知屏蔽');
+                        commentSectionModel.startShieldingComments();
+                    }
                 })
             });
             const checkTheInsertButton = (el) => {

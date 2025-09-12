@@ -44,6 +44,9 @@ eventEmitter.on('通知屏蔽', () => {
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.startShieldingVideoList();
     }
+    if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
+        videoPlayWatchLater.startDebounceShieldingVideoList();
+    }
     if (popular.isPopularAllPage(url) || popular.isPopularHistory(url)) {
         popularAll.startShieldingVideoList();
     }
@@ -58,9 +61,6 @@ eventEmitter.on('通知屏蔽', () => {
     }
     if (space.isUserSpaceDynamicPage(url)) {
         space.checkUserSpaceShieldingDynamicContentThrottle();
-    }
-    if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
-        videoPlayWatchLater.startDebounceShieldingVideoList();
     }
     if (liveSectionModel.isLiveSection()) {
         liveSectionModel.startShieldingLiveRoom();
