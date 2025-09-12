@@ -132,7 +132,9 @@ const getRuleContent = (space = 0) => {
     const ruleMap = {};
     for (let ruleKeyListDatum of ruleKeyListData.getRuleKeyListData()) {
         const key = ruleKeyListDatum.key;
-        ruleMap[key] = gmUtil.getData(key, []);
+        const data = gmUtil.getData(key, []);
+        if (data.length === 0) continue;
+        ruleMap[key] = data;
     }
     return JSON.stringify(ruleMap, null, space);
 }
