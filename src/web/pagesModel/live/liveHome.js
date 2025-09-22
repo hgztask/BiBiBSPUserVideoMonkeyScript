@@ -4,7 +4,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import liveCommon from "./liveCommon.js";
 
 const isLiveHomePage = (url) => {
-    return url.includes("https://live.bilibili.com/?spm_id_from=333.1007.0.0") ||
+    return url.includes("https://live.bilibili.com/?spm_id_from=") ||
         url === "https://live.bilibili.com/"
 }
 
