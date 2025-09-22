@@ -10,7 +10,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
  * @returns {boolean}
  */
 const isLiveRoom = (url) => {
-    return url.search('/live.bilibili.com/\\d+') !== -1;
+    return url.search('/live.bilibili.com/\\d+') !== -1 || url.search('https://live.bilibili.com/blanc/\\d+') !== -1;
 }
 
 //获取直播间底部直播列表元素项数据
