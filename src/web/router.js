@@ -65,7 +65,6 @@ const staticRoute = (title, url) => {
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.run();
-        userProfile.run()
     }
     if (videoPlayWatchLater.isVideoPlayWatchLaterPage(url)) {
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();

@@ -1,8 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
-import watch from '../../watch/watch.js'
-import defUtil from "../../utils/defUtil.js";
 import live_shielding, {shieldingLiveRoomContentDecorated} from "../../model/shielding/live_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import userProfile from "../userProfile.js";
 
 /**
  * 判断是否为直播间
@@ -11,6 +10,11 @@ import {eventEmitter} from "../../model/EventEmitter.js";
  */
 const isLiveRoom = (url) => {
     return url.search('/live.bilibili.com/\\d+') !== -1 || url.search('https://live.bilibili.com/blanc/\\d+') !== -1;
+}
+
+//是否是活动类直播间页面
+const isLiveRoomActivity = () => {
+    return location.href.search('/live.bilibili.com/\\d+') !== -1 && !document.title.endsWith('哔哩哔哩直播，二次元弹幕直播平台');
 }
 
 //获取直播间底部直播列表元素项数据
@@ -56,7 +60,14 @@ const checkBottomLiveRoomList = async () => {
 
 // 获取直播间弹幕
 const getChatItems = async () => {
-    const elList = await elUtil.findElements("#chat-items>div");
+    let targetEl;
+    if (isLiveRoomActivity()) {
+        const iframeEl = await elUtil.findElement('#player-ctnr iframe')
+        targetEl = iframeEl.contentDocument
+    } else {
+        targetEl = document.body;
+    }
+    const elList = await elUtil.findElements("#chat-items>div", {doc: targetEl});
     if (elList.length >= 200) {
         for (let i = 0; i < 100; i++) {
             elList[i]?.remove();
@@ -109,20 +120,19 @@ const startShieldingLiveChatContents = async () => {
     }
 }
 
-// 监听直播间弹幕
-const addWatchLiveRoomChatItemsListener = () => {
-    const throttle = defUtil.throttle(startShieldingLiveChatContents, 1000);
-    watch.watchElementListLengthWithInterval("#chat-items>div", throttle);
-}
-
 const run = () => {
-    addWatchLiveRoomChatItemsListener();
-    checkBottomLiveRoomList().then(async () => {
-        const switchBtn = await elUtil.findElement('#observerTarget>.switch-btn');
-        switchBtn.addEventListener('click', () => {
-            checkBottomLiveRoomList();
+    if (!isLiveRoomActivity()) {
+        userProfile.run()
+        checkBottomLiveRoomList().then(async () => {
+            const switchBtn = await elUtil.findElement('#observerTarget>.switch-btn');
+            switchBtn.addEventListener('click', () => {
+                checkBottomLiveRoomList();
+            })
         })
-    })
+    }
+    setInterval(async () => {
+        await startShieldingLiveChatContents();
+    }, 2000)
 }
 
 export default {
