@@ -18,9 +18,12 @@ import {checkAndExcludePage} from "./layout/excludeURLs.js";
 import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import dynamicPage from "./pagesModel/dynamic/dynamicPage.js";
 import LiveCommon from "./pagesModel/live/liveCommon.js";
+import liveCommon from "./pagesModel/live/liveCommon.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 import videoPlayPageCommon from "./pagesModel/videoPlay/videoPlayPageCommon.js";
 import userProfile from "./pagesModel/userProfile.js";
+import {localWs} from "./dev/LocalWs.js";
+import allLivePage from "./pagesModel/live/allLivePage.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -95,6 +98,10 @@ const staticRoute = (title, url) => {
     }
     if (dynamicPage.isUrlDynamicContentPage()) {
         userProfile.run()
+    }
+    if (allLivePage.isUrlPage(url)) {
+        liveCommon.addStyle();
+        allLivePage.checkLiveList();
     }
 }
 

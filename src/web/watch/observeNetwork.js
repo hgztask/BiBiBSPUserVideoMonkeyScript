@@ -9,6 +9,7 @@ import {eventEmitter} from "../model/EventEmitter.js";
 import {checkAndExcludePage} from "../layout/excludeURLs.js";
 import dynamicPage from "../pagesModel/dynamic/dynamicPage.js";
 import space from "../pagesModel/space/space.js";
+import allLivePage from "../pagesModel/live/allLivePage.js";
 
 /**
  * 监听网络请求
@@ -67,6 +68,10 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
         //动态主页中，动态列表加载新的动态项，非动态评论区
         console.log('动态首页api加载了');
         dynamicPage.debounceCheckDynamicList()
+    }
+    if (url.includes('api.live.bilibili.com/xlive/web-interface/v1/second/getListByArea') ||
+        url.includes('api.live.bilibili.com/xlive/web-interface/v1/second/getUserRecommend')) {
+        allLivePage.checkLiveList();
     }
     /**
      *
