@@ -211,11 +211,11 @@ const getLiveRankingsCommentSectionList = async () => {
         const level = parseInt(levelEl.classList[1].charAt(1));
         const contentsEl = el.querySelector('.con>.text');
         const content = contentsEl.textContent.trim()
-        const insertionPositionEl=el.querySelector('.user')
+        const insertionPositionEl = el.querySelector('.user')
         const replies = [];
         commentsData.push({
             name, uid, content, level, el, replies,
-            insertionPositionEl,contentsEl,
+            insertionPositionEl, contentsEl,
             explicitSubjectEl: insertionPositionEl
         })
         for (let replyEl of el.querySelectorAll('.reply-box>.reply-item')) {
@@ -226,10 +226,10 @@ const getLiveRankingsCommentSectionList = async () => {
             const level = parseInt(replyLevelEl.classList[1].charAt(1));
             const contentsEl = replyEl.querySelector('.text-con');
             const content = contentsEl.textContent.trim()
-            const insertionPositionEl=replyEl.querySelector('.user')
+            const insertionPositionEl = replyEl.querySelector('.user')
             replies.push({
                 name, el: replyEl, uid, content, level,
-                insertionPositionEl,contentsEl,
+                insertionPositionEl, contentsEl,
                 explicitSubjectEl: replyEl
             })
         }

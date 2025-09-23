@@ -2,6 +2,7 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleUtil from "../../utils/ruleUtil.js";
+import commentSectionModel from "../commentSectionModel.js";
 
 const getPlayCountAndBulletChatAndDuration = (el) => {
     const playInfo = el.querySelector('.playinfo').innerHTML.trim();
@@ -90,9 +91,39 @@ const insertTagShieldButton = async () => {
         });
     })
 }
+/**
+ * 查找视频页用户资料悬浮卡片并插入屏蔽按钮
+ * 与常规评论区中的用户资料悬浮卡片不同
+ * @returns {Promise<void>|null}
+ */
+export const insertUserProfileShieldButton = async () => {
+    const el = await elUtil.findElement('.usercard-wrap');
+    const but = document.createElement('button');
+    but.id = 'video-user-panel';
+    but.setAttribute('gz_type', '')
+    but.textContent = '屏蔽';
+    but.addEventListener('click', () => {
+        const vueEl = el.querySelector('.user-card-m-exp.card-loaded');
+        const {userData:{mid,name}} = vueEl['__vue__'];
+        eventEmitter.invoke('el-confirm', `是要屏蔽的用户${name}-【${mid}】吗？`).then(() => {
+            const uid = parseInt(mid)
+            if (ruleUtil.addRulePreciseUid(uid).status) {
+                eventEmitter.send('通知屏蔽');
+                commentSectionModel.startShieldingComments();
+            }
+        })
+    })
+    const observer = new MutationObserver(() => {
+        if (el.querySelector('#video-user-panel[gz_type]') !== null) return;
+        const userEl = el.querySelector('.user');
+        if (userEl === null) return;
+        userEl.appendChild(but);
+    });
+    observer.observe(el, {childList: true, subtree: true});
+}
 
 /**
  * 视频页通用函数
  * 目前适用于稍后再看播放页和收藏的视频播放页
  */
-export default {getRightVideoDataList, insertTagShieldButton}
+export default {getRightVideoDataList, insertTagShieldButton, insertUserProfileShieldButton}

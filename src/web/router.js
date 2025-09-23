@@ -60,12 +60,14 @@ const staticRoute = (title, url) => {
     if (videoPlayModel.isVideoPlayPage(url)) {
         videoPlayModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayModel.run();
-        userProfile.run()
+        userProfile.run();
+        videoPlayPageCommon.insertUserProfileShieldButton();
     }
     if (collectionVideoPlayPageModel.iscCollectionVideoPlayPage(url)) {
         collectionVideoPlayPageModel.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayPageCommon.insertTagShieldButton()
         userProfile.run()
+        videoPlayPageCommon.insertUserProfileShieldButton();
     }
     if (liveRoomModel.isLiveRoom(url)) {
         liveRoomModel.run();
@@ -74,6 +76,7 @@ const staticRoute = (title, url) => {
         videoPlayWatchLater.findTheExpandButtonForTheListOnTheRightAndBindTheEvent();
         videoPlayPageCommon.insertTagShieldButton()
         userProfile.run()
+        videoPlayPageCommon.insertUserProfileShieldButton();
     }
     if (newHistory.isNewHistoryPage(url)) {
         newHistory.startRun()
