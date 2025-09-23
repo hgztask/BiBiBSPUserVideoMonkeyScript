@@ -30,7 +30,7 @@ export const startShieldingHotList = async () => {
         return;
     }
     console.log("检查热搜关键词中...");
-    const elList = await elUtil.findElements(".trendings-col>.trending-item",
+    const elList = await elUtil.findElements(".trendings-col>.trending-item,.trendings-single>.trending-item",
         {interval: 2000})
     console.log('热搜元素列表', elList);
     for (let el of elList) {
