@@ -24,6 +24,7 @@ import videoPlayPageCommon from "./pagesModel/videoPlay/videoPlayPageCommon.js";
 import userProfile from "./pagesModel/userProfile.js";
 import {localWs} from "./dev/LocalWs.js";
 import allLivePage from "./pagesModel/live/allLivePage.js";
+import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
 
 const homeStaticRoute = (title, url) => {
     if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -102,6 +103,9 @@ const staticRoute = (title, url) => {
     if (allLivePage.isUrlPage(url)) {
         liveCommon.addStyle();
         allLivePage.checkLiveList();
+    }
+    if (liveEdenRankPage.isUrlPage(url)) {
+        liveEdenRankPage.run()
     }
 }
 

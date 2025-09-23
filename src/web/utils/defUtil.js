@@ -1,5 +1,6 @@
 import gzStyleCss from '../css/gz-style.css'
 import Vue from "vue";
+import {valueCache} from "../model/localCache/valueCache.js";
 
 /**
  * 等待一段时间
@@ -93,38 +94,6 @@ const isIterable = (obj) => {
  */
 const toTimeString = () => {
     return new Date().toLocaleString();
-}
-
-
-/**
- * 平滑滚动到页面顶部或底部
- * @param {boolean} toTop - 是否滚动到顶部，默认为 false（滚动到底部）
- * @param {number} duration - 滚动动画的持续时间（毫秒），默认为 1000 毫秒（1 秒）
- * @returns {Promise<>} - 返回一个 Promise，滚动完成后 resolve
- */
-function smoothScroll(toTop = false, duration = 1000) {
-    return new Promise((resolve) => {
-        const start = window.scrollY;
-        const end = toTop ? 0 : document.documentElement.scrollHeight - window.innerHeight;
-        const change = end - start;
-        const startTime = performance.now();
-
-        function animateScroll(currentTime) {
-            const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / duration, 1);
-            const easeInOutQuad = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
-
-            window.scrollTo(0, start + change * easeInOutQuad);
-
-            if (progress < 1) {
-                requestAnimationFrame(animateScroll);
-            } else {
-                resolve();
-            }
-        }
-
-        requestAnimationFrame(animateScroll);
-    });
 }
 
 /**
@@ -420,13 +389,30 @@ export function getFutureTimestamp(days = 0, hours = 0, minutes = 0, seconds = 0
     return future.getTime();
 }
 
-
+//获取网站前台jQuery对象
+const getJQuery = async () => {
+    return new Promise(resolve => {
+        const $ = valueCache.get('$');
+        if ($) {
+            resolve($);
+            return;
+        }
+        const i1 = setInterval(() => {
+            const $ = unsafeWindow['$'];
+            if ($) {
+                valueCache.set('$', $)
+                clearInterval(i1);
+                resolve($);
+            }
+        }, 1000);
+    })
+}
 
 export default {
     wait,
     fileDownload,
     toTimeString,
-    smoothScroll,
+    getJQuery,
     debounce,
     throttle,
     parseUrl,
