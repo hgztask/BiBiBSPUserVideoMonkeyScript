@@ -526,6 +526,12 @@ export const isMinimumDurationGm=()=>{
 export const isMaximumDurationGm=()=>{
     return gmUtil.getData('is_maximum_duration_gm', false)
 }
+
+//是否隐藏动态首页左上角个人资料卡
+export const hidePersonalInfoCardGm=() => {
+    return gmUtil.getData('hide_personal_info_card_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

@@ -1,6 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import defUtil from "../../utils/defUtil.js";
-import {enableDynamicItemsContentBlockingGm} from "../../data/localMKData.js";
+import {enableDynamicItemsContentBlockingGm, hidePersonalInfoCardGm} from "../../data/localMKData.js";
 import hotSearch from "../search/hotSearch.js";
 import dynamicCommon from "./dynamicCommon.js";
 
@@ -23,6 +23,13 @@ const debounceCheckDynamicList = defUtil.debounce(() => {
     dynamicCommon.commonCheckDynamicList();
 }, 1000);
 
+//隐藏首页个人资料卡
+const hidePersonalInfoCard = (show) => {
+    elUtil.findElement('.left>section').then(el => {
+        el.style.display = show ? 'none' : '';
+    });
+}
+
 const run = () => {
     debounceCheckDynamicList()
     elUtil.findElement('div.bili-dyn-up-list__content').then(el => {
@@ -34,12 +41,15 @@ const run = () => {
         })
     })
     hotSearch.startShieldingHotListDynamic();
+    if (hidePersonalInfoCardGm()) {
+        hidePersonalInfoCard(true)
+    }
 }
 
 
 export default {
     isUrlDynamicHomePage,
     isUrlDynamicContentPage,
-    run,
+    run, hidePersonalInfoCard,
     debounceCheckDynamicList,
 }

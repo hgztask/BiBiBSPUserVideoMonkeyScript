@@ -1,6 +1,7 @@
 <script>
 import {
   enableDynamicItemsContentBlockingGm,
+  hidePersonalInfoCardGm,
   isBlockAppointmentDynamicGm,
   isBlockGoodsDynamicGm,
   isBlockRepostDynamicGm,
@@ -10,6 +11,7 @@ import {
   isBlockVoteDynamicGm
 } from "../../../data/localMKData.js";
 import gmUtil from "../../../utils/gmUtil.js";
+import dynamicPage from "../../../pagesModel/dynamic/dynamicPage.js";
 
 export default {
   data() {
@@ -22,6 +24,7 @@ export default {
       isBlockGoodsDynamicVal: isBlockGoodsDynamicGm(),
       isBlockSpecialColumnForChargingDynamicVal: isBlockSpecialColumnForChargingDynamicGm(),
       isBlockVideoChargingExclusiveDynamicVal: isBlockVideoChargingExclusiveDynamicGm(),
+      hidePersonalInfoCardVal: hidePersonalInfoCardGm()
     }
   },
   watch: {
@@ -49,6 +52,10 @@ export default {
     isBlockVideoChargingExclusiveDynamicVal(n) {
       gmUtil.setData('is_block_video_charging_exclusive_dynamic_gm', n)
     },
+    hidePersonalInfoCardVal(n) {
+      gmUtil.setData('hide_personal_info_card_gm', n)
+      dynamicPage.hidePersonalInfoCard(n);
+    }
   }
 }
 </script>
@@ -59,6 +66,9 @@ export default {
       <template #header>动态首页</template>
       <el-tooltip content="启用该项后，对应页面中的动态会对uid白名单处理，和动态内容处理">
         <el-switch v-model="enableDynamicItemsContentBlockingVal" active-text="启用动态内容屏蔽"/>
+      </el-tooltip>
+      <el-tooltip content="动态首页中左侧的个人信息卡片，展示关注粉丝动态该卡片">
+        <el-switch v-model="hidePersonalInfoCardVal" active-text="隐藏个人信息卡片"/>
       </el-tooltip>
     </el-card>
     <el-card>
