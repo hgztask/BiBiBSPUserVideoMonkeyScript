@@ -73,6 +73,11 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
         url.includes('api.live.bilibili.com/xlive/web-interface/v1/second/getUserRecommend')) {
         allLivePage.checkLiveList();
     }
+    if (url.includes('api.bilibili.com/x/v2/reply/reply?callback')||
+    url.includes('api.bilibili.com/x/v2/reply?callback')) {
+        console.log('直播页排行榜地下的评论列表加载了')
+        commentSectionModel.checkLiveRankingsCommentSectionList();
+    }
     /**
      *
      * 该接口暂不需要，检测列表方式改成了定时遍历专区里的视频列表

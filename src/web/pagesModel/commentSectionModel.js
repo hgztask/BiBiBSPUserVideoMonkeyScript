@@ -199,6 +199,49 @@ const getOldCommentSectionList = async () => {
     return commentsData;
 }
 
+//获取直播间排行榜底部评论
+const getLiveRankingsCommentSectionList = async () => {
+    const elList = await elUtil.findElements('.comment-list>.list-item')
+    const commentsData = [];
+    for (let el of elList) {
+        const nameEl = el.querySelector('.user>.name')
+        const uid = parseInt(nameEl.getAttribute('data-usercard-mid'))
+        const name = nameEl.textContent.trim()
+        const levelEl = el.querySelector('.level-link>.level')
+        const level = parseInt(levelEl.classList[1].charAt(1));
+        const contentsEl = el.querySelector('.con>.text');
+        const content = contentsEl.textContent.trim()
+        const insertionPositionEl=el.querySelector('.user')
+        const replies = [];
+        commentsData.push({
+            name, uid, content, level, el, replies,
+            insertionPositionEl,contentsEl,
+            explicitSubjectEl: insertionPositionEl
+        })
+        for (let replyEl of el.querySelectorAll('.reply-box>.reply-item')) {
+            const replyNameEl = replyEl.querySelector('.name');
+            const name = replyNameEl.textContent.trim()
+            const uid = parseInt(replyNameEl.getAttribute('data-usercard-mid'));
+            const replyLevelEl = replyEl.querySelector('.level')
+            const level = parseInt(replyLevelEl.classList[1].charAt(1));
+            const contentsEl = replyEl.querySelector('.text-con');
+            const content = contentsEl.textContent.trim()
+            const insertionPositionEl=replyEl.querySelector('.user')
+            replies.push({
+                name, el: replyEl, uid, content, level,
+                insertionPositionEl,contentsEl,
+                explicitSubjectEl: replyEl
+            })
+        }
+    }
+    return commentsData;
+}
+
+//检查直播间排行榜底部评论
+const checkLiveRankingsCommentSectionList = async () => {
+    await comments_shielding.shieldingCommentsAsync(await getLiveRankingsCommentSectionList());
+}
+
 //执行屏蔽评论
 const startShieldingComments = async () => {
     /*
@@ -227,6 +270,6 @@ const startShieldingComments = async () => {
  * 评论区模块
  */
 export default {
-    startShieldingComments
+    startShieldingComments,
+    checkLiveRankingsCommentSectionList
 }
-
