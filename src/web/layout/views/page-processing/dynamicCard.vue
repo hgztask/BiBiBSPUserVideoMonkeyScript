@@ -54,7 +54,9 @@ export default {
     },
     hidePersonalInfoCardVal(n) {
       gmUtil.setData('hide_personal_info_card_gm', n)
-      dynamicPage.hidePersonalInfoCard(n);
+      if (dynamicPage.isUrlDynamicHomePage()) {
+        dynamicPage.hidePersonalInfoCard(n);
+      }
     }
   }
 }
