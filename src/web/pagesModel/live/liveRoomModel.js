@@ -2,6 +2,8 @@ import elUtil from "../../utils/elUtil.js";
 import live_shielding, {shieldingLiveRoomContentDecorated} from "../../model/shielding/live_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import userProfile from "../userProfile.js";
+import ruleUtil from "../../utils/ruleUtil.js";
+import defUtil from "../../utils/defUtil.js";
 
 /**
  * 判断是否为直播间
@@ -9,12 +11,14 @@ import userProfile from "../userProfile.js";
  * @returns {boolean}
  */
 const isLiveRoom = (url) => {
-    return url.search('/live.bilibili.com/\\d+') !== -1 || url.search('https://live.bilibili.com/blanc/\\d+') !== -1;
+    return url.search('/live.bilibili.com/\\d+') !== -1 ||
+        url.search('https://live.bilibili.com/blanc/\\d+') !== -1 ||
+        url.includes('live.bilibili.com/blackboard/era');
 }
 
 //是否是活动类直播间页面
 const isLiveRoomActivity = () => {
-    return location.href.search('/live.bilibili.com/\\d+') !== -1 && !document.title.endsWith('哔哩哔哩直播，二次元弹幕直播平台');
+    return isLiveRoom(location.href) && !document.title.endsWith('哔哩哔哩直播，二次元弹幕直播平台');
 }
 
 //获取直播间底部直播列表元素项数据
@@ -68,12 +72,6 @@ const getChatItems = async () => {
         targetEl = document.body;
     }
     const elList = await elUtil.findElements("#chat-items>div", {doc: targetEl});
-    if (elList.length >= 200) {
-        for (let i = 0; i < 100; i++) {
-            elList[i]?.remove();
-        }
-        console.log("弹幕列表超过200，已删除前100条")
-    }
     const list = [];
     for (let el of elList) {
         if (el.className === "chat-item  convention-msg border-box") {
@@ -99,29 +97,25 @@ const getChatItems = async () => {
             content,
             timeStamp,
             fansMedal,
-            el,
-            insertionPositionEl: el,
-            explicitSubjectEl: el
+            el
         })
     }
     return list;
 }
 
 /**
- * 屏蔽直播间弹幕
+ * 屏蔽直播间弹幕-节流
  */
-const startShieldingLiveChatContents = async () => {
+const startShieldingLiveChatContents = defUtil.throttle(async () => {
     const commentsDataList = await getChatItems()
     for (let commentsData of commentsDataList) {
-        if (shieldingLiveRoomContentDecorated(commentsData)) {
-            continue;
-        }
-        live_shielding.addLiveContentBlockButton({data: commentsData, maskingFunc: startShieldingLiveChatContents});
+        shieldingLiveRoomContentDecorated(commentsData)
     }
-}
+}, 2000)
 
-const run = () => {
-    if (!isLiveRoomActivity()) {
+const run = async () => {
+    const isLiveRoomActivityVal = isLiveRoomActivity();
+    if (!isLiveRoomActivityVal) {
         userProfile.run()
         checkBottomLiveRoomList().then(async () => {
             const switchBtn = await elUtil.findElement('#observerTarget>.switch-btn');
@@ -130,9 +124,35 @@ const run = () => {
             })
         })
     }
-    setInterval(async () => {
-        await startShieldingLiveChatContents();
+    setInterval(() => {
+        startShieldingLiveChatContents();
     }, 2000)
+    let targetEl;
+    if (isLiveRoomActivityVal) {
+        const iframeEl = await elUtil.findElement('#player-ctnr iframe')
+        targetEl = iframeEl.contentDocument
+    } else {
+        targetEl = document.body;
+    }
+    elUtil.findElement('.danmaku-menu', {doc: targetEl}).then(el => {
+        const selectEl = el.querySelector('.none-select');
+        const butEl = document.createElement('div');
+        butEl.textContent = '添加屏蔽(uid)';
+        for (const name of selectEl.getAttributeNames()) {
+            butEl.setAttribute(name, name === 'class' ? 'block-this-guy' : '');
+        }
+        selectEl.appendChild(butEl);
+        butEl.addEventListener('click', () => {
+            const vueData = el['__vue__'];
+            console.log(vueData);
+            const {uid, username} = vueData['info']
+            eventEmitter.invoke('el-confirm', `是要屏蔽的用户${username}-【${uid}】吗？`).then(() => {
+                if (ruleUtil.addRulePreciseUid(uid).status) {
+                    startShieldingLiveChatContents()
+                }
+            })
+        })
+    });
 }
 
 export default {
