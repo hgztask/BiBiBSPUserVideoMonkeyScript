@@ -1,4 +1,5 @@
 import defUtil from "./defUtil.js";
+import {valueCache} from "../model/localCache/valueCache.js";
 
 /**
  *获取url中的uid
@@ -124,7 +125,8 @@ function findElementsByAttempts(selector, config) {
  * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
- * @param config.parseShadowRoot  {boolean} - 如匹配元素为shadowRoot时，是否解析shadowRoot，默认为false
+ * @param config.parseShadowRoot  {boolean} - 如匹配元素为shadowRoot时，是否解析shadowRoot，默认为false、
+ * @param config.cachePromise  {boolean} - 是否缓Promise结果，默认false
  * @returns {Promise<Element|Document>}-返回找到的元素，如设置超时超出时间则返回null
  */
 const findElement = async (selector, config = {}) => {
@@ -132,10 +134,17 @@ const findElement = async (selector, config = {}) => {
         doc: document,
         interval: 1000,
         timeout: -1,
-        parseShadowRoot: false
+        parseShadowRoot: false,
+        cachePromise: false
     }
     config = {...defConfig, ...config}
-    return new Promise((resolve) => {
+    if (config.cachePromise) {
+        const cachePromiseVal = valueCache.get(`cacheFindElement-${selector}`);
+        if (cachePromiseVal) {
+            return cachePromiseVal;
+        }
+    }
+    const p = new Promise((resolve) => {
         const i1 = setInterval(() => {
             const element = config.doc.querySelector(selector);
             if (element) {
@@ -156,6 +165,10 @@ const findElement = async (selector, config = {}) => {
             }, config.timeout);
         }
     });
+    if (config.cachePromise) {
+        valueCache.set(`cacheFindElement-${selector}`, p)
+    }
+    return p;
 }
 
 /**
