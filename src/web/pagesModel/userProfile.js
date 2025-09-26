@@ -15,8 +15,7 @@ export default {
                 eventEmitter.invoke('el-confirm', `是要屏蔽的用户${name}-【${mid}】吗？`).then(() => {
                     const uid = parseInt(mid)
                     if (ruleUtil.addRulePreciseUid(uid).status) {
-                        eventEmitter.send('通知屏蔽');
-                        eventEmitter.send('event-检查评论区屏蔽')
+                        eventEmitter.send('通知屏蔽').send('event-检查评论区屏蔽');
                     }
                 })
             });

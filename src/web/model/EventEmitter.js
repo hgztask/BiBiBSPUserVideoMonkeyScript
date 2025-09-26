@@ -108,6 +108,7 @@ class EventEmitter {
      *发送普通消息，如未订阅事件，直到订阅到事件时发送。
      * @param {string} eventName - 事件名称
      * @param {...*} data - 发送的数据
+     * @returns {EventEmitter}
      */
     send(eventName, ...data) {
         const ordinaryEvents = this.#regularEvents;
@@ -117,17 +118,18 @@ class EventEmitter {
             for (const callback of event) {
                 callback(...data);
             }
-            return;
+            return this;
         }
         const futures = ordinaryEvents.futures;
         if (futures[eventName]) {
             //如果待订阅事件中有该事件名，则将数据添加到该事件名对应的数据列表中
             futures[eventName].push(data)
-            return;
+            return this;
         }
         //如果待订阅事件中没有该事件名，则创建一个空的数据列表并添加数据
         futures[eventName] = []
         futures[eventName].push(data)
+        return this;
     }
 
     /**
