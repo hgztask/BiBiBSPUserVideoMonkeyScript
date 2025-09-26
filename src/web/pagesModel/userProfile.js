@@ -1,7 +1,6 @@
 import {eventEmitter} from "../model/EventEmitter.js";
 import ruleUtil from "../utils/ruleUtil.js";
 import elUtil from "../utils/elUtil.js";
-import commentSectionModel from "./commentSectionModel.js";
 //查找用户资料悬浮卡片插入屏蔽按钮
 export default {
     run() {
@@ -17,7 +16,7 @@ export default {
                     const uid = parseInt(mid)
                     if (ruleUtil.addRulePreciseUid(uid).status) {
                         eventEmitter.send('通知屏蔽');
-                        commentSectionModel.startShieldingComments();
+                        eventEmitter.send('event-检查评论区屏蔽')
                     }
                 })
             });

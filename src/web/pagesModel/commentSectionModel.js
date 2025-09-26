@@ -266,10 +266,14 @@ const startShieldingComments = async () => {
     comments_shielding.shieldingCommentsAsync(list);
 }
 
+eventEmitter.on('event-检查评论区屏蔽', () => {
+    startShieldingComments()
+})
+
+
 /**
  * 评论区模块
  */
 export default {
-    startShieldingComments,
     checkLiveRankingsCommentSectionList
 }

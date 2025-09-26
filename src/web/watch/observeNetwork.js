@@ -36,12 +36,12 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     }
     if (url.startsWith("https://api.bilibili.com/x/v2/reply/wbi/main?oid=")) {
         console.log("检测到评论区楼主评论加载了");
-        commentSectionModel.startShieldingComments();
+        eventEmitter.send('event-检查评论区屏蔽')
         return;
     }
     if (url.startsWith("https://api.bilibili.com/x/v2/reply/reply?oid=")) {
         console.log("检测到评论区楼主层中的子层评论列表加载了");
-        commentSectionModel.startShieldingComments();
+        eventEmitter.send('event-检查评论区屏蔽')
     }
     if (url.startsWith("https://api.bilibili.com/x/web-interface/popular?ps=")) {
         popularAll.startShieldingVideoList();

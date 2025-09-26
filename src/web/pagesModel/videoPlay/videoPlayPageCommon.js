@@ -2,7 +2,6 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleUtil from "../../utils/ruleUtil.js";
-import commentSectionModel from "../commentSectionModel.js";
 
 const getPlayCountAndBulletChatAndDuration = (el) => {
     const playInfo = el.querySelector('.playinfo').innerHTML.trim();
@@ -109,7 +108,7 @@ export const insertUserProfileShieldButton = async () => {
             const uid = parseInt(mid)
             if (ruleUtil.addRulePreciseUid(uid).status) {
                 eventEmitter.send('通知屏蔽');
-                commentSectionModel.startShieldingComments();
+                eventEmitter.send('event-检查评论区屏蔽')
             }
         })
     })
