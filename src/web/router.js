@@ -4,7 +4,6 @@ import videoPlayModel from "./pagesModel/videoPlay/videoPlayModel.js";
 import collectionVideoPlayPageModel from "./pagesModel/videoPlay/collectionVideoPlayPageModel.js";
 import liveRoomModel from "./pagesModel/live/liveRoomModel.js";
 import videoPlayWatchLater from "./pagesModel/videoPlay/videoPlayWatchLater.js";
-import compatibleBewlyBewly from "./pagesModel/home/compatibleBewlyBewly.js";
 import newHistory from "./pagesModel/history/newHistory.js";
 import searchLive from "./pagesModel/search/searchLive.js";
 import hotSearch from "./pagesModel/search/hotSearch.js";
@@ -25,14 +24,15 @@ import userProfile from "./pagesModel/userProfile.js";
 import {localWs} from "./dev/LocalWs.js";
 import allLivePage from "./pagesModel/live/allLivePage.js";
 import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
+import BEWLYCommon from "./pagesModel/home/BEWLYCommon.js";
 
 const homeStaticRoute = (title, url) => {
-    if (compatibleBewlyBewly.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
-        compatibleBewlyBewly.startRun(url)
+    if (BEWLYCommon.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
+        BEWLYCommon.run(url)
     }
     if (bilibiliHome.isHome(url, title)) {
         BLBLGate.check_bilibili_gate_compatibility()
-        compatibleBewlyBewly.check_BEWLYPage_compatibility()
+        BEWLYCommon.check_BEWLYPage_compatibility()
         eventEmitter.send('通知屏蔽');
         if (globalValue.compatibleBEWLYBEWLY) return;
         bilibiliHome.run();

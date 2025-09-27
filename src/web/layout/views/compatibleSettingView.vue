@@ -41,7 +41,7 @@ export default {
       <el-switch v-model="adaptationBAppRecommend" active-text="首页屏蔽适配"/>
     </el-card>
     <el-card>
-      <template #header>BewlyBewly插件</template>
+      <template #header>Bewly插件(BewlyBewly和BewlyCat)</template>
       <el-switch v-model="compatible_BEWLY_BEWLY" active-text="首页适配"/>
     </el-card>
     <el-card>
