@@ -6,13 +6,16 @@ import localMKData, {
     getMinimumBarrageGm,
     getMinimumDurationGm,
     getMinimumPlayGm,
+    isCommentDisabledVideosBlockedGm,
     isEffectiveUIDShieldingOnlyVideo,
+    isFollowers7DaysOnlyVideosBlockedGm,
     isMaximumBarrageGm,
     isMaximumDurationGm,
     isMaximumPlayGm,
     isMinimumBarrageGm,
     isMinimumDurationGm,
-    isMinimumPlayGm
+    isMinimumPlayGm,
+    isVideosInFeaturedCommentsBlockedGm
 } from "../../data/localMKData.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import shielding, {
@@ -255,7 +258,31 @@ const shieldingOtherVideoParameter = async (result, videoData, method) => {
         .then(() => asyncBlockByLevel(userInfo?.current_level || -1))
         .then(() => asyncBlockGender(userInfo?.sex))
         .then(() => asyncBlockUserVip(userInfo.vip.type))
-        .then(() => asyncBlockUserVideoNumLimit(userInfo.archive_count))
+        .then(() => asyncBlockUserVideoNumLimit(userInfo.archive_count)).then(async () => {
+        //这里请求检查视频评论输入框情况
+        //todo 目前未做间隔队列和缓存处理，待后续完善
+        const videosInFeaturedCommentsBlockedVal = isVideosInFeaturedCommentsBlockedGm();
+        const followers7DaysOnlyVideosBlockedVal = isFollowers7DaysOnlyVideosBlockedGm();
+        const commentDisabledVideosBlockedVal = isCommentDisabledVideosBlockedGm();
+        if (videosInFeaturedCommentsBlockedVal === false && followers7DaysOnlyVideosBlockedVal === false && commentDisabledVideosBlockedVal === false) {
+            return;
+        }
+        const res = await bFetch.fetchGetVideoReplyBoxDescription(videoData.bv);
+        const {childText, disabled, message, state} = res;
+        if (!state) {
+            console.warn('获取视频评论输入框失败:' + message)
+            return;
+        }
+        if (commentDisabledVideosBlockedVal && disabled) {
+            return Promise.reject({state, type: '禁止评论类视频'})
+        }
+        if (childText === '关注UP主7天以上的人可发评论' && followers7DaysOnlyVideosBlockedVal) {
+            return Promise.reject({state, type: '7天关注才可评论类视频'})
+        }
+        if (childText === '评论被up主精选后，对所有人可见' && videosInFeaturedCommentsBlockedVal) {
+            return Promise.reject({state, type: '精选评论类视频'})
+        }
+    })
         .catch((v) => {
             const {msg, type} = v;
             if (msg) {

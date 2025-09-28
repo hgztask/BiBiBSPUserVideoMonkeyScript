@@ -1,5 +1,6 @@
 import video_zoneData from "../data/video_zoneData.js";
 import {eventEmitter} from "./EventEmitter.js";
+import {bilibiliEncoder} from "./BilibiliEncoder.js";
 
 /*const apiStyle = [
     {
@@ -224,6 +225,29 @@ const fetchGetVideoInfo = async (bvId) => {
     }
     defData.data = {videoInfo, userInfo, tags}
     return defData
+}
+
+//获取视频评论框的配置数据
+const fetchGetVideoReplyBoxDescription = async (bv) => {
+    const avid = bilibiliEncoder.bv2av(bv);
+    return new Promise((resolve, reject) => {
+        fetch(`https://api.bilibili.com/x/v2/reply/subject/description?oid=${avid}&type=1`, {credentials: 'include'}
+        ).then(response => response.json()).then(res => {
+            try {
+                const {data, code, message} = res;
+                const {child_text, disabled = false} = data['base']['input'];
+                if (code !== 0) {
+                    reject({state: false, message})
+                    return
+                }
+                resolve({state: true, message, childText: child_text, disabled})
+            } catch (e) {
+                reject({state: false, e})
+            }
+        }).catch(e => {
+            reject({state: false, e})
+        })
+    })
 }
 
 export default {

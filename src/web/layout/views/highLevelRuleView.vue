@@ -2,8 +2,11 @@
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData, {
   getLimitationVideoSubmitSumGm,
+  isCommentDisabledVideosBlockedGm,
+  isFollowers7DaysOnlyVideosBlockedGm,
   isLimitationVideoSubmitStatusGm,
-  isSeniorMemberOnly
+  isSeniorMemberOnly,
+  isVideosInFeaturedCommentsBlockedGm
 } from "../../data/localMKData.js";
 import uidRangeMaskingView from "./uidRangeMaskingView.vue";
 
@@ -26,7 +29,10 @@ export default {
       copyrightRadioVal: localMKData.isCopyrightRadio(),
       is_vertical_val: localMKData.isBlockVerticalVideo(),
       is_check_team_member: localMKData.isCheckTeamMember(),
-      isSeniorMemberOnlyVal: isSeniorMemberOnly()
+      isSeniorMemberOnlyVal: isSeniorMemberOnly(),
+      isVideosInFeaturedCommentsBlockedVal: isVideosInFeaturedCommentsBlockedGm(),
+      isFollowers7DaysOnlyVideosBlockedVal: isFollowers7DaysOnlyVideosBlockedGm(),
+      isCommentDisabledVideosBlockedVal: isCommentDisabledVideosBlockedGm()
     }
   },
   methods: {},
@@ -63,6 +69,15 @@ export default {
     },
     isLimitationVideoSubmitStatusVal(n) {
       gmUtil.setData('is_limitation_video_submit_status_gm', n)
+    },
+    isVideosInFeaturedCommentsBlockedVal(n) {
+      gmUtil.setData('is_videos_in_featured_comments_blocked_gm', n)
+    },
+    isFollowers7DaysOnlyVideosBlockedVal(n) {
+      gmUtil.setData('is_followers_7_days_only_videos_blocked_gm', n)
+    },
+    isCommentDisabledVideosBlockedVal(n) {
+      gmUtil.setData('is_comment_disabled_videos_blocked_gm', n)
     }
   }
 }
@@ -79,17 +94,28 @@ export default {
     </el-card>
     <el-card>
       <template #header>视频类型</template>
-      <div>选中的类型会被屏蔽</div>
-      <el-radio-group v-model="copyrightRadioVal">
-        <el-radio-button label="原创"></el-radio-button>
-        <el-radio-button label="转载"></el-radio-button>
-        <el-radio-button label="不处理"></el-radio-button>
-      </el-radio-group>
+      <el-tooltip content="选中的类型会被屏蔽">
+        <el-radio-group v-model="copyrightRadioVal">
+          <el-radio-button label="原创"></el-radio-button>
+          <el-radio-button label="转载"></el-radio-button>
+          <el-radio-button label="不处理"></el-radio-button>
+        </el-radio-group>
+      </el-tooltip>
       <el-divider/>
       <el-switch v-model="is_vertical_val" active-text="屏蔽竖屏类视频"/>
       <el-switch v-model="blockFollowed" active-text="屏蔽已关注"/>
       <el-switch v-model="is_up_owner_exclusive" active-text="屏蔽充电专属视频"></el-switch>
       <el-switch v-model="is_senior_member_val" active-text="屏蔽硬核会员"/>
+      <el-divider/>
+      <div>下面三个选项尽量不要启用，任意一个启用都会增加对b站的请求次数，请酌情使用</div>
+      <el-tooltip content="视频评论区评论被up主精选后对所有人可见">
+        <el-switch v-model="isVideosInFeaturedCommentsBlockedVal" active-text="屏蔽精选评论区类视频"/>
+      </el-tooltip>
+      <el-switch v-model="isFollowers7DaysOnlyVideosBlockedVal" active-text="屏蔽关注UP主7天以上的人可发评论类视频"/>
+      <el-tooltip content="视频评论区输入框是禁止输入状态而非可输入类视频">
+        <el-switch v-model="isCommentDisabledVideosBlockedVal" active-text="屏蔽禁止评论类视频"/>
+      </el-tooltip>
+      <el-divider/>
       <el-row>
         <el-col :span="12">
           <el-card shadow="never">

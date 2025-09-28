@@ -532,6 +532,21 @@ export const hidePersonalInfoCardGm=() => {
     return gmUtil.getData('hide_personal_info_card_gm', false)
 }
 
+//是否屏蔽视频类-视频内精选评论区
+export const isVideosInFeaturedCommentsBlockedGm=()=>{
+    return gmUtil.getData('is_videos_in_featured_comments_blocked_gm', false)
+}
+
+//是否屏蔽视频类-关注7天以上的人可发评论类视频
+export const isFollowers7DaysOnlyVideosBlockedGm=()=>{
+    return gmUtil.getData('is_followers_7_days_only_videos_blocked_gm', false)
+}
+
+//是否屏蔽视频类-禁止评论类视频
+export const isCommentDisabledVideosBlockedGm=()=>{
+    return gmUtil.getData('is_comment_disabled_videos_blocked_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
