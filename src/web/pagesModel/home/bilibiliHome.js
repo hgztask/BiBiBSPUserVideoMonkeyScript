@@ -187,10 +187,9 @@ const startClearExcessContentList = () => {
 const startShieldingHomeVideoList = async () => {
     const homeVideoELList = await getHomeVideoELList();
     for (const videoData of homeVideoELList) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHomeVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHomeVideoList})
+        })
     }
 }
 

@@ -66,10 +66,9 @@ const getGateDataList = async () => {
 const startShieldingGateVideoList = async () => {
     const list = await getGateDataList()
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData, "hide")) {
-            continue;
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingGateVideoList})
+        video_shielding.shieldingVideoDecorated(videoData, "hide").catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingGateVideoList})
+        })
     }
 }
 

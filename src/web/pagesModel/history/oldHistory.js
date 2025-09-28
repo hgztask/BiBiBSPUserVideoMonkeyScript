@@ -53,11 +53,10 @@ const startShieldingVideo = async () => {
     const list = await getVideoDataList()
     const css = {right: "45px"}
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        videoData.cssMap = css
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideo})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            videoData.cssMap = css
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideo})
+        })
     }
     console.log('屏蔽旧版历史记录视频列表完成')
 }

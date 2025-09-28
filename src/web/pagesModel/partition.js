@@ -133,10 +133,9 @@ const shieldingVideoList = async () => {
         list = await getCVideoDataList()
     }
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: shieldingVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: shieldingVideoList})
+        })
     }
 }
 

@@ -39,12 +39,12 @@ const getVideoDataList = async () => {
     for (let el of elList) {
         const titleEl = el.querySelector('.bili-video-card__title');
         const title = titleEl.textContent.trim();
-        const videoUrl = titleEl.firstElementChild.href||null
+        const videoUrl = titleEl.firstElementChild.href || null
         if (videoUrl?.includes('live.bilibili.com')) {
             //如果卡片为直播卡片,则不做任何处理
             continue
         }
-        const bv=elUtil.getUrlBV(videoUrl)
+        const bv = elUtil.getUrlBV(videoUrl)
         const userEl = el.querySelector('.bili-video-card__author');
         const cardTag = el.querySelector('.bili-cover-card__tag')?.textContent.trim() || null;
         const name = userEl.textContent.trim()
@@ -77,10 +77,12 @@ const getVideoDataList = async () => {
 const startShieldingVideoList = async () => {
     const list = await getVideoDataList();
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        shielding.addBlockButton({data: videoData, maskingFunc: startShieldingVideoList}, "gz_shielding_button");
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            shielding.addBlockButton({
+                data: videoData,
+                maskingFunc: startShieldingVideoList
+            }, "gz_shielding_button");
+        })
     }
 };
 

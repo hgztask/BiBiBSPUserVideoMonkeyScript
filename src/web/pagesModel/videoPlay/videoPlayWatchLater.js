@@ -27,9 +27,10 @@ const startShieldingVideoList = async () => {
     const videoList = await getRightVideoDataList();
     const css = {right: "123px"};
     for (let videoData of videoList) {
-        videoData.cssMap = css;
-        if (video_shielding.shieldingVideoDecorated(videoData)) continue;
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            videoData.cssMap = css;
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingVideoList})
+        })
     }
 }
 

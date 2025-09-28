@@ -195,10 +195,12 @@ const getHomeTopTabs = async () => {
 const startShieldingVideoList = async () => {
     const list = await getVideoList()
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue
-        }
-        eventEmitter.send('视频添加屏蔽按钮-BewlyBewly', {data: videoData, maskingFunc: startShieldingVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮-BewlyBewly', {
+                data: videoData,
+                maskingFunc: startShieldingVideoList
+            })
+        })
     }
 }
 
@@ -225,10 +227,9 @@ const startShieldingVideo = intervalExecutionStartShieldingVideo();
 const startShieldingHistoryVideoList = async () => {
     const list = await getHistoryVideoDataList()
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHistoryVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHistoryVideoList})
+        })
     }
 }
 

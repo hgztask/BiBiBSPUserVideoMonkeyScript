@@ -50,8 +50,9 @@ const startShielding = async () => {
         data.cssMap = css;
         //判断是否是视频
         if (data.judgmentVideo) {
-            if (video_shielding.shieldingVideoDecorated(data)) continue;
-            shielding.addTopicDetailVideoBlockButton({data, maskingFunc: startShielding})
+            video_shielding.shieldingVideoDecorated(data).catch(() => {
+                shielding.addTopicDetailVideoBlockButton({data, maskingFunc: startShielding})
+            })
         } else {
             if (await comments_shielding.shieldingCommentAsync(data)) continue;
             shielding.addTopicDetailContentsBlockButton({data, maskingFunc: startShielding});

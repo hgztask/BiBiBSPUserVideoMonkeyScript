@@ -63,13 +63,12 @@ const getVideDataList = async (isWeekly = false) => {
 const startShieldingVideoList = async (isWeekly = false) => {
     const list = await getVideDataList(isWeekly);
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        eventEmitter.send('添加热门视频屏蔽按钮', {
-            data: videoData,
-            updateFunc: getVideoDataListItem,
-            maskingFunc: startShieldingVideoList
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('添加热门视频屏蔽按钮', {
+                data: videoData,
+                updateFunc: getVideoDataListItem,
+                maskingFunc: startShieldingVideoList
+            })
         })
     }
 }

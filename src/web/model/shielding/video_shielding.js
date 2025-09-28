@@ -46,9 +46,8 @@ import shielding, {
 import {videoInfoCache, videoInfoCacheUpdateDebounce} from "../cache/videoInfoCache.js";
 import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
 import bFetch from '../bFetch.js'
-import {returnTempVal} from "../../data/globalValue.js";
+import {promiseReject, promiseResolve, returnTempVal} from "../../data/globalValue.js";
 import arrUtil from "../../utils/arrUtil.js";
-
 
 // 检查视频tag执行多重tag检查屏蔽
 const asyncBlockVideoTagPreciseCombination = async (tags) => {
@@ -165,30 +164,30 @@ const shieldingVideo = (videoData) => {
  * 装饰过的屏蔽视频
  * @param videoData {{}} 视频数据
  * @param method {string} 屏蔽方法, remove为直接删除，hide为隐藏，默认为remove
- * @returns {boolean}state 是否屏蔽或屏蔽过
+ * @returns {Promise|null}是否屏蔽视频，Resolve为已做屏蔽处理，反之放行
  */
-const shieldingVideoDecorated = (videoData, method = "remove") => {
+const shieldingVideoDecorated = async (videoData, method = "remove") => {
     const {el, bv = "-1"} = videoData;
-    if (el.style.display === "none") return true;
+    if (el.style.display === "none") return promiseResolve;
     const {state, type, matching = null} = shieldingVideo(videoData);
     if (state) {
         eventEmitter.send('event-屏蔽视频元素', {res: {state, type, matching}, method, videoData})
-        return true;
+        return promiseResolve;
     }
     //如果没有bv号参数，则不执行
-    if (bv === '-1') return false
+    if (bv === '-1') return promiseReject;
     const count = videoInfoCache.getCount();
     const disableNetRequestsBvVideoInfo = localMKData.isDisableNetRequestsBvVideoInfo();
     //如果禁用了网络请求并且缓存中没有数据
     if (disableNetRequestsBvVideoInfo && count === 0) {
-        return state;
+        return promiseResolve;
     } else {
         videoInfoCacheUpdateDebounce();
     }
     const find = videoInfoCache.find(bv);
     if (find !== null) {
         shieldingOtherVideoParameter(find, videoData, method)
-        return state;
+        return promiseReject;
     }
     if (!disableNetRequestsBvVideoInfo) {
         //获取视频信息
@@ -201,7 +200,7 @@ const shieldingVideoDecorated = (videoData, method = "remove") => {
             videoInfoCacheUpdateDebounce()
         })
     }
-    return state;
+    return promiseReject;
 }
 
 /**
@@ -327,9 +326,6 @@ eventEmitter.on('视频添加屏蔽按钮', (data) => {
     shielding.addBlockButton(data, "gz_shielding_button", ["right"]);
 })
 
-
 export default {
-    shieldingVideoDecorated,
-    shieldingOtherVideoParameter
+    shieldingVideoDecorated
 }
-

@@ -106,10 +106,9 @@ const getVideoDataList = async () => {
 const startShieldingRankVideoList = async () => {
     const list = await getVideoDataList();
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        eventEmitter.send('添加热门视频屏蔽按钮', {data: videoData, maskingFunc: startShieldingRankVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('添加热门视频屏蔽按钮', {data: videoData, maskingFunc: startShieldingRankVideoList})
+        })
     }
 }
 

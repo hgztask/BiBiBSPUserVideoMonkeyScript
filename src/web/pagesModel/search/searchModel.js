@@ -123,10 +123,10 @@ const getOtherVideoList = () => {
 const startShieldingCSVideoList = async () => {
     const list = await getTabComprehensiveSortedVideoList()
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingCSVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingCSVideoList})
+        })
+
     }
 }
 
@@ -136,10 +136,9 @@ const startShieldingCSVideoList = async () => {
 const startShieldingOtherVideoList = async () => {
     const list = await getOtherVideoList()
     for (let videoData of list) {
-        if (video_shielding.shieldingVideoDecorated(videoData)) {
-            continue;
-        }
-        eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingOtherVideoList})
+        video_shielding.shieldingVideoDecorated(videoData).catch(() => {
+            eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingOtherVideoList})
+        })
     }
 }
 

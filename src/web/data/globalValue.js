@@ -20,6 +20,13 @@ export const httpLocalHost = 'http://localhost:3000'
 export const wsLocalHost = 'ws://localhost:3011'
 //默认返回值-不符合屏蔽条件-{state: false}
 export const returnTempVal = {state: false}
+
+//Promise.resolve()
+export const promiseResolve = Promise.resolve();
+
+//Promise.reject()
+export const promiseReject = Promise.reject();
+
 export default {
     group_url,
     scriptCat_js_url,
