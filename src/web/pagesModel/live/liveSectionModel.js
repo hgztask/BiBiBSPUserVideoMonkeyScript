@@ -1,6 +1,9 @@
 import elUtil from "../../utils/elUtil.js";
 import live_shielding from "../../model/shielding/live_shielding.js";
 import shielding from "../../model/shielding/shielding.js";
+import LiveCommon from "./liveCommon.js";
+import {isRoomListAdaptiveGm} from "../../data/localMKData.js";
+import liveRoomListAdaptiveCss from "../../css/live_room_list_adaptive.css";
 
 // 判断是否是直播分区
 const isLiveSection = (url = window.location.href) => {
@@ -57,8 +60,24 @@ const startShieldingLiveRoom = async () => {
     }
 }
 
+const liveStreamPartitionStyle = (show = false) => {
+    const selectorCss = '#live_room_list_adaptive';
+    const el = document.querySelector(selectorCss);
+    if (el && show === false) {
+        el.textContent = '';
+    } else {
+        //直播分区房间列表自适应
+        elUtil.installStyle(liveRoomListAdaptiveCss, selectorCss)
+    }
+}
+
+const run = () => {
+    LiveCommon.addStyle();
+    liveStreamPartitionStyle(isRoomListAdaptiveGm());
+}
+
 //直播分区业务逻辑
 export default {
-    isLiveSection,
+    isLiveSection, run,liveStreamPartitionStyle,
     startShieldingLiveRoom
 }

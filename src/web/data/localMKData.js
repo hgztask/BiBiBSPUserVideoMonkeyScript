@@ -555,6 +555,10 @@ export const isAutomaticScrollingGm = () => {
     return gmUtil.getData('is_automatic_scrolling_gm', true)
 }
 
+export const isRoomListAdaptiveGm = () => {
+    return gmUtil.getData('is_room_list_adaptive_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

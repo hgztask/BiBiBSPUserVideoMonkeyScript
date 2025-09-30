@@ -16,7 +16,6 @@ import globalValue from "./data/globalValue.js";
 import {checkAndExcludePage} from "./layout/excludeURLs.js";
 import liveSectionModel from "./pagesModel/live/liveSectionModel.js";
 import dynamicPage from "./pagesModel/dynamic/dynamicPage.js";
-import LiveCommon from "./pagesModel/live/liveCommon.js";
 import liveCommon from "./pagesModel/live/liveCommon.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 import videoPlayPageCommon from "./pagesModel/videoPlay/videoPlayPageCommon.js";
@@ -91,7 +90,7 @@ const staticRoute = (title, url) => {
         })
     }
     if (liveSectionModel.isLiveSection()) {
-        LiveCommon.addStyle();
+        liveSectionModel.run()
     }
     if (liveHome.isLiveHomePage(url)) {
         liveHome.run();

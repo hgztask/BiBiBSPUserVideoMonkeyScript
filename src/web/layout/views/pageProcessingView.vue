@@ -14,8 +14,10 @@ import localMKData, {
   isHideHomeTopHeaderBannerImageGm,
   isHideHomeTopHeaderChannelGm,
   isHideHotSearchesPanelGm,
-  isHideSearchHistoryPanelGm
+  isHideSearchHistoryPanelGm,
+  isRoomListAdaptiveGm
 } from "../../data/localMKData.js";
+import liveSectionModel from "../../pagesModel/live/liveSectionModel.js";
 
 //页面处理处理
 export default {
@@ -37,7 +39,8 @@ export default {
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
       releaseTypeCardVals: getReleaseTypeCardsGm(),
-      isAutomaticScrollingVal: isAutomaticScrollingGm()
+      isAutomaticScrollingVal: isAutomaticScrollingGm(),
+      isRoomListAdaptiveVal: isRoomListAdaptiveGm()
     }
   },
   methods: {},
@@ -99,13 +102,17 @@ export default {
     },
     isAutomaticScrollingVal(n) {
       gmUtil.setData('is_automatic_scrolling_gm', n)
+    },
+    isRoomListAdaptiveVal(n) {
+      gmUtil.setData('is_room_list_adaptive_gm', n)
+      liveSectionModel.liveStreamPartitionStyle(n);
     }
   }
 }
 </script>
 <template>
   <div>
-    <el-card>
+    <el-card shadow="never">
       <template #header>
         <span>搜索页</span>
       </template>
@@ -115,7 +122,7 @@ export default {
         <el-switch v-model="isClearLiveCardVal" active-text="屏蔽推荐直播类"/>
       </el-tooltip>
     </el-card>
-    <el-card>
+    <el-card shadow="never">
       <template #header>
         <span>播放页</span>
       </template>
@@ -134,7 +141,7 @@ export default {
         <el-switch v-model="isCloseCommentBlockingVal" active-text="关闭评论屏蔽"/>
       </el-tooltip>
     </el-card>
-    <el-card>
+    <el-card shadow="never">
       <template #header>
         <span>顶部搜索框</span>
       </template>
@@ -171,5 +178,9 @@ export default {
       </el-tooltip>
     </el-card>
     <dynamicCard/>
+    <el-card shadow="never">
+      <template #header>直播分区页</template>
+      <el-switch v-model="isRoomListAdaptiveVal" active-text="房间列表自适应"/>
+    </el-card>
   </div>
 </template>

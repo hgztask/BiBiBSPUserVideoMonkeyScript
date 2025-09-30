@@ -278,10 +278,10 @@ const updateCssVModal = () => {
 
 /**
  * 安装样式
- * @param css {string} - CSS 样式字符串
+ * @param cssText {string} - CSS 样式字符串
  * @param selector {string} - 选择器字符串，用以定位更新的样式元素
  */
-const installStyle = (css, selector = ".mk-def-style") => {
+const installStyle = (cssText, selector = ".mk-def-style") => {
     let styleEl = document.head.querySelector(selector);
     if (styleEl === null) {
         styleEl = document.createElement('style');
@@ -292,7 +292,7 @@ const installStyle = (css, selector = ".mk-def-style") => {
         }
         document.head.appendChild(styleEl)
     }
-    styleEl.innerHTML = css;
+    styleEl.textContent = cssText;
 }
 
 /**
