@@ -454,97 +454,101 @@ export const getMinimumUserLevelCommentGm = () => {
     return gmUtil.getData('minimum_user_level_comment_gm', 0)
 }
 
- //获取最大用户等级限制-评论类
- export const getMaximumUserLevelCommentGm = () => {
+//获取最大用户等级限制-评论类
+export const getMaximumUserLevelCommentGm = () => {
     return gmUtil.getData('maximum_user_level_comment_gm', 0)
 }
 
 //是否启用最小用户等级限制-视频类
-export const isEnableMinimumUserLevelVideoGm=() => {
+export const isEnableMinimumUserLevelVideoGm = () => {
     return gmUtil.getData('is_enable_minimum_user_level_video_gm', false)
 }
 //是否启用最大用户等级限制-视频类
-export const isEnableMaximumUserLevelVideoGm=() => {
+export const isEnableMaximumUserLevelVideoGm = () => {
     return gmUtil.getData('is_enable_maximum_user_level_video_gm', false)
 }
 //是否启用最小用户等级限制-评论类
-export const isEnableMinimumUserLevelCommentGm=() => {
+export const isEnableMinimumUserLevelCommentGm = () => {
     return gmUtil.getData('is_enable_minimum_user_level_comment_gm', false)
 }
 //是否启用最大用户等级限制-评论类
-export const isEnableMaximumUserLevelCommentGm=() => {
+export const isEnableMaximumUserLevelCommentGm = () => {
     return gmUtil.getData('is_enable_maximum_user_level_comment_gm', false)
 }
 
 //获取最小播放数限制
-export const getMinimumPlayGm=()=>{
+export const getMinimumPlayGm = () => {
     return gmUtil.getData('minimum_play_gm', 100)
 }
 
 //获取最大播放数限制
-export const getMaximumPlayGm=()=>{
+export const getMaximumPlayGm = () => {
     return gmUtil.getData('maximum_play_gm', 10000)
 }
 
 //获取最小播放数限制是否启用
-export const isMinimumPlayGm=()=>{
+export const isMinimumPlayGm = () => {
     return gmUtil.getData('is_minimum_play_gm', false)
 }
 //获取最大播放数限制是否启用
-export const isMaximumPlayGm=()=>{
+export const isMaximumPlayGm = () => {
     return gmUtil.getData('is_maximum_play_gm', false)
 }
 //获取最小弹幕数限制
-export const getMinimumBarrageGm=()=>{
+export const getMinimumBarrageGm = () => {
     return gmUtil.getData('minimum_barrage_gm', 20)
 }
 //获取最大弹幕数限制
-export const getMaximumBarrageGm=()=>{
+export const getMaximumBarrageGm = () => {
     return gmUtil.getData('maximum_barrage_gm', 1000)
 }
 //获取最小弹幕数限制是否启用
-export const isMinimumBarrageGm=() => {
+export const isMinimumBarrageGm = () => {
     return gmUtil.getData('is_minimum_barrage_gm', false)
 }
 //获取最大弹幕数限制是否启用
-export const isMaximumBarrageGm=()=>{
+export const isMaximumBarrageGm = () => {
     return gmUtil.getData('is_maximum_barrage_gm', false)
 }
 //获取最小视频时长限制
-export const getMinimumDurationGm=() => {
+export const getMinimumDurationGm = () => {
     return gmUtil.getData('minimum_duration_gm', 30)
 }
 //获取最大视频时长限制
-export const getMaximumDurationGm=()=>{
+export const getMaximumDurationGm = () => {
     return gmUtil.getData('maximum_duration_gm', 3000)
 }
 //获取最小视频时长限制是否启用
-export const isMinimumDurationGm=()=>{
+export const isMinimumDurationGm = () => {
     return gmUtil.getData('is_minimum_duration_gm', false)
 }
 //获取最大视频时长限制是否启用
-export const isMaximumDurationGm=()=>{
+export const isMaximumDurationGm = () => {
     return gmUtil.getData('is_maximum_duration_gm', false)
 }
 
 //是否隐藏动态首页左上角个人资料卡
-export const hidePersonalInfoCardGm=() => {
+export const hidePersonalInfoCardGm = () => {
     return gmUtil.getData('hide_personal_info_card_gm', false)
 }
 
 //是否屏蔽视频类-视频内精选评论区
-export const isVideosInFeaturedCommentsBlockedGm=()=>{
+export const isVideosInFeaturedCommentsBlockedGm = () => {
     return gmUtil.getData('is_videos_in_featured_comments_blocked_gm', false)
 }
 
 //是否屏蔽视频类-关注7天以上的人可发评论类视频
-export const isFollowers7DaysOnlyVideosBlockedGm=()=>{
+export const isFollowers7DaysOnlyVideosBlockedGm = () => {
     return gmUtil.getData('is_followers_7_days_only_videos_blocked_gm', false)
 }
 
 //是否屏蔽视频类-禁止评论类视频
-export const isCommentDisabledVideosBlockedGm=()=>{
+export const isCommentDisabledVideosBlockedGm = () => {
     return gmUtil.getData('is_comment_disabled_videos_blocked_gm', false)
+}
+
+export const getReleaseTypeCardsGm = () => {
+    return gmUtil.getData('release_type_cards_gm', [])
 }
 
 export default {

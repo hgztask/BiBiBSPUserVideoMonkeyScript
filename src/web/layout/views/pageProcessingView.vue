@@ -6,6 +6,7 @@ import topInput from "../../pagesModel/search/topInput.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import dynamicCard from "./page-processing/dynamicCard.vue";
 import localMKData, {
+  getReleaseTypeCardsGm,
   isClearLiveCardGm,
   isCloseCommentBlockingGm,
   isHideCarouselImageGm,
@@ -34,6 +35,7 @@ export default {
       isHideCarouselImageVal: isHideCarouselImageGm(),
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
+      releaseTypeCardVals: getReleaseTypeCardsGm()
     }
   },
   methods: {},
@@ -89,6 +91,9 @@ export default {
     isHideTopHeaderChannelVal(n) {
       gmUtil.setData('is_hide_home_top_header_channel_gm', n)
       bilibiliHome.hideHomeTopHeaderChannel(n);
+    },
+    releaseTypeCardVals(n) {
+      gmUtil.setData('release_type_cards_gm', n)
     }
   }
 }
@@ -132,12 +137,29 @@ export default {
       <el-switch v-model="isHideHotSearchesPanelVal" active-text="隐藏热搜"/>
       <el-switch v-model="isHideSearchHistoryPanelVal" active-text="隐藏搜索历史"/>
     </el-card>
-    <el-card>
+    <el-card shadow="never">
       <template #header>首页</template>
       <el-switch v-model="isHideCarouselImageVal" active-text="隐藏轮播图"/>
       <el-switch v-model="isHideHomeTopHeaderBannerImageVal" active-text="隐藏顶部标题横幅图片"/>
       <el-tooltip content="隐藏视频列表上方的动态、热门、频道栏一整行">
         <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道栏"/>
+      </el-tooltip>
+      <el-divider/>
+      <el-tooltip content="但视频列表中出现选择的类型时跳过，反之屏蔽" placement="top">
+        <div>放行的卡片
+          <el-divider/>
+          <el-checkbox-group v-model="releaseTypeCardVals">
+            <el-checkbox label="直播"></el-checkbox>
+            <el-checkbox label="番剧"></el-checkbox>
+            <el-checkbox label="电影"></el-checkbox>
+            <el-checkbox label="国创"></el-checkbox>
+            <el-checkbox label="综艺"></el-checkbox>
+            <el-checkbox label="课堂"></el-checkbox>
+            <el-checkbox label="电视剧"></el-checkbox>
+            <el-checkbox label="纪录片"></el-checkbox>
+            <el-checkbox label="漫画"></el-checkbox>
+          </el-checkbox-group>
+        </div>
       </el-tooltip>
     </el-card>
     <dynamicCard/>

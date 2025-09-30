@@ -5,6 +5,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
 import {
+    getReleaseTypeCardsGm,
     isHideCarouselImageGm,
     isHideHomeTopHeaderBannerImageGm,
     isHideHomeTopHeaderChannelGm
@@ -155,33 +156,28 @@ const getHomeVideoELList = async () => {
 }
 
 /**
- * 每秒检测清理首页中视频列表里多余的内容，如直播，番剧推荐等
+ * 检测清理首页中视频列表里多余的内容，如直播，番剧推荐等
  */
 const startClearExcessContentList = () => {
     //如果开启适配BAppcommerce脚本，则不执行此功能
     if (globalValue.adaptationBAppCommerce) return;
-    //每秒清理一次
-    setInterval(() => {
-        const otherElList = document.querySelectorAll(".floor-single-card");
-        const liveList = document.querySelectorAll(".bili-live-card")
-        const elList = [...otherElList, ...liveList]
-        //右侧大卡片的广告
-        let rightAdEl = document.querySelector('.adcard');
-        if (rightAdEl) {
-            elList.push(rightAdEl)
+    //右侧小卡片和大卡片的广告
+    document.querySelectorAll('.adcard,.fixed-card').forEach(el => el.remove());
+    const releaseTypeCards = getReleaseTypeCardsGm();
+    for (let el of document.querySelectorAll(".floor-single-card")) {
+        const badgeEl = el.querySelector('.cover-container .badge>.floor-title');
+        if (badgeEl === null) {
+            continue;
         }
-        //右侧小卡片的广告
-        rightAdEl = document.querySelector('.fixed-card');
-        if (rightAdEl) {
-            elList.push(rightAdEl)
+        const badge = badgeEl.textContent.trim()
+        if (releaseTypeCards.includes(badge)) {
+            continue;
         }
-        for (let el of elList) {
-            el?.remove();
-            console.log("已清理首页视频列表中多余的内容，直播选项卡，右侧大卡片广告，右侧小卡片广告等", el)
-        }
-    }, 1000);
-    console.log("已启动每秒清理首页视频列表中多余的内容");
+        el?.remove();
+        console.log(`已清除视频列表中的${badge}类卡片`, el)
+    }
 }
+
 
 //开始屏蔽首页中的视频列表
 const startShieldingHomeVideoList = async () => {
@@ -191,6 +187,7 @@ const startShieldingHomeVideoList = async () => {
             eventEmitter.send('视频添加屏蔽按钮', {data: videoData, maskingFunc: startShieldingHomeVideoList})
         })
     }
+    startClearExcessContentList()
 }
 
 /**
@@ -227,7 +224,6 @@ const checkVideoListCount = () => {
 
 const run = () => {
     deDesktopDownloadTipEl();
-    startClearExcessContentList();
     if (isHideCarouselImageGm()) {
         hideHomeCarouselImage(true);
     }
