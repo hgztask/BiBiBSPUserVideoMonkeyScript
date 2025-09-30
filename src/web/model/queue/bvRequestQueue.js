@@ -16,6 +16,7 @@ class BvRequestQueue {
      * @returns {Promise<any>}
      */
     #fetchBvData = null;
+
     constructor(options = {}) {
         this.#interval = options.interval ?? 1000;
         this.#fetchBvData = options.fetchBvData ?? this.#fetchBvData;
@@ -24,6 +25,7 @@ class BvRequestQueue {
     setInterval(interval) {
         this.#interval = interval;
     }
+
     addBv(bv) {
         if (this.#cacheMap.has(bv)) {
             return this.#cacheMap.get(bv);
@@ -37,10 +39,12 @@ class BvRequestQueue {
         this.#cacheMap.set(bv, promise);
         return promise;
     }
+
     #startProcessing() {
         this.#processing = true;
         this.#processNext();
     }
+
     async #processNext() {
         if (this.#queue.length === 0) {
             this.#processing = false;
@@ -66,7 +70,6 @@ class BvRequestQueue {
 }
 
 const videoInfoRequestQueue = new BvRequestQueue({
-    interval: getRequestFrequencyVal() * 1000,
     fetchBvData: (bv) => {
         return new Promise((resolve, reject) => {
             bFetch.fetchGetVideoInfo(bv)
@@ -89,6 +92,13 @@ const fetchGetVideoReplyBoxDescRequestQueue = new BvRequestQueue({
     }
 })
 
+const setAllRequestInterval = (interval) => {
+    videoInfoRequestQueue.setInterval(interval);
+    fetchGetVideoReplyBoxDescRequestQueue.setInterval(interval);
+}
+
+setAllRequestInterval(getRequestFrequencyVal() * 1000);
+
 export default {
-    videoInfoRequestQueue,fetchGetVideoReplyBoxDescRequestQueue
+    videoInfoRequestQueue, fetchGetVideoReplyBoxDescRequestQueue,setAllRequestInterval
 }

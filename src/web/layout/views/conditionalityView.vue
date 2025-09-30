@@ -44,7 +44,7 @@ export default {
     requestFrequencyVal(n) {
       //设置请求频率
       gmUtil.setData('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
-      bvRequestQueue.videoInfoRequestQueue.setInterval(n * 1000)
+      bvRequestQueue.setAllRequestInterval(n * 1000)
     },
     hideBlockButtonVal(n) {
       gmUtil.setData('hide_block_button_gm', n)
