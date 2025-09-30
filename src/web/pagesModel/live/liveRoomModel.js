@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import live_shielding, {shieldingLiveRoomContentDecorated} from "../../model/shielding/live_shielding.js";
+import live_shielding from "../../model/shielding/live_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import userProfile from "../userProfile.js";
 import ruleUtil from "../../utils/ruleUtil.js";
@@ -85,14 +85,21 @@ const getChatItems = async () => {
         if (name === null) {
             continue;
         }
-        const uid = el.getAttribute("data-uid");
+        let chatType;
+        //聊天表情符号
+        if (el.classList.contains('chat-emoticon')) {
+            chatType = 'emoticon';
+        } else {
+            chatType = 'text';
+        }
+        const uid = parseInt(el.getAttribute("data-uid"));
         const content = el.getAttribute("data-danmaku");
-        const timeStamp = el.getAttribute("data-timestamp");
+        const timeStamp = parseInt(el.getAttribute("data-timestamp"));
         const fansMedalEl = el.querySelector(".fans-medal-content");
         //粉丝牌
         const fansMedal = fansMedalEl === null ? null : fansMedalEl.textContent.trim();
         list.push({
-            name,
+            name,chatType,
             uid,
             content,
             timeStamp,
@@ -109,7 +116,7 @@ const getChatItems = async () => {
 const startShieldingLiveChatContents = defUtil.throttle(async () => {
     const commentsDataList = await getChatItems()
     for (let commentsData of commentsDataList) {
-        shieldingLiveRoomContentDecorated(commentsData)
+        live_shielding.shieldingLiveRoomContent(commentsData)
     }
 }, 2000)
 

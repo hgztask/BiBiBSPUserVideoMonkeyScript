@@ -230,6 +230,12 @@ export const blockComment = (comment) => {
     })
 }
 
+//异步根据评论检查屏蔽，匹配成功抛出异常
+export const asyncBlockComment = async (comment) => {
+    const res = blockComment(comment);
+    if (res.state) return Promise.reject(res);
+}
+
 //根据头像挂件名屏蔽
 export const blockAvatarPendant = (name) => {
     return blockExactAndFuzzyMatching(name, {
@@ -516,6 +522,11 @@ export const blockByLevelForComment = (level) => {
     return returnTempVal;
 }
 
+//异步根据等级屏蔽-评论，匹配成功抛出异常
+export const asyncBlockByLevelForComment = async (level) => {
+    const res = blockByLevelForComment(level);
+    if (res.state) return Promise.reject(res);
+}
 
 //异步根据等级屏蔽，匹配成功抛出异常
 export const asyncBlockByLevel = async (level) => {
@@ -700,6 +711,13 @@ export const blockSeniorMemberOnly = (level) => {
     }
     return {state: true, type: '非硬核会员'}
 }
+
+//异步检查是否只看硬核会员，匹配成功则抛出reject
+export const asyncBlockSeniorMemberOnly=async (level) => {
+    const res = blockSeniorMemberOnly(level)
+    if (res.state) return Promise.reject(res);
+}
+
 
 //检查粉丝数限制
 const blockLimitationFanSum = (fansNum) => {
