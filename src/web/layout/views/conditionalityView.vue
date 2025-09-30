@@ -8,7 +8,7 @@ import localMKData, {
   isEffectiveUIDShieldingOnlyVideo
 } from "../../data/localMKData.js";
 import globalValue from "../../data/globalValue.js";
-import {bvRequestQueue} from "../../model/queue/BvRequestQueue.js";
+import bvRequestQueue from "../../model/queue/bvRequestQueue.js";
 
 /**
  * 条件限制组件
@@ -44,7 +44,7 @@ export default {
     requestFrequencyVal(n) {
       //设置请求频率
       gmUtil.setData('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
-      bvRequestQueue.setInterval(n * 1000)
+      bvRequestQueue.videoInfoRequestQueue.setInterval(n * 1000)
     },
     hideBlockButtonVal(n) {
       gmUtil.setData('hide_block_button_gm', n)

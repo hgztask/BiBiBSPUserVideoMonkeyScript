@@ -5,7 +5,7 @@ import {valueCache} from "../../model/localCache/valueCache.js";
 import {bAfterLoadingThePageOpenMainPanel, isWsService} from "../../model/debuggerMeanagement.js";
 import bFetch from "../../model/bFetch.js";
 import {isLocalhostPageAutomaticallyOpenTheMainPanelGm} from "../../data/localMKData.js";
-import {bvRequestQueue} from "../../model/queue/BvRequestQueue.js";
+import bvRequestQueue from "../../model/queue/bvRequestQueue.js";
 
 //调试管理
 export default {
@@ -51,7 +51,8 @@ export default {
       console.log(eventEmitter.getEvents())
     },
     printReqIntervalQueueVal() {
-      console.log(bvRequestQueue)
+      console.log(bvRequestQueue.videoInfoRequestQueue)
+      console.log(bvRequestQueue.fetchGetVideoReplyBoxDescRequestQueue)
     }
   },
   watch: {

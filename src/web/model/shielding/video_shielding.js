@@ -43,10 +43,9 @@ import shielding, {
     blockUserUidAndName,
     blockVideoOrOtherTitle
 } from "./shielding.js";
-import bFetch from '../bFetch.js'
 import {promiseReject, promiseResolve, returnTempVal} from "../../data/globalValue.js";
 import arrUtil from "../../utils/arrUtil.js";
-import {bvRequestQueue} from "../queue/BvRequestQueue.js";
+import bvRequestQueue from "../queue/bvRequestQueue.js";
 import bvDexie from "../bvDexie.js";
 import {videoCacheManager} from "../cache/videoCacheManager.js";
 
@@ -177,14 +176,14 @@ const shieldingVideoDecorated = async (videoData, method = "remove") => {
     }
     //如果没有bv号参数，则不执行
     if (bv === '-1') return promiseReject;
-    const disableNetRequestsBvVideoInfo = localMKData.isDisableNetRequestsBvVideoInfo();
     let videoRes = await videoCacheManager.find(bv);
     if (videoRes === null) {
+        const disableNetRequestsBvVideoInfo = localMKData.isDisableNetRequestsBvVideoInfo();
         //如果禁用了网络请求
         if (disableNetRequestsBvVideoInfo) {
             return promiseReject;
         } else {
-            const httpRes = await bvRequestQueue.addBv(bv)
+            const httpRes = await bvRequestQueue.videoInfoRequestQueue.addBv(bv)
             const {msg, data} = httpRes
             if (!httpRes.state) {
                 console.warn('获取视频信息失败:' + msg);
@@ -259,14 +258,14 @@ const shieldingOtherVideoParameter = async (result, videoData) => {
         .then(() => asyncBlockUserVip(userInfo.vip.type))
         .then(() => asyncBlockUserVideoNumLimit(userInfo.archive_count)).then(async () => {
             //这里请求检查视频评论输入框情况
-            //todo 目前未做间隔队列和缓存处理，待后续完善
             const videosInFeaturedCommentsBlockedVal = isVideosInFeaturedCommentsBlockedGm();
             const followers7DaysOnlyVideosBlockedVal = isFollowers7DaysOnlyVideosBlockedGm();
             const commentDisabledVideosBlockedVal = isCommentDisabledVideosBlockedGm();
             if (videosInFeaturedCommentsBlockedVal === false && followers7DaysOnlyVideosBlockedVal === false && commentDisabledVideosBlockedVal === false) {
                 return;
             }
-            const res = await bFetch.fetchGetVideoReplyBoxDescription(videoData.bv);
+            //todo 目前未做持久化缓存处理，待后续完善
+            const res = await bvRequestQueue.fetchGetVideoReplyBoxDescRequestQueue.addBv(videoData.bv);
             const {childText, disabled, message, state} = res;
             if (!state) {
                 console.warn('获取视频评论输入框失败:' + message)
