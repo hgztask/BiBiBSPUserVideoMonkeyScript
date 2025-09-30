@@ -6,6 +6,7 @@ import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
 import {
     getReleaseTypeCardsGm,
+    isAutomaticScrollingGm,
     isHideCarouselImageGm,
     isHideHomeTopHeaderBannerImageGm,
     isHideHomeTopHeaderChannelGm
@@ -260,10 +261,11 @@ const run = () => {
     bottomDiv.id = 'home-bottom-div';
     bottomDiv.style.all = 'initial';
     document.body.appendChild(bottomDiv);
-    setTimeout(async () => {
-        await scrollMouseUpAndDown();
-        checkVideoListCount();
-    }, 1500)
+    if (isAutomaticScrollingGm()) {
+        setTimeout(() => {
+            checkVideoListCount();
+        }, 1400)
+    }
 }
 
 //b站首页相关辅助逻辑

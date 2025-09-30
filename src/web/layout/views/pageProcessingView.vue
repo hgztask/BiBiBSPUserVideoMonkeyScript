@@ -7,6 +7,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import dynamicCard from "./page-processing/dynamicCard.vue";
 import localMKData, {
   getReleaseTypeCardsGm,
+  isAutomaticScrollingGm,
   isClearLiveCardGm,
   isCloseCommentBlockingGm,
   isHideCarouselImageGm,
@@ -35,7 +36,8 @@ export default {
       isHideCarouselImageVal: isHideCarouselImageGm(),
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
-      releaseTypeCardVals: getReleaseTypeCardsGm()
+      releaseTypeCardVals: getReleaseTypeCardsGm(),
+      isAutomaticScrollingVal: isAutomaticScrollingGm()
     }
   },
   methods: {},
@@ -94,6 +96,9 @@ export default {
     },
     releaseTypeCardVals(n) {
       gmUtil.setData('release_type_cards_gm', n)
+    },
+    isAutomaticScrollingVal(n) {
+      gmUtil.setData('is_automatic_scrolling_gm', n)
     }
   }
 }
@@ -143,6 +148,9 @@ export default {
       <el-switch v-model="isHideHomeTopHeaderBannerImageVal" active-text="隐藏顶部标题横幅图片"/>
       <el-tooltip content="隐藏视频列表上方的动态、热门、频道栏一整行">
         <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道栏"/>
+      </el-tooltip>
+      <el-tooltip content="定时检测首页视频列表数量，如果数量<=9则模拟鼠标上下滚动">
+        <el-switch v-model="isAutomaticScrollingVal" active-text="检查视频列表数量模拟鼠标上下滚动"/>
       </el-tooltip>
       <el-divider/>
       <el-tooltip content="但视频列表中出现选择的类型时跳过，反之屏蔽" placement="top">

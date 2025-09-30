@@ -551,6 +551,10 @@ export const getReleaseTypeCardsGm = () => {
     return gmUtil.getData('release_type_cards_gm', [])
 }
 
+export const isAutomaticScrollingGm = () => {
+    return gmUtil.getData('is_automatic_scrolling_gm', true)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,
