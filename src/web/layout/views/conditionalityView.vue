@@ -1,13 +1,14 @@
 <script>
 import {eventEmitter} from "../../model/EventEmitter.js";
-import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
 import gmUtil from "../../utils/gmUtil.js";
 import localMKData, {
+  getRequestFrequencyVal,
   hideBlockButtonGm,
   isCheckNestedDynamicContentGm,
   isEffectiveUIDShieldingOnlyVideo
 } from "../../data/localMKData.js";
 import globalValue from "../../data/globalValue.js";
+import {bvRequestQueue} from "../../model/queue/BvRequestQueue.js";
 
 /**
  * 条件限制组件
@@ -15,7 +16,7 @@ import globalValue from "../../data/globalValue.js";
 export default {
   data() {
     return {
-      requestFrequencyVal: localMKData.isRequestFrequencyVal(),
+      requestFrequencyVal: getRequestFrequencyVal(),
       //是否仅首页屏蔽生效
       bOnlyTheHomepageIsBlocked: globalValue.bOnlyTheHomepageIsBlocked,
       isEffectiveUIDShieldingOnlyVideoVal: isEffectiveUIDShieldingOnlyVideo(),
@@ -43,7 +44,7 @@ export default {
     requestFrequencyVal(n) {
       //设置请求频率
       gmUtil.setData('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
-      requestIntervalQueue.setInterval(n * 1000)
+      bvRequestQueue.setInterval(n * 1000)
     },
     hideBlockButtonVal(n) {
       gmUtil.setData('hide_block_button_gm', n)
@@ -64,17 +65,20 @@ export default {
 </script>
 <template>
   <div>
-    <el-switch v-model="bOnlyTheHomepageIsBlocked" active-text="仅首页屏蔽生效屏蔽"/>
-    <el-tooltip content="模糊和正则匹配时，将匹配词转小写与规则值匹配。修改后刷新页面生效">
-      <el-switch v-model="bFuzzyAndRegularMatchingWordsToLowercase"
-                 active-text="模糊和正则匹配词转小写"/>
-    </el-tooltip>
-    <el-tooltip content="改动实时生效">
-      <el-switch v-model="isEffectiveUIDShieldingOnlyVideoVal" active-text="仅生效UID屏蔽(限视频)"/>
-    </el-tooltip>
-    <el-switch v-model="hideBlockButtonVal" active-text="不显示屏蔽按钮"/>
-    <el-switch v-model="isCheckNestedDynamicContentVal" active-text="动态项屏蔽检查嵌套动态"/>
-    <el-card>
+    <el-card shadow="never">
+      <template #header>常规</template>
+      <el-switch v-model="bOnlyTheHomepageIsBlocked" active-text="仅首页屏蔽生效屏蔽"/>
+      <el-tooltip content="模糊和正则匹配时，将匹配词转小写与规则值匹配。修改后刷新页面生效">
+        <el-switch v-model="bFuzzyAndRegularMatchingWordsToLowercase"
+                   active-text="模糊和正则匹配词转小写"/>
+      </el-tooltip>
+      <el-tooltip content="改动实时生效">
+        <el-switch v-model="isEffectiveUIDShieldingOnlyVideoVal" active-text="仅生效UID屏蔽(限视频)"/>
+      </el-tooltip>
+      <el-switch v-model="hideBlockButtonVal" active-text="不显示屏蔽按钮"/>
+      <el-switch v-model="isCheckNestedDynamicContentVal" active-text="动态项屏蔽检查嵌套动态"/>
+    </el-card>
+    <el-card shadow="never">
       <template #header>
         <span>网络请求频率(单位秒)</span>
         <div>如设置0，则为不限制，比如设置2，则为每个请求之间隔2秒，可有效降低对B站api接口的压力，降低风控</div>

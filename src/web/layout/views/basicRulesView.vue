@@ -100,7 +100,7 @@ export default {
 <template>
   <div>
     <el-row>
-      <el-col :span="12">
+      <el-col :span="10">
         <el-card shadow="never">
           <template #header>选择规则</template>
           <el-cascader v-model="cascaderVal" :options="cascaderOptions"
@@ -127,7 +127,7 @@ export default {
           </el-row>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="14">
         <el-card shadow="never">
           <template #header>
             <span>使用说明</span>

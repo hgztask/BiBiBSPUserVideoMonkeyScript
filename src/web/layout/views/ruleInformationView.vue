@@ -51,14 +51,13 @@ export default {
           </div>
         </div>
       </template>
-      <div style=" display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;">
-        <div v-for="item in ruleInfoArr" :key="item.name">
-          <el-badge :value="item.len">
-            <el-button @click="lookRuleBut(item)">{{ item.name }}</el-button>
-          </el-badge>
-        </div>
+      <div style="display: flex;flex-wrap: wrap;row-gap: 2px;justify-content: flex-start;">
+        <el-button v-for="item in ruleInfoArr" :key="item.name"  size="small" @click="lookRuleBut(item)">
+          {{ item.name }}
+          <el-tag :effect="item.len>0?'dark':'light'" size="mini">
+            {{ item.len }}
+          </el-tag>
+        </el-button>
       </div>
     </el-card>
   </div>
