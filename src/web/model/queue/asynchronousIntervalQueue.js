@@ -1,5 +1,3 @@
-import localMKData from "../data/localMKData.js";
-
 /**
  * 异步间隔队列
  * 测试依旧有问题，需要优化
@@ -110,16 +108,3 @@ export class asynchronousIntervalQueue {
         this.#isProcessing = false;
     }
 }
-
-
-/**
- * 请求异步间隔队列
- * @type {asynchronousIntervalQueue}
- */
-export const requestIntervalQueue = new asynchronousIntervalQueue({
-    interval: localMKData.isRequestFrequencyVal() * 1000
-});
-
-
-
-

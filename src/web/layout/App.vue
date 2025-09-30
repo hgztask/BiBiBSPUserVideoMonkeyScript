@@ -10,7 +10,6 @@ import showImgDialog from "./eventEmitter_components/showImgDialog.vue";
 import sheetDialog from "./eventEmitter_components/sheetDialog.vue";
 import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../model/EventEmitter.js";
-import {requestIntervalQueue} from "../model/asynchronousIntervalQueue.js";
 import gmUtil from "../utils/gmUtil.js";
 import {getDrawerShortcutKeyGm} from "../data/localMKData.js";
 import outputInformationView from './views/outputInformationView.vue'
@@ -91,7 +90,6 @@ export default {
     })
 
     eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
-      requestIntervalQueue.clearPendingQueue()
       eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
       this.$alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}
                 \n。已自动禁用根据bv号网络请求获取视频信息状态

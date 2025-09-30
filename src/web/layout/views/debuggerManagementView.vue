@@ -1,11 +1,11 @@
 <script>
 import gmUtil from "../../utils/gmUtil.js";
-import {requestIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
 import {bAfterLoadingThePageOpenMainPanel, isWsService} from "../../model/debuggerMeanagement.js";
 import bFetch from "../../model/bFetch.js";
 import {isLocalhostPageAutomaticallyOpenTheMainPanelGm} from "../../data/localMKData.js";
+import {bvRequestQueue} from "../../model/queue/BvRequestQueue.js";
 
 //调试管理
 export default {
@@ -51,7 +51,7 @@ export default {
       console.log(eventEmitter.getEvents())
     },
     printReqIntervalQueueVal() {
-      console.log(requestIntervalQueue)
+      console.log(bvRequestQueue)
     }
   },
   watch: {

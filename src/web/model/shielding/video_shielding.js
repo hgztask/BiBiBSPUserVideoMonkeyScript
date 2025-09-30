@@ -43,11 +43,12 @@ import shielding, {
     blockUserUidAndName,
     blockVideoOrOtherTitle
 } from "./shielding.js";
-import {videoInfoCache, videoInfoCacheUpdateDebounce} from "../cache/videoInfoCache.js";
-import {requestIntervalQueue} from "../asynchronousIntervalQueue.js";
 import bFetch from '../bFetch.js'
 import {promiseReject, promiseResolve, returnTempVal} from "../../data/globalValue.js";
 import arrUtil from "../../utils/arrUtil.js";
+import {bvRequestQueue} from "../queue/BvRequestQueue.js";
+import bvDexie from "../bvDexie.js";
+import {videoCacheManager} from "../cache/videoCacheManager.js";
 
 // 检查视频tag执行多重tag检查屏蔽
 const asyncBlockVideoTagPreciseCombination = async (tags) => {
@@ -176,29 +177,30 @@ const shieldingVideoDecorated = async (videoData, method = "remove") => {
     }
     //如果没有bv号参数，则不执行
     if (bv === '-1') return promiseReject;
-    const count = videoInfoCache.getCount();
     const disableNetRequestsBvVideoInfo = localMKData.isDisableNetRequestsBvVideoInfo();
-    //如果禁用了网络请求并且缓存中没有数据
-    if (disableNetRequestsBvVideoInfo && count === 0) {
-        return promiseResolve;
-    } else {
-        videoInfoCacheUpdateDebounce();
-    }
-    const find = videoInfoCache.find(bv);
-    if (find !== null) {
-        shieldingOtherVideoParameter(find, videoData, method)
-        return promiseReject;
-    }
-    if (!disableNetRequestsBvVideoInfo) {
-        //获取视频信息
-        requestIntervalQueue.add(() => bFetch.fetchGetVideoInfo(bv)).then(({state, data, msg}) => {
-            if (!state) {
+    let videoRes = await videoCacheManager.find(bv);
+    if (videoRes === null) {
+        //如果禁用了网络请求
+        if (disableNetRequestsBvVideoInfo) {
+            return promiseReject;
+        } else {
+            const httpRes = await bvRequestQueue.addBv(bv)
+            const {msg, data} = httpRes
+            if (!httpRes.state) {
                 console.warn('获取视频信息失败:' + msg);
-                return
+                return promiseReject;
             }
-            videoInfoCache.addResData(bv, data, videoData, method)
-            videoInfoCacheUpdateDebounce()
-        })
+            videoRes = data
+            if ((await bvDexie.addVideoData(bv, data))) {
+                console.log('mk-db-添加视频信息到数据库成功', '获取视频信息成功:' + msg, data, videoData)
+                videoCacheManager.updateCacheDebounce()
+            }
+        }
+    }
+    const verificationIns = await shieldingOtherVideoParameter(videoRes, videoData);
+    if (verificationIns.state) {
+        eventEmitter.send('event-屏蔽视频元素', {res: verificationIns, method, videoData})
+        return promiseResolve;
     }
     return promiseReject;
 }
@@ -225,12 +227,10 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
  * 检查其他视频参数执行屏蔽
  * @param result {{}} 请求相应视频数据
  * @param videoData {{}} 视频网页元素数据
- * @param method {string} 屏蔽方式，remove为直接删除，hide为隐藏，默认为remove
- * @returns null
  */
-const shieldingOtherVideoParameter = async (result, videoData, method) => {
+const shieldingOtherVideoParameter = async (result, videoData) => {
     const {tags = [], userInfo, videoInfo} = result
-    asyncBlockUserUidAndName(userInfo.uid, userInfo.name)
+    return asyncBlockUserUidAndName(userInfo.uid, userInfo.name)
         .then(() => {
             if (!isEffectiveUIDShieldingOnlyVideo()) {
                 return
@@ -258,43 +258,42 @@ const shieldingOtherVideoParameter = async (result, videoData, method) => {
         .then(() => asyncBlockGender(userInfo?.sex))
         .then(() => asyncBlockUserVip(userInfo.vip.type))
         .then(() => asyncBlockUserVideoNumLimit(userInfo.archive_count)).then(async () => {
-        //这里请求检查视频评论输入框情况
-        //todo 目前未做间隔队列和缓存处理，待后续完善
-        const videosInFeaturedCommentsBlockedVal = isVideosInFeaturedCommentsBlockedGm();
-        const followers7DaysOnlyVideosBlockedVal = isFollowers7DaysOnlyVideosBlockedGm();
-        const commentDisabledVideosBlockedVal = isCommentDisabledVideosBlockedGm();
-        if (videosInFeaturedCommentsBlockedVal === false && followers7DaysOnlyVideosBlockedVal === false && commentDisabledVideosBlockedVal === false) {
-            return;
-        }
-        const res = await bFetch.fetchGetVideoReplyBoxDescription(videoData.bv);
-        const {childText, disabled, message, state} = res;
-        if (!state) {
-            console.warn('获取视频评论输入框失败:' + message)
-            return;
-        }
-        if (commentDisabledVideosBlockedVal && disabled) {
-            return Promise.reject({state, type: '禁止评论类视频'})
-        }
-        if (childText === '关注UP主7天以上的人可发评论' && followers7DaysOnlyVideosBlockedVal) {
-            return Promise.reject({state, type: '7天关注才可评论类视频'})
-        }
-        if (childText === '评论被up主精选后，对所有人可见' && videosInFeaturedCommentsBlockedVal) {
-            return Promise.reject({state, type: '精选评论类视频'})
-        }
-    })
+            //这里请求检查视频评论输入框情况
+            //todo 目前未做间隔队列和缓存处理，待后续完善
+            const videosInFeaturedCommentsBlockedVal = isVideosInFeaturedCommentsBlockedGm();
+            const followers7DaysOnlyVideosBlockedVal = isFollowers7DaysOnlyVideosBlockedGm();
+            const commentDisabledVideosBlockedVal = isCommentDisabledVideosBlockedGm();
+            if (videosInFeaturedCommentsBlockedVal === false && followers7DaysOnlyVideosBlockedVal === false && commentDisabledVideosBlockedVal === false) {
+                return;
+            }
+            const res = await bFetch.fetchGetVideoReplyBoxDescription(videoData.bv);
+            const {childText, disabled, message, state} = res;
+            if (!state) {
+                console.warn('获取视频评论输入框失败:' + message)
+                return;
+            }
+            if (commentDisabledVideosBlockedVal && disabled) {
+                return Promise.reject({state, type: '禁止评论类视频'})
+            }
+            if (childText === '关注UP主7天以上的人可发评论' && followers7DaysOnlyVideosBlockedVal) {
+                return Promise.reject({state, type: '7天关注才可评论类视频'})
+            }
+            if (childText === '评论被up主精选后，对所有人可见' && videosInFeaturedCommentsBlockedVal) {
+                return Promise.reject({state, type: '精选评论类视频'})
+            }
+        })
+        .then(() => {
+            return returnTempVal;
+        })
         .catch((v) => {
             const {msg, type} = v;
             if (msg) {
                 console.warn('warn-type-msg', msg);
             }
-            if (type === '中断') return;
-            eventEmitter.send('event-屏蔽视频元素', {res: v, method, videoData})
+            if (type === '中断') return returnTempVal;
+            return v;
         })
 }
-
-eventEmitter.on('event-检查其他视频参数屏蔽', (result, videoData, method) => {
-    shieldingOtherVideoParameter(result, videoData, method)
-})
 
 /**
  * 添加热门视频屏蔽按钮

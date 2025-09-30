@@ -2,7 +2,7 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import gmUtil from "../../utils/gmUtil.js";
-import {asynchronousIntervalQueue} from "../../model/asynchronousIntervalQueue.js";
+import {asynchronousIntervalQueue} from "../../model/queue/asynchronousIntervalQueue.js";
 
 //获取黑名单请求队列
 const queue = new asynchronousIntervalQueue();

@@ -25,7 +25,7 @@ const addVideoData = async (bv, data) => {
             expiresMaxAge: getFutureTimestamp(getExpiresMaxAgeGm())
         })
     } catch (e) {
-        console.log(`添加视频数据失败`, data, e)
+        console.warn(`添加视频数据失败`,bv, data, e)
         return false
     }
     return true
@@ -71,7 +71,8 @@ const getVideoInfoCount = async () => {
  * @returns {Promise<{}>} 视频数据
  */
 const findVideoInfoByBv = async (bv) => {
-    return await mk_db.videoInfos.get(bv)
+    const data = await mk_db.videoInfos.get(bv);
+    return data?data:null
 }
 
 
@@ -160,7 +161,7 @@ const bulkDelVideoInfoItem = async (bvArr) => {
 
 
 export default {
-    addVideoData,
+    addVideoData,findVideoInfoByBv,
     clearVideoInfosTable,
     bulkImportVideoInfos,
     getVideoInfo,

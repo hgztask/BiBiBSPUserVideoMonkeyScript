@@ -80,7 +80,7 @@ export default {
         <div>如设置0，则为不限制，比如设置2，则为每个请求之间隔2秒，可有效降低对B站api接口的压力，降低风控</div>
         <div>注意：设置过低可能会导致部分接口风控</div>
         <div>如接口风控了请先勾选下面的【禁用根据bv号网络请求获取视频信息】</div>
-        <div>修改实时生效</div>
+        <div>修改下一轮请求结束后生效</div>
       </template>
       <el-switch v-model="isDisableNetRequestsBvVideoInfo" active-text="禁用根据bv号网络请求获取视频信息"/>
       <el-slider v-model="requestFrequencyVal" :disabled="isDisableNetRequestsBvVideoInfo" :max="5" :step="0.1"
