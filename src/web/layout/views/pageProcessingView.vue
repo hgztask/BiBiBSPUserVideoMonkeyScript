@@ -105,7 +105,9 @@ export default {
     },
     isRoomListAdaptiveVal(n) {
       gmUtil.setData('is_room_list_adaptive_gm', n)
-      liveSectionModel.liveStreamPartitionStyle(n);
+      if (liveSectionModel.isLiveSection()) {
+        liveSectionModel.liveStreamPartitionStyle(n);
+      }
     }
   }
 }

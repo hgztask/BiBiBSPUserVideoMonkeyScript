@@ -78,6 +78,6 @@ const run = () => {
 
 //直播分区业务逻辑
 export default {
-    isLiveSection, run,liveStreamPartitionStyle,
+    isLiveSection, run, liveStreamPartitionStyle,
     startShieldingLiveRoom
 }
