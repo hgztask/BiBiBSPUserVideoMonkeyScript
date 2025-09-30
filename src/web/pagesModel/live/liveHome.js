@@ -5,7 +5,7 @@ import liveCommon from "./liveCommon.js";
 
 const isLiveHomePage = (url) => {
     return url.includes("https://live.bilibili.com/?spm_id_from=") ||
-        url === "https://live.bilibili.com/"
+        url === "https://live.bilibili.com/"||url.includes('live.bilibili.com/?visit_id=')
 }
 
 /**
