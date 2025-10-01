@@ -559,6 +559,10 @@ export const isRoomListAdaptiveGm = () => {
     return gmUtil.getData('is_room_list_adaptive_gm', false)
 }
 
+export const isDelRoomListRightSidebarGm = () => {
+    return gmUtil.getData('is_del_room_list_right_sidebar_gm', true)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

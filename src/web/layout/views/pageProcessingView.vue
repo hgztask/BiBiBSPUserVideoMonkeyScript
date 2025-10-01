@@ -10,6 +10,7 @@ import localMKData, {
   isAutomaticScrollingGm,
   isClearLiveCardGm,
   isCloseCommentBlockingGm,
+  isDelRoomListRightSidebarGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
   isHideHomeTopHeaderChannelGm,
@@ -40,7 +41,8 @@ export default {
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
       releaseTypeCardVals: getReleaseTypeCardsGm(),
       isAutomaticScrollingVal: isAutomaticScrollingGm(),
-      isRoomListAdaptiveVal: isRoomListAdaptiveGm()
+      isRoomListAdaptiveVal: isRoomListAdaptiveGm(),
+      isDelRoomListRightSidebarVal: isDelRoomListRightSidebarGm()
     }
   },
   methods: {},
@@ -107,6 +109,12 @@ export default {
       gmUtil.setData('is_room_list_adaptive_gm', n)
       if (liveSectionModel.isLiveSection()) {
         liveSectionModel.liveStreamPartitionStyle(n);
+      }
+    },
+    isDelRoomListRightSidebarVal(n) {
+      gmUtil.setData('is_del_room_list_right_sidebar_gm', n)
+      if (liveSectionModel.isLiveSection()) {
+        liveSectionModel.setRoomListRightSidebarHide(n)
       }
     }
   }
@@ -183,6 +191,7 @@ export default {
     <el-card shadow="never">
       <template #header>直播分区页</template>
       <el-switch v-model="isRoomListAdaptiveVal" active-text="房间列表自适应"/>
+      <el-switch v-model="isDelRoomListRightSidebarVal" active-text="屏蔽右侧侧边栏"/>
     </el-card>
   </div>
 </template>
