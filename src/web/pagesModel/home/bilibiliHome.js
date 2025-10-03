@@ -219,6 +219,7 @@ const checkVideoListCount = () => {
         if (elList.length <= 9) {
             await scrollMouseUpAndDown();
         }
+        startClearExcessContentList()
     }, 3000);
 }
 
