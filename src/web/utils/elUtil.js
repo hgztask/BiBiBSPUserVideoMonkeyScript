@@ -1,5 +1,4 @@
 import defUtil from "./defUtil.js";
-import {valueCache} from "../model/localCache/valueCache.js";
 
 /**
  *获取url中的uid
@@ -56,78 +55,45 @@ const getUrlBV = (url) => {
 }
 
 /**
- * 按次数查找单个元素，每次查找之间有指定的间隔时间
- * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.attempts  {number} - 尝试查找的次数, 默认为5
- * @returns {Promise<Element>} - 返回找到的元素
+ * 判断一个变量是否是DOM元素
+ * @param {*} obj - 要判断的变量
+ * @returns {boolean} 如果是DOM元素返回true，否则返回false
  */
-function
-findElementByAttempts(selector, config) {
-    const defConfig = {doc: document, interval: 1000, attempts: 5}
-    config = {...defConfig, ...config}
-    return new Promise((resolve, reject) => {
-        let attemptCount = 0;
-
-        function attemptToFind() {
-            const element = config.doc.querySelector(selector);
-            if (element) {
-                resolve(element);
-            } else if (++attemptCount < config.attempts) {
-                setTimeout(attemptToFind, config.interval);
-            } else {
-                reject(); // 找不到的情况
-            }
-        }
-
-        attemptToFind();
-    });
+const isDOMElement = (obj) => {
+    // 检查是否为非null对象，且具有nodeType属性
+    return (obj !== null && typeof obj === 'object' && 'nodeType' in obj);
 }
 
-/**
- * 按次数查找多个元素，每次查找之间有指定的间隔时间
- * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{Object} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.attempts  {number} - 尝试查找的次数, 默认为5
- * @returns {Promise<NodeListOf<Element>|null>} - 返回找到的 NodeList 或 null
- */
-function findElementsByAttempts(selector, config) {
-    const defConfig = {doc: document, interval: 1000, attempts: 5}
-    config = {...defConfig, ...config}
-    return new Promise((resolve, reject) => {
-        let attemptCount = 0;
+//存储进行中的查询（未 resolve 的 Promise）
+const inProgressCache = new Map();
 
-        function attemptToFind() {
-            const elements = config.doc.querySelectorAll(selector);
-            if (elements.length > 0) {
-                resolve(elements);
-            } else if (++attemptCount < config.attempts) {
-                setTimeout(attemptToFind, config.interval);
-            } else {
-                reject(null); // 找不到则返回 null
-            }
-        }
+//配置默认的验证元素函数
+const validationElFun = (config, selector) => {
+    const element = config.doc.querySelector(selector);
+    if (element === null) return null;
+    return config.parseShadowRoot && element.shadowRoot ?
+        element.shadowRoot : element;
+}
 
-        attemptToFind();
-    });
+//私有最后验证的元素
+const __privateValidationElFun = (config, selector) => {
+    const result = config.validationElFun(config, selector);
+    return isDOMElement(result) ? result : null;
 }
 
 /**
  * 持续查找单个元素，每次查找之间有指定的间隔时间，直到找到为止
- * 结合异步操作await可用于监听元素加载完成之后继续执行
- * 如设置超时时间超过指定时间后，将返回null
+ * 查找时存在则直接返回，
+ * 结合异步操作 await 可用于监听元素加载完成之后继续执行
  * @param {string} selector - CSS 选择器，用于选择元素
- * @param config{{}} 配置对象
- * @param config.doc {Document|Element|ShadowRoot}- 查找的文档对象，默认为document
- * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
- * @param config.timeout  {number} - 超时时间（毫秒）默认-1，即无限等待
- * @param config.parseShadowRoot  {boolean} - 如匹配元素为shadowRoot时，是否解析shadowRoot，默认为false、
- * @param config.cachePromise  {boolean} - 是否缓Promise结果，默认false
- * @returns {Promise<Element|Document>}-返回找到的元素，如设置超时超出时间则返回null
+ * @param {Object} [config={}] - 配置对象
+ * @param {Document|Element|ShadowRoot} [config.doc=document] - 查找的文档对象
+ * @param {number} [config.interval=1000] - 每次查找之间的间隔时间（毫秒）
+ * @param {number} [config.timeout=-1] - 超时时间（毫秒，-1 表示无限等待）
+ * @param {boolean} [config.parseShadowRoot=false] - 是否解析 shadowRoot（当元素有 shadowRoot 时返回 shadowRoot）
+ * @param {boolean} [config.cacheInProgress=true] - 是否缓存进行中的查询（避免重复轮询）
+ * @param {function(config: {}): Element|ShadowRoot,selector:string} [config.validationElFun] - 找到的元素的验证函数，返回元素/ShadowRoot，或者 null
+ * @returns {Promise<Element|ShadowRoot|null>} - 返回找到的元素/ShadowRoot，超时返回 null
  */
 const findElement = async (selector, config = {}) => {
     const defConfig = {
@@ -135,40 +101,122 @@ const findElement = async (selector, config = {}) => {
         interval: 1000,
         timeout: -1,
         parseShadowRoot: false,
-        cachePromise: false
+        cacheInProgress: true,
+        validationElFun
     }
     config = {...defConfig, ...config}
-    if (config.cachePromise) {
-        const cachePromiseVal = valueCache.get(`cacheFindElement-${selector}`);
-        if (cachePromiseVal) {
-            return cachePromiseVal;
+    const result = __privateValidationElFun(config, selector);
+    if (result !== null) return result;
+    const cacheKey = `findElement:${selector}`
+    if (config.cacheInProgress) {
+        const cachedPromise = inProgressCache.get(cacheKey);
+        if (cachedPromise) {
+            return cachedPromise;
         }
     }
     const p = new Promise((resolve) => {
-        const i1 = setInterval(() => {
-            const element = config.doc.querySelector(selector);
-            if (element) {
-                if (config.parseShadowRoot) {
-                    const shadowRoot = element?.shadowRoot;
-                    resolve(shadowRoot ? shadowRoot : element);
-                    clearInterval(i1);
-                    return;
-                }
-                resolve(element);
-                clearInterval(i1);
-            }
+        let timeoutId, IntervalId;
+        IntervalId = setInterval(() => {
+            const result = __privateValidationElFun(config, selector);
+            if (result === null) return;
+            resolve(result)
         }, config.interval);
+        const cleanup = () => {
+            if (IntervalId) clearInterval(IntervalId);
+            if (timeoutId) clearTimeout(timeoutId);
+            if (config.cacheInProgress) {
+                inProgressCache.delete(cacheKey);
+            }
+        }
         if (config.timeout > 0) {
-            setTimeout(() => {
-                clearInterval(i1);
-                resolve(null); // 超时则返回 null
+            timeoutId = setTimeout(() => {
+                resolve(null);
+                cleanup()
             }, config.timeout);
         }
     });
-    if (config.cachePromise) {
-        valueCache.set(`cacheFindElement-${selector}`, p)
+    if (config.cacheInProgress) {
+        inProgressCache.set(cacheKey, p);
     }
     return p;
+}
+
+/**
+ * 持续查找单个元素，每次查找之间有指定的间隔时间，直到找到为止，可链式调用，最后用get异步方法获取结果
+ * 查找时存在则直接返回，
+ * 结合异步操作 await 可用于监听元素加载完成之后继续执行
+ * @param {string} selector - CSS 选择器，用于选择元素
+ * @param {Object} [config={}] - 配置对象
+ * @param {Document|Element|ShadowRoot} [config.doc=document] - 查找的文档对象
+ * @param {number} [config.interval=1000] - 每次查找之间的间隔时间（毫秒）
+ * @param {number} [config.timeout=-1] - 超时时间（毫秒，-1 表示无限等待）
+ * @param {boolean} [config.parseShadowRoot=false] - 是否解析 shadowRoot（当元素有 shadowRoot 时返回 shadowRoot）
+ * @param {boolean} [config.allparseShadowRoot=false] - 查找队列中是否所有都解析 shadowRoot（当元素有 shadowRoot 时返回 shadowRoot）
+ * @param {boolean} [config.cacheInProgress=true] - 是否缓存进行中的查询（避免重复轮询）
+ * @param {string} [config.separator] - 选择器间隔符，用于拆分选择器链式查找
+ * @param {function(element: Element): boolean} [config.validationFun] - 找到的元素是否满足条件该方法返回布尔值
+ */
+const findElementChain = (selector, config = {}) => {
+    const paths = [];
+    const chainObj = {
+        /**
+         * 添加子元素查找
+         * @param childSelector 子元素选择器
+         * @param childConfig 子元素配置
+         * @returns {this}
+         */
+        find(childSelector, childConfig = {}) {
+            if (config.allparseShadowRoot) {
+                childConfig.parseShadowRoot = true;
+            }
+            childSelector.trim()
+            if (childSelector === '' || childSelector.search(/^\d/) !== -1) {
+                throw new Error('非法的元素选择器');
+            }
+            const separator = config.separator ?? childConfig.separator;
+            if (separator === undefined || separator === null || separator.trim() === '') {
+                paths.push({selector: childSelector, config: childConfig});
+            } else {
+                const selectorArr = childSelector.split(separator);
+                if (selectorArr.length === 1) {
+                    paths.push({selector: childSelector, config: childConfig});
+                } else {
+                    for (let s of selectorArr) {
+                        s = s.trim();
+                        if (s === '') continue;
+                        childConfig.originalSelector = childSelector;
+                        paths.push({selector: s, config: childConfig});
+                    }
+                }
+            }
+            return this
+        },
+        /**
+         * 获取结果
+         * @returns {Promise<Element|ShadowRoot|null>}
+         */
+        get() {
+            return new Promise(async (resolve) => {
+                let currentDoc = null;
+                for ({selector, config} of paths) {
+                    const resolvedConfig = {...config};
+                    if (config.doc === null || config.doc === undefined) {
+                        resolvedConfig.doc = currentDoc ?? document;
+                    } else {
+                        resolvedConfig.doc = config.doc
+                    }
+                    const res = await findElement(selector, resolvedConfig)
+                    if (res === null) {
+                        continue;
+                    }
+                    currentDoc = res;
+                }
+                resolve(currentDoc);
+            })
+        }
+    };
+    chainObj.find(selector, config)
+    return chainObj;
 }
 
 /**
@@ -236,35 +284,47 @@ const findElementsAndBindEvents = (css, callback, config = {}) => {
     }, config.timeOut);
 }
 
+// 悬停超时事件
+const hoverTimeoutEvents = new Map();
 
 /**
  * 设置悬停计时器，当鼠标悬停在元素上xxx秒后执行回调函数
- * @param {Element} element - 要设置悬停计时器的元素
+ * @param {Element} el - 要设置悬停计时器的元素
  * @param {number} timeout - 悬停触发回调的时间（毫秒），默认为2000毫秒
  * @param {Function} callback - 悬停超时后执行的回调函数
  */
-function hoverTimeout(element, callback, timeout = 2000) {
-    const attribute = element.getAttribute('data-hover-timeout');
-    // 清除之前的计时器，避免重复绑定事件
-    if (attribute !== null) {
-        return
+const addHoverTimeoutEvent = (el, callback, timeout = 2000) => {
+    if (typeof el === 'string') {
+        el = document.querySelector(el)
     }
-    element.setAttribute('data-hover-timeout', 'true');
-    // 设置一个新的计时器
+    if (el === null) return false
+    const attribute = el.getAttribute('data-hover-timeout');
+    if (attribute !== null) return false;
+    el.setAttribute('data-hover-timeout', '');
     let time = null;
-    element.addEventListener('mouseenter', () => {
+    const mouseenter = (e) => {
         time = setTimeout(() => {
-            callback();
+            callback(e);
         }, timeout);
-    });
-
-    // 鼠标离开元素时清除计时器
-    element.addEventListener('mouseleave', () => {
+    }
+    const mouseleave = () => {
         if (time === null) {
             return;
         }
         clearTimeout(time);
-    });
+    }
+    hoverTimeoutEvents.set(el, {mouseenter, mouseleave});
+    el.addEventListener('mouseenter', mouseenter);
+    el.addEventListener('mouseleave', mouseleave);
+    return true;
+}
+// 移除悬停超时事件
+const removeHoverTimeoutEvent = (el) => {
+    const attribute = el.getAttribute('data-hover-timeout');
+    if (attribute === null) return false;
+    el.removeEventListener('mouseenter', hoverTimeoutEvents.get(el).mouseenter);
+    el.removeEventListener('mouseleave', hoverTimeoutEvents.get(el).mouseleave);
+    return true;
 }
 
 // 更新弹窗样式
@@ -315,15 +375,14 @@ const createVueDiv = (el = null, cssTests = null) => {
     return {panelDiv, vueDiv}
 }
 
-
 /**
  * @version 0.2.0
  */
 export default {
     getUrlUID,
     getUrlBV,
-    findElement,
-    findElements,
+    findElement, isDOMElement, addHoverTimeoutEvent, removeHoverTimeoutEvent,
+    findElements, findElementChain,
     findElementsAndBindEvents,
     updateCssVModal,
     installStyle,
