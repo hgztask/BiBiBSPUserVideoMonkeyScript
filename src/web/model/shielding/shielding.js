@@ -640,7 +640,7 @@ export const blockByUidRange = (uid) => {
         return returnTempVal
     }
     const [head, tail] = localMKData.getUidRangeMasking();
-    if (head >= uid <= tail) {
+    if ((head >= uid) && (uid <= tail)) {
         return {state: true, type: "uid范围屏蔽", matching: `${head}=>${uid}<=${tail}`}
     }
     return returnTempVal
@@ -713,7 +713,7 @@ export const blockSeniorMemberOnly = (level) => {
 }
 
 //异步检查是否只看硬核会员，匹配成功则抛出reject
-export const asyncBlockSeniorMemberOnly=async (level) => {
+export const asyncBlockSeniorMemberOnly = async (level) => {
     const res = blockSeniorMemberOnly(level)
     if (res.state) return Promise.reject(res);
 }
