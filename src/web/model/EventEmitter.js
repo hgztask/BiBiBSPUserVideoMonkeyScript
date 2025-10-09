@@ -1,7 +1,7 @@
 /**
  * 事件中心类，用于管理事件的订阅和发布。
  * 提供了订阅普通事件、一次性订阅普通事件、订阅回调事件、发送通知、发送普通消息等功能。
- * @version 1.0.0
+ * @version 1.1.0
  */
 class EventEmitter {
     /**
@@ -11,7 +11,9 @@ class EventEmitter {
         // 普通事件
         events: {},
         // 待订阅事件
-        futures: {}
+        futures: {},
+        //发送消息参数防抖配置
+        parametersDebounce: {}
     }
 
     /**
@@ -25,46 +27,42 @@ class EventEmitter {
         callbackInterval: 1500
     }
 
-    /**
-     * 订阅普通事件，将回调函数添加到事件监听器表中。
-     * 一个订阅事件可以有多个回调函数，当事件被触发时，所有回调函数依次执行。
-     * 收到未来的订阅事件消息时，依次执行该事件名对应的回调函数。
-     * @param {string} eventName - 事件名称
-     * @param {function} callback - 回调函数，当事件被触发时执行
-     */
-    on(eventName, callback) {
-        // 处理已订阅事件
-        const events = this.#regularEvents.events;
-        if (events[eventName]) {
-            // 如果事件已经订阅，则将回调函数添加到事件监听器表中
-            events[eventName].push(callback);
-            return
-        }
-        // 如果事件没有订阅，则创建一个空的事件监听器表并添加回调函数
-        events[eventName] = []
-        events[eventName].push(callback);
-        //处理待订阅事件
+    // 普通待订阅事件处理函数
+    #handlePendingEvents(eventName, callback) {
         const futureEvents = this.#regularEvents.futures;
         if (futureEvents[eventName]) {
             //如果待订阅事件中有该事件名，则依次执行该事件名对应的回调函数
             for (const futureEvent of futureEvents[eventName]) {
-                callback(...futureEvent)
+                callback.apply(null, futureEvent)
             }
             delete futureEvents[eventName];
         }
     }
 
     /**
-     * 一次性订阅普通事件，将回调函数添加到事件监听器表中，只执行一次，执行完移除对应的回调函数。
+     * 订阅普通事件，将回调函数添加到事件监听器表中。
+     * 一个订阅事件只有一个对应的回调函数，如需覆盖，则需要重新订阅。
+     * 收到未来的订阅事件消息时，依次执行该事件名对应的回调函数。
      * @param {string} eventName - 事件名称
-     * @param {function} callback - 一次性回调函数，事件触发后自动取消订阅对应函数
+     * @param {function} callback - 回调函数，当事件被触发时执行
+     * @param overrideEvents {boolean} - 是否覆盖已订阅事件
+     * @returns {EventEmitter}
      */
-    once(eventName, callback) {
-        const onceCallback = (...args) => {
-            callback(...args);
-            this.#removeCallback(eventName, onceCallback);
-        };
-        this.on(eventName, onceCallback);
+    on(eventName, callback, overrideEvents = false) {
+        // 处理已订阅事件
+        const events = this.#regularEvents.events;
+        // 如果事件已经订阅，则提前结束
+        if (events[eventName]) {
+            if (overrideEvents) {
+                events[eventName] = callback;
+                this.#handlePendingEvents(eventName, callback);
+            }
+            return this;
+        }
+        // 如果事件没有订阅，则创建一个空的事件监听器表并添加回调函数
+        events[eventName] = callback;
+        this.#handlePendingEvents(eventName, callback);
+        return this;
     }
 
     /**
@@ -103,7 +101,6 @@ class EventEmitter {
         })
     }
 
-
     /**
      *发送普通消息，如未订阅事件，直到订阅到事件时发送。
      * @param {string} eventName - 事件名称
@@ -115,9 +112,7 @@ class EventEmitter {
         const events = ordinaryEvents.events;
         const event = events[eventName];
         if (event) {
-            for (const callback of event) {
-                callback(...data);
-            }
+            event.apply(null, data);
             return this;
         }
         const futures = ordinaryEvents.futures;
@@ -133,20 +128,56 @@ class EventEmitter {
     }
 
     /**
-     * 私有取消订阅事件，用于内部临时使用。
-     * 事件名称会保留，当对应的事件函数会被移除。
-     * @param {string} eventName - 事件名称
-     * @param {function} callback - 要取消的回调函数
+     * 发送普通消息，发送时只有订阅了该事件名，才会执行该函数，并且发送数据会进行防抖处理。
+     * 默认防抖时间为1500ms，可以通过setDebounceWaitTime方法进行设置。
+     * @param eventName {string} 事件名称
+     * @param data {*} 数据
      */
-    #removeCallback(eventName, callback) {
-        const events = this.#regularEvents.events;
-        if (events[eventName]) {
-            events[eventName] = events[eventName].filter(cb => cb !== callback);
+    sendDebounce(eventName, ...data) {
+        const parametersDebounce = this.#regularEvents.parametersDebounce;
+        let timeOutConfig = parametersDebounce[eventName];
+        if (timeOutConfig) {
+            clearTimeout(timeOutConfig.timeOut);
+            timeOutConfig.timeOut = null;
+        } else {
+            timeOutConfig = parametersDebounce[eventName] = {wait: 1500, timeOut: null}
         }
-        const handlerEvents = this.#callbackEvents.events;
-        if (handlerEvents[eventName]) {
-            handlerEvents[eventName] = handlerEvents[eventName].filter(cb => cb !== callback);
+        timeOutConfig.timeOut = setTimeout(() => {
+                this.send(eventName, ...data)
+            },
+            timeOutConfig.wait)
+        return this;
+    }
+
+    /**
+     * 设置普通消息发送的防抖时间
+     * @param eventName {string} 事件名称
+     * @param wait {number} 防抖时间
+     */
+    setDebounceWaitTime(eventName, wait) {
+        const timeOutConfig = this.#regularEvents.parametersDebounce[eventName];
+        if (timeOutConfig) {
+            timeOutConfig.wait = wait;
+        } else {
+            this.#regularEvents.parametersDebounce[eventName] = {
+                wait: wait,
+                timeOut: null
+            }
         }
+        return this;
+    }
+
+    /**
+     * 发送普通消息，发送时只有订阅了该事件名，才会执行该函数
+     * @param eventName {string} 事件名称
+     * @param data {*} 数据
+     */
+    emit(eventName, ...data) {
+        const callback = this.#regularEvents.events[eventName];
+        if (callback) {
+            callback.apply(null, data);
+        }
+        return this;
     }
 
     /**
@@ -169,7 +200,6 @@ class EventEmitter {
         return false
     }
 
-
     /**
      * 设置回调事件查找事件间隔时间。
      * @param {number} interval - 间隔时间，单位为毫秒
@@ -189,7 +219,6 @@ class EventEmitter {
         }
     }
 }
-
 
 /**
  * 事件中心实例，用于管理事件的订阅和发布。
