@@ -1,7 +1,7 @@
 /**
  * 事件中心类，用于管理事件的订阅和发布。
  * 提供了订阅普通事件、一次性订阅普通事件、订阅回调事件、发送通知、发送普通消息等功能。
- * @version 1.1.0
+ * @version 1.2.0
  */
 class EventEmitter {
     /**
@@ -13,7 +13,9 @@ class EventEmitter {
         // 待订阅事件
         futures: {},
         //发送消息参数防抖配置
-        parametersDebounce: {}
+        parametersDebounce: {},
+        //预处理函数配置
+        preHandles: {}
     }
 
     /**
@@ -27,13 +29,20 @@ class EventEmitter {
         callbackInterval: 1500
     }
 
-    // 普通待订阅事件处理函数
+    /**
+     * 普通待订阅事件处理函数
+     * 用于处理on事件时。
+     * 先发送通知时(send)如果待订阅事件中有该事件名，则按顺序执行对应回调函数并接受对应的数据。
+     * 反之先订阅(on)，不做处理。
+     * @param eventName {string} 事件名
+     * @param callback {function} 回调函数，当事件被触发时执行
+     */
     #handlePendingEvents(eventName, callback) {
         const futureEvents = this.#regularEvents.futures;
         if (futureEvents[eventName]) {
-            //如果待订阅事件中有该事件名，则依次执行该事件名对应的回调函数
-            for (const futureEvent of futureEvents[eventName]) {
-                callback.apply(null, futureEvent)
+            for (const eventData of futureEvents[eventName]) {
+                const preHandleData = this.#executePreHandle(eventName, eventData)
+                callback.apply(null, preHandleData)
             }
             delete futureEvents[eventName];
         }
@@ -63,6 +72,35 @@ class EventEmitter {
         events[eventName] = callback;
         this.#handlePendingEvents(eventName, callback);
         return this;
+    }
+
+    /**
+     *普通事件的预处理函数，可对参数进行处理，
+     * 需要注意的是，如果事件中有参数，返回时需要返回一个数组，否则会报错
+     * @param eventName {string} 事件名称
+     * @param callback {function} 回调函数
+     * @returns {EventEmitter}
+     */
+    onPreHandle(eventName, callback) {
+        const preHandles = this.#regularEvents.preHandles;
+        preHandles[eventName] = callback;
+        return this;
+    }
+
+    /**
+     * 执行预处理函数
+     * 如没有预处理函数时，则返回原数据，反之返回预处理处理后的数据
+     * @param eventName {string} 事件名
+     * @param data {*} 数据
+     * @returns {array} 预处理返回的数据或原数据
+     */
+    #executePreHandle(eventName, data) {
+        const preHandles = this.#regularEvents.preHandles;
+        const callback = preHandles[eventName];
+        if (callback) {
+            return callback.apply(null, data);
+        }
+        return data;
     }
 
     /**
@@ -112,7 +150,8 @@ class EventEmitter {
         const events = ordinaryEvents.events;
         const event = events[eventName];
         if (event) {
-            event.apply(null, data);
+            const preHandleData = this.#executePreHandle(eventName, data);
+            event.apply(null, preHandleData);
             return this;
         }
         const futures = ordinaryEvents.futures;
