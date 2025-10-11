@@ -4,13 +4,14 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import userProfile from "../userProfile.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import defUtil from "../../utils/defUtil.js";
+import {isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../data/localMKData.js";
 
 /**
  * 判断是否为直播间
  * @param url {string}
  * @returns {boolean}
  */
-const isLiveRoom = (url) => {
+const isLiveRoom = (url = location.href) => {
     return url.search('/live.bilibili.com/\\d+') !== -1 ||
         url.search('https://live.bilibili.com/blanc/\\d+') !== -1 ||
         url.includes('live.bilibili.com/blackboard/era');
@@ -18,7 +19,23 @@ const isLiveRoom = (url) => {
 
 //是否是活动类直播间页面
 const isLiveRoomActivity = () => {
-    return isLiveRoom(location.href) && !document.title.endsWith('哔哩哔哩直播，二次元弹幕直播平台');
+    return isLiveRoom() && !document.title.endsWith('哔哩哔哩直播，二次元弹幕直播平台');
+}
+
+//设置直播间背景显示状态
+const setRoomBackgroundDisplay = (hide = true) => {
+    elUtil.findElement('#room-background-vm').then(el => {
+        el.style.display = hide ? 'none' : '';
+        eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间背景`)
+    })
+}
+
+//设置直播间礼物控制面板显示状态
+const setGiftControlPanelDisplay = (hide = true) => {
+    elUtil.findElement('#gift-control-vm').then(el => {
+        el.style.display = hide ? 'none' : '';
+        eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间礼物控制面板`);
+    })
 }
 
 //获取直播间底部直播列表元素项数据
@@ -160,9 +177,15 @@ const run = async () => {
             })
         })
     });
+    if (isRoomBackgroundHideGm()) {
+        setRoomBackgroundDisplay();
+    }
+    if (isHideLiveGiftPanelGm()) {
+        setGiftControlPanelDisplay()
+    }
 }
 
 export default {
-    isLiveRoom,
+    isLiveRoom, setRoomBackgroundDisplay, setGiftControlPanelDisplay,
     run
 }

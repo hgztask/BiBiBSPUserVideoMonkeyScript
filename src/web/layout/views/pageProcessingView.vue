@@ -10,15 +10,19 @@ import localMKData, {
   isAutomaticScrollingGm,
   isClearLiveCardGm,
   isCloseCommentBlockingGm,
-  isDelRoomListRightSidebarGm,
+  isDelLivePageRightSidebarGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
   isHideHomeTopHeaderChannelGm,
   isHideHotSearchesPanelGm,
+  isHideLiveGiftPanelGm,
   isHideSearchHistoryPanelGm,
+  isRoomBackgroundHideGm,
   isRoomListAdaptiveGm
 } from "../../data/localMKData.js";
 import liveSectionModel from "../../pagesModel/live/liveSectionModel.js";
+import liveRoomModel from "../../pagesModel/live/liveRoomModel.js";
+import liveCommon from "../../pagesModel/live/liveCommon.js";
 
 //页面处理处理
 export default {
@@ -42,7 +46,9 @@ export default {
       releaseTypeCardVals: getReleaseTypeCardsGm(),
       isAutomaticScrollingVal: isAutomaticScrollingGm(),
       isRoomListAdaptiveVal: isRoomListAdaptiveGm(),
-      isDelRoomListRightSidebarVal: isDelRoomListRightSidebarGm()
+      isDelLivePageRightSidebarVal: isDelLivePageRightSidebarGm(),
+      isRoomBackgroundHideVal: isRoomBackgroundHideGm(),
+      isHideLiveGiftPanelVal: isHideLiveGiftPanelGm()
     }
   },
   methods: {},
@@ -111,10 +117,22 @@ export default {
         liveSectionModel.liveStreamPartitionStyle(n);
       }
     },
-    isDelRoomListRightSidebarVal(n) {
-      gmUtil.setData('is_del_room_list_right_sidebar_gm', n)
-      if (liveSectionModel.isLiveSection()) {
-        liveSectionModel.setRoomListRightSidebarHide(n)
+    isDelLivePageRightSidebarVal(n) {
+      gmUtil.setData('is_del_live_page_right_sidebar_gm', n)
+      if (liveSectionModel.isLiveSection() || liveRoomModel.isLiveRoom()) {
+        liveCommon.setLivePageRightSidebarHide(n)
+      }
+    },
+    isRoomBackgroundHideVal(n) {
+      gmUtil.setData('is_room_background_hide_gm', n)
+      if (liveRoomModel.isLiveRoom()) {
+        liveRoomModel.setRoomBackgroundDisplay(n);
+      }
+    },
+    isHideLiveGiftPanelVal(n) {
+      gmUtil.setData('is_hide_live_gift_panel_gm', n)
+      if (liveRoomModel.isLiveRoom()) {
+        liveRoomModel.setGiftControlPanelDisplay(n);
       }
     }
   }
@@ -189,9 +207,17 @@ export default {
     </el-card>
     <dynamicCard/>
     <el-card shadow="never">
-      <template #header>直播分区页</template>
+      <template #header>直播页</template>
+      <el-switch v-model="isDelLivePageRightSidebarVal" active-text="屏蔽右侧侧边栏"/>
+      <el-divider/>
+      直播分区页
+      <el-divider/>
       <el-switch v-model="isRoomListAdaptiveVal" active-text="房间列表自适应"/>
-      <el-switch v-model="isDelRoomListRightSidebarVal" active-text="屏蔽右侧侧边栏"/>
+      <el-divider/>
+      直播间
+      <el-divider/>
+      <el-switch v-model="isRoomBackgroundHideVal" active-text="背景移除"/>
+      <el-switch v-model="isHideLiveGiftPanelVal" active-text="隐藏礼物栏"/>
     </el-card>
   </div>
 </template>

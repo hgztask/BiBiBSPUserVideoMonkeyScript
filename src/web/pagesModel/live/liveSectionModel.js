@@ -2,7 +2,8 @@ import elUtil from "../../utils/elUtil.js";
 import live_shielding from "../../model/shielding/live_shielding.js";
 import shielding from "../../model/shielding/shielding.js";
 import LiveCommon from "./liveCommon.js";
-import {isDelRoomListRightSidebarGm, isRoomListAdaptiveGm} from "../../data/localMKData.js";
+import liveCommon from "./liveCommon.js";
+import {isDelLivePageRightSidebarGm, isRoomListAdaptiveGm} from "../../data/localMKData.js";
 import liveRoomListAdaptiveCss from "../../css/live_room_list_adaptive.css";
 
 // 判断是否是直播分区
@@ -71,21 +72,16 @@ const liveStreamPartitionStyle = (show = false) => {
     }
 }
 
-//设置直播分区房间列表的右侧边栏显隐
-const setRoomListRightSidebarHide = (hided = false) => {
-    elUtil.findElement('#area-tags>div>aside', {cachePromise: true}).then(el => {
-        el.style.display = hided ? 'none' : '';
-    })
-}
+
 
 const run = () => {
     LiveCommon.addStyle();
     liveStreamPartitionStyle(isRoomListAdaptiveGm());
-    setRoomListRightSidebarHide(isDelRoomListRightSidebarGm())
+    liveCommon.setLivePageRightSidebarHide(isDelLivePageRightSidebarGm())
 }
 
 //直播分区业务逻辑
 export default {
     isLiveSection, run, liveStreamPartitionStyle,
-    startShieldingLiveRoom, setRoomListRightSidebarHide
+    startShieldingLiveRoom
 }

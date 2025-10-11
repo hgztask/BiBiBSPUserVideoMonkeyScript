@@ -559,8 +559,16 @@ export const isRoomListAdaptiveGm = () => {
     return gmUtil.getData('is_room_list_adaptive_gm', false)
 }
 
-export const isDelRoomListRightSidebarGm = () => {
-    return gmUtil.getData('is_del_room_list_right_sidebar_gm', true)
+export const isDelLivePageRightSidebarGm = () => {
+    return gmUtil.getData('is_del_live_page_right_sidebar_gm', true)
+}
+
+export const isRoomBackgroundHideGm = () => {
+    return gmUtil.getData('is_room_background_hide_gm', false)
+}
+
+export const isHideLiveGiftPanelGm = () => {
+    return gmUtil.getData('is_room_background_hide_gm', false)
 }
 
 export default {
