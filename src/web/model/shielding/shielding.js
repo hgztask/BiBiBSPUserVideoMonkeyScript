@@ -506,7 +506,7 @@ export const blockByLevelForVideo = (level) => {
 
 //根据等级屏蔽-评论
 export const blockByLevelForComment = (level) => {
-    if (!level) return returnTempVal;
+    if (level === -1) return returnTempVal;
     if (isEnableMinimumUserLevelCommentGm()) {
         const min = getMinimumUserLevelCommentGm();
         if (level < min) {
