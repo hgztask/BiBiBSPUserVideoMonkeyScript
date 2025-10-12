@@ -61,7 +61,7 @@ export default {
       this.drawer = !this.drawer;
     })
     document.addEventListener('keydown', (event) => {
-      eventEmitter.send('event-keydownEvent', event);
+      eventEmitter.emit('event-keydownEvent', event);
       if (event.key === getDrawerShortcutKeyGm()) {
         this.drawer = !this.drawer;
       }
