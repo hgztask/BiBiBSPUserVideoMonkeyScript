@@ -6,6 +6,7 @@
 
 #room-card-list > div button {
     margin-top: 15px;
+    z-index: 10;
 }
 
 /*直播首页列表项屏蔽按钮样式*/
