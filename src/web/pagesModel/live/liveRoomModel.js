@@ -5,6 +5,12 @@ import userProfile from "../userProfile.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import defUtil from "../../utils/defUtil.js";
 import {isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../data/localMKData.js";
+import {
+    asyncBlockByLevel,
+    asyncBlockComment,
+    asyncBlockUserFanCard,
+    asyncBlockUserUidAndName,
+} from "../../model/shielding/shielding.js";
 
 /**
  * 判断是否为直播间
@@ -116,7 +122,7 @@ const getChatItems = async () => {
         //粉丝牌
         const fansMedal = fansMedalEl === null ? null : fansMedalEl.textContent.trim();
         list.push({
-            name,chatType,
+            name, chatType,
             uid,
             content,
             timeStamp,
@@ -125,6 +131,60 @@ const getChatItems = async () => {
         })
     }
     return list;
+}
+
+//获取醒目留言
+const getSCList = async () => {
+    const elList = await elUtil.findElements('.card-wrapper>.card-item-box.child');
+    const list = [];
+    for (let el of elList) {
+        const vueData = el['__vue__'];
+        const {itemData} = vueData;
+        const {userInfo} = itemData;
+        const {message, uid} = itemData;
+        //用户名，等级
+        const {uname, userLevel} = userInfo;
+        const {fansMedal} = userInfo;
+        //粉丝牌名，粉丝牌等级
+        let fansMedalName = null, fansMedalLevel = null;
+        if (fansMedal) {
+            fansMedalName = fansMedal.name;
+            fansMedalLevel = fansMedal.level;
+        }
+        list.push({
+            uname, userLevel, uid, message, fansMedalName, fansMedalLevel,
+            el, vueData, itemData
+        })
+    }
+    return list;
+}
+
+//检查醒目留言
+const checkSCList = async () => {
+    const list = await getSCList();
+    for (let v of list) {
+        const {uid, uname, el, userLevel, fansMedalName, message} = v;
+        asyncBlockUserUidAndName(uid, uname)
+            .then(()=>asyncBlockComment(message))
+            .then(() => asyncBlockByLevel(userLevel))
+            .then(() => asyncBlockUserFanCard(fansMedalName))
+            .catch(res => {
+                el?.remove();
+                const {type, matching} = res;
+                eventEmitter.send(
+                    '打印信息',
+                    `根据${type}屏蔽用户${uname}醒目留言:【${message}】,匹配值【${matching}】`
+                );
+            })
+    }
+}
+
+//监听醒目留言
+const listeningSC = () => {
+    elUtil.findElement('#pay-note-panel-vm').then(el => {
+        const observer = new MutationObserver(checkSCList);
+        observer.observe(el, {childList: true, subtree: true});
+    })
 }
 
 /**
@@ -141,6 +201,8 @@ const run = async () => {
     const isLiveRoomActivityVal = isLiveRoomActivity();
     if (!isLiveRoomActivityVal) {
         userProfile.run()
+        listeningSC();
+        checkSCList();
         checkBottomLiveRoomList().then(async () => {
             const switchBtn = await elUtil.findElement('#observerTarget>.switch-btn');
             switchBtn.addEventListener('click', () => {

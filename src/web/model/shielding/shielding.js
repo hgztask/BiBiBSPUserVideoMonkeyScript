@@ -753,6 +753,16 @@ export const asyncBlockUserVideoNumLimit = async (num) => {
     if (res.state) return Promise.reject(res);
 }
 
+//异步检查用户粉丝牌屏蔽，匹配成功则抛出reject
+export const asyncBlockUserFanCard = async (fansMedal) => {
+    if (fansMedal !== null) {
+        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseFanCardArr(), fansMedal)) {
+            return {state: true, type: '精确粉丝牌', matching: fansMedal}
+        }
+    }
+    return returnTempVal;
+}
+
 /**
  * 根据动态内容执行屏蔽检查，支持模糊匹配和正则匹配
  * 如传入动态视频标题，则前条件不成立时根据视频标题执行模糊匹配和正则匹配

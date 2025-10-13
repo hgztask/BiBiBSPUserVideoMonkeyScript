@@ -6,6 +6,7 @@ import shielding, {
     asyncBlockByLevelForComment,
     asyncBlockComment,
     asyncBlockSeniorMemberOnly,
+    asyncBlockUserFanCard,
     asyncBlockUserUidAndName,
     blockCheckWhiteUserUid,
     blockUserUidAndName,
@@ -33,13 +34,7 @@ const shieldingLiveRoomContent = (liveRoomContent) => {
     asyncBlockSeniorMemberOnly(level)
         .then(() => asyncBlockUserUidAndName(uid, name))
         .then(() => asyncBlockByLevelForComment(level))
-        .then(() => {
-            if (fansMedal !== null) {
-                if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseFanCardArr(), fansMedal)) {
-                    return {state: true, type: '精确粉丝牌', matching: fansMedal}
-                }
-            }
-        })
+        .then(() =>asyncBlockUserFanCard(fansMedal))
         .then(() => {
             if (chatType === 'emoticon') {
                 return Promise.reject({type: '中断'});
