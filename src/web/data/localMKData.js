@@ -571,6 +571,11 @@ export const isHideLiveGiftPanelGm = () => {
     return gmUtil.getData('is_room_background_hide_gm', false)
 }
 
+//是否屏蔽B-gete脚本中非视频类
+export const bGateClearListNonVideoGm = () => {
+    return gmUtil.getData('b_gate_clear_list_non_video_gm', false)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

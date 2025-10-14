@@ -1,6 +1,6 @@
 <script>
 import globalValue from "../../data/globalValue.js";
-import localMKData from "../../data/localMKData.js";
+import localMKData, {bGateClearListNonVideoGm} from "../../data/localMKData.js";
 import gmUtil from "../../utils/gmUtil.js";
 
 export default {
@@ -8,6 +8,7 @@ export default {
     return {
       //是否适配bilibili-app-commerce脚本(Bilibili-Gate脚本)
       adaptationBAppRecommend: globalValue.adaptationBAppCommerce,
+      bGateClearListNonVideoV: bGateClearListNonVideoGm(),
       //是否兼容BewlyBewly插件
       compatible_BEWLY_BEWLY: globalValue.compatibleBEWLYBEWLY,
       //是否全部兼容新版评论区
@@ -18,6 +19,9 @@ export default {
     adaptationBAppRecommend(newVal) {
       //设置是否适配Bilibili-Gate脚本，原bilibili-app-recommend脚本
       gmUtil.setData("adaptation-b-app-recommend", newVal === true)
+    },
+    bGateClearListNonVideoV(n) {
+      gmUtil.setData('b_gate_clear_list_non_video_gm', n)
     },
     compatible_BEWLY_BEWLY(newVal) {
       //设置是否兼容BewlyBewly插件
@@ -39,6 +43,7 @@ export default {
     <el-card>
       <template #header>Bilibili-Gate脚本(bilibili-app-recommend)</template>
       <el-switch v-model="adaptationBAppRecommend" active-text="首页屏蔽适配"/>
+      <el-switch v-model="bGateClearListNonVideoV" active-text="清空列表非视频元素" title="刷新页面后生效"/>
     </el-card>
     <el-card>
       <template #header>Bewly插件(BewlyBewly和BewlyCat)</template>

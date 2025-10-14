@@ -37,6 +37,8 @@ const check_bilibili_gate_compatibility = async () => {
     }
 }
 
+const bGateClearListNonVideoV = bGateClearListNonVideoGm();
+
 /**
  * 获取Bilibili-Gate脚本下的首页视频列表
  * @returns {Promise<[{}]>}
@@ -45,7 +47,14 @@ const getGateDataList = async () => {
     const elList = await elUtil.findElements(".bilibili-gate-video-grid>[data-bvid].bili-video-card")
     const list = [];
     for (let el of elList) {
-        const tempData = bilibiliHome.getVideoData(el)
+        //红色标签，非视频类，如纪录片
+        const redTag = el.querySelector(".css-1atx64h");
+        if (redTag && bGateClearListNonVideoV) {
+            el.remove();
+            continue;
+        }
+        if (redTag) continue;
+        const tempData = homeCommon.getVideoData(el)
         const videoUrl = el.querySelector("a.css-feo88y")?.href;
         const bv = elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector(".bili-video-card__info--owner");
