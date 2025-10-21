@@ -4,13 +4,14 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import userProfile from "../userProfile.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import defUtil from "../../utils/defUtil.js";
-import {isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../data/localMKData.js";
+import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../data/localMKData.js";
 import {
     asyncBlockByLevel,
     asyncBlockComment,
     asyncBlockUserFanCard,
     asyncBlockUserUidAndName,
 } from "../../model/shielding/shielding.js";
+import liveCommon from "./liveCommon.js";
 
 /**
  * 判断是否为直播间
@@ -198,6 +199,7 @@ const run = async () => {
     if (isHideLiveGiftPanelGm()) {
         setGiftControlPanelDisplay()
     }
+    liveCommon.setLivePageRightSidebarHide(isDelLivePageRightSidebarGm())
 }
 
 export default {
