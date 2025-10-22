@@ -3,7 +3,7 @@ import globalValue from "../../data/globalValue.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import defUtil from "../../utils/defUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
-import bilibiliHome from "./bilibiliHome.js";
+import {bGateClearListNonVideoGm} from "../../data/localMKData.js";
 
 /**
  * 获取Bilibili-Gate脚本下的首页其脚本自带的激活的选项卡

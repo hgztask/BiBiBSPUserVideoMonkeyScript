@@ -576,6 +576,10 @@ export const bGateClearListNonVideoGm = () => {
     return gmUtil.getData('b_gate_clear_list_non_video_gm', false)
 }
 
+export const isDelLiveBottomBannerAdGm = () => {
+    return gmUtil.getData('is_del_live_bottom_banner_ad_val_gm', true)
+}
+
 export default {
     getTripleRate,
     isTripleRateBlockingStatus,

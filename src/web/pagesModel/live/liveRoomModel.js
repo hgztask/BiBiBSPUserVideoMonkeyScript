@@ -125,7 +125,7 @@ const checkSCList = async () => {
     for (let v of list) {
         const {uid, uname, el, userLevel, fansMedalName, message} = v;
         asyncBlockUserUidAndName(uid, uname)
-            .then(()=>asyncBlockComment(message))
+            .then(() => asyncBlockComment(message))
             .then(() => asyncBlockByLevel(userLevel))
             .then(() => asyncBlockUserFanCard(fansMedalName))
             .catch(res => {
@@ -157,12 +157,24 @@ const startShieldingLiveChatContents = defUtil.throttle(async () => {
     }
 }, 2000)
 
+//删除直播间礼物栏下方横幅广告
+const delLivePageRightSidebarAd =() => {
+    if (isDelLivePageRightSidebarGm()) {
+        elUtil.findElement('.flip-view.p-relative.over-hidden.w-100').then(el => {
+            el.remove();
+            eventEmitter.send('打印信息', '已删除直播间礼物栏下方横幅广告');
+        })
+    }
+}
+
+
 const run = async () => {
     const isLiveRoomActivityVal = isLiveRoomActivity();
     if (!isLiveRoomActivityVal) {
         userProfile.run()
         listeningSC();
         checkSCList();
+        delLivePageRightSidebarAd()
     }
     setInterval(() => {
         startShieldingLiveChatContents();
@@ -204,5 +216,5 @@ const run = async () => {
 
 export default {
     isLiveRoom, setRoomBackgroundDisplay, setGiftControlPanelDisplay,
-    run
+    run,isLiveRoomActivity,delLivePageRightSidebarAd
 }

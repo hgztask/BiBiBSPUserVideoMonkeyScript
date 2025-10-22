@@ -10,6 +10,7 @@ import localMKData, {
   isAutomaticScrollingGm,
   isClearLiveCardGm,
   isCloseCommentBlockingGm,
+  isDelLiveBottomBannerAdGm,
   isDelLivePageRightSidebarGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
@@ -48,7 +49,8 @@ export default {
       isRoomListAdaptiveVal: isRoomListAdaptiveGm(),
       isDelLivePageRightSidebarVal: isDelLivePageRightSidebarGm(),
       isRoomBackgroundHideVal: isRoomBackgroundHideGm(),
-      isHideLiveGiftPanelVal: isHideLiveGiftPanelGm()
+      isHideLiveGiftPanelVal: isHideLiveGiftPanelGm(),
+      isDelLiveBottomBannerAdVal: isDelLiveBottomBannerAdGm()
     }
   },
   methods: {},
@@ -134,6 +136,12 @@ export default {
       if (liveRoomModel.isLiveRoom()) {
         liveRoomModel.setGiftControlPanelDisplay(n);
       }
+    },
+    isDelLiveBottomBannerAdVal(n) {
+      gmUtil.setData('is_del_live_bottom_banner_ad_val_gm', n)
+      if (liveRoomModel.isLiveRoom() && !liveRoomModel.isLiveRoomActivity()) {
+        liveRoomModel.delLivePageRightSidebarAd();
+      }
     }
   }
 }
@@ -218,6 +226,8 @@ export default {
       <el-divider/>
       <el-switch v-model="isRoomBackgroundHideVal" active-text="背景移除"/>
       <el-switch v-model="isHideLiveGiftPanelVal" active-text="隐藏礼物栏"/>
+      <el-switch v-model="isDelLiveBottomBannerAdVal" active-text="移除底部横幅广告"
+                 title="移除页面礼物栏下方的横幅广告"/>
     </el-card>
   </div>
 </template>

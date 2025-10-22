@@ -1,5 +1,6 @@
 import cssContent from '../../css/live-partition.css';
 import elUtil from "../../utils/elUtil.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 const addStyle = () => {
     const style = document.createElement('style');
@@ -13,11 +14,11 @@ const addStyle = () => {
  * @param hided {boolean} 是否隐藏
  */
 const setLivePageRightSidebarHide = (hided = false) => {
-    elUtil.findElement('#area-tags>div>aside,#sidebar-vm').then(el => {
+    elUtil.findElement('#area-tags>div>aside,#sidebar-vm.p-relative.z-sidebar.contain-optimize').then(el => {
         el.style.display = hided ? 'none' : '';
+      eventEmitter.send('打印信息',`已${hided ? '隐藏' : '显示'}直播页右侧边栏`);
     })
 }
-
 
 export default {
     addStyle, setLivePageRightSidebarHide
