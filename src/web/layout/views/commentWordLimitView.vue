@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import localMKData from "../../data/localMKData.js";
 
 /**
@@ -21,7 +20,7 @@ export default {
           type: 'warning',
         })
       }
-      gmUtil.setData('comment_word_limit', newVal)
+      GM_setValue('comment_word_limit', newVal)
     }
   }
 }

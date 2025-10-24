@@ -5,7 +5,6 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {isClearLiveCardGm} from "../../data/localMKData.js";
 
@@ -248,7 +247,7 @@ const processingExactSearchVideoCardContent = async () => {
 
 //屏蔽删除底部内容
 const delFooterContent = () => {
-    if (!gmUtil.getData('isRemoveSearchBottomContent', false)) {
+    if (!GM_getValue('isRemoveSearchBottomContent', false)) {
         return
     }
     elUtil.findElement('#biliMainFooter').then(el => {

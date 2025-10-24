@@ -9,7 +9,6 @@ import {
   isEnableMinimumUserLevelCommentGm,
   isEnableMinimumUserLevelVideoGm
 } from "../../../data/localMKData.js";
-import gmUtil from "../../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -41,7 +40,7 @@ export default {
         this.$message.warning('最小等级不能等于最大等级')
         return;
       }
-      gmUtil.setData("minimum_user_level_video_gm", n);
+      GM_setValue("minimum_user_level_video_gm", n);
     },
     maximumUserLevelVideoVal(n) {
       const min = this.minimumUserLevelVideoVal;
@@ -55,7 +54,7 @@ export default {
         this.$message.warning('最大等级不能等于最小等级')
         return;
       }
-      gmUtil.setData("maximum_user_level_video_gm", this.maximumUserLevelVideoVal)
+      GM_setValue("maximum_user_level_video_gm", this.maximumUserLevelVideoVal)
     },
     minimumCommentVal(n) {
       const max = this.maximumCommentVal;
@@ -69,7 +68,7 @@ export default {
         this.$message.warning('最小等级不能等于最大等级')
         return;
       }
-      gmUtil.setData("minimum_user_level_comment_gm", n)
+      GM_setValue("minimum_user_level_comment_gm", n)
     },
     maximumCommentVal(n) {
       const min = this.minimumCommentVal;
@@ -83,19 +82,19 @@ export default {
         this.$message.warning('最大等级不能等于最小等级')
         return;
       }
-      gmUtil.setData("maximum_user_level_comment_gm", n)
+      GM_setValue("maximum_user_level_comment_gm", n)
     },
     isEnableMinimumUserLevelVideoVal(n) {
-      gmUtil.setData("is_enable_minimum_user_level_video_gm", n)
+      GM_setValue("is_enable_minimum_user_level_video_gm", n)
     },
     isEnableMaximumUserLevelVideoVal(n) {
-      gmUtil.setData("is_enable_maximum_user_level_video_gm", n)
+      GM_setValue("is_enable_maximum_user_level_video_gm", n)
     },
     isEnableMinimumUserLevelCommentVal(n) {
-      gmUtil.setData("is_enable_minimum_user_level_comment_gm", n)
+      GM_setValue("is_enable_minimum_user_level_comment_gm", n)
     },
     isEnableMaximumUserLevelCommentVal(n) {
-      gmUtil.setData("is_enable_maximum_user_level_comment_gm", n)
+      GM_setValue("is_enable_maximum_user_level_comment_gm", n)
     }
   }
 }

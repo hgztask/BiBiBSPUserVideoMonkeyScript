@@ -1,6 +1,5 @@
 <script>
 import {getLimitationFanSumGm, isFansNumBlockingStatusGm} from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
 import video_metrics_filter_item_view from '../components/videoMetricsFilterItem.vue'
 import CardSlider from "../components/cardSlider.vue";
 
@@ -43,10 +42,10 @@ export default {
   },
   watch: {
     limitationFanSumVal(n) {
-      gmUtil.setData('limitation_fan_sum_gm', parseInt(n))
+      GM_setValue('limitation_fan_sum_gm', parseInt(n))
     },
     fansNumBlockingStatus(n) {
-      gmUtil.setData('is_fans_num_blocking_status_gm', n)
+      GM_setValue('is_fans_num_blocking_status_gm', n)
     }
   }
 }

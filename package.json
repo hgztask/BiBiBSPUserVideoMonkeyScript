@@ -10,6 +10,7 @@
   "private": true,
   "devDependencies": {
     "@rollup/plugin-replace": "^6.0.2",
+    "@types/tampermonkey": "^5.0.5",
     "dexie": "^4.0.10",
     "element-ui": "^2.15.14",
     "esbuild": "^0.25.8",

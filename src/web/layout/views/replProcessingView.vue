@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import {
   enableReplacementProcessing,
   getSubstituteWordsArr,
@@ -91,7 +90,7 @@ export default {
         }
         duplicateRemoval.add(v.findVal);
       }
-      gmUtil.setData('substitute_words', this.tableData)
+      GM_setValue('substitute_words', this.tableData)
       this.$message.success('已保存')
     },
     actionScopesChange(newArr) {
@@ -103,10 +102,10 @@ export default {
   },
   watch: {
     clearCommentEmoticonsVal(n) {
-      gmUtil.setData('is_clear_comment_emoticons', n)
+      GM_setValue('is_clear_comment_emoticons', n)
     },
     isReplaceCommentSearchTermsVal(n) {
-      gmUtil.setData('is_replace_comment_search_terms', n)
+      GM_setValue('is_replace_comment_search_terms', n)
     }
   }
 }

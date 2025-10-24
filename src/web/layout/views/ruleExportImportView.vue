@@ -3,7 +3,6 @@ import defUtil, {saveTextAsFile} from "../../utils/defUtil.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
-import gmUtil from "../../utils/gmUtil.js";
 //规则导入导出组件
 export default {
   data() {
@@ -25,7 +24,7 @@ export default {
         const find = this.select.options.find(item => item.key === valKey);
         if (find === undefined) continue;
         const {key} = find;
-        const ruleItemList = gmUtil.getData(key, []);
+        const ruleItemList = GM_getValue(key, []);
         if (ruleItemList.length === 0) continue;
         map[key] = ruleItemList;
       }

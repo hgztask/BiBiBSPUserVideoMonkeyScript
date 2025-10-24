@@ -1,6 +1,5 @@
 <script>
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 /**
  * 规则信息组件
@@ -14,7 +13,7 @@ export default {
   methods: {
     refreshInfo(isTip = true) {
       for (let x of this.ruleInfoArr) {
-        x.len = gmUtil.getData(x.type, []).length;
+        x.len = GM_getValue(x.type, []).length;
       }
       if (!isTip) return;
       this.$notify({title: 'tip', message: '刷新规则信息成功', type: 'success'})
@@ -27,7 +26,7 @@ export default {
         this.$message.warning('当前规则信息为空')
         return;
       }
-      const data = gmUtil.getData(item.type, []);
+      const data = GM_getValue(item.type, []);
       eventEmitter.send('展示内容对话框', JSON.stringify(data))
     }
   },

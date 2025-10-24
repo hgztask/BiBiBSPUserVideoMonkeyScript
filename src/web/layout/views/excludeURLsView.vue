@@ -1,6 +1,5 @@
 <script>
 import {getExcludeURLsGm, isExcludeURLSwitchGm} from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -29,7 +28,7 @@ export default {
           return
         }
       }
-      gmUtil.setData("exclude_urls_gm", this.data)
+      GM_setValue("exclude_urls_gm", this.data)
       this.$message.success("保存成功");
     },
     tableVerificationItemUrlBut(url) {
@@ -55,7 +54,7 @@ export default {
   },
   watch: {
     excludeURLSwitchVal(n) {
-      gmUtil.setData("is_exclude_url_switch_gm", n)
+      GM_setValue("is_exclude_url_switch_gm", n)
     }
   }
 }

@@ -11,7 +11,6 @@ import {
     isHideHomeTopHeaderBannerImageGm,
     isHideHomeTopHeaderChannelGm
 } from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 // 判断是否是首页
 const isHome = (url, title) => {
@@ -235,7 +234,7 @@ const run = () => {
     if (isHideHomeTopHeaderChannelGm()) {
         hideHomeTopHeaderChannel(true)
     }
-    gmUtil.addStyle(`
+    GM_addStyle(`
     .recommended-container_floor-aside .container>*:nth-of-type(7) {
   /* 这里值改成auto，该视频选项卡对其其他视频*/
   /* 原先是0，会导致该视频对不齐其他视频选项卡*/

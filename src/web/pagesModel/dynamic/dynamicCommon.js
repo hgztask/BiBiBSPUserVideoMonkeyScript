@@ -1,5 +1,4 @@
 import elUtil from "../../utils/elUtil.js";
-import gmUtil from "../../utils/gmUtil.js";
 import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../../model/shielding/shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {
@@ -200,8 +199,8 @@ const commonCheckDynamicList = async () => {
     const dataList = await getDataList();
     console.log('动态列表', dataList);
     const ruleArrMap = {
-        fuzzyRuleArr: gmUtil.getData('dynamic', []),
-        regexRuleArr: gmUtil.getData('dynamicCanonical', [])
+        fuzzyRuleArr: GM_getValue('dynamic', []),
+        regexRuleArr: GM_getValue('dynamicCanonical', [])
     }
     const checkNestedDynamicContentGm = isCheckNestedDynamicContentGm();
     for (const v of dataList) {

@@ -1,7 +1,6 @@
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
-import gmUtil from "../../utils/gmUtil.js";
 import {eventEmitter} from "../EventEmitter.js";
 import {elEventEmitter} from "../elEventEmitter.js";
 import localMKData, {
@@ -191,7 +190,7 @@ const blockExactAndFuzzyMatching = (val, config) => {
     }
     const {
         exactKey, exactTypeName,
-        exactRuleArr = gmUtil.getData(exactKey, [])
+        exactRuleArr = GM_getValue(exactKey, [])
     } = config;
     if (exactKey) {
         if (ruleMatchingUtil.exactMatch(exactRuleArr, val)) {
@@ -201,7 +200,7 @@ const blockExactAndFuzzyMatching = (val, config) => {
     let matching;
     const {
         fuzzyKey, fuzzyTypeName,
-        fuzzyRuleArr = gmUtil.getData(fuzzyKey, []),
+        fuzzyRuleArr = GM_getValue(fuzzyKey, []),
     } = config;
     if (fuzzyKey) {
         matching = ruleMatchingUtil.fuzzyMatch(fuzzyRuleArr, val);
@@ -211,7 +210,7 @@ const blockExactAndFuzzyMatching = (val, config) => {
     }
     const {
         regexKey, regexTypeName,
-        regexRuleArr = gmUtil.getData(regexKey, [])
+        regexRuleArr = GM_getValue(regexKey, [])
     } = config;
     if (regexKey) {
         matching = ruleMatchingUtil.regexMatch(regexRuleArr, val);

@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import externalList from "../../res/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
 import UserLevelFilteringView from "./other-parameter-filter/UserLevelFilteringView.vue";
@@ -24,7 +23,7 @@ export default {
   methods: {
     updateInfo(isTip=false) {
       for (const v of this.showInfoList) {
-        v.showVal = gmUtil.getData(v.key, '');
+        v.showVal = GM_getValue(v.key, '');
       }
       isTip && this.$notify({type: 'info', position: 'bottom-right', message: '已刷新'})
     }

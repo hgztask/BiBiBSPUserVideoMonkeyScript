@@ -1,6 +1,5 @@
 <script>
 import localMKData from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 /**
  * uid范围屏蔽vue组件
@@ -16,7 +15,7 @@ export default {
   methods: {
     setRangeBut() {
       this.$alert('设置成功')
-      gmUtil.setData('uid_range_masking', [this.head, this.tail])
+      GM_setValue('uid_range_masking', [this.head, this.tail])
     }
   },
   watch: {
@@ -33,7 +32,7 @@ export default {
       }
     },
     status(n) {
-      gmUtil.setData('uid_range_masking_status', n)
+      GM_setValue('uid_range_masking_status', n)
     }
   },
   created() {

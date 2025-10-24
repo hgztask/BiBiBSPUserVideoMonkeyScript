@@ -10,7 +10,6 @@ import {
   isBlockVideoChargingExclusiveDynamicGm,
   isBlockVoteDynamicGm
 } from "../../../data/localMKData.js";
-import gmUtil from "../../../utils/gmUtil.js";
 import dynamicPage from "../../../pagesModel/dynamic/dynamicPage.js";
 
 export default {
@@ -29,31 +28,31 @@ export default {
   },
   watch: {
     enableDynamicItemsContentBlockingVal(n) {
-      gmUtil.setData('enable_dynamic_items_content_blocking_gm', n)
+      GM_setValue('enable_dynamic_items_content_blocking_gm', n)
     },
     isBlockRepostDynamicVal(n) {
-      gmUtil.setData('is_block_repost_dynamic_gm', n)
+      GM_setValue('is_block_repost_dynamic_gm', n)
     },
     isBlockAppointmentDynamicVal(n) {
-      gmUtil.setData('is_block_appointment_dynamic_gm', n)
+      GM_setValue('is_block_appointment_dynamic_gm', n)
     },
     isBlockVoteDynamicVal(n) {
-      gmUtil.setData('is_block_vote_dynamic_gm', n)
+      GM_setValue('is_block_vote_dynamic_gm', n)
     },
     isBlockUPowerLotteryDynamicVal(n) {
-      gmUtil.setData('is_block_u_power_lottery_dynamic_gm', n)
+      GM_setValue('is_block_u_power_lottery_dynamic_gm', n)
     },
     isBlockGoodsDynamicVal(n) {
-      gmUtil.setData('is_block_goods_dynamic_gm', n)
+      GM_setValue('is_block_goods_dynamic_gm', n)
     },
     isBlockSpecialColumnForChargingDynamicVal(n) {
-      gmUtil.setData('is_block_special_column_for_charging_dynamic_gm', n)
+      GM_setValue('is_block_special_column_for_charging_dynamic_gm', n)
     },
     isBlockVideoChargingExclusiveDynamicVal(n) {
-      gmUtil.setData('is_block_video_charging_exclusive_dynamic_gm', n)
+      GM_setValue('is_block_video_charging_exclusive_dynamic_gm', n)
     },
     hidePersonalInfoCardVal(n) {
-      gmUtil.setData('hide_personal_info_card_gm', n)
+      GM_setValue('hide_personal_info_card_gm', n)
       if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.hidePersonalInfoCard(n);
       }

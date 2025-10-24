@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import bilibiliHome from "../../pagesModel/home/bilibiliHome.js";
 import hotSearch from "../../pagesModel/search/hotSearch.js";
 import topInput from "../../pagesModel/search/topInput.js";
@@ -30,13 +29,13 @@ export default {
   components: {dynamicCard},
   data() {
     return {
-      isRemoveSearchBottomContent: gmUtil.getData('isRemoveSearchBottomContent', false),
+      isRemoveSearchBottomContent: GM_getValue('isRemoveSearchBottomContent', false),
       isClearLiveCardVal: isClearLiveCardGm(),
-      isDelPlayerPageAd: gmUtil.getData('isDelPlayerPageAd', false),
-      isDelPlayerPageRightGameAd: gmUtil.getData('isDelPlayerPageRightGameAd', false),
+      isDelPlayerPageAd: GM_getValue('isDelPlayerPageAd', false),
+      isDelPlayerPageRightGameAd: GM_getValue('isDelPlayerPageRightGameAd', false),
       isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
       isDelBottomComment: localMKData.isDelBottomComment(),
-      isClearTopInputTipContent: gmUtil.getData('isClearTopInputTipContent', false),
+      isClearTopInputTipContent: GM_getValue('isClearTopInputTipContent', false),
       isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel(),
       isHideHotSearchesPanelVal: isHideHotSearchesPanelGm(),
       isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm(),
@@ -56,25 +55,25 @@ export default {
   methods: {},
   watch: {
     isRemoveSearchBottomContent(b) {
-      gmUtil.setData('isRemoveSearchBottomContent', b)
+      GM_setValue('isRemoveSearchBottomContent', b)
     },
     isClearLiveCardVal(b) {
-      gmUtil.setData('is_clear_live_card_gm', b)
+      GM_setValue('is_clear_live_card_gm', b)
     },
     isDelPlayerPageAd(b) {
-      gmUtil.setData('isDelPlayerPageAd', b)
+      GM_setValue('isDelPlayerPageAd', b)
     },
     isDelPlayerPageRightGameAd(b) {
-      gmUtil.setData('isDelPlayerPageRightGameAd', b)
+      GM_setValue('isDelPlayerPageRightGameAd', b)
     },
     isDelPlayerPageRightVideoList(b) {
-      gmUtil.setData('isDelPlayerPageRightVideoList', b)
+      GM_setValue('isDelPlayerPageRightVideoList', b)
     },
     isDelBottomComment(b) {
-      gmUtil.setData('isDelBottomComment', b)
+      GM_setValue('isDelBottomComment', b)
     },
     isClearTopInputTipContent(b) {
-      gmUtil.setData('isClearTopInputTipContent', b)
+      GM_setValue('isClearTopInputTipContent', b)
       if (b) {
         eventEmitter.send('执行清空顶部搜索框提示内容')
         return
@@ -82,63 +81,63 @@ export default {
       topInput.setTopInputPlaceholder()
     },
     isDelPlayerEndingPanelVal(n) {
-      gmUtil.setData('is_del_player_ending_panel', n)
+      GM_setValue('is_del_player_ending_panel', n)
     },
     isHideHotSearchesPanelVal(n) {
-      gmUtil.setData('is_hide_hot_searches_panel_gm', n)
+      GM_setValue('is_hide_hot_searches_panel_gm', n)
       hotSearch.setTopSearchPanelDisplay(n, '热搜', 4000);
     },
     isHideSearchHistoryPanelVal(n) {
-      gmUtil.setData('is_hide_search_history_panel_gm', n)
+      GM_setValue('is_hide_search_history_panel_gm', n)
       hotSearch.setTopSearchPanelDisplay(n, '搜索历史', 4000);
     },
     isCloseCommentBlockingVal(n) {
-      gmUtil.setData('is_close_comment_blocking_gm', n)
+      GM_setValue('is_close_comment_blocking_gm', n)
     },
     isHideCarouselImageVal(n) {
-      gmUtil.setData('is_hide_carousel_image_gm', n)
+      GM_setValue('is_hide_carousel_image_gm', n)
       bilibiliHome.hideHomeCarouselImage(n, true);
     },
     isHideHomeTopHeaderBannerImageVal(n) {
-      gmUtil.setData('is_hide_home_top_header_banner_image_gm', n)
+      GM_setValue('is_hide_home_top_header_banner_image_gm', n)
       bilibiliHome.hideHomeTopHeaderBannerImage(n);
     },
     isHideTopHeaderChannelVal(n) {
-      gmUtil.setData('is_hide_home_top_header_channel_gm', n)
+      GM_setValue('is_hide_home_top_header_channel_gm', n)
       bilibiliHome.hideHomeTopHeaderChannel(n);
     },
     releaseTypeCardVals(n) {
-      gmUtil.setData('release_type_cards_gm', n)
+      GM_setValue('release_type_cards_gm', n)
     },
     isAutomaticScrollingVal(n) {
-      gmUtil.setData('is_automatic_scrolling_gm', n)
+      GM_setValue('is_automatic_scrolling_gm', n)
     },
     isRoomListAdaptiveVal(n) {
-      gmUtil.setData('is_room_list_adaptive_gm', n)
+      GM_setValue('is_room_list_adaptive_gm', n)
       if (liveSectionModel.isLiveSection()) {
         liveSectionModel.liveStreamPartitionStyle(n);
       }
     },
     isDelLivePageRightSidebarVal(n) {
-      gmUtil.setData('is_del_live_page_right_sidebar_gm', n)
+      GM_setValue('is_del_live_page_right_sidebar_gm', n)
       if (liveSectionModel.isLiveSection() || liveRoomModel.isLiveRoom()) {
         liveCommon.setLivePageRightSidebarHide(n)
       }
     },
     isRoomBackgroundHideVal(n) {
-      gmUtil.setData('is_room_background_hide_gm', n)
+      GM_setValue('is_room_background_hide_gm', n)
       if (liveRoomModel.isLiveRoom()) {
         liveRoomModel.setRoomBackgroundDisplay(n);
       }
     },
     isHideLiveGiftPanelVal(n) {
-      gmUtil.setData('is_hide_live_gift_panel_gm', n)
+      GM_setValue('is_hide_live_gift_panel_gm', n)
       if (liveRoomModel.isLiveRoom()) {
         liveRoomModel.setGiftControlPanelDisplay(n);
       }
     },
     isDelLiveBottomBannerAdVal(n) {
-      gmUtil.setData('is_del_live_bottom_banner_ad_val_gm', n)
+      GM_setValue('is_del_live_bottom_banner_ad_val_gm', n)
       if (liveRoomModel.isLiveRoom() && !liveRoomModel.isLiveRoomActivity()) {
         liveRoomModel.delLivePageRightSidebarAd();
       }

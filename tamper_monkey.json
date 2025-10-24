@@ -25,7 +25,8 @@
     "*://message.bilibili.com/pages/nav/index_new_pc_sync",
     "*://live.bilibili.com/blackboard/dropdown-menu.html",
     "*://live.bilibili.com/p/html/live-web-mng/*",
-    "*://www.bilibili.com/correspond/*"
+    "*://www.bilibili.com/correspond/*",
+    "http://localhost:3001/"
   ],
   "@match": [
     "*://search.bilibili.com/*",

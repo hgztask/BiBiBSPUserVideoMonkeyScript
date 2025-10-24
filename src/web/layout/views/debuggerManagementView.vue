@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
 import {bAfterLoadingThePageOpenMainPanel, isWsService} from "../../model/debuggerMeanagement.js";
@@ -57,13 +56,13 @@ export default {
   },
   watch: {
     bAfterLoadingThePageOpenMainPanel(b) {
-      gmUtil.setData('bAfterLoadingThePageOpenMainPanel', b)
+      GM_setValue('bAfterLoadingThePageOpenMainPanel', b)
     },
     isWsServiceVal(b) {
-      gmUtil.setData('isWsService', b)
+      GM_setValue('isWsService', b)
     },
     localhostPageAutomaticallyOpenTheMainPanelVal(b){
-      gmUtil.setData('is_localhost_page_automatically_open_the_main_panel_gm', b)
+      GM_setValue('is_localhost_page_automatically_open_the_main_panel_gm', b)
     }
   }
 }

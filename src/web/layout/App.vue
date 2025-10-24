@@ -10,7 +10,6 @@ import showImgDialog from "./eventEmitter_components/showImgDialog.vue";
 import sheetDialog from "./eventEmitter_components/sheetDialog.vue";
 import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../model/EventEmitter.js";
-import gmUtil from "../utils/gmUtil.js";
 import {getDrawerShortcutKeyGm} from "../data/localMKData.js";
 import outputInformationView from './views/outputInformationView.vue'
 import donateLayoutView from './views/donateLayoutView.vue'
@@ -47,13 +46,13 @@ export default {
     return {
       drawer: false,
       // 默认打开的tab
-      tabsActiveName: gmUtil.getData('mainTabsActiveName', '规则管理'),
+      tabsActiveName: GM_getValue('mainTabsActiveName', '规则管理'),
       debug_panel_show: __DEV__,
     }
   },
   methods: {
     tabClick(tab) {
-      gmUtil.setData('mainTabsActiveName', tab.name);
+      GM_setValue('mainTabsActiveName', tab.name);
     },
   },
   created() {

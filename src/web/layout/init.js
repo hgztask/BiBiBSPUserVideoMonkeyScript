@@ -1,4 +1,3 @@
-import gmUtil from "../utils/gmUtil.js";
 import localMKData from "../data/localMKData.js";
 import defCss from '../css/def.css'
 import {addGzStyle, initVueApp} from "../utils/defUtil.js";
@@ -23,10 +22,10 @@ window.addEventListener('DOMContentLoaded', () => {
 })
 
 // 设置边框样式
-gmUtil.addStyle(`
+GM_addStyle(`
 [gz_bezel]{
 border:1px solid ${localMKData.getBorderColor()}
 }
 `);
 
-gmUtil.addStyle(defCss)
+GM_addStyle(defCss)

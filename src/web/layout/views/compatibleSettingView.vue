@@ -1,7 +1,6 @@
 <script>
 import globalValue from "../../data/globalValue.js";
 import localMKData, {bGateClearListNonVideoGm} from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -18,17 +17,17 @@ export default {
   watch: {
     adaptationBAppRecommend(newVal) {
       //设置是否适配Bilibili-Gate脚本，原bilibili-app-recommend脚本
-      gmUtil.setData("adaptation-b-app-recommend", newVal === true)
+      GM_setValue("adaptation-b-app-recommend", newVal === true)
     },
     bGateClearListNonVideoV(n) {
-      gmUtil.setData('b_gate_clear_list_non_video_gm', n)
+      GM_setValue('b_gate_clear_list_non_video_gm', n)
     },
     compatible_BEWLY_BEWLY(newVal) {
       //设置是否兼容BewlyBewly插件
-      gmUtil.setData("compatible_BEWLY_BEWLY", newVal === true)
+      GM_setValue("compatible_BEWLY_BEWLY", newVal === true)
     },
     discardOldCommentAreasV(newVal) {
-      gmUtil.setData("discardOldCommentAreas", newVal === true)
+      GM_setValue("discardOldCommentAreas", newVal === true)
     }
   }
 }

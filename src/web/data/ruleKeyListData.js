@@ -1,4 +1,3 @@
-import gmUtil from "../utils/gmUtil.js";
 import ruleKeyListDataJson from '../res/ruleKeyListDataJson.json';
 
 /**
@@ -74,7 +73,7 @@ const getRuleKeyList = () => {
  * @returns {string[]}
  */
 const getNameArr = () => {
-    return gmUtil.getData("name", []);
+    return GM_getValue("name", []);
 }
 
 /**
@@ -82,7 +81,7 @@ const getNameArr = () => {
  * @returns {string[]}
  */
 const getPreciseNameArr = () => {
-    return gmUtil.getData("precise_name", []);
+    return GM_getValue("precise_name", []);
 }
 
 /**
@@ -90,7 +89,7 @@ const getPreciseNameArr = () => {
  * @returns {[]|string}
  */
 const getNameCanonical = () => {
-    return gmUtil.getData("nameCanonical", []);
+    return GM_getValue("nameCanonical", []);
 }
 
 /**
@@ -98,7 +97,7 @@ const getNameCanonical = () => {
  * @returns {number[]}
  */
 const getPreciseUidArr = () => {
-    return gmUtil.getData("precise_uid", []);
+    return GM_getValue("precise_uid", []);
 }
 
 /**
@@ -106,7 +105,7 @@ const getPreciseUidArr = () => {
  * @returns {string[]}
  */
 const getPreciseUidWhiteArr = () => {
-    return gmUtil.getData("precise_uid_white", []);
+    return GM_getValue("precise_uid_white", []);
 }
 
 /**
@@ -114,7 +113,7 @@ const getPreciseUidWhiteArr = () => {
  * @returns {string[]}
  */
 const getTitleArr = () => {
-    return gmUtil.getData("title", []);
+    return GM_getValue("title", []);
 }
 
 /**
@@ -122,7 +121,7 @@ const getTitleArr = () => {
  * @returns {string[]}
  */
 const getTitleCanonicalArr = () => {
-    return gmUtil.getData("titleCanonical", []);
+    return GM_getValue("titleCanonical", []);
 }
 
 /**
@@ -130,7 +129,7 @@ const getTitleCanonicalArr = () => {
  * @returns {string[]}
  */
 const getCommentOnArr = () => {
-    return gmUtil.getData("commentOn", []);
+    return GM_getValue("commentOn", []);
 }
 
 /**
@@ -138,14 +137,14 @@ const getCommentOnArr = () => {
  * @returns {string[]}
  */
 const getCommentOnCanonicalArr = () => {
-    return gmUtil.getData("commentOnCanonical", []);
+    return GM_getValue("commentOnCanonical", []);
 }
 /**
  * 获取话题tag标签黑名单数组(精确匹配)
  * @returns {[]|string}
  */
 const getPreciseTagArr = () => {
-    return gmUtil.getData("precise_tag", []);
+    return GM_getValue("precise_tag", []);
 }
 
 /**
@@ -153,7 +152,7 @@ const getPreciseTagArr = () => {
  * @returns {[]|string}
  */
 const getTagArr = () => {
-    return gmUtil.getData("tag", []);
+    return GM_getValue("tag", []);
 }
 
 /**
@@ -161,7 +160,7 @@ const getTagArr = () => {
  * @returns {[]|string}
  */
 const getTagCanonicalArr = () => {
-    return gmUtil.getData("tagCanonical", []);
+    return GM_getValue("tagCanonical", []);
 }
 
 /**
@@ -169,7 +168,7 @@ const getTagCanonicalArr = () => {
  * @returns {[]|string}
  */
 const getPreciseFanCardArr = () => {
-    return gmUtil.getData("precise_fanCard", []);
+    return GM_getValue("precise_fanCard", []);
 }
 
 /**
@@ -177,7 +176,7 @@ const getPreciseFanCardArr = () => {
  * @returns {[]|string}
  */
 const getPrecisePartitionArr = () => {
-    return gmUtil.getData("precise_partition", []);
+    return GM_getValue("precise_partition", []);
 }
 
 /**
@@ -185,7 +184,7 @@ const getPrecisePartitionArr = () => {
  * @returns {[string]}
  */
 const getVideoTagArr = () => {
-    return gmUtil.getData("videoTag", []);
+    return GM_getValue("videoTag", []);
 }
 
 /**
@@ -193,7 +192,7 @@ const getVideoTagArr = () => {
  * @returns {[string]}
  */
 const getPreciseVideoTagArr = () => {
-    return gmUtil.getData("precise_videoTag", []);
+    return GM_getValue("precise_videoTag", []);
 }
 
 /**
@@ -201,7 +200,7 @@ const getPreciseVideoTagArr = () => {
  * @returns {[string]}
  */
 const getVideoTagCanonicalArr = () => {
-    return gmUtil.getData("videoTagCanonical", []);
+    return GM_getValue("videoTagCanonical", []);
 }
 
 /**
@@ -209,7 +208,7 @@ const getVideoTagCanonicalArr = () => {
  * @returns {string[]}
  */
 const getHotSearchKeyArr = () => {
-    return gmUtil.getData("hotSearchKey", []);
+    return GM_getValue("hotSearchKey", []);
 }
 
 /**
@@ -217,7 +216,7 @@ const getHotSearchKeyArr = () => {
  * @returns {string[]}
  */
 const getHotSearchKeyCanonicalArr = () => {
-    return gmUtil.getData("hotSearchKeyCanonical", []);
+    return GM_getValue("hotSearchKeyCanonical", []);
 }
 
 
@@ -226,7 +225,7 @@ const getHotSearchKeyCanonicalArr = () => {
  * @param ruleKey {string} mk-key值
  */
 const clearKeyItem = (ruleKey) => {
-    gmUtil.delData(ruleKey)
+    GM_deleteValue(ruleKey)
 }
 
 /**
@@ -234,7 +233,7 @@ const clearKeyItem = (ruleKey) => {
  * @returns {[[string]]}
  */
 const getVideoTagPreciseCombination = () => {
-    return gmUtil.getData("videoTag_preciseCombination", []);
+    return GM_getValue("videoTag_preciseCombination", []);
 }
 
 /**
@@ -242,7 +241,7 @@ const getVideoTagPreciseCombination = () => {
  * @param list {Array}
  */
 const setVideoTagPreciseCombination = (list) => {
-    gmUtil.setData("videoTag_preciseCombination", list);
+    GM_setValue("videoTag_preciseCombination", list);
 }
 
 /**
@@ -250,7 +249,7 @@ const setVideoTagPreciseCombination = (list) => {
  * @returns {string[]}
  */
 const getPreciseVideoBV = () => {
-    return gmUtil.getData("precise_video_bv", []);
+    return GM_getValue("precise_video_bv", []);
 }
 
 

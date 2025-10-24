@@ -1,6 +1,5 @@
 <script>
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 import localMKData, {
   getRequestFrequencyVal,
   hideBlockButtonGm,
@@ -30,30 +29,30 @@ export default {
   methods: {},
   watch: {
     bOnlyTheHomepageIsBlocked(newVal) {
-      gmUtil.setData("bOnlyTheHomepageIsBlocked", newVal === true);
+      GM_setValue("bOnlyTheHomepageIsBlocked", newVal === true);
     },
     bFuzzyAndRegularMatchingWordsToLowercase(newVal) {
-      gmUtil.setData("bFuzzyAndRegularMatchingWordsToLowercase", newVal === true)
+      GM_setValue("bFuzzyAndRegularMatchingWordsToLowercase", newVal === true)
     },
     isDisableNetRequestsBvVideoInfo(b) {
-      gmUtil.setData('isDisableNetRequestsBvVideoInfo', b)
+      GM_setValue('isDisableNetRequestsBvVideoInfo', b)
     },
     isEffectiveUIDShieldingOnlyVideoVal(b) {
-      gmUtil.setData('is_effective_uid_shielding_only_video', b)
+      GM_setValue('is_effective_uid_shielding_only_video', b)
     },
     requestFrequencyVal(n) {
       //设置请求频率
-      gmUtil.setData('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
+      GM_setValue('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
       bvRequestQueue.setAllRequestInterval(n * 1000)
     },
     hideBlockButtonVal(n) {
-      gmUtil.setData('hide_block_button_gm', n)
+      GM_setValue('hide_block_button_gm', n)
       if (n) {
         document.body.querySelectorAll('.gz_shielding_button').forEach(el => el.remove());
       }
     },
     isCheckNestedDynamicContentVal(n) {
-      gmUtil.setData('is_check_nested_dynamic_content_gm', n)
+      GM_setValue('is_check_nested_dynamic_content_gm', n)
     }
   },
   created() {

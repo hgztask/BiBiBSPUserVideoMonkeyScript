@@ -1,6 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
 import defUtil from "../../utils/defUtil.js";
 import globalValue from "../../data/globalValue.js";
@@ -37,7 +36,7 @@ const processTopInputContent = async () => {
     if (globalValue.compatibleBEWLYBEWLY) {
         return
     }
-    if (!gmUtil.getData('isClearTopInputTipContent', false)) {
+    if (!GM_getValue('isClearTopInputTipContent', false)) {
         //没开启清空提示内容功能时结束
         return;
     }

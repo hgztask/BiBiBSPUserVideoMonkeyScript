@@ -13,11 +13,10 @@ import shielding, {
     blockVideoOrOtherTitle
 } from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 //检查直播间id屏蔽
 export const blockLiveRoomId = (liveRoomId) => {
-    if (gmUtil.getData('precise_liveRoomId', []).includes(liveRoomId)) {
+    if (GM_getValue('precise_liveRoomId', []).includes(liveRoomId)) {
         return {state: true, type: "精确直播间id", matching: liveRoomId};
     }
     return returnTempVal;

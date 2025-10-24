@@ -1,7 +1,6 @@
 <script>
 import localMKData from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 // 保存表格数据
 const saveTable = (tableData) => {
   const newList = []
@@ -17,7 +16,7 @@ const saveTable = (tableData) => {
     })
   }
   if (newList.length === 0) return;
-  gmUtil.setData('time_range_masking', newList)
+  GM_setValue('time_range_masking', newList)
   eventEmitter.send('el-notify', {
     title: '保存成功',
     message: '已保存该时间范围屏蔽',

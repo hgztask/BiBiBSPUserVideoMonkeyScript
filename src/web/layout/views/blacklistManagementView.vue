@@ -1,7 +1,6 @@
 <script>
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleUtil from "../../utils/ruleUtil.js";
-import gmUtil from "../../utils/gmUtil.js";
 import {asynchronousIntervalQueue} from "../../model/queue/asynchronousIntervalQueue.js";
 
 //获取黑名单请求队列
@@ -98,7 +97,7 @@ export default {
     },
     //打开地址
     tableOpenAddressBut(row) {
-      gmUtil.openInTab(`https://space.bilibili.com/${row.mid}`)
+      GM_openInTab(`https://space.bilibili.com/${row.mid}`)
     },
     tableAddUidBlackBut(row) {
       const uid = row.mid;

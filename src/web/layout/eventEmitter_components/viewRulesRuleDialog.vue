@@ -1,6 +1,5 @@
 <script>
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -12,7 +11,7 @@ export default {
   },
   methods: {
     updateShowRuleTags() {
-      this.showTags = gmUtil.getData(this.typeMap.type, []);
+      this.showTags = GM_getValue(this.typeMap.type, []);
     },
     handleTagClose(tag, index) {
       if (tag === '') return;
@@ -22,7 +21,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.showTags.splice(index, 1)
-        gmUtil.setData(this.typeMap.type, this.showTags);
+        GM_setValue(this.typeMap.type, this.showTags);
         this.$message.success(`已移除 ${tag}`)
         eventEmitter.send('刷新规则信息', false)
       })

@@ -1,6 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
-
 export default {
   props: {
     title: {
@@ -20,24 +18,24 @@ export default {
   },
   data() {
     return {
-      localIsMaxVal: gmUtil.getData(this.isMaxKey, false),
-      localIsMinVal: gmUtil.getData(this.isMinKey, false),
-      localMinInputVal: gmUtil.getData(this.minInputKey, this.minDefVal),
-      localMaxInputVal: gmUtil.getData(this.maxInputKey, this.maxDefVal)
+      localIsMaxVal: GM_getValue(this.isMaxKey, false),
+      localIsMinVal: GM_getValue(this.isMinKey, false),
+      localMinInputVal: GM_getValue(this.minInputKey, this.minDefVal),
+      localMaxInputVal: GM_getValue(this.maxInputKey, this.maxDefVal)
     }
   },
   watch: {
     localIsMaxVal(n) {
-      gmUtil.setData(this.isMaxKey, n)
+      GM_setValue(this.isMaxKey, n)
     },
     localIsMinVal(n) {
-      gmUtil.setData(this.isMinKey, n)
+      GM_setValue(this.isMinKey, n)
     },
     localMinInputVal(n) {
-      gmUtil.setData(this.minInputKey, n)
+      GM_setValue(this.minInputKey, n)
     },
     localMaxInputVal(n) {
-      gmUtil.setData(this.maxInputKey, n)
+      GM_setValue(this.maxInputKey, n)
     }
   }
 }

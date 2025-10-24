@@ -1,7 +1,6 @@
 <script>
 import localMKData, {getDrawerShortcutKeyGm} from "../../data/localMKData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -50,7 +49,7 @@ export default {
         this.$message('不需要重复设置');
         return;
       }
-      gmUtil.setData('drawer_shortcut_key_gm', theKeyPressedKey);
+      GM_setValue('drawer_shortcut_key_gm', theKeyPressedKey);
       this.$notify({message: '已设置打开关闭主面板快捷键', type: 'success'});
       this.drawerShortcutKeyVal = theKeyPressedKey;
     }
@@ -58,16 +57,16 @@ export default {
   watch: {
     showRightTopMainButSwitch(newVal) {
       //设置是否显示右上角主面板按钮开关
-      gmUtil.setData("showRightTopMainButSwitch", newVal === true)
+      GM_setValue("showRightTopMainButSwitch", newVal === true)
       eventEmitter.send('显隐主面板开关', newVal)
     },
     isFirstFullDisplay(newVal) {
       //设置是否第一次完整显示外部开关主面板按钮
-      gmUtil.setData('isFirstFullDisplay', newVal === true)
+      GM_setValue('isFirstFullDisplay', newVal === true)
     },
     isHalfHiddenIntervalAfterInitialDisplay(newBool) {
       //设置初次显示后间隔半隐藏主面板开关按钮
-      gmUtil.setData('is_half_hidden_interval_after_initial_display', newBool === true)
+      GM_setValue('is_half_hidden_interval_after_initial_display', newBool === true)
     }
   },
   created() {

@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import globalValue from "../../data/globalValue.js";
 
 export default {
@@ -26,7 +25,7 @@ export default {
       this.dialogIni.show = true
     },
     gotoAuthorBut() {
-      gmUtil.openInTab(globalValue.b_url)
+      GM_openInTab(globalValue.b_url)
     }
   },
   created() {

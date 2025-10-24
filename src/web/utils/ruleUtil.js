@@ -1,4 +1,3 @@
-import gmUtil from "./gmUtil.js";
 import ruleKeyListData from '../data/ruleKeyListData.js'
 import {eventEmitter} from "../model/EventEmitter.js";
 
@@ -38,12 +37,12 @@ const addRule = (ruleValue, type) => {
     if (!verificationRes.status) {
         return verificationRes
     }
-    const arr = gmUtil.getData(type, []);
+    const arr = GM_getValue(type, []);
     if (arr.includes(verificationRes.res)) {
         return {status: false, res: '已存在此内容'};
     }
     arr.push(verificationRes.res);
-    gmUtil.setData(type, arr);
+    GM_setValue(type, arr);
     return {status: true, res: '添加成功'};
 }
 
@@ -56,7 +55,7 @@ const addRule = (ruleValue, type) => {
 const batchAddRule = (ruleValues, type) => {
     const successList = [];
     const failList = [];
-    const arr = gmUtil.getData(type, []);
+    const arr = GM_getValue(type, []);
     //是否是uid类型
     const isUidType = type.includes('uid');
     for (let v of ruleValues) {
@@ -75,7 +74,7 @@ const batchAddRule = (ruleValues, type) => {
         successList.push(v);
     }
     if (successList.length > 0) {
-        gmUtil.setData(type, arr);
+        GM_setValue(type, arr);
     }
     return {
         successList,
@@ -95,13 +94,13 @@ const delRule = (type, value) => {
         return verificationRes
     }
     const {res} = verificationRes
-    const arr = gmUtil.getData(type, []);
+    const arr = GM_getValue(type, []);
     const indexOf = arr.indexOf(res);
     if (indexOf === -1) {
         return {status: false, res: '不存在此内容'};
     }
     arr.splice(indexOf, 1);
-    gmUtil.setData(type, arr);
+    GM_setValue(type, arr);
     return {status: true, res: "移除成功"}
 }
 
@@ -133,7 +132,7 @@ const getRuleContent = (isToStr = true, space = 0) => {
     const ruleMap = {};
     for (let ruleKeyListDatum of ruleKeyListData.getRuleKeyListData()) {
         const key = ruleKeyListDatum.key;
-        const data = gmUtil.getData(key, []);
+        const data = GM_getValue(key, []);
         if (data.length === 0) continue;
         ruleMap[key] = data;
     }
@@ -182,7 +181,7 @@ const overwriteImportRules = (content) => {
     const map = verificationRuleMap(ruleKeyListData.getRuleKeyList(), content);
     if (map === false) return false;
     for (let key of Object.keys(map)) {
-        gmUtil.setData(key, map[key]);
+        GM_setValue(key, map[key]);
     }
     return true;
 }
@@ -195,13 +194,13 @@ const appendImportRules = (content) => {
     const map = verificationRuleMap(ruleKeyListData.getRuleKeyList(), content);
     if (map === false) return false;
     for (let key of Object.keys(map)) {
-        const arr = gmUtil.getData(key, []);
+        const arr = GM_getValue(key, []);
         for (let item of map[key]) {
             if (!arr.includes(item)) {
                 arr.push(item);
             }
         }
-        gmUtil.setData(key, arr);
+        GM_setValue(key, arr);
     }
     return true;
 }
@@ -279,7 +278,7 @@ const addRulePreciseName = (name, tip = true) => {
  * @returns {number|string|null}
  */
 const findRuleItemValue = (type, value) => {
-    return gmUtil.getData(type, []).find(item => item === value) || null
+    return GM_getValue(type, []).find(item => item === value) || null
 }
 
 /**
@@ -296,15 +295,15 @@ const addItemRule = (arr, key, coverage = true) => {
         complianceList.push(v)
     }
     if (coverage) {
-        gmUtil.setData(key, complianceList)
+        GM_setValue(key, complianceList)
         return {status: true, msg: `添加成功-覆盖模式，数量：${complianceList.length}`}
     }
-    const oldArr = gmUtil.getData(key, []);
+    const oldArr = GM_getValue(key, []);
     const newList = complianceList.filter(item => !oldArr.includes(item))
     if (newList.length === 0) {
         return {status: false, msg: '内容重复'}
     }
-    gmUtil.setData(key, oldArr.concat(newList))
+    GM_setValue(key, oldArr.concat(newList))
     return {status: true, msg: '添加成功-追加模式，新增数量：' + newList.length}
 }
 

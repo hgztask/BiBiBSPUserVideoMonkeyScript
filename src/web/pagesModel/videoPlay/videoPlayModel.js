@@ -4,7 +4,6 @@ import ruleUtil from "../../utils/ruleUtil.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import gmUtil from "../../utils/gmUtil.js";
 import localMKData from "../../data/localMKData.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import videoPlayPageCommon from "./videoPlayPageCommon.js";
@@ -196,7 +195,7 @@ const setVideoPlayerEnded = async () => {
  * 删除播放页的广告
  */
 const delAd = () => {
-    if (!gmUtil.getData('isDelPlayerPageAd', false)) {
+    if (!GM_getValue('isDelPlayerPageAd', false)) {
         return
     }
     //查找页面广告标签，十秒之后未找到则结束
@@ -225,7 +224,7 @@ const delRightVideoList = () => {
  * 屏蔽播放页右侧游戏推荐
  */
 const delGameAd = () => {
-    if (!gmUtil.getData('isDelPlayerPageRightGameAd', false)) {
+    if (!GM_getValue('isDelPlayerPageRightGameAd', false)) {
         return
     }
     elUtil.findElement('.video-page-game-card-small', {timeout: 10000}).then(el => {

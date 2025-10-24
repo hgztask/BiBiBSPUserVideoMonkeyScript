@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import cardSlider from "./cardSlider.vue";
 
 /**
@@ -20,9 +19,9 @@ export default {
   data() {
     return {
       //是否启用屏蔽
-      rateBlockingStatus: gmUtil.getData(this.mkRateStatusKey, false),
+      rateBlockingStatus: GM_getValue(this.mkRateStatusKey, false),
       //比率
-      ratioRateVal: gmUtil.getData(this.mkTypeRateKey, 0.05),
+      ratioRateVal: GM_getValue(this.mkTypeRateKey, 0.05),
     }
   },
   methods: {
@@ -32,10 +31,10 @@ export default {
   },
   watch: {
     ratioRateVal(n) {
-      gmUtil.setData(this.mkTypeRateKey, n)
+      GM_setValue(this.mkTypeRateKey, n)
     },
     rateBlockingStatus(n) {
-      gmUtil.setData(this.mkRateStatusKey, n)
+      GM_setValue(this.mkRateStatusKey, n)
     }
   }
 }

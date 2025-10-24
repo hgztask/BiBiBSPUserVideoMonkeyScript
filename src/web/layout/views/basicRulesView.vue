@@ -2,7 +2,6 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
-import gmUtil from "../../utils/gmUtil.js";
 import multipleRuleEditDialog from "../eventEmitter_components/multipleRuleEditDialog.vue";
 import ruleSetValueDialog from '../eventEmitter_components/ruleSetValueDialog.vue';
 import addRuleDialog from '../components/addRuleDialog.vue'
@@ -48,7 +47,7 @@ export default {
     delAllBut() {
       this.$confirm('确定要删除所有规则吗？').then(() => {
         for (let x of this.ruleInfoArr) {
-          gmUtil.delData(x.type);
+          GM_deleteValue(x.type);
         }
         this.$message.success("删除全部规则成功");
         eventEmitter.send('刷新规则信息', false);

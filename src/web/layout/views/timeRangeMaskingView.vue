@@ -1,6 +1,5 @@
 <script>
 import localMKData from "../../data/localMKData.js";
-import gmUtil from "../../utils/gmUtil.js";
 import time_range_masking_table_vue from "./timeRangeMaskingTableView.vue";
 
 /**
@@ -19,7 +18,7 @@ export default {
         message: n ? '时间范围屏蔽已开启' : '时间范围屏蔽已关闭',
         type: n ? 'success' : 'warning'
       })
-      gmUtil.setData('time_range_masking_status', n)
+      GM_setValue('time_range_masking_status', n)
     }
   }
 }

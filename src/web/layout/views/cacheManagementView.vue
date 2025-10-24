@@ -4,7 +4,6 @@ import {httpLocalHost} from "../../data/globalValue.js";
 import {defTmRequest} from "../../model/request/TmRequest.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import defUtil from "../../utils/defUtil.js";
-import gmUtil from "../../utils/gmUtil.js";
 
 export default {
   data() {
@@ -204,7 +203,7 @@ export default {
           return '不能超出365天';
         }
       }).then(async ({value}) => {
-        gmUtil.setData('expires_max_age_gm', parseInt(value));
+        GM_setValue('expires_max_age_gm', parseInt(value));
         this.expiresMaxAgeVal = value;
         this.$message.success(`已修改视频缓存超时时间为${value}天`)
       })

@@ -1,5 +1,4 @@
 <script>
-import gmUtil from "../../utils/gmUtil.js";
 import localMKData, {
   getLimitationVideoSubmitSumGm,
   isCommentDisabledVideosBlockedGm,
@@ -38,46 +37,46 @@ export default {
   methods: {},
   watch: {
     blockFollowed(n) {
-      gmUtil.setData('blockFollowed', n)
+      GM_setValue('blockFollowed', n)
     },
     is_up_owner_exclusive(n) {
-      gmUtil.setData('is_up_owner_exclusive', n)
+      GM_setValue('is_up_owner_exclusive', n)
     },
     genderRadioVal(n) {
-      gmUtil.setData('genderRadioVal', n)
+      GM_setValue('genderRadioVal', n)
     },
     vipTypeRadioVal(n) {
-      gmUtil.setData('vipTypeRadioVal', n)
+      GM_setValue('vipTypeRadioVal', n)
     },
     is_senior_member_val(n) {
-      gmUtil.setData('is_senior_member', n)
+      GM_setValue('is_senior_member', n)
     },
     copyrightRadioVal(n) {
-      gmUtil.setData('copyrightRadioVal', n)
+      GM_setValue('copyrightRadioVal', n)
     },
     is_vertical_val(n) {
-      gmUtil.setData('blockVerticalVideo', n)
+      GM_setValue('blockVerticalVideo', n)
     },
     is_check_team_member(n) {
-      gmUtil.setData('checkTeamMember', n)
+      GM_setValue('checkTeamMember', n)
     },
     isSeniorMemberOnlyVal(n) {
-      gmUtil.setData('is_senior_member_only', n)
+      GM_setValue('is_senior_member_only', n)
     },
     LimitationContributeVal(n) {
-      gmUtil.setData('limitation_video_submit_sum_gm', n)
+      GM_setValue('limitation_video_submit_sum_gm', n)
     },
     isLimitationVideoSubmitStatusVal(n) {
-      gmUtil.setData('is_limitation_video_submit_status_gm', n)
+      GM_setValue('is_limitation_video_submit_status_gm', n)
     },
     isVideosInFeaturedCommentsBlockedVal(n) {
-      gmUtil.setData('is_videos_in_featured_comments_blocked_gm', n)
+      GM_setValue('is_videos_in_featured_comments_blocked_gm', n)
     },
     isFollowers7DaysOnlyVideosBlockedVal(n) {
-      gmUtil.setData('is_followers_7_days_only_videos_blocked_gm', n)
+      GM_setValue('is_followers_7_days_only_videos_blocked_gm', n)
     },
     isCommentDisabledVideosBlockedVal(n) {
-      gmUtil.setData('is_comment_disabled_videos_blocked_gm', n)
+      GM_setValue('is_comment_disabled_videos_blocked_gm', n)
     }
   }
 }
