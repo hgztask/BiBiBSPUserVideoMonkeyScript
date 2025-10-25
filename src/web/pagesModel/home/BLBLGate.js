@@ -4,6 +4,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import defUtil from "../../utils/defUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {bGateClearListNonVideoGm} from "../../data/localMKData.js";
+import bilibiliHome from "./bilibiliHome.js";
 
 /**
  * 获取Bilibili-Gate脚本下的首页其脚本自带的激活的选项卡
@@ -54,7 +55,7 @@ const getGateDataList = async () => {
             continue;
         }
         if (redTag) continue;
-        const tempData = homeCommon.getVideoData(el)
+        const tempData = bilibiliHome.getVideoData(el)
         const videoUrl = el.querySelector("a.css-feo88y")?.href;
         const bv = elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector(".bili-video-card__info--owner");
