@@ -90,7 +90,7 @@ const getVideoList = async () => {
     const isBEWLYCatPluginVal = await isBEWLYCatPlugin()
     for (let el of elList) {
         const parentElement = el.parentElement.parentElement;
-        const title = el.querySelector('.keep-two-lines>a[title]').textContent.trim();
+        const title = el.querySelector('.video-card-title>a').textContent.trim();
         const userUrlEl = el.querySelector('.channel-name');
         const userUrl = userUrlEl.href;
         const uid = elUtil.getUrlUID(userUrl);
@@ -118,7 +118,7 @@ const getVideoList = async () => {
         nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href;
         const bv = elUtil.getUrlBV(videoUrl)
-        const insertionPositionEl = el.querySelector('[class="group/desc"]')
+        const insertionPositionEl = el.querySelector('.video-card-meta')
         list.push({
             title,
             name,
