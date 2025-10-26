@@ -3,8 +3,8 @@ import sFormatUtil from '../../utils/sFormatUtil.js'
 import defUtil, {addGzStyle} from "../../utils/defUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import shielding from "../../model/shielding/shielding.js";
 import globalValue from "../../data/globalValue.js";
+import {IntervalExecutor} from "../../model/IntervalExecutor.js";
 //获取bewly的shadowRoot元素
 let be_wly_el = null;
 
@@ -204,24 +204,8 @@ const startShieldingVideoList = async () => {
     }
 }
 
-/**
- * 间隔执行屏蔽视频列表包装函数
- * @type function
- * @returns {function(): {stop: stop, start: start}}
- */
-const intervalExecutionStartShieldingVideo = () => {
-    const res = shielding.intervalExecutionStartShieldingVideoInert(startShieldingVideoList, '视频');
-    return () => {
-        return res
-    }
-}
-
-/**
- * 间隔执行屏蔽视频列表
- * @type function
- * @returns {{start: start, stop: stop}}
- */
-const startShieldingVideo = intervalExecutionStartShieldingVideo();
+//间隔执行屏蔽视频列表
+const intervalShieldingVideoListExecutor = new IntervalExecutor(startShieldingVideoList,{processTips:true,intervalName:'视频'});
 
 //执行屏蔽历史记录中的视频
 const startShieldingHistoryVideoList = async () => {
@@ -233,24 +217,8 @@ const startShieldingHistoryVideoList = async () => {
     }
 }
 
-/**
- * 间隔执行屏蔽历史记录中的视频包装函数
- * @type function
- */
-const intervalExecutionStartShieldingHistoryVideo = () => {
-    const res = shielding.intervalExecutionStartShieldingVideoInert(startShieldingHistoryVideoList, '历史记录');
-    return () => {
-        return res
-    }
-};
-
-/**
- * 间隔执行屏蔽历史记录视频列表
- * @type function
- * @returns {{start: start, stop: stop}}
- */
-const startShieldingHistoryVideo = intervalExecutionStartShieldingHistoryVideo();
-
+//间隔执行屏蔽历史记录中的视频
+const intervalBEWLYShieldingHistoryVideoExecutor= new IntervalExecutor(startShieldingHistoryVideoList,{processTips:true,intervalName:'BEWLY历史记录'})
 
 //添加顶部选项卡栏的监听器
 const homeTopTabsInsertListener = () => {
@@ -260,13 +228,13 @@ const homeTopTabsInsertListener = () => {
             el.addEventListener('click', () => {
                 console.log('点击了' + label)
                 if (excludeTabNames.includes(label)) {
-                    startShieldingVideo().stop();
+                    intervalShieldingVideoListExecutor.stop()
                     return
                 }
                 if (label === '排行') {
                     rankingLeftTabsInsertListener()
                 }
-                startShieldingVideo().start();
+                intervalShieldingVideoListExecutor.start()
             })
         }
     })
@@ -281,10 +249,10 @@ const rankingLeftTabsInsertListener = () => {
             el.addEventListener('click', () => {
                 console.log('点击了' + label)
                 if (excludeRankingLeftTabNames.includes(label)) {
-                    startShieldingVideo().stop()
+                    intervalShieldingVideoListExecutor.stop()
                     return
                 }
-                startShieldingVideo().start();
+                intervalShieldingVideoListExecutor.start()
             })
         }
     })
@@ -298,14 +266,14 @@ const rightTabsInsertListener = () => {
                         console.log('右侧选项卡栏点击了' + label, active)
                         if (label === '首页') {
                             homeTopTabsInsertListener()
-                            startShieldingVideo().start();
+                            intervalShieldingVideoListExecutor.start()
                         } else {
-                            startShieldingVideo().stop();
+                            intervalShieldingVideoListExecutor.stop()
                         }
                         if (label === '观看历史') {
-                            startShieldingHistoryVideo().start()
+                            intervalBEWLYShieldingHistoryVideoExecutor.start()
                         } else {
-                            startShieldingHistoryVideo().stop()
+                            intervalBEWLYShieldingHistoryVideoExecutor.stop()
                         }
                     }
                 )
@@ -345,11 +313,11 @@ const run = async (url) => {
         url.startsWith('https://www.bilibili.com/?spm_id_from=') ||
         url === 'https://www.bilibili.com/'
     ) {
-        startShieldingVideo().start()
+        intervalShieldingVideoListExecutor.start()
         homeTopTabsInsertListener()
     }
     if (page === 'History') {
-        startShieldingHistoryVideo().start()
+        intervalBEWLYShieldingHistoryVideoExecutor.start()
         searchBoxInsertListener()
     }
     rightTabsInsertListener()

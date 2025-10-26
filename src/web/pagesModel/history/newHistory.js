@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import sFormatUtil from '../../utils/sFormatUtil.js'
 import shielding from "../../model/shielding/shielding.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import {IntervalExecutor} from "../../model/IntervalExecutor.js";
 
 /**
  * 判断是否是新的history页面
@@ -86,22 +87,10 @@ const startShieldingVideoList = async () => {
     }
 };
 
-/**
- * 间隔执行屏蔽历史记录项包装函数
- * @type function
- */
-const intervalExecutionStartShieldingVideo = () => {
-    const res = shielding.intervalExecutionStartShieldingVideoInert(startShieldingVideoList, '历史记录项')
-    return () => {
-        return res
-    }
-}
-
-/**
- * 执行屏蔽历史记录项
- * @type function
- */
-const executionStartShieldingVideo = intervalExecutionStartShieldingVideo();
+//间隔检查历史记录项视频列表
+const intervalShieldingHistoryVideoExecutor = new IntervalExecutor(startShieldingVideoList,{
+    processTips:true,intervalName:'历史记录项'
+});
 
 const getTopFilterLabel = async () => {
     const el = await elUtil.findElement('.radio-filter>.radio-filter__item--active')
@@ -120,10 +109,10 @@ const topFilterInsertListener = () => {
             const label = target.textContent?.trim()
             console.log(`点击了${label}`)
             if (label === '直播') {
-                executionStartShieldingVideo().stop()
+                intervalShieldingHistoryVideoExecutor.stop();
                 return
             }
-            executionStartShieldingVideo().start()
+            intervalShieldingHistoryVideoExecutor.start();
         })
     }))
 }
@@ -134,7 +123,7 @@ const startRun = () => {
         if (label === '直播') {
             return
         }
-        executionStartShieldingVideo().start()
+        intervalShieldingHistoryVideoExecutor.start();
     })
     topFilterInsertListener()
 }
@@ -142,6 +131,5 @@ const startRun = () => {
 
 export default {
     isNewHistoryPage,
-    intervalExecutionStartShieldingVideo,
     startRun
 }
