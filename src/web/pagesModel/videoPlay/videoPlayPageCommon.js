@@ -59,9 +59,11 @@ const getVideoTags = () => {
 
 /**
  * 插入选择标签屏蔽按钮
+ * 需要注意这里如果不等待顶栏加载完，会导致播放页顶栏消失问题
  * @returns {Promise<void>|null}
  */
 const insertTagShieldButton = async () => {
+    await elUtil.findElement('#biliMainHeader #nav-searchform', {interval: 4000});
     const el = await elUtil.findElement('.video-tag-container');
     const butEl = document.createElement('button');
     butEl.setAttribute('gz_type', '');
