@@ -153,5 +153,6 @@ export default {
     <showImgDialog/>
     <sheetDialog/>
     <RightFloatingLayoutView/>
+    <el-backtop/>
   </div>
 </template>
