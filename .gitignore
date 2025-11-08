@@ -5,3 +5,4 @@
 /lib/
 /patch/
 yarn.lock
+pnpm-lock.yaml
