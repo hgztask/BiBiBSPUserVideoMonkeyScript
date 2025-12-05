@@ -18,7 +18,7 @@ export default {
   },
   methods: {
     updateShowTags() {
-      this.showTags = ruleKeyListData.getVideoTagPreciseCombination();
+      this.showTags = GM_getValue(this.typeMap.type, []);
     },
     handleTagClose(tag, index) {
       if (tag === '') return;
@@ -28,7 +28,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.showTags.splice(index, 1)
-        ruleKeyListData.setVideoTagPreciseCombination(this.showTags)
+        GM_setValue(this.typeMap.type, this.showTags)
         this.$message.success(`已移除 ${tag}`)
         eventEmitter.send('刷新规则信息', false)
       })
@@ -73,7 +73,7 @@ export default {
           return;
         }
       }
-      const arr = ruleKeyListData.getVideoTagPreciseCombination();
+      const arr = GM_getValue(this.typeMap.type, [])
       for (let mk_arr of arr) {
         if (arrUtil.arraysLooseEqual(mk_arr, split)) {
           this.$message.error('不能重复添加已有的组合！')
@@ -85,7 +85,7 @@ export default {
         }
       }
       arr.push(split)
-      ruleKeyListData.setVideoTagPreciseCombination(arr)
+      GM_setValue(this.typeMap.type, arr)
       console.log(this.typeMap, split, arr)
       this.$message.success(`${this.typeMap.name}添加成功`)
       this.updateShowTags();

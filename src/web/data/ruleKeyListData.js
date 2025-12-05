@@ -16,8 +16,8 @@ const getSelectOptions = () => {
             children: []
         },
         {
-            value: '多重匹配',
-            label: '多重匹配',
+            value: '组合匹配',
+            label: '组合匹配',
             children: []
         },
         {
@@ -34,7 +34,7 @@ const getSelectOptions = () => {
         if (name.includes('(正则匹配)')) {
             children = options[1].children
         }
-        if (name.includes('(组合精确匹配)')) {
+        if (name.includes('(组合匹配)')) {
             children = options[2].children
         }
         if (name.includes('(精确匹配)')) {
@@ -229,19 +229,11 @@ const clearKeyItem = (ruleKey) => {
 }
 
 /**
- * 获取视频tag(组合精确匹配)数组
+ * 获取精确视频tag(组合匹配)数组
  * @returns {[[string]]}
  */
 const getVideoTagPreciseCombination = () => {
     return GM_getValue("videoTag_preciseCombination", []);
-}
-
-/**
- * 设置视频tag(组合精确匹配)数组
- * @param list {Array}
- */
-const setVideoTagPreciseCombination = (list) => {
-    GM_setValue("videoTag_preciseCombination", list);
 }
 
 /**
@@ -277,7 +269,13 @@ export default {
     clearKeyItem,
     getSelectOptions,
     getVideoTagPreciseCombination,
-    setVideoTagPreciseCombination,
     getRuleKeyList,
-    getPreciseVideoBV
+    getPreciseVideoBV,
+    /**
+     * 获取白名单视频tag(组合匹配)数组
+     * @return {[[]]}
+     */
+    getVideoTagCombinationWhite() {
+        return GM_getValue("videoTag_combination_white", []);
+    }
 }

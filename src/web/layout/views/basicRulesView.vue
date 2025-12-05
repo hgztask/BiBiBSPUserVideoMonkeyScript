@@ -29,7 +29,7 @@ export default {
     setRuleBut() {
       const [model, type] = this.cascaderVal;
       const typeMap = this.ruleInfoArr.find(item => item.type === type);
-      if (model === '多重匹配') {
+      if (model === '组合匹配') {
         eventEmitter.send('打开多重规则编辑对话框', typeMap)
         return
       }
@@ -38,7 +38,7 @@ export default {
     findItemAllBut() {
       const [model, type] = this.cascaderVal;
       const typeMap = this.ruleInfoArr.find(item => item.type === type);
-      if (model === '多重匹配') {
+      if (model === '组合匹配') {
         eventEmitter.send('打开多重规则编辑对话框', typeMap)
         return
       }
@@ -56,7 +56,7 @@ export default {
     delBut() {
       const [model, type] = this.cascaderVal;
       const typeMap = this.ruleInfoArr.find(item => item.type === type);
-      if (model === '多重匹配') {
+      if (model === '组合匹配') {
         eventEmitter.send('打开多重规则编辑对话框', typeMap)
         return
       }
@@ -72,7 +72,7 @@ export default {
     },
     batchAddBut() {
       const [model, type] = this.cascaderVal;
-      if (model === '多重匹配') {
+      if (model === '组合匹配') {
         const typeMap = this.ruleInfoArr.find(item => item.type === type);
         eventEmitter.send('打开多重规则编辑对话框', typeMap)
         return

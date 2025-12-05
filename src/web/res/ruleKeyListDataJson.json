@@ -89,7 +89,11 @@
   },
   {
     "key": "videoTag_preciseCombination",
-    "name": "视频tag(组合精确匹配)"
+    "name": "精确视频tag(组合匹配)"
+  },
+  {
+    "key": "videoTag_combination_white",
+    "name": "白名单视频tag(组合匹配)"
   },
   {
     "key": "hotSearchKey",

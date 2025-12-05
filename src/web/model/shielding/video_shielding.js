@@ -236,6 +236,16 @@ const shieldingOtherVideoParameter = async (result, videoData) => {
             }
             return Promise.reject({type: '中断', msg: '仅生效UID屏蔽(限视频)'});
         })
+        //视频tag白名单组合
+        .then(() => {
+            if (tags.length === 0) return;
+            const mkArrTags = ruleKeyListData.getVideoTagCombinationWhite();
+            for (let mkArrTag of mkArrTags) {
+                if (arrUtil.arrayContains(tags, mkArrTag)) {
+                    return Promise.reject({type: '中断', msg: '视频标签组合白名单'});
+                }
+            }
+        })
         .then(() => asyncBlockVideoTagPreciseCombination(tags))
         .then(() => asyncBlockBasedVideoTag(tags))
         .then(() => asyncBlockLimitationFanSum(userInfo.follower))
