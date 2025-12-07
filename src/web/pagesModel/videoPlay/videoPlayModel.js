@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import ruleUtil from "../../utils/ruleUtil.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
@@ -74,11 +74,11 @@ const getGetTheVideoListOnTheRight = async () => {
             const videoUrl = el.querySelector(".info>a").href
             const bv = elUtil.getUrlBV(videoUrl)
             let nPlayCount = playInfo.match(/<\/svg>(.*)<svg/s)?.[1].trim()
-            nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+            nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
             let nBulletChat = playInfo.match(/class="dm".+<\/svg>(.+)$/s)?.[1].trim()
-            nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+            nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
             let nDuration = el.querySelector('.duration')?.textContent.trim()
-            nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+            nDuration = strFormatUtil.timeStringToSeconds(nDuration)
             list.push({
                 title,
                 userUrl,

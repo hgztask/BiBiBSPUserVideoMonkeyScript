@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 
@@ -73,9 +73,9 @@ const getVideoDataList = async () => {
         const name = el.querySelector(".up-name").textContent.trim();
         const detailStateEls = el.querySelectorAll('.detail-state>.data-box');
         let nPlayCount = detailStateEls[0].textContent.trim()
-        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+        nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         let nBulletChat = detailStateEls[1].textContent.trim()
-        nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+        nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
         const videoUrl = el.querySelector('.img>a')?.href || null;
         const bv = elUtil.getUrlBV(videoUrl);
         const data = {

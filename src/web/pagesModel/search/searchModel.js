@@ -1,7 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding/shielding.js";
 import defUtil from "../../utils/defUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
@@ -76,11 +76,11 @@ const getVideoList = async (css) => {
         const name = userEl.querySelector(".bili-video-card__info--author").textContent.trim();
         const bili_video_card__stats_item = el.querySelectorAll('.bili-video-card__stats--item');
         let nPlayCount = bili_video_card__stats_item[0]?.textContent.trim()
-        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+        nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         let nBulletChat = bili_video_card__stats_item[1]?.textContent.trim()
-        nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+        nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
         let nDuration = el.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
-        nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+        nDuration = strFormatUtil.timeStringToSeconds(nDuration)
         list.push({
             title,
             userUrl,
@@ -225,9 +225,9 @@ const processingExactSearchVideoCardContent = async () => {
         const bv = elUtil.getUrlBV(videoUrl)
         const title = titleEl.textContent.trim()
         let nDuration = videoEl.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
-        nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+        nDuration = strFormatUtil.timeStringToSeconds(nDuration)
         let nPlayCount = videoEl.querySelector('.bili-video-card__stats--item>span')?.textContent.trim();
-        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+        nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         list.push({
             title,
             userUrl,

@@ -1,5 +1,5 @@
 import elUtil from "../utils/elUtil.js";
-import sFormatUtil from "../utils/sFormatUtil.js"
+import strFormatUtil from "../utils/strFormatUtil.js"
 import defUtil from "../utils/defUtil.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import video_shielding from "../model/shielding/video_shielding.js";
@@ -63,10 +63,10 @@ const getVVideoDataList = async () => {
         const playAndDmu = el.querySelectorAll('.bili-video-card__stats--item>span')
         let nDuration = el.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
         let nPlayCount = playAndDmu[0]?.textContent.trim()
-        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+        nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         let nBulletChat = playAndDmu[1]?.textContent.trim()
-        nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
-        nDuration = sFormatUtil.toPlayCountOrBulletChat(nDuration)
+        nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+        nDuration = strFormatUtil.toPlayCountOrBulletChat(nDuration)
         const title = titleEl.textContent.trim()
         const videoUrl = titleEl.href;
         const userUrl = userEl.href
@@ -99,9 +99,9 @@ const getCVideoDataList = async () => {
         const uid = elUtil.getUrlUID(userUrl)
         const name = userEl.querySelector('[title]').textContent.trim().split('·')[0].trim()
         const statEls = el.querySelectorAll('.bili-cover-card__stats span')
-        const nPlayCount = sFormatUtil.toPlayCountOrBulletChat(statEls[0].textContent.trim())
-        const nBulletChat = sFormatUtil.toPlayCountOrBulletChat(statEls[1].textContent.trim())
-        const nDuration = sFormatUtil.timeStringToSeconds(statEls[2].textContent.trim())
+        const nPlayCount = strFormatUtil.toPlayCountOrBulletChat(statEls[0].textContent.trim())
+        const nBulletChat = strFormatUtil.toPlayCountOrBulletChat(statEls[1].textContent.trim())
+        const nDuration = strFormatUtil.timeStringToSeconds(statEls[2].textContent.trim())
         const insertionPositionEl = el.querySelector('.bili-video-card__subtitle')
         const explicitSubjectEl = el.querySelector('.bili-video-card__details')
         list.push({

@@ -1,9 +1,4 @@
-/**
- * 格式化播放量内容或弹幕量转成个数，如时间的为秒，弹幕量为个数
- * 如果str 为空，则返回 -1
- * @param str {string}
- * @returns {number}
- */
+
 const toPlayCountOrBulletChat = (str) => {
     if (!str) {
         return -1

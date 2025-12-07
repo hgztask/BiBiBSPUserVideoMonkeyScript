@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import defUtil, {addGzStyle} from "../../utils/defUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
@@ -111,11 +111,11 @@ const getVideoList = async () => {
             if (playInfoEl.querySelectorAll('span').length < 2) {
                 bulletChat = -1
             } else {
-                bulletChat = sFormatUtil.toPlayCountOrBulletChat(bulletChat)
+                bulletChat = strFormatUtil.toPlayCountOrBulletChat(bulletChat)
             }
         }
-        nDuration = sFormatUtil.timeStringToSeconds(nDuration)
-        nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+        nDuration = strFormatUtil.timeStringToSeconds(nDuration)
+        nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href;
         const bv = elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector('.video-card-meta')
@@ -155,7 +155,7 @@ const getHistoryVideoDataList = async () => {
         const tempTime = el.querySelector('div[pos][rounded-8]')?.textContent.trim().split(/[\t\r\f\n\s]*/g).join("")
         const match = tempTime?.match(/\/(.*)/);
         let nDuration = match?.[1]
-        nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+        nDuration = strFormatUtil.timeStringToSeconds(nDuration)
         list.push({
             title,
             userUrl,

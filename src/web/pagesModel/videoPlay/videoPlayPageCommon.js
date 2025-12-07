@@ -1,4 +1,4 @@
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleUtil from "../../utils/ruleUtil.js";
@@ -6,11 +6,11 @@ import ruleUtil from "../../utils/ruleUtil.js";
 const getPlayCountAndBulletChatAndDuration = (el) => {
     const playInfo = el.querySelector('.playinfo').innerHTML.trim();
     let nPlayCount = playInfo.match(/<\/svg>(.*)<svg/s)?.[1].trim()
-    nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+    nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
     let nBulletChat = playInfo.match(/class="dm-icon".+<\/svg>(.+)$/s)?.[1].trim()
-    nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+    nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
     let nDuration = el.querySelector('.duration')?.textContent.trim()
-    nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+    nDuration = strFormatUtil.timeStringToSeconds(nDuration)
     return {
         nPlayCount, nBulletChat, nDuration
     }

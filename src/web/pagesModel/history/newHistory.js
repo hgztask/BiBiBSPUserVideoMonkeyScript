@@ -1,5 +1,5 @@
 import elUtil from "../../utils/elUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import shielding from "../../model/shielding/shielding.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {IntervalExecutor} from "../../model/IntervalExecutor.js";
@@ -24,7 +24,7 @@ const getDuration = (str) => {
     } else {
         const match = str?.match(/\/(.*)/);
         if (match) {
-            return sFormatUtil.timeStringToSeconds(match[1]);
+            return strFormatUtil.timeStringToSeconds(match[1]);
         }
     }
     return -1

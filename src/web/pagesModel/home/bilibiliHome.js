@@ -1,6 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import defUtil from "../../utils/defUtil.js";
-import sFormatUtil from '../../utils/sFormatUtil.js'
+import strFormatUtil from '../../utils/strFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import globalValue from "../../data/globalValue.js";
@@ -98,11 +98,11 @@ const getVideoData = (el) => {
     const title = el.querySelector(".bili-video-card__info--tit").title;
     const name = el.querySelector(".bili-video-card__info--author").textContent.trim();
     let nPlayCount = el.querySelector('.bili-video-card__stats--text')?.textContent.trim()
-    nPlayCount = sFormatUtil.toPlayCountOrBulletChat(nPlayCount)
+    nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
     let nBulletChat = el.querySelector('.bili-video-card__stats--text')?.textContent.trim()
-    nBulletChat = sFormatUtil.toPlayCountOrBulletChat(nBulletChat)
+    nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
     let nDuration = el.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
-    nDuration = sFormatUtil.timeStringToSeconds(nDuration)
+    nDuration = strFormatUtil.timeStringToSeconds(nDuration)
     const userUrl = el.querySelector(".bili-video-card__info--owner").getAttribute("href");
     const uid = elUtil.getUrlUID(userUrl);
     return {
