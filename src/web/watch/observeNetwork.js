@@ -10,6 +10,7 @@ import {checkAndExcludePage} from "../layout/excludeURLs.js";
 import dynamicPage from "../pagesModel/dynamic/dynamicPage.js";
 import space from "../pagesModel/space/space.js";
 import allLivePage from "../pagesModel/live/allLivePage.js";
+import spaceFans from "../pagesModel/space/spaceFans.js";
 
 /**
  * 监听网络请求
@@ -73,10 +74,13 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
         url.includes('api.live.bilibili.com/xlive/web-interface/v1/second/getUserRecommend')) {
         allLivePage.checkLiveList();
     }
-    if (url.includes('api.bilibili.com/x/v2/reply/reply?callback')||
-    url.includes('api.bilibili.com/x/v2/reply?callback')) {
+    if (url.includes('api.bilibili.com/x/v2/reply/reply?callback') ||
+        url.includes('api.bilibili.com/x/v2/reply?callback')) {
         console.log('直播页排行榜地下的评论列表加载了')
         commentSectionModel.checkLiveRankingsCommentSectionList();
+    }
+    if (url.includes("api.bilibili.com/x/relation/fans?pn=") && spaceFans.isUrlPage(windowUrl)) {
+        spaceFans.userListInsertionButton()
     }
     /**
      *
