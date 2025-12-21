@@ -25,6 +25,7 @@ import allLivePage from "./pagesModel/live/allLivePage.js";
 import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
 import BEWLYCommon from "./pagesModel/home/BEWLYCommon.js";
 import BEWLYSearch from "./pagesModel/search/BEWLYSearch.js";
+import searchUserTab from "./pagesModel/search/searchUserTab.js";
 
 const homeStaticRoute = (title, url) => {
     if (BEWLYCommon.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -113,6 +114,9 @@ const staticRoute = (title, url) => {
     if (BEWLYSearch.isUrlPage(url, title)) {
         BEWLYSearch.run(url)
     }
+    if (searchUserTab.isUrlPage(url)) {
+        searchUserTab.userListInsertionButton()
+    }
 }
 
 /**
@@ -125,6 +129,9 @@ const dynamicRouting = (title, url) => {
     //如果只屏蔽首页，则不执行以下代码
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     if (checkAndExcludePage(url)) return;
+    if (searchUserTab.isUrlPage(url)) {
+        searchUserTab.userListInsertionButton()
+    }
     eventEmitter.send('通知屏蔽');
 }
 
