@@ -43,17 +43,6 @@ const getLiveRoomList = async () => {
     return list
 }
 
-/**
- * 添加屏蔽按钮
- * @param data {{}}
- * @param data.data {{}} 数据
- * @param data.maskingFunc {function} 屏蔽函数
- * @param data
- */
-const addBlockButton = (data) => {
-    shielding.addBlockButton(data, '', ['right'])
-}
-
 // 屏蔽直播列表
 const startShieldingLiveRoomList = async () => {
     const list = await getLiveRoomList()
@@ -61,7 +50,7 @@ const startShieldingLiveRoomList = async () => {
         if (live_shielding.shieldingLiveRoomDecorated(liveData)) {
             continue
         }
-        addBlockButton({data: liveData, maskingFunc: startShieldingLiveRoomList})
+        shielding.addBlockButton({data: liveData, maskingFunc: startShieldingLiveRoomList}, '', ['right'])
     }
 }
 export default {

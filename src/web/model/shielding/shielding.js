@@ -37,6 +37,9 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
     if (hideBlockButtonGm()) return;
     //插入位置元素,显隐主体元素,主el元素
     const {insertionPositionEl, explicitSubjectEl, cssMap, cssText} = data.data;
+    if (className === '' || className === null || className === undefined) {
+        className = 'gz_def_shielding_button'
+    }
     const butEl = insertionPositionEl.querySelector("." + className);
     if (butEl) return;
     const buttonEL = document.createElement("button")
