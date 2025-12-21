@@ -2,7 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding/shielding.js";
 
 const getUserList = () => {
-    return elUtil.findElements(".fans-main .items>.item").then(elList => {
+    return elUtil.findElements(".fans-main .items>.item,.follow-main .items>.item").then(elList => {
         const list = []
         for (const el of elList) {
             const avatarEl = el.querySelector(".relation-card-avatar");
@@ -21,7 +21,8 @@ const getUserList = () => {
 
 export default {
     isUrlPage(url) {
-        return url.search('space.bilibili.com/([\\d]+)/relation/fans') !== -1;
+        return url.search('space.bilibili.com/([\\d]+)/relation/fans') !== -1 ||
+            url.search('space.bilibili.com/([\\d]+)/relation/follow') !== -1;
     },
     userListInsertionButton() {
         getUserList().then(list => {
