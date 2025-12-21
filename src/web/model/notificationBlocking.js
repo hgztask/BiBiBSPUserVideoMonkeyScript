@@ -16,6 +16,7 @@ import BLBLGate from "../pagesModel/home/BLBLGate.js";
 import searchLive from "../pagesModel/search/searchLive.js";
 import dynamicPage from "../pagesModel/dynamic/dynamicPage.js";
 import space from "../pagesModel/space/space.js";
+import BEWLYSearch from "../pagesModel/search/BEWLYSearch.js";
 
 /**
  * 监听通知屏蔽事件
@@ -76,5 +77,8 @@ eventEmitter.on('通知屏蔽', () => {
     }
     if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.debounceCheckDynamicList();
+    }
+    if (BEWLYSearch.isUrlPage(url, title)) {
+        BEWLYSearch.run(url)
     }
 })

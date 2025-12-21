@@ -5,6 +5,7 @@ import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import globalValue from "../../data/globalValue.js";
 import {IntervalExecutor} from "../../model/IntervalExecutor.js";
+import BEWLYHomeCss from '../../css/BEWLYHome.css'
 //获取bewly的shadowRoot元素
 let be_wly_el = null;
 
@@ -36,16 +37,6 @@ const getBEWlyWitcherButtonTextContent = async () => {
 const isBEWLYCatPlugin = async () => {
     const text = await getBEWlyWitcherButtonTextContent()
     return text.includes('BewlyCat');
-}
-
-/**
- * 是否是bewly插件主要页面
- * @param {string} url
- */
-const isBEWLYPage = (url) => {
-    return url.includes('www.bilibili.com/?page=') ||
-        url === 'https://www.bilibili.com/'
-        || url.startsWith('https://www.bilibili.com/?spm_id_from=')
 }
 
 /**
@@ -85,11 +76,10 @@ const getRightTabs = async () => {
  */
 const getVideoList = async () => {
     const be_wly_el = await getBewlyEl()
-    const elList = await elUtil.findElements('.video-card.group', {doc: be_wly_el})
+    const elList = await elUtil.findElements('.grid-adaptive>.video-card-container', {doc: be_wly_el})
     const list = [];
     const isBEWLYCatPluginVal = await isBEWLYCatPlugin()
     for (let el of elList) {
-        const parentElement = el.parentElement.parentElement;
         const title = el.querySelector('.video-card-title>a').textContent.trim();
         const userUrlEl = el.querySelector('.channel-name');
         const userUrl = userUrlEl.href;
@@ -119,19 +109,14 @@ const getVideoList = async () => {
         const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href;
         const bv = elUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector('.video-card-meta')
+        let explicitSubjectEl;
+        explicitSubjectEl = el.querySelector('.vertical-card-cover+div');
+        if (explicitSubjectEl === null) {
+            explicitSubjectEl = el
+        }
         list.push({
-            title,
-            name,
-            uid,
-            bv,
-            userUrl,
-            videoUrl,
-            nPlayCount,
-            bulletChat,
-            nDuration,
-            el: parentElement,
-            insertionPositionEl,
-            explicitSubjectEl: parentElement
+            title, name, uid, bv, userUrl, videoUrl, nPlayCount, bulletChat, nDuration, el,
+            insertionPositionEl, explicitSubjectEl
         })
     }
     return list
@@ -205,7 +190,10 @@ const startShieldingVideoList = async () => {
 }
 
 //间隔执行屏蔽视频列表
-const intervalShieldingVideoListExecutor = new IntervalExecutor(startShieldingVideoList,{processTips:true,intervalName:'视频'});
+const intervalShieldingVideoListExecutor = new IntervalExecutor(startShieldingVideoList, {
+    processTips: true,
+    intervalName: 'BEWLYCat插件视频列表'
+});
 
 //执行屏蔽历史记录中的视频
 const startShieldingHistoryVideoList = async () => {
@@ -218,7 +206,10 @@ const startShieldingHistoryVideoList = async () => {
 }
 
 //间隔执行屏蔽历史记录中的视频
-const intervalBEWLYShieldingHistoryVideoExecutor= new IntervalExecutor(startShieldingHistoryVideoList,{processTips:true,intervalName:'BEWLY历史记录'})
+const intervalBEWLYShieldingHistoryVideoExecutor = new IntervalExecutor(startShieldingHistoryVideoList, {
+    processTips: true,
+    intervalName: 'BEWLY历史记录'
+})
 
 //添加顶部选项卡栏的监听器
 const homeTopTabsInsertListener = () => {
@@ -299,31 +290,6 @@ const searchBoxInsertListener = async () => {
 }
 
 /**
- *
- * @param url
- * @returns null
- */
-const run = async (url) => {
-    const parseUrl = defUtil.parseUrl(url);
-    const {page} = parseUrl.queryParams
-    getBewlyEl().then(el => {
-        addGzStyle(el, el);
-    })
-    if (page === 'Home' ||
-        url.startsWith('https://www.bilibili.com/?spm_id_from=') ||
-        url === 'https://www.bilibili.com/'
-    ) {
-        intervalShieldingVideoListExecutor.start()
-        homeTopTabsInsertListener()
-    }
-    if (page === 'History') {
-        intervalBEWLYShieldingHistoryVideoExecutor.start()
-        searchBoxInsertListener()
-    }
-    rightTabsInsertListener()
-}
-
-/**
  * 检查页面的 bewly插件兼容性
  * @returns {Promise<void>|null}
  */
@@ -341,7 +307,43 @@ const check_BEWLYPage_compatibility = async () => {
     }
 }
 
+
 export default {
-    isBEWLYPage, run,
+    /**
+     * 是否是bewly插件主要页面
+     * @param {string} url
+     */
+    isBEWLYPage(url) {
+        return url.includes('www.bilibili.com/?page=') ||
+            url === 'https://www.bilibili.com/'
+            || url.startsWith('https://www.bilibili.com/?spm_id_from=')
+    },
+    getBewlyEl,
+    run(url) {
+        const parseUrl = defUtil.parseUrl(url);
+        const {page} = parseUrl.queryParams
+        getBewlyEl().then(el => {
+            addGzStyle(el, el);
+            elUtil.installStyle(BEWLYHomeCss)
+            for (let el of document.querySelectorAll('style[rel="stylesheet"]')) {
+                if (el.textContent.includes("body > *:not(#bewly):not(script):not(style)")) {
+                    console.log('已删除bewlyCat暴力隐藏样式表', el, el.textContent)
+                    el.remove();
+                }
+            }
+        })
+        if (page === 'Home' ||
+            url.startsWith('https://www.bilibili.com/?spm_id_from=') ||
+            url === 'https://www.bilibili.com/'
+        ) {
+            intervalShieldingVideoListExecutor.start()
+            homeTopTabsInsertListener()
+        }
+        if (page === 'History') {
+            intervalBEWLYShieldingHistoryVideoExecutor.start()
+            searchBoxInsertListener()
+        }
+        rightTabsInsertListener()
+    },
     check_BEWLYPage_compatibility
 }

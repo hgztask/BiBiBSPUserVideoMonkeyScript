@@ -24,6 +24,7 @@ import {localWs} from "./dev/LocalWs.js";
 import allLivePage from "./pagesModel/live/allLivePage.js";
 import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
 import BEWLYCommon from "./pagesModel/home/BEWLYCommon.js";
+import BEWLYSearch from "./pagesModel/search/BEWLYSearch.js";
 
 const homeStaticRoute = (title, url) => {
     if (BEWLYCommon.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -108,6 +109,9 @@ const staticRoute = (title, url) => {
     }
     if (liveEdenRankPage.isUrlPage(url)) {
         liveEdenRankPage.run()
+    }
+    if (BEWLYSearch.isUrlPage(url, title)) {
+        BEWLYSearch.run(url)
     }
 }
 
