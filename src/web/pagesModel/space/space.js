@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
 import dynamicCommon from "../dynamic/dynamicCommon.js";
 import defUtil from "../../utils/defUtil.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 //是否是用户空间页面
 const isSpacePage = (url = window.location.href) => {
@@ -56,7 +57,7 @@ const getUserInfo = async () => {
     }
     await isPersonalHomepage()
     const nameData = {}
-    nameData.uid = elUtil.getUrlUID(window.location.href)
+    nameData.uid = urlUtil.getUrlUID(window.location.href)
     if (valueCache.get('space_version', 'new') === 'new') {
         //获取新版ui用户名
         nameData.name = await elUtil.findElement('.nickname').then(el => el.textContent.trim())

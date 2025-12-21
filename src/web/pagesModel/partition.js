@@ -3,6 +3,7 @@ import strFormatUtil from "../utils/strFormatUtil.js"
 import defUtil from "../utils/defUtil.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import video_shielding from "../model/shielding/video_shielding.js";
+import urlUtil from "../utils/urlUtil.js";
 
 /**
  *判断url是否是分区页面
@@ -34,7 +35,7 @@ const getHotVideoDayList = async () => {
         const titleEl = el.querySelector('.rank-video-card__info--tit')
         const videoUrl = videoUrlEl.href;
         const title = titleEl.textContent.trim();
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         list.push({
             title, videoUrl, bv, el
         })
@@ -73,8 +74,8 @@ const getVVideoDataList = async () => {
         const name = userEl
             .querySelector('.bili-video-card__info--author')
             ?.textContent.trim() || null;
-        const uid = elUtil.getUrlUID(userUrl)
-        const bv = elUtil.getUrlBV(videoUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         list.push({
             name, title, uid, bv, userUrl, videoUrl, el,
             nPlayCount, nBulletChat, nDuration,
@@ -93,10 +94,10 @@ const getCVideoDataList = async () => {
         const titleEl = el.querySelector('.bili-video-card__title');
         const title = titleEl.textContent.trim();
         const videoUrl = titleEl.querySelector('a').href;
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const userEl = el.querySelector('.bili-video-card__author')
         const userUrl = userEl.href;
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         const name = userEl.querySelector('[title]').textContent.trim().split('·')[0].trim()
         const statEls = el.querySelectorAll('.bili-cover-card__stats span')
         const nPlayCount = strFormatUtil.toPlayCountOrBulletChat(statEls[0].textContent.trim())

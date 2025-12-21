@@ -2,11 +2,11 @@
 import videoPlayModel from "../../pagesModel/videoPlay/videoPlayModel.js";
 import collectionVideoPlayPageModel from "../../pagesModel/videoPlay/collectionVideoPlayPageModel.js";
 import space from "../../pagesModel/space/space.js";
-import elUtil from "../../utils/elUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import videoPlayWatchLater from "../../pagesModel/videoPlay/videoPlayWatchLater.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
+import urlUtil from "../../utils/urlUtil.js";
 //个人空间页面右侧屏蔽按钮组件
 export default {
   data() {
@@ -47,7 +47,7 @@ export default {
           await videoPlayModel.selectUserBlocking()
           break;
         case '添加bv号屏蔽':
-          const urlBvId = elUtil.getUrlBV(window.location.href);
+          const urlBvId = urlUtil.getUrlBV(window.location.href);
           this.$prompt(`确认添加该bv号【${urlBvId}】屏蔽吗？`, '提示', {
             inputValue: urlBvId,
             confirmButtonText: '确定',
@@ -73,7 +73,7 @@ export default {
       this.selectUserBlockingButShow = true
     }
     if (space.isSpacePage()) {
-      this.urlUID = elUtil.getUrlUID(window.location.href);
+      this.urlUID = urlUtil.getUrlUID(window.location.href);
       if (ruleKeyListData.getPreciseUidArr().includes(this.urlUID)) {
         this.shieldingModelShow = true
         this.removedShieldingUIDrButShow = true

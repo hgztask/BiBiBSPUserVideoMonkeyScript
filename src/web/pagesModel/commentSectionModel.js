@@ -6,6 +6,7 @@ import localMKData, {isCloseCommentBlockingGm} from "../data/localMKData.js";
 import videoPlayModel from "./videoPlay/videoPlayModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import comments_shielding from "../model/shielding/comments_shielding.js";
+import urlUtil from "../utils/urlUtil.js";
 
 /**
  * 评论添加屏蔽按钮
@@ -87,7 +88,7 @@ const getCommentSectionList = async () => {
         const theOPContent = theOPContentEl.textContent.trim();
         const userName = userNameEl.textContent.trim();
         const userUrl = userNameEl.href;
-        const uid = elUtil.getUrlUID(userUrl);
+        const uid = urlUtil.getUrlUID(userUrl);
         //楼中层内容
         const replies = [];
         commentsData.push({
@@ -113,7 +114,7 @@ const getCommentSectionList = async () => {
             const inTheBuildingUserNameEl = inTheBuildingUserInfo.querySelector("#user-name>a");
             const inTheBuildingUserName = inTheBuildingUserNameEl.textContent.trim();
             const inTheBuildingUserUrl = inTheBuildingUserNameEl.href;
-            const inTheBuildingUid = elUtil.getUrlUID(inTheBuildingUserUrl);
+            const inTheBuildingUid = urlUtil.getUrlUID(inTheBuildingUserUrl);
             //评论内容元素
             const biliRichTextEL = inTheContentEl.querySelector("bili-rich-text");
             const contentsEl = biliRichTextEL.shadowRoot.querySelector("#contents");

@@ -3,6 +3,7 @@ import strFormatUtil from '../../utils/strFormatUtil.js'
 import shielding from "../../model/shielding/shielding.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {IntervalExecutor} from "../../model/IntervalExecutor.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 /**
  * 判断是否是新的history页面
@@ -45,12 +46,12 @@ const getVideoDataList = async () => {
             //如果卡片为直播卡片,则不做任何处理
             continue
         }
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const userEl = el.querySelector('.bili-video-card__author');
         const cardTag = el.querySelector('.bili-cover-card__tag')?.textContent.trim() || null;
         const name = userEl.textContent.trim()
         const userUrl = userEl.href
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         let nDuration = -1
         if (cardTag !== '专栏') {
             nDuration = el.querySelector('.bili-cover-card__stat')?.textContent.trim() || null

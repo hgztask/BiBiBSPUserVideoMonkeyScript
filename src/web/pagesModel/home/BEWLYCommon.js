@@ -1,11 +1,12 @@
 import elUtil from "../../utils/elUtil.js";
 import strFormatUtil from '../../utils/strFormatUtil.js'
-import defUtil, {addGzStyle} from "../../utils/defUtil.js";
+import {addGzStyle} from "../../utils/defUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import globalValue from "../../data/globalValue.js";
 import {IntervalExecutor} from "../../model/IntervalExecutor.js";
 import BEWLYHomeCss from '../../css/BEWLYHome.css'
+import urlUtil from "../../utils/urlUtil.js";
 //获取bewly的shadowRoot元素
 let be_wly_el = null;
 
@@ -83,7 +84,7 @@ const getVideoList = async () => {
         const title = el.querySelector('.video-card-title>a').textContent.trim();
         const userUrlEl = el.querySelector('.channel-name');
         const userUrl = userUrlEl.href;
-        const uid = elUtil.getUrlUID(userUrl);
+        const uid = urlUtil.getUrlUID(userUrl);
         const name = userUrlEl.textContent.trim();
         let nDuration, nPlayCount, bulletChat;
         if (isBEWLYCatPluginVal) {
@@ -107,7 +108,7 @@ const getVideoList = async () => {
         nDuration = strFormatUtil.timeStringToSeconds(nDuration)
         nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
         const videoUrl = el.querySelector('[href*="https://www.bilibili.com/video"]')?.href;
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const insertionPositionEl = el.querySelector('.video-card-meta')
         let explicitSubjectEl;
         explicitSubjectEl = el.querySelector('.vertical-card-cover+div');
@@ -132,9 +133,9 @@ const getHistoryVideoDataList = async () => {
         const videoUrlEl = titleEl.parentElement;
         const userEl = videoUrlEl.nextElementSibling;
         const videoUrl = videoUrlEl.href;
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const userUrl = userEl.href
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         const name = userEl.textContent.trim()
         const title = titleEl?.textContent.trim()
         const tempTime = el.querySelector('div[pos][rounded-8]')?.textContent.trim().split(/[\t\r\f\n\s]*/g).join("")
@@ -320,7 +321,7 @@ export default {
     },
     getBewlyEl,
     run(url) {
-        const parseUrl = defUtil.parseUrl(url);
+        const parseUrl = urlUtil.parseUrl(url);
         const {page} = parseUrl.queryParams
         getBewlyEl().then(el => {
             addGzStyle(el, el);

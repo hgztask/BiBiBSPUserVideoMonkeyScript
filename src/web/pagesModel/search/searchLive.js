@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import css from '../../css/searchLive.css'
 import shielding from "../../model/shielding/shielding.js";
 import live_shielding from "../../model/shielding/live_shielding.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 // 判断是否是搜索直播页
 const isSearchLivePage = (url = window.location.href) => {
@@ -26,7 +27,7 @@ const getLiveRoomList = async () => {
         const liveUrl = titleAEl.href;
         const title = titleEl.textContent.trim();
         const userUrl = userEl.href;
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         const name = userEl.textContent.trim()
         list.push({
             title,

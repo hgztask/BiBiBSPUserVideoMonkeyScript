@@ -2,6 +2,7 @@ import elUtil from "../utils/elUtil.js";
 import shielding from "../model/shielding/shielding.js";
 import video_shielding from "../model/shielding/video_shielding.js";
 import comments_shielding from "../model/shielding/comments_shielding.js";
+import urlUtil from "../utils/urlUtil.js";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url) => {
@@ -26,7 +27,7 @@ const getDataList = async () => {
             data.title = judgmentEl.textContent.trim();
             const videoUrl = el.querySelector(".bili-dyn-card-video").href;
             data.videoUrl = videoUrl;
-            data.bv = elUtil.getUrlBV(videoUrl);
+            data.bv = urlUtil.getUrlBV(videoUrl);
             data.insertionPositionEl = el.querySelector(".bili-dyn-content__orig");
             data.explicitSubjectEl = data.insertionPositionEl;
         } else {

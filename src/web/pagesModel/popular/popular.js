@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import strFormatUtil from '../../utils/strFormatUtil.js'
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 
 const generalUrl = [
@@ -69,7 +70,7 @@ const getVideoDataList = async () => {
     for (let el of elList) {
         const title = el.querySelector(".title").textContent.trim();
         const userUrl = el.querySelector(".detail>a").href;
-        const uid = elUtil.getUrlUID(userUrl);
+        const uid = urlUtil.getUrlUID(userUrl);
         const name = el.querySelector(".up-name").textContent.trim();
         const detailStateEls = el.querySelectorAll('.detail-state>.data-box');
         let nPlayCount = detailStateEls[0].textContent.trim()
@@ -77,7 +78,7 @@ const getVideoDataList = async () => {
         let nBulletChat = detailStateEls[1].textContent.trim()
         nBulletChat = strFormatUtil.toPlayCountOrBulletChat(nBulletChat)
         const videoUrl = el.querySelector('.img>a')?.href || null;
-        const bv = elUtil.getUrlBV(videoUrl);
+        const bv = urlUtil.getUrlBV(videoUrl);
         const data = {
             title,
             userUrl,

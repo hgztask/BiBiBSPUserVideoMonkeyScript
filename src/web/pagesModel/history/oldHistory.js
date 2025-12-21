@@ -1,6 +1,7 @@
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 /**
  * 判断页面是否是旧版历史记录页面
@@ -29,10 +30,10 @@ const getVideoDataList = async () => {
         const userEl = el.querySelector('.w-info>span>a');
         const title = titleEl.textContent.trim();
         const videoUrl = titleEl.href;
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const name = userEl.textContent.trim();
         const userUrl = userEl.href;
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         list.push({
             title,
             videoUrl,

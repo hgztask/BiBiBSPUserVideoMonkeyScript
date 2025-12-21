@@ -1,12 +1,12 @@
 import elUtil from "../../utils/elUtil.js";
 import shielding from "../../model/shielding/shielding.js";
-import defUtil from "../../utils/defUtil.js";
 import strFormatUtil from '../../utils/strFormatUtil.js'
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 import ruleKeyListData from "../../data/ruleKeyListData.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {isClearLiveCardGm} from "../../data/localMKData.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 /**
  * 判断是否为搜索页
@@ -22,7 +22,7 @@ const isSearchVideoNetWorkUrl = (netUrl) => {
     if (netUrl.includes('api.bilibili.com/x/web-interface/wbi/search/all/v2')) return true;
     //非该接口时返回false
     if (!netUrl.includes('api.bilibili.com/x/web-interface/wbi/search/type')) return false;
-    const parseUrl = defUtil.parseUrl(netUrl);
+    const parseUrl = urlUtil.parseUrl(netUrl);
     /**
      * 判断是否为搜索网络请求的url
      * 当search_type等于
@@ -39,7 +39,7 @@ const isSearchVideoNetWorkUrl = (netUrl) => {
 const isSearchLiveRoomNetWorkUrl = (netUrl) => {
     //非该接口时返回false
     if (!netUrl.includes('api.bilibili.com/x/web-interface/wbi/search/type')) return false;
-    const parseUrl = defUtil.parseUrl(netUrl);
+    const parseUrl = urlUtil.parseUrl(netUrl);
     const search_type = parseUrl.queryParams['search_type'] || null;
     return search_type === 'live';
 }
@@ -71,8 +71,8 @@ const getVideoList = async (css) => {
             }
             continue
         }
-        const bv = elUtil.getUrlBV(videoUrl)
-        const uid = elUtil.getUrlUID(userUrl);
+        const bv = urlUtil.getUrlBV(videoUrl)
+        const uid = urlUtil.getUrlUID(userUrl);
         const name = userEl.querySelector(".bili-video-card__info--author").textContent.trim();
         const bili_video_card__stats_item = el.querySelectorAll('.bili-video-card__stats--item');
         let nPlayCount = bili_video_card__stats_item[0]?.textContent.trim()
@@ -167,7 +167,7 @@ const startShieldingVideoList = async () => {
         await startShieldingOtherVideoList()
         return
     }
-    const parseUrl = defUtil.parseUrl(window.location.href);
+    const parseUrl = urlUtil.parseUrl(window.location.href);
     /**
      * 当url中有page参数时，说明是搜索页的其他选项卡中的视频列表
      * 否则是搜索页综合选项卡中的第一页的综合排序视频列表
@@ -191,7 +191,7 @@ const processingExactSearchVideoCardContent = async () => {
     const userNameEl = infoCardEl.querySelector('.user-name')
     const name = userNameEl.textContent.trim()
     const userUrl = userNameEl.href
-    const uid = elUtil.getUrlUID(userUrl)
+    const uid = urlUtil.getUrlUID(userUrl)
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         el.remove()
         eventEmitter.send('打印信息', `根据精确uid匹配到用户${name}-【${uid}】`)
@@ -222,7 +222,7 @@ const processingExactSearchVideoCardContent = async () => {
     for (let videoEl of videoElList) {
         const titleEl = videoEl.querySelector('.bili-video-card__info--right>a');
         const videoUrl = titleEl.href;
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const title = titleEl.textContent.trim()
         let nDuration = videoEl.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
         nDuration = strFormatUtil.timeStringToSeconds(nDuration)

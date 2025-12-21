@@ -1,59 +1,3 @@
-import defUtil from "./defUtil.js";
-
-/**
- *获取url中的uid
- * @param url{string}
- * @return {number}
- */
-const getUrlUID = (url) => {
-    let uid;
-    if (url.startsWith('http')) {
-        const parseUrl = defUtil.parseUrl(url);
-        uid = parseUrl.pathSegments[0]?.trim()
-        return parseInt(uid)
-    }
-    //是否有参数
-    const isDoYouHaveAnyParameters = url.indexOf('?');
-    const lastIndexOf = url.lastIndexOf("/");
-    if (isDoYouHaveAnyParameters === -1) {
-        if (url.endsWith('/')) {
-            // 当url以/结尾时，取倒数第二个/
-            const nTheIndexOfTheLastSecondOccurrenceOfTheSlash = url.lastIndexOf('/', url.length - 2);
-            uid = url.substring(nTheIndexOfTheLastSecondOccurrenceOfTheSlash + 1, url.length - 1);
-        } else {
-            // 当没有参数时，取url的最后一个/之后的内容
-            uid = url.substring(lastIndexOf + 1);
-        }
-    } else {
-        //当url中有参数时，取参数前的uid
-        uid = url.substring(lastIndexOf + 1, isDoYouHaveAnyParameters);
-    }
-    return parseInt(uid);
-}
-
-/**
- * 获取url中的BV号
- * @param url {string}
- * @returns {string|null}
- */
-const getUrlBV = (url) => {
-    //例子：https://www.bilibili.com/video/BV1gLCWYAE5C/?spm_id_from=333.788.recommend_more_video.1
-    let match = url.match(/video\/(.+)\//);
-    if (match === null) {
-        //例子：https://www.bilibili.com/video/BV1wB421r7NX?spm_id_from=333.1245.recommend_more_video.1
-        match = url.match(/video\/(.+)\?/)
-    }
-    if (match === null) {
-        //例子:https://www.bilibili.com/video/BV1B1cxewECr
-        match = url.match(/video\/(.+)/)
-    }
-    if (match !== null) {
-        return match?.[1]?.trim();
-    }
-    const {queryParams: {bvid = null}} = defUtil.parseUrl(url);
-    return bvid;
-}
-
 /**
  * 判断一个变量是否是DOM元素
  * @param {*} obj - 要判断的变量
@@ -379,8 +323,6 @@ const createVueDiv = (el = null, cssTests = null) => {
  * @version 0.2.0
  */
 export default {
-    getUrlUID,
-    getUrlBV,
     findElement, isDOMElement, addHoverTimeoutEvent, removeHoverTimeoutEvent,
     findElements, findElementChain,
     findElementsAndBindEvents,

@@ -2,6 +2,7 @@ import strFormatUtil from '../../utils/strFormatUtil.js'
 import elUtil from "../../utils/elUtil.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import ruleUtil from "../../utils/ruleUtil.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 const getPlayCountAndBulletChatAndDuration = (el) => {
     const playInfo = el.querySelector('.playinfo').innerHTML.trim();
@@ -23,9 +24,9 @@ const getRightVideoDataList = (elList) => {
         const userInfoEl = el.querySelector(".upname");
         const name = userInfoEl.querySelector(".name").textContent.trim();
         const userUrl = userInfoEl.href;
-        const uid = elUtil.getUrlUID(userUrl);
+        const uid = urlUtil.getUrlUID(userUrl);
         const videoUrl = el.querySelector(".info>a").href;
-        const bv = elUtil.getUrlBV(videoUrl);
+        const bv = urlUtil.getUrlBV(videoUrl);
         list.push({
             ...getPlayCountAndBulletChatAndDuration(el), ...{
                 title,

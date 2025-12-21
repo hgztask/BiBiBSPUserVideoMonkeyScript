@@ -11,6 +11,7 @@ import {
     isHideHomeTopHeaderBannerImageGm,
     isHideHomeTopHeaderChannelGm
 } from "../../data/localMKData.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 // 判断是否是首页
 const isHome = (url, title) => {
@@ -104,7 +105,7 @@ const getVideoData = (el) => {
     let nDuration = el.querySelector('.bili-video-card__stats__duration')?.textContent.trim()
     nDuration = strFormatUtil.timeStringToSeconds(nDuration)
     const userUrl = el.querySelector(".bili-video-card__info--owner").getAttribute("href");
-    const uid = elUtil.getUrlUID(userUrl);
+    const uid = urlUtil.getUrlUID(userUrl);
     return {
         title,
         name,
@@ -143,7 +144,7 @@ const getHomeVideoELList = async () => {
                 }
             };
             if (videoUrl?.includes('www.bilibili.com/video')) {
-                items.bv = elUtil.getUrlBV(videoUrl)
+                items.bv = urlUtil.getUrlBV(videoUrl)
             }
 
             list.push(items)

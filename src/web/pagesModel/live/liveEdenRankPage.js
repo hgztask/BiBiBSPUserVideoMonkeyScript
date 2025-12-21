@@ -2,6 +2,7 @@ import elUtil from "../../utils/elUtil.js";
 import defUtil from "../../utils/defUtil.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import commentSectionModel from "../commentSectionModel.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 //是否是直播间排行榜页面
 const isUrlPage = (url) => {
@@ -17,7 +18,7 @@ const run = async () => {
             const el = document.querySelector('body>.user-card');
             const nameEl = el.querySelector('.name');
             const userAddress = nameEl.href;
-            const uid = elUtil.getUrlUID(userAddress);
+            const uid = urlUtil.getUrlUID(userAddress);
             if (ruleUtil.addRulePreciseUid(uid).status) {
                 commentSectionModel.checkLiveRankingsCommentSectionList();
             }

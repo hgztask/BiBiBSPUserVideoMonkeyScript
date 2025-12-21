@@ -3,7 +3,6 @@ import elUtil from "../../utils/elUtil.js";
 import strFormatUtil from "../../utils/strFormatUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
-import defUtil from "../../utils/defUtil.js";
 import {IntervalExecutor} from "../../model/IntervalExecutor.js";
 import shielding from "../../model/shielding/shielding.js";
 import live_shielding from "../../model/shielding/live_shielding.js";
@@ -24,9 +23,9 @@ const getVideoList = async () => {
         const durationEl = el.querySelector(".video-card-cover-stats__item--duration>span");
         const title = titleEl.title.trim();
         const videoUrl = titleEl.href;
-        const bv = elUtil.getUrlBV(videoUrl)
+        const bv = urlUtil.getUrlBV(videoUrl)
         const userUrl = nameEl.href;
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         const name = nameEl.textContent.trim()
         const nDuration = strFormatUtil.timeStringToSeconds(durationEl.textContent.trim());
         const nPlayCount = strFormatUtil.toPlayCountOrBulletChat(viewEl.textContent.trim())
@@ -69,7 +68,7 @@ const userListInstallAddButton = async () => {
         const nameEl = el.querySelector('.username')
         const userUrl = el.href;
         const name = nameEl.textContent.trim();
-        const uid = elUtil.getUrlUID(userUrl);
+        const uid = urlUtil.getUrlUID(userUrl);
         const insertionPositionEl = el.querySelector('[flex*="col"]>[items-center]:last-child');
         shielding.addBlockButton({data: {uid, name, userUrl, el, insertionPositionEl, explicitSubjectEl: el}})
     }
@@ -95,7 +94,7 @@ const searchLiveListIntervalExecutor = new IntervalExecutor(async () => {
         const liveUrl = liveUrlAEl.href
         const title = liveUrlAEl.querySelector('h3').title
         const userUrl = userAEl.href
-        const uid = elUtil.getUrlUID(userUrl)
+        const uid = urlUtil.getUrlUID(userUrl)
         const name = userAEl.textContent.trim();
         const partition = partitionEl.textContent.trim();
         const roomId = urlUtil.getUrlRoomId(liveUrl)
@@ -118,7 +117,7 @@ export default {
             title.includes('- 搜索结果 - 哔哩哔哩')
     },
     run(url) {
-        const parseUrl = defUtil.parseUrl(url);
+        const parseUrl = urlUtil.parseUrl(url);
         const {category, search_type = null} = parseUrl.queryParams;
         if (category === "all" || category === "video") {
             searchVideoListIntervalExecutor.start()

@@ -7,6 +7,7 @@ import {eventEmitter} from "../../model/EventEmitter.js";
 import localMKData from "../../data/localMKData.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import videoPlayPageCommon from "./videoPlayPageCommon.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 //判断是否是视频播放页
 const isVideoPlayPage = (url = window.location.href) => {
@@ -69,10 +70,10 @@ const getGetTheVideoListOnTheRight = async () => {
             const title = elInfo.querySelector(".title").title;
             const name = elInfo.querySelector(".upname .name").textContent.trim();
             const userUrl = elInfo.querySelector(".upname>a").href;
-            const uid = elUtil.getUrlUID(userUrl);
+            const uid = urlUtil.getUrlUID(userUrl);
             const playInfo = el.querySelector('.playinfo').innerHTML.trim();
             const videoUrl = el.querySelector(".info>a").href
-            const bv = elUtil.getUrlBV(videoUrl)
+            const bv = urlUtil.getUrlBV(videoUrl)
             let nPlayCount = playInfo.match(/<\/svg>(.*)<svg/s)?.[1].trim()
             nPlayCount = strFormatUtil.toPlayCountOrBulletChat(nPlayCount)
             let nBulletChat = playInfo.match(/class="dm".+<\/svg>(.+)$/s)?.[1].trim()
