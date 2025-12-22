@@ -76,4 +76,12 @@ export class IntervalExecutor {
             console.log(`start:检测${this.#config.intervalName}间隔执行器`)
         }
     }
+
+    setExecutorStatus(status) {
+        if (status) {
+            this.start()
+        } else {
+            this.stop()
+        }
+    }
 }

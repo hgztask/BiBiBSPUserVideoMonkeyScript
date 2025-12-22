@@ -12,6 +12,7 @@ import space from "../pagesModel/space/space.js";
 import allLivePage from "../pagesModel/live/allLivePage.js";
 import spaceRelation from "../pagesModel/space/spaceRelation.js";
 import msgReply from "../pagesModel/message/msgReply.js";
+import msgWhisper from "../pagesModel/message/msgWhisper.js";
 
 /**
  * 监听网络请求
@@ -86,6 +87,9 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     }
     if (url.includes("api.bilibili.com/x/msgfeed/reply") || url.includes("api.bilibili.com/x/msgfeed/at")) {
         msgReply.userListInsertionButton()
+    }
+    if (url.includes("api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions")) {
+        msgWhisper.checkLeftUserList()
     }
     /**
      *

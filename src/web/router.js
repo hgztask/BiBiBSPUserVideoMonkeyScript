@@ -26,7 +26,8 @@ import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
 import BEWLYCommon from "./pagesModel/home/BEWLYCommon.js";
 import BEWLYSearch from "./pagesModel/search/BEWLYSearch.js";
 import searchUserTab from "./pagesModel/search/searchUserTab.js";
-import msgReply from "./pagesModel/message/msgReply.js";
+import urlUtil from "./utils/urlUtil.js";
+import msgWhisper from "./pagesModel/message/msgWhisper.js";
 
 const homeStaticRoute = (title, url) => {
     if (BEWLYCommon.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -85,10 +86,8 @@ const staticRoute = (title, url) => {
     }
     if (messagePage.isMessagePage(url)) {
         messagePage.modifyTopItemsZIndex()
-    }
-    if (msgReply.isUrlPage(url)) {
-
-        msgReply.userListInsertionButton()
+        const parseUrl = urlUtil.parseUrl(url);
+        msgWhisper.checkMsgListIntervalExecutor.setExecutorStatus(msgWhisper.isChatWindowInterface(parseUrl));
     }
     if (space.isSpacePage()) {
         userProfile.run()
@@ -136,6 +135,10 @@ const dynamicRouting = (title, url) => {
     if (checkAndExcludePage(url)) return;
     if (searchUserTab.isUrlPage(url)) {
         searchUserTab.userListInsertionButton()
+    }
+    if (messagePage.isMessagePage(url)) {
+        const parseUrl = urlUtil.parseUrl(url);
+        msgWhisper.checkMsgListIntervalExecutor.setExecutorStatus(msgWhisper.isChatWindowInterface(parseUrl));
     }
     eventEmitter.send('通知屏蔽');
 }

@@ -35,13 +35,6 @@ const getDataList = () => {
 }
 
 export default {
-    isUrlPage(url) {
-        if (!url.includes("message.bilibili.com")) {
-            return false
-        }
-        const parseUrl = urlUtil.parseUrl(url);
-        return parseUrl.hash === "#/reply" || parseUrl.hash === "#/at"
-    },
     userListInsertionButton() {
         getDataList().then(list => {
             for (const v of list) {
