@@ -30,6 +30,7 @@
   ],
   "@match": [
     "*://search.bilibili.com/*",
+    "*://message.bilibili.com/*",
     "*://t.bilibili.com/*",
     "*://space.bilibili.com/*",
     "*://live.bilibili.com/*",

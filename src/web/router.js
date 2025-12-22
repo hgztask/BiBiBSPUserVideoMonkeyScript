@@ -26,6 +26,7 @@ import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
 import BEWLYCommon from "./pagesModel/home/BEWLYCommon.js";
 import BEWLYSearch from "./pagesModel/search/BEWLYSearch.js";
 import searchUserTab from "./pagesModel/search/searchUserTab.js";
+import msgReply from "./pagesModel/message/msgReply.js";
 
 const homeStaticRoute = (title, url) => {
     if (BEWLYCommon.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
@@ -84,6 +85,10 @@ const staticRoute = (title, url) => {
     }
     if (messagePage.isMessagePage(url)) {
         messagePage.modifyTopItemsZIndex()
+    }
+    if (msgReply.isUrlPage(url)) {
+
+        msgReply.userListInsertionButton()
     }
     if (space.isSpacePage()) {
         userProfile.run()

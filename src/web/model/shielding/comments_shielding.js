@@ -41,7 +41,6 @@ const shieldingComment = (commentsData) => {
 /**
  * 装饰过的屏蔽评论,屏蔽单个评论项
  * @param commentsData {{}}
- * @returns {Object}
  * @property {boolean} state 是否屏蔽
  * @type {function}
  */

@@ -77,6 +77,9 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
         event.stopImmediatePropagation(); // 阻止事件冒泡和同一元素上的其他事件处理器
         event.preventDefault(); // 阻止默认行为
         const {updateFunc, data: {el}} = data;
+        if (__DEV__) {
+            console.log(data)
+        }
         let localData;
         if (updateFunc) {
             localData = updateFunc(el);

@@ -11,6 +11,7 @@ import dynamicPage from "../pagesModel/dynamic/dynamicPage.js";
 import space from "../pagesModel/space/space.js";
 import allLivePage from "../pagesModel/live/allLivePage.js";
 import spaceRelation from "../pagesModel/space/spaceRelation.js";
+import msgReply from "../pagesModel/message/msgReply.js";
 
 /**
  * 监听网络请求
@@ -82,6 +83,9 @@ const observeNetwork = (url, windowUrl, winTitle, initiatorType) => {
     if ((url.includes("api.bilibili.com/x/relation/fans?pn=") || url.includes("api.bilibili.com/x/relation/followings"))
         && spaceRelation.isUrlPage(windowUrl)) {
         spaceRelation.userListInsertionButton()
+    }
+    if (url.includes("api.bilibili.com/x/msgfeed/reply") || url.includes("api.bilibili.com/x/msgfeed/at")) {
+        msgReply.userListInsertionButton()
     }
     /**
      *
