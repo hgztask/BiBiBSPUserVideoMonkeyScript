@@ -45,9 +45,9 @@ export default {
       <el-switch v-model="bGateClearListNonVideoV" active-text="清空列表非视频元素" title="刷新页面后生效"/>
     </el-card>
     <el-card>
-      <template #header>Bewly插件(BewlyCat),原BewlyBewly</template>
+      <template #header>Bewly插件(BewlyCat)原BewlyBewly</template>
       <div>
-        仅兼容BewlyCat_1.5.2版本，不往前兼容
+        兼容BewlyCat的版本可看使用文档，不往前兼容
       </div>
       <el-switch v-model="compatible_BEWLY_BEWLY" active-text="首页适配"/>
     </el-card>
