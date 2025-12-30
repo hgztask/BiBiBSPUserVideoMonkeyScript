@@ -30,7 +30,11 @@ import urlUtil from "./utils/urlUtil.js";
 import msgWhisper from "./pagesModel/message/msgWhisper.js";
 
 const homeStaticRoute = (title, url) => {
-    if (BEWLYCommon.isBEWLYPage(url) && globalValue.compatibleBEWLYBEWLY) {
+    const isBewlyPage = BEWLYCommon.isBEWLYPage(url);
+    if (isBewlyPage) {
+        BEWLYCommon.clearBewlyCatStyle();
+    }
+    if (isBewlyPage && globalValue.compatibleBEWLYBEWLY) {
         BEWLYCommon.run(url)
     }
     if (bilibiliHome.isHome(url, title)) {

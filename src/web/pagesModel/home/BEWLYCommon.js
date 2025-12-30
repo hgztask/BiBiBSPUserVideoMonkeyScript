@@ -320,18 +320,25 @@ export default {
             || url.startsWith('https://www.bilibili.com/?spm_id_from=')
     },
     getBewlyEl,
+    //清除bewlyCat暴力隐藏样式
+    clearBewlyCatStyle() {
+        let loop = false;
+        for (let el of document.querySelectorAll('style[rel="stylesheet"]')) {
+            if (el.textContent.includes("body > *:not(#bewly):not(script):not(style)")) {
+                loop = true;
+                console.log('已删除bewlyCat暴力隐藏样式表', el, el.textContent)
+                el.remove();
+            }
+        }
+        if (loop) {
+            elUtil.installStyle(BEWLYHomeCss)
+        }
+    },
     run(url) {
         const parseUrl = urlUtil.parseUrl(url);
         const {page} = parseUrl.queryParams
         getBewlyEl().then(el => {
             addGzStyle(el, el);
-            elUtil.installStyle(BEWLYHomeCss)
-            for (let el of document.querySelectorAll('style[rel="stylesheet"]')) {
-                if (el.textContent.includes("body > *:not(#bewly):not(script):not(style)")) {
-                    console.log('已删除bewlyCat暴力隐藏样式表', el, el.textContent)
-                    el.remove();
-                }
-            }
         })
         if (page === 'Home' ||
             url.startsWith('https://www.bilibili.com/?spm_id_from=') ||
