@@ -1,6 +1,6 @@
 import elUtil from "../../utils/elUtil.js";
 import strFormatUtil from '../../utils/strFormatUtil.js'
-import {addGzStyle} from "../../utils/defUtil.js";
+import defUtil, {addGzStyle} from "../../utils/defUtil.js";
 import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import globalValue from "../../data/globalValue.js";
@@ -164,7 +164,7 @@ const getHistoryVideoDataList = async () => {
  */
 const getHomeTopTabs = async () => {
     const beEl = await getBewlyEl()
-    const els = beEl.querySelectorAll('.home-tabs-inside>[data-overlayscrollbars-contents]>button')
+    const els = beEl.querySelectorAll('.home-tabs-inside>button')
     const list = [];
     for (let el of els) {
         const label = el.textContent.trim()
@@ -174,6 +174,7 @@ const getHomeTopTabs = async () => {
     if (list.some(tab => tab.active === true)) {
         return list
     }
+    await defUtil.wait(1000)
     return await getHomeTopTabs()
 }
 

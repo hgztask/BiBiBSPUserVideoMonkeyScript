@@ -118,8 +118,9 @@ export default {
     },
     run(url) {
         const parseUrl = urlUtil.parseUrl(url);
-        const {category, search_type = null} = parseUrl.queryParams;
-        if (category === "all" || category === "video") {
+        const {category = null, search_type = null} = parseUrl.queryParams;
+        if (category === "all" || category === "video" ||
+            (category === null && search_type === null)) {
             searchVideoListIntervalExecutor.start()
         } else {
             searchVideoListIntervalExecutor.stop()
