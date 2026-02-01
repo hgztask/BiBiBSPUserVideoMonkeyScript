@@ -151,6 +151,9 @@ export default {
             9.装扮id和装扮收藏集id目前仅支持在评论区中处理，添加方式可以通过评论中的快捷屏蔽按钮添加，或者查阅使用日志中【装扮id和装扮收藏集id获取方式
             】
           </div>
+          <div>
+            10.部分规则基于api请求获取，当提示禁用根据bv号网络请求获取视频信息时，请不要马上关闭禁用，等一会，或者半小时之后，再关闭禁用
+          </div>
         </el-card>
         <ruleInformationView :rule-info-arr="ruleInfoArr"/>
       </el-col>

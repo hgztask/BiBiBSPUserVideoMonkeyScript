@@ -103,6 +103,10 @@ const fetchGetVideoInfo = async (bvId) => {
                 //点赞数
                 like
             },
+            //争议,警告信息
+            argue_info: {
+                argue_msg
+            },
         }, Card: {
             // 粉丝数
             follower,
@@ -178,7 +182,9 @@ const fetchGetVideoInfo = async (bvId) => {
         //分词
         participle,
         dimension,
-        like
+        like,
+        //争议,警告信息
+        argue_msg,
     }
 
     //封装用户信息

@@ -132,6 +132,14 @@
     "name": "视频bv号(精确匹配)"
   },
   {
+    "key": "argue_msg",
+    "name": "争议警告消息(模糊匹配)"
+  },
+  {
+    "key": "argue_msg_precise",
+    "name": "争议警告消息(精确匹配)"
+  },
+  {
     "key": "precise_decoration_id",
     "name": "装扮id(精确匹配)"
   },

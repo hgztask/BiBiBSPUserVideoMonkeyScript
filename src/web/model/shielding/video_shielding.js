@@ -48,6 +48,7 @@ import arrUtil from "../../utils/arrUtil.js";
 import bvRequestQueue from "../queue/bvRequestQueue.js";
 import bvDexie from "../bvDexie.js";
 import {videoCacheManager} from "../cache/videoCacheManager.js";
+import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
 
 // 检查视频tag执行多重tag检查屏蔽
 const asyncBlockVideoTagPreciseCombination = async (tags) => {
@@ -125,6 +126,31 @@ const blockVideoPlayCount = (playCount) => {
         }
     }
     return returnTempVal
+}
+
+//检查争议消息内容屏蔽
+const blockArgueMsgContent = (argueMsg) => {
+    if (argueMsg === undefined || argueMsg.trim().length <= 0) return returnTempVal;
+    const argueMsgList = GM_getValue('argue_msg', []);
+    let match = ruleMatchingUtil.fuzzyMatch(argueMsgList, argueMsg);
+    if (match !== null) {
+        return {state: true, type: '争议消息内容模糊屏蔽', matching: match}
+    }
+    const argueMsgPreciseList = GM_getValue('argue_msg_precise', []);
+    match = ruleMatchingUtil.exactMatch(argueMsgPreciseList, argueMsg);
+    if (match) {
+        return {state: true, type: '争议消息内容精确屏蔽', matching: match}
+    }
+    return returnTempVal
+}
+
+//异步检查争议消息内容屏蔽
+const asyncBlockArgueMsgContent = async (argueMsg) => {
+    const res = blockArgueMsgContent(argueMsg);
+    if (res.state) {
+        return Promise.reject(res)
+    }
+    return res
 }
 
 /**
@@ -291,6 +317,7 @@ const shieldingOtherVideoParameter = async (result, videoData) => {
                 return Promise.reject({state, type: '精选评论类视频'})
             }
         })
+        .then(() => asyncBlockArgueMsgContent(videoInfo['argue_msg']))
         .then(() => {
             return returnTempVal;
         })
