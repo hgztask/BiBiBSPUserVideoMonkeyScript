@@ -5,12 +5,7 @@ import userProfile from "../userProfile.js";
 import ruleUtil from "../../utils/ruleUtil.js";
 import defUtil from "../../utils/defUtil.js";
 import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../data/localMKData.js";
-import {
-    asyncBlockByLevel,
-    asyncBlockComment,
-    asyncBlockUserFanCard,
-    asyncBlockUserUidAndName,
-} from "../../model/shielding/shielding.js";
+import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName,} from "../../model/shielding/shielding.js";
 import liveCommon from "./liveCommon.js";
 
 /**
@@ -127,7 +122,7 @@ const checkSCList = async () => {
         asyncBlockUserUidAndName(uid, uname)
             .then(() => asyncBlockComment(message))
             .then(() => asyncBlockByLevel(userLevel))
-            .then(() => asyncBlockUserFanCard(fansMedalName))
+            .then(() => live_shielding.asyncBlockUserFanCard(fansMedalName))
             .catch(res => {
                 el?.remove();
                 const {type, matching} = res;

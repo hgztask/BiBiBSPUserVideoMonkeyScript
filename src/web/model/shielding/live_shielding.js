@@ -6,7 +6,6 @@ import shielding, {
     asyncBlockByLevelForComment,
     asyncBlockComment,
     asyncBlockSeniorMemberOnly,
-    asyncBlockUserFanCard,
     asyncBlockUserUidAndName,
     blockCheckWhiteUserUid,
     blockUserUidAndName,
@@ -22,35 +21,14 @@ export const blockLiveRoomId = (liveRoomId) => {
     return returnTempVal;
 }
 
-/**
- * 装饰过的屏蔽直播间评论
- * @param liveRoomContent {*} 评论数据
- * @returns {boolean}
- * @type {function}
- */
-const shieldingLiveRoomContent = (liveRoomContent) => {
-    const {content, uid, name, level = -1, chatType, fansMedal, el} = liveRoomContent;
-    asyncBlockSeniorMemberOnly(level)
-        .then(() => asyncBlockUserUidAndName(uid, name))
-        .then(() => asyncBlockByLevelForComment(level))
-        .then(() =>asyncBlockUserFanCard(fansMedal))
-        .then(() => {
-            if (chatType === 'emoticon') {
-                return Promise.reject({type: '中断'});
-            }
-        })
-        .then(() => asyncBlockComment(content))
-        .catch(res => {
-            let {state, type, matching} = res;
-            if (type === '中断') return;
-            if (state) {
-                el?.remove()
-            }
-            if (type) {
-                const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
-                eventEmitter.send('打印信息', infoHtml)
-            }
-        })
+//异步检查用户粉丝牌屏蔽，匹配成功则抛出reject
+const asyncBlockUserFanCard = async (fansMedal) => {
+    if (fansMedal !== null) {
+        if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseFanCardArr(), fansMedal)) {
+            return {state: true, type: '精确粉丝牌', matching: fansMedal}
+        }
+    }
+    return returnTempVal;
 }
 
 // 屏蔽直播间
@@ -110,6 +88,36 @@ eventEmitter.on('event-直播首页列表添加屏蔽按钮', (liveCardItemData)
 })
 
 export default {
-    shieldingLiveRoomDecorated, shieldingLiveRoomContent,
-    addLiveContentBlockButton
+    shieldingLiveRoomDecorated,
+    /**
+     * 装饰过的屏蔽直播间评论
+     * @param liveRoomContent {*} 评论数据
+     * @returns {boolean}
+     * @type {function}
+     */
+    shieldingLiveRoomContent(liveRoomContent) {
+        const {content, uid, name, level = -1, chatType, fansMedal, el} = liveRoomContent;
+        asyncBlockSeniorMemberOnly(level)
+            .then(() => asyncBlockUserUidAndName(uid, name))
+            .then(() => asyncBlockByLevelForComment(level))
+            .then(() => asyncBlockUserFanCard(fansMedal))
+            .then(() => {
+                if (chatType === 'emoticon') {
+                    return Promise.reject({type: '中断'});
+                }
+            })
+            .then(() => asyncBlockComment(content))
+            .catch(res => {
+                let {state, type, matching} = res;
+                if (type === '中断') return;
+                if (state) {
+                    el?.remove()
+                }
+                if (type) {
+                    const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
+                    eventEmitter.send('打印信息', infoHtml)
+                }
+            })
+    },
+    addLiveContentBlockButton, asyncBlockUserFanCard
 }
