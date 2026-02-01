@@ -86,7 +86,10 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
         } else {
             localData = data.data;
         }
-        const {uid = -1, name = null, bv = null, title = '', roomId = null} = localData;
+        const {
+            uid = -1, name = null, bv = null, title = '', roomId = null,
+            decoratePic = null, collectionActId = -1, dressUpId = -1,
+        } = localData;
         const showList = []
         if (uid !== -1) {
             showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
@@ -98,6 +101,12 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
         }
         if (roomId !== null) {
             showList.push({label: `直播间id屏蔽-直播间id=${roomId}`, value: "roomId"});
+        }
+        if (decoratePic !== null && collectionActId !== -1) {
+            showList.push({label: `装扮收藏集id屏蔽-id=${collectionActId}`, value: "collectionActId"});
+        }
+        if (decoratePic !== null && dressUpId !== -1) {
+            showList.push({label: `装扮id屏蔽-id=${dressUpId}`, value: "dressUpId"});
         }
         eventEmitter.send('sheet-dialog', {
             title: "屏蔽选项",
@@ -127,6 +136,12 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
                             type: 'success'
                         })
                         break;
+                    case 'collectionActId':
+                        results = ruleUtil.addRule(collectionActId, "precise_decoration_collection_id");
+                        break
+                    case 'dressUpId':
+                        results = ruleUtil.addRule(dressUpId, "precise_decoration_id");
+                        break
                     default:
                         // 用户名精确屏蔽
                         eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
@@ -806,5 +821,23 @@ export const blockDynamicItemContent = (content, videoTitle = null, ruleArrMap =
 export default {
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,
-    addBlockButton
+    addBlockButton,
+    //根据精确的装扮ID进行屏蔽-目前仅支持评论区使用
+    blockDecoration(value) {
+        const list = GM_getValue('precise_decoration_id', []);
+        const match = ruleMatchingUtil.exactMatch(list, value);
+        if (match) {
+            return {state: true, type: "精确装扮ID", matching: value}
+        }
+        return returnTempVal;
+    },
+    //根据精确的装扮合集ID进行屏蔽-目前仅支持评论区使用
+    blockDecorationCollection(value) {
+        const list = GM_getValue('precise_decoration_collection_id', [])
+        const exactMatch = ruleMatchingUtil.exactMatch(list, value);
+        if (exactMatch) {
+            return {state: true, type: "精确装扮合集ID", matching: value}
+        }
+        return returnTempVal;
+    }
 }

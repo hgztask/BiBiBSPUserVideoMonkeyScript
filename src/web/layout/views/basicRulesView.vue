@@ -147,6 +147,10 @@ export default {
           <div>8.
             基础规则中的项和组合规则互斥，如xxx添加到视频tag多重规则，则不能添加到对应基础规则视频tag，反之同理，限类型，如组合精确匹配
           </div>
+          <div>
+            9.装扮id和装扮收藏集id目前仅支持在评论区中处理，添加方式可以通过评论中的快捷屏蔽按钮添加，或者查阅使用日志中【装扮id和装扮收藏集id获取方式
+            】
+          </div>
         </el-card>
         <ruleInformationView :rule-info-arr="ruleInfoArr"/>
       </el-col>

@@ -130,5 +130,13 @@
   {
     "key": "precise_video_bv",
     "name": "视频bv号(精确匹配)"
+  },
+  {
+    "key": "precise_decoration_id",
+    "name": "装扮id(精确匹配)"
+  },
+  {
+    "key": "precise_decoration_collection_id",
+    "name": "装扮收藏集id(精确匹配)"
   }
 ]

@@ -1,5 +1,10 @@
 import {eventEmitter} from "../EventEmitter.js";
-import {blockByLevelForComment, blockComment, blockSeniorMemberOnly, blockUserUidAndName} from "./shielding.js";
+import shielding, {
+    blockByLevelForComment,
+    blockComment,
+    blockSeniorMemberOnly,
+    blockUserUidAndName
+} from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
 import localMKData from "../../data/localMKData.js";
 
@@ -24,7 +29,10 @@ const blockCommentWordLimit = (content) => {
  * @property {string} matching 匹配到的规则`
  */
 const shieldingComment = (commentsData) => {
-    const {content, uid, name, level = -1} = commentsData;
+    const {
+        content, uid, name, level = -1, decoratePic = null,
+        collectionActId = -1, dressUpId = -1,
+    } = commentsData;
     let returnVal = blockSeniorMemberOnly(level)
     if (returnVal.state) return returnVal;
     returnVal = blockUserUidAndName(uid, name)
@@ -35,7 +43,17 @@ const shieldingComment = (commentsData) => {
         returnVal = blockByLevelForComment(level);
         if (returnVal.state) return returnVal;
     }
-    return blockCommentWordLimit(content);
+    returnVal = blockCommentWordLimit(content)
+    if (returnVal.state) return returnVal;
+    if (decoratePic !== null && collectionActId !== -1) {
+        returnVal = shielding.blockDecorationCollection(collectionActId)
+        if (returnVal.state) return returnVal;
+    }
+    if (decoratePic !== null && dressUpId !== -1) {
+        returnVal = shielding.blockDecoration(dressUpId)
+        if (returnVal.state) return returnVal;
+    }
+    return returnVal;
 }
 
 /**

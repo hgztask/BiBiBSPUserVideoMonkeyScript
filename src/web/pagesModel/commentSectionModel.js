@@ -7,6 +7,7 @@ import videoPlayModel from "./videoPlay/videoPlayModel.js";
 import {eventEmitter} from "../model/EventEmitter.js";
 import comments_shielding from "../model/shielding/comments_shielding.js";
 import urlUtil from "../utils/urlUtil.js";
+import {valueCache} from "../model/localCache/valueCache.js";
 
 /**
  * 评论添加屏蔽按钮
@@ -57,6 +58,34 @@ const getOldUserLevel = (iEl) => {
     return level
 }
 
+//装扮数据
+const decorateData = valueCache.set("decorateData", {});
+const getDecorate = (el, uid, name) => {
+    const newVar = {dressUpId: -1, collectionActId: -1, decoratePic: null}
+    if (el === null || el === undefined) return newVar
+    const decorateShadowRoot = el.shadowRoot;
+    const decoratePicEl = decorateShadowRoot.querySelector("img")
+    if (decoratePicEl === null || decoratePicEl === undefined) return newVar
+    //装扮图片url
+    newVar.decoratePic = decoratePicEl.src;
+    const decorateAEl = decorateShadowRoot.querySelector("a")
+    const decorateHref = decorateAEl.href;
+    const parseUrl = urlUtil.parseUrl(decorateHref);
+    //装扮id，如是收藏集均为0
+    const itemIdStr = parseUrl.queryParams['item_id'];
+    if (itemIdStr) {
+        newVar.dressUpId = parseInt(itemIdStr)
+    }
+    //收藏集活动id
+    const actIdStr = parseUrl.queryParams['act_id'];
+    if (actIdStr) {
+        newVar.collectionActId = parseInt(actIdStr)
+    }
+    newVar.name = name;
+    decorateData[uid] = newVar
+    return newVar
+}
+
 /**
  * 获取评论列表
  * @returns {Promise<*[]>}
@@ -89,13 +118,12 @@ const getCommentSectionList = async () => {
         const userName = userNameEl.textContent.trim();
         const userUrl = userNameEl.href;
         const uid = urlUtil.getUrlUID(userUrl);
+        const decorateEl = theOPEl.querySelector("#ornament>bili-comment-user-sailing-card")
+        const {dressUpId, collectionActId, decoratePic} = getDecorate(decorateEl, uid, userName)
         //楼中层内容
         const replies = [];
         commentsData.push({
-            name: userName,
-            userUrl,
-            uid,
-            level,
+            name: userName, userUrl, uid, level, dressUpId, collectionActId, decoratePic,
             content: theOPContent,
             replies,
             el,
@@ -121,10 +149,17 @@ const getCommentSectionList = async () => {
             const inTheBuildingContent = contentsEl.textContent.trim();
             const userLevelSrc = inTheBuildingUserInfo.querySelector('#user-level>img')?.src || null;
             const level = getUrlUserLevel(userLevelSrc)
+            const decorateDatum = decorateData[inTheBuildingUid];
+            let dressUpId = -1, collectionActId = -1, decoratePic = null;
+            if (decorateDatum) {
+                dressUpId = decorateDatum.dressUpId;
+                collectionActId = decorateDatum.collectionActId;
+                decoratePic = decorateDatum.decoratePic;
+            }
             replies.push({
                 name: inTheBuildingUserName,
                 userUrl: inTheBuildingUserUrl,
-                uid: inTheBuildingUid,
+                uid: inTheBuildingUid, dressUpId, collectionActId, decoratePic,
                 level,
                 content: inTheBuildingContent,
                 el: inTheBuildingEl,

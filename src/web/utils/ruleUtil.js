@@ -1,6 +1,16 @@
 import ruleKeyListData from '../data/ruleKeyListData.js'
 import {eventEmitter} from "../model/EventEmitter.js";
 
+
+//数字类类型规则key数组
+const _intRuleTypes = ['precise_uid', 'precise_uid_white', 'precise_decoration_id', 'precise_decoration_collection_id']
+
+//验证规则key是否是数字类类型
+const verificationIntRuleType = (type) => {
+    return _intRuleTypes.includes(type)
+}
+
+
 /**
  *验证输入框的值
  * @param ruleValue 规则的实际值
@@ -9,7 +19,7 @@ import {eventEmitter} from "../model/EventEmitter.js";
  */
 const verificationInputValue = (ruleValue, type) => {
     if (ruleValue === null) return {status: false, res: '内容不能为空'};
-    if (type === "precise_uid" || type === "precise_uid_white") {
+    if (verificationIntRuleType(type)) {
         ruleValue = parseInt(ruleValue);
         if (isNaN(ruleValue)) {
             return {
@@ -336,5 +346,5 @@ export default {
     findRuleItemValue,
     addItemRule,
     addPreciseUidItemRule,
-    addRulePreciseBv
+    addRulePreciseBv, verificationIntRuleType
 }
