@@ -17,6 +17,7 @@ import ruleManagementView from './views/ruleManagementView.vue'
 import excludeURLsView from './views/excludeURLsView.vue'
 import RightFloatingLayoutView from "./views/rightFloatingLayoutView.vue";
 import conditionalityView from "./views/conditionalityView.vue";
+import defUtil from "../utils/defUtil.js";
 
 
 /**
@@ -68,7 +69,7 @@ export default {
 
     eventEmitter.on('el-notify', (options) => {
       if (!options['position']) {
-        options.position='bottom-right';
+        options.position = 'bottom-right';
       }
       this.$notify(options)
     })
@@ -87,15 +88,17 @@ export default {
     eventEmitter.handler('el-prompt', (...options) => {
       return this.$prompt(...options)
     })
-
-    eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
-      eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
+    const alertFunDebounce = defUtil.debounce((response, bvId) => {
       this.$alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}
                 \n。已自动禁用根据bv号网络请求获取视频信息状态
                 \n如需关闭，请在面板条件限制里手动关闭。`, '错误', {
         confirmButtonText: '确定',
         type: 'error'
       })
+    }, 2000)
+    eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
+      eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
+      alertFunDebounce(response, bvId)
     })
   }
 }
@@ -145,7 +148,7 @@ export default {
           <aboutAndFeedbackView/>
         </el-tab-pane>
         <el-tab-pane v-if="debug_panel_show" label="调试测试" lazy name="调试测试">
-            <debuggerManagementView/>
+          <debuggerManagementView/>
         </el-tab-pane>
       </el-tabs>
     </el-drawer>
