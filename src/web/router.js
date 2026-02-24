@@ -28,11 +28,12 @@ import BEWLYSearch from "./pagesModel/search/BEWLYSearch.js";
 import searchUserTab from "./pagesModel/search/searchUserTab.js";
 import urlUtil from "./utils/urlUtil.js";
 import msgWhisper from "./pagesModel/message/msgWhisper.js";
+import cssManager from "./model/cssManager.js";
 
 const homeStaticRoute = (title, url) => {
     const isBewlyPage = BEWLYCommon.isBEWLYPage(url);
     if (isBewlyPage) {
-        BEWLYCommon.clearBewlyCatStyle();
+        cssManager.clearBewlyCatStyle()
     }
     if (isBewlyPage && globalValue.compatibleBEWLYBEWLY) {
         BEWLYCommon.run(url)
@@ -56,6 +57,7 @@ const staticRoute = (title, url) => {
     if (checkAndExcludePage(url)) return;
     homeStaticRoute(title, url)
     hotSearch.run();
+    cssManager.run(url, title);
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     topInput.processTopInputContent()
     hotSearch.startShieldingHotList()

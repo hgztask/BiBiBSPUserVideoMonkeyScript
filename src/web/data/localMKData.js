@@ -618,5 +618,9 @@ export default {
     isTimeRangeMaskingStatus,
     isDelPlayerEndingPanel,
     getTimeRangeMaskingArr,
-    getCommentWordLimitVal
+    getCommentWordLimitVal,
+    //是否隐藏添加稍后再看按钮
+    isHideAddSeeLater() {
+        return GM_getValue('is_hide_add_see_later', false)
+    }
 }

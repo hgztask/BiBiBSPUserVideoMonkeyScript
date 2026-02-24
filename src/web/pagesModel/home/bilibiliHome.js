@@ -12,6 +12,7 @@ import {
     isHideHomeTopHeaderChannelGm
 } from "../../data/localMKData.js";
 import urlUtil from "../../utils/urlUtil.js";
+import cssManager from "../../model/cssManager.js";
 
 // 判断是否是首页
 const isHome = (url, title) => {
@@ -65,29 +66,6 @@ const hideHomeTopHeaderBannerImage = (hide) => {
             `;
         }
     })
-}
-
-//隐藏视频列表上方的动态、热门、频道栏一整行
-const hideHomeTopHeaderChannel = (hide) => {
-    const styleTxt = hide ? `
-        .bili-header__channel{
-        height: 36px!important;
-        visibility: hidden;
-        }
-        /* 向下滚动时顶部的频道栏 */
-        .header-channel{
-        display: none;
-        }
-        ` : `.bili-header__channel{
-        height: 120px!important;
-        visibility: visible;
-        }
-        /* 向下滚动时顶部的频道栏 */
-        .header-channel{
-        display: block;
-        }
-        `;
-    elUtil.installStyle(styleTxt, '.mk-hide-home-top-header-channel');
 }
 
 /**
@@ -233,7 +211,7 @@ const run = () => {
         hideHomeTopHeaderBannerImage(true)
     }
     if (isHideHomeTopHeaderChannelGm()) {
-        hideHomeTopHeaderChannel(true)
+        cssManager.hideHomeTopHeaderChannel(true)
     }
     GM_addStyle(`
     .recommended-container_floor-aside .container>*:nth-of-type(7) {
@@ -276,6 +254,5 @@ export default {
     getVideoData,
     hideHomeCarouselImage,
     hideHomeTopHeaderBannerImage,
-    hideHomeTopHeaderChannel,
     run
 }

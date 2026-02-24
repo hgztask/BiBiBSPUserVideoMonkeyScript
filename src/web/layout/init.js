@@ -3,6 +3,7 @@ import defCss from '../css/def.css'
 import {addGzStyle, initVueApp} from "../utils/defUtil.js";
 import App from "./App.vue";
 import elUtil from "../utils/elUtil.js";
+import cssManager from "../model/cssManager.js";
 
 window.addEventListener('DOMContentLoaded', () => {
     if (document.head.querySelector('#element-ui-css') === null) {
@@ -18,7 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const {vueDiv} = elUtil.createVueDiv(document.body);
     window.mk_vue_app = initVueApp(vueDiv, App);
     addGzStyle(document);
-    elUtil.updateCssVModal();
+    cssManager.updateCssVModal();
 })
 
 // 设置边框样式

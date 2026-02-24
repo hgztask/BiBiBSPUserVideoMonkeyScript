@@ -5,7 +5,6 @@ import video_shielding from "../../model/shielding/video_shielding.js";
 import {eventEmitter} from "../../model/EventEmitter.js";
 import globalValue from "../../data/globalValue.js";
 import {IntervalExecutor} from "../../model/IntervalExecutor.js";
-import BEWLYHomeCss from '../../css/BEWLYHome.css'
 import urlUtil from "../../utils/urlUtil.js";
 //获取bewly的shadowRoot元素
 let be_wly_el = null;
@@ -321,20 +320,6 @@ export default {
             || url.startsWith('https://www.bilibili.com/?spm_id_from=')
     },
     getBewlyEl,
-    //清除bewlyCat暴力隐藏样式
-    clearBewlyCatStyle() {
-        let loop = false;
-        for (let el of document.querySelectorAll('style[rel="stylesheet"]')) {
-            if (el.textContent.includes("body > *:not(#bewly):not(script):not(style)")) {
-                loop = true;
-                console.log('已删除bewlyCat暴力隐藏样式表', el, el.textContent)
-                el.remove();
-            }
-        }
-        if (loop) {
-            elUtil.installStyle(BEWLYHomeCss)
-        }
-    },
     run(url) {
         const parseUrl = urlUtil.parseUrl(url);
         const {page} = parseUrl.queryParams

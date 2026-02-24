@@ -23,6 +23,7 @@ import localMKData, {
 import liveSectionModel from "../../pagesModel/live/liveSectionModel.js";
 import liveRoomModel from "../../pagesModel/live/liveRoomModel.js";
 import liveCommon from "../../pagesModel/live/liveCommon.js";
+import cssManager from "../../model/cssManager.js";
 
 //页面处理处理
 export default {
@@ -49,7 +50,8 @@ export default {
       isDelLivePageRightSidebarVal: isDelLivePageRightSidebarGm(),
       isRoomBackgroundHideVal: isRoomBackgroundHideGm(),
       isHideLiveGiftPanelVal: isHideLiveGiftPanelGm(),
-      isDelLiveBottomBannerAdVal: isDelLiveBottomBannerAdGm()
+      isDelLiveBottomBannerAdVal: isDelLiveBottomBannerAdGm(),
+      isHideAddSeeLaterVal: localMKData.isHideAddSeeLater(),
     }
   },
   methods: {},
@@ -104,7 +106,7 @@ export default {
     },
     isHideTopHeaderChannelVal(n) {
       GM_setValue('is_hide_home_top_header_channel_gm', n)
-      bilibiliHome.hideHomeTopHeaderChannel(n);
+      cssManager.hideHomeTopHeaderChannel(n);
     },
     releaseTypeCardVals(n) {
       GM_setValue('release_type_cards_gm', n)
@@ -115,7 +117,7 @@ export default {
     isRoomListAdaptiveVal(n) {
       GM_setValue('is_room_list_adaptive_gm', n)
       if (liveSectionModel.isLiveSection()) {
-        liveSectionModel.liveStreamPartitionStyle(n);
+        cssManager.liveStreamPartitionStyle(n);
       }
     },
     isDelLivePageRightSidebarVal(n) {
@@ -141,6 +143,9 @@ export default {
       if (liveRoomModel.isLiveRoom() && !liveRoomModel.isLiveRoomActivity()) {
         liveRoomModel.delLivePageRightSidebarAd();
       }
+    },
+    isHideAddSeeLaterVal(n) {
+      GM_setValue('is_hide_add_see_later', n)
     }
   }
 }
@@ -227,6 +232,10 @@ export default {
       <el-switch v-model="isHideLiveGiftPanelVal" active-text="隐藏礼物栏"/>
       <el-switch v-model="isDelLiveBottomBannerAdVal" active-text="移除底部横幅广告"
                  title="移除页面礼物栏下方的横幅广告"/>
+    </el-card>
+    <el-card shadow="never">
+      <template #header>视频列表项</template>
+      <el-switch v-model="isHideAddSeeLaterVal" active-text="隐藏添加至稍后再看按钮" title="刷新页面生效"/>
     </el-card>
   </div>
 </template>

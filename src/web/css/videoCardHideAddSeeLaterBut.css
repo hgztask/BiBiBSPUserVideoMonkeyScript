@@ -1,0 +1,5 @@
+/*首页、播放页*/
+.bili-watch-later.bili-watch-later--pip, .watch-later-video.van-watchlater.black {
+    display: none !important;
+}
+

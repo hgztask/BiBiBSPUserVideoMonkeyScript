@@ -271,14 +271,6 @@ const removeHoverTimeoutEvent = (el) => {
     return true;
 }
 
-// 更新弹窗样式
-const updateCssVModal = () => {
-    const styleEl = document.createElement('style');
-    styleEl.innerHTML = `.v-modal  {
-    z-index: auto !important;
-}`
-    document.head.appendChild(styleEl)
-}
 
 /**
  * 安装样式
@@ -326,7 +318,6 @@ export default {
     findElement, isDOMElement, addHoverTimeoutEvent, removeHoverTimeoutEvent,
     findElements, findElementChain,
     findElementsAndBindEvents,
-    updateCssVModal,
     installStyle,
     createVueDiv
 }
