@@ -1,5 +1,5 @@
 <script>
-import {
+import localMKData, {
   enableDynamicItemsContentBlockingGm,
   hidePersonalInfoCardGm,
   isBlockAppointmentDynamicGm,
@@ -11,6 +11,7 @@ import {
   isBlockVoteDynamicGm
 } from "../../../data/localMKData.js";
 import dynamicPage from "../../../pagesModel/dynamic/dynamicPage.js";
+import cssManager from "../../../model/cssManager.js";
 
 export default {
   data() {
@@ -23,7 +24,8 @@ export default {
       isBlockGoodsDynamicVal: isBlockGoodsDynamicGm(),
       isBlockSpecialColumnForChargingDynamicVal: isBlockSpecialColumnForChargingDynamicGm(),
       isBlockVideoChargingExclusiveDynamicVal: isBlockVideoChargingExclusiveDynamicGm(),
-      hidePersonalInfoCardVal: hidePersonalInfoCardGm()
+      hidePersonalInfoCardVal: hidePersonalInfoCardGm(),
+      isDynamicHomeRightLayHideVal: localMKData.isDynamicHomeRightLayHide()
     }
   },
   watch: {
@@ -56,6 +58,10 @@ export default {
       if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.hidePersonalInfoCard(n);
       }
+    },
+    isDynamicHomeRightLayHideVal(n) {
+      GM_setValue('is_dynamic_home_right_lay_hide', n)
+      cssManager.setDynamicHomeRightLayHide(n)
     }
   }
 }
@@ -71,6 +77,8 @@ export default {
       <el-tooltip content="动态首页中左侧的个人信息卡片，展示关注粉丝动态该卡片">
         <el-switch v-model="hidePersonalInfoCardVal" active-text="隐藏个人信息卡片"/>
       </el-tooltip>
+      <el-switch v-model="isDynamicHomeRightLayHideVal" active-text="隐藏右侧布局(热搜)"
+                 title="区域为热搜和其上方的社区中心"/>
     </el-card>
     <el-card>
       <template #header>动态</template>

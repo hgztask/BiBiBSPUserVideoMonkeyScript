@@ -61,5 +61,10 @@ export default {
         elUtil.installStyle(`.v-modal  {
     z-index: auto !important;
 }`, '.mk-css-v-modal')
+    },
+    //设置动态首页右侧布局的显隐
+    setDynamicHomeRightLayHide(hide = true) {
+        const cssText = hide ? `.bili-dyn-home--member > aside.right {display: none;}` : '';
+        elUtil.installStyle(cssText, '.mk-css-dynamic-home-right-lay-hide')
     }
 }

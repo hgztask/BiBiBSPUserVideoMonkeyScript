@@ -1,8 +1,9 @@
 import elUtil from "../../utils/elUtil.js";
 import defUtil from "../../utils/defUtil.js";
-import {enableDynamicItemsContentBlockingGm, hidePersonalInfoCardGm} from "../../data/localMKData.js";
+import localMKData, {enableDynamicItemsContentBlockingGm, hidePersonalInfoCardGm} from "../../data/localMKData.js";
 import hotSearch from "../search/hotSearch.js";
 import dynamicCommon from "./dynamicCommon.js";
+import cssManager from "../../model/cssManager.js";
 
 //是否是动态首页
 const isUrlDynamicHomePage = () => {
@@ -43,6 +44,9 @@ const run = () => {
     hotSearch.startShieldingHotListDynamic();
     if (hidePersonalInfoCardGm()) {
         hidePersonalInfoCard(true)
+    }
+    if (localMKData.isDynamicHomeRightLayHide()) {
+        cssManager.setDynamicHomeRightLayHide()
     }
 }
 
