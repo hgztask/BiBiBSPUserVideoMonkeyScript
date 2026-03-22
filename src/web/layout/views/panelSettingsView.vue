@@ -11,7 +11,8 @@ export default {
       isHalfHiddenIntervalAfterInitialDisplay: localMKData.isHalfHiddenIntervalAfterInitialDisplay(),
       devToolsInputVal: '',
       drawerShortcutKeyVal: getDrawerShortcutKeyGm(),
-      theKeyPressedKeyVal: ''
+      theKeyPressedKeyVal: '',
+      isShowBackToTopVal: localMKData.isShowBackToTopBtn()
     }
   },
   methods: {
@@ -67,6 +68,10 @@ export default {
     isHalfHiddenIntervalAfterInitialDisplay(newBool) {
       //设置初次显示后间隔半隐藏主面板开关按钮
       GM_setValue('is_half_hidden_interval_after_initial_display', newBool === true)
+    },
+    isShowBackToTopVal(newVal) {
+      GM_setValue('is_show_back_to_top_btn', newVal)
+      eventEmitter.send('e:设置顶部按钮状态', newVal)
     }
   },
   created() {
@@ -106,6 +111,8 @@ export default {
         <el-switch v-model="isHalfHiddenIntervalAfterInitialDisplay"
                    active-text="初次显示后间隔半隐藏"/>
       </el-tooltip>
+      <el-switch v-model="isShowBackToTopVal" active-text="显示回到顶部按钮"
+                 title="页面右下角的由脚本插入的置顶按钮，改动实时生效"/>
     </el-card>
     <el-card shadow="never">
       <template #header>

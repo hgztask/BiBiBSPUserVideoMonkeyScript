@@ -10,7 +10,7 @@ import showImgDialog from "./eventEmitter_components/showImgDialog.vue";
 import sheetDialog from "./eventEmitter_components/sheetDialog.vue";
 import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../model/EventEmitter.js";
-import {getDrawerShortcutKeyGm} from "../data/localMKData.js";
+import localMKData, {getDrawerShortcutKeyGm} from "../data/localMKData.js";
 import outputInformationView from './views/outputInformationView.vue'
 import donateLayoutView from './views/donateLayoutView.vue'
 import ruleManagementView from './views/ruleManagementView.vue'
@@ -49,6 +49,7 @@ export default {
       // 默认打开的tab
       tabsActiveName: GM_getValue('mainTabsActiveName', '规则管理'),
       debug_panel_show: __DEV__,
+      isShowBackToTopVal: localMKData.isShowBackToTopBtn()
     }
   },
   methods: {
@@ -56,6 +57,7 @@ export default {
       GM_setValue('mainTabsActiveName', tab.name);
     },
   },
+  watch: {},
   created() {
     eventEmitter.on('主面板开关', () => {
       this.drawer = !this.drawer;
@@ -99,6 +101,10 @@ export default {
     eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
       eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
       alertFunDebounce(response, bvId)
+    })
+
+    eventEmitter.on('e:设置顶部按钮状态', (show) => {
+      this.isShowBackToTopVal = show
     })
   }
 }
@@ -156,6 +162,6 @@ export default {
     <showImgDialog/>
     <sheetDialog/>
     <RightFloatingLayoutView/>
-    <el-backtop/>
+    <el-backtop v-if="isShowBackToTopVal"/>
   </div>
 </template>

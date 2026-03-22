@@ -626,5 +626,9 @@ export default {
     //是否隐藏动态首页右侧布局
     isDynamicHomeRightLayHide() {
         return GM_getValue('is_dynamic_home_right_lay_hide', false)
+    },
+    //是否显示回到顶部按钮
+    isShowBackToTopBtn() {
+        return GM_getValue('is_show_back_to_top_btn', false)
     }
 }
