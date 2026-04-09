@@ -115,5 +115,24 @@ export default {
             return
         }
         this.setChargingVideosVisible(bool)
+    },
+    /**
+     * 插入样式
+     * 设置用户空间中动态列表中直播回放的显隐
+     */
+    setLiveReplayVideosVisible(visible) {
+        elUtil.installStyle(visible ? `.upload-video-card:has([title*="直播回放"]){display:none;}` : '', {
+            type: 'css-data',
+            value: '直播回放'
+        })
+    },
+    //执行设置用户空间中投稿列表中直播回放的显隐
+    executeSetLiveReplayVideosVisible(bool = null) {
+        if (!this.isUserSpaceUploadPage(location.href)) return
+        if (bool === null) {
+            this.setLiveReplayVideosVisible(localMKData.isLiveReplayVideosHide())
+            return
+        }
+        this.setLiveReplayVideosVisible(bool)
     }
 }

@@ -53,7 +53,8 @@ export default {
       isHideLiveGiftPanelVal: isHideLiveGiftPanelGm(),
       isDelLiveBottomBannerAdVal: isDelLiveBottomBannerAdGm(),
       isHideAddSeeLaterVal: localMKData.isHideAddSeeLater(),
-      isHideChargingDedicatedVideosVal: localMKData.isHideChargingDedicatedVideos()
+      isHideChargingDedicatedVideosVal: localMKData.isHideChargingDedicatedVideos(),
+      isLiveReplayVideosHideVal: localMKData.isLiveReplayVideosHide()
     }
   },
   methods: {},
@@ -152,6 +153,10 @@ export default {
     isHideChargingDedicatedVideosVal(n) {
       GM_setValue('is_hide_charging_dedicated_videos', n)
       space.executeSetChargingVideosVisible(n)
+    },
+    isLiveReplayVideosHideVal(n) {
+      GM_setValue('is_live_replay_videos_hide_gm', n)
+      space.executeSetLiveReplayVideosVisible(n)
     }
   }
 }
@@ -246,6 +251,7 @@ export default {
     <el-card shadow="never">
       <template #header>用户空间主页</template>
       <el-switch v-model="isHideChargingDedicatedVideosVal" active-text="隐藏投稿选项卡中充电视频"/>
+      <el-switch v-model="isLiveReplayVideosHideVal" active-text="隐藏投稿选项卡直播回放"/>
     </el-card>
   </div>
 </template>

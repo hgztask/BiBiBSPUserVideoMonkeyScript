@@ -634,5 +634,9 @@ export default {
     //是否隐藏用户主页投稿选项卡中的充电专属视频
     isHideChargingDedicatedVideos() {
         return GM_getValue('is_hide_charging_dedicated_videos', false)
+    },
+    //是否隐藏用户主页投稿选项卡中直播回放视频
+    isLiveReplayVideosHide() {
+        return GM_getValue('is_live_replay_videos_hide_gm', false)
     }
 }

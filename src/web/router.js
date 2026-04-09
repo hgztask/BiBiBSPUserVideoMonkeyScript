@@ -98,6 +98,7 @@ const staticRoute = (title, url) => {
     if (space.isSpacePage()) {
         userProfile.run()
         space.executeSetChargingVideosVisible()
+        space.executeSetLiveReplayVideosVisible()
         space.getUserInfo().then(userInfo => {
             console.info('userInfo', userInfo)
         })
