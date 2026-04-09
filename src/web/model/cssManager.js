@@ -5,9 +5,12 @@ import BEWLYHomeCss from '../css/BEWLYHome.css'
 import liveRoomListAdaptiveCss from '../css/live_room_list_adaptive.css'
 
 export default {
-    run(url, title) {
+    run() {
         if (localMKData.isHideAddSeeLater()) {
-            elUtil.installStyle(videoCardHideAddSeeLaterButCss, 'video_card_hide_add_see_later_but')
+            elUtil.installStyle(videoCardHideAddSeeLaterButCss, {
+                type: "class",
+                value: "video_card_hide_add_see_later_but"
+            })
         }
     },
     //清除bewlyCat暴力隐藏样式
@@ -44,27 +47,24 @@ export default {
         display: block;
         }
         `;
-        elUtil.installStyle(styleTxt, '.mk-hide-home-top-header-channel');
+        elUtil.installStyle(styleTxt, {type: 'class', value: 'mk-hide-home-top-header-channel'});
     },
     //直播分区页房间列表自适应
     liveStreamPartitionStyle(show) {
-        const selectorCss = '#live_room_list_adaptive';
-        const el = document.querySelector(selectorCss);
-        if (el && show === false) {
-            el.textContent = '';
-        } else {
-            elUtil.installStyle(liveRoomListAdaptiveCss, selectorCss)
-        }
+        elUtil.installStyle(show === false ? '' : liveRoomListAdaptiveCss, {
+            type: 'id',
+            value: 'live_room_list_adaptive'
+        })
     },
     // 更新弹窗element弹窗遮罩样式
     updateCssVModal() {
         elUtil.installStyle(`.v-modal  {
     z-index: auto !important;
-}`, '.mk-css-v-modal')
+}`, {type: 'class', value: "mk-css-v-modal"})
     },
     //设置动态首页右侧布局的显隐
     setDynamicHomeRightLayHide(hide = true) {
         const cssText = hide ? `.bili-dyn-home--member > aside.right {display: none;}` : '';
-        elUtil.installStyle(cssText, '.mk-css-dynamic-home-right-lay-hide')
+        elUtil.installStyle(cssText, {type: 'class', value: "mk-css-dynamic-home-right-lay-hide"})
     }
 }

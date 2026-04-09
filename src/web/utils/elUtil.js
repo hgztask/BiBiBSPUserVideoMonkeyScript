@@ -273,25 +273,6 @@ const removeHoverTimeoutEvent = (el) => {
 
 
 /**
- * 安装样式
- * @param cssText {string} - CSS 样式字符串
- * @param selector {string} - 选择器字符串，用以定位更新的样式元素
- */
-const installStyle = (cssText, selector = ".mk-def-style") => {
-    let styleEl = document.head.querySelector(selector);
-    if (styleEl === null) {
-        styleEl = document.createElement('style');
-        if (selector.startsWith('#')) {
-            styleEl.id = selector.substring(1);
-        } else {
-            styleEl.className = selector.substring(1);
-        }
-        document.head.appendChild(styleEl)
-    }
-    styleEl.textContent = cssText;
-}
-
-/**
  * 创建一个Vue容器
  * @description 创建一个Vue容器，用于挂载Vue组件，如如传入el，则将容器挂载到该元素下，不管el是否存在，都将创建一个容器，并返回容器的元素。
  * @param el {Element} 容器要挂载的元素，vue容器
@@ -318,6 +299,41 @@ export default {
     findElement, isDOMElement, addHoverTimeoutEvent, removeHoverTimeoutEvent,
     findElements, findElementChain,
     findElementsAndBindEvents,
-    installStyle,
+    /**
+     * 安装样式
+     * @param cssText {string} - CSS 样式字符串
+     * @param selectorOptions {{type:'class'|'id'|any,value:string}|null}
+     */
+    installStyle(cssText, selectorOptions = null) {
+        const {type = 'class', value = '', doc = document.head} = selectorOptions;
+        let selector = '';
+        switch (type) {
+            case "class":
+                selector = `.${value}`;
+                break;
+            case 'id':
+                selector = `#${value}`;
+                break;
+            default:
+                selector = `[${type}="${value}"]`;
+        }
+        let styleEl = doc.querySelector(selector);
+        if (styleEl === null) {
+            styleEl = document.createElement('style');
+            switch (type) {
+                case "class":
+                    styleEl.className = value;
+                    break;
+                case 'id':
+                    styleEl.id = value;
+                    break
+                default:
+                    styleEl.setAttribute(type, value);
+                    break;
+            }
+            doc.appendChild(styleEl)
+        }
+        styleEl.textContent = cssText;
+    },
     createVueDiv
 }
