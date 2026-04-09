@@ -24,6 +24,7 @@ import liveSectionModel from "../../pagesModel/live/liveSectionModel.js";
 import liveRoomModel from "../../pagesModel/live/liveRoomModel.js";
 import liveCommon from "../../pagesModel/live/liveCommon.js";
 import cssManager from "../../model/cssManager.js";
+import space from "../../pagesModel/space/space.js";
 
 //页面处理处理
 export default {
@@ -52,6 +53,7 @@ export default {
       isHideLiveGiftPanelVal: isHideLiveGiftPanelGm(),
       isDelLiveBottomBannerAdVal: isDelLiveBottomBannerAdGm(),
       isHideAddSeeLaterVal: localMKData.isHideAddSeeLater(),
+      isHideChargingDedicatedVideosVal: localMKData.isHideChargingDedicatedVideos()
     }
   },
   methods: {},
@@ -146,6 +148,10 @@ export default {
     },
     isHideAddSeeLaterVal(n) {
       GM_setValue('is_hide_add_see_later', n)
+    },
+    isHideChargingDedicatedVideosVal(n) {
+      GM_setValue('is_hide_charging_dedicated_videos', n)
+      space.executeSetChargingVideosVisible(n)
     }
   }
 }
@@ -236,6 +242,10 @@ export default {
     <el-card shadow="never">
       <template #header>视频列表项</template>
       <el-switch v-model="isHideAddSeeLaterVal" active-text="隐藏添加至稍后再看按钮" title="刷新页面生效"/>
+    </el-card>
+    <el-card shadow="never">
+      <template #header>用户空间主页</template>
+      <el-switch v-model="isHideChargingDedicatedVideosVal" active-text="隐藏投稿选项卡中充电视频"/>
     </el-card>
   </div>
 </template>

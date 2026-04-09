@@ -630,5 +630,9 @@ export default {
     //是否显示回到顶部按钮
     isShowBackToTopBtn() {
         return GM_getValue('is_show_back_to_top_btn', false)
+    },
+    //是否隐藏用户主页投稿选项卡中的充电专属视频
+    isHideChargingDedicatedVideos() {
+        return GM_getValue('is_hide_charging_dedicated_videos', false)
     }
 }

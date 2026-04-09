@@ -3,6 +3,7 @@ import {valueCache} from "../../model/localCache/valueCache.js";
 import dynamicCommon from "../dynamic/dynamicCommon.js";
 import defUtil from "../../utils/defUtil.js";
 import urlUtil from "../../utils/urlUtil.js";
+import localMKData from "../../data/localMKData.js";
 
 //是否是用户空间页面
 const isSpacePage = (url = window.location.href) => {
@@ -91,5 +92,28 @@ export default {
     isSpacePage,
     getUserInfo,
     isUserSpaceDynamicPage,
-    checkUserSpaceShieldingDynamicContentThrottle
+    checkUserSpaceShieldingDynamicContentThrottle,
+    //是否是用户空间投稿页面
+    isUserSpaceUploadPage(url) {
+        return url.startsWith('https://space.bilibili.com/') && url.includes('/upload/video')
+    },
+    /**
+     * 插入样式
+     * 设置用户主页中投稿选项卡视频列表中的充电视频显隐
+     */
+    setChargingVideosVisible(visible) {
+        elUtil.installStyle(visible ? `.upload-video-card:has(.sic-BDC-battery_charge_simple_fill){display:none;}` : '', {
+            type: 'css-data',
+            value: '充电视频'
+        })
+    },
+    //执行设置用户主页中投稿选项卡视频列表中的充电视频显隐
+    executeSetChargingVideosVisible(bool = null) {
+        if (!this.isUserSpaceUploadPage(location.href)) return
+        if (bool === null) {
+            this.setChargingVideosVisible(localMKData.isHideChargingDedicatedVideos())
+            return
+        }
+        this.setChargingVideosVisible(bool)
+    }
 }
