@@ -9,7 +9,6 @@ import shielding, {
     asyncBlockUserUidAndName,
     blockCheckWhiteUserUid,
     blockUserUidAndName,
-    blockVideoOrOtherTitle
 } from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
 
@@ -31,6 +30,15 @@ const asyncBlockUserFanCard = async (fansMedal) => {
     return returnTempVal;
 }
 
+//根据直播标题屏蔽
+const blockLiveTitle = (title) => {
+    return shielding.blockExactAndFuzzyMatching(title, {
+        fuzzyKey: 'liveTitle', fuzzyTypeName: '模糊标题(直播间)',
+        regexKey: 'liveTitleCanonical', regexTypeName: '正则标题(直播间)'
+    })
+}
+
+
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
     const {name, title, partition, uid = -1, roomId} = liveRoomData;
@@ -44,7 +52,7 @@ const shieldingLiveRoom = (liveRoomData) => {
             return returnVal
         }
     }
-    returnVal = blockVideoOrOtherTitle(title)
+    returnVal = blockLiveTitle(title)
     if (returnVal.state) {
         return returnVal
     }

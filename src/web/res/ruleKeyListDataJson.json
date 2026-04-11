@@ -28,6 +28,14 @@
     "name": "标题(正则匹配)"
   },
   {
+    "key": "liveTitle",
+    "name": "直播标题(模糊匹配)"
+  },
+  {
+    "key": "liveTitleCanonical",
+    "name": "直播标题(正则匹配)"
+  },
+  {
     "key": "commentOn",
     "name": "评论关键词(模糊匹配)"
   },

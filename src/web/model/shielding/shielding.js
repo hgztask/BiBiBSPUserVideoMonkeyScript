@@ -811,6 +811,7 @@ export const blockDynamicItemContent = (content, videoTitle = null, ruleArrMap =
 export default {
     addTopicDetailVideoBlockButton,
     addTopicDetailContentsBlockButton,
+    blockExactAndFuzzyMatching,
     addBlockButton,
     //根据精确的装扮ID进行屏蔽-目前仅支持评论区使用
     blockDecoration(value) {
