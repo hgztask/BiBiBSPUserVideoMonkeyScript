@@ -638,5 +638,29 @@ export default {
     //是否隐藏用户主页投稿选项卡中直播回放视频
     isLiveReplayVideosHide() {
         return GM_getValue('is_live_replay_videos_hide_gm', false)
+    },
+    //获取网游分区顶部tag仅显示列表
+    getGamePartitionTagOnlyShowList() {
+        return GM_getValue('online_game_list_gm', [])
+    },
+    //获取手游分区顶部tag仅显示列表
+    getMobileGamePartitionTagOnlyShowList() {
+        return GM_getValue('mobile_game_list_gm', [])
+    },
+    //获取单机游戏区分区顶部tag仅显示列表
+    getSingleGamePartitionTagOnlyShowList() {
+        return GM_getValue('console_game_list_gm', [])
+    },
+    //网游分区tag仅显示状态
+    isGamePartitionTagOnlyShowStatus() {
+        return GM_getValue('online_game_status_gm', false)
+    },
+    //手游分区tag仅显示状态
+    isMobileGamePartitionTagOnlyShowStatus() {
+        return GM_getValue('mobile_game_status_gm', false)
+    },
+    //单机游戏区分区tag仅显示状态
+    isSingleGamePartitionTagOnlyShowStatus() {
+        return GM_getValue('console_game_status_gm', false)
     }
 }

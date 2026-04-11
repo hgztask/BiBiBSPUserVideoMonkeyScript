@@ -4,6 +4,9 @@ import {addGzStyle, initVueApp} from "../utils/defUtil.js";
 import App from "./App.vue";
 import elUtil from "../utils/elUtil.js";
 import cssManager from "../model/cssManager.js";
+import Vue from "vue";
+import GzSpace from "./components/GzSpace.vue";
+import GzText from "./components/GzText.vue";
 
 window.addEventListener('DOMContentLoaded', () => {
     if (document.head.querySelector('#element-ui-css') === null) {
@@ -18,6 +21,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     const {vueDiv} = elUtil.createVueDiv(document.body);
     window.mk_vue_app = initVueApp(vueDiv, App);
+    Vue.component('gz-space', GzSpace)
+    Vue.component('gz-text', GzText)
     addGzStyle(document);
     cssManager.updateCssVModal();
 })

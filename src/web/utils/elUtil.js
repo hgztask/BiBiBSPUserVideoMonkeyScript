@@ -173,7 +173,7 @@ const findElementChain = (selector, config = {}) => {
  * @param config.interval  {number} - 每次查找之间的间隔时间（毫秒）默认1秒，即1000毫秒
  * @param config.timeout  {number} - 超时时间（毫秒）默认-1，去问问1即无限等待
  * @param config.parseShadowRoot  {boolean} - 如匹配元素为shadowRoot时，是否解析shadowRoot，默认为false
- * @returns {Promise<[Element|Document]>}-返回找到的Element列表，如设置超时超出时间则返回空数组
+ * @returns {Promise<HTMLElement[]>}-返回找到的Element列表，如设置超时超出时间则返回空数组
  */
 const findElements = async (selector, config = {}) => {
     const defConfig = {doc: document, interval: 1000, timeout: -1, parseShadowRoot: false}
@@ -305,7 +305,7 @@ export default {
      * @param selectorOptions {{type:'class'|'id'|any,value:string}|null}
      */
     installStyle(cssText, selectorOptions = null) {
-        const {type = 'class', value = '', doc = document.head} = selectorOptions;
+        const {type = 'class', value = '', doc = document.head} = selectorOptions ? selectorOptions : {};
         let selector = '';
         switch (type) {
             case "class":
@@ -335,5 +335,53 @@ export default {
         }
         styleEl.textContent = cssText;
     },
-    createVueDiv
+    createVueDiv,
+    //xpath定位元素，返回匹配第一个元素，按文档顺序
+    byXpathEl(xpath, doc = document) {
+        return document.evaluate(xpath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    },
+    /**
+     * 异步xpath定位元素，返回匹配第一个元素，按文档顺序
+     * @param xpath
+     * @param doc
+     * @param timeout
+     * @return {Promise<HTMLElement>}
+     */
+    async byXpathElAsync(xpath, doc = document, timeout = 1000) {
+        return new Promise((resolve) => {
+            let xpathEl = this.byXpathEl(xpath, doc);
+            if (xpathEl !== null) {
+                return resolve(xpathEl);
+            }
+            const interval = setInterval(() => {
+                xpathEl = this.byXpathEl(xpath, doc);
+                if (xpathEl === null) return
+                resolve(xpathEl);
+                clearInterval(interval)
+            }, timeout);
+        })
+    },
+    //xpath定位元素，返回元素列表
+    byXpathEls(xpath, doc = document) {
+        const xPathResult = document.evaluate(xpath, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        const elList = []
+        for (let i = 0; i < xPathResult.snapshotLength; i++) {
+            const items = xPathResult.snapshotItem(i);
+            if (items === null) continue;
+            elList.push(items)
+        }
+        return elList
+    },
+    //xpath定位元素，返回数字
+    byXpathNumber(xpath, doc = document) {
+        return document.evaluate(xpath, doc, null, XPathResult.NUMBER_TYPE, null).numberValue;
+    },
+    //xpath定位元素，返回字符串
+    byXpathString(xpath, doc = document) {
+        return document.evaluate(xpath, doc, null, XPathResult.STRING_TYPE, null).stringValue;
+    },
+    //xpath定位元素，返回布尔值，是否存在
+    byXpathBoolean(xpath, doc = document) {
+        return document.evaluate(xpath, doc, null, XPathResult.BOOLEAN_TYPE, null).booleanValue;
+    }
 }

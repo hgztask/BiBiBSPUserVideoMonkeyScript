@@ -3,8 +3,9 @@ import live_shielding from "../../model/shielding/live_shielding.js";
 import shielding from "../../model/shielding/shielding.js";
 import LiveCommon from "./liveCommon.js";
 import liveCommon from "./liveCommon.js";
-import {isDelLivePageRightSidebarGm, isRoomListAdaptiveGm} from "../../data/localMKData.js";
+import localMKData, {isDelLivePageRightSidebarGm, isRoomListAdaptiveGm} from "../../data/localMKData.js";
 import cssManager from "../../model/cssManager.js";
+import urlUtil from "../../utils/urlUtil.js";
 
 // 判断是否是直播分区
 const isLiveSection = (url = window.location.href) => {
@@ -67,8 +68,85 @@ const run = () => {
     liveCommon.setLivePageRightSidebarHide(isDelLivePageRightSidebarGm())
 }
 
+
 //直播分区业务逻辑
 export default {
     isLiveSection, run,
-    startShieldingLiveRoom
+    startShieldingLiveRoom,
+    //检查顶部分区面板索引列表
+    startCheckTopLiveRoomTagList(url) {
+        const parseUrl = urlUtil.parseUrl(url);
+        const {
+            /**
+             * 3 手游
+             * 2 网游
+             * 6 单机游戏
+             */
+            parentAreaId = '0',
+            /**
+             * 子分区id
+             * 0 为全部，这时顶部·的区块列表为全部，不折叠展示
+             */
+            areaId = '0'
+        } = parseUrl.queryParams;
+        //只处理手游、网游、单机游戏主分区
+        if (!(parentAreaId === '3' || parentAreaId === "2" || parentAreaId === "6")) return
+        if (areaId === '0') {
+            this.startLoadTopLiveRoomTagList(parseUrl)
+            return
+        }
+        console.log('非全部，查找切换分区按钮')
+        elUtil.byXpathElAsync('//div[@id="area-tags"]//div[contains(@class,"index_switch_area") and contains(.,"切换分区")]').then(switchDiv => {
+            console.log('已找到切换分区按钮')
+            const dataLabelKey = 'data-label'
+            const dataLabel = switchDiv.getAttribute(dataLabelKey);
+            if (dataLabel !== null) return console.log('已添加过切换分区按钮监听')
+            switchDiv.setAttribute(dataLabelKey, '切换分区')
+            switchDiv.addEventListener('click', () => {
+                console.log('点击了切换分区')
+                this.startLoadTopLiveRoomTagList(parseUrl)
+            })
+            console.log('切换分区按钮已添加监听')
+        })
+    },
+    //载入顶部tag分区索引处理
+    startLoadTopLiveRoomTagList(parseUrl) {
+        const {
+            /**
+             * 3 手游
+             * 2 网游
+             * 6 单机游戏
+             */
+            parentAreaId = '0',
+            /**
+             * 子分区id
+             * 0 为全部，这时顶部·的区块列表为全部，不折叠展示
+             */
+            areaId = '0'
+        } = parseUrl.queryParams;
+        let keepList;
+        switch (parentAreaId) {
+            case "3":
+                if (!localMKData.isMobileGamePartitionTagOnlyShowStatus()) return
+                keepList = localMKData.getMobileGamePartitionTagOnlyShowList()
+                break;
+            case"2":
+                if (!localMKData.isGamePartitionTagOnlyShowStatus()) return
+                keepList = localMKData.getGamePartitionTagOnlyShowList()
+                break;
+            case "6":
+                if (!localMKData.isSingleGamePartitionTagOnlyShowStatus()) return
+                keepList = localMKData.getSingleGamePartitionTagOnlyShowList()
+                break;
+        }
+        const selector = areaId === '0' ? '#area-tags section>div>button[class^="index_tag_"]' : '#area-tags header[class^="index_header"]>section>a'
+        console.log(parentAreaId, areaId)
+        elUtil.findElements(selector, {interval: 200, timeout: 5000}).then(elList => {
+            for (let el of elList) {
+                const label = el.textContent.trim();
+                if (keepList.includes(label)) continue
+                el.style.display = 'none'
+            }
+        })
+    }
 }

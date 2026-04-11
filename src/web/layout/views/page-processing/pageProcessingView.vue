@@ -1,9 +1,9 @@
 <script>
-import bilibiliHome from "../../pagesModel/home/bilibiliHome.js";
-import hotSearch from "../../pagesModel/search/hotSearch.js";
-import topInput from "../../pagesModel/search/topInput.js";
-import {eventEmitter} from "../../model/EventEmitter.js";
-import dynamicCard from "./page-processing/dynamicCard.vue";
+import bilibiliHome from "../../../pagesModel/home/bilibiliHome.js";
+import hotSearch from "../../../pagesModel/search/hotSearch.js";
+import topInput from "../../../pagesModel/search/topInput.js";
+import {eventEmitter} from "../../../model/EventEmitter.js";
+import dynamicCard from "./dynamicCard.vue";
 import localMKData, {
   getReleaseTypeCardsGm,
   isAutomaticScrollingGm,
@@ -18,13 +18,12 @@ import localMKData, {
   isHideLiveGiftPanelGm,
   isHideSearchHistoryPanelGm,
   isRoomBackgroundHideGm,
-  isRoomListAdaptiveGm
-} from "../../data/localMKData.js";
-import liveSectionModel from "../../pagesModel/live/liveSectionModel.js";
-import liveRoomModel from "../../pagesModel/live/liveRoomModel.js";
-import liveCommon from "../../pagesModel/live/liveCommon.js";
-import cssManager from "../../model/cssManager.js";
-import space from "../../pagesModel/space/space.js";
+} from "../../../data/localMKData.js";
+import liveSectionModel from "../../../pagesModel/live/liveSectionModel.js";
+import liveRoomModel from "../../../pagesModel/live/liveRoomModel.js";
+import liveCommon from "../../../pagesModel/live/liveCommon.js";
+import cssManager from "../../../model/cssManager.js";
+import space from "../../../pagesModel/space/space.js";
 
 //页面处理处理
 export default {
@@ -47,7 +46,6 @@ export default {
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
       releaseTypeCardVals: getReleaseTypeCardsGm(),
       isAutomaticScrollingVal: isAutomaticScrollingGm(),
-      isRoomListAdaptiveVal: isRoomListAdaptiveGm(),
       isDelLivePageRightSidebarVal: isDelLivePageRightSidebarGm(),
       isRoomBackgroundHideVal: isRoomBackgroundHideGm(),
       isHideLiveGiftPanelVal: isHideLiveGiftPanelGm(),
@@ -116,12 +114,6 @@ export default {
     },
     isAutomaticScrollingVal(n) {
       GM_setValue('is_automatic_scrolling_gm', n)
-    },
-    isRoomListAdaptiveVal(n) {
-      GM_setValue('is_room_list_adaptive_gm', n)
-      if (liveSectionModel.isLiveSection()) {
-        cssManager.liveStreamPartitionStyle(n);
-      }
     },
     isDelLivePageRightSidebarVal(n) {
       GM_setValue('is_del_live_page_right_sidebar_gm', n)
@@ -232,10 +224,6 @@ export default {
     <el-card shadow="never">
       <template #header>直播页</template>
       <el-switch v-model="isDelLivePageRightSidebarVal" active-text="屏蔽右侧侧边栏"/>
-      <el-divider/>
-      直播分区页
-      <el-divider/>
-      <el-switch v-model="isRoomListAdaptiveVal" active-text="房间列表自适应"/>
       <el-divider/>
       直播间
       <el-divider/>

@@ -4,7 +4,7 @@ import panelSettingsView from "./views/panelSettingsView.vue";
 import compatibleSettingView from "./views/compatibleSettingView.vue";
 import lookContentDialog from "./eventEmitter_components/lookContentDialog.vue";
 import debuggerManagementView from './views/debuggerManagementView.vue';
-import pageProcessingView from "./views/pageProcessingView.vue";
+import PageProcessingTabsView from "./views/page-processing/PageProcessingTabsView.vue";
 import aboutAndFeedbackView from "./views/aboutAndFeedbackView.vue";
 import showImgDialog from "./eventEmitter_components/showImgDialog.vue";
 import sheetDialog from "./eventEmitter_components/sheetDialog.vue";
@@ -35,7 +35,7 @@ export default {
     compatibleSettingView,
     lookContentDialog,
     debuggerManagementView,
-    pageProcessingView,
+    PageProcessingTabsView,
     aboutAndFeedbackView,
     showImgDialog,
     sheetDialog,
@@ -136,7 +136,7 @@ export default {
           <cacheManagementView/>
         </el-tab-pane>
         <el-tab-pane label="页面处理" lazy name="页面处理">
-          <pageProcessingView/>
+          <PageProcessingTabsView/>
         </el-tab-pane>
         <el-tab-pane label="条件限制" lazy name="条件限制">
           <conditionalityView/>

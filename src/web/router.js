@@ -105,6 +105,7 @@ const staticRoute = (title, url) => {
     }
     if (liveSectionModel.isLiveSection()) {
         liveSectionModel.run()
+        liveSectionModel.startCheckTopLiveRoomTagList(url)
     }
     if (liveHome.isLiveHomePage(url)) {
         liveHome.run();
@@ -139,6 +140,9 @@ const staticRoute = (title, url) => {
 const dynamicRouting = (title, url) => {
     console.log("动态路由", title, url);
     //如果只屏蔽首页，则不执行以下代码
+    if (liveSectionModel.isLiveSection(url)) {
+        liveSectionModel.startCheckTopLiveRoomTagList(url)
+    }
     if (globalValue.bOnlyTheHomepageIsBlocked) return;
     if (checkAndExcludePage(url)) return;
     if (searchUserTab.isUrlPage(url)) {
