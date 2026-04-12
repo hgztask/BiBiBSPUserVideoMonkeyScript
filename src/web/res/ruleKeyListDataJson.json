@@ -13,10 +13,12 @@
   },
   {
     "key": "precise_uid",
+    "type": "int",
     "name": "用户uid(精确匹配)"
   },
   {
     "key": "precise_uid_white",
+    "type": "int",
     "name": "用户uid白名单(精确匹配)"
   },
   {
@@ -81,6 +83,7 @@
   },
   {
     "key": "precise_liveRoomId",
+    "type": "int",
     "name": "直播间id(精确匹配)"
   },
   {
@@ -149,10 +152,12 @@
   },
   {
     "key": "precise_decoration_id",
+    "type": "int",
     "name": "装扮id(精确匹配)"
   },
   {
     "key": "precise_decoration_collection_id",
+    "type": "int",
     "name": "装扮收藏集id(精确匹配)"
   }
 ]

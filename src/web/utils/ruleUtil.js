@@ -2,12 +2,14 @@ import ruleKeyListData from '../data/ruleKeyListData.js'
 import {eventEmitter} from "../model/EventEmitter.js";
 
 
-//数字类类型规则key数组
-const _intRuleTypes = ['precise_uid', 'precise_uid_white', 'precise_decoration_id', 'precise_decoration_collection_id']
-
 //验证规则key是否是数字类类型
-const verificationIntRuleType = (type) => {
-    return _intRuleTypes.includes(type)
+const isRuleIntType = (type) => {
+    const keyListData = ruleKeyListData.getRuleKeyListData();
+    const find = keyListData.find(item => item.key === type);
+    if (find === undefined) {
+        throw new Error('规则类型错误');
+    }
+    return find.type === 'int'
 }
 
 
@@ -19,7 +21,7 @@ const verificationIntRuleType = (type) => {
  */
 const verificationInputValue = (ruleValue, type) => {
     if (ruleValue === null) return {status: false, res: '内容不能为空'};
-    if (verificationIntRuleType(type)) {
+    if (isRuleIntType(type)) {
         ruleValue = parseInt(ruleValue);
         if (isNaN(ruleValue)) {
             return {
@@ -66,10 +68,9 @@ const batchAddRule = (ruleValues, type) => {
     const successList = [];
     const failList = [];
     const arr = GM_getValue(type, []);
-    //是否是uid类型
-    const isUidType = type.includes('uid');
+    const isIntType = isRuleIntType(type);
     for (let v of ruleValues) {
-        if (isUidType) {
+        if (isIntType) {
             if (isNaN(v)) {
                 failList.push(v);
                 continue;
@@ -346,5 +347,5 @@ export default {
     findRuleItemValue,
     addItemRule,
     addPreciseUidItemRule,
-    addRulePreciseBv, verificationIntRuleType
+    addRulePreciseBv, isRuleIntType
 }

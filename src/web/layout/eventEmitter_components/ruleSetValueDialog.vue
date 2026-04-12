@@ -28,7 +28,7 @@ export default {
         return;
       }
       const tempRuleType = this.ruleType;
-      if (ruleUtil.verificationIntRuleType(tempRuleType)) {
+      if (ruleUtil.isRuleIntType(tempRuleType)) {
         // uid需要转换成数字
         tempOldVal = parseInt(tempOldVal);
         tempNewVal = parseInt(tempNewVal);
