@@ -38,6 +38,11 @@
     "name": "直播标题(正则匹配)"
   },
   {
+    "key": "precise_live_uid",
+    "type": "int",
+    "name": "直播分区用户uid(精确匹配)"
+  },
+  {
     "key": "commentOn",
     "name": "评论关键词(模糊匹配)"
   },

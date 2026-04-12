@@ -93,6 +93,7 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
         const showList = []
         if (uid !== -1) {
             showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
+            showList.push({label: `直播区用户uid精确屏蔽-uid=${uid}-name=${name}`, value: "live_uid"});
         } else {
             showList.push({label: `用户名精确屏蔽(不推荐)-用户name=${name}`, value: 'name'})
         }
@@ -121,6 +122,17 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
                             return;
                         }
                         results = ruleUtil.addRulePreciseUid(uid);
+                        break;
+                    case "live_uid":
+                        if (uid === -1) {
+                            return eventEmitter.send('el-msg', "该页面数据不存在uid字段");
+                        }
+                        results = ruleUtil.addRule(uid, "precise_live_uid");
+                        eventEmitter.send('el-notify', {
+                            title: '添加直播区用户uid(精确匹配)操作提示',
+                            message: results.res,
+                            type: 'success'
+                        })
                         break;
                     case "name":
                         results = ruleUtil.addRulePreciseName(name);

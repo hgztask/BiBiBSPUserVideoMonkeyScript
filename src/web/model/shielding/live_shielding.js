@@ -38,6 +38,13 @@ const blockLiveTitle = (title) => {
     })
 }
 
+//根据直播区用户uid屏蔽
+const blockLiveUserId = (liveUid) => {
+    if (ruleMatchingUtil.exactMatch(GM_getValue('precise_live_uid', []), liveUid)) {
+        return {state: true, type: "精确uid(直播区)"};
+    }
+    return returnTempVal;
+}
 
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
@@ -48,9 +55,9 @@ const shieldingLiveRoom = (liveRoomData) => {
             return returnTempVal;
         }
         returnVal = blockUserUidAndName(uid, name)
-        if (returnVal.state) {
-            return returnVal
-        }
+        if (returnVal.state) return returnVal
+        returnVal = blockLiveUserId(uid)
+        if (returnVal.state) return returnVal
     }
     returnVal = blockLiveTitle(title)
     if (returnVal.state) {
