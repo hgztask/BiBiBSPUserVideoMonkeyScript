@@ -104,7 +104,12 @@ export default {
           <template #header>选择规则</template>
           <el-cascader v-model="cascaderVal" :options="cascaderOptions"
                        :props="{ expandTrigger: 'hover' }" filterable
-                       show-all-levels style="width: 60%;" @change="handleChangeCascader"/>
+                       show-all-levels style="width: 60%;" @change="handleChangeCascader">
+            <template v-slot="{ node, data }">
+              <span>{{ data.label }}</span>
+              <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
+            </template>
+          </el-cascader>
           <el-divider/>
           <el-row>
             <el-col :span="12">
