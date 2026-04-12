@@ -103,8 +103,8 @@ export default {
         <el-card shadow="never">
           <template #header>选择规则</template>
           <el-cascader v-model="cascaderVal" :options="cascaderOptions"
-                       :props="{ expandTrigger: 'hover' }" :show-all-levels="false"
-                       filterable @change="handleChangeCascader"/>
+                       :props="{ expandTrigger: 'hover' }" filterable
+                       show-all-levels style="width: 60%;" @change="handleChangeCascader"/>
           <el-divider/>
           <el-row>
             <el-col :span="12">
