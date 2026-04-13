@@ -4,7 +4,6 @@ import output_informationTab from "../../layout/output_informationTab.js";
 import {eventEmitter} from "../EventEmitter.js";
 import shielding, {
     asyncBlockByLevelForComment,
-    asyncBlockComment,
     asyncBlockSeniorMemberOnly,
     asyncBlockUserUidAndName,
     blockCheckWhiteUserUid,
@@ -44,6 +43,14 @@ const blockLiveUserId = (liveUid) => {
         return {state: true, type: "精确uid(直播区)"};
     }
     return returnTempVal;
+}
+
+//根据直播弹幕屏蔽
+const blockLiveBarrage = (barrage) => {
+    return shielding.blockExactAndFuzzyMatching(barrage, {
+        fuzzyKey: 'liveBarrage', fuzzyTypeName: '直播弹幕(模糊)',
+        regexKey: 'liveBarrageCanonical', regexTypeName: '直播弹幕(正则)'
+    })
 }
 
 // 屏蔽直播间
@@ -121,7 +128,7 @@ export default {
                     return Promise.reject({type: '中断'});
                 }
             })
-            .then(() => asyncBlockComment(content))
+            .then(() => blockLiveBarrage(content))
             .catch(res => {
                 let {state, type, matching} = res;
                 if (type === '中断') return;
