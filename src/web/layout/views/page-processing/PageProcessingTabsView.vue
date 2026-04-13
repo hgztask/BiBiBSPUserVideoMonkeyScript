@@ -11,7 +11,7 @@ export default {
 </script>
 
 <template>
-  <el-tabs>
+  <el-tabs tab-position="left">
     <el-tab-pane label="默认设置" lazy>
       <pageProcessingView/>
     </el-tab-pane>
