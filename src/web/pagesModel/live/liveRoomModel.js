@@ -7,6 +7,7 @@ import defUtil from "../../utils/defUtil.js";
 import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../data/localMKData.js";
 import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName,} from "../../model/shielding/shielding.js";
 import liveCommon from "./liveCommon.js";
+import cssManager from "../../model/cssManager.js";
 
 /**
  * 判断是否为直播间
@@ -153,7 +154,7 @@ const startShieldingLiveChatContents = defUtil.throttle(async () => {
 }, 2000)
 
 //删除直播间礼物栏下方横幅广告
-const delLivePageRightSidebarAd =() => {
+const delLivePageRightSidebarAd = () => {
     if (isDelLivePageRightSidebarGm()) {
         elUtil.findElement('.flip-view.p-relative.over-hidden.w-100').then(el => {
             el.remove();
@@ -207,9 +208,11 @@ const run = async () => {
         setGiftControlPanelDisplay()
     }
     liveCommon.setLivePageRightSidebarHide(isDelLivePageRightSidebarGm())
+    cssManager.insertLiveRoomDefaultStyle()
 }
 
 export default {
     isLiveRoom, setRoomBackgroundDisplay, setGiftControlPanelDisplay,
-    run,isLiveRoomActivity,delLivePageRightSidebarAd
+    run, isLiveRoomActivity, delLivePageRightSidebarAd,
+
 }

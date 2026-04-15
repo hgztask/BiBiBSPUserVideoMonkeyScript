@@ -3,6 +3,7 @@ import elUtil from "../utils/elUtil.js";
 import videoCardHideAddSeeLaterButCss from '../css/videoCardHideAddSeeLaterBut.css'
 import BEWLYHomeCss from '../css/BEWLYHome.css'
 import liveRoomListAdaptiveCss from '../css/live_room_list_adaptive.css'
+import liveRoomDefCss from '../css/liveRoomDef.css'
 
 export default {
     run() {
@@ -66,5 +67,9 @@ export default {
     setDynamicHomeRightLayHide(hide = true) {
         const cssText = hide ? `.bili-dyn-home--member > aside.right {display: none;}` : '';
         elUtil.installStyle(cssText, {type: 'class', value: "mk-css-dynamic-home-right-lay-hide"})
+    },
+    //插入直播间默认样式
+    insertLiveRoomDefaultStyle() {
+        elUtil.installStyle(liveRoomDefCss)
     }
 }
