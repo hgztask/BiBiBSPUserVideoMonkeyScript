@@ -317,7 +317,7 @@ export default {
             default:
                 selector = `[${type}="${value}"]`;
         }
-        let styleEl = doc.querySelector(selector);
+        let styleEl = value === '' ? null : doc.querySelector(selector);
         if (styleEl === null) {
             styleEl = document.createElement('style');
             switch (type) {
