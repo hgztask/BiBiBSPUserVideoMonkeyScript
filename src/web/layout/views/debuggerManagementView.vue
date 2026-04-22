@@ -1,7 +1,7 @@
 <script>
 import {eventEmitter} from "../../model/EventEmitter.js";
 import {valueCache} from "../../model/localCache/valueCache.js";
-import {bAfterLoadingThePageOpenMainPanel, isWsService} from "../../model/debuggerMeanagement.js";
+import debuggerManagement from "../../model/debuggerManagement.js";
 import bFetch from "../../model/bFetch.js";
 import {isLocalhostPageAutomaticallyOpenTheMainPanelGm} from "../../data/localMKData.js";
 import bvRequestQueue from "../../model/queue/bvRequestQueue.js";
@@ -11,9 +11,9 @@ export default {
   data() {
     return {
       // 是否加载完页面打开主面板
-      bAfterLoadingThePageOpenMainPanel: bAfterLoadingThePageOpenMainPanel(),
-      isWsServiceVal: isWsService(),
-      localhostPageAutomaticallyOpenTheMainPanelVal:isLocalhostPageAutomaticallyOpenTheMainPanelGm()
+      bAfterLoadingThePageOpenMainPanel: debuggerManagement.bAfterLoadingThePageOpenMainPanel(),
+      isWsServiceVal: debuggerManagement.isWsService(),
+      localhostPageAutomaticallyOpenTheMainPanelVal: isLocalhostPageAutomaticallyOpenTheMainPanelGm()
     }
   },
   methods: {
@@ -60,8 +60,9 @@ export default {
     },
     isWsServiceVal(b) {
       GM_setValue('isWsService', b)
+      eventEmitter.emit('event:ws-status', b)
     },
-    localhostPageAutomaticallyOpenTheMainPanelVal(b){
+    localhostPageAutomaticallyOpenTheMainPanelVal(b) {
       GM_setValue('is_localhost_page_automatically_open_the_main_panel_gm', b)
     }
   }

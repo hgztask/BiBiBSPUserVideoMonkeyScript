@@ -2,7 +2,6 @@
 import {eventEmitter} from "../../model/EventEmitter.js";
 import defUtil from "../../utils/defUtil.js";
 import localMKData from "../../data/localMKData.js";
-import {isWsService} from "../../model/debuggerMeanagement.js";
 // 输出信息字体颜色
 const outputInformationFontColor = localMKData.getOutputInformationFontColor();
 // 高亮信息字体颜色
@@ -76,9 +75,6 @@ export default {
       })
     })
     eventEmitter.on('event-打印屏蔽视频信息', (type, matching, videoData) => {
-      if (isWsService()) {
-        eventEmitter.send('ws-send-json', {type, matching, videoData})
-      }
       const {name, uid, title, videoUrl} = videoData;
       const info = `<b style="color: ${outputInformationFontColor}; ">
 根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=

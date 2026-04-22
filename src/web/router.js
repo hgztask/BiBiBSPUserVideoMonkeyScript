@@ -20,7 +20,6 @@ import liveCommon from "./pagesModel/live/liveCommon.js";
 import liveHome from "./pagesModel/live/liveHome.js";
 import videoPlayPageCommon from "./pagesModel/videoPlay/videoPlayPageCommon.js";
 import userProfile from "./pagesModel/userProfile.js";
-import {localWs} from "./dev/LocalWs.js";
 import allLivePage from "./pagesModel/live/allLivePage.js";
 import liveEdenRankPage from "./pagesModel/live/liveEdenRankPage.js";
 import BEWLYCommon from "./pagesModel/home/BEWLYCommon.js";

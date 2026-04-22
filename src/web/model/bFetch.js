@@ -44,6 +44,28 @@ const fetchGetBarrageBlockingWords = () => {
     })
 }
 
+//请求获取关注信息
+const fetchGetAttentionInfo = (uid) => {
+    return new Promise((resolve, reject) => {
+        fetch('https://api.bilibili.com/x/space/acc/relation?mid=' + uid, {credentials: 'include'}
+        ).then(response => response.json())
+            .then(data => {
+                if (data.code === 0) {
+                    //对方关注我的时间
+                    //当前用户对于目标用户的关系
+                    if (data['be_relation'].mtime === 0) {
+
+                    }
+                    resolve({state: true, data: data.data, msg: '获取成功'})
+                }
+                reject({state: false, data, msg: '获取失败'})
+            }).catch(error => {
+            reject({state: false, msg: '请求失败', error})
+        })
+
+    })
+}
+
 /**
  * 发起网络请求获取视频信息
  * 已测试data.View.is_view_self属性【是否为自己上传的视频】值对不上实际情况
@@ -256,7 +278,11 @@ const fetchGetVideoReplyBoxDescription = async (bv) => {
     })
 }
 
+window.fetchGetVideoInfo = fetchGetVideoInfo;
+window.fetchGetVideoReplyBoxDescription = fetchGetVideoReplyBoxDescription;
+
 export default {
     fetchGetVideoInfo,
-    fetchGetBarrageBlockingWords
+    fetchGetBarrageBlockingWords,
+    fetchGetAttentionInfo
 }

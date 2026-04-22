@@ -6,6 +6,7 @@ import watchUtil from './watch/watchUtil.js'
 import observeNetwork from "./watch/observeNetwork.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
+import './dev/dev.js'
 
 window.addEventListener('load', () => {
     console.log('页面加载完成');
