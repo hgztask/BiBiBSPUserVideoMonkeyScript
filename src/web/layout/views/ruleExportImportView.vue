@@ -18,7 +18,7 @@ export default {
   methods: {
     getSelectValRuleContent() {
       const val = this.select.val;
-      if (val.length === 0) return
+      if (val.length === 0) return false
       const map = {};
       for (const valKey of val) {
         const find = this.select.options.find(item => item.key === valKey);
@@ -71,7 +71,7 @@ export default {
       this.$refs.file.click()
     },
     outToInputBut() {
-      this.ruleContentImport = ruleUtil.getRuleContent(false);
+      this.ruleContentImport = ruleUtil.getRuleContent();
       this.$message('已导出到输入框中')
     },
     ruleOutToFIleBut() {
