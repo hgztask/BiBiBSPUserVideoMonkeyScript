@@ -13,3 +13,7 @@
 .tab__bar-wrap{
     padding:0px 100px !important;
 }
+
+#room-card-list {
+    padding-bottom: 35vh !important;
+}
