@@ -6,7 +6,7 @@ import urlUtil from "../utils/urlUtil.js";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url) => {
-    return url.includes("//www.bilibili.com/v/topic/detail/")
+    return url.includes("//www.bilibili.com/v/topic/detail")
 }
 
 /**
@@ -17,9 +17,11 @@ const getDataList = async () => {
     const elList = await elUtil.findElements(".list__topic-card")
     const list = [];
     for (let el of elList) {
-        const name = el.querySelector(".bili-dyn-title").textContent.trim();
-        const uidEl = el.querySelector(".bili-dyn-item__following");
-        const uid = parseInt(uidEl.getAttribute("data-mid"));
+        const biliDynItemDiv = el.querySelector('.bili-dyn-item');
+        const vueData = biliDynItemDiv['__vue__']
+        const {author} = vueData;
+        const name = author.name;
+        const uid = author.mid;
         // 判断是否是视频
         const judgmentEl = el.querySelector(".bili-dyn-card-video__title");
         const data = {name, uid, el, judgmentVideo: judgmentEl !== null};
@@ -33,7 +35,7 @@ const getDataList = async () => {
         } else {
             const dynTitle = el.querySelector(".dyn-card-opus__title");
             const contentTitle = dynTitle === null ? "" : dynTitle.textContent.trim();
-            const contentBody = el.querySelector(".bili-rich-text>div").textContent.trim();
+            const contentBody = el.querySelector(".bili-ellipsis").textContent.trim();
             data.insertionPositionEl = el.querySelector(".dyn-card-opus");
             data.explicitSubjectEl = data.insertionPositionEl
             data.content = contentTitle + contentBody;
