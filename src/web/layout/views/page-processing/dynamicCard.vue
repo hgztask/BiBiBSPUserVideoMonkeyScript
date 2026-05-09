@@ -25,7 +25,8 @@ export default {
       isBlockSpecialColumnForChargingDynamicVal: isBlockSpecialColumnForChargingDynamicGm(),
       isBlockVideoChargingExclusiveDynamicVal: isBlockVideoChargingExclusiveDynamicGm(),
       hidePersonalInfoCardVal: hidePersonalInfoCardGm(),
-      isDynamicHomeRightLayHideVal: localMKData.isDynamicHomeRightLayHide()
+      isDynamicHomeRightLayHideVal: localMKData.isDynamicHomeRightLayHide(),
+      hideBackToOldVersionButVal: localMKData.hideBackToOldVersionButGm(),
     }
   },
   watch: {
@@ -62,6 +63,10 @@ export default {
     isDynamicHomeRightLayHideVal(n) {
       GM_setValue('is_dynamic_home_right_lay_hide', n)
       cssManager.setDynamicHomeRightLayHide(n)
+    },
+    hideBackToOldVersionButVal(n) {
+      GM_setValue('hide_back_to_old_version_but_gm', n)
+      dynamicPage.runHideBackToOldVersionButFun(n)
     }
   }
 }
@@ -91,6 +96,7 @@ export default {
       <el-switch v-model="isBlockGoodsDynamicVal" active-text="屏蔽商品类"/>
       <el-switch v-model="isBlockSpecialColumnForChargingDynamicVal" active-text="屏蔽充电专属专栏"/>
       <el-switch v-model="isBlockVideoChargingExclusiveDynamicVal" active-text="屏蔽充电专属视频"/>
+      <el-switch v-model="hideBackToOldVersionButVal" active-text="屏蔽右下角的回到旧版悬浮按钮"/>
     </el-card>
   </div>
 </template>

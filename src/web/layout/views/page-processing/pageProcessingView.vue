@@ -3,7 +3,6 @@ import bilibiliHome from "../../../pagesModel/home/bilibiliHome.js";
 import hotSearch from "../../../pagesModel/search/hotSearch.js";
 import topInput from "../../../pagesModel/search/topInput.js";
 import {eventEmitter} from "../../../model/EventEmitter.js";
-import dynamicCard from "./dynamicCard.vue";
 import localMKData, {
   getReleaseTypeCardsGm,
   isAutomaticScrollingGm,
@@ -27,7 +26,7 @@ import space from "../../../pagesModel/space/space.js";
 
 //页面处理处理
 export default {
-  components: {dynamicCard},
+  components: {},
   data() {
     return {
       isRemoveSearchBottomContent: GM_getValue('isRemoveSearchBottomContent', false),
@@ -220,7 +219,6 @@ export default {
         </div>
       </el-tooltip>
     </el-card>
-    <dynamicCard/>
     <el-card shadow="never">
       <template #header>直播页</template>
       <el-switch v-model="isDelLivePageRightSidebarVal" active-text="屏蔽右侧侧边栏"/>

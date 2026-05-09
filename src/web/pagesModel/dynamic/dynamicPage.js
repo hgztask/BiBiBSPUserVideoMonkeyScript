@@ -4,6 +4,7 @@ import localMKData, {enableDynamicItemsContentBlockingGm, hidePersonalInfoCardGm
 import hotSearch from "../search/hotSearch.js";
 import dynamicCommon from "./dynamicCommon.js";
 import cssManager from "../../model/cssManager.js";
+import {eventEmitter} from "../../model/EventEmitter.js";
 
 //是否是动态首页
 const isUrlDynamicHomePage = () => {
@@ -56,4 +57,12 @@ export default {
     isUrlDynamicContentPage,
     run, hidePersonalInfoCard,
     debounceCheckDynamicList,
+    // 隐藏回到旧版本按钮，根据配置选择隐藏
+    runHideBackToOldVersionButFun(hide = false) {
+        if (!(hide || localMKData.hideBackToOldVersionButGm())) return
+        elUtil.byXpathElAsync('//div[@class="bili-dyn-sidebar"]/div[@class="bili-dyn-sidebar__btn" and span[text()="回到旧版"]]').then(el => {
+            el.remove()
+            eventEmitter.send('打印信息', '已隐藏回到旧版按钮')
+        })
+    }
 }

@@ -112,6 +112,7 @@ const staticRoute = (title, url) => {
     if (dynamicPage.isUrlDynamicHomePage()) {
         dynamicPage.run()
         userProfile.run()
+        dynamicPage.runHideBackToOldVersionButFun()
     }
     if (dynamicPage.isUrlDynamicContentPage()) {
         userProfile.run()

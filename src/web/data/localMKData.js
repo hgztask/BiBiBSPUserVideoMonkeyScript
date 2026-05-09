@@ -627,6 +627,9 @@ export default {
     isDynamicHomeRightLayHide() {
         return GM_getValue('is_dynamic_home_right_lay_hide', false)
     },
+    hideBackToOldVersionButGm() {
+        return GM_getValue('hide_back_to_old_version_but_gm', false)
+    },
     //是否显示回到顶部按钮
     isShowBackToTopBtn() {
         return GM_getValue('is_show_back_to_top_btn', false)
