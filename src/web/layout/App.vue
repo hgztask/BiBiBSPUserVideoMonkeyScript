@@ -126,26 +126,26 @@ export default {
         <el-tab-pane label="规则管理" lazy name="规则管理">
           <ruleManagementView/>
         </el-tab-pane>
-        <el-tab-pane label="排除页面" lazy name="排除页面">
-          <excludeURLsView/>
+        <el-tab-pane label="页面处理" lazy name="页面处理">
+          <PageProcessingTabsView/>
         </el-tab-pane>
         <el-tab-pane label="兼容设置" lazy name="兼容设置">
           <compatibleSettingView/>
         </el-tab-pane>
-        <el-tab-pane label="缓存管理" lazy name="缓存管理">
-          <cacheManagementView/>
-        </el-tab-pane>
-        <el-tab-pane label="页面处理" lazy name="页面处理">
-          <PageProcessingTabsView/>
+        <el-tab-pane label="排除页面" lazy name="排除页面">
+          <excludeURLsView/>
         </el-tab-pane>
         <el-tab-pane label="条件限制" lazy name="条件限制">
           <conditionalityView/>
         </el-tab-pane>
-        <el-tab-pane v-if="debug_panel_show" label="弹幕词管理" lazy name="弹幕词管理">
-          <bulletWordManagementView/>
-        </el-tab-pane>
         <el-tab-pane label="输出信息" name="输出信息">
           <outputInformationView/>
+        </el-tab-pane>
+        <el-tab-pane label="缓存管理" lazy name="缓存管理">
+          <cacheManagementView/>
+        </el-tab-pane>
+        <el-tab-pane v-if="debug_panel_show" label="弹幕词管理" lazy name="弹幕词管理">
+          <bulletWordManagementView/>
         </el-tab-pane>
         <el-tab-pane label="支持打赏" lazy name="支持打赏">
           <donateLayoutView/>
