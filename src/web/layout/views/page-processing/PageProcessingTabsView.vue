@@ -2,9 +2,10 @@
 import PageProcessingView from "./pageProcessingView.vue";
 import LivePartitionPageProcessingTabVIew from "./LivePartitionPageProcessingTabVIew.vue";
 import dynamicCard from "./dynamicCard.vue";
+import PlayPageProcessingTab from "./PlayPageProcessingTab.vue";
 
 export default {
-  components: {LivePartitionPageProcessingTabVIew, PageProcessingView, dynamicCard},
+  components: {PlayPageProcessingTab, LivePartitionPageProcessingTabVIew, PageProcessingView, dynamicCard},
   data() {
     return {}
   }
@@ -19,7 +20,10 @@ export default {
     <el-tab-pane label="直播分区" lazy>
       <LivePartitionPageProcessingTabVIew/>
     </el-tab-pane>
-    <el-tab-pane label="动态">
+    <el-tab-pane label="播放页" lazy>
+      <PlayPageProcessingTab/>
+    </el-tab-pane>
+    <el-tab-pane label="动态" lazy>
       <dynamicCard/>
     </el-tab-pane>
   </el-tabs>
