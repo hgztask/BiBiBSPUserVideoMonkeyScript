@@ -65,7 +65,12 @@ export default {
                     eventEmitter.send('打印信息', `根据${type}规则${matching}屏蔽用户${name}`)
                     continue
                 }
-                shielding.addBlockButton({data: v, maskingFunc: this.checkLeftUserList})
+                shielding.addBlockButton({
+                    data: v, maskingFunc: this.checkLeftUserList, mouseoverFun: (butEl) => {
+                        if (!location.href.endsWith('whisper/unfollow')) return;
+                        butEl.style.display = ""
+                    }
+                })
             }
         })
     },
