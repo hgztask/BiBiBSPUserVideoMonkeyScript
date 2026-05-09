@@ -28,6 +28,7 @@ import {returnTempVal} from "../../data/globalValue.js";
  * @param data.data {{}} 数据
  * @param data.updateFunc {function} 更新数据函数
  * @param data.maskingFunc {function} 屏蔽函数
+ * @param data.mouseoverFun {function} 鼠标悬停在屏蔽按钮时函数，参数为按钮el
  * @param data.data.cssMap {{string:string}} css-style键值对样式
  * @param data.data.cssText {string} cssText内容
  * @param className {string} class名称，标记css，用于标记是否已添加
@@ -67,9 +68,16 @@ const addBlockButton = (data, className = 'gz_def_shielding_button', position = 
     }
     //当没有显隐主体元素，则主动隐藏，不添加鼠标经过显示移开隐藏事件
     if (explicitSubjectEl) {
+        const {mouseoverFun} = data;
         buttonEL.style.display = "none";
         elEventEmitter.addEvent(explicitSubjectEl, "mouseout", () => buttonEL.style.display = "none");
-        elEventEmitter.addEvent(explicitSubjectEl, "mouseover", () => buttonEL.style.display = "");
+        elEventEmitter.addEvent(explicitSubjectEl, "mouseover", () => {
+            if (mouseoverFun) {
+                mouseoverFun(buttonEL)
+            } else {
+                buttonEL.style.display = ""
+            }
+        });
     }
     insertionPositionEl.appendChild(buttonEL);
 
