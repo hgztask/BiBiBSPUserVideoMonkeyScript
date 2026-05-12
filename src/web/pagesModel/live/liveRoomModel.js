@@ -35,10 +35,10 @@ const setRoomBackgroundDisplay = (hide = true) => {
 
 //设置直播间礼物控制面板显示状态
 const setGiftControlPanelDisplay = (hide = true) => {
-    elUtil.findElement('#gift-control-vm').then(el => {
-        el.style.display = hide ? 'none' : '';
-        eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间礼物控制面板`);
-    })
+    elUtil.installStyle(hide ? `#gift-control-vm,div[data-upgrade-intro=giftSender]{
+    display:none !important;
+    }` : '', {type: 'id', value: "gift-control-vm-hide"})
+    eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间礼物控制面板`);
 }
 
 // 获取直播间弹幕
