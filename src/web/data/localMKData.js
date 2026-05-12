@@ -111,7 +111,7 @@ const isCompatible_BEWLY_BEWLY = () => {
  * @returns {boolean}
  */
 const isDiscardOldCommentAreas = () => {
-    return GM_getValue("discardOldCommentAreas", false) === true;
+    return GM_getValue("discardOldCommentAreas", true) === true;
 }
 
 /**
