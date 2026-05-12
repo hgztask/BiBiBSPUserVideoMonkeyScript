@@ -92,86 +92,88 @@ const getDecorate = (el, uid, name) => {
  */
 const getCommentSectionList = async () => {
     // await defUtil.wait(2000);
-    const commentApp = await elUtil.findElement("bili-comments",
+    const commentApps = await elUtil.findElements("bili-comments",
         {interval: 500});
-    const comments = await elUtil.findElements("#feed>bili-comment-thread-renderer",
-        {doc: commentApp.shadowRoot, interval: 500});
     const commentsData = [];
-    //是否加载完毕，如果评论内容不为空，说明内容已经加载完毕，用于解决评论内容未能加载完问题
-    let isLoaded = false;
-    for (let el of comments) {
-        //楼主层
-        const theOPEl = el.shadowRoot.getElementById("comment").shadowRoot;
-        const theOPUserInfo = theOPEl.querySelector("bili-comment-user-info")
-            .shadowRoot.getElementById("info");
-        const userNameEl = theOPUserInfo.querySelector("#user-name>a");
-        const userLevelSrc = theOPUserInfo.querySelector('#user-level>img')?.src || null
-        const level = getUrlUserLevel(userLevelSrc)
-        isLoaded = theOPEl.querySelector("#content>bili-rich-text")
-            .shadowRoot.querySelector("#contents>*") !== null;
-        if (!isLoaded) {
-            break;
-        }
-        const theOPContentEl = theOPEl.querySelector("#content>bili-rich-text")
-            .shadowRoot.querySelector("#contents");
-        const theOPContent = theOPContentEl.textContent.trim();
-        const userName = userNameEl.textContent.trim();
-        const userUrl = userNameEl.href;
-        const uid = urlUtil.getUrlUID(userUrl);
-        const decorateEl = theOPEl.querySelector("#ornament>bili-comment-user-sailing-card")
-        const {dressUpId, collectionActId, decoratePic} = getDecorate(decorateEl, uid, userName)
-        //楼中层内容
-        const replies = [];
-        commentsData.push({
-            name: userName, userUrl, uid, level, dressUpId, collectionActId, decoratePic,
-            content: theOPContent,
-            replies,
-            el,
-            insertionPositionEl: theOPUserInfo,
-            explicitSubjectEl: theOPEl.querySelector("#body"),
-            contentsEl: theOPContentEl
-        });
-        //楼中层
-        const inTheBuildingEls = el.shadowRoot.querySelector("bili-comment-replies-renderer")
-            .shadowRoot.querySelectorAll("bili-comment-reply-renderer");
-        for (let inTheBuildingEl of inTheBuildingEls) {
-            const inTheContentEl = inTheBuildingEl.shadowRoot;
-            const biliCommentUserInfo = inTheContentEl.querySelector("bili-comment-user-info");
-            biliCommentUserInfo.style.display = 'block'
-            const inTheBuildingUserInfo = biliCommentUserInfo.shadowRoot.getElementById("info");
-            const inTheBuildingUserNameEl = inTheBuildingUserInfo.querySelector("#user-name>a");
-            const inTheBuildingUserName = inTheBuildingUserNameEl.textContent.trim();
-            const inTheBuildingUserUrl = inTheBuildingUserNameEl.href;
-            const inTheBuildingUid = urlUtil.getUrlUID(inTheBuildingUserUrl);
-            //评论内容元素
-            const biliRichTextEL = inTheContentEl.querySelector("bili-rich-text");
-            const contentsEl = biliRichTextEL.shadowRoot.querySelector("#contents");
-            const inTheBuildingContent = contentsEl.textContent.trim();
-            const userLevelSrc = inTheBuildingUserInfo.querySelector('#user-level>img')?.src || null;
+    for (let commentApp of commentApps) {
+        const comments = await elUtil.findElements("#feed>bili-comment-thread-renderer",
+            {doc: commentApp.shadowRoot, interval: 500});
+        //是否加载完毕，如果评论内容不为空，说明内容已经加载完毕，用于解决评论内容未能加载完问题
+        let isLoaded = false;
+        for (let el of comments) {
+            //楼主层
+            const theOPEl = el.shadowRoot.getElementById("comment").shadowRoot;
+            const theOPUserInfo = theOPEl.querySelector("bili-comment-user-info")
+                .shadowRoot.getElementById("info");
+            const userNameEl = theOPUserInfo.querySelector("#user-name>a");
+            const userLevelSrc = theOPUserInfo.querySelector('#user-level>img')?.src || null
             const level = getUrlUserLevel(userLevelSrc)
-            const decorateDatum = decorateData[inTheBuildingUid];
-            let dressUpId = -1, collectionActId = -1, decoratePic = null;
-            if (decorateDatum) {
-                dressUpId = decorateDatum.dressUpId;
-                collectionActId = decorateDatum.collectionActId;
-                decoratePic = decorateDatum.decoratePic;
+            isLoaded = theOPEl.querySelector("#content>bili-rich-text")
+                .shadowRoot.querySelector("#contents>*") !== null;
+            if (!isLoaded) {
+                break;
             }
-            replies.push({
-                name: inTheBuildingUserName,
-                userUrl: inTheBuildingUserUrl,
-                uid: inTheBuildingUid, dressUpId, collectionActId, decoratePic,
-                level,
-                content: inTheBuildingContent,
-                el: inTheBuildingEl,
-                insertionPositionEl: inTheBuildingUserInfo,
-                explicitSubjectEl: inTheBuildingEl,
-                contentsEl
-            })
+            const theOPContentEl = theOPEl.querySelector("#content>bili-rich-text")
+                .shadowRoot.querySelector("#contents");
+            const theOPContent = theOPContentEl.textContent.trim();
+            const userName = userNameEl.textContent.trim();
+            const userUrl = userNameEl.href;
+            const uid = urlUtil.getUrlUID(userUrl);
+            const decorateEl = theOPEl.querySelector("#ornament>bili-comment-user-sailing-card")
+            const {dressUpId, collectionActId, decoratePic} = getDecorate(decorateEl, uid, userName)
+            //楼中层内容
+            const replies = [];
+            commentsData.push({
+                name: userName, userUrl, uid, level, dressUpId, collectionActId, decoratePic,
+                content: theOPContent,
+                replies,
+                el,
+                insertionPositionEl: theOPUserInfo,
+                explicitSubjectEl: theOPEl.querySelector("#body"),
+                contentsEl: theOPContentEl
+            });
+            //楼中层
+            const inTheBuildingEls = el.shadowRoot.querySelector("bili-comment-replies-renderer")
+                .shadowRoot.querySelectorAll("bili-comment-reply-renderer");
+            for (let inTheBuildingEl of inTheBuildingEls) {
+                const inTheContentEl = inTheBuildingEl.shadowRoot;
+                const biliCommentUserInfo = inTheContentEl.querySelector("bili-comment-user-info");
+                biliCommentUserInfo.style.display = 'block'
+                const inTheBuildingUserInfo = biliCommentUserInfo.shadowRoot.getElementById("info");
+                const inTheBuildingUserNameEl = inTheBuildingUserInfo.querySelector("#user-name>a");
+                const inTheBuildingUserName = inTheBuildingUserNameEl.textContent.trim();
+                const inTheBuildingUserUrl = inTheBuildingUserNameEl.href;
+                const inTheBuildingUid = urlUtil.getUrlUID(inTheBuildingUserUrl);
+                //评论内容元素
+                const biliRichTextEL = inTheContentEl.querySelector("bili-rich-text");
+                const contentsEl = biliRichTextEL.shadowRoot.querySelector("#contents");
+                const inTheBuildingContent = contentsEl.textContent.trim();
+                const userLevelSrc = inTheBuildingUserInfo.querySelector('#user-level>img')?.src || null;
+                const level = getUrlUserLevel(userLevelSrc)
+                const decorateDatum = decorateData[inTheBuildingUid];
+                let dressUpId = -1, collectionActId = -1, decoratePic = null;
+                if (decorateDatum) {
+                    dressUpId = decorateDatum.dressUpId;
+                    collectionActId = decorateDatum.collectionActId;
+                    decoratePic = decorateDatum.decoratePic;
+                }
+                replies.push({
+                    name: inTheBuildingUserName,
+                    userUrl: inTheBuildingUserUrl,
+                    uid: inTheBuildingUid, dressUpId, collectionActId, decoratePic,
+                    level,
+                    content: inTheBuildingContent,
+                    el: inTheBuildingEl,
+                    insertionPositionEl: inTheBuildingUserInfo,
+                    explicitSubjectEl: inTheBuildingEl,
+                    contentsEl
+                })
+            }
         }
-    }
-    if (!isLoaded) {
-        await defUtil.wait(500);
-        return getCommentSectionList()
+        if (!isLoaded) {
+            await defUtil.wait(500);
+            return getCommentSectionList()
+        }
     }
     return commentsData;
 }
