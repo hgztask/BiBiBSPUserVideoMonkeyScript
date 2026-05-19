@@ -70,13 +70,18 @@ const getRightTabs = async () => {
     return list;
 }
 
+
+const homeVideoCardListSelector = [
+    '.grid-adaptive>.video-card-container',
+    '.virtual-rows>.virtual-item'//1.6.5
+].join(',')
 /**
  * 获取视频列表
  * @returns {Promise<[]>}
  */
 const getVideoList = async () => {
     const be_wly_el = await getBewlyEl()
-    const elList = await elUtil.findElements('.grid-adaptive>.video-card-container', {doc: be_wly_el})
+    const elList = await elUtil.findElements(homeVideoCardListSelector, {doc: be_wly_el})
     const list = [];
     const isBEWLYCatPluginVal = await isBEWLYCatPlugin()
     for (let el of elList) {
