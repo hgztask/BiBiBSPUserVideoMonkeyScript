@@ -16,8 +16,9 @@ const addEventListenerUrlChange = (callback) => {
 /**
  * 监听网络请求
  * @param callback {function} 回调函数
+ * @param imgCallBack {function}
  */
-const addEventListenerNetwork = (callback) => {
+const addEventListenerNetwork = (callback, imgCallBack) => {
     const performanceObserver = new PerformanceObserver(() => {
         const entries = performance.getEntriesByType('resource');
         const windowUrl = window.location.href;
@@ -25,6 +26,9 @@ const addEventListenerNetwork = (callback) => {
         for (let entry of entries) {
             const url = entry.name;
             const initiatorType = entry.initiatorType;
+            if (initiatorType === "img" && imgCallBack) {
+                imgCallBack(url, windowUrl, winTitle)
+            }
             if (initiatorType === "img" || initiatorType === "css" || initiatorType === "link" || initiatorType === "beacon") {
                 continue;
             }
