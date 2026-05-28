@@ -391,5 +391,19 @@ export default {
     calculateLikeRate,
     calculateInteractionRate,
     calculateTripleRate,
-    calculateCoinLikesRatioRate
+    calculateCoinLikesRatioRate,
+    saveTextAsFile,
+    /**
+     * 将list、map、set转为普通对象
+     * @param listOrMapOrSet 可迭代对象
+     * @param toStr {boolean} 是否转为字符串格式
+     * @returns {any[]|Set|Map|string}
+     */
+    toRaw(listOrMapOrSet, toStr = false) {
+        const text = JSON.stringify(listOrMapOrSet);
+        if (toStr) {
+            return toStr
+        }
+        return JSON.parse(text)
+    }
 }
