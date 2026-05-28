@@ -56,7 +56,7 @@ const setGiftControlPanelDisplay = (hide = true) => {
 
 // 获取直播间弹幕
 const getChatItems = async () => {
-    const elList = await elUtil.findElements("#chat-items>div", {doc: getTargetEl()});
+    const elList = await elUtil.findElements("#chat-items>div", {doc: await getTargetEl()});
     const list = [];
     for (let el of elList) {
         if (el.className === "chat-item  convention-msg border-box") {
@@ -85,14 +85,16 @@ const getChatItems = async () => {
         const gloryLevelSrc = gloryLevelEl ? gloryLevelEl.src : null
         //粉丝牌
         const fansMedal = fansMedalEl === null ? null : fansMedalEl.textContent.trim();
-        list.push({
+        const items = {
             name, chatType, gloryLevelSrc,
             uid,
             content,
             timeStamp,
             fansMedal,
             el
-        })
+        };
+        el['mk-item'] = items
+        list.push(items)
     }
     return list;
 }
@@ -163,11 +165,26 @@ const listeningSC = () => {
 }
 
 /**
+ *获取当前直播间id
+ * @returns {Promise<number>}
+ */
+const getCurrentLiveRoomLiveId = () => {
+    if (isLiveRoomActivity()) {
+        return getTargetEl().then(targetEl => {
+            const el = targetEl.querySelector('#head-info-vm');
+            const vueData = el['__vue__'];
+            return vueData.roomId;
+        })
+    }
+    return Promise.resolve(urlUtil.getUrlRoomId(location.href))
+}
+
+/**
  * 屏蔽直播间弹幕-节流
  */
 const startShieldingLiveChatContents = defUtil.throttle(async () => {
     const commentsDataList = await getChatItems()
-    const roomId = urlUtil.getUrlRoomId(location.href)
+    const roomId = await getCurrentLiveRoomLiveId()
     for (let commentsData of commentsDataList) {
         commentsData['roomId'] = roomId;
         live_shielding.shieldingLiveRoomContent(commentsData)
@@ -211,6 +228,7 @@ const run = async () => {
             butEl.setAttribute(name, name === 'class' ? 'block-this-guy' : '');
         }
         selectEl.appendChild(butEl);
+        console.log('已为点击弹幕项插入添加屏蔽(uid)按钮', butEl)
         butEl.addEventListener('click', () => {
             const vueData = el['__vue__'];
             console.log(vueData);
