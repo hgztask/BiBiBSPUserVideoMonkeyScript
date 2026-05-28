@@ -8,6 +8,19 @@ import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHide
 import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName,} from "../../model/shielding/shielding.js";
 import liveCommon from "./liveCommon.js";
 import cssManager from "../../model/cssManager.js";
+import urlUtil from "../../utils/urlUtil.js";
+
+
+const getTargetEl = async () => {
+    let targetEl;
+    if (isLiveRoomActivity()) {
+        const iframeEl = await elUtil.findElement('#player-ctnr iframe')
+        targetEl = iframeEl.contentDocument
+    } else {
+        targetEl = document.body;
+    }
+    return targetEl
+}
 
 /**
  * 判断是否为直播间
@@ -43,14 +56,7 @@ const setGiftControlPanelDisplay = (hide = true) => {
 
 // 获取直播间弹幕
 const getChatItems = async () => {
-    let targetEl;
-    if (isLiveRoomActivity()) {
-        const iframeEl = await elUtil.findElement('#player-ctnr iframe')
-        targetEl = iframeEl.contentDocument
-    } else {
-        targetEl = document.body;
-    }
-    const elList = await elUtil.findElements("#chat-items>div", {doc: targetEl});
+    const elList = await elUtil.findElements("#chat-items>div", {doc: getTargetEl()});
     const list = [];
     for (let el of elList) {
         if (el.className === "chat-item  convention-msg border-box") {
@@ -75,10 +81,12 @@ const getChatItems = async () => {
         const content = el.getAttribute("data-danmaku");
         const timeStamp = parseInt(el.getAttribute("data-timestamp"));
         const fansMedalEl = el.querySelector(".fans-medal-content");
+        const gloryLevelEl = el.querySelector('img.wealth-medal.p-absolute')
+        const gloryLevelSrc = gloryLevelEl ? gloryLevelEl.src : null
         //粉丝牌
         const fansMedal = fansMedalEl === null ? null : fansMedalEl.textContent.trim();
         list.push({
-            name, chatType,
+            name, chatType, gloryLevelSrc,
             uid,
             content,
             timeStamp,
@@ -115,6 +123,17 @@ const getSCList = async () => {
     return list;
 }
 
+//获取直播间弹幕列表中的荣耀等级图片链接
+const getBulletGloryLevelList = async () => {
+    const body = await getTargetEl();
+    const imgSrcSet = new Set()
+    for (const el of body.querySelectorAll('.wealth-medal.p-absolute')) {
+        const imgSrc = el.src;
+        imgSrcSet.add(imgSrc)
+    }
+    return Array.from(imgSrcSet)
+}
+
 //检查醒目留言
 const checkSCList = async () => {
     const list = await getSCList();
@@ -148,7 +167,9 @@ const listeningSC = () => {
  */
 const startShieldingLiveChatContents = defUtil.throttle(async () => {
     const commentsDataList = await getChatItems()
+    const roomId = urlUtil.getUrlRoomId(location.href)
     for (let commentsData of commentsDataList) {
+        commentsData['roomId'] = roomId;
         live_shielding.shieldingLiveRoomContent(commentsData)
     }
 }, 2000)
@@ -214,5 +235,10 @@ const run = async () => {
 export default {
     isLiveRoom, setRoomBackgroundDisplay, setGiftControlPanelDisplay,
     run, isLiveRoomActivity, delLivePageRightSidebarAd,
-
+    //发送直播间弹幕列表中的荣耀等级图片链接列表
+    sendBulletGloryLevelList() {
+        return getBulletGloryLevelList().then(imgSrcList => {
+            eventEmitter.emit('event:更新荣耀等级图片链接列表', imgSrcList)
+        })
+    }
 }

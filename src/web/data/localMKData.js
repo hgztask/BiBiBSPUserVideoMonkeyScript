@@ -665,5 +665,24 @@ export default {
     //单机游戏区分区tag仅显示状态
     isSingleGamePartitionTagOnlyShowStatus() {
         return GM_getValue('console_game_status_gm', false)
-    }
+    },
+    getHideTheLeftTopColumnsGm() {
+        return GM_getValue('hide_the_left_top_columns_gm', [])
+    },
+    /**
+     * 获取荣耀等级映射列表
+     * @returns {{level:number,src:string}[]}
+     */
+    getGloryLevelMappingListGm() {
+        return GM_getValue('glory_level_mapping_list_gm', [])
+    },
+    //获取荣耀等级限制列表
+    getGloryLevelLimitListGm() {
+        const defV = {roomId: 0, limitLevel: 10, status: false}
+        const listGm = GM_getValue('glory_level_limit_list_gm', [defV])
+        if (!listGm.some(item => item.roomId === 0 || item.roomId === '0')) {
+            listGm.unshift(defV)
+        }
+        return listGm
+    },
 }

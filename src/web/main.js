@@ -7,6 +7,7 @@ import observeNetwork from "./watch/observeNetwork.js";
 import './model/notificationBlocking.js'
 import './model/replaceKeywords.js'
 import './dev/dev.js'
+import liveRoomModel from "./pagesModel/live/liveRoomModel.js";
 
 window.addEventListener('load', () => {
     console.log('页面加载完成');
@@ -18,6 +19,10 @@ window.addEventListener('load', () => {
 
 watchUtil.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
     observeNetwork.observeNetwork(url, windowUrl, winTitle, initiatorType)
+}, (url, winUrl) => {
+    if (url.search('https://i1.hdslb.com/bfs/live/.*.png') !== -1 && liveRoomModel.isLiveRoom(winUrl)) {
+        return liveRoomModel.sendBulletGloryLevelList()
+    }
 })
 
 

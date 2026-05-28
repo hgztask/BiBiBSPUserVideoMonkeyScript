@@ -119,7 +119,7 @@ export default {
                size="100%"
                style="position: fixed">
       <el-tabs v-model="tabsActiveName" type="border-card"
-               @tab-click="tabClick">
+               id="app" @tab-click="tabClick">
         <el-tab-pane label="面板设置" lazy name="面板设置">
           <panelSettingsView/>
         </el-tab-pane>
@@ -165,3 +165,9 @@ export default {
     <el-backtop v-if="isShowBackToTopVal"/>
   </div>
 </template>
+
+<style>
+#app > .el-tabs__content {
+  padding: 0 !important
+}
+</style>

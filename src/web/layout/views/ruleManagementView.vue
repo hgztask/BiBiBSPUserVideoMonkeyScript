@@ -8,10 +8,11 @@ import basicRulesView from "../views/basicRulesView.vue";
 import ruleExportImportView from './ruleExportImportView.vue'
 import otherParameterFilterView from './otherParameterFilterView.vue'
 import viewRulesRuleDialog from "../eventEmitter_components/viewRulesRuleDialog.vue";
-
+import GloryLevelTabView from "./gloryLevel/GloryLevelTabView.vue";
 
 export default {
   components: {
+    GloryLevelTabView,
     ruleExportImportView,
     otherParameterFilterView,
     basicRulesView,
@@ -27,7 +28,7 @@ export default {
 
 <template>
   <div>
-    <el-tabs tab-position="left" type="border-card">
+    <el-tabs id="规则管理" tab-position="left" type="border-card">
       <el-tab-pane label="基础规则">
         <basicRulesView/>
       </el-tab-pane>
@@ -46,6 +47,9 @@ export default {
       <el-tab-pane label="替换处理" lazy>
         <replProcessingView/>
       </el-tab-pane>
+      <el-tab-pane label="荣耀等级" lazy>
+        <GloryLevelTabView/>
+      </el-tab-pane>
       <el-tab-pane label="导出导入" lazy>
         <ruleExportImportView/>
       </el-tab-pane>
@@ -56,3 +60,9 @@ export default {
     <viewRulesRuleDialog/>
   </div>
 </template>
+<style>
+/*调整规则管理tabs容器的边距*/
+#规则管理 > .el-tabs__content {
+  padding: 5px 0;
+}
+</style>

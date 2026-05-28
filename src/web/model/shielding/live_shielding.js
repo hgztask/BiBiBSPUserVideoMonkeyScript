@@ -10,6 +10,8 @@ import shielding, {
     blockUserUidAndName,
 } from "./shielding.js";
 import {returnTempVal} from "../../data/globalValue.js";
+import localMKData from "../../data/localMKData.js";
+import LocalMKData from "../../data/localMKData.js";
 
 //检查直播间id屏蔽
 export const blockLiveRoomId = (liveRoomId) => {
@@ -51,6 +53,49 @@ const blockLiveBarrage = (barrage) => {
         fuzzyKey: 'liveBarrage', fuzzyTypeName: '直播弹幕(模糊)',
         regexKey: 'liveBarrageCanonical', regexTypeName: '直播弹幕(正则)'
     })
+}
+
+//根据荣耀等级屏蔽
+const blockGloryLevel = (roomId, gloryLevelSrc) => {
+    if (gloryLevelSrc === null || gloryLevelSrc.length <= 10) return returnTempVal
+    const listGm = localMKData.getGloryLevelMappingListGm();
+    if (listGm.length === 0) return returnTempVal;
+    const find = listGm.find(item => item.src === gloryLevelSrc);
+    if (find === undefined) return returnTempVal;
+    const findLevel = find.level
+    const levelLimitListGm = LocalMKData.getGloryLevelLimitListGm();
+    const globalItem = levelLimitListGm.find(item => item.roomId === 0)
+    if (globalItem.status) {
+        if (findLevel >= globalItem.limitLevel) {
+            return returnTempVal
+        }
+        return {
+            state: true,
+            type: "荣耀等级屏蔽",
+            matching: `用户等级${findLevel}<=全局限制等级${globalItem.limitLevel}`
+        }
+    }
+    for (let limitItem of levelLimitListGm) {
+        if (limitItem.roomId !== roomId) continue
+        if (!limitItem.status) break;
+        if (findLevel <= limitItem.level) {
+            return {
+                state: true,
+                type: "荣耀等级屏蔽",
+                matching: `用户等级${findLevel}=>当前房间${roomId}限制等级${limitItem.limitLevel}`
+            }
+        }
+    }
+    return returnTempVal
+}
+
+//异步根据荣耀等级屏蔽
+const asyncBlockGloryLevel = async (roomId, gloryLevelSrc) => {
+    const res = blockGloryLevel(roomId, gloryLevelSrc)
+    if (res.state) {
+        return Promise.reject(res)
+    }
+    return res
 }
 
 // 屏蔽直播间
@@ -113,12 +158,15 @@ export default {
     shieldingLiveRoomDecorated,
     /**
      * 装饰过的屏蔽直播间评论
-     * @param liveRoomContent {*} 评论数据
+     * @param liveRoomContent {*} 直播评论数据
      * @returns {boolean}
      * @type {function}
      */
     shieldingLiveRoomContent(liveRoomContent) {
-        const {content, uid, name, level = -1, chatType, fansMedal, el} = liveRoomContent;
+        const {
+            content, uid, name, level = -1, chatType, fansMedal, el,
+            roomId, gloryLevelSrc = null
+        } = liveRoomContent;
         asyncBlockSeniorMemberOnly(level)
             .then(() => asyncBlockUserUidAndName(uid, name))
             .then(() => asyncBlockByLevelForComment(level))
@@ -129,6 +177,7 @@ export default {
                 }
             })
             .then(() => blockLiveBarrage(content))
+            .then(() => asyncBlockGloryLevel(roomId, gloryLevelSrc))
             .catch(res => {
                 let {state, type, matching} = res;
                 if (type === '中断') return;
