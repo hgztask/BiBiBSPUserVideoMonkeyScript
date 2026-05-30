@@ -39,6 +39,12 @@ export default defineComponent({
         }
         this.dataList.push({name: value, limitLevel: 0, status: false})
       })
+    },
+    delBut(row) {
+      this.$confirm(`是要删除该粉丝牌配置吗？【${row.name}】`).then(() => {
+        this.dataList = this.dataList.filter(item => item !== row)
+        this.$notify({message: "已删除", position: "bottom-right"})
+      })
     }
   },
   created() {
@@ -68,7 +74,7 @@ export default defineComponent({
           <el-table-column label="操作">
             <template #default="scope">
               <gz-space>
-                <el-button type="warning">移除</el-button>
+                <el-button type="warning" @click="delBut(scope.row)">移除</el-button>
               </gz-space>
             </template>
           </el-table-column>
