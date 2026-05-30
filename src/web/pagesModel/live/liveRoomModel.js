@@ -54,7 +54,13 @@ const setGiftControlPanelDisplay = (hide = true) => {
     eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间礼物控制面板`);
 }
 
-// 获取直播间弹幕
+/**
+ * 获取直播间弹幕
+ * @returns {Promise<
+ * {name:string,uid:string,chatType:string,gloryLevelSrc:string,fanBrandLevel:number,content:string,timeStamp:number,
+ * fansMedal:string,el:HTMLElement}[]
+ * >}
+ */
 const getChatItems = async () => {
     const elList = await elUtil.findElements("#chat-items>div", {doc: await getTargetEl()});
     const list = [];
@@ -80,13 +86,18 @@ const getChatItems = async () => {
         const uid = parseInt(el.getAttribute("data-uid"));
         const content = el.getAttribute("data-danmaku");
         const timeStamp = parseInt(el.getAttribute("data-timestamp"));
-        const fansMedalEl = el.querySelector(".fans-medal-content");
+        const fansMedalItemEl = el.querySelector('.fans-medal-item')
         const gloryLevelEl = el.querySelector('img.wealth-medal.p-absolute')
         const gloryLevelSrc = gloryLevelEl ? gloryLevelEl.src : null
-        //粉丝牌
-        const fansMedal = fansMedalEl === null ? null : fansMedalEl.textContent.trim();
+        let fansMedal = null, fanBrandLevel = -1
+        if (fansMedalItemEl) {
+            //粉丝牌
+            fansMedal = fansMedalItemEl.querySelector(".fans-medal-content").textContent.trim();
+            const FanBrandLevelEl = fansMedalItemEl.querySelector('.fans-medal-level>.fans-medal-level-font');
+            fanBrandLevel = parseInt(FanBrandLevelEl?.textContent.trim() || -1)
+        }
         const items = {
-            name, chatType, gloryLevelSrc,
+            name, chatType, gloryLevelSrc, fanBrandLevel,
             uid,
             content,
             timeStamp,

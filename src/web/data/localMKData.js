@@ -685,4 +685,11 @@ export default {
         }
         return listGm
     },
+    /**
+     * 获取粉丝牌等级限制列表
+     * @returns {{name:string,limitLevel:number,status:boolean}[]}
+     */
+    getFansLevelLimitListGm() {
+        return GM_getValue('fans_level_limit_list_gm', [])
+    },
 }

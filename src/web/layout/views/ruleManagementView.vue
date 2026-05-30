@@ -9,9 +9,11 @@ import ruleExportImportView from './ruleExportImportView.vue'
 import otherParameterFilterView from './otherParameterFilterView.vue'
 import viewRulesRuleDialog from "../eventEmitter_components/viewRulesRuleDialog.vue";
 import GloryLevelTabView from "./gloryLevel/GloryLevelTabView.vue";
+import FanCardLevelRestrictionsView from "./ruleManagement/FanCardLevelRestrictionsView.vue";
 
 export default {
   components: {
+    FanCardLevelRestrictionsView,
     GloryLevelTabView,
     ruleExportImportView,
     otherParameterFilterView,
@@ -49,6 +51,9 @@ export default {
       </el-tab-pane>
       <el-tab-pane label="荣耀等级" lazy>
         <GloryLevelTabView/>
+      </el-tab-pane>
+      <el-tab-pane label="粉丝牌等级" lazy>
+        <FanCardLevelRestrictionsView/>
       </el-tab-pane>
       <el-tab-pane label="导出导入" lazy>
         <ruleExportImportView/>

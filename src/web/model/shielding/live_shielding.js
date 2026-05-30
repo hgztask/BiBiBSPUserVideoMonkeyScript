@@ -98,6 +98,34 @@ const asyncBlockGloryLevel = async (roomId, gloryLevelSrc) => {
     return res
 }
 
+//根据粉丝牌等级屏蔽
+const blockFansLevel = (fansMedal, fansLevel) => {
+    if (fansMedal === null || fansLevel === -1) return returnTempVal
+    const listGm = localMKData.getFansLevelLimitListGm();
+    const find = listGm.find(item => item.name === fansMedal);
+    if (find === undefined) return returnTempVal
+    if (!find.status) return returnTempVal
+    const {limitLevel} = find;
+    if (limitLevel >= fansLevel) {
+        return {
+            state: true,
+            type: "粉丝牌等级屏蔽",
+            matching: `限制【${fansMedal}】粉丝牌等级${limitLevel}>=目标粉丝牌等级${fansLevel}`
+        }
+    }
+    return returnTempVal
+}
+
+//异步根据粉丝牌等级屏蔽
+const asyncBlockFansLevel = async (fansMedal, fansLevel) => {
+    const res = blockFansLevel(fansMedal, fansLevel)
+    if (res.state) {
+        return Promise.reject(res)
+    }
+    return res
+}
+
+
 // 屏蔽直播间
 const shieldingLiveRoom = (liveRoomData) => {
     const {name, title, partition, uid = -1, roomId} = liveRoomData;
@@ -164,20 +192,21 @@ export default {
      */
     shieldingLiveRoomContent(liveRoomContent) {
         const {
-            content, uid, name, level = -1, chatType, fansMedal, el,
+            content, uid, name, level = -1, chatType, fansMedal, fanBrandLevel, el,
             roomId, gloryLevelSrc = null
         } = liveRoomContent;
         asyncBlockSeniorMemberOnly(level)
             .then(() => asyncBlockUserUidAndName(uid, name))
             .then(() => asyncBlockByLevelForComment(level))
             .then(() => asyncBlockUserFanCard(fansMedal))
+            .then(() => asyncBlockGloryLevel(roomId, gloryLevelSrc))
+            .then(() => asyncBlockFansLevel(fansMedal, fanBrandLevel))
             .then(() => {
                 if (chatType === 'emoticon') {
                     return Promise.reject({type: '中断'});
                 }
             })
             .then(() => blockLiveBarrage(content))
-            .then(() => asyncBlockGloryLevel(roomId, gloryLevelSrc))
             .catch(res => {
                 let {state, type, matching} = res;
                 if (type === '中断') return;
