@@ -49,6 +49,7 @@ import bvRequestQueue from "../queue/bvRequestQueue.js";
 import bvDexie from "../bvDexie.js";
 import {videoCacheManager} from "../cache/videoCacheManager.js";
 import ruleMatchingUtil from "../../utils/ruleMatchingUtil.js";
+import combinationRulesShielding from "./combinationRulesShielding.js";
 
 // 检查视频tag执行多重tag检查屏蔽
 const asyncBlockVideoTagPreciseCombination = async (tags) => {
@@ -318,6 +319,10 @@ const shieldingOtherVideoParameter = async (result, videoData) => {
             }
         })
         .then(() => asyncBlockArgueMsgContent(videoInfo['argue_msg']))
+        .then(() => {
+            const mergeData = {...result, ...videoData}
+            return combinationRulesShielding.asyncBlockCombinationRulePlan(mergeData)
+        })
         .then(() => {
             return returnTempVal;
         })

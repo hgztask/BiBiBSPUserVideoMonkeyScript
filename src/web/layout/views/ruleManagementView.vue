@@ -10,9 +10,11 @@ import otherParameterFilterView from './otherParameterFilterView.vue'
 import viewRulesRuleDialog from "../eventEmitter_components/viewRulesRuleDialog.vue";
 import GloryLevelTabView from "./gloryLevel/GloryLevelTabView.vue";
 import FanCardLevelRestrictionsView from "./ruleManagement/FanCardLevelRestrictionsView.vue";
+import CombinationRuleView from "./ruleManagement/CombinationRuleView.vue";
 
 export default {
   components: {
+    CombinationRuleView,
     FanCardLevelRestrictionsView,
     GloryLevelTabView,
     ruleExportImportView,
@@ -48,6 +50,9 @@ export default {
       </el-tab-pane>
       <el-tab-pane label="替换处理" lazy>
         <replProcessingView/>
+      </el-tab-pane>
+      <el-tab-pane label="组合规则" lazy>
+        <CombinationRuleView/>
       </el-tab-pane>
       <el-tab-pane label="荣耀等级" lazy>
         <GloryLevelTabView/>

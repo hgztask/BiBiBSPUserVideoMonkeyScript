@@ -692,4 +692,11 @@ export default {
     getFansLevelLimitListGm() {
         return GM_getValue('fans_level_limit_list_gm', [])
     },
+    /**
+     * 组合规则方案列表
+     * @returns {{status:boolean,name:string,ruleList:{key:string,mode:string,value:string}[]}[]}
+     */
+    getCombinationRuleListGm() {
+        return GM_getValue('combination_rule_list_gm', [])
+    }
 }

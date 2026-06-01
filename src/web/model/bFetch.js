@@ -241,7 +241,7 @@ const fetchGetVideoInfo = async (bvId) => {
         sign,
         is_senior_member
     }
-    const tags = []
+    let tags = []
     for (let tag of Tags) {
         tags.push(tag['tag_name'])
     }
@@ -251,6 +251,7 @@ const fetchGetVideoInfo = async (bvId) => {
     if (findKey) {
         tags.unshift(findKey)
     }
+    tags = tags.filter(tag => tag)
     defData.data = {videoInfo, userInfo, tags}
     return defData
 }
