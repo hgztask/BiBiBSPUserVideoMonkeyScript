@@ -110,6 +110,8 @@ export default defineComponent({
         </template>
         <template #default="scope">
           <el-button type="warning" @click="delBut(scope.row)">移除</el-button>
+          <el-button v-if="scope.row.roomId!==0" @click="updateRoomIdRowBut(scope.row)">修改房间号
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
