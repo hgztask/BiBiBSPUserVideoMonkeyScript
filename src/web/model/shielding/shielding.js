@@ -639,41 +639,6 @@ export const blockVideoOrOtherTitle = (title) => {
     })
 }
 
-/**
- * 检查视频tag执行屏蔽
- * @description 当没有设置相关tag屏蔽规则时，不执行，当videoData的bv没有且为-1时，不执行
- * @param tags {[string]} 当前视频的tags
- * @returns {{state:boolean,type:string|any,matching:string|any}} 结果对象，state为true时，匹配上结果，需要屏蔽该视频
- */
-export const blockBasedVideoTag = (tags) => {
-    const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
-    const videoTagArr = ruleKeyListData.getVideoTagArr();
-    if (preciseVideoTagArr.length <= 0 && videoTagArr.length <= 0) {
-        return returnTempVal
-    }
-    for (let tag of tags) {
-        if (ruleMatchingUtil.exactMatch(preciseVideoTagArr, tag)) {
-            return {state: true, type: "精确视频tag", matching: tag}
-        }
-        let fuzzyMatch = ruleMatchingUtil.fuzzyMatch(videoTagArr, tag);
-        if (fuzzyMatch) {
-            return {state: true, type: "模糊视频tag", matching: fuzzyMatch}
-        }
-        fuzzyMatch = ruleMatchingUtil.regexMatch(ruleKeyListData.getVideoTagCanonicalArr(), tag)
-        if (fuzzyMatch) {
-            return {state: true, type: "正则视频tag", matching: fuzzyMatch}
-        }
-    }
-    return returnTempVal
-}
-
-//异步检查视频tag执行屏蔽，匹配成功则抛出reject
-export const asyncBlockBasedVideoTag = async (tags) => {
-    const res = blockBasedVideoTag(tags);
-    if (res.state) return Promise.reject(res);
-}
-
-
 //检查uid是否在范围屏蔽
 export const blockByUidRange = (uid) => {
     if (!localMKData.isUidRangeMaskingStatus()) {
