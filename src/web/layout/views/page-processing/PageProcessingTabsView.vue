@@ -4,9 +4,11 @@ import LivePartitionPageProcessingTabVIew from "./LivePartitionPageProcessingTab
 import dynamicCard from "./dynamicCard.vue";
 import PlayPageProcessingTab from "./PlayPageProcessingTab.vue";
 import HomePageProcessingTab from "./HomePageProcessingTab.vue";
+import TopColumnProcessingTab from "./TopColumnProcessingTab.vue";
 
 export default {
   components: {
+    TopColumnProcessingTab,
     HomePageProcessingTab,
     PlayPageProcessingTab, LivePartitionPageProcessingTabVIew, PageProcessingView, dynamicCard
   },
@@ -32,6 +34,9 @@ export default {
     </el-tab-pane>
     <el-tab-pane label="动态" lazy>
       <dynamicCard/>
+    </el-tab-pane>
+    <el-tab-pane label="顶栏" lazy>
+      <TopColumnProcessingTab/>
     </el-tab-pane>
   </el-tabs>
 </template>

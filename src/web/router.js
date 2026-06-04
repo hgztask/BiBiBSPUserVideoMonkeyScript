@@ -28,6 +28,7 @@ import searchUserTab from "./pagesModel/search/searchUserTab.js";
 import urlUtil from "./utils/urlUtil.js";
 import msgWhisper from "./pagesModel/message/msgWhisper.js";
 import cssManager from "./model/cssManager.js";
+import topColumnProcessing from "./pagesModel/topColumnProcessing.js";
 
 const homeStaticRoute = (title, url) => {
     const isBewlyPage = BEWLYCommon.isBEWLYPage(url);
@@ -35,8 +36,9 @@ const homeStaticRoute = (title, url) => {
         cssManager.clearBewlyCatStyle()
     }
     if (isBewlyPage && globalValue.compatibleBEWLYBEWLY) {
-        BEWLYCommon.run(url)
+        return BEWLYCommon.run(url)
     }
+    topColumnProcessing.processHideTheTopColumns()
     if (bilibiliHome.isHome(url, title)) {
         BLBLGate.check_bilibili_gate_compatibility()
         BEWLYCommon.check_BEWLYPage_compatibility()

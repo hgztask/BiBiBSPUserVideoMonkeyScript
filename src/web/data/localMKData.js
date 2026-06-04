@@ -669,6 +669,9 @@ export default {
     getHideTheLeftTopColumnsGm() {
         return GM_getValue('hide_the_left_top_columns_gm', [])
     },
+    isTopBarColumnShieldingStatusGm() {
+        return GM_getValue('top_bar_column_shielding_status_gm', false)
+    },
     /**
      * 获取荣耀等级映射列表
      * @returns {{level:number,src:string}[]}
