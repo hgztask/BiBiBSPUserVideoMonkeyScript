@@ -50,9 +50,9 @@ const getHomeTopColumnItem = () => {
     const dataList = []
     const elList = document.querySelectorAll('ul.left-entry>li');
     for (const el of elList) {
-        const entryTitleEl = el.querySelector('.left-entry__title');
+        const entryTitleEl = el.querySelector('.left-entry__title,.entry-title');
         if (entryTitleEl) {
-            const logoEl = el.querySelector('.left-entry__title>svg');
+            const logoEl = el.querySelector('.left-entry__title>svg,.entry-title>svg');
             if (logoEl) {
                 dataList.push({label: "logo", el: logoEl})
             }
