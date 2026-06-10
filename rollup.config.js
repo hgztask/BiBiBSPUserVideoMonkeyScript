@@ -3,6 +3,7 @@ import vue from 'rollup-plugin-vue';
 import esbuild from 'rollup-plugin-esbuild';
 import serve from 'rollup-plugin-serve'
 import replace from '@rollup/plugin-replace'
+import less from 'rollup-plugin-less';
 import test_plugin from './plugin/rollup-test-plugin.js'
 
 // 开发环境为 true，生产环境为 false，默认为开发环境
@@ -13,6 +14,9 @@ export default {
     input: 'src/web/main.js',
     external: ['vue', 'dexie'],
     plugins: [
+        less({
+            include: ['**/*.less'],
+        }),
         // 使用 replace 插件定义全局变量
         replace({
             __DEV__: JSON.stringify(__DEV__),
