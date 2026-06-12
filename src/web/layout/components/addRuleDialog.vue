@@ -48,6 +48,9 @@ export default {
       if (successList.length > 0 && this.successAfterCloseVal) {
         this.dialogVisible = false
       }
+      if (successList.length > 0) {
+        eventEmitter.emit('通知屏蔽');
+      }
       eventEmitter.send('刷新规则信息');
     }
   },
