@@ -240,7 +240,7 @@ const run = () => {
     bottomDiv.id = 'home-bottom-div';
     bottomDiv.style.all = 'initial';
     document.body.appendChild(bottomDiv);
-    if (isAutomaticScrollingGm()) {
+    if (isAutomaticScrollingGm() && !(globalValue.adaptationBAppCommerce || globalValue.compatibleBEWLYBEWLY)) {
         setTimeout(() => {
             checkVideoListCount();
         }, 1400)
