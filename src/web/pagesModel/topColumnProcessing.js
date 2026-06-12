@@ -1,4 +1,5 @@
 import localMKData from "../data/localMKData.js";
+import elUtil from "../utils/elUtil.js";
 
 const leftSelectorCss = [
     '.link-navbar-ctnr .flex-block>a',
@@ -50,6 +51,7 @@ const getHomeTopColumnItem = () => {
     const dataList = []
     const elList = document.querySelectorAll('ul.left-entry>li');
     for (const el of elList) {
+        const className = el.getAttribute('class');
         const entryTitleEl = el.querySelector('.left-entry__title,.entry-title');
         if (entryTitleEl) {
             const logoEl = el.querySelector('.left-entry__title>svg,.entry-title>svg');
@@ -60,6 +62,12 @@ const getHomeTopColumnItem = () => {
             if (homeEl) {
                 dataList.push({label: "首页", el})
             }
+            continue
+        }
+        if (className.includes('left-loc-entry')) {
+            const labelEl = elUtil.byXpathEl('.//a[@class="loc-entry"]|.//a[@class="loc-entry loc-moveclip"]//p[contains(@class,"loc-mc-box__text")][1]', el)
+            const label = labelEl.textContent.trim()
+            dataList.push({label, el})
             continue
         }
         const labelEl = el.querySelector('.v-popover-wrap>a,a p');
