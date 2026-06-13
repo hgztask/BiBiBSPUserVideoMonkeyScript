@@ -236,6 +236,12 @@ const shieldingVideoDecorated = async (videoData, method = "remove") => {
     }
     //如果没有bv号参数，则不执行
     if (bv === '-1') return promiseReject;
+    eventEmitter.emit('event:检查其他视频参数', videoData, method)
+    return promiseReject;
+}
+
+eventEmitter.on('event:检查其他视频参数', async (videoData, method) => {
+    const {bv = "-1"} = videoData;
     let videoRes = await videoCacheManager.find(bv);
     if (videoRes === null) {
         const disableNetRequestsBvVideoInfo = localMKData.isDisableNetRequestsBvVideoInfo();
@@ -259,10 +265,9 @@ const shieldingVideoDecorated = async (videoData, method = "remove") => {
     const verificationIns = await shieldingOtherVideoParameter(videoRes, videoData);
     if (verificationIns.state) {
         eventEmitter.send('event-屏蔽视频元素', {res: verificationIns, method, videoData})
-        return promiseResolve;
     }
-    return promiseReject;
-}
+})
+
 
 /**
  * 屏蔽视频元素回调事件
