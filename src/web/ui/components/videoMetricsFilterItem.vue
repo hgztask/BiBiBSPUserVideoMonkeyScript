@@ -1,11 +1,11 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import cardSlider from "./cardSlider.vue";
 
 /**
  * 视频指标过滤项
  */
-export default Vue.extend({
+export default defineComponent({
   components: {cardSlider},
   props: {
     // 标题
@@ -20,22 +20,22 @@ export default Vue.extend({
   data() {
     return {
       //是否启用屏蔽
-      rateBlockingStatus: GM_getValue(this.mkRateStatusKey, false),
+      rateBlockingStatus: GM_getValue(this.mkRateStatusKey as string, false),
       //比率
-      ratioRateVal: GM_getValue(this.mkTypeRateKey, 0.05),
+      ratioRateVal: GM_getValue(this.mkTypeRateKey as string, 0.05),
     }
   },
   methods: {
-    reteFormatTooltip(val) {
+    reteFormatTooltip(val: any) {
       return (val * 100).toFixed(0) + '%'
     }
   },
   watch: {
     ratioRateVal(n) {
-      GM_setValue(this.mkTypeRateKey, n)
+      GM_setValue(this.mkTypeRateKey as string, n)
     },
     rateBlockingStatus(n) {
-      GM_setValue(this.mkRateStatusKey, n)
+      GM_setValue(this.mkRateStatusKey as string, n)
     }
   }
 })

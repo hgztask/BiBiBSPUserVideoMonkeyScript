@@ -1,5 +1,5 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {
   enableReplacementProcessing,
   getSubstituteWordsArr,
@@ -10,10 +10,10 @@ import {
 /**
  * 内容替换处理布局组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
-      tableData: getSubstituteWordsArr(),
+      tableData: getSubstituteWordsArr() as any[],
       enableReplacementProcessingVal: enableReplacementProcessing(),
       clearCommentEmoticonsVal: isClearCommentEmoticons(),
       isReplaceCommentSearchTermsVal: isReplaceCommentSearchTerms()
@@ -21,7 +21,7 @@ export default Vue.extend({
   },
   methods: {
     //验证
-    validate(item) {
+    validate(item: any) {
       if (item.actionScopes.length === 0) {
         this.$message.error('请选择作用域再后续处理')
         return
@@ -32,7 +32,7 @@ export default Vue.extend({
       }
       return true
     },
-    verifyDuplicate(val) {
+    verifyDuplicate(val: any) {
       if (val === '') return;
       const set = new Set();
       for (const v of this.tableData) {
@@ -51,12 +51,12 @@ export default Vue.extend({
         findVal: '',
         replaceVal: ''
       })
-      this.$notify({message: '已添加一条替换处理到顶部'})
+      this.$notify({title: '', message: '已添加一条替换处理到顶部'})
     },
-    delItemBut(row, index) {
+    delItemBut(row: any, index: any) {
       if (row.findVal === '' && row.replaceVal === '') {
         this.tableData.splice(index, 1)
-        this.$notify({message: '已删除一条替换处理'})
+        this.$notify({title: '', message: '已删除一条替换处理'})
         return;
       }
       if (this.validate(row) !== true) return;
@@ -66,7 +66,7 @@ export default Vue.extend({
         type: 'warning'
       }).then(() => {
         this.tableData.splice(index, 1)
-        this.$notify({message: '已删除一条替换处理'})
+        this.$notify({title: '', message: '已删除一条替换处理'})
       })
     },
     refreshBut() {
@@ -94,9 +94,9 @@ export default Vue.extend({
       GM_setValue('substitute_words', this.tableData)
       this.$message.success('已保存')
     },
-    actionScopesChange(newArr) {
+    actionScopesChange(newArr: any) {
       if (newArr.length === 0) return;
-      if (newArr.some(v => v === '评论表情')) {
+      if (newArr.some((v: any) => v === '评论表情')) {
         newArr.splice(0, newArr.length, '评论表情')
       }
     }

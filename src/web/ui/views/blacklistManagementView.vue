@@ -1,7 +1,8 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
+import defUtil from "../../core/util/defUtil.ts";
 import {asynchronousIntervalQueue} from "../../core/cache/asynchronousIntervalQueue.ts";
 
 //获取黑名单请求队列
@@ -21,7 +22,7 @@ const getData = async (page = 1) => {
     eventEmitter.send('el-msg', '请求相应内容失败：code=' + code)
     return {state: false, msg: `请求相应内容失败：msg=${message} code=` + code}
   }
-  const newList = list.map(({face, mid, mtime, uname, sign}) => {
+  const newList = list.map(({face, mid, mtime, uname, sign}: any) => {
     return {face, mid, mtime, uname, sign}
   })
   return {state: true, list: newList, total};
@@ -31,7 +32,7 @@ const getData = async (page = 1) => {
  * 黑名单管理组件
  * 管理B站自身的黑名单
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       select: {
@@ -48,8 +49,8 @@ export default Vue.extend({
         }]
       },
       total: 0,
-      list: [],
-      showList: [],
+      list: [] as any[],
+      showList: [] as any[],
       findVal: '',
       // 请求间隔
       sliderInterval: 0.6,
@@ -60,8 +61,8 @@ export default Vue.extend({
     }
   },
   methods: {
-    filterTable(list, val) {
-      const filter = list.filter(x => {
+    filterTable(list: any, val: any) {
+      const filter = list.filter((x: any) => {
         const x1 = x[this.select.val];
         if (Number.isInteger(x1)) {
           return x1.toString().includes(val)
@@ -71,6 +72,7 @@ export default Vue.extend({
       if (filter.length === 0) {
         this.$notify({
           title: '没有匹配到数据',
+          message: '',
           type: 'warning',
           duration: 2000
         })
@@ -79,6 +81,7 @@ export default Vue.extend({
       if (filter.length > 50 && !this.isCancelMaxLimit) {
         this.$notify({
           title: '数据过多，已截取前50条',
+          message: '',
           type: 'warning',
           duration: 2000
         })
@@ -97,10 +100,10 @@ export default Vue.extend({
       this.$message('获取成功')
     },
     //打开地址
-    tableOpenAddressBut(row) {
+    tableOpenAddressBut(row: any) {
       GM_openInTab(`https://space.bilibili.com/${row.mid}`)
     },
-    tableAddUidBlackBut(row) {
+    tableAddUidBlackBut(row: any) {
       const uid = row.mid;
       const name = row.uname;
       if (ruleUtil.findRuleItemValue('precise_uid', uid)) {
@@ -121,7 +124,7 @@ export default Vue.extend({
     outDataToFileBut() {
       this.$prompt('请输入文件名', '保存为', {
         inputValue: 'B站黑名单列表'
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         if (value.trim() === '') {
           return
         }
@@ -130,7 +133,7 @@ export default Vue.extend({
           list: this.list
         }
         const s = JSON.stringify(tempData, null, 4);
-        defUtil.fileDownload(s, +value.trim() + '.json')
+        defUtil.fileDownload(s, value.trim() + '.json')
         this.$alert('已导出到文件，请按需保存')
       })
     },
@@ -167,7 +170,7 @@ export default Vue.extend({
       this.$message('获取成功')
       this.isDivLoading = false
     },
-    handleCurrentChange(page) {
+    handleCurrentChange(page: any) {
       this.showList = this.list.slice((page - 1) * 50, page * 50);
     },
     clearTableBut() {

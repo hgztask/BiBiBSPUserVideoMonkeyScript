@@ -1,9 +1,9 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import globalValue from "../../../config/globalValue.ts";
 import localMKData, {bGateClearListNonVideoGm} from "../../../state/localMKData.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       //是否适配bilibili-app-commerce脚本(Bilibili-Gate脚本)

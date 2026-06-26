@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import localMKData, {
   enableDynamicItemsContentBlockingGm,
   hidePersonalInfoCardGm,
@@ -14,7 +14,7 @@ import localMKData, {
 import dynamicPage from "../../../pages/dynamic/page.ts";
 import cssManager from "../../../domain/cssManager.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm(),

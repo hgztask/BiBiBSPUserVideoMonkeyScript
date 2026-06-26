@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 import {defineComponent} from 'vue'
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import localMKData from "../../../state/localMKData.ts";
@@ -10,8 +10,8 @@ export default defineComponent({
   components: {GloryLevelLimitTabView},
   data() {
     return {
-      imgList: [],
-      mappingList: [],
+      imgList: [] as any[],
+      mappingList: [] as any[],
       selectLevel: -1
     }
   },
@@ -19,7 +19,7 @@ export default defineComponent({
     printImgSrcListBut() {
       console.log(this.imgList)
     },
-    mappingToLevelBut(src) {
+    mappingToLevelBut(src: any) {
       const tempSelectLevel = this.selectLevel;
       if (tempSelectLevel === -1) return
       if (this.mappingList[tempSelectLevel - 1].src === "") {
@@ -30,12 +30,12 @@ export default defineComponent({
         })
       }
     },
-    promptMappingToLevelBut(src) {
+    promptMappingToLevelBut(src: any) {
       this.$prompt("输入要映射的等级", {
         title: "映射等级",
         inputPattern: /^(?:[1-9]|[1-7][0-9]|80)$/,
-        inputValue: this.selectLevel,
-      }).then(({value}) => {
+        inputValue: String(this.selectLevel),
+      }).then(({value}: any) => {
         value = parseInt(value)
         if (!(value >= 1 && value <= 80)) {
           return this.$message.warning("请输入范围1~80的正确的等级")
@@ -44,19 +44,19 @@ export default defineComponent({
         this.mappingToLevelBut(src)
       })
     },
-    inputMappingUrlBut(row) {
+    inputMappingUrlBut(row: any) {
       const url = row.src;
       const level = row.level;
       this.$prompt(`编辑等级${level}的映射url`, {
         inputValue: url,
         title: `编辑映射url`,
         inputPattern: /^https?:\/\/.+/,
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         if (!value.startsWith('https://')) return this.$message.warning("请输入正确的url")
         row.src = value;
       })
     },
-    selectRow(row) {
+    selectRow(row: any) {
       this.selectLevel = row.level;
     },
     saveBut() {
@@ -77,14 +77,14 @@ export default defineComponent({
     clearBut() {
       this.$confirm("是要清空所有等级的映射关系吗？").then(() => {
         this.mappingList = []
-        this.$notify({message: '已清空所有等级的映射关系，需手动点击保存配置', type: 'success'})
+        this.$notify({title: '', message: '已清空所有等级的映射关系，需手动点击保存配置', type: 'success'})
       })
     },
     exportMapUrlBut() {
       const toRaw = defUtil.toRaw(this.mappingList.filter(item => item.src));
       console.log("导出的荣耀等级", toRaw)
       defUtil.saveTextAsFile(JSON.stringify(toRaw), '荣耀等级映射关系列表.json')
-      this.$notify({message: "已导出到浏览器控制台和尝试导出文件操作", position: "bottom-right"})
+      this.$notify({title: '', message: "已导出到浏览器控制台和尝试导出文件操作", position: "bottom-right"})
     },
     importMapUrlBut() {
       this.$prompt("粘贴荣耀等级映射内容到输入框中", {
@@ -92,7 +92,7 @@ export default defineComponent({
         inputPlaceholder: "格式为json列表",
         //json类验证
         inputPattern: /^(\{.*}|\[.*])$/
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         /**
          * @type{{level:number,src:string}[]}
          */

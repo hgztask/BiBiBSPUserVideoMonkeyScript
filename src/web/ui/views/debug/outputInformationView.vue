@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import defUtil from "../../../core/util/defUtil.ts";
 import localMKData from "../../../state/localMKData.ts";
@@ -8,11 +8,11 @@ const outputInformationFontColor = localMKData.getOutputInformationFontColor();
 // 高亮信息字体颜色
 const highlightInformationColor = localMKData.getHighlightInformationColor();
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       //输出信息
-      outputInfoArr: [],
+      outputInfoArr: [] as any[],
     }
   },
   methods: {
@@ -24,7 +24,8 @@ export default Vue.extend({
       }).then(() => {
         this.outputInfoArr = [];
         this.$notify({
-          message: '已清空信息',
+          title: '',
+          message: '保存成功',
           type: 'success'
         })
       })
@@ -35,7 +36,7 @@ export default Vue.extend({
      * 将旧信息移到数组头部
      * 重复content时更新，重复唯一id时更新
      */
-    updateOutInfo(infoData, index) {
+    updateOutInfo(infoData: any, index: any) {
       const outPutInfoData = this.outputInfoArr[index];
       outPutInfoData.count++;
       outPutInfoData.time = defUtil.toTimeString();
@@ -43,7 +44,7 @@ export default Vue.extend({
       this.outputInfoArr.splice(index, 1);
       this.outputInfoArr.unshift(outPutInfoData);
     },
-    addOutInfo(infoData) {
+    addOutInfo(infoData: any) {
       const findIdIndex = this.outputInfoArr.findIndex(item => {
         if (infoData.id === undefined || item.id === undefined) {
           return false;

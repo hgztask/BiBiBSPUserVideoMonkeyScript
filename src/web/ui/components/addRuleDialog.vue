@@ -1,9 +1,9 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import {eventEmitter} from "../../core/EventEmitter.ts";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     value: {
       type: Boolean,
@@ -28,7 +28,7 @@ export default Vue.extend({
       dialogTitle: '',
       dialogVisible: false,
       inputVal: '',
-      fragments: [],
+      fragments: [] as any[],
       separator: ',',
       successAfterCloseVal: true
     }
@@ -63,7 +63,7 @@ export default Vue.extend({
       this.dialogVisible = val
     },
     inputVal(val) {
-      const list = []
+      const list: any[] = []
       for (let s of val.split(this.separator)) {
         if (s === "") continue;
         if (list.includes(s)) continue;

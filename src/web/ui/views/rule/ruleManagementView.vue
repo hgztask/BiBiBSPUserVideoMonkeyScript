@@ -1,5 +1,5 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import replProcessingView from "../replProcessingView.vue";
 import timeRangeMaskingView from "../shield/timeRangeMaskingView.vue";
 import videoMetricsFilterView from "../shield/videoMetricsFilterView.vue";
@@ -13,7 +13,7 @@ import GloryLevelTabView from "../glory/GloryLevelTabView.vue";
 import FanCardLevelRestrictionsView from "../glory/FanCardLevelRestrictionsView.vue";
 import CombinationRuleView from "../glory/CombinationRuleView.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     CombinationRuleView,
     FanCardLevelRestrictionsView,

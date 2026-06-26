@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import videoPlayModel from "../../../pages/video/playModel.ts";
 import collectionVideoPlayPageModel from "../../../pages/video/collectionPlay.ts";
 import space from "../../../pages/space/main.ts";
@@ -9,18 +9,19 @@ import videoPlayWatchLater from "../../../pages/video/watchLater.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import urlUtil from "../../../core/util/urlUtil.ts";
 //个人空间页面右侧屏蔽按钮组件
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       shieldingModelShow: true,
       shieldingUseUIDrButShow: false,
       removedShieldingUIDrButShow: false,
       selectUserBlockingButShow: false,
-      uid: -1
+      uid: -1,
+      urlUID: null as number | null
     }
   },
   methods: {
-    async dropdownEvent(item) {
+    async dropdownEvent(item: any) {
       if (item === '移除屏蔽uid') {
         const {uid} = await space.getUserInfo()
         ruleUtil.delRUlePreciseUid(uid)
@@ -34,8 +35,8 @@ export default Vue.extend({
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            const {status, res} = ruleUtil.addRulePreciseUid(uid);
-            this.$alert(res)
+            const {status, res} = ruleUtil.addRulePreciseUid(uid as any);
+            this.$alert(res as string)
             if (status) {
               eventEmitter.send('通知屏蔽');
               // 屏蔽成功后隐藏屏蔽按钮并显示取消屏蔽按钮
@@ -50,16 +51,16 @@ export default Vue.extend({
         case '添加bv号屏蔽':
           const urlBvId = urlUtil.getUrlBV(window.location.href);
           this.$prompt(`确认添加该bv号【${urlBvId}】屏蔽吗？`, '提示', {
-            inputValue: urlBvId,
+            inputValue: urlBvId ?? undefined,
             confirmButtonText: '确定',
             cancelButtonText: '取消',
-            inputValidator: (value) => {
+            inputValidator: (value: any) => {
               if (value.length >= 20) {
                 return 'bv号格式不正确';
               }
               return value.startsWith('BV');
             }
-          }).then(async ({value}) => {
+          }).then(async ({value}: any) => {
             ruleUtil.addRulePreciseBv(value);
           })
           break;

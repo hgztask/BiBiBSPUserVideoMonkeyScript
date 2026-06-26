@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import shieldingUserView from "../shield/shieldingUserView.vue";
@@ -7,7 +7,7 @@ import shieldingUserView from "../shield/shieldingUserView.vue";
 /**
  * 右侧悬浮布局
  */
-export default Vue.extend({
+export default defineComponent({
   components: {
     shieldingUserView,
   },
@@ -22,10 +22,10 @@ export default Vue.extend({
       eventEmitter.send('主面板开关')
     },
     handleMouseEnter() {
-      this.$refs.divRef.style.transform = "translateX(0)";
+      (this.$refs!.divRef as any).style.transform = "translateX(0)";
     },
     handleMouseLeave() {
-      this.$refs.divRef.style.transform = 'translateX(80%)'
+      (this.$refs!.divRef as any).style.transform = 'translateX(80%)'
     }
   },
   created() {
@@ -34,7 +34,7 @@ export default Vue.extend({
     })
   },
   mounted() {
-    const divStyle = this.$refs.divRef.style;
+    const divStyle = (this.$refs!.divRef as any).style;
     if (!localMKData.isFirstFullDisplay()) {
       divStyle.transform = 'translateX(80%)'
     } else {

@@ -1,12 +1,12 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import localMKData, {getDrawerShortcutKeyGm} from "../../../state/localMKData.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
-      input_color: null,
+      input_color: null as string | null,
       showRightTopMainButSwitch: localMKData.isShowRightTopMainButSwitch(),
       isFirstFullDisplay: localMKData.isFirstFullDisplay(),
       isHalfHiddenIntervalAfterInitialDisplay: localMKData.isHalfHiddenIntervalAfterInitialDisplay(),
@@ -19,19 +19,19 @@ export default Vue.extend({
   methods: {
     setBorderColorBut() {
       this.$confirm('是否设置面板边框颜色', '提示').then(() => {
-        localMKData.setBorderColor(this.input_color);
+        localMKData.setBorderColor(this.input_color!);
         this.$alert("已设置面板边框颜色，刷新生效")
       })
     },
     setDefFontColorForOutputInformationBut() {
       this.$confirm("是否设置输出信息默认字体颜色", "提示").then(() => {
-        localMKData.setOutputInformationFontColor(this.input_color);
+        localMKData.setOutputInformationFontColor(this.input_color!);
         this.$alert("已设置输出信息默认字体颜色，刷新生效");
       })
     },
     setTheFontColorForOutputInformationBut() {
       this.$confirm('是要设置输出信息高亮字体颜色吗？').then(() => {
-        localMKData.setHighlightInformationColor(this.input_color);
+        localMKData.setHighlightInformationColor(this.input_color!);
         this.$alert("已设置输出信息高亮字体颜色，刷新生效");
       })
     },
@@ -52,7 +52,7 @@ export default Vue.extend({
         return;
       }
       GM_setValue('drawer_shortcut_key_gm', theKeyPressedKey);
-      this.$notify({message: '已设置打开关闭主面板快捷键', type: 'success'});
+      this.$notify({title: '', message: '已设置打开关闭主面板快捷键', type: 'success'});
       this.drawerShortcutKeyVal = theKeyPressedKey;
     }
   },

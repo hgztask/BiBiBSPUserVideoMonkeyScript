@@ -1,13 +1,13 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 //显示图片对话框
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       show: false,
       title: "图片查看",
-      imgList: [],
+      imgList: [] as any[],
       imgSrc: '',
       isModal: true
     }

@@ -1,11 +1,11 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 
 /**
  * @description Slider卡片滑块组件
  * @version 1.0.0
  */
-export default Vue.extend({
+export default defineComponent({
   props: {
     // 格式化tooltip函数
     formatTooltip: {

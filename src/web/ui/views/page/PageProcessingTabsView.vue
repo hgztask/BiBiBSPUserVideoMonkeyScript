@@ -1,5 +1,5 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import PageProcessingView from "./pageProcessingView.vue";
 import LivePartitionPageProcessingTabVIew from "./LivePartitionPageProcessingTabVIew.vue";
 import dynamicCard from "./dynamicCard.vue";
@@ -7,7 +7,7 @@ import PlayPageProcessingTab from "./PlayPageProcessingTab.vue";
 import HomePageProcessingTab from "./HomePageProcessingTab.vue";
 import TopColumnProcessingTab from "./TopColumnProcessingTab.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     TopColumnProcessingTab,
     HomePageProcessingTab,

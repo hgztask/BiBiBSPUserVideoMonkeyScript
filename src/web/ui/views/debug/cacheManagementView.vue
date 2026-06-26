@@ -1,12 +1,12 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import bvDexie from "../../../core/cache/bvDexie.ts";
 import {httpLocalHost} from "../../../config/globalValue.ts";
 import {defTmRequest} from "../../../core/http/TmRequest.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import defUtil from "../../../core/util/defUtil.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       hostname: window.location.hostname,
@@ -24,13 +24,13 @@ export default Vue.extend({
           hostName: this.hostname,
           size: data.length,
           data: data
-        }
+        } as any
         defUtil.fileDownload(JSON.stringify(data, null, 4), 'mk-db-videoInfos-cache.json')
         this.$message('已导出当前域名的缓存数据')
         console.log(data)
       })
     },
-    handleFileUpload(event) {
+    handleFileUpload(event: any) {
       defUtil.handleFileReader(event).then(data => {
         const {content} = data;
         /**
@@ -84,7 +84,7 @@ export default Vue.extend({
       })
     },
     inputFIleBut() {
-      this.$refs.inputDemo.click();
+      (this.$refs!.inputDemo as any).click();
     },
     clearPageVideoCacheDataBut() {
       this.$confirm('是否清空当前域名下的tags数据').then(() => {
@@ -155,7 +155,7 @@ export default Vue.extend({
       this.$prompt('请输入删除的bv号，多个bv号用逗号隔开', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-      }).then(async ({value}) => {
+      }).then(async ({value}: any) => {
         value = value?.trim() || null || ""
         if (value === null) return;
         const bvs = value.split(',');
@@ -190,7 +190,7 @@ export default Vue.extend({
         cancelButtonText: '取消',
         inputType: 'number',
         inputPattern: /^\d+$/, // 仅允许整数
-        inputValidator: (value) => {
+        inputValidator: (value: any) => {
           if (!/^\d+$/.test(value)) {
             return '请输入有效的整数';
           }
@@ -203,7 +203,7 @@ export default Vue.extend({
           }
           return '不能超出365天';
         }
-      }).then(async ({value}) => {
+      }).then(async ({value}: any) => {
         GM_setValue('expires_max_age_gm', parseInt(value));
         this.expiresMaxAgeVal = value;
         this.$message.success(`已修改视频缓存超时时间为${value}天`)

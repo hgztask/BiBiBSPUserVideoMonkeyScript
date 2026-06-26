@@ -1,5 +1,5 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {getLimitationFanSumGm, isFansNumBlockingStatusGm} from "../../../state/localMKData.ts";
 import video_metrics_filter_item_view from '../../components/videoMetricsFilterItem.vue'
 import CardSlider from "../../components/cardSlider.vue";
@@ -7,7 +7,7 @@ import CardSlider from "../../components/cardSlider.vue";
 /**
  * 视频指标过滤页面
  */
-export default Vue.extend({
+export default defineComponent({
   components: {video_metrics_filter_item_view, card_slider: CardSlider},
   data() {
     return {

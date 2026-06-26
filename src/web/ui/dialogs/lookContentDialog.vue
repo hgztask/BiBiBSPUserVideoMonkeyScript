@@ -1,8 +1,8 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       dialogVisible: false,
@@ -10,12 +10,12 @@ export default Vue.extend({
     }
   },
   methods: {
-    handleClose(done) {
+    handleClose(done: any) {
       this.$confirm('确认关闭？')
-          .then(_ => {
+          .then((_: any) => {
             done();
           })
-          .catch(_ => {
+          .catch((_: any) => {
           });
     }
   },

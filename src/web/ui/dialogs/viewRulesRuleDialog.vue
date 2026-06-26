@@ -1,20 +1,20 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       dialogVisible: false,
-      typeMap: {},
-      showTags: [],
+      typeMap: {} as Record<string, any>,
+      showTags: [] as any[],
     }
   },
   methods: {
     updateShowRuleTags() {
       this.showTags = GM_getValue(this.typeMap.type, []);
     },
-    handleTagClose(tag, index) {
+    handleTagClose(tag: any, index: any) {
       if (tag === '') return;
       this.$confirm(`确定要删除 ${tag} 吗？`, '提示', {
         confirmButtonText: '确定',

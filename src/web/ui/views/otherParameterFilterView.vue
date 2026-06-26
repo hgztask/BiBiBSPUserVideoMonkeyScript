@@ -1,5 +1,5 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import externalList from "../../config/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
 import UserLevelFilteringView from "./UserLevelFilteringView.vue";
@@ -8,7 +8,7 @@ import SwitchMinMaxInputCard from "../components/SwitchMinMaxInputCard.vue";
 /**
  * 其他规则组件
  */
-export default Vue.extend({
+export default defineComponent({
   components: {SwitchMinMaxInputCard, commentWordLimitView, UserLevelFilteringView},
   data() {
     return {
@@ -17,7 +17,7 @@ export default Vue.extend({
         {key: 'maximum_user_level_video_gm', label: '最大用户等级限制-视频'},
         {key: 'minimum_user_level_comment_gm', label: '最小用户等级限制-评论'},
         {key: 'maximum_user_level_comment_gm', label: '最大用户等级限制-评论'}
-      ],
+      ] as any[],
       externalList
     }
   },
@@ -26,7 +26,7 @@ export default Vue.extend({
       for (const v of this.showInfoList) {
         v.showVal = GM_getValue(v.key, '');
       }
-      isTip && this.$notify({type: 'info', position: 'bottom-right', message: '已刷新'})
+      isTip && this.$notify({title: '', type: 'info', position: 'bottom-right', message: '已刷新'})
     }
   },
   created() {

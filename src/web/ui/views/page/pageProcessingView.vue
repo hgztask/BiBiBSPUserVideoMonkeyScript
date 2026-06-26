@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import hotSearch from "../../../pages/search/hot.ts";
 import topInput from "../../../pages/search/topInput.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
@@ -18,7 +18,7 @@ import liveCommon from "../../../pages/live/common.ts";
 import space from "../../../pages/space/main.ts";
 
 //页面处理处理
-export default Vue.extend({
+export default defineComponent({
   components: {},
   data() {
     return {

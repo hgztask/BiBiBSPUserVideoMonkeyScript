@@ -1,11 +1,11 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import localMKData from "../../state/localMKData.ts";
 
 /**
  * 评论字数限制布局组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       value: localMKData.getCommentWordLimitVal()
@@ -17,6 +17,7 @@ export default Vue.extend({
       if (oldVal <= 3) return;
       if (newVal < 3) {
         this.$notify({
+          title: '',
           message: '已关闭屏蔽字数限制功能',
           type: 'warning',
         })

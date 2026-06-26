@@ -1,12 +1,12 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import globalValue from "../../config/globalValue.ts";
 import {eventEmitter} from "../../core/EventEmitter.ts";
 
 /**
  * 关于与反馈组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       group_url: globalValue.group_url,

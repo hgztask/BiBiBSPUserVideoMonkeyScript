@@ -1,15 +1,15 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 
 /**
  * 选项对话框组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       visible: false,
-      optionsList: [],
+      optionsList: [] as any[],
       dialogTitle: '',
       /**
        * @type function
@@ -17,7 +17,7 @@ export default Vue.extend({
        */
       optionsClick: null,
       closeOnClickModal: true,
-      contents: []
+      contents: [] as any[]
     }
   },
   methods: {
@@ -27,13 +27,13 @@ export default Vue.extend({
         this.contents = [];
       }
     },
-    handleOptionsClick(item) {
+    handleOptionsClick(item: any) {
       if (this.closeOnClickModal) {
         return;
       }
       let tempBool;
       //如果回调函数返回true，则不关闭对话框，反之关闭对话框
-      const temp = this.optionsClick(item);
+      const temp = (this.optionsClick as any)(item);
       if (temp === undefined) {
         tempBool = false
       } else {

@@ -1,15 +1,15 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import bFetch from '../../core/http/bFetch.ts'
 
 /**
  * 弹幕词管理
  */
-export default Vue.extend({
+export default defineComponent({
   data: () => {
     return {
       resData: {},
-      resList: [],
+      resList: [] as any[],
     }
   },
   methods: {
@@ -20,8 +20,8 @@ export default Vue.extend({
         this.$message.warning(msg)
         return false
       }
-      this.resList = list
-      this.$notify({message: '已初始化', type: 'success'})
+      this.resList = list ?? []
+      this.$notify({title: '', message: '已初始化', type: 'success'})
       return true
     },
     fetchGetBarrageBlockingWordsBut() {

@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import {valueCache} from "../../../core/cache/valueCache.ts";
 import debuggerManagement from "../../../domain/debuggerManagement.ts";
@@ -8,7 +8,7 @@ import {isLocalhostPageAutomaticallyOpenTheMainPanelGm} from "../../../state/loc
 import bvRequestQueue from "../../../core/http/bvRequestQueue.ts";
 
 //调试管理
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       // 是否加载完页面打开主面板
@@ -23,7 +23,7 @@ export default Vue.extend({
         title: '请输入ws消息',
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         eventEmitter.send('ws-send', value)
       })
     },
@@ -40,7 +40,7 @@ export default Vue.extend({
         cancelButtonText: '取消',
         inputPattern: /^BV[A-Za-z0-9]{10}$/,
         inputErrorMessage: '请输入正确的视频bv号'
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         bFetch.fetchGetVideoInfo(value).then(data => {
           console.log(data);
           debugger

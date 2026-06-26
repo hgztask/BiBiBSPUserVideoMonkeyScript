@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
 import ruleUtil from "../../../core/util/ruleUtil.ts";
@@ -8,14 +8,14 @@ import ruleSetValueDialog from '../../dialogs/ruleSetValueDialog.vue';
 import addRuleDialog from '../../components/addRuleDialog.vue'
 import ruleInformationView from "./ruleInformationView.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {ruleInformationView, ruleSetValueDialog, multipleRuleEditDialog, addRuleDialog},
   data() {
     return {
       cascaderVal: ["精确匹配", "precise_uid"],
       cascaderOptions: ruleKeyListData.getSelectOptions(),
       //规则信息
-      ruleInfoArr: [],
+      ruleInfoArr: [] as any[],
       addRuleDialogVisible: false,
       addRuleDialogRuleInfo: {
         type: '',
@@ -24,7 +24,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    handleChangeCascader(val) {
+    handleChangeCascader(val: any) {
       console.log(val)
     },
     setRuleBut() {
@@ -66,9 +66,9 @@ export default Vue.extend({
     clearItemRuleBut() {
       const type = this.cascaderVal[1];
       const find = this.ruleInfoArr.find(item => item.type === type);
-      this.$confirm(`是要清空${find.name}的规则内容吗？`, 'tip').then(() => {
+      this.$confirm(`是要清空${find!.name}的规则内容吗？`, 'tip').then(() => {
         ruleKeyListData.clearKeyItem(type);
-        this.$alert(`已清空${find.name}的规则内容`)
+        this.$alert(`已清空${find!.name}的规则内容`)
       })
     },
     batchAddBut() {
@@ -81,7 +81,7 @@ export default Vue.extend({
       this.addRuleDialogVisible = true
       this.addRuleDialogRuleInfo = {
         type: type,
-        name: this.ruleInfoArr.find(item => item.type === type).name
+        name: this.ruleInfoArr.find(item => item.type === type)!.name
       }
     }
   },

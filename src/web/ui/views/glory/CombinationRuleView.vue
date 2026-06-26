@@ -10,29 +10,29 @@ export default defineComponent({
     return {
       matchModeOptions: combinationRulesShielding.matchModeOptions,
       fieldOptions: combinationRulesShielding.fieldOptions,
-      dataList: []
+      dataList: [] as any[]
     }
   },
   methods: {
     pintConsoleLog() {
-      const newDataList = defUtil.toRaw(this.dataList).map(({temporary, ...item}) => {
+      const newDataList = defUtil.toRaw(this.dataList).map(({temporary, ...item}: any) => {
         return item
       })
       console.log(newDataList)
     },
-    addRuleBut(row) {
+    addRuleBut(row: any) {
       const {temporary} = row;
       const selectedKey = temporary.key;
       row.ruleList.push({key: selectedKey, mode: this.matchModeOptions[0].value, value: ''})
     },
-    delRuleBut(mainRow, row) {
-      mainRow.ruleList = mainRow.ruleList.filter(item => item !== row)
+    delRuleBut(mainRow: any, row: any) {
+      mainRow.ruleList = mainRow.ruleList.filter((item: any) => item !== row)
     },
     addPlanBut() {
       const size = this.dataList.length;
       const newRow = {
         name: `方案${size + 1}`,
-        ruleList: [],
+        ruleList: [] as any[],
         status: false,
         temporary: {key: this.fieldOptions[0].value}
       }
@@ -44,24 +44,24 @@ export default defineComponent({
       }
       this.dataList.push(newRow)
     },
-    delPlanBut(row) {
+    delPlanBut(row: any) {
       this.dataList = this.dataList.filter(item => item !== row)
-      this.$notify({message: "已删除", position: "bottom-right"})
+      this.$notify({title: '', message: "已删除", position: "bottom-right"})
     },
     savePlanBut() {
-      const newDataList = defUtil.toRaw(this.dataList).map(({temporary, ...item}) => {
+      const newDataList = defUtil.toRaw(this.dataList).map(({temporary, ...item}: any) => {
         return item
       })
       GM_setValue('combination_rule_list_gm', newDataList)
-      this.$notify({message: "已保存组合规则方案列表", position: "bottom-right"})
+      this.$notify({title: '', message: "已保存组合规则方案列表", position: "bottom-right"})
     },
     refresh(tip = false) {
       this.dataList = []
       for (const item of localMKData.getCombinationRuleListGm()) {
-        item.temporary = {key: this.fieldOptions[0].value}
+        (item as any).temporary = {key: this.fieldOptions[0].value}
         this.dataList.push(item)
       }
-      tip && this.$notify({message: "刷新方案列表成功", type: "success", position: 'bottom-right'})
+      tip && this.$notify({title: '', message: "刷新方案列表成功", type: "success", position: 'bottom-right'})
     }
   },
   created() {

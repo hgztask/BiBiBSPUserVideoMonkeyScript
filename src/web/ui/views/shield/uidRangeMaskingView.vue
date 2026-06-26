@@ -1,11 +1,11 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
 
 /**
  * uid范围屏蔽vue组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       status: localMKData.isUidRangeMaskingStatus(),

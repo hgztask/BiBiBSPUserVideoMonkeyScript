@@ -1,19 +1,20 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent, PropType} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 
 /**
  * 规则信息组件
  */
-export default Vue.extend({
+export default defineComponent({
   props: {
     ruleInfoArr: {
-      type: Array
+      type: Array as PropType<any[]>,
+      default: () => []
     }
   },
   methods: {
     refreshInfo(isTip = true) {
-      for (let x of this.ruleInfoArr) {
+      for (let x of this.ruleInfoArr as any[]) {
         x.len = GM_getValue(x.type, []).length;
       }
       if (!isTip) return;
@@ -22,7 +23,7 @@ export default Vue.extend({
     refreshInfoBut() {
       this.refreshInfo()
     },
-    lookRuleBut(item) {
+    lookRuleBut(item: any) {
       if (item.len === 0) {
         this.$message.warning('当前规则信息为空')
         return;

@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import localMKData, {
   getRequestFrequencyVal,
@@ -13,7 +13,7 @@ import bvRequestQueue from "../../../core/http/bvRequestQueue.ts";
 /**
  * 条件限制组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       requestFrequencyVal: getRequestFrequencyVal(),

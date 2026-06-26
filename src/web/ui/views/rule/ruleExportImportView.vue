@@ -1,18 +1,18 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import defUtil, {saveTextAsFile} from "../../../core/util/defUtil.ts";
 import ruleUtil from "../../../core/util/ruleUtil.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
 //规则导入导出组件
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       //要导入的规则内容
       ruleContentImport: "",
       select: {
-        val: [],
-        options: [],
+        val: [] as any[],
+        options: [] as any[],
       }
     }
   },
@@ -20,7 +20,7 @@ export default Vue.extend({
     getSelectValRuleContent() {
       const val = this.select.val;
       if (val.length === 0) return false
-      const map = {};
+      const map: Record<string, any> = {};
       for (const valKey of val) {
         const find = this.select.options.find(item => item.key === valKey);
         if (find === undefined) continue;
@@ -55,7 +55,7 @@ export default Vue.extend({
         }
       })
     },
-    handleFileUpload(event) {
+    handleFileUpload(event: any) {
       defUtil.handleFileReader(event).then(data => {
         const {content} = data;
         try {
@@ -69,10 +69,10 @@ export default Vue.extend({
       })
     },
     inputFIleRuleBut() {
-      this.$refs.file.click()
+      (this.$refs!.file as any).click()
     },
     outToInputBut() {
-      this.ruleContentImport = ruleUtil.getRuleContent();
+      this.ruleContentImport = ruleUtil.getRuleContent() as string;
       this.$message('已导出到输入框中')
     },
     ruleOutToFIleBut() {
@@ -80,7 +80,7 @@ export default Vue.extend({
       if (map === false) return;
       this.$prompt('请输入文件名', '保存为', {
         inputValue: "b站屏蔽器规则-指定类型-" + defUtil.toTimeString()
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         if (value === "" && value.includes(' ')) {
           this.$alert('文件名不能为空或包含空格')
           return
@@ -92,12 +92,12 @@ export default Vue.extend({
       let fileName = "b站屏蔽器规则-" + defUtil.toTimeString();
       this.$prompt('请输入文件名', '保存为', {
         inputValue: fileName
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         if (value === "" && value.includes(' ')) {
           this.$alert('文件名不能为空或包含空格')
           return
         }
-        saveTextAsFile(ruleUtil.getRuleContent(true, 4), value + ".json");
+        saveTextAsFile(ruleUtil.getRuleContent(true, 4) as string, value + ".json");
       })
 
     },

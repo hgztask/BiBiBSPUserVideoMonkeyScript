@@ -1,8 +1,8 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import globalValue from "../../../config/globalValue.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       list: [
@@ -17,7 +17,7 @@ export default Vue.extend({
       dialogIni: {
         title: "打赏点猫粮",
         show: false,
-        srcList: []
+        srcList: [] as string[]
       }
     }
   },

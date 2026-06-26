@@ -1,7 +1,7 @@
 <script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     title: {
       type: String,
@@ -19,19 +19,19 @@ export default Vue.extend({
   data() {
     return {
       partition: '',
-      partitionList: [],
+      partitionList: [] as any[],
       switchVal: false
     }
   },
   computed: {
     showPartitionList() {
-      if (this.partition === '') return this.partitionList
+      if ((this.partition as string) === '') return this.partitionList
       return this.partitionList.filter(item => item.includes(this.partition))
     }
   },
   watch: {
     switchVal(newV) {
-      GM_setValue(this.switchKey, newV)
+      GM_setValue(this.switchKey as string, newV)
     }
   },
   methods: {
@@ -39,7 +39,7 @@ export default Vue.extend({
       if (this.partition === '') {
         return this.$message.warning('请输入分区名称');
       }
-      if (this.partitionList.some(item => item === this.partition)) {
+      if (this.partitionList.some((item: any) => item === this.partition)) {
         return this.$message.warning('该分区已存在');
       }
       if (this.partitionList.length >= 50) {
@@ -49,11 +49,11 @@ export default Vue.extend({
       this.partition = ''
       this.save()
     },
-    delBut(item) {
-      if (this.partitionList.some(someItem => someItem === item)) {
+    delBut(item: any) {
+      if (this.partitionList.some((someItem: any) => someItem === item)) {
         return this.$message.warning('该分区不存在');
       }
-      this.partitionList = this.partitionList.filter(item => item !== item)
+      this.partitionList = this.partitionList.filter((item: any) => item !== item)
       this.save()
     },
     save() {

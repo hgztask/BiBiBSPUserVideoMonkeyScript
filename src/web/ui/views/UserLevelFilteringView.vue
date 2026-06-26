@@ -1,5 +1,5 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {
   getMaximumUserLevelCommentGm,
   getMaximumUserLevelVideoGm,
@@ -11,7 +11,7 @@ import {
   isEnableMinimumUserLevelVideoGm
 } from "../../state/localMKData.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       minVal: 0,

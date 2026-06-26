@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 import {defineComponent} from 'vue'
 import localMKData from "../../../state/localMKData.ts";
 import topColumnProcessing from "../../../pages/topColumnProcessing.ts";
@@ -23,7 +23,7 @@ export default defineComponent({
   },
   methods: {
     addBut() {
-      this.$prompt("请输入要屏蔽的栏目名称", 'tip').then(({value}) => {
+      this.$prompt("请输入要屏蔽的栏目名称", 'tip').then(({value}: any) => {
         if (value === null || value.trim() === '') return
         const valueTrim = value.trim()
         if (this.hideTheLeftTopColumnsVal.some(item => item === valueTrim)) {
@@ -32,13 +32,13 @@ export default defineComponent({
         this.hideTheLeftTopColumnsVal.push(valueTrim)
       })
     },
-    handleClose(tag) {
+    handleClose(tag: any) {
       this.$confirm(`是要移除栏目吗【${tag}】`).then(() => {
       })
+      const findIndex = this.hideTheLeftTopColumnsVal.findIndex(item => item === tag);
       if (findIndex !== -1) {
         this.hideTheLeftTopColumnsVal.splice(findIndex, 1);
       }
-      const findIndex = this.hideTheLeftTopColumnsVal.findIndex(item => item === tag);
     }
   }
 })

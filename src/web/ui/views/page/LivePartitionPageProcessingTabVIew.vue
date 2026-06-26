@@ -1,11 +1,11 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {isRoomListAdaptiveGm} from "../../../state/localMKData.ts";
 import liveSectionModel from "../../../pages/live/sectionModel.ts";
 import cssManager from "../../../domain/cssManager.ts";
 import PartitionTagWhiterListPanel from "./PatitionTagWhiterListPanel.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {PartitionTagWhiterListPanel},
   data() {
     return {

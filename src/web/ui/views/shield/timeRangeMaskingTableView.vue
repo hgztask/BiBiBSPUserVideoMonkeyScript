@@ -1,9 +1,9 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 // 保存表格数据
-const saveTable = (tableData) => {
+const saveTable = (tableData: any) => {
   const newList = []
   for (let {status, r} of tableData) {
     if (r === null) {
@@ -27,15 +27,15 @@ const saveTable = (tableData) => {
 /**
  * 时间范围屏蔽表格组件
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
-      tableData: [],
+      tableData: [] as any[],
       pickerOptions: {
         shortcuts: [
           {
             text: '最近一周',
-            onClick(picker) {
+            onClick(picker: any) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
@@ -44,7 +44,7 @@ export default Vue.extend({
           },
           {
             text: '最近一个月',
-            onClick(picker) {
+            onClick(picker: any) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
@@ -53,7 +53,7 @@ export default Vue.extend({
           },
           {
             text: '最近三个月',
-            onClick(picker) {
+            onClick(picker: any) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
@@ -86,7 +86,7 @@ export default Vue.extend({
       }
     },
     //恢复上次时间范围
-    restoreTheLastTimeRange(row) {
+    restoreTheLastTimeRange(row: any) {
       // 获取未修改前的时间戳
       let {startTimeStamp, endTimeStamp} = row;
       console.log('上次时间戳', startTimeStamp, endTimeStamp)
@@ -98,7 +98,7 @@ export default Vue.extend({
       console.log('已恢复上次时间范围', row)
     },
     // 时间选择器改变
-    tableDatePickerChange(row) {
+    tableDatePickerChange(row: any) {
       const rowR = row.r;
       if (rowR === null) return
       // 获取未修改前的时间戳
@@ -134,7 +134,7 @@ export default Vue.extend({
       saveTable(this.tableData)
     },
     // 开关改变
-    tableSwitchChange(row) {
+    tableSwitchChange(row: any) {
       if (row.r === null) return
       saveTable(this.tableData)
     },
@@ -144,9 +144,9 @@ export default Vue.extend({
         index: length, status: true, r: null,
         startTimeStamp: null, endTimeStamp: null
       })
-      this.$notify({message: '已添加一条时间范围屏蔽到底部'})
+      this.$notify({title: '', message: '已添加一条时间范围屏蔽到底部'})
     },
-    delItemBut(row) {
+    delItemBut(row: any) {
       // 刚添加的项未设置时间戳，则直接删除
       if (row.startTimeStamp === null) {
         this.tableData.splice(row.index, 1)

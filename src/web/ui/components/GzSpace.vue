@@ -1,7 +1,7 @@
 <script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: "GzSpace",
   props: {
     wrap: {
@@ -31,7 +31,7 @@ export default Vue.extend({
         display: 'flex',
         gap: this.size,
         'align-items': this.alignItems,
-        'flex-direction': this.direction === 'row' ? 'row' : 'column',
+        'flex-direction': (this.direction as string) === 'row' ? 'row' : 'column',
         'flex-wrap': this.wrap ? 'wrap' : 'nowrap',
         'justify-content': this.justifyContent
       }

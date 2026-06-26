@@ -1,12 +1,12 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
 
 /**
  * 显示修改规则的对话框
  */
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       show: false,
@@ -18,8 +18,8 @@ export default Vue.extend({
   },
   methods: {
     okBut() {
-      let tempOldVal = this.oldVal.trim();
-      let tempNewVal = this.newVal.trim();
+      let tempOldVal: any = this.oldVal.trim();
+      let tempNewVal: any = this.newVal.trim();
       if (tempOldVal.length === 0 || tempNewVal.length === 0) {
         this.$alert("请输入要修改的值或新值");
         return
@@ -46,7 +46,7 @@ export default Vue.extend({
         this.$alert("新值已存在");
         return;
       }
-      const ruleArr = GM_getValue(tempRuleType, []);
+      const ruleArr = GM_getValue(tempRuleType, [] as any[]);
       const indexOf = ruleArr.indexOf(tempOldVal);
       ruleArr[indexOf] = tempNewVal;
       GM_setValue(tempRuleType, ruleArr);

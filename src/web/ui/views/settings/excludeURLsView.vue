@@ -1,8 +1,8 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import {getExcludeURLsGm, isExcludeURLSwitchGm} from "../../../state/localMKData.ts";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       excludeURLSwitchVal: isExcludeURLSwitchGm(),
@@ -15,7 +15,7 @@ export default Vue.extend({
     tableAddItemBut() {
       this.data.push({state: false, regularURL: "", desc: ""})
     },
-    tableDelItemBut(index) {
+    tableDelItemBut(index: any) {
       this.data.splice(index, 1)
     },
     refreshBut() {
@@ -32,7 +32,7 @@ export default Vue.extend({
       GM_setValue("exclude_urls_gm", this.data)
       this.$message.success("保存成功");
     },
-    tableVerificationItemUrlBut(url) {
+    tableVerificationItemUrlBut(url: any) {
       if (window.location.href.search(url) !== -1) {
         this.$message.success('匹配成功！')
       } else {
@@ -110,7 +110,7 @@ export default Vue.extend({
           <el-tooltip content="以当前网页url用于验证匹配结果">
             <el-button @click="tableVerificationItemUrlBut(scope.row.regularURL)">验证当前Url</el-button>
           </el-tooltip>
-          <el-button type="danger" @click="tableDelItemBut(scope.$index,scope.row)">删除</el-button>
+          <el-button type="danger" @click="tableDelItemBut(scope.$index)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

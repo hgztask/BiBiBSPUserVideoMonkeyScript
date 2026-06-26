@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 import {defineComponent} from 'vue'
 import localMKData from "../../../state/localMKData.ts";
 
@@ -6,7 +6,7 @@ export default defineComponent({
   name: "GloryLevelLimitTabView",
   data() {
     return {
-      dataList: []
+      dataList: [] as any[]
     }
   },
   methods: {
@@ -14,13 +14,13 @@ export default defineComponent({
       this.dataList = localMKData.getGloryLevelLimitListGm()
       tip && this.$message.success("刷新成功")
     },
-    updateRoomIdRowBut(row) {
+    updateRoomIdRowBut(row: any) {
       const roomId = row.roomId;
       this.$prompt("请输入房间号", {
         title: "修改房间号",
         inputPattern: /^[0-9]\d*$/,
         inputValue: roomId,
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         value = parseInt(value)
         if (!(value >= 0)) {
           this.$message.warning("请输入正确的房间号")
@@ -33,7 +33,7 @@ export default defineComponent({
         row.roomId = value
       })
     },
-    delBut(row) {
+    delBut(row: any) {
       const roomId = row.roomId;
       if (roomId === "0" || roomId === 0) {
         return this.$message.warning("全局设置不可删除")
@@ -46,7 +46,7 @@ export default defineComponent({
       this.$prompt("请输入房间号，添加之后需要手动设置对应的状态(开关)", {
         title: "添加房间号",
         inputPattern: /^[1-9]\d*$/,
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         value = parseInt(value)
         if (!(value >= 1)) {
           this.$message.warning("请输入正确的房间号")

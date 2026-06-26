@@ -1,11 +1,11 @@
-<script lang="ts">
-import Vue from 'vue';
+﻿<script lang="ts">
+import {defineComponent} from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import arrUtil from "../../core/util/arrUtil.ts";
 
 //多重规则编辑对话框
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       dialogVisible: false,
@@ -13,15 +13,18 @@ export default Vue.extend({
       inputValue: '',
       //最小项
       min: 2,
-      typeMap: {},
-      showTags: [],
+      typeMap: {} as Record<string, any>,
+      showTags: [] as any[],
     }
   },
   methods: {
+    filterTag(tag: any) {
+      return tag.join('||')
+    },
     updateShowTags() {
       this.showTags = GM_getValue(this.typeMap.type, []);
     },
-    handleTagClose(tag, index) {
+    handleTagClose(tag: any, index: any) {
       if (tag === '') return;
       this.$confirm(`确定要删除 ${tag} 吗？`, '提示', {
         confirmButtonText: '确定',
@@ -37,7 +40,7 @@ export default Vue.extend({
     showInput() {
       this.inputVisible = true;
       this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus();
+        (this.$refs as any).saveTagInput.$refs.input.focus();
       });
     },
     handleInputConfirm() {
@@ -47,7 +50,7 @@ export default Vue.extend({
       this.submitBut(inputValue);
       this.inputValue = '';
     },
-    submitBut(inputValue) {
+    submitBut(inputValue: any) {
       const split = inputValue.split(',');
       if (split.length < this.min) {
         this.$message.error('最少添加' + this.min + '项')
@@ -74,7 +77,7 @@ export default Vue.extend({
           return;
         }
       }
-      const arr = GM_getValue(this.typeMap.type, [])
+      const arr = GM_getValue(this.typeMap.type, [] as any[])
       for (let mk_arr of arr) {
         if (arrUtil.arraysLooseEqual(mk_arr, split)) {
           this.$message.error('不能重复添加已有的组合！')
@@ -99,16 +102,6 @@ export default Vue.extend({
       this.dialogVisible = true;
       this.updateShowTags()
     })
-  },
-  filters: {
-    /**
-     *将数组转换成字符串并用,连接
-     * @param tag {Array}
-     * @returns {string}
-     */
-    filterTag(tag) {
-      return tag.join('||')
-    }
   }
 })
 </script>
@@ -141,7 +134,7 @@ export default Vue.extend({
         </el-input>
         <el-button v-else size="small" @click="showInput">+ New Tag</el-button>
         <el-tag v-for="(item,index) in showTags" :key="index" closable @close="handleTagClose(item,index)">
-          {{ item|filterTag }}
+          {{ filterTag(item) }}
         </el-tag>
       </el-card>
     </el-dialog>

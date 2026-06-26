@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import localMKData, {
   getLimitationVideoSubmitSumGm,
   isCommentDisabledVideosBlockedGm,
@@ -13,7 +13,7 @@ import uidRangeMaskingView from "../shield/uidRangeMaskingView.vue";
 /**
  * 高级规则
  */
-export default Vue.extend({
+export default defineComponent({
   components: {
     uidRangeMaskingView,
   },

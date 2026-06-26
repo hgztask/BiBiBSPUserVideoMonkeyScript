@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-import Vue from 'vue';
+import {defineComponent} from 'vue';
 import cacheManagementView from "./views/debug/cacheManagementView.vue";
 import panelSettingsView from "./views/settings/panelSettingsView.vue";
 import compatibleSettingView from "./views/settings/compatibleSettingView.vue";
@@ -25,7 +25,7 @@ import defUtil from "../core/util/defUtil.ts";
  * todo 目前发现加载在视频页时，el-drawer的遮罩会挡住整个屏幕，先设置modal为false，关闭遮罩，待后续观察
  * Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。
  */
-export default Vue.extend({
+export default defineComponent({
   components: {
     RightFloatingLayoutView,
     outputInformationView,
@@ -54,7 +54,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    tabClick(tab) {
+    tabClick(tab: any) {
       GM_setValue('mainTabsActiveName', tab.name);
     },
   },
@@ -77,19 +77,19 @@ export default Vue.extend({
       this.$notify(options)
     })
     eventEmitter.on('el-msg', (...options) => {
-      this.$message(...options)
+      (this.$message as any)(...options)
     })
 
     eventEmitter.on('el-alert', (...options) => {
-      this.$alert(...options);
+      (this.$alert as any)(...options);
     })
 
     eventEmitter.handler('el-confirm', (...options) => {
-      return this.$confirm(...options);
+      return (this.$confirm as any)(...options);
     })
 
     eventEmitter.handler('el-prompt', (...options) => {
-      return this.$prompt(...options)
+      return (this.$prompt as any)(...options)
     })
     const alertFunDebounce = defUtil.debounce((response, bvId) => {
       this.$alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}

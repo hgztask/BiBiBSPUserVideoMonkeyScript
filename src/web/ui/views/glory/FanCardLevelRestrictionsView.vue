@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 import {defineComponent} from 'vue'
 import defUtil from "../../../core/util/defUtil.ts";
 import localMKData from "../../../state/localMKData.ts";
@@ -7,7 +7,7 @@ export default defineComponent({
   name: "FanCardLevelRestrictionsView",
   data() {
     return {
-      dataList: []
+      dataList: [] as any[]
     }
   },
   methods: {
@@ -18,12 +18,12 @@ export default defineComponent({
     saveBut() {
       const raw = defUtil.toRaw(this.dataList);
       GM_setValue('fans_level_limit_list_gm', raw)
-      this.$notify({message: "已保存", position: "bottom-right"})
+      this.$notify({title: '', message: "已保存", position: "bottom-right"})
     },
     addBut() {
       this.$prompt("请输入粉丝牌名称", {
         title: "添加粉丝牌",
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         if (!value) {
           this.$message.warning("请输入正确的粉丝牌名称")
           return this.addBut()
@@ -40,17 +40,17 @@ export default defineComponent({
         this.dataList.push({name: value, limitLevel: 0, status: false})
       })
     },
-    delBut(row) {
+    delBut(row: any) {
       this.$confirm(`是要删除该粉丝牌配置吗？【${row.name}】`).then(() => {
         this.dataList = this.dataList.filter(item => item !== row)
-        this.$notify({message: "已删除", position: "bottom-right"})
+        this.$notify({title: '', message: "已删除", position: "bottom-right"})
       })
     },
-    setFansNameBut(row) {
+    setFansNameBut(row: any) {
       this.$prompt("请输入新的粉丝牌名称", {
         title: "修改粉丝牌名称",
         inputValue: row.name,
-      }).then(({value}) => {
+      }).then(({value}: any) => {
         if (value === undefined || value.trim() === '') {
           this.$message.warning("内容不可为空")
           return this.setFansNameBut(row)
