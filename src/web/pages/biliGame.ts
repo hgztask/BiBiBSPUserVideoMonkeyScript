@@ -1,8 +1,8 @@
-import elUtil from "../core/elUtil.ts";
-import urlUtil from "../core/urlUtil.ts";
-import strFormatUtil from "../core/strFormatUtil.ts";
-import video_shielding from "../domain/shielding_video.ts";
-import shielding from "../domain/shielding_main.ts";
+import elUtil from "../core/util/elUtil.ts";
+import urlUtil from "../core/util/urlUtil.ts";
+import strFormatUtil from "../core/util/strFormatUtil.ts";
+import video_shielding from "../domain/shielding/video.ts";
+import shielding from "../domain/shielding/main.ts";
 
 const getVideoDataList = async () => {
     return elUtil.findElements('.right-panel ul>.clearfix').then(els => {

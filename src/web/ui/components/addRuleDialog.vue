@@ -1,6 +1,6 @@
 <script lang="ts">
 import Vue from 'vue';
-import ruleUtil from "../../core/ruleUtil.ts";
+import ruleUtil from "../../core/util/ruleUtil.ts";
 import {eventEmitter} from "../../core/EventEmitter.ts";
 
 export default Vue.extend({

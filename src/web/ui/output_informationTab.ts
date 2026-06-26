@@ -1,4 +1,4 @@
-import defUtil from "../core/defUtil.ts";
+import defUtil from "../core/util/defUtil.ts";
 import localMKData from "../state/localMKData";
 
 interface LiveRoomCommentData {

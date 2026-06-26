@@ -1,6 +1,6 @@
 <script lang="ts">
 import Vue from 'vue';
-import bFetch from '../../core/bFetch.ts'
+import bFetch from '../../core/http/bFetch.ts'
 
 /**
  * 弹幕词管理

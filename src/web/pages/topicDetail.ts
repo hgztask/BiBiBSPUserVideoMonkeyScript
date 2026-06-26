@@ -1,8 +1,8 @@
-import elUtil from "../core/elUtil.ts";
-import shielding from "../domain/shielding_main.ts";
-import video_shielding from "../domain/shielding_video.ts";
-import comments_shielding from "../domain/shielding_comments.ts";
-import urlUtil from "../core/urlUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
+import shielding from "../domain/shielding/main.ts";
+import video_shielding from "../domain/shielding/video.ts";
+import comments_shielding from "../domain/shielding/comments.ts";
+import urlUtil from "../core/util/urlUtil.ts";
 
 //判断是否是话题详情页
 const isTopicDetailPage = (url: any) => {

@@ -1,9 +1,9 @@
 import localMKData from "../state/localMKData.ts"
-import elUtil from "../core/elUtil.ts"
-import videoCardHideAddSeeLaterButCss from '../ui/videoCardHideAddSeeLaterBut.css'
-import BEWLYHomeCss from '../ui/BEWLYHome.css'
-import liveRoomListAdaptiveCss from '../ui/live_room_list_adaptive.css'
-import liveRoomDefCss from '../ui/liveRoomDef.css'
+import elUtil from "../core/util/elUtil.ts"
+import videoCardHideAddSeeLaterButCss from '../ui/styles/videoCardHideAddSeeLaterBut.css'
+import BEWLYHomeCss from '../ui/styles/BEWLYHome.css'
+import liveRoomListAdaptiveCss from '../ui/styles/live_room_list_adaptive.css'
+import liveRoomDefCss from '../ui/styles/liveRoomDef.css'
 
 export default {
     run(url?: string, title?: string): void {

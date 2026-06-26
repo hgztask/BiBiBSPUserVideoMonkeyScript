@@ -1,8 +1,8 @@
 import localMKData from "../state/localMKData";
-import defCss from './def.css'
-import {addGzStyle, initVueApp} from "../core/defUtil.ts";
+import defCss from './styles/def.css'
+import {addGzStyle, initVueApp} from "../core/util/defUtil.ts";
 import App from "./App.vue";
-import elUtil from "../core/elUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
 import cssManager from "../domain/cssManager.ts";
 import Vue from "vue";
 import GzSpace from "./components/GzSpace.vue";

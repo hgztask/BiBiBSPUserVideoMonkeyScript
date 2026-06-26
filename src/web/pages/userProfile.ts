@@ -1,6 +1,6 @@
 import {eventEmitter} from "../core/EventEmitter.ts";
-import ruleUtil from "../core/ruleUtil.ts";
-import elUtil from "../core/elUtil.ts";
+import ruleUtil from "../core/util/ruleUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
 //查找用户资料悬浮卡片插入屏蔽按钮
 export default {
     run() {

@@ -1,13 +1,13 @@
-import elUtil from "../core/elUtil.ts";
-import shielding from "../domain/shielding_main.ts";
-import defUtil from "../core/defUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
+import shielding from "../domain/shielding/main.ts";
+import defUtil from "../core/util/defUtil.ts";
 import topicDetail from "./topicDetail.ts";
 import localMKData, {isCloseCommentBlockingGm} from "../state/localMKData.ts";
-import videoPlayModel from "./video_playModel.ts";
+import videoPlayModel from "./video/playModel.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
-import comments_shielding from "../domain/shielding_comments.ts";
-import urlUtil from "../core/urlUtil.ts";
-import {valueCache} from "../core/valueCache.ts";
+import comments_shielding from "../domain/shielding/comments.ts";
+import urlUtil from "../core/util/urlUtil.ts";
+import {valueCache} from "../core/cache/valueCache.ts";
 
 /**
  * 评论添加屏蔽按钮

@@ -1,5 +1,5 @@
-import elUtil from "../core/elUtil.ts";
-import urlUtil from "../core/urlUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
+import urlUtil from "../core/util/urlUtil.ts";
 import './webWs.ts'
 import debuggerManagement from "../domain/debuggerManagement.ts";
 import webWs from "./webWs.ts";

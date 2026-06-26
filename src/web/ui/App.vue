@@ -1,24 +1,24 @@
 ﻿<script lang="ts">
 import Vue from 'vue';
-import cacheManagementView from "./views/cacheManagementView.vue";
-import panelSettingsView from "./views/panelSettingsView.vue";
-import compatibleSettingView from "./views/compatibleSettingView.vue";
+import cacheManagementView from "./views/debug/cacheManagementView.vue";
+import panelSettingsView from "./views/settings/panelSettingsView.vue";
+import compatibleSettingView from "./views/settings/compatibleSettingView.vue";
 import lookContentDialog from "./dialogs/lookContentDialog.vue";
-import debuggerManagementView from './views/debuggerManagementView.vue';
-import PageProcessingTabsView from "./views/PageProcessingTabsView.vue";
+import debuggerManagementView from './views/debug/debuggerManagementView.vue';
+import PageProcessingTabsView from "./views/page/PageProcessingTabsView.vue";
 import aboutAndFeedbackView from "./views/aboutAndFeedbackView.vue";
 import showImgDialog from "./dialogs/showImgDialog.vue";
 import sheetDialog from "./dialogs/sheetDialog.vue";
 import bulletWordManagementView from "./views/bulletWordManagementView.vue";
 import {eventEmitter} from "../core/EventEmitter.ts";
 import localMKData, {getDrawerShortcutKeyGm} from "../state/localMKData.ts";
-import outputInformationView from './views/outputInformationView.vue'
-import donateLayoutView from './views/donateLayoutView.vue'
-import ruleManagementView from './views/ruleManagementView.vue'
-import excludeURLsView from './views/excludeURLsView.vue'
-import RightFloatingLayoutView from "./views/rightFloatingLayoutView.vue";
-import conditionalityView from "./views/conditionalityView.vue";
-import defUtil from "../core/defUtil.ts";
+import outputInformationView from './views/debug/outputInformationView.vue'
+import donateLayoutView from './views/settings/donateLayoutView.vue'
+import ruleManagementView from './views/rule/ruleManagementView.vue'
+import excludeURLsView from './views/settings/excludeURLsView.vue'
+import RightFloatingLayoutView from "./views/settings/rightFloatingLayoutView.vue";
+import conditionalityView from "./views/rule/conditionalityView.vue";
+import defUtil from "../core/util/defUtil.ts";
 
 
 /**

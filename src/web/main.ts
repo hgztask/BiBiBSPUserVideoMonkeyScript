@@ -7,7 +7,7 @@ import observeNetwork from "./domain/observeNetwork.ts";
 import './domain/notificationBlocking.ts'
 import './domain/replaceKeywords.ts'
 import './dev/dev.ts'
-import liveRoomModel from "./pages/live_roomModel.ts";
+import liveRoomModel from "./pages/live/roomModel.ts";
 
 
 window.addEventListener('load', () => {

@@ -1,9 +1,9 @@
-import elUtil from "../core/elUtil.ts";
-import strFormatUtil from "../core/strFormatUtil.ts"
-import defUtil from "../core/defUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
+import strFormatUtil from "../core/util/strFormatUtil.ts"
+import defUtil from "../core/util/defUtil.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
-import video_shielding from "../domain/shielding_video.ts";
-import urlUtil from "../core/urlUtil.ts";
+import video_shielding from "../domain/shielding/video.ts";
+import urlUtil from "../core/util/urlUtil.ts";
 
 /**
  *判断url是否是分区页面

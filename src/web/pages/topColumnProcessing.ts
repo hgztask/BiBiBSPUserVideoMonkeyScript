@@ -1,5 +1,5 @@
 import localMKData from "../state/localMKData.ts";
-import elUtil from "../core/elUtil.ts";
+import elUtil from "../core/util/elUtil.ts";
 
 const leftSelectorCss = [
     '.link-navbar-ctnr .flex-block>a',

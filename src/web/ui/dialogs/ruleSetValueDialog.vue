@@ -1,7 +1,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
-import ruleUtil from "../../core/ruleUtil.ts";
+import ruleUtil from "../../core/util/ruleUtil.ts";
 
 /**
  * 显示修改规则的对话框

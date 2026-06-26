@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
-import arrUtil from "../../core/arrUtil.ts";
+import arrUtil from "../../core/util/arrUtil.ts";
 
 //多重规则编辑对话框
 export default Vue.extend({

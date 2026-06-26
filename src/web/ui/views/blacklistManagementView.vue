@@ -1,8 +1,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import {eventEmitter} from "../../core/EventEmitter.ts";
-import ruleUtil from "../../core/ruleUtil.ts";
-import {asynchronousIntervalQueue} from "../../core/asynchronousIntervalQueue.ts";
+import ruleUtil from "../../core/util/ruleUtil.ts";
+import {asynchronousIntervalQueue} from "../../core/cache/asynchronousIntervalQueue.ts";
 
 //获取黑名单请求队列
 const queue = new asynchronousIntervalQueue();
