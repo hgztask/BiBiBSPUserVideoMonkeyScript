@@ -4,14 +4,16 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "rollup -c --environment ROLLUP_ENV:production",
-    "watch:dev": "rollup -w -c",
-    "ws": "node server/wsServer.js"
+    "build": "rollup -c rollup.config.mjs --environment ROLLUP_ENV:production",
+    "watch:dev": "rollup -w -c rollup.config.mjs",
+    "ws": "tsx server/wsServer.ts"
   },
   "private": true,
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-replace": "^6.0.2",
     "@types/tampermonkey": "^5.0.5",
+    "@types/ws": "^8.18.1",
     "dexie": "^4.0.10",
     "element-ui": "^2.15.14",
     "esbuild": "^0.25.8",
@@ -19,12 +21,17 @@
     "rollup": "^4.59.0",
     "rollup-plugin-esbuild": "^6.2.1",
     "rollup-plugin-import-content": "^1.1.0",
+    "rollup-plugin-less": "^1.1.3",
     "rollup-plugin-serve": "^3.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-vue": "^5.1.9",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
     "vue": "^2.7.16",
     "vue-template-compiler": "^2.7.16",
-    "ws": "^8.16.0",
-    "rollup-plugin-less": "^1.1.3"
+    "ws": "^8.16.0"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.21"
   }
 }

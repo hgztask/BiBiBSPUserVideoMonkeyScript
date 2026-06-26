@@ -96,8 +96,7 @@
 
 1. 相比v1版本，该版本尽可能的减少非屏蔽相关的功能
 2.
-
-脚本开源在gitee，地址为：[https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript](https://gitee.com/hangexi/BiBiBSPUserVideoMonkeyScript)
+脚本开源在github，地址为：[https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript](https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript)
 
 3. 如果有什么问题，欢迎提issue或前往作者交流群或b站个人主页上反馈
 4. 该如还有未补充的，待后续完善描述

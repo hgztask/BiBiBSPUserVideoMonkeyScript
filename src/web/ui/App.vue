@@ -1,0 +1,174 @@
+﻿<script lang="ts">
+import Vue from 'vue';
+import cacheManagementView from "./views/cacheManagementView.vue";
+import panelSettingsView from "./views/panelSettingsView.vue";
+import compatibleSettingView from "./views/compatibleSettingView.vue";
+import lookContentDialog from "./dialogs/lookContentDialog.vue";
+import debuggerManagementView from './views/debuggerManagementView.vue';
+import PageProcessingTabsView from "./views/PageProcessingTabsView.vue";
+import aboutAndFeedbackView from "./views/aboutAndFeedbackView.vue";
+import showImgDialog from "./dialogs/showImgDialog.vue";
+import sheetDialog from "./dialogs/sheetDialog.vue";
+import bulletWordManagementView from "./views/bulletWordManagementView.vue";
+import {eventEmitter} from "../core/EventEmitter.ts";
+import localMKData, {getDrawerShortcutKeyGm} from "../state/localMKData.ts";
+import outputInformationView from './views/outputInformationView.vue'
+import donateLayoutView from './views/donateLayoutView.vue'
+import ruleManagementView from './views/ruleManagementView.vue'
+import excludeURLsView from './views/excludeURLsView.vue'
+import RightFloatingLayoutView from "./views/rightFloatingLayoutView.vue";
+import conditionalityView from "./views/conditionalityView.vue";
+import defUtil from "../core/defUtil.ts";
+
+
+/**
+ * todo 目前发现加载在视频页时，el-drawer的遮罩会挡住整个屏幕，先设置modal为false，关闭遮罩，待后续观察
+ * Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。
+ */
+export default Vue.extend({
+  components: {
+    RightFloatingLayoutView,
+    outputInformationView,
+    donateLayoutView,
+    ruleManagementView,
+    cacheManagementView,
+    panelSettingsView,
+    compatibleSettingView,
+    lookContentDialog,
+    debuggerManagementView,
+    PageProcessingTabsView,
+    aboutAndFeedbackView,
+    showImgDialog,
+    sheetDialog,
+    bulletWordManagementView,
+    excludeURLsView,
+    conditionalityView
+  },
+  data() {
+    return {
+      drawer: false,
+      // 默认打开的tab
+      tabsActiveName: GM_getValue('mainTabsActiveName', '规则管理'),
+      debug_panel_show: __DEV__,
+      isShowBackToTopVal: localMKData.isShowBackToTopBtn()
+    }
+  },
+  methods: {
+    tabClick(tab) {
+      GM_setValue('mainTabsActiveName', tab.name);
+    },
+  },
+  watch: {},
+  created() {
+    eventEmitter.on('主面板开关', () => {
+      this.drawer = !this.drawer;
+    })
+    document.addEventListener('keydown', (event) => {
+      eventEmitter.emit('event-keydownEvent', event);
+      if (event.key === getDrawerShortcutKeyGm()) {
+        this.drawer = !this.drawer;
+      }
+    });
+
+    eventEmitter.on('el-notify', (options) => {
+      if (!options['position']) {
+        options.position = 'bottom-right';
+      }
+      this.$notify(options)
+    })
+    eventEmitter.on('el-msg', (...options) => {
+      this.$message(...options)
+    })
+
+    eventEmitter.on('el-alert', (...options) => {
+      this.$alert(...options);
+    })
+
+    eventEmitter.handler('el-confirm', (...options) => {
+      return this.$confirm(...options);
+    })
+
+    eventEmitter.handler('el-prompt', (...options) => {
+      return this.$prompt(...options)
+    })
+    const alertFunDebounce = defUtil.debounce((response, bvId) => {
+      this.$alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}
+                \n。已自动禁用根据bv号网络请求获取视频信息状态
+                \n如需关闭，请在面板条件限制里手动关闭。`, '错误', {
+        confirmButtonText: '确定',
+        type: 'error'
+      })
+    }, 2000)
+    eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
+      eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
+      alertFunDebounce(response, bvId)
+    })
+
+    eventEmitter.on('e:设置顶部按钮状态', (show) => {
+      this.isShowBackToTopVal = show
+    })
+  }
+})
+</script>
+
+<template>
+  <div>
+    <el-drawer :modal="false"
+               :visible.sync="drawer"
+               :with-header="false"
+               direction="ltr"
+               size="100%"
+               style="position: fixed">
+      <el-tabs id="app" v-model="tabsActiveName"
+               type="border-card" @tab-click="tabClick">
+        <el-tab-pane label="面板设置" lazy name="面板设置">
+          <panelSettingsView/>
+        </el-tab-pane>
+        <el-tab-pane label="规则管理" lazy name="规则管理">
+          <ruleManagementView/>
+        </el-tab-pane>
+        <el-tab-pane label="页面处理" lazy name="页面处理">
+          <PageProcessingTabsView/>
+        </el-tab-pane>
+        <el-tab-pane label="兼容设置" lazy name="兼容设置">
+          <compatibleSettingView/>
+        </el-tab-pane>
+        <el-tab-pane label="排除页面" lazy name="排除页面">
+          <excludeURLsView/>
+        </el-tab-pane>
+        <el-tab-pane label="条件限制" lazy name="条件限制">
+          <conditionalityView/>
+        </el-tab-pane>
+        <el-tab-pane label="输出信息" name="输出信息">
+          <outputInformationView/>
+        </el-tab-pane>
+        <el-tab-pane label="缓存管理" lazy name="缓存管理">
+          <cacheManagementView/>
+        </el-tab-pane>
+        <el-tab-pane v-if="debug_panel_show" label="弹幕词管理" lazy name="弹幕词管理">
+          <bulletWordManagementView/>
+        </el-tab-pane>
+        <el-tab-pane label="支持打赏" lazy name="支持打赏">
+          <donateLayoutView/>
+        </el-tab-pane>
+        <el-tab-pane label="关于和问题反馈" lazy name="关于和问题反馈">
+          <aboutAndFeedbackView/>
+        </el-tab-pane>
+        <el-tab-pane v-if="debug_panel_show" label="调试测试" lazy name="调试测试">
+          <debuggerManagementView/>
+        </el-tab-pane>
+      </el-tabs>
+    </el-drawer>
+    <lookContentDialog/>
+    <showImgDialog/>
+    <sheetDialog/>
+    <RightFloatingLayoutView/>
+    <el-backtop v-if="isShowBackToTopVal"/>
+  </div>
+</template>
+
+<style>
+#app > .el-tabs__content {
+  padding: 0 !important
+}
+</style>

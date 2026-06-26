@@ -1,26 +1,31 @@
 {
   "compilerOptions": {
-    "incremental": true,
-    "target": "ESNext",
+    "target": "ES2021",
     "module": "ESNext",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "moduleResolution": "node",
     "strict": true,
-    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "sourceMap": false,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": [
-      "tampermonkey",
-      "vue",
-      "element-ui"
-    ]
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "lib": [
+      "ES2021",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/web/*"
+      ]
+    },
+    "ignoreDeprecations": "6.0"
   },
   "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules/**/*"
+    "src/web/**/*.ts",
+    "src/web/**/*.vue",
+    "src/web/**/*.d.ts"
   ]
 }

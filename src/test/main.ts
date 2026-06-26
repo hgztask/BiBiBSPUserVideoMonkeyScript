@@ -1,1 +1,5 @@
-console.log("你好世界")
+import biliGame from "../web/pagesModel/biliGame.js";
+
+if (biliGame.isUrlPage(location.href)) {
+    biliGame.checkVideoList();
+}

@@ -1,0 +1,27 @@
+import Vue from "vue"
+import Dexie from "dexie"
+import globalValue from "../config/globalValue.ts"
+
+const start = (): void => {
+    let loop = false
+    let msg: string | undefined
+    if (!Vue) {
+        loop = true
+        msg = 'Vue is not defined，Vue未定义，请检查是否引入了Vue'
+    }
+    if (!Dexie) {
+        loop = true
+        msg = 'Dexie is not defined，Dexie未定义，请检查是否引入了Dexie'
+    }
+    if (loop) {
+        if (confirm('外部库验证失败:' + msg + `\n请联系作者核查问题\n可通过点击确定按钮跳转。
+        \n脚本主页信息中，有相关解决文档
+        \n或通过脚本信息底下联系方式联系作者解决`)) {
+            GM_openInTab(globalValue.scriptCat_js_url)
+            GM_openInTab(globalValue.group_url)
+        }
+        throw new Error(`外部库验证失败:${msg}`)
+    }
+}
+
+start()

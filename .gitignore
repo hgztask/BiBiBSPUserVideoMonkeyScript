@@ -4,6 +4,7 @@
 /dist/
 /lib/
 /patch/
+/.trae
 yarn.lock
 pnpm-lock.yaml
 rollup.build.css
