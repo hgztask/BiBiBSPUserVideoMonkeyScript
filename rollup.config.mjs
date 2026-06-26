@@ -60,10 +60,17 @@ export default {
         {
             name: 'type-check',
             buildStart() {
+                // 检查 .ts 文件
                 try {
                     execSync('pnpm exec tsc --noEmit', {stdio: 'inherit'});
                 } catch (e) {
-                    this.error('TypeScript type check failed');
+                    this.error('TypeScript type check failed (.ts files)');
+                }
+                // 检查 .vue 文件
+                try {
+                    execSync('node scripts/check-vue-types.mjs', {stdio: 'inherit'});
+                } catch (e) {
+                    this.error('TypeScript type check failed (.vue files)');
                 }
             }
         },
