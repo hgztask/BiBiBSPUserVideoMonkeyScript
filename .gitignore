@@ -8,3 +8,5 @@
 yarn.lock
 pnpm-lock.yaml
 rollup.build.css
+/.agents
+skills-lock.json
