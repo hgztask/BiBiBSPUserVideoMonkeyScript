@@ -2,9 +2,9 @@ import elUtil from "../../core/util/elUtil.ts";
 import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import defUtil, {addGzStyle} from "../../core/util/defUtil.ts";
 import video_shielding from "../../domain/shielding/video.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import globalValue from "../../config/globalValue.ts";
-import {IntervalExecutor} from "../../core/cache/IntervalExecutor.ts";
+import {IntervalExecutor} from "@/core/cache/IntervalExecutor.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
 //获取bewly的shadowRoot元素
 let be_wly_el: ShadowRoot | Element | Document | null = null;

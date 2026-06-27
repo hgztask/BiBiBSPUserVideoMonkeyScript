@@ -3,9 +3,9 @@ import shielding from "../../domain/shielding/main.ts";
 import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import video_shielding from "../../domain/shielding/video.ts";
-import {isClearLiveCardGm} from "../../state/localMKData.ts";
+import {isClearLiveCardGm} from "@/state/localMKData.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
 
 /**

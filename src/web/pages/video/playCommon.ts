@@ -1,6 +1,6 @@
 import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import elUtil from "../../core/util/elUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
 

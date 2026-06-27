@@ -5,7 +5,7 @@ import {
   getSubstituteWordsArr,
   isClearCommentEmoticons,
   isReplaceCommentSearchTerms
-} from "../../state/localMKData.ts";
+} from "@/state/localMKData.ts";
 
 /**
  * 内容替换处理布局组件

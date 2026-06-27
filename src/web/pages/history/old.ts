@@ -1,5 +1,5 @@
 import elUtil from "../../core/util/elUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
 

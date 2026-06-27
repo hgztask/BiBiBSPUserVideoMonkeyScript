@@ -1,8 +1,8 @@
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
-import {elEventEmitter} from "../../core/elEventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
+import {elEventEmitter} from "@/core/elEventEmitter.ts";
 import localMKData, {
     getLimitationFanSumGm,
     getLimitationVideoSubmitSumGm,

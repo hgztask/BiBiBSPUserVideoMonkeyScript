@@ -1,7 +1,7 @@
 import elUtil from "../../core/util/elUtil.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import generalFuc from "./playCommon.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 
 /**

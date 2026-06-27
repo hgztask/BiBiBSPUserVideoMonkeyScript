@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 //显示图片对话框
 export default defineComponent({
   data() {

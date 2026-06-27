@@ -1,6 +1,6 @@
 import elUtil from "../../core/util/elUtil.ts";
 import live_shielding from "../../domain/shielding/live.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import liveCommon from "./common.ts";
 
 const isLiveHomePage = (url: any) => {

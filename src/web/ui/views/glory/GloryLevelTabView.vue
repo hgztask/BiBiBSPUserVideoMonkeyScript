@@ -1,6 +1,6 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import localMKData from "../../../state/localMKData.ts";
 import GloryLevelLimitTabView from "./GloryLevelLimitTabView.vue";
 import defUtil from "../../../core/util/defUtil.ts";

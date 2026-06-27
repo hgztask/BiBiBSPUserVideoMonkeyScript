@@ -2,7 +2,7 @@
 import {defineComponent} from 'vue';
 import hotSearch from "../../../pages/search/hot.ts";
 import topInput from "../../../pages/search/topInput.ts";
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import localMKData, {
   isClearLiveCardGm,
   isDelLiveBottomBannerAdGm,

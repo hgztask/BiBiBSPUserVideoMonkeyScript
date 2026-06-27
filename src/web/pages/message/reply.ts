@@ -1,7 +1,7 @@
 import urlUtil from "../../core/util/urlUtil.ts";
 import elUtil from "../../core/util/elUtil.ts";
 import comments_shielding from "../../domain/shielding/comments.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 const getDataList = () => {
     return elUtil.findElements(".reply-list>.interaction-item,.at-list>.interaction-item").then(elList => {

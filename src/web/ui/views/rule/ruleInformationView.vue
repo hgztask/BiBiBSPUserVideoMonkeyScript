@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent, PropType} from 'vue';
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 /**
  * 规则信息组件

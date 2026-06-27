@@ -1,8 +1,8 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
 import defUtil, {saveTextAsFile} from "../../../core/util/defUtil.ts";
-import ruleUtil from "../../../core/util/ruleUtil.ts";
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import ruleUtil from "@/core/util/ruleUtil.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
 //规则导入导出组件
 export default defineComponent({

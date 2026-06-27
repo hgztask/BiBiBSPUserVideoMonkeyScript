@@ -1,7 +1,7 @@
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import output_informationTab from "../../ui/output_informationTab.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import shielding, {
     asyncBlockByLevelForComment,
     asyncBlockSeniorMemberOnly,
@@ -10,7 +10,7 @@ import shielding, {
     BlockResult,
     blockUserUidAndName,
 } from "./main.ts";
-import {returnTempVal} from "../../config/globalValue.ts";
+import {returnTempVal} from "@/config/globalValue.ts";
 import localMKData from "../../state/localMKData.ts";
 import LocalMKData from "../../state/localMKData.ts";
 

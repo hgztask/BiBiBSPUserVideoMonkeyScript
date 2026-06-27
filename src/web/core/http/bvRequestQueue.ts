@@ -1,5 +1,5 @@
 import bFetch from './bFetch.ts'
-import {getRequestFrequencyVal} from "../../state/localMKData.ts";
+import {getRequestFrequencyVal} from "@/state/localMKData.ts";
 
 interface BvRequestQueueOptions<T = any> {
     interval?: number;

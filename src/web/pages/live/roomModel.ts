@@ -1,11 +1,11 @@
 import elUtil from "../../core/util/elUtil.ts";
 import live_shielding from "../../domain/shielding/live.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import userProfile from "../userProfile.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import defUtil from "../../core/util/defUtil.ts";
-import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "../../state/localMKData.ts";
-import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName,} from "../../domain/shielding/main.ts";
+import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "@/state/localMKData.ts";
+import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName,} from "@/domain/shielding/main.ts";
 import liveCommon from "./common.ts";
 import cssManager from "../../domain/cssManager.ts";
 import urlUtil from "../../core/util/urlUtil.ts";

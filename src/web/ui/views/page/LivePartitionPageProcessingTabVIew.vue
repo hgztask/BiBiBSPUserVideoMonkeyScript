@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
-import {isRoomListAdaptiveGm} from "../../../state/localMKData.ts";
+import {isRoomListAdaptiveGm} from "@/state/localMKData.ts";
 import liveSectionModel from "../../../pages/live/sectionModel.ts";
 import cssManager from "../../../domain/cssManager.ts";
 import PartitionTagWhiterListPanel from "./PatitionTagWhiterListPanel.vue";

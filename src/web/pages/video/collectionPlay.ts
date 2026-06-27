@@ -1,6 +1,6 @@
 import elUtil from "../../core/util/elUtil.ts";
 import generalFuc from "./playCommon.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 // 判断是否为收藏的视频播放页
 const iscCollectionVideoPlayPage = (url: any = window.location.href) => {

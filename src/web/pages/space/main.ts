@@ -1,5 +1,5 @@
 import elUtil from "../../core/util/elUtil.ts";
-import {valueCache} from "../../core/cache/valueCache.ts";
+import {valueCache} from "@/core/cache/valueCache.ts";
 import dynamicCommon from "../dynamic/common.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import urlUtil from "../../core/util/urlUtil.ts";

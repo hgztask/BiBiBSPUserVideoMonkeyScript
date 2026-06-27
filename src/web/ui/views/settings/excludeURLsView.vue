@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
-import {getExcludeURLsGm, isExcludeURLSwitchGm} from "../../../state/localMKData.ts";
+import {getExcludeURLsGm, isExcludeURLSwitchGm} from "@/state/localMKData.ts";
 
 export default defineComponent({
   data() {

@@ -1,4 +1,4 @@
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import shielding, {
     blockByLevelForComment,
     blockComment,
@@ -6,7 +6,7 @@ import shielding, {
     blockSeniorMemberOnly,
     blockUserUidAndName
 } from "./main.ts";
-import {returnTempVal} from "../../config/globalValue.ts";
+import {returnTempVal} from "@/config/globalValue.ts";
 import localMKData from "../../state/localMKData.ts";
 
 interface CommentData {

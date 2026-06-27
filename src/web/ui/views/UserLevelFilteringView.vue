@@ -9,7 +9,7 @@ import {
   isEnableMaximumUserLevelVideoGm,
   isEnableMinimumUserLevelCommentGm,
   isEnableMinimumUserLevelVideoGm
-} from "../../state/localMKData.ts";
+} from "@/state/localMKData.ts";
 
 export default defineComponent({
   data() {

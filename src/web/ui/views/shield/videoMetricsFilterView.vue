@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
-import {getLimitationFanSumGm, isFansNumBlockingStatusGm} from "../../../state/localMKData.ts";
+import {getLimitationFanSumGm, isFansNumBlockingStatusGm} from "@/state/localMKData.ts";
 import video_metrics_filter_item_view from '../../components/videoMetricsFilterItem.vue'
 import CardSlider from "../../components/cardSlider.vue";
 

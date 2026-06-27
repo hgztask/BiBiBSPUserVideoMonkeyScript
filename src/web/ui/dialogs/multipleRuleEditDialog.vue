@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import arrUtil from "../../core/util/arrUtil.ts";
 

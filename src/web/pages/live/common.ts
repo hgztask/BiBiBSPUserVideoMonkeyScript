@@ -1,6 +1,6 @@
 import cssContent from '../../ui/styles/live-partition.css';
 import elUtil from "../../core/util/elUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 const addStyle = () => {
     const style = document.createElement('style');

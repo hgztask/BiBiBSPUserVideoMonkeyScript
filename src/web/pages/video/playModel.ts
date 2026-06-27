@@ -3,7 +3,7 @@ import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import localMKData from "../../state/localMKData.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 import videoPlayPageCommon from "./playCommon.ts";

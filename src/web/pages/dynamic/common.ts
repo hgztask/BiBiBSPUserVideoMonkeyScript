@@ -1,6 +1,6 @@
 import elUtil from "../../core/util/elUtil.ts";
-import {blockCheckWhiteUserUid, blockDynamicItemContent} from "../../domain/shielding/main.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {blockCheckWhiteUserUid, blockDynamicItemContent} from "@/domain/shielding/main.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import {
     isBlockAppointmentDynamicGm,
     isBlockGoodsDynamicGm,

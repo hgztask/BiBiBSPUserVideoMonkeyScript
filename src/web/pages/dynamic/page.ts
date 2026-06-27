@@ -4,7 +4,7 @@ import localMKData, {enableDynamicItemsContentBlockingGm, hidePersonalInfoCardGm
 import hotSearch from "../search/hot.ts";
 import dynamicCommon from "./common.ts";
 import cssManager from "../../domain/cssManager.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 //是否是动态首页
 const isUrlDynamicHomePage = () => {

@@ -2,7 +2,7 @@ import elUtil from "../../core/util/elUtil.ts";
 import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import shielding from "../../domain/shielding/main.ts";
 import video_shielding from "../../domain/shielding/video.ts";
-import {IntervalExecutor} from "../../core/cache/IntervalExecutor.ts";
+import {IntervalExecutor} from "@/core/cache/IntervalExecutor.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
 
 /**

@@ -1,6 +1,6 @@
 import elUtil from "../../core/util/elUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
-import {valueCache} from "../../core/cache/valueCache.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
+import {valueCache} from "@/core/cache/valueCache.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import globalValue from "../../config/globalValue.ts";
 

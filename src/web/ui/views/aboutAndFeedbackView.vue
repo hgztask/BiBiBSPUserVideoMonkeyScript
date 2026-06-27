@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
 import globalValue from "../../config/globalValue.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 /**
  * 关于与反馈组件

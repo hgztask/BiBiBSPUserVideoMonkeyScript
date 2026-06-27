@@ -1,9 +1,9 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
 import bvDexie from "../../../core/cache/bvDexie.ts";
-import {httpLocalHost} from "../../../config/globalValue.ts";
-import {defTmRequest} from "../../../core/http/TmRequest.ts";
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {httpLocalHost} from "@/config/globalValue.ts";
+import {defTmRequest} from "@/core/http/TmRequest.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import defUtil from "../../../core/util/defUtil.ts";
 
 export default defineComponent({

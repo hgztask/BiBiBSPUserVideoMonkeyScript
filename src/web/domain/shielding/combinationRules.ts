@@ -1,5 +1,5 @@
 import localMKData from "../../state/localMKData.ts";
-import {returnTempVal} from "../../config/globalValue.ts";
+import {returnTempVal} from "@/config/globalValue.ts";
 import arrUtil from "../../core/util/arrUtil.ts";
 import {BlockResult} from "./main.ts";
 

@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 // 保存表格数据
 const saveTable = (tableData: any) => {
   const newList = []

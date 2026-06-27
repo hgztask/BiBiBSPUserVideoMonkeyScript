@@ -1,8 +1,8 @@
 import urlUtil from "../../core/util/urlUtil.ts";
 import elUtil from "../../core/util/elUtil.ts";
 import shielding, {blockComment, blockUserUidAndName} from "../../domain/shielding/main.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
-import {IntervalExecutor} from "../../core/cache/IntervalExecutor.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
+import {IntervalExecutor} from "@/core/cache/IntervalExecutor.ts";
 
 const getLeftUserList = () => {
     return elUtil.findElements('[data-id^="contact_"]').then(elList => {

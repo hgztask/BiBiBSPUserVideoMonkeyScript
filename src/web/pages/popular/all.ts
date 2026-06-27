@@ -1,5 +1,5 @@
 import elUtil from "../../core/util/elUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 
 //获取视频列表项，综合热门和每周必看

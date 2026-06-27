@@ -6,7 +6,7 @@ import space from "../../../pages/space/main.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
 import ruleUtil from "../../../core/util/ruleUtil.ts";
 import videoPlayWatchLater from "../../../pages/video/watchLater.ts";
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import urlUtil from "../../../core/util/urlUtil.ts";
 //个人空间页面右侧屏蔽按钮组件
 export default defineComponent({

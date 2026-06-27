@@ -7,7 +7,7 @@ import {
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
   isHideHomeTopHeaderChannelGm
-} from "../../../state/localMKData.ts";
+} from "@/state/localMKData.ts";
 import cssManager from "../../../domain/cssManager.ts";
 
 export default defineComponent({

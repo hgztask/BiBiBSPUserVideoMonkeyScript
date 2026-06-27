@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
 import localMKData, {getDrawerShortcutKeyGm} from "../../../state/localMKData.ts";
-import {eventEmitter} from "../../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 export default defineComponent({
   data() {

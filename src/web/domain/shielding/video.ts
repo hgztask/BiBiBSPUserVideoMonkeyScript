@@ -1,4 +1,4 @@
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import localMKData, {
     getMaximumBarrageGm,
     getMaximumDurationGm,

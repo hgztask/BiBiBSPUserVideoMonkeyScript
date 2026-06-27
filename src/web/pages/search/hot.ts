@@ -1,8 +1,8 @@
 import elUtil from "../../core/util/elUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
-import {isHideHotSearchesPanelGm, isHideSearchHistoryPanelGm} from "../../state/localMKData.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
+import {isHideHotSearchesPanelGm, isHideSearchHistoryPanelGm} from "@/state/localMKData.ts";
 
 //处理热搜词
 const dealingWithHotSearchTerms = (el: any, label: any) => {

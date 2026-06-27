@@ -1,5 +1,5 @@
 import elUtil from "../../core/util/elUtil.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 
 const isMessagePage = (url: any = window.location.href) => {
     return url.includes("message.bilibili.com");
