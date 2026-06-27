@@ -18,6 +18,17 @@ function tsResolve() {
     return {
         name: 'ts-resolve',
         resolveId(source, importer) {
+            // 处理 @/ 路径别名
+            if (source.startsWith('@/')) {
+                const resolved = path.resolve(process.cwd(), 'src/web', source.slice(2));
+                if (fs.existsSync(resolved)) return resolved;
+                const withTs = resolved + '.ts';
+                if (fs.existsSync(withTs)) return withTs;
+                const withVue = resolved + '.vue';
+                if (fs.existsSync(withVue)) return withVue;
+                return null;
+            }
+
             // 只处理相对路径的导入
             if (!source.startsWith('.') || !importer) return null;
 
