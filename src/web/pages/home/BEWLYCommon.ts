@@ -331,8 +331,7 @@ export default {
     run(url: string) {
         const parseUrl = urlUtil.parseUrl(url);
         const {page} = parseUrl.queryParams
-        getBewlyEl().then(el => {
-            if (!el || !(el instanceof Element || el instanceof Document)) return;
+        getBewlyEl().then((el: any) => {
             addGzStyle(el, el);
         })
         if (page === 'Home' ||
