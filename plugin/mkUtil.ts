@@ -140,7 +140,16 @@ export default {
         for (const key in jsonData) {
             if (!key.startsWith('@')) continue
             const newKey = key.substring(1);
-            newData[newKey] = jsonData[key]
+            let newItem: string[] = jsonData[key]
+            if (newKey === 'match') {
+                newItem = newItem.filter(item => {
+                    if (item.includes('localhost')) {
+                        return false
+                    }
+                    return true
+                })
+            }
+            newData[newKey] = newItem
         }
         return {notDevData: newData, devData: jsonData}
     }
