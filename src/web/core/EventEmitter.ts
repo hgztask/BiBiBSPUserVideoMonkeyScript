@@ -136,6 +136,26 @@ class EventEmitter {
         return this
     }
 
+    /**
+     * 异步触发事件，将 handler 执行推迟到下一个 macrotask。
+     * 相比同步 emit，可以避免 handler 同步序言阻塞当前调用栈中的微任务执行。
+     *
+     * 典型场景：需要确保 promise.catch() 等微任务在 handler 启动前先执行完毕。
+     */
+    emitAsync(eventName: string, ...data: any[]): EventEmitter {
+        setTimeout(() => this.emit(eventName, ...data), 0)
+        return this
+    }
+
+    /**
+     * 异步发送事件，将 handler 执行推迟到下一个 macrotask。
+     * 与 send 语义一致（支持 preHandle 预处理和 futures 队列），但延迟执行。
+     */
+    sendAsync(eventName: string, ...data: any[]): EventEmitter {
+        setTimeout(() => this.send(eventName, ...data), 0)
+        return this
+    }
+
     off(eventName: string): boolean {
         const events = this.#regularEvents.events
         if (events[eventName]) {
