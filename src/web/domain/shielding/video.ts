@@ -264,7 +264,7 @@ const shieldingVideoDecorated = async (videoData: VideoData, method: string = "r
         return promiseResolve;
     }
     if (bv === '-1') return promiseReject;
-    eventEmitter.emit('event:检查其他视频参数', videoData, method)
+    eventEmitter.emitAsync('event:检查其他视频参数', videoData, method)
     return promiseReject;
 }
 
