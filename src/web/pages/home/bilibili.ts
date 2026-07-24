@@ -191,11 +191,8 @@ const startShieldingHomeVideoList = async () => {
     startClearExcessContentList()
 }
 
-/**
- * 屏蔽首页中换一换下面的视频列表的防抖
- * @type function
- */
-const startDebounceShieldingHomeVideoList = defUtil.debounce(startShieldingHomeVideoList, 500);
+//屏蔽首页中换一换下面的视频列表的防抖
+const startDebounceShieldingHomeVideoList: Function = defUtil.debounce(startShieldingHomeVideoList, 300);
 
 /**
  * 模拟鼠标上下滚动

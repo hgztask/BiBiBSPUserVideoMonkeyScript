@@ -20,7 +20,7 @@ import localMKData, {
     isSeniorMemberOnly
 } from "../../state/localMKData.ts";
 import defUtil from "../../core/util/defUtil.ts";
-import {returnTempVal} from "../../config/globalValue.ts";
+import {returnTempVal} from "@/config/globalValue.ts";
 
 export interface BlockResult {
     state: boolean;
