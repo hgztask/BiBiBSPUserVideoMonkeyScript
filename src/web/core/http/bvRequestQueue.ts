@@ -1,5 +1,6 @@
 import bFetch from './bFetch.ts'
 import {getRequestFrequencyVal} from "@/state/localMKData.ts";
+import type { FetchVideoInfoResult, ReplyBoxResult } from "@/types/http";
 
 interface BvRequestQueueOptions<T = any> {
     interval?: number;
@@ -70,21 +71,8 @@ class BvRequestQueue<T = any> {
     }
 }
 
-interface VideoInfoResult {
-    state: boolean;
-    msg: string;
-    data?: any;
-}
-
-interface ReplyBoxResult {
-    state: boolean;
-    message: string;
-    childText?: string;
-    disabled?: boolean;
-}
-
-const videoInfoRequestQueue = new BvRequestQueue<VideoInfoResult>({
-    fetchBvData: (bv: string): Promise<VideoInfoResult> => {
+const videoInfoRequestQueue = new BvRequestQueue<FetchVideoInfoResult>({
+    fetchBvData: (bv: string): Promise<FetchVideoInfoResult> => {
         return new Promise((resolve, reject) => {
             bFetch.fetchGetVideoInfo(bv)
                 .then(res => resolve(res))

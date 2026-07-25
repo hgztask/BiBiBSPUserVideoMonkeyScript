@@ -7,9 +7,9 @@ import shielding, {
     asyncBlockSeniorMemberOnly,
     asyncBlockUserUidAndName,
     blockCheckWhiteUserUid,
-    BlockResult,
     blockUserUidAndName,
 } from "./main.ts";
+import type { BlockResult } from "@/types/shielding";
 import {returnTempVal} from "@/config/globalValue.ts";
 import localMKData from "../../state/localMKData.ts";
 import LocalMKData from "../../state/localMKData.ts";

@@ -2,10 +2,10 @@ import {eventEmitter} from "@/core/EventEmitter.ts";
 import shielding, {
     blockByLevelForComment,
     blockComment,
-    BlockResult,
     blockSeniorMemberOnly,
     blockUserUidAndName
 } from "./main.ts";
+import type { BlockResult } from "@/types/shielding";
 import {returnTempVal} from "@/config/globalValue.ts";
 import localMKData from "../../state/localMKData.ts";
 

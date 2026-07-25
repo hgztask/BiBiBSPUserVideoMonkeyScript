@@ -39,75 +39,20 @@ import shielding, {
     asyncBlockVideoLikeRate,
     asyncBlockVideoTeamMember,
     asyncBlockVideoTripleRate,
-    BlockResult,
     blockUserUidAndName,
     blockVideoOrOtherTitle
 } from "./main.ts";
-import {promiseReject, promiseResolve, returnTempVal} from "../../config/globalValue.ts";
+import type { BlockResult } from "@/types/shielding";
+import type { VideoData, VideoShieldData, ShieldVideoEventData } from "@/types/video";
+import {promiseReject, promiseResolve, returnTempVal} from "@/config/globalValue.ts";
 import arrUtil from "../../core/util/arrUtil.ts";
 import bvRequestQueue from "../../core/http/bvRequestQueue.ts";
 import bvDexie from "../../core/cache/bvDexie.ts";
-import {videoCacheManager} from "../../core/cache/videoCacheManager.ts";
+import {videoCacheManager} from "@/core/cache/videoCacheManager.ts";
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import combinationRulesShielding from "./combinationRules.ts";
 
-interface VideoData {
-    title: string;
-    uid?: number;
-    name: string;
-    nDuration?: number;
-    nBulletChat?: number;
-    nPlayCount?: number;
-    bv?: string | null;
-    el: HTMLElement;
-
-    [key: string]: any;
-}
-
-interface VideoInfoResult {
-    tags: string[];
-    userInfo: {
-        uid: number;
-        name: string;
-        follower: number;
-        is_senior_member: boolean;
-        mid?: any;
-        current_level?: number;
-        sex?: string;
-        vip?: any;
-        archive_count?: number;
-        pendant?: any;
-        sign?: string;
-        following?: boolean;
-        [key: string]: any;
-    };
-    videoInfo: {
-        dimension?: any;
-        copyright?: number;
-        is_upower_exclusive?: boolean;
-        following?: boolean;
-        like: number;
-        view: number;
-        danmaku: number;
-        reply: number;
-        favorite: number;
-        coin: number;
-        share: number;
-        pubdate?: number;
-        desc?: string;
-        argue_msg?: string;
-        [key: string]: any;
-    };
-
-    [key: string]: any;
-}
-
-interface ShieldVideoEventData {
-    res: BlockResult;
-    method: string;
-    videoData: VideoData;
-}
-
+/** 检查视频tag执行多重tag组合屏蔽 */
 const asyncBlockVideoTagPreciseCombination = async (tags: string[]): Promise<void> => {
     if (tags.length <= 0) return;
     const mkArrTags = ruleKeyListData.getVideoTagPreciseCombination();
@@ -120,6 +65,7 @@ const asyncBlockVideoTagPreciseCombination = async (tags: string[]): Promise<voi
     }
 }
 
+/** 检查视频tag执行精确、模糊、正则三级匹配屏蔽 */
 const blockBasedVideoTag = (tags: string[]): BlockResult => {
     const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
     const videoTagArr = ruleKeyListData.getVideoTagArr();
@@ -142,11 +88,13 @@ const blockBasedVideoTag = (tags: string[]): BlockResult => {
     return returnTempVal
 }
 
+/** 异步检查视频tag屏蔽，匹配成功抛出异常 */
 const asyncBlockBasedVideoTag = async (tags: string[]): Promise<void> => {
     const res = blockBasedVideoTag(tags);
     if (res.state) return Promise.reject(res);
 }
 
+/** 检查视频bv号是否在精确屏蔽列表中 */
 const blockVideoBV = (bv: string | null | undefined): BlockResult => {
     if (!bv) return returnTempVal;
     const bvs = ruleKeyListData.getPreciseVideoBV();
@@ -156,6 +104,7 @@ const blockVideoBV = (bv: string | null | undefined): BlockResult => {
     return returnTempVal
 }
 
+/** 检查视频时长是否在用户设定的最小/最大时长范围内 */
 const blockVideoDuration = (duration: number): BlockResult => {
     if (duration !== -1) {
         if (isMinimumDurationGm()) {
@@ -174,6 +123,7 @@ const blockVideoDuration = (duration: number): BlockResult => {
     return returnTempVal
 }
 
+/** 检查视频弹幕数是否在用户设定的最小/最大弹幕数范围内 */
 const blockVideoBulletChat = (bulletChat: number): BlockResult => {
     if (bulletChat !== -1) {
         if (isMinimumBarrageGm()) {
@@ -192,6 +142,7 @@ const blockVideoBulletChat = (bulletChat: number): BlockResult => {
     return returnTempVal
 }
 
+/** 检查视频播放量是否在用户设定的最小/最大播放量范围内 */
 const blockVideoPlayCount = (playCount: number): BlockResult => {
     if (playCount === -1) return returnTempVal;
     if (isMinimumPlayGm()) {
@@ -209,6 +160,7 @@ const blockVideoPlayCount = (playCount: number): BlockResult => {
     return returnTempVal
 }
 
+/** 检查视频争议消息内容，支持精确匹配和模糊匹配 */
 const blockArgueMsgContent = (argueMsg: string | undefined): BlockResult => {
     if (argueMsg === undefined || argueMsg.trim().length <= 0) return returnTempVal;
     const argueMsgList = GM_getValue('argue_msg', []);
@@ -224,6 +176,7 @@ const blockArgueMsgContent = (argueMsg: string | undefined): BlockResult => {
     return returnTempVal
 }
 
+/** 异步检查争议消息内容屏蔽，匹配成功抛出异常 */
 const asyncBlockArgueMsgContent = async (argueMsg: string | undefined): Promise<BlockResult> => {
     const res = blockArgueMsgContent(argueMsg);
     if (res.state) {
@@ -232,6 +185,7 @@ const asyncBlockArgueMsgContent = async (argueMsg: string | undefined): Promise<
     return res
 }
 
+/** 同步视频屏蔽核心流程：依次检查uid/name、标题、bv号、时长、弹幕数、播放量 */
 const shieldingVideo = (videoData: VideoData): BlockResult => {
     const {
         title, uid = -1,
@@ -255,6 +209,7 @@ const shieldingVideo = (videoData: VideoData): BlockResult => {
     return returnTempVal;
 }
 
+/** 装饰版异步视频屏蔽：先同步检查，通过后触发异步获取详细视频信息进行深度检查 */
 const shieldingVideoDecorated = async (videoData: VideoData, method: string = "remove"): Promise<void> => {
     const {el, bv = "-1"} = videoData;
     if (el.style.display === "none") return promiseResolve;
@@ -268,6 +223,7 @@ const shieldingVideoDecorated = async (videoData: VideoData, method: string = "r
     return promiseReject;
 }
 
+/** 异步获取视频详细信息并进行深度屏蔽检查，优先从缓存读取，未命中时通过网络请求获取 */
 eventEmitter.on('event:检查其他视频参数', async (videoData: VideoData, method: string) => {
     const {bv = "-1"} = videoData;
     const bvStr = bv ?? '';
@@ -283,8 +239,8 @@ eventEmitter.on('event:检查其他视频参数', async (videoData: VideoData, m
                 console.warn('获取视频信息失败:' + msg);
                 return promiseReject;
             }
-            videoRes = data
-            if ((await bvDexie.addVideoData(bvStr, data))) {
+            videoRes = data as any
+            if ((await bvDexie.addVideoData(bvStr, data as any))) {
                 console.log('mk-db-添加视频信息到数据库成功', '获取视频信息成功:' + msg, data, videoData)
                 videoCacheManager.updateCacheDebounce()
             }
@@ -296,6 +252,7 @@ eventEmitter.on('event:检查其他视频参数', async (videoData: VideoData, m
     }
 })
 
+/** 统一屏蔽视频元素事件处理，根据method执行remove或hide操作 */
 eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}: ShieldVideoEventData) => {
     if (!res) return
     const {type, matching} = res
@@ -308,7 +265,8 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
     eventEmitter.send('event-打印屏蔽视频信息', type, matching, videoData)
 })
 
-const shieldingOtherVideoParameter = async (result: VideoInfoResult, videoData: VideoData): Promise<BlockResult> => {
+/** 异步深度视频屏蔽链：通过API获取的完整视频/用户信息，依次执行所有屏蔽检查的promise链 */
+const shieldingOtherVideoParameter = async (result: VideoShieldData, videoData: VideoData): Promise<BlockResult> => {
     const {tags = [], userInfo, videoInfo} = result
     return asyncBlockUserUidAndName(userInfo.uid, userInfo.name)
         .then(() => {
@@ -387,14 +345,17 @@ const shieldingOtherVideoParameter = async (result: VideoInfoResult, videoData: 
         })
 }
 
+/** 热门视频页面添加屏蔽按钮，位于右下角 */
 eventEmitter.on('添加热门视频屏蔽按钮', (data: any) => {
     shielding.addBlockButton(data, "gz_shielding_button", ["right", "bottom"]);
 })
 
+/** BewlyBewly模式下视频添加屏蔽按钮，位于右下角 */
 eventEmitter.on('视频添加屏蔽按钮-BewlyBewly', (data: any) => {
     shielding.addBlockButton(data, "gz_shielding_button", ['right', 'bottom']);
 })
 
+/** 通用视频添加屏蔽按钮，位于右侧 */
 eventEmitter.on('视频添加屏蔽按钮', (data: any) => {
     shielding.addBlockButton(data, "gz_shielding_button", ["right"]);
 })

@@ -21,65 +21,19 @@ import localMKData, {
 } from "../../state/localMKData.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import {returnTempVal} from "@/config/globalValue.ts";
+import type {
+    BlockResult,
+    BlockButtonData,
+    ExactFuzzyMatchConfig,
+    Dimension,
+    TeamMember,
+    TimeRangeItem,
+    DynamicContentRuleArrMap,
+} from "@/types/shielding";
 
-export interface BlockResult {
-    state: boolean;
-    type?: string;
-    matching?: string | number | boolean;
-    msg?: string;
-}
+export type { BlockResult };
 
-interface BlockButtonData {
-    data: {
-        insertionPositionEl: HTMLElement;
-        explicitSubjectEl?: HTMLElement;
-        cssMap?: Record<string, string>;
-        cssText?: string;
-        el?: HTMLElement;
-        uid?: number;
-        name?: string;
-        bv?: string;
-        title?: string;
-        roomId?: number | string;
-        decoratePic?: any;
-        collectionActId?: number;
-        dressUpId?: number;
-        position?: string[];
-        userUrl?: string;
-        [key: string]: any;
-    };
-    updateFunc?: (el: HTMLElement) => any;
-    maskingFunc?: () => void;
-    mouseoverFun?: (buttonEl: HTMLElement) => void;
-}
-
-interface ExactFuzzyMatchConfig {
-    exactKey?: string;
-    exactTypeName?: string;
-    exactRuleArr?: (string | number)[];
-    fuzzyKey?: string;
-    fuzzyTypeName?: string;
-    fuzzyRuleArr?: string[];
-    regexKey?: string;
-    regexTypeName?: string;
-    regexRuleArr?: string[];
-}
-
-interface Dimension {
-    width: number;
-    height: number;
-}
-
-interface TeamMember {
-    mid: number;
-    name: string;
-}
-
-interface TimeRangeItem {
-    status: boolean;
-    r: [number, number];
-}
-
+/** 添加屏蔽按钮，点击弹出屏蔽选项面板 */
 const addBlockButton = (data: BlockButtonData, className: string = 'gz_def_shielding_button', position: string[] = []): void => {
     if (hideBlockButtonGm()) return;
     const {insertionPositionEl, explicitSubjectEl, cssMap, cssText} = data.data;
@@ -221,16 +175,19 @@ const addBlockButton = (data: BlockButtonData, className: string = 'gz_def_shiel
     })
 }
 
+/** 话题页面中视频项添加屏蔽按钮 */
 const addTopicDetailVideoBlockButton = (data: BlockButtonData): void => {
     addBlockButton(data, "gz_shielding_button");
 }
 
+/** 话题页面中内容项添加屏蔽按钮（支持自定义定位） */
 const addTopicDetailContentsBlockButton = (data: BlockButtonData): void => {
     const position = data.data.position;
     const loop = position !== undefined;
     addBlockButton(data, "gz_shielding_topic_detail_button", loop ? position : []);
 }
 
+/** 根据uid精确屏蔽 */
 const blockUserUid = (uid: number): BlockResult => {
     if (ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidArr(), uid)) {
         return {state: true, type: "精确uid"};
@@ -238,10 +195,12 @@ const blockUserUid = (uid: number): BlockResult => {
     return returnTempVal;
 }
 
+/** 检查uid是否在白名单中，命中则跳过该用户的所有屏蔽检查 */
 export const blockCheckWhiteUserUid = (uid: number): boolean => {
     return ruleMatchingUtil.exactMatch(ruleKeyListData.getPreciseUidWhiteArr(), uid);
 }
 
+/** 执行精确、模糊和正则匹配的通用屏蔽检查，优先级：精确 > 模糊 > 正则 */
 const blockExactAndFuzzyMatching = (val: string | number, config: ExactFuzzyMatchConfig): BlockResult => {
     if (!val) {
         return returnTempVal
@@ -274,6 +233,7 @@ const blockExactAndFuzzyMatching = (val: string | number, config: ExactFuzzyMatc
     return returnTempVal
 }
 
+/** 根据评论内容执行模糊匹配和正则匹配屏蔽检查 */
 export const blockComment = (comment: string): BlockResult => {
     return blockExactAndFuzzyMatching(comment, {
         fuzzyKey: 'commentOn', fuzzyTypeName: '模糊评论',
@@ -281,11 +241,13 @@ export const blockComment = (comment: string): BlockResult => {
     })
 }
 
+/** 异步根据评论内容检查屏蔽，匹配成功抛出异常 */
 export const asyncBlockComment = async (comment: string): Promise<void> => {
     const res = blockComment(comment);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据头像挂件名执行精确匹配和模糊匹配屏蔽检查 */
 export const blockAvatarPendant = (name: string): BlockResult => {
     return blockExactAndFuzzyMatching(name, {
         exactKey: 'precise_avatarPendantName',
@@ -293,22 +255,26 @@ export const blockAvatarPendant = (name: string): BlockResult => {
     })
 }
 
+/** 异步根据头像挂件名检查屏蔽，匹配成功抛出异常 */
 export const asyncBlockAvatarPendant = async (name: string): Promise<void> => {
     const res = blockAvatarPendant(name);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据用户签名执行模糊匹配和正则匹配屏蔽检查 */
 export const blockSignature = (signature: string): BlockResult => {
     return blockExactAndFuzzyMatching(signature, {
         fuzzyKey: 'signature', fuzzyTypeName: '模糊用户签名', regexKey: 'signatureCanonical', regexTypeName: '正则用户签名'
     })
 }
 
+/** 异步根据用户签名检查屏蔽，匹配成功抛出异常 */
 export const asyncBlockSignature = async (signature: string): Promise<void> => {
     const res = blockSignature(signature);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据视频简介执行模糊匹配和正则匹配屏蔽检查 */
 export const blockVideoDesc = (desc: string): BlockResult => {
     return blockExactAndFuzzyMatching(desc, {
         fuzzyKey: 'videoDesc', fuzzyTypeName: '视频简介(模糊匹配)'
@@ -316,11 +282,13 @@ export const blockVideoDesc = (desc: string): BlockResult => {
     })
 }
 
+/** 异步根据视频简介检查屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoDesc = async (desc: string): Promise<void> => {
     const res = blockVideoDesc(desc);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据性别屏蔽，支持男、女、保密、不处理四种选项 */
 export const blockGender = (gender: string): BlockResult => {
     const val = localMKData.isGenderRadioVal();
     const state = val === gender && val !== '不处理';
@@ -330,6 +298,7 @@ export const blockGender = (gender: string): BlockResult => {
     return returnTempVal;
 }
 
+/** 异步根据性别屏蔽，匹配成功抛出异常 */
 export const asyncBlockGender = async (gender: string): Promise<void> => {
     const res = blockGender(gender);
     if (res.state) {
@@ -337,6 +306,7 @@ export const asyncBlockGender = async (gender: string): Promise<void> => {
     }
 }
 
+/** 根据会员类型屏蔽，0无、1月大会员、2年度及以上大会员 */
 export const blockUserVip = (vipId: number): BlockResult => {
     const val = localMKData.isVipTypeRadioVal();
     const vipMap: Record<number, string> = {
@@ -350,6 +320,7 @@ export const blockUserVip = (vipId: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据会员类型屏蔽，匹配成功抛出异常 */
 export const asyncBlockUserVip = async (vipId: number): Promise<void> => {
     const res = blockUserVip(vipId);
     if (res.state) {
@@ -357,6 +328,7 @@ export const asyncBlockUserVip = async (vipId: number): Promise<void> => {
     }
 }
 
+/** 根据硬核会员标识屏蔽 */
 export const blockSeniorMember = (num: number): BlockResult => {
     if (num === 1 && localMKData.isSeniorMember()) {
         return {state: true, type: '屏蔽硬核会员'}
@@ -364,6 +336,7 @@ export const blockSeniorMember = (num: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据硬核会员屏蔽，匹配成功抛出异常 */
 export const asyncBlockSeniorMember = async (num: number): Promise<void> => {
     const res = blockSeniorMember(num);
     if (res.state) {
@@ -371,6 +344,7 @@ export const asyncBlockSeniorMember = async (num: number): Promise<void> => {
     }
 }
 
+/** 根据视频类型屏蔽，1原创、2转载 */
 export const blockVideoCopyright = (num: number): BlockResult => {
     const val = localMKData.isCopyrightRadio();
     const tempMap: Record<number, string> = {
@@ -383,6 +357,7 @@ export const blockVideoCopyright = (num: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据视频类型屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoCopyright = async (num: number): Promise<void> => {
     const res = blockVideoCopyright(num);
     if (res.state) {
@@ -390,6 +365,7 @@ export const asyncBlockVideoCopyright = async (num: number): Promise<void> => {
     }
 }
 
+/** 根据视频分辨率判断是否为竖屏视频并屏蔽，宽度 < 高度即判定为竖屏 */
 export const blockVerticalVideo = (dimension: Dimension): BlockResult => {
     if (!localMKData.isBlockVerticalVideo()) {
         return returnTempVal
@@ -404,11 +380,13 @@ export const blockVerticalVideo = (dimension: Dimension): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据竖屏视频屏蔽，匹配成功抛出异常 */
 export const asyncBlockVerticalVideo = async (dimension: Dimension): Promise<void> => {
     const res = blockVerticalVideo(dimension);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据视频点赞率屏蔽，计算 like/view 并与用户设定阈值比较 */
 export const blockVideoLikeRate = (like: number, view: number): BlockResult => {
     if (!like || !view || !localMKData.isVideoLikeRateBlockingStatus()) {
         return returnTempVal
@@ -427,11 +405,13 @@ export const blockVideoLikeRate = (like: number, view: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据视频点赞率屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoLikeRate = async (like: number, view: number): Promise<void> => {
     const res = blockVideoLikeRate(like, view);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据视频互动率屏蔽，计算 (danmaku+reply)/view 并与用户设定阈值比较 */
 export const blockVideoInteractiveRate = (danmaku: number, reply: number, view: number): BlockResult => {
     if (!danmaku || !view || !localMKData.isInteractiveRateBlockingStatus()) {
         return returnTempVal
@@ -447,11 +427,13 @@ export const blockVideoInteractiveRate = (danmaku: number, reply: number, view: 
     return returnTempVal
 }
 
+/** 异步根据视频互动率屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoInteractiveRate = async (danmaku: number, reply: number, view: number): Promise<void> => {
     const res = blockVideoInteractiveRate(danmaku, reply, view);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据视频三连率屏蔽，计算 (favorite+coin+share)/view 并与用户设定阈值比较 */
 export const blockVideoTripleRate = (favorite: number, coin: number, share: number, view: number): BlockResult => {
     if (!favorite || !coin || !share || !view || !localMKData.isTripleRateBlockingStatus()) {
         return returnTempVal
@@ -467,11 +449,13 @@ export const blockVideoTripleRate = (favorite: number, coin: number, share: numb
     return returnTempVal
 }
 
+/** 异步根据视频三连率屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoTripleRate = async (favorite: number, coin: number, share: number, view: number): Promise<void> => {
     const res = blockVideoTripleRate(favorite, coin, share, view);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据视频投币/点赞比（内容价值）屏蔽，计算 coin/like 并与用户设定阈值比较 */
 export const blockVideoCoinLikesRatioRate = (coin: number, like: number): BlockResult => {
     if (!coin || !like || !localMKData.isCoinLikesRatioRateBlockingStatus()) {
         return returnTempVal
@@ -489,11 +473,13 @@ export const blockVideoCoinLikesRatioRate = (coin: number, like: number): BlockR
     return returnTempVal
 }
 
+/** 异步根据视频投币/点赞比屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoCoinLikesRatioRate = async (coin: number, like: number): Promise<void> => {
     const res = blockVideoCoinLikesRatioRate(coin, like);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据用户等级过滤视频，支持最小等级和最大等级范围限制 */
 export const blockByLevelForVideo = (level: number): BlockResult => {
     if (!level) return returnTempVal;
     if (isEnableMinimumUserLevelVideoGm()) {
@@ -511,6 +497,7 @@ export const blockByLevelForVideo = (level: number): BlockResult => {
     return returnTempVal;
 }
 
+/** 根据用户等级过滤评论，支持最小等级和最大等级范围限制 */
 export const blockByLevelForComment = (level: number): BlockResult => {
     if (level === -1) return returnTempVal;
     if (isEnableMinimumUserLevelCommentGm()) {
@@ -528,16 +515,19 @@ export const blockByLevelForComment = (level: number): BlockResult => {
     return returnTempVal;
 }
 
+/** 异步根据用户等级过滤评论，匹配成功抛出异常 */
 export const asyncBlockByLevelForComment = async (level: number): Promise<void> => {
     const res = blockByLevelForComment(level);
     if (res.state) return Promise.reject(res);
 }
 
+/** 异步根据用户等级过滤视频，匹配成功抛出异常 */
 export const asyncBlockByLevel = async (level: number): Promise<void> => {
     const res = blockByLevelForVideo(level);
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据用户uid和name联合检查屏蔽，依次检查uid全流程和用户名 */
 export const blockUserUidAndName = (uid: number, name: string): BlockResult => {
     if (!uid || !name) {
         return returnTempVal
@@ -553,6 +543,7 @@ export const blockUserUidAndName = (uid: number, name: string): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据用户uid和name联合检查屏蔽，匹配成功抛出异常 */
 export const asyncBlockUserUidAndName = async (uid: number, name: string): Promise<void> => {
     const res = blockUserUidAndName(uid, name);
     if (res.state) {
@@ -560,6 +551,7 @@ export const asyncBlockUserUidAndName = async (uid: number, name: string): Promi
     }
 }
 
+/** 检查视频创作团队成员屏蔽，只要有一个成员命中规则即屏蔽该视频 */
 export const blockVideoTeamMember = (teamMember: TeamMember[]): BlockResult => {
     if (!teamMember) {
         return returnTempVal
@@ -573,11 +565,13 @@ export const blockVideoTeamMember = (teamMember: TeamMember[]): BlockResult => {
     return returnTempVal
 }
 
+/** 异步检查视频创作团队成员屏蔽，匹配成功抛出异常 */
 export const asyncBlockVideoTeamMember = async (teamMember: TeamMember[]): Promise<void> => {
     const res = blockVideoTeamMember(teamMember)
     if (res.state) return Promise.reject(res)
 }
 
+/** 根据用户名执行精确、模糊和正则匹配屏蔽检查 */
 export const blockUserName = (name: string): BlockResult => {
     return blockExactAndFuzzyMatching(name, {
         exactKey: 'precise_name',
@@ -586,6 +580,7 @@ export const blockUserName = (name: string): BlockResult => {
     })
 }
 
+/** 根据视频标题或其他标题执行模糊匹配和正则匹配屏蔽检查 */
 export const blockVideoOrOtherTitle = (title: string): BlockResult => {
     return blockExactAndFuzzyMatching(title, {
         fuzzyKey: 'title', fuzzyTypeName: '模糊标题',
@@ -593,6 +588,7 @@ export const blockVideoOrOtherTitle = (title: string): BlockResult => {
     })
 }
 
+/** uid范围屏蔽检查，检查uid是否在用户设定的uid区间内 */
 export const blockByUidRange = (uid: number): BlockResult => {
     if (!localMKData.isUidRangeMaskingStatus()) {
         return returnTempVal
@@ -604,6 +600,7 @@ export const blockByUidRange = (uid: number): BlockResult => {
     return returnTempVal
 }
 
+/** 完整的uid屏蔽流程：先检查白名单，再精确uid匹配，最后uid范围匹配 */
 export const blockUidWholeProcess = (uid: number): BlockResult => {
     if (!uid || blockCheckWhiteUserUid(uid)) return returnTempVal
     let returnVal = blockUserUid(uid)
@@ -613,18 +610,21 @@ export const blockUidWholeProcess = (uid: number): BlockResult => {
     return blockByUidRange(uid)
 }
 
+/** 异步检查屏蔽已关注UP主的视频，匹配成功抛出异常 */
 export const asyncBlockFollowedVideo = async (following: boolean): Promise<void> => {
     if (following && localMKData.isBlockFollowed()) {
         return Promise.reject({state: true, type: '已关注'})
     }
 }
 
+/** 异步检查屏蔽充电专属视频，匹配成功抛出异常 */
 export const asyncBlockChargeVideo = async (isUpOwnerExclusive: boolean): Promise<void> => {
     if (isUpOwnerExclusive && localMKData.isUpOwnerExclusive()) {
         return Promise.reject({state: true, type: '充电专属视频'})
     }
 }
 
+/** 根据时间戳检查是否在用户设定的时间屏蔽范围内，支持多段时间范围 */
 export const blockTimeRangeMasking = (timestamp: number): BlockResult => {
     if (!timestamp || !localMKData.isTimeRangeMaskingStatus()) {
         return returnTempVal
@@ -647,11 +647,13 @@ export const blockTimeRangeMasking = (timestamp: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步检查时间范围屏蔽，匹配成功抛出异常 */
 export const asyncBlockTimeRangeMasking = async (timestamp: number): Promise<void> => {
     const res = blockTimeRangeMasking(timestamp)
     if (res.state) return Promise.reject(res);
 }
 
+/** 仅看硬核会员功能：level=7保留，其他等级屏蔽 */
 export const blockSeniorMemberOnly = (level: number): BlockResult => {
     if (!isSeniorMemberOnly() || level === -1) {
         return returnTempVal
@@ -662,11 +664,13 @@ export const blockSeniorMemberOnly = (level: number): BlockResult => {
     return {state: true, type: '非硬核会员'}
 }
 
+/** 异步检查仅看硬核会员，匹配成功抛出异常 */
 export const asyncBlockSeniorMemberOnly = async (level: number): Promise<void> => {
     const res = blockSeniorMemberOnly(level)
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据粉丝数限制屏蔽，粉丝数低于设定阈值则屏蔽 */
 const blockLimitationFanSum = (fansNum: number): BlockResult => {
     if (fansNum < 0 || !isFansNumBlockingStatusGm()) {
         return returnTempVal
@@ -679,11 +683,13 @@ const blockLimitationFanSum = (fansNum: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据粉丝数限制屏蔽，匹配成功抛出异常 */
 export const asyncBlockLimitationFanSum = async (fansNum: number): Promise<void> => {
     const res = blockLimitationFanSum(fansNum)
     if (res.state) return Promise.reject(res);
 }
 
+/** 根据用户投稿视频数量限制屏蔽，检查up主投稿数是否满足设定要求 */
 export const blockUserVideoNumLimit = (num: number): BlockResult => {
     if (!isLimitationVideoSubmitStatusGm()) return returnTempVal;
     const sumGm = getLimitationVideoSubmitSumGm();
@@ -693,16 +699,13 @@ export const blockUserVideoNumLimit = (num: number): BlockResult => {
     return returnTempVal
 }
 
+/** 异步根据用户投稿视频数量限制屏蔽，匹配成功抛出异常 */
 export const asyncBlockUserVideoNumLimit = async (num: number): Promise<void> => {
     const res = blockUserVideoNumLimit(num)
     if (res.state) return Promise.reject(res);
 }
 
-interface DynamicContentRuleArrMap {
-    fuzzyRuleArr?: string[];
-    regexRuleArr?: string[];
-}
-
+/** 根据动态内容执行屏蔽检查，支持模糊匹配和正则匹配；如传入视频标题则追加视频标题匹配 */
 export const blockDynamicItemContent = (content: string, videoTitle: string | null = null, ruleArrMap: DynamicContentRuleArrMap = {}): BlockResult => {
     let res: BlockResult;
     if (content !== '') {
@@ -731,6 +734,7 @@ export default {
     addTopicDetailContentsBlockButton,
     blockExactAndFuzzyMatching,
     addBlockButton,
+    /** 根据精确的装扮ID进行屏蔽 */
     blockDecoration(value: any): BlockResult {
         const list = GM_getValue('precise_decoration_id', []);
         const match = ruleMatchingUtil.exactMatch(list, value);
@@ -739,6 +743,7 @@ export default {
         }
         return returnTempVal;
     },
+    /** 根据精确的装扮合集ID进行屏蔽 */
     blockDecorationCollection(value: any): BlockResult {
         const list = GM_getValue('precise_decoration_collection_id', [])
         const exactMatch = ruleMatchingUtil.exactMatch(list, value);

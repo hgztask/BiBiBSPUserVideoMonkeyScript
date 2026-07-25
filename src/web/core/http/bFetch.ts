@@ -1,89 +1,18 @@
 import video_zoneData from "../../config/video_zoneData.ts"
 import {eventEmitter} from "../EventEmitter.ts"
 import {bilibiliEncoder} from "../BilibiliEncoder.ts"
+import type {
+    BarrageRule,
+    BarrageBlockingResult,
+    AttentionResult,
+    VideoStat,
+    VideoInfo,
+    UserInfo,
+    FetchVideoInfoResult,
+    ReplyBoxResult,
+} from "@/types/http";
 
-interface BarrageRule {
-    type: number
-    filter: string
-    ctime: number
-}
-
-interface BarrageBlockingResult {
-    state: boolean
-    data?: any
-    list?: BarrageRule[]
-    msg: string
-}
-
-interface AttentionResult {
-    state: boolean
-    data?: any
-    msg: string
-    error?: any
-}
-
-interface VideoStat {
-    view: number
-    danmaku: number
-    reply: number
-    favorite: number
-    coin: number
-    share: number
-    like: number
-}
-
-interface VideoInfo {
-    staff?: any[]
-    tname: string
-    tname_v2: string
-    desc: string
-    pubdate: number
-    ctime: number
-    copyright: number
-    is_upower_exclusive: boolean
-    duration: number
-    view: number
-    danmaku: number
-    reply: number
-    favorite: number
-    coin: number
-    share: number
-    participle: any
-    dimension: any
-    like: number
-    argue_msg: string
-}
-
-interface UserInfo {
-    follower: number
-    friend: number
-    like_num: number
-    archive_count: number
-    article_count: number
-    Official: any
-    official_verify: any
-    vip: any
-    uid: number
-    name: string
-    sex: string
-    current_level: number
-    pendant: any
-    nameplate: any
-    following: boolean
-    sign: string
-    is_senior_member: boolean
-}
-
-interface VideoInfoResult {
-    state: boolean
-    msg: string
-    data?: {
-        videoInfo: VideoInfo
-        userInfo: UserInfo
-        tags: string[]
-    }
-}
-
+/** 请求获取B站弹幕屏蔽词，过滤掉type=2的用户屏蔽规则 */
 const fetchGetBarrageBlockingWords = (): Promise<BarrageBlockingResult> => {
     return new Promise((resolve, reject) => {
         fetch('https://api.bilibili.com/x/dm/filter/user', {
@@ -109,6 +38,7 @@ const fetchGetBarrageBlockingWords = (): Promise<BarrageBlockingResult> => {
     })
 }
 
+/** 请求获取用户关注信息，返回对方与当前用户的关注关系 */
 const fetchGetAttentionInfo = (uid: string | number): Promise<AttentionResult> => {
     return new Promise((resolve, reject) => {
         fetch('https://api.bilibili.com/x/space/acc/relation?mid=' + uid, {credentials: 'include'}
@@ -125,14 +55,15 @@ const fetchGetAttentionInfo = (uid: string | number): Promise<AttentionResult> =
     })
 }
 
-const fetchGetVideoInfo = async (bvId: string): Promise<VideoInfoResult> => {
+/** 通过BV号发起网络请求获取视频详情，包含视频信息、用户信息、标签等完整数据 */
+const fetchGetVideoInfo = async (bvId: string): Promise<FetchVideoInfoResult> => {
     const response = await fetch(`https://api.bilibili.com/x/web-interface/view/detail?bvid=${bvId}`)
     if (response.status !== 200) {
         eventEmitter.send('请求获取视频信息失败', response, bvId)
         return {state: false, msg: '网络请求失败', data: response as any}
     }
     const {code, data, message} = await response.json()
-    const defData: VideoInfoResult = {state: false, msg: '默认失败信息'}
+    const defData: FetchVideoInfoResult = {state: false, msg: '默认失败信息'}
     if (code !== 0) {
         defData.msg = message
         return defData
@@ -242,14 +173,7 @@ const fetchGetVideoInfo = async (bvId: string): Promise<VideoInfoResult> => {
     return defData
 }
 
-interface ReplyBoxResult {
-    state: boolean
-    message: string
-    childText?: string
-    disabled?: boolean
-    e?: any
-}
-
+/** 请求获取视频评论区输入框描述信息，用于判断评论限制类型 */
 const fetchGetVideoReplyBoxDescription = async (bv: string): Promise<ReplyBoxResult> => {
     const avid = bilibiliEncoder.bv2av(bv)
     return new Promise((resolve, reject) => {
