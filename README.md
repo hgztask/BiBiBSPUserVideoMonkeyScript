@@ -23,7 +23,15 @@ src/web/
 ├── config/                  # 静态配置
 │   ├── globalValue.ts       # 全局常量
 │   ├── ruleKeyListData.ts   # 规则键列表
-│   └── video_zoneData.ts    # 视频分区数据
+│   ├── ruleKeyListDataJson.json  # 规则键列表数据
+│   ├── otherKeyListDataJson.json # 其他规则键列表数据
+│   ├── video_zoneData.ts    # 视频分区数据
+│   └── video_zone.json      # 视频分区 JSON 数据
+├── types/                   # 类型定义
+│   ├── http.ts              # HTTP 相关类型
+│   ├── shielding.ts         # 屏蔽相关类型
+│   ├── storage.ts           # 存储相关类型
+│   └── video.ts             # 视频相关类型
 ├── core/                    # 基础设施层
 │   ├── cache/               # 缓存模块
 │   │   ├── bvDexie.ts       # IndexedDB 封装
@@ -44,7 +52,9 @@ src/web/
 │   │   ├── strFormatUtil.ts
 │   │   └── arrUtil.ts
 │   ├── EventEmitter.ts      # 事件总线
-│   └── BilibiliEncoder.ts   # B站编码
+│   ├── elEventEmitter.ts    # DOM 元素级事件总线
+│   ├── BilibiliEncoder.ts   # B站编码
+│   └── externalLibraryVerification.ts # 外部库加载验证
 ├── domain/                  # 领域逻辑层
 │   ├── shielding/           # 屏蔽核心
 │   │   ├── main.ts          # 主屏蔽逻辑
@@ -68,6 +78,9 @@ src/web/
 │   ├── dynamic/             # 动态页
 │   ├── popular/             # 热门页
 │   ├── history/             # 历史记录
+│   ├── biliGame.ts          # B站游戏页
+│   ├── partition.ts         # 分区页面
+│   ├── topicDetail.ts       # 话题详情页
 │   ├── commentSectionModel.ts # 评论区通用
 │   ├── userProfile.ts       # 用户资料
 │   └── topColumnProcessing.ts
@@ -81,18 +94,30 @@ src/web/
 │   │   ├── page/            # 页面处理
 │   │   ├── glory/           # 荣耀等级
 │   │   ├── settings/        # 设置面板
-│   │   └── debug/           # 调试面板
+│   │   ├── debug/           # 调试面板
+│   │   ├── aboutAndFeedbackView.vue  # 关于与反馈
+│   │   ├── blacklistManagementView.vue  # 黑名单管理
+│   │   ├── bulletWordManagementView.vue # 弹幕词管理
+│   │   ├── commentWordLimitView.vue     # 评论字数限制
+│   │   ├── otherParameterFilterView.vue # 其他参数过滤
+│   │   ├── replProcessingView.vue       # 回复处理
+│   │   └── UserLevelFilteringView.vue   # 用户等级过滤
 │   ├── components/          # 通用组件
 │   ├── dialogs/             # 弹窗组件
 │   ├── styles/              # 样式文件
 │   ├── App.vue              # 主面板
-│   └── init.ts              # UI 初始化
+│   ├── init.ts              # UI 初始化
+│   ├── excludeURLs.ts       # URL 排除逻辑
+│   └── output_informationTab.ts # 输出信息标签
 ├── dev/                     # 开发工具
 │   ├── dev.ts               # 开发辅助
 │   └── webWs.ts             # WebSocket 热更新
 ├── main.ts                  # 脚本入口
 ├── router.ts                # 页面路由
-└── menu.ts                  # 菜单注册
+├── menu.ts                  # 菜单注册
+├── element-ui.d.ts          # Element UI 类型声明
+├── global.d.ts              # 全局类型声明
+└── shims-vue.d.ts           # Vue SFC 类型声明
 ```
 
 ## 架构分层
@@ -101,6 +126,7 @@ src/web/
 
 | 层级    | 目录        | 职责                                   |
 |-------|-----------|--------------------------------------|
+| 类型层   | `types/`  | 统一类型定义，分离接口与类型便于复用                   |
 | 基础设施层 | `core/`   | 通用工具、HTTP 请求、缓存、事件总线，不依赖业务逻辑         |
 | 领域逻辑层 | `domain/` | 屏蔽规则实现、样式管理、网络监听等核心业务                |
 | 页面入口层 | `pages/`  | 各页面路由入口，负责页面级逻辑编排                    |
