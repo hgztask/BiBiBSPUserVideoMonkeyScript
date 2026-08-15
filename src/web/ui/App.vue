@@ -169,6 +169,7 @@ export default defineComponent({
 
 <style>
 #app > .el-tabs__content {
-  padding: 0 !important
+  padding: 0 !important;
+  background: white;
 }
 </style>
