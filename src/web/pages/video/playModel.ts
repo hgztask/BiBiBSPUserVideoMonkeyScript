@@ -210,7 +210,7 @@ const delAd = () => {
         return
     }
     //查找页面广告标签，十秒之后未找到则结束
-    elUtil.findElements('[class|=ad],#slide_ad,.activity-m-v1').then(elList => {
+    elUtil.findElements('[class|=ad],#slide_ad,.activity-m-v1,.video-page-special-card-small').then(elList => {
         for (const el of elList) {
             el.style.display = 'none'
             // el?.remove()
