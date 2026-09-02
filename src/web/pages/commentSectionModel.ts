@@ -88,6 +88,39 @@ const getDecorate = (el: any, uid: any, name: any) => {
     return newVar
 }
 
+interface AtMemberInfo {
+    /** 被@的成员名（不含@符号） */
+    name: string
+    /** 被@的成员uid */
+    uid: number
+    /** 被@的成员主页地址 */
+    userUrl: string
+}
+
+/**
+ * 提取评论富文本中 a 标签形式的@用户数据
+ * 非 a 标签显示的"@xxxx"只是普通文本内容，不算@数据
+ * @param contentsEl {Element} 评论内容容器（新版为 bili-rich-text 下的 #contents，旧版为 .reply-content）
+ * @returns {AtMemberInfo[]} 同一评论内按uid去重，无@时返回空数组
+ */
+const getAtMembers = (contentsEl: any): AtMemberInfo[] => {
+    const result: AtMemberInfo[] = [];
+    const seenUids = new Set<number>();
+    for (let atEl of contentsEl.querySelectorAll('a')) {
+        const href: string = atEl.href || '';
+        if (!href.includes('space.bilibili.com')) continue;
+        const uid = urlUtil.getUrlUID(href);
+        if (isNaN(uid) || uid <= 0 || seenUids.has(uid)) continue;
+        seenUids.add(uid);
+        result.push({
+            name: atEl.textContent?.replace(/^@/, '').trim() ?? '',
+            uid,
+            userUrl: `https://space.bilibili.com/${uid}`
+        });
+    }
+    return result;
+}
+
 /**
  * 获取评论列表
  * @returns {Promise<*[]>}
@@ -138,6 +171,7 @@ const getCommentSectionList = async () => {
             commentsData.push({
                 name: userName, userUrl, uid, level, dressUpId, collectionActId, decoratePic,
                 content: theOPContent,
+                atMembers: getAtMembers(theOPContentEl),
                 replies,
                 el,
                 insertionPositionEl: theOPUserInfo,
@@ -183,6 +217,7 @@ const getCommentSectionList = async () => {
                     uid: inTheBuildingUid, dressUpId, collectionActId, decoratePic,
                     level,
                     content: inTheBuildingContent,
+                    atMembers: getAtMembers(contentsEl),
                     el: inTheBuildingEl,
                     insertionPositionEl: inTheBuildingUserInfo,
                     explicitSubjectEl: inTheBuildingEl,
@@ -228,6 +263,7 @@ const getOldCommentSectionList = async () => {
             userUrl,
             uid,
             content: theOPContent,
+            atMembers: getAtMembers(theOPContentEl),
             level,
             replies,
             el,
@@ -259,6 +295,7 @@ const getOldCommentSectionList = async () => {
                 uid,
                 level,
                 content: subContent,
+                atMembers: getAtMembers(subContentEl),
                 el: inTheBuildingEl,
                 insertionPositionEl: subUserInfoEl,
                 explicitSubjectEl: inTheBuildingEl
@@ -352,3 +389,6 @@ eventEmitter.on('event-检查评论区屏蔽', () => {
 export default {
     checkLiveRankingsCommentSectionList
 }
+
+// 供 WebSocket 热测试通道验证列表项字段使用
+export {getCommentSectionList}
