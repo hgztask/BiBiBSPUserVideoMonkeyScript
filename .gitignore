@@ -1,12 +1,10 @@
-/.idea/
 /test/
 /node_modules/
 /dist/
 /lib/
 /patch/
-/.trae
 yarn.lock
 pnpm-lock.yaml
 rollup.build.css
-/.agents
+/.*
 skills-lock.json
