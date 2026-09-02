@@ -5,62 +5,12 @@ import serve from 'rollup-plugin-serve';
 import replace from '@rollup/plugin-replace';
 import less from 'rollup-plugin-less';
 import test_plugin from './plugin/rollup-test-plugin.ts';
+import tsResolve from './plugin/tsResolve.ts';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
-import path from 'path';
-import fs from 'fs';
 import {execSync} from 'child_process';
 
 // 开发环境为 true，生产环境为 false，默认为开发环境
 const __DEV__ = (process.env.ROLLUP_ENV || 'development') === 'development';
-
-// 自定义 .ts 扩展名解析插件
-function tsResolve() {
-    return {
-        name: 'ts-resolve',
-        resolveId(source, importer) {
-            // 处理 @/ 路径别名
-            if (source.startsWith('@/')) {
-                const resolved = path.resolve(process.cwd(), 'src/web', source.slice(2));
-                if (fs.existsSync(resolved)) return resolved;
-                const withTs = resolved + '.ts';
-                if (fs.existsSync(withTs)) return withTs;
-                const withVue = resolved + '.vue';
-                if (fs.existsSync(withVue)) return withVue;
-                return null;
-            }
-
-            // 只处理相对路径的导入
-            if (!source.startsWith('.') || !importer) return null;
-
-            // 清理 importer 路径（移除 query string 如 ?rollup-plugin-vue=script.ts）
-            const cleanImporter = importer.split('?')[0];
-            // 确保使用绝对路径
-            const absImporter = path.isAbsolute(cleanImporter) ? cleanImporter : path.resolve(cleanImporter);
-            const importerDir = path.dirname(absImporter);
-            let resolved = path.resolve(importerDir, source);
-
-            // Windows 路径规范化
-            resolved = path.normalize(resolved);
-
-            // 如果文件已存在（带完整扩展名），直接返回
-            if (fs.existsSync(resolved)) return resolved;
-
-            // 尝试添加 .ts 扩展名
-            const withTs = resolved + '.ts';
-            if (fs.existsSync(withTs)) return withTs;
-
-            // 尝试添加 .vue 扩展名
-            const withVue = resolved + '.vue';
-            if (fs.existsSync(withVue)) return withVue;
-
-            // 尝试添加 .json 扩展名
-            const withJson = resolved + '.json';
-            if (fs.existsSync(withJson)) return withJson;
-
-            return null;
-        }
-    };
-}
 
 export default {
     // 性能监控
