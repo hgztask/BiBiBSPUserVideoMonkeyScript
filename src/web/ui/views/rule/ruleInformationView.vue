@@ -15,7 +15,8 @@ export default defineComponent({
   methods: {
     refreshInfo(isTip = true) {
       for (let x of this.ruleInfoArr as any[]) {
-        x.len = GM_getValue(x.type, []).length;
+        // len 需用 $set 声明为响应式属性（初始 push 时不含该键），否则计数变化不会触发视图更新
+        this.$set(x, 'len', GM_getValue(x.type, []).length);
       }
       if (!isTip) return;
       this.$notify({title: 'tip', message: '刷新规则信息成功', type: 'success'})
