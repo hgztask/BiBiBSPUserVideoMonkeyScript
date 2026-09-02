@@ -5,6 +5,7 @@ import panelSettingsView from "./views/settings/panelSettingsView.vue";
 import compatibleSettingView from "./views/settings/compatibleSettingView.vue";
 import lookContentDialog from "./dialogs/lookContentDialog.vue";
 import debuggerManagementView from './views/debug/debuggerManagementView.vue';
+import debuggerManagement from "../domain/debuggerManagement";
 import PageProcessingTabsView from "./views/page/PageProcessingTabsView.vue";
 import aboutAndFeedbackView from "./views/aboutAndFeedbackView.vue";
 import showImgDialog from "./dialogs/showImgDialog.vue";
@@ -50,6 +51,8 @@ export default defineComponent({
       // 默认打开的tab
       tabsActiveName: GM_getValue('mainTabsActiveName', '规则管理'),
       debug_panel_show: __DEV__,
+      // ws 开关开启后，生产构建也显示"调试测试"页签，便于随时关闭 ws 连接
+      ws_panel_show: __DEV__ || debuggerManagement.isWsService(),
       isShowBackToTopVal: localMKData.isShowBackToTopBtn()
     }
   },
@@ -154,7 +157,7 @@ export default defineComponent({
         <el-tab-pane label="关于和问题反馈" lazy name="关于和问题反馈">
           <aboutAndFeedbackView/>
         </el-tab-pane>
-        <el-tab-pane v-if="debug_panel_show" label="调试测试" lazy name="调试测试">
+        <el-tab-pane v-if="ws_panel_show" label="调试测试" lazy name="调试测试">
           <debuggerManagementView/>
         </el-tab-pane>
       </el-tabs>
