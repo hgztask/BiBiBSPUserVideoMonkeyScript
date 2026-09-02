@@ -100,6 +100,14 @@
     "name": "直播弹幕(正则匹配)"
   },
   {
+    "key": "videoBarrage",
+    "name": "视频弹幕(模糊匹配)"
+  },
+  {
+    "key": "videoBarrageCanonical",
+    "name": "视频弹幕(正则匹配)"
+  },
+  {
     "key": "videoTag",
     "name": "视频tag(模糊匹配)"
   },

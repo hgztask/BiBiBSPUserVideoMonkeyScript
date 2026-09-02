@@ -6,6 +6,7 @@ import watchUtil from './domain/watchUtil.ts'
 import observeNetwork from "./domain/observeNetwork.ts";
 import './domain/notificationBlocking.ts'
 import './domain/replaceKeywords.ts'
+import './domain/videoDanmakuFilter.ts'
 import './dev/dev.ts'
 import liveRoomModel from "./pages/live/roomModel.ts";
 

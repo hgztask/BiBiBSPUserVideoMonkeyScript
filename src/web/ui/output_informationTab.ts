@@ -41,7 +41,20 @@ ${toTimeString}-根据${type}${matching ? `<b style="color: ${highlightInformati
 </b>`
 }
 
+interface VideoDanmakuInfo {
+    text: string
+}
+
+const getVideoDanmakuInfoHtml = (type: string, matching: string | number | boolean | null, danmakuData: VideoDanmakuInfo): string => {
+    const toTimeString = defUtil.toTimeString();
+    const {text} = danmakuData;
+    return `<b style="color: ${outputInformationFontColor};" gz_bezel>
+${toTimeString}-根据${type}${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽弹幕【${text}】
+</b>`
+}
+
 export default {
     getLiveRoomCommentInfoHtml,
-    getLiveRoomInfoHtml
+    getLiveRoomInfoHtml,
+    getVideoDanmakuInfoHtml
 }
