@@ -5,6 +5,7 @@
 //   node server/cdpClient.mjs tabs                          列出页面标签
 //   node server/cdpClient.mjs eval "location.href"          在标签页执行 JS（支持 --tab 关键词、--port）
 //   node server/cdpClient.mjs console [秒数]                收集标签页 console 输出（默认 3 秒）
+//   node server/cdpClient.mjs net [秒数] [--filter 关键词]   抓包网络请求（默认 8 秒，可配合 reload 观测页面请求）
 //   node server/cdpClient.mjs shot 输出.png                 截图保存为 PNG
 //   node server/cdpClient.mjs reload                        刷新标签页
 //   node server/cdpClient.mjs goto <url>                    导航到指定地址
@@ -152,6 +153,43 @@ async function main() {
             });
             cdp.on('Log.entryAdded', (params) => {
                 console.log(`[${params.entry.level}] ${params.entry.text} @ ${params.entry.url ?? ''}`);
+            });
+            setTimeout(() => {
+                cdp.close();
+                process.exit(0);
+            }, seconds * 1000);
+            break;
+        }
+        case 'net': {
+            const seconds = Number(argv[1] ?? 8);
+            const filterIndex = argv.indexOf('--filter');
+            const filter = filterIndex === -1 ? null : argv[filterIndex + 1].toLowerCase();
+            const cdp = await connectCdp(page.webSocketDebuggerUrl);
+            await cdp.send('Network.enable');
+            await cdp.send('Page.enable');
+            // 建立 frameId → URL 映射，用于判断请求来自主 frame 还是 iframe
+            const frameMap = {};
+            const tree = await cdp.send('Page.getFrameTree');
+            const walkFrame = (f) => {
+                frameMap[f.frame.id] = (f.frame.url || '').slice(0, 60);
+                (f.childFrames ?? []).forEach(walkFrame);
+            };
+            walkFrame(tree.frameTree);
+            cdp.on('Page.frameAttached', (p) => {
+                if (!p.frame || !p.frame.id) return;
+                frameMap[p.frame.id] = (p.frame.url || '') + '(attached)';
+            });
+            console.log(`── 抓包 ${page.title} 的网络请求（${seconds} 秒${filter ? `，过滤: ${filter}` : ''}）──`);
+            console.log('frame 映射:', JSON.stringify(frameMap));
+            cdp.on('Network.requestWillBeSent', (params) => {
+                const url = params.request.url;
+                if (filter && !url.toLowerCase().includes(filter)) return;
+                console.log(`→ [frame:${frameMap[params.frameId] ?? params.frameId.slice(0, 8)}] ${params.type ?? ''} ${url.slice(0, 120)}`);
+            });
+            cdp.on('Network.responseReceived', (params) => {
+                const url = params.response.url;
+                if (filter && !url.toLowerCase().includes(filter)) return;
+                console.log(`← [frame:${frameMap[params.frameId] ?? params.frameId.slice(0, 8)}] ${params.type} ${params.response.status} ${url.slice(0, 120)}`);
             });
             setTimeout(() => {
                 cdp.close();
