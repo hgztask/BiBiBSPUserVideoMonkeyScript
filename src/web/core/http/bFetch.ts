@@ -196,6 +196,31 @@ const fetchGetVideoReplyBoxDescription = async (bv: string): Promise<ReplyBoxRes
     })
 }
 
+/** 通过uid请求用户信息（昵称、等级），无效uid或请求失败返回 null */
+const userInfoCache = new Map<string, { uid: string, name: string, level: number } | null>();
+const fetchUserInfoByMid = async (mid: string | number): Promise<{ uid: string, name: string, level: number } | null> => {
+    const uid = String(mid);
+    if (userInfoCache.has(uid)) return userInfoCache.get(uid) ?? null;
+    try {
+        const response = await fetch(`https://api.bilibili.com/x/web-interface/card?mid=${uid}`, {credentials: 'include'})
+        const {code, data} = await response.json()
+        const cardMid = data?.card?.mid;
+        if (code !== 0 || !data?.card?.name || (cardMid !== undefined && String(cardMid) !== uid)) {
+            userInfoCache.set(uid, null);
+            return null;
+        }
+        const userInfo = {
+            uid,
+            name: data.card.name,
+            level: data.card.level_info?.current_level ?? -1,
+        };
+        userInfoCache.set(uid, userInfo);
+        return userInfo;
+    } catch {
+        return null
+    }
+}
+
 declare global {
     interface Window {
         fetchGetVideoInfo: typeof fetchGetVideoInfo
@@ -209,5 +234,6 @@ window.fetchGetVideoReplyBoxDescription = fetchGetVideoReplyBoxDescription
 export default {
     fetchGetVideoInfo,
     fetchGetBarrageBlockingWords,
-    fetchGetAttentionInfo
+    fetchGetAttentionInfo,
+    fetchUserInfoByMid
 }

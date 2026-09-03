@@ -7,6 +7,7 @@ import observeNetwork from "./domain/observeNetwork.ts";
 import './domain/notificationBlocking.ts'
 import './domain/replaceKeywords.ts'
 import './domain/videoDanmakuFilter.ts'
+import './domain/videoDanmakuInspector.ts'
 import './dev/dev.ts'
 import liveRoomModel from "./pages/live/roomModel.ts";
 

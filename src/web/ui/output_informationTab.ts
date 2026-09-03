@@ -43,13 +43,22 @@ ${toTimeString}-根据${type}${matching ? `<b style="color: ${highlightInformati
 
 interface VideoDanmakuInfo {
     text: string
+    /** 发送者信息（破解uid后查询得到，未破解成功时为空） */
+    user?: { uid: string, name: string, level: number } | null
+    /** uid 破解失败时保留的哈希，便于后续排查 */
+    uhash?: string
 }
 
 const getVideoDanmakuInfoHtml = (type: string, matching: string | number | boolean | null, danmakuData: VideoDanmakuInfo): string => {
     const toTimeString = defUtil.toTimeString();
-    const {text} = danmakuData;
+    const {text, user} = danmakuData;
+    const userHtml = user
+        ? `-用户【<a href="https://space.bilibili.com/${user.uid}"
+            style="color: ${highlightInformationColor}"
+            target="_blank">${user.name} Lv${user.level} uid=${user.uid}</a>】`
+        : `-用户信息获取失败【uhash=${danmakuData.uhash ?? '未知'}】`;
     return `<b style="color: ${outputInformationFontColor};" gz_bezel>
-${toTimeString}-根据${type}${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽弹幕【${text}】
+${toTimeString}-根据${type}${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽弹幕【${text}】${userHtml}
 </b>`
 }
 
