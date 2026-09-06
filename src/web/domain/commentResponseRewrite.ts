@@ -14,6 +14,8 @@ type CommentKind = "main" | "sub";
 
 interface CommentFilterEntry {
     index: number;
+    /** 评论唯一标识，同一评论出现多处（顶层/嵌套预览）时用于去重输出 */
+    rpid?: number | string;
     item: unknown;
 }
 
@@ -112,6 +114,31 @@ const installPageFetchHook = (token: string): void => {
             pending.set(requestId, {timer, resolve});
             window.postMessage({type: requestType, token, requestId, kind, list, items}, window.location.origin);
         });
+        // 递归收集顶层评论及其嵌套预览（楼中楼），携带 rpid 供沙箱去重
+        const collectEntries = (list, keyPrefix) => {
+            const entries = [];
+            const walk = (items, path, depth) => {
+                if (!Array.isArray(items) || depth > 3) return;
+                items.forEach((item, index) => {
+                    const currentPath = path + '[' + index + ']';
+                    entries.push({path: keyPrefix + currentPath, rpid: item && item.rpid, item});
+                    walk(item && item.replies, currentPath + '.replies', depth + 1);
+                });
+            };
+            walk(list, '', 1);
+            return entries;
+        };
+        // 按 rpid 集合递归剔除所有出现位置（顶层与嵌套预览）
+        const filterByRpids = (items, blockedRpids) => {
+            if (!Array.isArray(items)) return items;
+            const kept = [];
+            for (const item of items) {
+                if (item && typeof item.rpid !== 'undefined' && blockedRpids.has(item.rpid)) continue;
+                if (item && Array.isArray(item.replies)) item.replies = filterByRpids(item.replies, blockedRpids);
+                kept.push(item);
+            }
+            return kept;
+        };
         window.fetch = async function (...args) {
             const response = await rawFetch.apply(this, args);
             try {
@@ -128,14 +155,20 @@ const installPageFetchHook = (token: string): void => {
                     if (kind === 'sub' && key === 'top_replies') continue;
                     const list = responseJson.data[key];
                     if (!Array.isArray(list) || !list.length) continue;
-                    const items = list.map((item, index) => ({index, item}));
+                    const entries = collectEntries(list, key);
+                    if (!entries.length) continue;
+                    const items = entries.map((entry, index) => ({index, rpid: entry.rpid, item: entry.item}));
                     const blockedIndexes = await requestFilter(kind, key, items);
                     if (!blockedIndexes.length) continue;
-                    const blocked = new Set(blockedIndexes.filter((index) => Number.isInteger(index)));
-                    responseJson.data[key] = list.filter((item, index) => !blocked.has(index));
+                    const blockedRpids = new Set(blockedIndexes
+                        .filter((index) => Number.isInteger(index))
+                        .map((index) => entries[index] && entries[index].rpid)
+                        .filter((rpid) => typeof rpid !== 'undefined'));
+                    if (!blockedRpids.size) continue;
+                    responseJson.data[key] = filterByRpids(responseJson.data[key], blockedRpids);
                     changed = true;
                     const listLabel = kind === 'sub' ? '楼中楼' : (key === 'top_replies' ? '主楼置顶' : '主楼');
-                    console.log('[B站屏蔽][评论响应层过滤] ' + listLabel + '：原始' + list.length + '条，过滤' + blocked.size + '条，剩余' + responseJson.data[key].length + '条');
+                    console.log('[B站屏蔽][评论响应层过滤] ' + listLabel + '：原始' + entries.length + '个位置，过滤' + blockedRpids.size + '条评论');
                 }
                 if (!changed) return response;
                 return copyResponse(response, JSON.stringify(responseJson));
@@ -158,10 +191,16 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         (data.kind !== "main" && data.kind !== "sub") ||
         (data.list !== "replies" && data.list !== "top_replies") || !Array.isArray(data.items)) return;
     const decisions = data.items.filter(entry => entry && Number.isInteger(entry.index))
-        .map(entry => ({index: entry.index, ...getDecision(entry)}));
+        .map(entry => ({index: entry.index, rpid: entry.rpid, ...getDecision(entry)}));
     const label = data.kind === "sub" ? "楼中楼评论" : (data.list === "top_replies" ? "主楼置顶评论" : "主楼评论");
+    const emittedRpids = new Set<number | string>();
     for (const item of decisions) {
         if (!item.blocked || !item.data) continue;
+        // 同一评论在响应中出现多处时只输出一条记录
+        if (item.rpid !== undefined) {
+            if (emittedRpids.has(item.rpid)) continue;
+            emittedRpids.add(item.rpid);
+        }
         // 与 DOM 流程一致，输出屏蔽记录（评论屏蔽类型，uid 可点击跳转）
         eventEmitter.send("屏蔽评论信息", item.type, item.matching, item.data, "响应层过滤");
         const contentPreview = item.data.content.length > 50 ? `${item.data.content.slice(0, 50)}…` : item.data.content;
