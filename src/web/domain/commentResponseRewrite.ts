@@ -164,7 +164,7 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
     for (const item of decisions) {
         if (!item.blocked || !item.data) continue;
         // 与 DOM 流程一致，输出屏蔽记录（评论屏蔽类型，uid 可点击跳转）
-        eventEmitter.send("屏蔽评论信息", item.type, item.matching, item.data);
+        eventEmitter.send("屏蔽评论信息", item.type, item.matching, item.data, "响应层过滤");
         const contentPreview = item.data.content.length > 50 ? `${item.data.content.slice(0, 50)}…` : item.data.content;
         console.log(`[B站屏蔽][评论响应层过滤] ${label} 根据${item.type}${item.matching ? `【${item.matching}】` : ""}屏蔽用户【${item.data.name}】uid=${item.data.uid} 评论【${contentPreview}】`);
     }

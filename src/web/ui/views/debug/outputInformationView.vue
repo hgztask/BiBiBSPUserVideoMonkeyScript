@@ -131,12 +131,15 @@ export default defineComponent({
       })
     })
 
-    eventEmitter.on('屏蔽评论信息', (type, matching, commentData) => {
+    eventEmitter.on('屏蔽评论信息', (type, matching, commentData, source) => {
       const {name, uid, content} = commentData;
+      const sourceLabel = source === '响应层过滤'
+        ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
+        : '';
       this.addOutInfo({
         type: 'shield-comment-info',
         content: `<b style="color: ${outputInformationFontColor};">
-根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
+	${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
             <a href="https://space.bilibili.com/${uid}"
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>
