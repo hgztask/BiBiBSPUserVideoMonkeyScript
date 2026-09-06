@@ -185,8 +185,11 @@ const asyncBlockArgueMsgContent = async (argueMsg: string | undefined): Promise<
     return res
 }
 
+/** 响应层可用的基础视频字段，不依赖页面DOM */
+type SyncVideoData = Pick<VideoData, 'title' | 'name'> & Partial<Pick<VideoData, 'uid' | 'nDuration' | 'nBulletChat' | 'nPlayCount' | 'bv'>>;
+
 /** 同步视频屏蔽核心流程：依次检查uid/name、标题、bv号、时长、弹幕数、播放量 */
-const shieldingVideo = (videoData: VideoData): BlockResult => {
+export const shieldingVideo = (videoData: SyncVideoData): BlockResult => {
     const {
         title, uid = -1,
         name, nDuration = -1,

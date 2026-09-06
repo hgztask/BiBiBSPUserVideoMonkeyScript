@@ -6,7 +6,8 @@ import {
   isAutomaticScrollingGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
-  isHideHomeTopHeaderChannelGm
+  isHideHomeTopHeaderChannelGm,
+  isHomeResponseRewriteGm
 } from "@/state/localMKData.ts";
 import cssManager from "../../../domain/cssManager.ts";
 
@@ -18,6 +19,7 @@ export default defineComponent({
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
       isAutomaticScrollingVal: isAutomaticScrollingGm(),
+      isHomeResponseRewriteVal: isHomeResponseRewriteGm(),
       releaseTypeCardVals: getReleaseTypeCardsGm(),
     }
   },
@@ -37,6 +39,9 @@ export default defineComponent({
     isAutomaticScrollingVal(n) {
       GM_setValue('is_automatic_scrolling_gm', n)
     },
+    isHomeResponseRewriteVal(n) {
+      GM_setValue('is_home_response_rewrite_gm', n)
+    },
     releaseTypeCardVals(n) {
       GM_setValue('release_type_cards_gm', n)
     }
@@ -54,6 +59,9 @@ export default defineComponent({
     </el-tooltip>
     <el-tooltip content="定时检测首页视频列表数量，如果数量<=9则模拟鼠标上下滚动">
       <el-switch v-model="isAutomaticScrollingVal" active-text="检查视频列表数量模拟鼠标上下滚动"/>
+    </el-tooltip>
+    <el-tooltip content="实验功能：过滤首页响应中明确识别的广告、直播、发布类型和基础视频规则；未知类型与深度规则仍由原有页面流程处理，修改后请刷新首页">
+      <el-switch v-model="isHomeResponseRewriteVal" active-text="通过响应过滤首页推荐视频（实验）"/>
     </el-tooltip>
     <el-divider/>
     <el-tooltip content="但视频列表中出现选择的类型时跳过，反之屏蔽" placement="top">

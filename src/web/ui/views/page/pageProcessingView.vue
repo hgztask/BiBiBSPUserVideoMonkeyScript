@@ -11,6 +11,7 @@ import localMKData, {
   isHideLiveGiftPanelGm,
   isHideSearchHistoryPanelGm,
   isRoomBackgroundHideGm,
+  isSearchResponseRewriteGm,
 } from "../../../state/localMKData.ts";
 import liveSectionModel from "../../../pages/live/sectionModel.ts";
 import liveRoomModel from "../../../pages/live/roomModel.ts";
@@ -24,6 +25,7 @@ export default defineComponent({
     return {
       isRemoveSearchBottomContent: GM_getValue('isRemoveSearchBottomContent', false),
       isClearLiveCardVal: isClearLiveCardGm(),
+      isSearchResponseRewriteVal: isSearchResponseRewriteGm(),
       isClearTopInputTipContent: GM_getValue('isClearTopInputTipContent', false),
       isHideHotSearchesPanelVal: isHideHotSearchesPanelGm(),
       isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm(),
@@ -43,6 +45,9 @@ export default defineComponent({
     },
     isClearLiveCardVal(b) {
       GM_setValue('is_clear_live_card_gm', b)
+    },
+    isSearchResponseRewriteVal(b) {
+      GM_setValue('is_search_response_rewrite_gm', b)
     },
     isClearTopInputTipContent(b) {
       GM_setValue('isClearTopInputTipContent', b)
@@ -108,6 +113,9 @@ export default defineComponent({
                  active-text="屏蔽底部额外内容"/>
       <el-tooltip content="综合选项卡视频列表中出现的直播卡片">
         <el-switch v-model="isClearLiveCardVal" active-text="屏蔽推荐直播类"/>
+      </el-tooltip>
+      <el-tooltip content="实验功能：修改搜索接口响应，提前过滤可识别的视频和直播结果；未知结构仍由页面流程处理，修改后请刷新搜索页">
+        <el-switch v-model="isSearchResponseRewriteVal" active-text="通过响应过滤搜索结果（实验）"/>
       </el-tooltip>
     </el-card>
     <el-card shadow="never">

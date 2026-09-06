@@ -157,7 +157,7 @@ const asyncBlockFansLevel = async (fansMedal: string | null, fansLevel: number):
     return res
 }
 
-const shieldingLiveRoom = (liveRoomData: LiveRoomData): BlockResult => {
+export const shieldingLiveRoom = (liveRoomData: Omit<LiveRoomData, 'el'>): BlockResult => {
     const {name, title, partition, uid = -1, roomId} = liveRoomData;
     let returnVal: BlockResult;
     if (uid !== -1) {
