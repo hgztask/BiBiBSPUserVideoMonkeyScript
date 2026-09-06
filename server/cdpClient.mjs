@@ -6,6 +6,7 @@
 //   node server/cdpClient.mjs eval "location.href"          在标签页执行 JS（支持 --tab 关键词、--port）
 //   node server/cdpClient.mjs console [秒数]                收集标签页 console 输出（默认 3 秒）
 //   node server/cdpClient.mjs net [秒数] [--filter 关键词]   抓包网络请求（默认 8 秒，可配合 reload 观测页面请求）
+//   node server/cdpClient.mjs rewrite [秒数] [--filter 关键词] [--reload] 响应改写冒烟测试（默认 8 秒，默认过滤首页推荐接口）
 //   node server/cdpClient.mjs shot 输出.png                 截图保存为 PNG
 //   node server/cdpClient.mjs reload                        刷新标签页
 //   node server/cdpClient.mjs goto <url>                    导航到指定地址
@@ -21,12 +22,38 @@ function parseFlag(name) {
     const index = argv.indexOf(name);
     if (index === -1) return null;
     const value = argv[index + 1];
+    if (!value || value.startsWith('--')) {
+        fail(`参数 ${name} 缺少值`);
+    }
     argv.splice(index, 2);
     return value;
 }
 
-const port = Number(parseFlag('--port') ?? 9222);
+const portValue = parseFlag('--port') ?? '9222';
+const port = Number(portValue);
+if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+    fail(`端口号无效：${portValue}`);
+}
 const tabKeyword = parseFlag('--tab');
+
+function parseSeconds(value, defaultValue, command) {
+    const seconds = Number(value ?? defaultValue);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+        fail(`${command} 的秒数必须是大于 0 的数字`);
+    }
+    return seconds;
+}
+
+function parseFilter(defaultValue, command) {
+    const filterIndex = argv.indexOf('--filter');
+    if (filterIndex === -1) return defaultValue;
+    const value = argv[filterIndex + 1];
+    if (!value || value.startsWith('--')) {
+        fail(`${command} 的 --filter 缺少值`);
+    }
+    argv.splice(filterIndex, 2);
+    return value.toLowerCase();
+}
 
 function fail(message) {
     console.error(`❌ ${message}`);
@@ -113,7 +140,7 @@ function formatRemoteObject(obj) {
 }
 
 async function main() {
-    if (!command) fail('缺少命令。可用：tabs / eval / console / shot / reload / goto');
+    if (!command) fail('缺少命令。可用：tabs / eval / console / net / rewrite / shot / reload / goto');
     const targets = await getTargets();
     const page = pickTab(targets);
 
@@ -142,7 +169,7 @@ async function main() {
             break;
         }
         case 'console': {
-            const seconds = Number(argv[1] ?? 3);
+            const seconds = parseSeconds(argv[1], 3, 'console');
             const cdp = await connectCdp(page.webSocketDebuggerUrl);
             await cdp.send('Runtime.enable');
             await cdp.send('Log.enable');
@@ -161,9 +188,8 @@ async function main() {
             break;
         }
         case 'net': {
-            const seconds = Number(argv[1] ?? 8);
-            const filterIndex = argv.indexOf('--filter');
-            const filter = filterIndex === -1 ? null : argv[filterIndex + 1].toLowerCase();
+            const seconds = parseSeconds(argv[1], 8, 'net');
+            const filter = parseFilter(null, 'net');
             const cdp = await connectCdp(page.webSocketDebuggerUrl);
             await cdp.send('Network.enable');
             await cdp.send('Page.enable');
@@ -197,6 +223,91 @@ async function main() {
             }, seconds * 1000);
             break;
         }
+        case 'rewrite': {
+            const seconds = parseSeconds(argv[1], 8, 'rewrite');
+            const defaultFilter = '/x/web-interface/wbi/index/top/feed/rcmd';
+            const filter = parseFilter(defaultFilter, 'rewrite');
+            const reload = argv.includes('--reload');
+            if (reload) argv.splice(argv.indexOf('--reload'), 1);
+            const cdp = await connectCdp(page.webSocketDebuggerUrl);
+            let pausedCount = 0;
+            let matchedCount = 0;
+            let rewrittenCount = 0;
+            let failedCount = 0;
+            let markerSeen = false;
+            let closing = false;
+            const activeTasks = new Set();
+
+            const continueRequest = async (requestId) => {
+                await cdp.send('Fetch.continueRequest', {requestId}).catch(() => {});
+            };
+
+            cdp.on('Fetch.requestPaused', (params) => {
+                const task = (async () => {
+                    pausedCount += 1;
+                    const url = params.request?.url ?? '';
+                    const isMatched = !closing && url.toLowerCase().includes(filter);
+                    if (!isMatched || params.responseStatusCode == null) {
+                        await continueRequest(params.requestId);
+                        return;
+                    }
+                    matchedCount += 1;
+                    try {
+                        const response = await cdp.send('Fetch.getResponseBody', {
+                            requestId: params.requestId
+                        });
+                        const body = Buffer.from(
+                            response.body,
+                            response.base64Encoded ? 'base64' : 'utf8'
+                        ).toString('utf8');
+                        const data = JSON.parse(body);
+                        data.__station_b_shield_rewrite_test__ = 'passed';
+                        const headers = (params.responseHeaders ?? [])
+                            .filter(({name}) => !/^(content-length|content-encoding|etag|content-md5|content-range|content-security-policy|content-type)$/i.test(name));
+                        headers.push({name: 'content-type', value: 'application/json; charset=utf-8'});
+                        await cdp.send('Fetch.fulfillRequest', {
+                            requestId: params.requestId,
+                            responseCode: params.responseStatusCode,
+                            responsePhrase: 'OK',
+                            responseHeaders: headers,
+                            body: Buffer.from(JSON.stringify(data), 'utf8').toString('base64')
+                        });
+                        rewrittenCount += 1;
+                        markerSeen = true;
+                        console.log(`← 已改写响应 ${params.responseStatusCode} ${url}`);
+                    } catch (error) {
+                        failedCount += 1;
+                        console.error(`⚠️ 响应改写失败，将继续放行：${url}，${error.message}`);
+                        await continueRequest(params.requestId);
+                    }
+                })().finally(() => activeTasks.delete(task));
+                activeTasks.add(task);
+            });
+
+            await cdp.send('Fetch.enable', {
+                patterns: [{urlPattern: '*', requestStage: 'Response'}]
+            });
+            console.log(`── 响应改写测试 ${page.title}（${seconds} 秒，过滤: ${filter}${reload ? '，启动后刷新' : ''}）──`);
+            if (reload) {
+                await cdp.send('Page.reload', {ignoreCache: false});
+            }
+            await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+            closing = true;
+            await cdp.send('Fetch.disable').catch(() => {});
+            await Promise.all([...activeTasks]);
+            cdp.close();
+            console.log(JSON.stringify({
+                command: 'rewrite',
+                filter,
+                reload,
+                pausedCount,
+                matchedCount,
+                rewrittenCount,
+                failedCount,
+                markerSeen
+            }, null, 2));
+            break;
+        }
         case 'shot': {
             const file = argv[1];
             if (!file) fail('用法：shot <输出.png>');
@@ -224,7 +335,7 @@ async function main() {
             break;
         }
         default:
-            fail(`未知命令 "${command}"。可用：tabs / eval / console / shot / reload / goto`);
+            fail(`未知命令 "${command}"。可用：tabs / eval / console / net / rewrite / shot / reload / goto`);
     }
 }
 
