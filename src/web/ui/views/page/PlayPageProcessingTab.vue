@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue'
-import localMKData, {isCloseCommentBlockingGm} from "../../../state/localMKData.ts";
+import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../../../state/localMKData.ts";
 
 export default defineComponent({
   name: "PlayPageProcessingTab",
@@ -11,7 +11,8 @@ export default defineComponent({
       isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
       isDelBottomComment: localMKData.isDelBottomComment(),
       isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel(),
-      isCloseCommentBlockingVal: isCloseCommentBlockingGm()
+      isCloseCommentBlockingVal: isCloseCommentBlockingGm(),
+      isCommentResponseRewriteVal: isCommentResponseRewriteGm()
     }
   },
   watch: {
@@ -32,6 +33,9 @@ export default defineComponent({
     },
     isCloseCommentBlockingVal(n) {
       GM_setValue('is_close_comment_blocking_gm', n)
+    },
+    isCommentResponseRewriteVal(n) {
+      GM_setValue('is_comment_response_rewrite_gm', n)
     }
   }
 })
@@ -56,6 +60,9 @@ export default defineComponent({
       </el-tooltip>
       <el-tooltip content="开启后评论屏蔽功能关闭">
         <el-switch v-model="isCloseCommentBlockingVal" active-text="关闭评论屏蔽"/>
+      </el-tooltip>
+      <el-tooltip content="实验功能：修改评论接口响应，在渲染前过滤可识别的评论（含楼中楼与置顶），命中规则输出到输出信息；关闭评论屏蔽时本开关无效，修改后请刷新页面">
+        <el-switch v-model="isCommentResponseRewriteVal" active-text="通过响应过滤评论区（实验）"/>
       </el-tooltip>
     </el-card>
   </div>

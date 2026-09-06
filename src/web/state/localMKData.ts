@@ -71,6 +71,11 @@ export const isSearchResponseRewriteGm = (): boolean => {
     return GM_getValue<boolean>('is_search_response_rewrite_gm', false) === true
 }
 
+/** 是否启用评论区响应过滤实验，默认关闭 */
+export const isCommentResponseRewriteGm = (): boolean => {
+    return GM_getValue<boolean>('is_comment_response_rewrite_gm', false) === true
+}
+
 /** 是否显示右上角主面板按钮开关，默认true */
 const isShowRightTopMainButSwitch = (): boolean => {
     return GM_getValue<boolean>("showRightTopMainButSwitch", true) === true
