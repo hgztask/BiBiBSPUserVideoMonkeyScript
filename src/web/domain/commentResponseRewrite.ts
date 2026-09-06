@@ -159,7 +159,6 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         (data.list !== "replies" && data.list !== "top_replies") || !Array.isArray(data.items)) return;
     const decisions = data.items.filter(entry => entry && Number.isInteger(entry.index))
         .map(entry => ({index: entry.index, ...getDecision(entry)}));
-    const blockedIndexes = decisions.filter(item => item.blocked).map(item => item.index);
     const label = data.kind === "sub" ? "楼中楼评论" : (data.list === "top_replies" ? "主楼置顶评论" : "主楼评论");
     for (const item of decisions) {
         if (!item.blocked || !item.data) continue;
@@ -168,10 +167,12 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         const contentPreview = item.data.content.length > 50 ? `${item.data.content.slice(0, 50)}…` : item.data.content;
         console.log(`[B站屏蔽][评论响应层过滤] ${label} 根据${item.type}${item.matching ? `【${item.matching}】` : ""}屏蔽用户【${item.data.name}】uid=${item.data.uid} 评论【${contentPreview}】`);
     }
-    const message = `[B站屏蔽][评论响应层过滤] ${label}：总计${data.items.length}条，过滤${blockedIndexes.length}条`;
-    console.log(message);
-    eventEmitter.send("打印信息", message);
-    const response: CommentFilterResponse = {type: responseType, token: expectedToken, requestId: data.requestId!, blockedIndexes};
+    const response: CommentFilterResponse = {
+        type: responseType,
+        token: expectedToken,
+        requestId: data.requestId!,
+        blockedIndexes: decisions.filter(item => item.blocked).map(item => item.index)
+    };
     window.postMessage(response, window.location.origin);
 };
 
