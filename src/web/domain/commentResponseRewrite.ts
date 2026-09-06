@@ -22,6 +22,8 @@ interface CommentFilterRequest {
     token: string;
     requestId: string;
     kind: CommentKind;
+    /** 判定的数组来源：主楼普通评论 / 主楼置顶评论 */
+    list: "replies" | "top_replies";
     items: CommentFilterEntry[];
 }
 
@@ -104,13 +106,14 @@ const installPageFetchHook = (token: string): void => {
             headers.set('content-type', 'application/json; charset=utf-8');
             return new Response(body, {status: response.status, statusText: response.statusText, headers});
         };
-        const requestFilter = (kind, items) => new Promise((resolve) => {
+        const requestFilter = (kind, list, items) => new Promise((resolve) => {
             const requestId = String(++requestSequence);
             const timer = setTimeout(() => { pending.delete(requestId); resolve([]); }, responseTimeout);
             pending.set(requestId, {timer, resolve});
-            window.postMessage({type: requestType, token, requestId, kind, items}, window.location.origin);
+            window.postMessage({type: requestType, token, requestId, kind, list, items}, window.location.origin);
         });
-        window.fetch = async function (...args) {            const response = await rawFetch.apply(this, args);
+        window.fetch = async function (...args) {
+            const response = await rawFetch.apply(this, args);
             try {
                 const url = new URL(response.url || args[0], window.location.href);
                 if (!response.ok || url.hostname !== 'api.bilibili.com' || !url.searchParams.has('oid')) return response;
@@ -126,13 +129,13 @@ const installPageFetchHook = (token: string): void => {
                     const list = responseJson.data[key];
                     if (!Array.isArray(list) || !list.length) continue;
                     const items = list.map((item, index) => ({index, item}));
-                    const blockedIndexes = await requestFilter(kind, items);
+                    const blockedIndexes = await requestFilter(kind, key, items);
                     if (!blockedIndexes.length) continue;
                     const blocked = new Set(blockedIndexes.filter((index) => Number.isInteger(index)));
                     responseJson.data[key] = list.filter((item, index) => !blocked.has(index));
                     changed = true;
-                    console.log('[B站屏蔽][评论响应层过滤] ' + (kind === 'main' ? '主楼' : '楼中楼') + key +
-                        '：原始' + list.length + '条，过滤' + blocked.size + '条，剩余' + responseJson.data[key].length + '条');
+                    const listLabel = kind === 'sub' ? '楼中楼' : (key === 'top_replies' ? '主楼置顶' : '主楼');
+                    console.log('[B站屏蔽][评论响应层过滤] ' + listLabel + '：原始' + list.length + '条，过滤' + blocked.size + '条，剩余' + responseJson.data[key].length + '条');
                 }
                 if (!changed) return response;
                 return copyResponse(response, JSON.stringify(responseJson));
@@ -152,11 +155,12 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
     if (event.origin !== window.location.origin) return;
     const data = event.data as Partial<CommentFilterRequest> | null;
     if (!data || data.type !== requestType || data.token !== expectedToken ||
-        (data.kind !== "main" && data.kind !== "sub") || !Array.isArray(data.items)) return;
+        (data.kind !== "main" && data.kind !== "sub") ||
+        (data.list !== "replies" && data.list !== "top_replies") || !Array.isArray(data.items)) return;
     const decisions = data.items.filter(entry => entry && Number.isInteger(entry.index))
         .map(entry => ({index: entry.index, ...getDecision(entry)}));
     const blockedIndexes = decisions.filter(item => item.blocked).map(item => item.index);
-    const label = data.kind === "main" ? "主楼评论" : "楼中楼评论";
+    const label = data.kind === "sub" ? "楼中楼评论" : (data.list === "top_replies" ? "主楼置顶评论" : "主楼评论");
     for (const item of decisions) {
         if (!item.blocked || !item.data) continue;
         // 与 DOM 流程一致，输出屏蔽记录（评论屏蔽类型，uid 可点击跳转）
