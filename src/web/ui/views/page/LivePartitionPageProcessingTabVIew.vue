@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 import {defineComponent} from 'vue';
-import {isRoomListAdaptiveGm} from "@/state/localMKData.ts";
+import {isLiveSectionResponseRewriteGm, isRoomListAdaptiveGm} from "@/state/localMKData.ts";
 import liveSectionModel from "../../../pages/live/sectionModel.ts";
 import cssManager from "../../../domain/cssManager.ts";
 import PartitionTagWhiterListPanel from "./PatitionTagWhiterListPanel.vue";
@@ -10,7 +10,8 @@ export default defineComponent({
   data() {
     return {
       isRoomListAdaptiveVal: isRoomListAdaptiveGm(),
-      isDelLivePartitionPageRightSidebarVal: false
+      isDelLivePartitionPageRightSidebarVal: false,
+      isLiveSectionResponseRewriteVal: isLiveSectionResponseRewriteGm(),
     }
   },
   watch: {
@@ -25,6 +26,9 @@ export default defineComponent({
       if (liveSectionModel.isLiveSection()) {
         // cssManager
       }
+    },
+    isLiveSectionResponseRewriteVal(n) {
+      GM_setValue('is_live_section_response_rewrite_gm', n)
     }
   },
 })
@@ -35,6 +39,9 @@ export default defineComponent({
     <el-card shadow="never">
       <el-switch v-model="isRoomListAdaptiveVal" active-text="房间列表自适应"/>
       <el-switch v-model="isDelLivePartitionPageRightSidebarVal" active-text="屏蔽右侧侧边栏"/>
+      <el-tooltip content="在页面渲染前过滤掉命中屏蔽规则的直播间，避免渲染后再删除导致列表高度骤降；配合右下角\"加载更多直播间\"按钮解决滚动加载饿死问题，修改后请刷新分区页">
+        <el-switch v-model="isLiveSectionResponseRewriteVal" active-text="响应层过滤直播间列表（默认开启）"/>
+      </el-tooltip>
     </el-card>
     <el-card shadow="never">
       <template #header>顶部切换分区面板白单名展示(仅展示列表中分区,启用后生效，启用了如留空则会清空列表)</template>

@@ -20,6 +20,7 @@ const typeOptions = [
   {value: 'info', label: '普通信息'},
   {value: 'shield-video-info', label: '视频屏蔽'},
   {value: 'shield-comment-info', label: '评论屏蔽'},
+  {value: 'shield-live-info', label: '直播间屏蔽'},
   {value: 'update-out-info', label: '状态更新'},
   {value: 'error', label: '错误信息'},
 ];
@@ -57,7 +58,7 @@ export default defineComponent({
     },
     getTypeTag(type: string): string {
       if (type === 'error') return 'danger';
-      if (type === 'shield-video-info' || type === 'shield-comment-info') return 'warning';
+      if (type === 'shield-video-info' || type === 'shield-comment-info' || type === 'shield-live-info') return 'warning';
       if (type === 'update-out-info') return 'success';
       if (type === 'info') return 'primary';
       return 'info';
@@ -139,11 +140,29 @@ export default defineComponent({
       this.addOutInfo({
         type: 'shield-comment-info',
         content: `<b style="color: ${outputInformationFontColor};">
-	${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
+		${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
             <a href="https://space.bilibili.com/${uid}"
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>
             评论【${content}】
+            </b>`
+      })
+    })
+
+    eventEmitter.on('屏蔽直播信息', (type, matching, liveData, source) => {
+      const {name, uid, title} = liveData;
+      const liveUrl = liveData.liveUrl || `https://live.bilibili.com/${liveData.roomId}`;
+      const sourceLabel = source === '响应层过滤'
+        ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
+        : '';
+      this.addOutInfo({
+        type: 'shield-live-info',
+        content: `<b style="color: ${outputInformationFontColor};">
+		${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】${uid > 0 ? `uid=
+            <a href="https://space.bilibili.com/${uid}"
+            style="color: ${highlightInformationColor}"
+            target="_blank">【${uid}】</a>` : ""}
+            直播间标题【<a href="${liveUrl}" target="_blank" style="color: ${highlightInformationColor}">${title}</a>】
             </b>`
       })
     })

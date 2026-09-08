@@ -1,6 +1,7 @@
 import './domain/homeResponseRewrite.ts'
 import './domain/searchResponseRewrite.ts'
 import './domain/commentResponseRewrite.ts'
+import './domain/liveSectionResponseRewrite.ts'
 import './menu.ts'
 import './core/externalLibraryVerification.ts'
 import "./ui/init.ts";

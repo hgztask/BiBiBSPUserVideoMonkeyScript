@@ -188,8 +188,7 @@ const shieldingLiveRoomDecorated = (liveRoomData: LiveRoomData): boolean => {
     const {state, type, matching} = shieldingLiveRoom(liveRoomData);
     if (state) {
         liveRoomData.el?.remove();
-        const infoHtml = output_informationTab.getLiveRoomInfoHtml(type ?? '', matching ?? '', liveRoomData);
-        eventEmitter.send('打印信息', infoHtml)
+        eventEmitter.send('屏蔽直播信息', type ?? '', matching ?? '', liveRoomData)
     }
     return state;
 }

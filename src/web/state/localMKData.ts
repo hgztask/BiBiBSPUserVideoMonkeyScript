@@ -76,6 +76,11 @@ export const isCommentResponseRewriteGm = (): boolean => {
     return GM_getValue<boolean>('is_comment_response_rewrite_gm', false) === true
 }
 
+/** 是否启用直播分区getList响应过滤。默认开启：这是对"屏蔽后列表填不满视口导致滚动加载饿死"问题的修复而非实验特性 */
+export const isLiveSectionResponseRewriteGm = (): boolean => {
+    return GM_getValue<boolean>('is_live_section_response_rewrite_gm', true) === true
+}
+
 /** 是否显示右上角主面板按钮开关，默认true */
 const isShowRightTopMainButSwitch = (): boolean => {
     return GM_getValue<boolean>("showRightTopMainButSwitch", true) === true

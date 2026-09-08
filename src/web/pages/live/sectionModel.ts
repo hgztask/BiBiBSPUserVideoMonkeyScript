@@ -63,14 +63,54 @@ const startShieldingLiveRoom = async () => {
     }
 }
 
+//直播分区业务逻辑
+
+// —— 饥饿恢复：屏蔽删除大部分卡片后，列表高度不足视口、页面滚动加载永不触发 ——
+// 页面只监听 document 的 scroll 事件，饥饿态下文档高度 < 视口，无滚动空间故 scroll 永不触发。
+// 点击"加载更多"按钮：临时撑高文档恢复滚动能力 → 真实滚动到底 → 触发页面自身 fetch 加载 → 复原。
+let loadMoreButton: HTMLElement | null = null;
+
+const triggerLoadMore = (): void => {
+    const prevMinHeight = document.body.style.minHeight;
+    document.body.style.minHeight = `${window.innerHeight + 200}px`;
+    window.scrollTo(0, document.body.scrollHeight);
+    // 等新卡片渲染完成后复原撑高，避免残留多余滚动空间
+    setTimeout(() => {
+        document.body.style.minHeight = prevMinHeight;
+    }, 1500);
+}
+
+const insertLoadMoreButton = (): void => {
+    if (loadMoreButton && document.body.contains(loadMoreButton)) return;
+    const button = document.createElement('div');
+    button.id = 'gz_live_section_load_more_button';
+    button.textContent = '加载更多直播间';
+    Object.assign(button.style, {
+        position: 'fixed',
+        right: '20px',
+        bottom: '80px',
+        zIndex: '99999',
+        padding: '8px 16px',
+        borderRadius: '20px',
+        background: 'rgba(0, 161, 214, 0.9)',
+        color: '#fff',
+        fontSize: '14px',
+        cursor: 'pointer',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+        userSelect: 'none',
+    } as CSSStyleDeclaration);
+    button.addEventListener('click', () => triggerLoadMore());
+    document.body.appendChild(button);
+    loadMoreButton = button;
+}
+
 const run = () => {
     LiveCommon.addStyle();
     cssManager.liveStreamPartitionStyle(isRoomListAdaptiveGm());
     liveCommon.setLivePageRightSidebarHide(isDelLivePageRightSidebarGm())
+    insertLoadMoreButton()
 }
 
-
-//直播分区业务逻辑
 export default {
     isLiveSection, run,
     startShieldingLiveRoom,
