@@ -69,6 +69,14 @@ const isBlockedDanmaku = (text: string, uhash: string, blockedUidByUhash: Map<nu
 const isDanmakuItem = (item: any): boolean =>
     item !== null && typeof item === 'object' && typeof item.text === 'string' && typeof item.uhash === 'string'
 
+/** 弹幕屏蔽只对正式视频播放页生效，排除搜索页悬停预览等内嵌播放器 */
+const isVideoPlayPage = (): boolean =>
+    window.location.hostname === 'www.bilibili.com' && (
+        window.location.pathname.startsWith('/video/') ||
+        window.location.pathname.startsWith('/list/ml') ||
+        window.location.pathname.startsWith('/list/watchlater')
+    )
+
 // ==================== 统计 ====================
 
 const stats = {lists: 0, total: 0, blocked: 0};
@@ -153,6 +161,7 @@ const installWorkerHook = (): void => {
         const instance = new OriginalWorker(scriptUrl as any, options);
         // 注册时机早于播放器自身的监听，可先于播放器处理消息
         instance.addEventListener('message', (e: MessageEvent) => {
+            if (!isVideoPlayPage()) return;
             const data = e.data;
             if (data === null || typeof data !== 'object') return;
             const keys = Object.keys(data);
