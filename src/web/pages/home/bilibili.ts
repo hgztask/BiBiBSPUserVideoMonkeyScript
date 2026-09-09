@@ -5,8 +5,8 @@ import {eventEmitter} from "../../core/EventEmitter.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 import globalValue from "../../config/globalValue.ts";
 import {
+    getHomeFeedLoadAttemptsGm,
     getReleaseTypeCardsGm,
-    isAutomaticScrollingGm,
     isHideCarouselImageGm,
     isHideHomeTopHeaderBannerImageGm,
     isHideHomeTopHeaderChannelGm
@@ -195,30 +195,131 @@ const startShieldingHomeVideoList = async () => {
 const startDebounceShieldingHomeVideoList: Function = defUtil.debounce(startShieldingHomeVideoList, 300);
 
 /**
- * 模拟鼠标上下滚动
+ * 获取首页视频列表的加载状态
  */
-const scrollMouseUpAndDown = async () => {
-    //如果开启适配BAppcommerce脚本，则不执行此功能
-    if (globalValue.adaptationBAppCommerce) return;
-    //定位到底部元素之后定位头部元素，模拟鼠标上下滚动
-    const el = document.body.querySelector('#home-bottom-div');
-    el?.scrollIntoView({behavior: 'smooth', block: "end"});
-    await defUtil.wait(1200);
-    document.querySelector('.browser-tip')?.scrollIntoView({behavior: 'smooth'});
+interface HomeFeedLoadState {
+    realCardCount: number;
+    skeletonCount: number;
+    visibleSkeletonCount: number;
+    listBottom: number;
+    viewportBottom: number;
 }
 
-//检查页面视频列表数量
-const checkVideoListCount = () => {
-    setInterval(async () => {
-        console.log('开始检查视频列表数量')
-        const elList = document.body.querySelectorAll('.container.is-version8>div:is(.feed-card,.bili-feed-card)');
-        if (elList.length === 0) return
-        if (elList.length <= 9) {
-            await scrollMouseUpAndDown();
+const getHomeFeedLoadState = (): HomeFeedLoadState | null => {
+    const list = document.querySelector('.container.is-version8') as HTMLElement | null;
+    if (!list) return null;
+    const cards = [...list.querySelectorAll(':scope>div')];
+    const realCardCount = cards.filter(el =>
+        el.classList.contains('feed-card') || el.classList.contains('bili-feed-card')
+    ).length;
+    const skeletons = cards.flatMap(el =>
+        [...el.querySelectorAll('.bili-video-card__skeleton')]
+    );
+    const viewportBottom = window.innerHeight;
+    const visibleSkeletonCount = skeletons.filter(el => {
+        const rect = el.getBoundingClientRect();
+        return rect.height > 0 && rect.top < viewportBottom + 160 && rect.bottom > 0;
+    }).length;
+    return {
+        realCardCount,
+        skeletonCount: skeletons.length,
+        visibleSkeletonCount,
+        listBottom: list.getBoundingClientRect().bottom,
+        viewportBottom,
+    };
+};
+
+const isHomeFeedUnderfilled = (state: HomeFeedLoadState | null): boolean => {
+    if (!state) return false;
+    return state.visibleSkeletonCount > 0 ||
+        (state.realCardCount > 0 && state.listBottom <= state.viewportBottom + 160);
+};
+
+const hasHomeFeedProgressed = (before: HomeFeedLoadState, after: HomeFeedLoadState): boolean => {
+    return after.realCardCount > before.realCardCount ||
+        after.skeletonCount < before.skeletonCount ||
+        after.visibleSkeletonCount !== before.visibleSkeletonCount ||
+        after.listBottom !== before.listBottom;
+};
+
+/**
+ * 在同一任务中触发首页原生滚动检查，再立即恢复用户位置。
+ * 页面自身的 scroll 监听会在恢复前看到底部位置，但浏览器来不及绘制中间位置。
+ */
+const triggerHomeNativeLoad = (): void => {
+    const originalScrollY = window.scrollY;
+    const previousMinHeight = document.body.style.minHeight;
+    const minimumHeight = `${Math.max(document.body.scrollHeight, window.innerHeight + 200)}px`;
+    document.body.style.minHeight = minimumHeight;
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'auto'});
+    window.dispatchEvent(new Event('scroll'));
+    window.scrollTo({top: originalScrollY, behavior: 'auto'});
+    window.setTimeout(() => {
+        document.body.style.minHeight = previousMinHeight;
+    }, 100);
+};
+
+const waitForHomeFeedProgress = async (before: HomeFeedLoadState): Promise<HomeFeedLoadState | null> => {
+    const deadline = Date.now() + 3500;
+    while (Date.now() < deadline) {
+        await defUtil.wait(150);
+        const current = getHomeFeedLoadState();
+        if (current && hasHomeFeedProgressed(before, current)) {
+            return current;
         }
-        startClearExcessContentList()
-    }, 3000);
-}
+    }
+    return getHomeFeedLoadState();
+};
+
+let homeFeedLoadRecoveryStarted = false;
+
+/**
+ * 处理屏蔽后首页列表高度不足的问题，不改变用户滚动位置，也不制造假骨架卡片。
+ */
+const startHomeFeedLoadRecovery = (): void => {
+    if (homeFeedLoadRecoveryStarted || globalValue.adaptationBAppCommerce || globalValue.compatibleBEWLYBEWLY) return;
+    const maxAttempts = getHomeFeedLoadAttemptsGm();
+    if (maxAttempts <= 0) return;
+    homeFeedLoadRecoveryStarted = true;
+
+    let running = false;
+    let attempts = 0;
+    let scheduled = false;
+    const schedule = (): void => {
+        if (scheduled) return;
+        scheduled = true;
+        window.setTimeout(() => {
+            scheduled = false;
+            void recover();
+        }, 120);
+    };
+    const recover = async (): Promise<void> => {
+        if (running) return;
+        const before = getHomeFeedLoadState();
+        if (!isHomeFeedUnderfilled(before)) {
+            attempts = 0;
+            return;
+        }
+        if (attempts >= maxAttempts) return;
+        running = true;
+        attempts += 1;
+        triggerHomeNativeLoad();
+        const after = await waitForHomeFeedProgress(before as HomeFeedLoadState);
+        running = false;
+        if (!after || !hasHomeFeedProgressed(before as HomeFeedLoadState, after)) return;
+        if (isHomeFeedUnderfilled(after)) {
+            schedule();
+        } else {
+            attempts = 0;
+        }
+    };
+
+    const observer = new MutationObserver(schedule);
+    // 首页列表可能在首次路由执行后才挂载，监听 body 可以覆盖列表首次出现和后续替换。
+    observer.observe(document.body, {childList: true, subtree: true});
+    window.addEventListener('scroll', schedule, {passive: true});
+    schedule();
+};
 
 
 const run = () => {
@@ -245,25 +346,9 @@ const run = () => {
     }
 }
     `);
-    //定位到指定元素之后，在该元素后面插入12个空元素，防止视频列表加载不出来
-    elUtil.findElement('.load-more-anchor~.bili-video-card:last-child').then(el => {
-        if (!el) return;
-        let current = el as Element;
-        for (let i = 0; i < 12; i++) {
-            const clone = current.cloneNode(true) as Element;
-            current.insertAdjacentElement('afterend', clone);
-            current = clone;
-        }
-        console.log("已插入12个空元素至视频列表尾部，最后插入的元素", current);
-    })
-    const bottomDiv = document.createElement('div');
-    bottomDiv.id = 'home-bottom-div';
-    bottomDiv.style.all = 'initial';
-    document.body.appendChild(bottomDiv);
-    if (isAutomaticScrollingGm() && !(globalValue.adaptationBAppCommerce || globalValue.compatibleBEWLYBEWLY)) {
-        setTimeout(() => {
-            checkVideoListCount();
-        }, 1400)
+    GM_deleteValue('is_automatic_scrolling_gm');
+    if (!(globalValue.adaptationBAppCommerce || globalValue.compatibleBEWLYBEWLY)) {
+        window.setTimeout(startHomeFeedLoadRecovery, 1400);
     }
 }
 

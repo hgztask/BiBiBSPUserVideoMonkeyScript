@@ -519,9 +519,11 @@ export const getReleaseTypeCardsGm = (): string[] => {
     return GM_getValue('release_type_cards_gm', [])
 }
 
-/** 是否启用自动滚动 */
-export const isAutomaticScrollingGm = (): boolean => {
-    return GM_getValue('is_automatic_scrolling_gm', true)
+/** 获取首页列表一次连续补载的最多尝试次数，默认 3 次，0 表示关闭 */
+export const getHomeFeedLoadAttemptsGm = (): number => {
+    const value = Number(GM_getValue('home_feed_load_attempts_gm', 3))
+    if (!Number.isFinite(value)) return 3
+    return Math.max(0, Math.floor(value))
 }
 
 /** 是否启用直播间列表自适应布局 */

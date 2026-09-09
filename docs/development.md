@@ -273,7 +273,35 @@ observeNetwork.observeNetwork(url, windowUrl, winTitle, initiatorType)
 - 匹配 B 站 API 端点（如 `x/web-interface/wbi/index/top/feed/rcmd`）来触发对应屏蔽逻辑
 - 可配置排除页面和仅首页屏蔽模式
 
-### 5.5 屏蔽引擎（`domain/shielding/main.ts`）
+### 5.5 首页视频列表静默补载（`pages/home/bilibili.ts`）
+
+#### 问题背景
+
+首页推荐列表使用 B 站自身的懒加载机制。屏蔽规则在页面渲染后移除大量卡片，或首页推荐响应过滤提前删除条目后，列表高度可能不足以触发页面的下一次滚动检查，后续内容会停留在骨架状态。旧实现通过定时检查卡片数量并执行平滑滚动解决，但会改变用户视口位置，也会在列表尾部克隆骨架卡片，存在用户观感和加载可靠性问题。
+
+#### 当前实现
+
+首页标准页面初始化后启动静默补载控制器，Bilibili-Gate 和 Bewly 兼容模式不参与该流程。控制器通过以下状态判断列表是否需要补载：
+
+- `.container.is-version8` 中的真实视频卡片数量。
+- `.bili-video-card__skeleton` 骨架卡片数量及其视口附近数量。
+- 首页列表底部与视口底部的距离。
+
+需要补载时，控制器记录当前 `scrollY`，临时将页面定位到底部触发 B 站原生滚动加载检查，再立即恢复原滚动位置。触发过程不使用平滑滚动，不插入假卡片，也不显示按钮。每次尝试后等待真实 DOM 状态变化，只有真实卡片增加、骨架状态变化或列表布局推进时，才允许继续下一次尝试。
+
+#### 配置项
+
+配置存储在 `GM_setValue` 中：
+
+| 配置项 | 默认值 | 说明 |
+|---|---:|---|
+| `home_feed_load_attempts_gm` | `3` | 一次连续补载事件允许的最多尝试次数；设置为 `0` 表示关闭；不设置代码硬上限 |
+
+用户可以在主面板“首页”页签修改“首页列表连续补载次数”。当一次尝试没有检测到列表状态变化、加载哨兵消失或等待超时，控制器会停止本轮补载，避免异常情况下持续触发请求。
+
+旧配置 `is_automatic_scrolling_gm` 已废弃，首页不再提供“检查视频列表数量模拟鼠标上下滚动”开关。脚本进入标准首页时会清理该旧配置值。
+
+### 5.6 屏蔽引擎（`domain/shielding/main.ts`）
 
 核心接口：
 
@@ -303,13 +331,13 @@ interface BlockButtonData {
 
 屏蔽引擎从 `localMKData` 读取用户配置的规则（关键词、正则、时长、播放量等），遍历规则列表进行匹配，返回 `BlockResult` 决定是否屏蔽。
 
-### 5.6 数据存储
+### 5.7 数据存储
 
 - **`state/localMKData.ts`**（574 行）：封装 `GM_setValue` / `GM_getValue`，为所有用户可配置的设置提供类型安全的 getter/setter，如屏蔽规则、UI 偏好、功能开关等。
 - **`core/cache/bvDexie.ts`**：基于 Dexie.js（IndexedDB）的视频元数据缓存，含 TTL 过期策略。
 - **`core/cache/valueCache.ts`**：轻量级内存缓存。
 
-### 5.7 类型系统（`types/`）
+### 5.8 类型系统（`types/`）
 
 项目将共享类型定义集中到 `src/web/types/` 目录：
 
@@ -328,7 +356,7 @@ interface BlockButtonData {
 | `global.d.ts` | 全局变量、window 扩展类型声明 |
 | `shims-vue.d.ts` | `.vue` 文件模块声明，让 TS 能识别 SFC导入 |
 
-### 5.8 UI 层（`ui/init.ts`）
+### 5.9 UI 层（`ui/init.ts`）
 
 UI 初始化流程：
 

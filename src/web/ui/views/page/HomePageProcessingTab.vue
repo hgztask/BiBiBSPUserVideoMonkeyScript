@@ -2,8 +2,8 @@
 import {defineComponent} from 'vue'
 import bilibiliHome from "../../../pages/home/bilibili.ts";
 import {
+  getHomeFeedLoadAttemptsGm,
   getReleaseTypeCardsGm,
-  isAutomaticScrollingGm,
   isHideCarouselImageGm,
   isHideHomeTopHeaderBannerImageGm,
   isHideHomeTopHeaderChannelGm,
@@ -18,7 +18,7 @@ export default defineComponent({
       isHideCarouselImageVal: isHideCarouselImageGm(),
       isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
       isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
-      isAutomaticScrollingVal: isAutomaticScrollingGm(),
+      homeFeedLoadAttemptsVal: getHomeFeedLoadAttemptsGm(),
       isHomeResponseRewriteVal: isHomeResponseRewriteGm(),
       releaseTypeCardVals: getReleaseTypeCardsGm(),
     }
@@ -36,8 +36,9 @@ export default defineComponent({
       GM_setValue('is_hide_home_top_header_channel_gm', n)
       cssManager.hideHomeTopHeaderChannel(n);
     },
-    isAutomaticScrollingVal(n) {
-      GM_setValue('is_automatic_scrolling_gm', n)
+    homeFeedLoadAttemptsVal(n) {
+      const value = Number(n)
+      GM_setValue('home_feed_load_attempts_gm', Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 3)
     },
     isHomeResponseRewriteVal(n) {
       GM_setValue('is_home_response_rewrite_gm', n)
@@ -57,8 +58,11 @@ export default defineComponent({
     <el-tooltip content="隐藏视频列表上方的动态、热门、频道栏一整行">
       <el-switch v-model="isHideTopHeaderChannelVal" active-text="隐藏顶部页面频道栏"/>
     </el-tooltip>
-    <el-tooltip content="定时检测首页视频列表数量，如果数量<=9则模拟鼠标上下滚动">
-      <el-switch v-model="isAutomaticScrollingVal" active-text="检查视频列表数量模拟鼠标上下滚动"/>
+    <el-tooltip content="首页列表未填满视口时，静默触发页面自身加载；每次连续补载的最多尝试次数，设置为0表示关闭">
+      <div>
+        <span>首页列表连续补载次数：</span>
+        <el-input-number v-model="homeFeedLoadAttemptsVal" :min="0" :step="1"/>
+      </div>
     </el-tooltip>
     <el-tooltip content="实验功能：过滤首页响应中明确识别的广告、直播、发布类型和基础视频规则；未知类型与深度规则仍由原有页面流程处理，修改后请刷新首页">
       <el-switch v-model="isHomeResponseRewriteVal" active-text="通过响应过滤首页推荐视频（实验）"/>
