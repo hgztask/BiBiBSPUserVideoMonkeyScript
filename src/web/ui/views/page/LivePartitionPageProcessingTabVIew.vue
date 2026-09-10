@@ -39,7 +39,7 @@ export default defineComponent({
     <el-card shadow="never">
       <el-switch v-model="isRoomListAdaptiveVal" active-text="房间列表自适应"/>
       <el-switch v-model="isDelLivePartitionPageRightSidebarVal" active-text="屏蔽右侧侧边栏"/>
-      <el-tooltip content="在页面渲染前过滤掉命中屏蔽规则的直播间，避免渲染后再删除导致列表高度骤降；配合右下角\"加载更多直播间\"按钮解决滚动加载饿死问题，修改后请刷新分区页">
+      <el-tooltip content="在页面渲染前过滤掉命中屏蔽规则的直播间，避免渲染后再删除导致列表高度骤降；配合右下角【加载更多直播间】按钮解决滚动加载饿死问题，修改后请刷新分区页">
         <el-switch v-model="isLiveSectionResponseRewriteVal" active-text="响应层过滤直播间列表（默认开启）"/>
       </el-tooltip>
     </el-card>
