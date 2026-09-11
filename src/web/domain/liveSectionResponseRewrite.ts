@@ -4,13 +4,15 @@ import {eventEmitter} from "../core/EventEmitter.ts";
 
 // 直播分区页 getList 响应层过滤：
 // 在页面渲染前剔除命中屏蔽规则的直播间，避免"渲染→删除"造成的列表高度骤降。
-// 注意：响应过滤无法解决"过滤后列表填不满视口导致滚动加载饿死"的问题，
-// 该问题由 sectionModel 的"加载更多"按钮（撑高文档+真实滚动）兜底。
+// 过滤后列表可能不满一屏（滚动加载饿死），由 sectionModel 的饥饿提示+补满按钮兜底：
+// 检测到列表过短时按钮变红呼吸提示用户点击，点击后循环"撑高文档+真实滚动"补满一屏。
 const requestType = "station-b-shield:live-section-response-filter-request";
 const responseType = "station-b-shield:live-section-response-filter-response";
 const targetHost = "api.live.bilibili.com";
 const targetPath = "/xlive/web-interface/v1/second/getList";
-const responseTimeout = 800;
+// 2026-09-11：800ms 实测在部分场景下不够用（点击"加载更多"后的一批曾超时静默放行导致闪现），
+// 提升至 2000ms：超时只在沙箱异常时生效，正常往返为毫秒级，不影响正常加载速度
+const responseTimeout = 2000;
 
 // 屏蔽记录输出去重：B 站分区页初始化会对同一页重复请求 getList（实测同页两次相同响应），
 // 相同屏蔽指纹在短时间窗口内只输出一次，避免输出信息面板出现 ×2 合并记录
@@ -94,6 +96,7 @@ const installPageFetchHook = (token: string): void => {
             const requestId = String(++requestSequence);
             const timer = setTimeout(() => {
                 pending.delete(requestId);
+                console.warn('[station-b-shield] 直播分区响应过滤超时，本批放行（沙箱未在 ' + responseTimeout + 'ms 内返回判定结果）');
                 resolve([]);
             }, responseTimeout);
             pending.set(requestId, {timer, resolve});
@@ -131,6 +134,7 @@ const installPageFetchHook = (token: string): void => {
                 responseJson.data.list = responseJson.data.list.filter((item, index) => !blocked.has(index));
                 return copyResponse(response, JSON.stringify(responseJson));
             } catch (error) {
+                console.warn('[station-b-shield] 直播分区响应过滤失败，本批放行：' + (error && error.message ? error.message : String(error)));
                 return response;
             }
         };

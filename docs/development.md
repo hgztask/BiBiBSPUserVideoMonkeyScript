@@ -144,6 +144,10 @@ src/web/
 │   │   ├── comments.ts   # 评论屏蔽
 │   │   └── combinationRules.ts  # 组合规则
 │   ├── cssManager.ts     # 样式管理
+│   ├── homeResponseRewrite.ts    # 首页推荐响应层过滤
+│   ├── searchResponseRewrite.ts  # 搜索结果响应层过滤
+│   ├── commentResponseRewrite.ts # 评论区响应层过滤
+│   ├── liveSectionResponseRewrite.ts # 直播分区getList响应层过滤
 │   ├── observeNetwork.ts # 网络请求监听与分发
 │   ├── notificationBlocking.ts  # 通知屏蔽
 │   ├── replaceKeywords.ts      # 关键词替换
@@ -301,7 +305,31 @@ observeNetwork.observeNetwork(url, windowUrl, winTitle, initiatorType)
 
 旧配置 `is_automatic_scrolling_gm` 已废弃，首页不再提供“检查视频列表数量模拟鼠标上下滚动”开关。脚本进入标准首页时会清理该旧配置值。
 
-### 5.6 屏蔽引擎（`domain/shielding/main.ts`）
+### 5.6 直播分区响应层过滤与饥饿提示（`domain/liveSectionResponseRewrite.ts` + `pages/live/sectionModel.ts`）
+
+#### 问题背景
+
+直播分区页（`live.bilibili.com/p/eden/area-tags`）的直播间列表由页面自身 fetch `api.live.bilibili.com/xlive/web-interface/v1/second/getList` 加载。DOM 层屏蔽在渲染后删除卡片，会造成列表高度骤降的闪烁观感。更棘手的是“滚动加载饿死”：页面只监听 document 的 scroll 事件，当屏蔽规则命中率高、过滤后卡片填不满一屏时，文档高度小于视口、无滚动空间，页面自身的续载永远不触发。
+
+#### 响应层过滤
+
+`liveSectionResponseRewrite.ts` 采用与首页/搜索/评论响应过滤相同的双层架构：
+
+- **页面上下文 fetch hook**（注入 `<script>`）：拦截 getList 响应，把 `data.list` 通过 `postMessage` 发往沙箱判定；超时（2000ms）或改写异常时放行原始响应并输出 `console.warn('[station-b-shield] ...')` 便于诊断。
+- **沙箱判定**：复用 `shieldingLiveRoom` 规则引擎逐项判定，命中索引回传页面 hook 在渲染前剔除。屏蔽记录经事件 `屏蔽直播信息` 输出到面板，来源标记【响应层过滤】；相同指纹 10 秒窗口去重（B 站同页会重复请求 getList）。
+
+开关 `is_live_section_response_rewrite_gm` 默认开启（主面板“直播分区”页签）。
+
+#### 饥饿提示与补满按钮（sectionModel.ts）
+
+响应过滤解决闪烁，但会加剧饿死——这部分由右下角常驻按钮承担：
+
+- **饥饿检测提示**：MutationObserver 监听列表增删（300ms 防抖）+ 首屏 1.5s 首评；列表不满一屏（列表底部文档坐标 ≤ 视口高 + 200px）时按钮变红呼吸并改文案“屏蔽后列表过短，点击补满一屏”，明确告知用户由手动触发恢复，而非脚本静默处理。
+- **点击补满一屏**：循环「递增撑高 body + 真实滚动到底 → 等 getList 响应到达（PerformanceObserver，只认 observe 之后新条目，主脚本会 clearResourceTimings 故不能用全量缓冲做基线）→ 等列表 MutationObserver 静默（300ms 无增删，上限 2.5s）→ 文档坐标测满屏」。停止条件：满屏 / 4s 无新响应（到底）/ 滚动目标不变 / 10 轮上限。
+- **到底冷却**：整轮补满未等到任何 getList 响应视为分区到底，按钮熄灭并 60s 冷却不再提示。
+- 撑高用 `dataset` 保存原始内联高度、循环期间保持、结束一次性复原，规避中途复原的列表跳动与 prevMinHeight 循环污染问题。
+
+### 5.7 屏蔽引擎（`domain/shielding/main.ts`）
 
 核心接口：
 
@@ -331,13 +359,13 @@ interface BlockButtonData {
 
 屏蔽引擎从 `localMKData` 读取用户配置的规则（关键词、正则、时长、播放量等），遍历规则列表进行匹配，返回 `BlockResult` 决定是否屏蔽。
 
-### 5.7 数据存储
+### 5.8 数据存储
 
 - **`state/localMKData.ts`**（574 行）：封装 `GM_setValue` / `GM_getValue`，为所有用户可配置的设置提供类型安全的 getter/setter，如屏蔽规则、UI 偏好、功能开关等。
 - **`core/cache/bvDexie.ts`**：基于 Dexie.js（IndexedDB）的视频元数据缓存，含 TTL 过期策略。
 - **`core/cache/valueCache.ts`**：轻量级内存缓存。
 
-### 5.8 类型系统（`types/`）
+### 5.9 类型系统（`types/`）
 
 项目将共享类型定义集中到 `src/web/types/` 目录：
 
@@ -356,7 +384,7 @@ interface BlockButtonData {
 | `global.d.ts` | 全局变量、window 扩展类型声明 |
 | `shims-vue.d.ts` | `.vue` 文件模块声明，让 TS 能识别 SFC导入 |
 
-### 5.9 UI 层（`ui/init.ts`）
+### 5.10 UI 层（`ui/init.ts`）
 
 UI 初始化流程：
 
