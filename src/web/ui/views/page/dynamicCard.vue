@@ -9,7 +9,8 @@ import localMKData, {
   isBlockSpecialColumnForChargingDynamicGm,
   isBlockUPowerLotteryDynamicGm,
   isBlockVideoChargingExclusiveDynamicGm,
-  isBlockVoteDynamicGm
+  isBlockVoteDynamicGm,
+  isDynamicCommentResponseRewriteGm
 } from "../../../state/localMKData.ts";
 import dynamicPage from "../../../pages/dynamic/page.ts";
 import cssManager from "../../../domain/cssManager.ts";
@@ -28,6 +29,7 @@ export default defineComponent({
       hidePersonalInfoCardVal: hidePersonalInfoCardGm(),
       isDynamicHomeRightLayHideVal: localMKData.isDynamicHomeRightLayHide(),
       hideBackToOldVersionButVal: localMKData.hideBackToOldVersionButGm(),
+      isDynamicCommentResponseRewriteVal: isDynamicCommentResponseRewriteGm(),
     }
   },
   watch: {
@@ -68,6 +70,9 @@ export default defineComponent({
     hideBackToOldVersionButVal(n) {
       GM_setValue('hide_back_to_old_version_but_gm', n)
       dynamicPage.runHideBackToOldVersionButFun(n)
+    },
+    isDynamicCommentResponseRewriteVal(n) {
+      GM_setValue('is_dynamic_comment_response_rewrite_gm', n)
     }
   }
 })
@@ -98,6 +103,9 @@ export default defineComponent({
       <el-switch v-model="isBlockSpecialColumnForChargingDynamicVal" active-text="屏蔽充电专属专栏"/>
       <el-switch v-model="isBlockVideoChargingExclusiveDynamicVal" active-text="屏蔽充电专属视频"/>
       <el-switch v-model="hideBackToOldVersionButVal" active-text="屏蔽右下角的回到旧版悬浮按钮"/>
+      <el-tooltip content="实验功能：修改动态详情评论接口响应，在渲染前过滤可识别的评论，命中规则输出到输出信息；关闭评论屏蔽时本开关无效，修改后请刷新页面">
+        <el-switch v-model="isDynamicCommentResponseRewriteVal" active-text="动态详情评论区响应过滤（实验）"/>
+      </el-tooltip>
     </el-card>
   </div>
 </template>

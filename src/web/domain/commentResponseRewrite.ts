@@ -1,4 +1,4 @@
-import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../state/localMKData.ts";
+import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm, isDynamicCommentResponseRewriteGm} from "../state/localMKData.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
 import comments_shielding from "./shielding/comments.ts";
 
@@ -88,6 +88,18 @@ const getDecision = (entry: CommentFilterEntry): { blocked: boolean; type: strin
 const isVideoPlayPage = (): boolean =>
     window.location.hostname === "www.bilibili.com" && window.location.pathname.startsWith("/video/");
 
+/** 动态详情页判定（仅依赖 URL，@runAt document-start 时 title 尚未就绪，与 dynamicPage.isUrlDynamicContentPage 的 URL 部分保持一致） */
+const isDynamicContentPage = (): boolean => {
+    const {hostname, pathname} = window.location;
+    if (hostname === "www.bilibili.com") {
+        return pathname.startsWith("/opus/");
+    }
+    if (hostname === "t.bilibili.com") {
+        return /^\/(\d+)(\/.*)?$/.test(pathname) || pathname.startsWith("/opus/");
+    }
+    return false;
+};
+
 const installPageFetchHook = (token: string): void => {
     const source = `(() => {
         const token = ${JSON.stringify(token)};
@@ -113,6 +125,18 @@ const installPageFetchHook = (token: string): void => {
             const timer = setTimeout(() => { pending.delete(requestId); resolve([]); }, responseTimeout);
             pending.set(requestId, {timer, resolve});
             window.postMessage({type: requestType, token, requestId, kind, list, items}, window.location.origin);
+        });
+        // 接收沙箱返回的过滤结果并resolve对应pending。此前缺少该监听器，
+        // 页面侧永远等不到响应（仅靠超时放行原始响应），导致评论照常渲染、再由DOM层二次屏蔽
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) return;
+            const data = event.data;
+            if (!data || data.type !== responseType || data.token !== token) return;
+            const entry = pending.get(data.requestId);
+            if (!entry) return;
+            clearTimeout(entry.timer);
+            pending.delete(data.requestId);
+            entry.resolve(Array.isArray(data.blockedIndexes) ? data.blockedIndexes : []);
         });
         // 递归收集顶层评论及其嵌套预览（楼中楼），携带 rpid 供沙箱去重
         const collectEntries = (list, keyPrefix) => {
@@ -217,7 +241,10 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
 
 const install = (): void => {
     // 关闭评论屏蔽总开关时，响应层过滤随之停用
-    if (!isCommentResponseRewriteGm() || isCloseCommentBlockingGm() || localMKData.isCompatible_BEWLY_BEWLY() || !isVideoPlayPage()) return;
+    if (isCloseCommentBlockingGm() || localMKData.isCompatible_BEWLY_BEWLY()) return;
+    const videoEnabled = isCommentResponseRewriteGm() && isVideoPlayPage();
+    const dynamicEnabled = isDynamicCommentResponseRewriteGm() && isDynamicContentPage();
+    if (!videoEnabled && !dynamicEnabled) return;
     const token = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     window.addEventListener("message", createFilterRequestHandler(token));
     installPageFetchHook(token);
