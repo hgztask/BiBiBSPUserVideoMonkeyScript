@@ -1,4 +1,4 @@
-import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm, isDynamicCommentResponseRewriteGm} from "../state/localMKData.ts";
+import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../state/localMKData.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
 import comments_shielding from "./shielding/comments.ts";
 
@@ -83,21 +83,6 @@ const getDecision = (entry: CommentFilterEntry): { blocked: boolean; type: strin
         matching: String(result.matching ?? ""),
         data,
     };
-};
-
-const isVideoPlayPage = (): boolean =>
-    window.location.hostname === "www.bilibili.com" && window.location.pathname.startsWith("/video/");
-
-/** 动态详情页判定（仅依赖 URL，@runAt document-start 时 title 尚未就绪，与 dynamicPage.isUrlDynamicContentPage 的 URL 部分保持一致） */
-const isDynamicContentPage = (): boolean => {
-    const {hostname, pathname} = window.location;
-    if (hostname === "www.bilibili.com") {
-        return pathname.startsWith("/opus/");
-    }
-    if (hostname === "t.bilibili.com") {
-        return /^\/(\d+)(\/.*)?$/.test(pathname) || pathname.startsWith("/opus/");
-    }
-    return false;
 };
 
 const installPageFetchHook = (token: string): void => {
@@ -242,9 +227,9 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
 const install = (): void => {
     // 关闭评论屏蔽总开关时，响应层过滤随之停用
     if (isCloseCommentBlockingGm() || localMKData.isCompatible_BEWLY_BEWLY()) return;
-    const videoEnabled = isCommentResponseRewriteGm() && isVideoPlayPage();
-    const dynamicEnabled = isDynamicCommentResponseRewriteGm() && isDynamicContentPage();
-    if (!videoEnabled && !dynamicEnabled) return;
+    if (!isCommentResponseRewriteGm()) return;
+    // 全局安装：hook 为页面侧 fetch 包装，按 URL 只拦截 api.bilibili.com 的评论 main/sub 接口，
+    // 不依赖首屏页面，视频/影视/动态/空间/话题等所有页面直接打开即生效；SPA 跳转后仍持续拦截
     const token = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     window.addEventListener("message", createFilterRequestHandler(token));
     installPageFetchHook(token);

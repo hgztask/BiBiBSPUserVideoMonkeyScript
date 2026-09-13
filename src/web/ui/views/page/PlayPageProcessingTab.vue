@@ -61,8 +61,8 @@ export default defineComponent({
       <el-tooltip content="开启后评论屏蔽功能关闭">
         <el-switch v-model="isCloseCommentBlockingVal" active-text="关闭评论屏蔽"/>
       </el-tooltip>
-      <el-tooltip content="实验功能：修改评论接口响应，在渲染前过滤可识别的评论（含楼中楼与置顶），命中规则输出到输出信息；关闭评论屏蔽时本开关无效，修改后请刷新页面">
-        <el-switch v-model="isCommentResponseRewriteVal" active-text="通过响应过滤评论区（实验）"/>
+      <el-tooltip content="实验功能：全局修改评论接口响应（视频/影视/动态/空间等所有页面），在渲染前过滤可识别的评论（含楼中楼与置顶），命中规则输出到输出信息；关闭评论屏蔽时本开关无效，修改后请刷新页面">
+        <el-switch v-model="isCommentResponseRewriteVal" active-text="响应过滤评论区（实验）"/>
       </el-tooltip>
     </el-card>
   </div>

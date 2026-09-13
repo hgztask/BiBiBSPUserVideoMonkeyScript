@@ -329,7 +329,30 @@ observeNetwork.observeNetwork(url, windowUrl, winTitle, initiatorType)
 - **到底冷却**：整轮补满未等到任何 getList 响应视为分区到底，按钮熄灭并 60s 冷却不再提示。
 - 撑高用 `dataset` 保存原始内联高度、循环期间保持、结束一次性复原，规避中途复原的列表跳动与 prevMinHeight 循环污染问题。
 
-### 5.7 屏蔽引擎（`domain/shielding/main.ts`）
+### 5.7 评论区响应层过滤（`domain/commentResponseRewrite.ts`）
+
+#### 问题背景
+
+评论区屏蔽的 DOM 层实现在渲染后删除命中评论，存在评论闪现后消失的观感。评论接口在视频、影视、动态详情、用户空间等页面共用，若按"页面 + 开关"条件安装（如首页/搜索/直播分区响应过滤的做法），逐页维护页面清单容易漏页——例如影视播放页路径为 `/bangumi/play/` 而非 `/video/`，直接打开时响应层不会生效。
+
+#### 全局安装
+
+评论响应层采用**全局安装**：总开关 `is_comment_response_rewrite_gm` 开启后不依赖首屏页面，页面侧 fetch hook 按 URL 自动只拦截 `api.bilibili.com` 的评论主楼/楼中楼接口（`/x/v2/reply/wbi/main`、`/x/v2/reply/main`、`/x/v2/reply/reply`），视频/影视/动态/空间等任何页面直接打开即生效，SPA 跳转后仍持续拦截。
+
+#### 双层架构
+
+- **页面上下文 fetch hook**（注入 `<script>`）：拦截评论响应，递归收集顶层评论与嵌套预览（楼中楼），携带 `rpid` 供沙箱按 rpid 集合剔除所有出现位置；800ms 超时或改写异常时放行原始响应，退化为 DOM 层兜底。
+- **沙箱判定**：复用 `shieldingComment` 规则引擎逐项判定，命中索引回传页面 hook 在渲染前剔除。屏蔽记录经事件 `屏蔽评论信息` 输出到面板，来源标记【响应层过滤】；同一评论在响应中出现多处时按 `rpid` 去重只输出一条。
+
+#### 配置项
+
+| 配置项 | 默认值 | 说明 |
+|---|---:|---|
+| `is_comment_response_rewrite_gm` | `false` | 评论区响应过滤总开关（主面板"播放页"页签"响应过滤评论区（实验）"）；关闭评论屏蔽时无效，修改后需刷新页面 |
+
+旧开关 `is_dynamic_comment_response_rewrite_gm`（动态详情评论区响应过滤）已合并进总开关，不保留兼容。
+
+### 5.8 屏蔽引擎（`domain/shielding/main.ts`）
 
 核心接口：
 
@@ -359,13 +382,13 @@ interface BlockButtonData {
 
 屏蔽引擎从 `localMKData` 读取用户配置的规则（关键词、正则、时长、播放量等），遍历规则列表进行匹配，返回 `BlockResult` 决定是否屏蔽。
 
-### 5.8 数据存储
+### 5.9 数据存储
 
 - **`state/localMKData.ts`**（574 行）：封装 `GM_setValue` / `GM_getValue`，为所有用户可配置的设置提供类型安全的 getter/setter，如屏蔽规则、UI 偏好、功能开关等。
 - **`core/cache/bvDexie.ts`**：基于 Dexie.js（IndexedDB）的视频元数据缓存，含 TTL 过期策略。
 - **`core/cache/valueCache.ts`**：轻量级内存缓存。
 
-### 5.9 类型系统（`types/`）
+### 5.10 类型系统（`types/`）
 
 项目将共享类型定义集中到 `src/web/types/` 目录：
 
@@ -384,7 +407,7 @@ interface BlockButtonData {
 | `global.d.ts` | 全局变量、window 扩展类型声明 |
 | `shims-vue.d.ts` | `.vue` 文件模块声明，让 TS 能识别 SFC导入 |
 
-### 5.10 UI 层（`ui/init.ts`）
+### 5.11 UI 层（`ui/init.ts`）
 
 UI 初始化流程：
 

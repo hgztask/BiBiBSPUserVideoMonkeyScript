@@ -71,14 +71,9 @@ export const isSearchResponseRewriteGm = (): boolean => {
     return GM_getValue<boolean>('is_search_response_rewrite_gm', false) === true
 }
 
-/** 是否启用评论区响应过滤实验，默认关闭 */
+/** 是否启用评论区响应过滤（全局生效，默认关闭） */
 export const isCommentResponseRewriteGm = (): boolean => {
     return GM_getValue<boolean>('is_comment_response_rewrite_gm', false) === true
-}
-
-/** 是否启用动态详情评论区响应过滤实验，默认关闭 */
-export const isDynamicCommentResponseRewriteGm = (): boolean => {
-    return GM_getValue<boolean>('is_dynamic_comment_response_rewrite_gm', false) === true
 }
 
 /** 是否启用直播分区getList响应过滤。默认开启：这是对"屏蔽后列表填不满视口导致滚动加载饿死"问题的修复而非实验特性 */
