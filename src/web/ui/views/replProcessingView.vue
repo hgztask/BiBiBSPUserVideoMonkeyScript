@@ -1,115 +1,108 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import {
   enableReplacementProcessing,
   getSubstituteWordsArr,
   isClearCommentEmoticons,
   isReplaceCommentSearchTerms
 } from "@/state/localMKData.ts";
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus';
 
 /**
  * 内容替换处理布局组件
  */
-export default defineComponent({
-  data() {
-    return {
-      tableData: getSubstituteWordsArr() as any[],
-      enableReplacementProcessingVal: enableReplacementProcessing(),
-      clearCommentEmoticonsVal: isClearCommentEmoticons(),
-      isReplaceCommentSearchTermsVal: isReplaceCommentSearchTerms()
-    }
-  },
-  methods: {
-    //验证
-    validate(item: any) {
-      if (item.actionScopes.length === 0) {
-        this.$message.error('请选择作用域再后续处理')
-        return
-      }
-      if (item.findVal === '') {
-        this.$message.error('请输入查找内容再后续处理')
-        return
-      }
-      return true
-    },
-    verifyDuplicate(val: any) {
-      if (val === '') return;
-      const set = new Set();
-      for (const v of this.tableData) {
-        if (set.has(v.findVal)) {
-          this.$alert(`已添加过该查找值，不可重复添加【${v.findVal}】`, '错误', {
-            type: 'error'
-          })
-          return;
-        }
-        set.add(v.findVal)
-      }
-    },
-    addBut() {
-      this.tableData.unshift({
-        actionScopes: ['评论内容'],
-        findVal: '',
-        replaceVal: ''
-      })
-      this.$notify({title: '', message: '已添加一条替换处理到顶部'})
-    },
-    delItemBut(row: any, index: any) {
-      if (row.findVal === '' && row.replaceVal === '') {
-        this.tableData.splice(index, 1)
-        this.$notify({title: '', message: '已删除一条替换处理'})
-        return;
-      }
-      if (this.validate(row) !== true) return;
-      this.$confirm('确定删除该条替换处理吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.tableData.splice(index, 1)
-        this.$notify({title: '', message: '已删除一条替换处理'})
-      })
-    },
-    refreshBut() {
-      this.tableData = getSubstituteWordsArr();
-      this.$message.info('已刷新')
-    },
-    saveBut() {
-      if (this.tableData.length === 0) {
-        this.$message.error('请先添加数据再保存！')
-        return
-      }
-      for (let item of this.tableData) {
-        if (this.validate(item) !== true) return;
-      }
-      const duplicateRemoval = new Set();
-      for (const v of this.tableData) {
-        if (duplicateRemoval.has(v.findVal)) {
-          this.$alert(`查找内容不能重复【${v.findVal}】`, '错误', {
-            type: 'error'
-          })
-          return;
-        }
-        duplicateRemoval.add(v.findVal);
-      }
-      GM_setValue('substitute_words', this.tableData)
-      this.$message.success('已保存')
-    },
-    actionScopesChange(newArr: any) {
-      if (newArr.length === 0) return;
-      if (newArr.some((v: any) => v === '评论表情')) {
-        newArr.splice(0, newArr.length, '评论表情')
-      }
-    }
-  },
-  watch: {
-    clearCommentEmoticonsVal(n) {
-      GM_setValue('is_clear_comment_emoticons', n)
-    },
-    isReplaceCommentSearchTermsVal(n) {
-      GM_setValue('is_replace_comment_search_terms', n)
-    }
+const tableData = ref<any[]>(getSubstituteWordsArr());
+const enableReplacementProcessingVal = ref(enableReplacementProcessing());
+const clearCommentEmoticonsVal = ref(isClearCommentEmoticons());
+const isReplaceCommentSearchTermsVal = ref(isReplaceCommentSearchTerms());
+
+//验证
+const validate = (item: any) => {
+  if (item.actionScopes.length === 0) {
+    ElMessage.error('请选择作用域再后续处理');
+    return;
   }
-})
+  if (item.findVal === '') {
+    ElMessage.error('请输入查找内容再后续处理');
+    return;
+  }
+  return true;
+};
+const verifyDuplicate = (val: any) => {
+  if (val === '') return;
+  const set = new Set();
+  for (const v of tableData.value) {
+    if (set.has(v.findVal)) {
+      ElMessageBox.alert(`已添加过该查找值，不可重复添加【${v.findVal}】`, '错误', {
+        type: 'error'
+      });
+      return;
+    }
+    set.add(v.findVal);
+  }
+};
+const addBut = () => {
+  tableData.value.unshift({
+    actionScopes: ['评论内容'],
+    findVal: '',
+    replaceVal: ''
+  });
+  ElNotification({title: '', message: '已添加一条替换处理到顶部'});
+};
+const delItemBut = (row: any, index: number) => {
+  if (row.findVal === '' && row.replaceVal === '') {
+    tableData.value.splice(index, 1);
+    ElNotification({title: '', message: '已删除一条替换处理'});
+    return;
+  }
+  if (validate(row) !== true) return;
+  ElMessageBox.confirm('确定删除该条替换处理吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    tableData.value.splice(index, 1);
+    ElNotification({title: '', message: '已删除一条替换处理'});
+  });
+};
+const refreshBut = () => {
+  tableData.value = getSubstituteWordsArr();
+  ElMessage.info('已刷新');
+};
+const saveBut = () => {
+  if (tableData.value.length === 0) {
+    ElMessage.error('请先添加数据再保存！');
+    return;
+  }
+  for (let item of tableData.value) {
+    if (validate(item) !== true) return;
+  }
+  const duplicateRemoval = new Set();
+  for (const v of tableData.value) {
+    if (duplicateRemoval.has(v.findVal)) {
+      ElMessageBox.alert(`查找内容不能重复【${v.findVal}】`, '错误', {
+        type: 'error'
+      });
+      return;
+    }
+    duplicateRemoval.add(v.findVal);
+  }
+  GM_setValue('substitute_words', tableData.value);
+  ElMessage.success('已保存');
+};
+const actionScopesChange = (newArr: any) => {
+  if (newArr.length === 0) return;
+  if (newArr.some((v: any) => v === '评论表情')) {
+    newArr.splice(0, newArr.length, '评论表情');
+  }
+};
+
+watch(clearCommentEmoticonsVal, (n) => {
+  GM_setValue('is_clear_comment_emoticons', n);
+});
+watch(isReplaceCommentSearchTermsVal, (n) => {
+  GM_setValue('is_replace_comment_search_terms', n);
+});
 </script>
 
 <template>
@@ -154,21 +147,21 @@ export default defineComponent({
     </el-card>
     <el-table :data="tableData" border stripe>
       <el-table-column label="作用域" width="450px">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-checkbox-group v-model="scope.row.actionScopes" @change="actionScopesChange">
-            <el-checkbox border disabled label="视频标题"/>
-            <el-checkbox border label="评论内容"/>
-            <el-checkbox border label="评论表情"/>
+            <el-checkbox border disabled value="视频标题">视频标题</el-checkbox>
+            <el-checkbox border value="评论内容">评论内容</el-checkbox>
+            <el-checkbox border value="评论表情">评论表情</el-checkbox>
           </el-checkbox-group>
         </template>
       </el-table-column>
       <el-table-column label="查找">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-input v-model="scope.row.findVal" clearable maxlength="10" @change="verifyDuplicate"/>
         </template>
       </el-table-column>
       <el-table-column label="替换">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-input v-model="scope.row.replaceVal" clearable maxlength="10"/>
         </template>
       </el-table-column>
@@ -178,7 +171,7 @@ export default defineComponent({
           <el-button @click="refreshBut">刷新</el-button>
           <el-button type="success" @click="saveBut">保存</el-button>
         </template>
-        <template v-slot="scope">
+        <template #default="scope">
           <el-button type="warning" @click="delItemBut(scope.row,scope.$index)">删除</el-button>
         </template>
       </el-table-column>

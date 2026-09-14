@@ -1,42 +1,33 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref} from 'vue';
 import externalList from "../../config/otherKeyListDataJson.json";
 import commentWordLimitView from "./commentWordLimitView.vue";
 import UserLevelFilteringView from "./UserLevelFilteringView.vue";
 import SwitchMinMaxInputCard from "../components/SwitchMinMaxInputCard.vue";
+import {ElNotification} from 'element-plus';
 
 /**
  * 其他规则组件
  */
-export default defineComponent({
-  components: {SwitchMinMaxInputCard, commentWordLimitView, UserLevelFilteringView},
-  data() {
-    return {
-      showInfoList: [
-        {key: 'minimum_user_level_video_gm', label: '最小用户等级限制-视频'},
-        {key: 'maximum_user_level_video_gm', label: '最大用户等级限制-视频'},
-        {key: 'minimum_user_level_comment_gm', label: '最小用户等级限制-评论'},
-        {key: 'maximum_user_level_comment_gm', label: '最大用户等级限制-评论'}
-      ] as any[],
-      externalList
-    }
-  },
-  methods: {
-    updateInfo(isTip = false) {
-      for (const v of this.showInfoList) {
-        v.showVal = GM_getValue(v.key, '');
-      }
-      isTip && this.$notify({title: '', type: 'info', position: 'bottom-right', message: '已刷新'})
-    }
-  },
-  created() {
-    for (const v of this.externalList) {
-      this.showInfoList.push({label: v['minLabel'], key: v['minInputKey'], showVal: ''});
-      this.showInfoList.push({label: v['maxLabel'], key: v['maxInputKey'], showVal: ''});
-    }
-    this.updateInfo();
+const showInfoList = ref<any[]>([
+  {key: 'minimum_user_level_video_gm', label: '最小用户等级限制-视频'},
+  {key: 'maximum_user_level_video_gm', label: '最大用户等级限制-视频'},
+  {key: 'minimum_user_level_comment_gm', label: '最小用户等级限制-评论'},
+  {key: 'maximum_user_level_comment_gm', label: '最大用户等级限制-评论'}
+]);
+
+const updateInfo = (isTip = false) => {
+  for (const v of showInfoList.value) {
+    v.showVal = GM_getValue(v.key, '');
   }
-})
+  isTip && ElNotification({title: '', type: 'info', position: 'bottom-right', message: '已刷新'});
+};
+
+for (const v of externalList as any[]) {
+  showInfoList.value.push({label: v['minLabel'], key: v['minInputKey'], showVal: ''});
+  showInfoList.value.push({label: v['maxLabel'], key: v['maxInputKey'], showVal: ''});
+}
+updateInfo();
 </script>
 
 <template>

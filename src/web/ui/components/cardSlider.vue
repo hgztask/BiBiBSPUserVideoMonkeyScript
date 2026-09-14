@@ -1,57 +1,57 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 
 /**
  * @description Slider卡片滑块组件
  * @version 1.0.0
  */
-export default defineComponent({
-  props: {
+const props = withDefaults(defineProps<{
     // 格式化tooltip函数
-    formatTooltip: {
-      type: Function
-    },
-    switchActiveText: {type: String, default: '启用'},
-    step: {type: Number, default: 1},
-    min: {type: Number, default: 0},
-    max: {type: Number, default: 100},
-    value: {type: Number, default: 0},
-    switchVal: {type: Boolean, default: false},
+    formatTooltip?: (val: number) => string;
+    switchActiveText?: string;
+    step?: number;
+    min?: number;
+    max?: number;
+    modelValue?: number;
+    switchVal?: boolean;
     // 是否为范围选择
-    range: {type: Boolean, default: false}
-  },
-  data() {
-    return {
-      local_switchVal: this.switchVal,
-      disabled: !this.switchVal,
-      sliderVal: this.value
-    }
-  },
-  methods: {},
-  watch: {
-    //监听父组件v-model 的值变化，更新本地的sliderVal
-    value(n) {
-      this.sliderVal = n
-    },
-    // 监听本地的sliderVal的值变化，通知父组件更新v-model的值
-    sliderVal(n) {
-      this.$emit('input', n)
-    },
-    // 监听本地的disabled的值变化，发送事件通知父组件
-    disabled(n) {
-      this.$emit('slider-disabled-change', n)
-    },
-    // 监听本地的switchVal的值变化，通知父组件更新值
-    switchVal(n) {
-      this.local_switchVal = n
-    },
-    //本地local_switchVal值变化时，更新disabled的值，并更新父组件中的switchVal的值
-    local_switchVal(n) {
-      this.disabled = !n
-      this.$emit('update:switchVal', n)
-    }
-  }
-})
+    range?: boolean;
+}>(), {
+    switchActiveText: '启用',
+    step: 1,
+    min: 0,
+    max: 100,
+    modelValue: 0,
+    switchVal: false,
+    range: false
+});
+const emit = defineEmits(['update:modelValue', 'update:switchVal', 'slider-disabled-change']);
+
+const local_switchVal = ref(props.switchVal);
+const disabled = ref(!props.switchVal);
+const sliderVal = ref(props.modelValue);
+
+//监听父组件v-model 的值变化，更新本地的sliderVal
+watch(() => props.modelValue, (n) => {
+    sliderVal.value = n;
+});
+// 监听本地的sliderVal的值变化，通知父组件更新v-model的值
+watch(sliderVal, (n) => {
+    emit('update:modelValue', n);
+});
+// 监听本地的disabled的值变化，发送事件通知父组件
+watch(disabled, (n) => {
+    emit('slider-disabled-change', n);
+});
+// 监听本地的switchVal的值变化，更新值
+watch(() => props.switchVal, (n) => {
+    local_switchVal.value = n;
+});
+//本地local_switchVal值变化时，更新disabled的值，并更新父组件中的switchVal的值
+watch(local_switchVal, (n) => {
+    disabled.value = !n;
+    emit('update:switchVal', n);
+});
 </script>
 
 <template>

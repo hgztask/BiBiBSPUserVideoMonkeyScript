@@ -1,47 +1,39 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
+import {ElMessage, ElMessageBox} from 'element-plus';
 
 /**
  * uid范围屏蔽vue组件
  */
-export default defineComponent({
-  data() {
-    return {
-      status: localMKData.isUidRangeMaskingStatus(),
-      head: 0,
-      tail: 100
-    }
-  },
-  methods: {
-    setRangeBut() {
-      this.$alert('设置成功')
-      GM_setValue('uid_range_masking', [this.head, this.tail])
-    }
-  },
-  watch: {
-    head(newVal, oldVal) {
-      if (newVal > this.tail) {
-        this.$message('最小值不能大于最大值')
-        this.head = oldVal
-      }
-    },
-    tail(newVal, oldVal) {
-      if (newVal < this.head) {
-        this.$message('最大值不能小于最小值')
-        this.tail = oldVal
-      }
-    },
-    status(n) {
-      GM_setValue('uid_range_masking_status', n)
-    }
-  },
-  created() {
-    const arr = localMKData.getUidRangeMasking();
-    this.head = arr[0]
-    this.tail = arr[1]
+const status = ref(localMKData.isUidRangeMaskingStatus());
+const head = ref(0);
+const tail = ref(100);
+
+const setRangeBut = () => {
+  ElMessageBox.alert('设置成功');
+  GM_setValue('uid_range_masking', [head.value, tail.value]);
+};
+
+watch(head, (newVal, oldVal) => {
+  if (newVal > tail.value) {
+    ElMessage('最小值不能大于最大值');
+    head.value = oldVal;
   }
-})
+});
+watch(tail, (newVal, oldVal) => {
+  if (newVal < head.value) {
+    ElMessage('最大值不能小于最小值');
+    tail.value = oldVal;
+  }
+});
+watch(status, (n) => {
+  GM_setValue('uid_range_masking_status', n);
+});
+
+const arr = localMKData.getUidRangeMasking();
+head.value = arr[0];
+tail.value = arr[1];
 </script>
 <template>
   <div>

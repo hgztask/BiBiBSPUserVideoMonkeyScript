@@ -1,5 +1,7 @@
-import gzStyleCss from '../../ui/styles/gz-style.css'
-import Vue from "vue";
+import gzStyleCss from '../../ui/styles/gz-style.css?raw'
+import {createApp, type App as VueApp} from "vue";
+import ElementPlus from "element-plus";
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import {valueCache} from "../cache/valueCache.ts";
 
 /**
@@ -326,10 +328,12 @@ export const addGzStyle = (el: Document | Element, insertionPosition: Element | 
     insertionPosition.appendChild(style);
 }
 
-export function initVueApp(el: string | Element, App: any, props: Record<string, any> = {}): Vue {
-    return new Vue({
-        render: h => h(App, {props})
-    }).$mount(el);
+export function initVueApp(el: string | Element, RootComponent: any, props: Record<string, any> = {}): VueApp {
+    const app = createApp(RootComponent, props);
+    // 挂载 Element Plus（已随产物打包，与 app 共享同一 Vue 实例），并配置中文语言包
+    app.use(ElementPlus, {locale: zhCn});
+    app.mount(el);
+    return app;
 }
 
 /**

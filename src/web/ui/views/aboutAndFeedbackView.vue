@@ -1,27 +1,19 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
 import globalValue from "../../config/globalValue.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
 
 /**
  * 关于与反馈组件
  */
-export default defineComponent({
-  data() {
-    return {
-      group_url: globalValue.group_url,
-      scriptCat_js_url: globalValue.scriptCat_js_url,
-      b_url: globalValue.b_url,
-      common_question_url: globalValue.common_question_url,
-      update_log_url: globalValue.update_log_url
-    }
-  },
-  methods: {
-    lookImgBut() {
-      eventEmitter.send('显示图片对话框', {image: "https://www.mikuchase.ltd/img/qq_group_876295632.webp"})
-    }
-  }
-})
+const group_url = globalValue.group_url;
+const scriptCat_js_url = globalValue.scriptCat_js_url;
+const b_url = globalValue.b_url;
+const common_question_url = globalValue.common_question_url;
+const update_log_url = globalValue.update_log_url;
+
+const lookImgBut = () => {
+  eventEmitter.send('显示图片对话框', {image: "https://www.mikuchase.ltd/img/qq_group_876295632.webp"});
+};
 </script>
 <template>
   <div>

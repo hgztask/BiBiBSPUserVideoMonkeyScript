@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import hotSearch from "../../../pages/search/hot.ts";
 import topInput from "../../../pages/search/topInput.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
@@ -19,89 +19,80 @@ import liveCommon from "../../../pages/live/common.ts";
 import space from "../../../pages/space/main.ts";
 
 //页面处理处理
-export default defineComponent({
-  components: {},
-  data() {
-    return {
-      isRemoveSearchBottomContent: GM_getValue('isRemoveSearchBottomContent', false),
-      isClearLiveCardVal: isClearLiveCardGm(),
-      isSearchResponseRewriteVal: isSearchResponseRewriteGm(),
-      isClearTopInputTipContent: GM_getValue('isClearTopInputTipContent', false),
-      isHideHotSearchesPanelVal: isHideHotSearchesPanelGm(),
-      isHideSearchHistoryPanelVal: isHideSearchHistoryPanelGm(),
-      isDelLivePageRightSidebarVal: isDelLivePageRightSidebarGm(),
-      isRoomBackgroundHideVal: isRoomBackgroundHideGm(),
-      isHideLiveGiftPanelVal: isHideLiveGiftPanelGm(),
-      isDelLiveBottomBannerAdVal: isDelLiveBottomBannerAdGm(),
-      isHideAddSeeLaterVal: localMKData.isHideAddSeeLater(),
-      isHideChargingDedicatedVideosVal: localMKData.isHideChargingDedicatedVideos(),
-      isLiveReplayVideosHideVal: localMKData.isLiveReplayVideosHide()
-    }
-  },
-  methods: {},
-  watch: {
-    isRemoveSearchBottomContent(b) {
-      GM_setValue('isRemoveSearchBottomContent', b)
-    },
-    isClearLiveCardVal(b) {
-      GM_setValue('is_clear_live_card_gm', b)
-    },
-    isSearchResponseRewriteVal(b) {
-      GM_setValue('is_search_response_rewrite_gm', b)
-    },
-    isClearTopInputTipContent(b) {
-      GM_setValue('isClearTopInputTipContent', b)
-      if (b) {
-        eventEmitter.send('执行清空顶部搜索框提示内容')
-        return
-      }
-      topInput.setTopInputPlaceholder()
-    },
-    isHideHotSearchesPanelVal(n) {
-      GM_setValue('is_hide_hot_searches_panel_gm', n)
-      hotSearch.setTopSearchPanelDisplay(n, '热搜', 4000);
-    },
-    isHideSearchHistoryPanelVal(n) {
-      GM_setValue('is_hide_search_history_panel_gm', n)
-      hotSearch.setTopSearchPanelDisplay(n, '搜索历史', 4000);
-    },
-    isDelLivePageRightSidebarVal(n) {
-      GM_setValue('is_del_live_page_right_sidebar_gm', n)
-      if (liveSectionModel.isLiveSection() || liveRoomModel.isLiveRoom()) {
-        liveCommon.setLivePageRightSidebarHide(n)
-      }
-    },
-    isRoomBackgroundHideVal(n) {
-      GM_setValue('is_room_background_hide_gm', n)
-      if (liveRoomModel.isLiveRoom()) {
-        liveRoomModel.setRoomBackgroundDisplay(n);
-      }
-    },
-    isHideLiveGiftPanelVal(n) {
-      GM_setValue('is_hide_live_gift_panel_gm', n)
-      if (liveRoomModel.isLiveRoom()) {
-        liveRoomModel.setGiftControlPanelDisplay(n);
-      }
-    },
-    isDelLiveBottomBannerAdVal(n) {
-      GM_setValue('is_del_live_bottom_banner_ad_val_gm', n)
-      if (liveRoomModel.isLiveRoom() && !liveRoomModel.isLiveRoomActivity()) {
-        liveRoomModel.delLivePageRightSidebarAd();
-      }
-    },
-    isHideAddSeeLaterVal(n) {
-      GM_setValue('is_hide_add_see_later', n)
-    },
-    isHideChargingDedicatedVideosVal(n) {
-      GM_setValue('is_hide_charging_dedicated_videos', n)
-      space.executeSetChargingVideosVisible(n)
-    },
-    isLiveReplayVideosHideVal(n) {
-      GM_setValue('is_live_replay_videos_hide_gm', n)
-      space.executeSetLiveReplayVideosVisible(n)
-    }
+const isRemoveSearchBottomContent = ref(GM_getValue('isRemoveSearchBottomContent', false));
+const isClearLiveCardVal = ref(isClearLiveCardGm());
+const isSearchResponseRewriteVal = ref(isSearchResponseRewriteGm());
+const isClearTopInputTipContent = ref(GM_getValue('isClearTopInputTipContent', false));
+const isHideHotSearchesPanelVal = ref(isHideHotSearchesPanelGm());
+const isHideSearchHistoryPanelVal = ref(isHideSearchHistoryPanelGm());
+const isDelLivePageRightSidebarVal = ref(isDelLivePageRightSidebarGm());
+const isRoomBackgroundHideVal = ref(isRoomBackgroundHideGm());
+const isHideLiveGiftPanelVal = ref(isHideLiveGiftPanelGm());
+const isDelLiveBottomBannerAdVal = ref(isDelLiveBottomBannerAdGm());
+const isHideAddSeeLaterVal = ref(localMKData.isHideAddSeeLater());
+const isHideChargingDedicatedVideosVal = ref(localMKData.isHideChargingDedicatedVideos());
+const isLiveReplayVideosHideVal = ref(localMKData.isLiveReplayVideosHide());
+
+watch(isRemoveSearchBottomContent, (b) => {
+  GM_setValue('isRemoveSearchBottomContent', b);
+});
+watch(isClearLiveCardVal, (b) => {
+  GM_setValue('is_clear_live_card_gm', b);
+});
+watch(isSearchResponseRewriteVal, (b) => {
+  GM_setValue('is_search_response_rewrite_gm', b);
+});
+watch(isClearTopInputTipContent, (b) => {
+  GM_setValue('isClearTopInputTipContent', b);
+  if (b) {
+    eventEmitter.send('执行清空顶部搜索框提示内容');
+    return;
   }
-})
+  topInput.setTopInputPlaceholder();
+});
+watch(isHideHotSearchesPanelVal, (n) => {
+  GM_setValue('is_hide_hot_searches_panel_gm', n);
+  hotSearch.setTopSearchPanelDisplay(n, '热搜', 4000);
+});
+watch(isHideSearchHistoryPanelVal, (n) => {
+  GM_setValue('is_hide_search_history_panel_gm', n);
+  hotSearch.setTopSearchPanelDisplay(n, '搜索历史', 4000);
+});
+watch(isDelLivePageRightSidebarVal, (n) => {
+  GM_setValue('is_del_live_page_right_sidebar_gm', n);
+  if (liveSectionModel.isLiveSection() || liveRoomModel.isLiveRoom()) {
+    liveCommon.setLivePageRightSidebarHide(n);
+  }
+});
+watch(isRoomBackgroundHideVal, (n) => {
+  GM_setValue('is_room_background_hide_gm', n);
+  if (liveRoomModel.isLiveRoom()) {
+    liveRoomModel.setRoomBackgroundDisplay(n);
+  }
+});
+watch(isHideLiveGiftPanelVal, (n) => {
+  GM_setValue('is_hide_live_gift_panel_gm', n);
+  if (liveRoomModel.isLiveRoom()) {
+    liveRoomModel.setGiftControlPanelDisplay(n);
+  }
+});
+watch(isDelLiveBottomBannerAdVal, (n) => {
+  GM_setValue('is_del_live_bottom_banner_ad_val_gm', n);
+  if (liveRoomModel.isLiveRoom() && !liveRoomModel.isLiveRoomActivity()) {
+    liveRoomModel.delLivePageRightSidebarAd();
+  }
+});
+watch(isHideAddSeeLaterVal, (n) => {
+  GM_setValue('is_hide_add_see_later', n);
+});
+watch(isHideChargingDedicatedVideosVal, (n) => {
+  GM_setValue('is_hide_charging_dedicated_videos', n);
+  space.executeSetChargingVideosVisible(n);
+});
+watch(isLiveReplayVideosHideVal, (n) => {
+  GM_setValue('is_live_replay_videos_hide_gm', n);
+  space.executeSetLiveReplayVideosVisible(n);
+});
 </script>
 <template>
   <div>

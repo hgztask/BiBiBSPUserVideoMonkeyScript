@@ -1,73 +1,66 @@
-<script lang="ts">
-import {defineComponent} from 'vue'
+<script setup lang="ts">
+import {ref} from 'vue'
 import localMKData from "../../../state/localMKData.ts";
+import {ElMessage, ElMessageBox} from 'element-plus';
 
-export default defineComponent({
-  name: "GloryLevelLimitTabView",
-  data() {
-    return {
-      dataList: [] as any[]
+const dataList = ref<any[]>([]);
+
+const refresh = (tip = false) => {
+  dataList.value = localMKData.getGloryLevelLimitListGm();
+  tip && ElMessage.success("刷新成功");
+};
+const updateRoomIdRowBut = (row: any) => {
+  const roomId = row.roomId;
+  ElMessageBox.prompt("请输入房间号", {
+    title: "修改房间号",
+    inputPattern: /^[0-9]\d*$/,
+    inputValue: roomId,
+  }).then(({value}: any) => {
+    value = parseInt(value);
+    if (!(value >= 0)) {
+      ElMessage.warning("请输入正确的房间号");
+      return updateRoomIdRowBut(row);
     }
-  },
-  methods: {
-    refresh(tip = false) {
-      this.dataList = localMKData.getGloryLevelLimitListGm()
-      tip && this.$message.success("刷新成功")
-    },
-    updateRoomIdRowBut(row: any) {
-      const roomId = row.roomId;
-      this.$prompt("请输入房间号", {
-        title: "修改房间号",
-        inputPattern: /^[0-9]\d*$/,
-        inputValue: roomId,
-      }).then(({value}: any) => {
-        value = parseInt(value)
-        if (!(value >= 0)) {
-          this.$message.warning("请输入正确的房间号")
-          return this.updateRoomIdRowBut(row)
-        }
-        if (this.dataList.some(item => item.roomId === value)) {
-          this.$message.warning("已存在该房间号")
-          return this.updateRoomIdRowBut(row)
-        }
-        row.roomId = value
-      })
-    },
-    delBut(row: any) {
-      const roomId = row.roomId;
-      if (roomId === "0" || roomId === 0) {
-        return this.$message.warning("全局设置不可删除")
-      }
-      this.$confirm(`是要删除该房间号配置吗？【${roomId}】`).then(() => {
-        this.dataList = this.dataList.filter(item => item !== row)
-      })
-    },
-    addBut() {
-      this.$prompt("请输入房间号，添加之后需要手动设置对应的状态(开关)", {
-        title: "添加房间号",
-        inputPattern: /^[1-9]\d*$/,
-      }).then(({value}: any) => {
-        value = parseInt(value)
-        if (!(value >= 1)) {
-          this.$message.warning("请输入正确的房间号")
-          return this.addBut()
-        }
-        if (this.dataList.some(item => item.roomId === value)) {
-          this.$message.warning("已存在该房间号")
-          return this.addBut()
-        }
-        this.dataList.push({roomId: value, limitLevel: 0, status: false})
-      })
-    },
-    saveBut() {
-      GM_setValue('glory_level_limit_list_gm', this.dataList)
-      this.$message.success("保存成功")
+    if (dataList.value.some(item => item.roomId === value)) {
+      ElMessage.warning("已存在该房间号");
+      return updateRoomIdRowBut(row);
     }
-  },
-  created() {
-    this.refresh()
+    row.roomId = value;
+  });
+};
+const delBut = (row: any) => {
+  const roomId = row.roomId;
+  if (roomId === "0" || roomId === 0) {
+    ElMessage.warning("全局设置不可删除");
+    return;
   }
-})
+  ElMessageBox.confirm(`是要删除该房间号配置吗？【${roomId}】`).then(() => {
+    dataList.value = dataList.value.filter(item => item !== row);
+  });
+};
+const addBut = () => {
+  ElMessageBox.prompt("请输入房间号，添加之后需要手动设置对应的状态(开关)", {
+    title: "添加房间号",
+    inputPattern: /^[1-9]\d*$/,
+  }).then(({value}: any) => {
+    value = parseInt(value);
+    if (!(value >= 1)) {
+      ElMessage.warning("请输入正确的房间号");
+      return addBut();
+    }
+    if (dataList.value.some(item => item.roomId === value)) {
+      ElMessage.warning("已存在该房间号");
+      return addBut();
+    }
+    dataList.value.push({roomId: value, limitLevel: 0, status: false});
+  });
+};
+const saveBut = () => {
+  GM_setValue('glory_level_limit_list_gm', dataList.value);
+  ElMessage.success("保存成功");
+};
+
+refresh();
 </script>
 
 <template>

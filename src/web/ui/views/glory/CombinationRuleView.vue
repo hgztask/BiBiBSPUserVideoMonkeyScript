@@ -1,73 +1,66 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue'
+﻿<script setup lang="ts">
+import {ref} from 'vue'
 import defUtil from "../../../core/util/defUtil.ts";
 import localMKData from "../../../state/localMKData.ts";
 import combinationRulesShielding from "../../../domain/shielding/combinationRules.ts";
+import {ElMessageBox, ElNotification} from 'element-plus';
 
-export default defineComponent({
-  name: "CombinationRuleView",
-  data() {
-    return {
-      matchModeOptions: combinationRulesShielding.matchModeOptions,
-      fieldOptions: combinationRulesShielding.fieldOptions,
-      dataList: [] as any[]
+const matchModeOptions = combinationRulesShielding.matchModeOptions;
+const fieldOptions = combinationRulesShielding.fieldOptions;
+const dataList = ref<any[]>([]);
+
+const pintConsoleLog = () => {
+  const newDataList = defUtil.toRaw(dataList.value).map(({temporary, ...item}: any) => {
+    return item;
+  });
+  console.log(newDataList);
+};
+const addRuleBut = (row: any) => {
+  const {temporary} = row;
+  const selectedKey = temporary.key;
+  row.ruleList.push({key: selectedKey, mode: matchModeOptions[0].value, value: ''});
+};
+const delRuleBut = (mainRow: any, row: any) => {
+  mainRow.ruleList = mainRow.ruleList.filter((item: any) => item !== row);
+};
+const addPlanBut = () => {
+  const size = dataList.value.length;
+  const newRow = {
+    name: `方案${size + 1}`,
+    ruleList: [] as any[],
+    status: false,
+    temporary: {key: fieldOptions[0].value}
+  };
+  if (size > 1) {
+    const find = dataList.value.find(lastItem => lastItem.status === false && lastItem.ruleList.length === 0);
+    if (find) {
+      ElMessageBox.alert(`【${find.name}】未启用且为空组合规则,请使用该方案`, {type: "warning"});
+      return;
     }
-  },
-  methods: {
-    pintConsoleLog() {
-      const newDataList = defUtil.toRaw(this.dataList).map(({temporary, ...item}: any) => {
-        return item
-      })
-      console.log(newDataList)
-    },
-    addRuleBut(row: any) {
-      const {temporary} = row;
-      const selectedKey = temporary.key;
-      row.ruleList.push({key: selectedKey, mode: this.matchModeOptions[0].value, value: ''})
-    },
-    delRuleBut(mainRow: any, row: any) {
-      mainRow.ruleList = mainRow.ruleList.filter((item: any) => item !== row)
-    },
-    addPlanBut() {
-      const size = this.dataList.length;
-      const newRow = {
-        name: `方案${size + 1}`,
-        ruleList: [] as any[],
-        status: false,
-        temporary: {key: this.fieldOptions[0].value}
-      }
-      if (size > 1) {
-        const find = this.dataList.find(lastItem => lastItem.status === false && lastItem.ruleList.length === 0);
-        if (find) {
-          return this.$alert(`【${find.name}】未启用且为空组合规则,请使用该方案`, {type: "warning"})
-        }
-      }
-      this.dataList.push(newRow)
-    },
-    delPlanBut(row: any) {
-      this.dataList = this.dataList.filter(item => item !== row)
-      this.$notify({title: '', message: "已删除", position: "bottom-right"})
-    },
-    savePlanBut() {
-      const newDataList = defUtil.toRaw(this.dataList).map(({temporary, ...item}: any) => {
-        return item
-      })
-      GM_setValue('combination_rule_list_gm', newDataList)
-      this.$notify({title: '', message: "已保存组合规则方案列表", position: "bottom-right"})
-    },
-    refresh(tip = false) {
-      this.dataList = []
-      for (const item of localMKData.getCombinationRuleListGm()) {
-        (item as any).temporary = {key: this.fieldOptions[0].value}
-        this.dataList.push(item)
-      }
-      tip && this.$notify({title: '', message: "刷新方案列表成功", type: "success", position: 'bottom-right'})
-    }
-  },
-  created() {
-    this.refresh()
   }
-})
+  dataList.value.push(newRow);
+};
+const delPlanBut = (row: any) => {
+  dataList.value = dataList.value.filter(item => item !== row);
+  ElNotification({title: '', message: "已删除", position: "bottom-right"});
+};
+const savePlanBut = () => {
+  const newDataList = defUtil.toRaw(dataList.value).map(({temporary, ...item}: any) => {
+    return item;
+  });
+  GM_setValue('combination_rule_list_gm', newDataList);
+  ElNotification({title: '', message: "已保存组合规则方案列表", position: "bottom-right"});
+};
+const refresh = (tip = false) => {
+  dataList.value = [];
+  for (const item of localMKData.getCombinationRuleListGm()) {
+    (item as any).temporary = {key: fieldOptions[0].value};
+    dataList.value.push(item);
+  }
+  tip && ElNotification({title: '', message: "刷新方案列表成功", type: "success", position: 'bottom-right'});
+};
+
+refresh();
 </script>
 
 <template>
@@ -176,7 +169,3 @@ export default defineComponent({
     </el-row>
   </div>
 </template>
-
-<style scoped>
-
-</style>

@@ -1,43 +1,28 @@
-<script lang="ts">
-import {defineComponent} from 'vue';
+<script setup lang="ts">
+import {computed} from 'vue';
 
-export default defineComponent({
-  name: "GzSpace",
-  props: {
-    wrap: {
-      type: Boolean,
-      default: false
-    },
-    size: {
-      type: String,
-      default: '8px'
-    },
-    direction: {
-      type: String,
-      default: 'row'
-    },
-    alignItems: {
-      type: String,
-      default: 'center'
-    },
-    justifyContent: {
-      type: String,
-      default: 'flex-start'
-    }
-  },
-  computed: {
-    sizeStyle() {
-      return {
-        display: 'flex',
-        gap: this.size,
-        'align-items': this.alignItems,
-        'flex-direction': (this.direction as string) === 'row' ? 'row' : 'column',
-        'flex-wrap': this.wrap ? 'wrap' : 'nowrap',
-        'justify-content': this.justifyContent
-      }
-    }
-  }
-})
+const props = withDefaults(defineProps<{
+    wrap?: boolean;
+    size?: string;
+    direction?: string;
+    alignItems?: string;
+    justifyContent?: string;
+}>(), {
+    wrap: false,
+    size: '8px',
+    direction: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start'
+});
+
+const sizeStyle = computed<Record<string, string>>(() => ({
+    display: 'flex',
+    gap: props.size,
+    'align-items': props.alignItems,
+    'flex-direction': props.direction === 'row' ? 'row' : 'column',
+    'flex-wrap': props.wrap ? 'wrap' : 'nowrap',
+    'justify-content': props.justifyContent
+}));
 </script>
 
 <template>

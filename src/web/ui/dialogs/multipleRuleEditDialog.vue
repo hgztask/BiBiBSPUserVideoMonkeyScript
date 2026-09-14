@@ -1,115 +1,110 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {nextTick, ref} from 'vue';
 import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import arrUtil from "../../core/util/arrUtil.ts";
+import {ElMessage, ElMessageBox} from 'element-plus';
 
 //多重规则编辑对话框
-export default defineComponent({
-  data() {
-    return {
-      dialogVisible: false,
-      inputVisible: false,
-      inputValue: '',
-      //最小项
-      min: 2,
-      typeMap: {} as Record<string, any>,
-      showTags: [] as any[],
-    }
-  },
-  methods: {
-    filterTag(tag: any) {
-      return tag.join('||')
-    },
-    updateShowTags() {
-      this.showTags = GM_getValue(this.typeMap.type, []);
-    },
-    handleTagClose(tag: any, index: any) {
-      if (tag === '') return;
-      this.$confirm(`确定要删除 ${tag} 吗？`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.showTags.splice(index, 1)
-        GM_setValue(this.typeMap.type, this.showTags)
-        this.$message.success(`已移除 ${tag}`)
-        eventEmitter.send('刷新规则信息', false)
-      })
-    },
-    showInput() {
-      this.inputVisible = true;
-      this.$nextTick(_ => {
-        (this.$refs as any).saveTagInput.$refs.input.focus();
-      });
-    },
-    handleInputConfirm() {
-      let inputValue = this.inputValue;
-      this.inputVisible = false;
-      if (inputValue === '') return;
-      this.submitBut(inputValue);
-      this.inputValue = '';
-    },
-    submitBut(inputValue: any) {
-      const split = inputValue.split(',');
-      if (split.length < this.min) {
-        this.$message.error('最少添加' + this.min + '项')
-        return;
-      }
-      const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
-      const videoTagArr = ruleKeyListData.getVideoTagArr();
-      for (let showTag of split) {
-        showTag = showTag.trim()
-        if (showTag === "") {
-          this.$message.error('不能添加空项')
-          return;
-        }
-        if (preciseVideoTagArr.includes(showTag)) {
-          this.$message.error('不能添加视频tag(精确匹配)已有的项，请先移除对应的项！')
-          return;
-        }
-        if (videoTagArr.includes(showTag)) {
-          this.$message.error('不能添加视频tag(模糊匹配)已有的项，请先移除对应的项！')
-          return;
-        }
-        if (showTag.length > 15) {
-          this.$message.error('项不能超过15个字符')
-          return;
-        }
-      }
-      const arr = GM_getValue(this.typeMap.type, [] as any[])
-      for (let mk_arr of arr) {
-        if (arrUtil.arraysLooseEqual(mk_arr, split)) {
-          this.$message.error('不能重复添加已有的组合！')
-          return
-        }
-        if (arrUtil.arrayContains(mk_arr, split)) {
-          this.$message.error('该组合已添加过或包括该组合')
-          return
-        }
-      }
-      arr.push(split)
-      GM_setValue(this.typeMap.type, arr)
-      console.log(this.typeMap, split, arr)
-      this.$message.success(`${this.typeMap.name}添加成功`)
-      this.updateShowTags();
-      eventEmitter.send('刷新规则信息', false)
-    }
-  },
-  created() {
-    eventEmitter.on('打开多重规则编辑对话框', (typeMap) => {
-      this.typeMap = typeMap;
-      this.dialogVisible = true;
-      this.updateShowTags()
-    })
+const dialogVisible = ref(false);
+const inputVisible = ref(false);
+const inputValue = ref('');
+//最小项
+const min = 2;
+const typeMap = ref<Record<string, any>>({});
+const showTags = ref<any[]>([]);
+const saveTagInput = ref<any>();
+
+const filterTag = (tag: any) => {
+  return tag.join('||');
+};
+const updateShowTags = () => {
+  showTags.value = GM_getValue(typeMap.value.type, []);
+};
+const handleTagClose = (tag: any, index: number) => {
+  if (tag === '') return;
+  ElMessageBox.confirm(`确定要删除 ${tag} 吗？`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    showTags.value.splice(index, 1);
+    GM_setValue(typeMap.value.type, showTags.value);
+    ElMessage.success(`已移除 ${tag}`);
+    eventEmitter.send('刷新规则信息', false);
+  });
+};
+const showInput = () => {
+  inputVisible.value = true;
+  nextTick(() => {
+    // Element Plus 的 el-input 组件暴露 focus() 方法
+    saveTagInput.value?.focus();
+  });
+};
+const handleInputConfirm = () => {
+  let input = inputValue.value;
+  inputVisible.value = false;
+  if (input === '') return;
+  submitBut(input);
+  inputValue.value = '';
+};
+const submitBut = (input: any) => {
+  const split = input.split(',');
+  if (split.length < min) {
+    ElMessage.error('最少添加' + min + '项');
+    return;
   }
-})
+  const preciseVideoTagArr = ruleKeyListData.getPreciseVideoTagArr();
+  const videoTagArr = ruleKeyListData.getVideoTagArr();
+  for (let showTag of split) {
+    showTag = showTag.trim();
+    if (showTag === "") {
+      ElMessage.error('不能添加空项');
+      return;
+    }
+    if (preciseVideoTagArr.includes(showTag)) {
+      ElMessage.error('不能添加视频tag(精确匹配)已有的项，请先移除对应的项！');
+      return;
+    }
+    if (videoTagArr.includes(showTag)) {
+      ElMessage.error('不能添加视频tag(模糊匹配)已有的项，请先移除对应的项！');
+      return;
+    }
+    if (showTag.length > 15) {
+      ElMessage.error('项不能超过15个字符');
+      return;
+    }
+  }
+  const arr = GM_getValue(typeMap.value.type, [] as any[]);
+  for (let mk_arr of arr) {
+    if (arrUtil.arraysLooseEqual(mk_arr, split)) {
+      ElMessage.error('不能重复添加已有的组合！');
+      return;
+    }
+    if (arrUtil.arrayContains(mk_arr, split)) {
+      ElMessage.error('该组合已添加过或包括该组合');
+      return;
+    }
+  }
+  arr.push(split);
+  GM_setValue(typeMap.value.type, arr);
+  console.log(typeMap.value, split, arr);
+  ElMessage.success(`${typeMap.value.name}添加成功`);
+  updateShowTags();
+  eventEmitter.send('刷新规则信息', false);
+};
+
+eventEmitter.on('打开多重规则编辑对话框', (newTypeMap) => {
+  typeMap.value = newTypeMap;
+  dialogVisible.value = true;
+  updateShowTags();
+});
 </script>
 <template>
   <div>
     <el-dialog :close-on-click-modal="false" :close-on-press-escape="false"
                :modal="false"
-               :visible.sync="dialogVisible" title="多重规则">
+               v-model="dialogVisible" title="多重规则">
       <el-tag>{{ typeMap.name }}</el-tag>
       <el-card>
         <template #header>说明</template>
@@ -129,7 +124,7 @@ export default defineComponent({
             placeholder="多个项时请用英文符号分割"
             size="small"
             @blur="handleInputConfirm"
-            @keyup.enter.native="handleInputConfirm"
+            @keyup.enter="handleInputConfirm"
         >
         </el-input>
         <el-button v-else size="small" @click="showInput">+ New Tag</el-button>

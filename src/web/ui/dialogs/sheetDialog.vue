@@ -1,68 +1,59 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref} from 'vue';
 import {eventEmitter} from "@/core/EventEmitter.ts";
 
 /**
  * 选项对话框组件
  */
-export default defineComponent({
-  data() {
-    return {
-      visible: false,
-      optionsList: [] as any[],
-      dialogTitle: '',
-      /**
-       * @type function
-       * @returns boolean
-       */
-      optionsClick: null,
-      closeOnClickModal: true,
-      contents: [] as any[]
-    }
-  },
-  methods: {
-    handleClose() {
-      this.visible = false;
-      if (this.contents.length > 0) {
-        this.contents = [];
-      }
-    },
-    handleOptionsClick(item: any) {
-      if (this.closeOnClickModal) {
-        return;
-      }
-      let tempBool;
-      //如果回调函数返回true，则不关闭对话框，反之关闭对话框
-      const temp = (this.optionsClick as any)(item);
-      if (temp === undefined) {
-        tempBool = false
-      } else {
-        tempBool = temp;
-      }
-      this.visible = tempBool === true;
-    }
-  },
-  created() {
-    eventEmitter.on('sheet-dialog', ({
-                                       list, optionsClick, title = '选项',
-                                       closeOnClickModal = false, contents
-                                     }) => {
-      this.visible = true
-      this.optionsList = list
-      this.dialogTitle = title
-      this.optionsClick = optionsClick
-      this.closeOnClickModal = closeOnClickModal
-      if (contents) {
-        this.contents = contents;
-      }
-    })
+const visible = ref(false);
+const optionsList = ref<any[]>([]);
+const dialogTitle = ref('');
+/**
+ * 选项点击回调，返回 true 则不关闭对话框
+ */
+const optionsClick = ref<((item: any) => boolean | undefined | void) | null>(null);
+const closeOnClickModal = ref(true);
+const contents = ref<any[]>([]);
+
+const handleClose = () => {
+  visible.value = false;
+  if (contents.value.length > 0) {
+    contents.value = [];
   }
-})
+};
+const handleOptionsClick = (item: any) => {
+  if (closeOnClickModal.value) {
+    return;
+  }
+  let tempBool: boolean;
+  //如果回调函数返回true，则不关闭对话框，反之关闭对话框
+  const temp = (optionsClick.value as any)(item);
+  if (temp === undefined) {
+    tempBool = false;
+  } else {
+    tempBool = temp;
+  }
+  visible.value = tempBool === true;
+};
+
+eventEmitter.on('sheet-dialog', ({
+                                   list, optionsClick: click, title = '选项',
+                                   closeOnClickModal: clickModal = false, contents: newContents
+                                 }) => {
+  visible.value = true;
+  optionsList.value = list;
+  dialogTitle.value = title;
+  optionsClick.value = click;
+  closeOnClickModal.value = clickModal;
+  if (newContents) {
+    contents.value = newContents;
+  }
+});
 </script>
 <template>
   <div>
     <el-dialog :close-on-click-modal="closeOnClickModal" :title="dialogTitle"
-               :visible="visible" center
+               v-model="visible" center
                width="30%"
                @close="handleClose">
       <div>

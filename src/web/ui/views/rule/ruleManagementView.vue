@@ -1,34 +1,16 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
 import replProcessingView from "../replProcessingView.vue";
 import timeRangeMaskingView from "../shield/timeRangeMaskingView.vue";
 import videoMetricsFilterView from "../shield/videoMetricsFilterView.vue";
 import highLevelRuleView from "./highLevelRuleView.vue";
 import blacklistManagementView from "../blacklistManagementView.vue";
 import basicRulesView from "./basicRulesView.vue";
-import ruleExportImportView from './ruleExportImportView.vue'
-import otherParameterFilterView from '../otherParameterFilterView.vue'
+import ruleExportImportView from './ruleExportImportView.vue';
+import otherParameterFilterView from '../otherParameterFilterView.vue';
 import viewRulesRuleDialog from "../../dialogs/viewRulesRuleDialog.vue";
 import GloryLevelTabView from "../glory/GloryLevelTabView.vue";
 import FanCardLevelRestrictionsView from "../glory/FanCardLevelRestrictionsView.vue";
 import CombinationRuleView from "../glory/CombinationRuleView.vue";
-
-export default defineComponent({
-  components: {
-    CombinationRuleView,
-    FanCardLevelRestrictionsView,
-    GloryLevelTabView,
-    ruleExportImportView,
-    otherParameterFilterView,
-    basicRulesView,
-    blacklistManagementView,
-    highLevelRuleView,
-    videoMetricsFilterView,
-    timeRangeMaskingView,
-    replProcessingView,
-    viewRulesRuleDialog,
-  }
-})
 </script>
 
 <template>

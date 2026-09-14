@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import localMKData, {
   enableDynamicItemsContentBlockingGm,
   hidePersonalInfoCardGm,
@@ -14,63 +14,56 @@ import localMKData, {
 import dynamicPage from "../../../pages/dynamic/page.ts";
 import cssManager from "../../../domain/cssManager.ts";
 
-export default defineComponent({
-  data() {
-    return {
-      enableDynamicItemsContentBlockingVal: enableDynamicItemsContentBlockingGm(),
-      isBlockRepostDynamicVal: isBlockRepostDynamicGm(),
-      isBlockAppointmentDynamicVal: isBlockAppointmentDynamicGm(),
-      isBlockVoteDynamicVal: isBlockVoteDynamicGm(),
-      isBlockUPowerLotteryDynamicVal: isBlockUPowerLotteryDynamicGm(),
-      isBlockGoodsDynamicVal: isBlockGoodsDynamicGm(),
-      isBlockSpecialColumnForChargingDynamicVal: isBlockSpecialColumnForChargingDynamicGm(),
-      isBlockVideoChargingExclusiveDynamicVal: isBlockVideoChargingExclusiveDynamicGm(),
-      hidePersonalInfoCardVal: hidePersonalInfoCardGm(),
-      isDynamicHomeRightLayHideVal: localMKData.isDynamicHomeRightLayHide(),
-      hideBackToOldVersionButVal: localMKData.hideBackToOldVersionButGm(),
-    }
-  },
-  watch: {
-    enableDynamicItemsContentBlockingVal(n) {
-      GM_setValue('enable_dynamic_items_content_blocking_gm', n)
-    },
-    isBlockRepostDynamicVal(n) {
-      GM_setValue('is_block_repost_dynamic_gm', n)
-    },
-    isBlockAppointmentDynamicVal(n) {
-      GM_setValue('is_block_appointment_dynamic_gm', n)
-    },
-    isBlockVoteDynamicVal(n) {
-      GM_setValue('is_block_vote_dynamic_gm', n)
-    },
-    isBlockUPowerLotteryDynamicVal(n) {
-      GM_setValue('is_block_u_power_lottery_dynamic_gm', n)
-    },
-    isBlockGoodsDynamicVal(n) {
-      GM_setValue('is_block_goods_dynamic_gm', n)
-    },
-    isBlockSpecialColumnForChargingDynamicVal(n) {
-      GM_setValue('is_block_special_column_for_charging_dynamic_gm', n)
-    },
-    isBlockVideoChargingExclusiveDynamicVal(n) {
-      GM_setValue('is_block_video_charging_exclusive_dynamic_gm', n)
-    },
-    hidePersonalInfoCardVal(n) {
-      GM_setValue('hide_personal_info_card_gm', n)
-      if (dynamicPage.isUrlDynamicHomePage()) {
-        dynamicPage.hidePersonalInfoCard(n);
-      }
-    },
-    isDynamicHomeRightLayHideVal(n) {
-      GM_setValue('is_dynamic_home_right_lay_hide', n)
-      cssManager.setDynamicHomeRightLayHide(n)
-    },
-    hideBackToOldVersionButVal(n) {
-      GM_setValue('hide_back_to_old_version_but_gm', n)
-      dynamicPage.runHideBackToOldVersionButFun(n)
-    }
+const enableDynamicItemsContentBlockingVal = ref(enableDynamicItemsContentBlockingGm());
+const isBlockRepostDynamicVal = ref(isBlockRepostDynamicGm());
+const isBlockAppointmentDynamicVal = ref(isBlockAppointmentDynamicGm());
+const isBlockVoteDynamicVal = ref(isBlockVoteDynamicGm());
+const isBlockUPowerLotteryDynamicVal = ref(isBlockUPowerLotteryDynamicGm());
+const isBlockGoodsDynamicVal = ref(isBlockGoodsDynamicGm());
+const isBlockSpecialColumnForChargingDynamicVal = ref(isBlockSpecialColumnForChargingDynamicGm());
+const isBlockVideoChargingExclusiveDynamicVal = ref(isBlockVideoChargingExclusiveDynamicGm());
+const hidePersonalInfoCardVal = ref(hidePersonalInfoCardGm());
+const isDynamicHomeRightLayHideVal = ref(localMKData.isDynamicHomeRightLayHide());
+const hideBackToOldVersionButVal = ref(localMKData.hideBackToOldVersionButGm());
+
+watch(enableDynamicItemsContentBlockingVal, (n) => {
+  GM_setValue('enable_dynamic_items_content_blocking_gm', n);
+});
+watch(isBlockRepostDynamicVal, (n) => {
+  GM_setValue('is_block_repost_dynamic_gm', n);
+});
+watch(isBlockAppointmentDynamicVal, (n) => {
+  GM_setValue('is_block_appointment_dynamic_gm', n);
+});
+watch(isBlockVoteDynamicVal, (n) => {
+  GM_setValue('is_block_vote_dynamic_gm', n);
+});
+watch(isBlockUPowerLotteryDynamicVal, (n) => {
+  GM_setValue('is_block_u_power_lottery_dynamic_gm', n);
+});
+watch(isBlockGoodsDynamicVal, (n) => {
+  GM_setValue('is_block_goods_dynamic_gm', n);
+});
+watch(isBlockSpecialColumnForChargingDynamicVal, (n) => {
+  GM_setValue('is_block_special_column_for_charging_dynamic_gm', n);
+});
+watch(isBlockVideoChargingExclusiveDynamicVal, (n) => {
+  GM_setValue('is_block_video_charging_exclusive_dynamic_gm', n);
+});
+watch(hidePersonalInfoCardVal, (n) => {
+  GM_setValue('hide_personal_info_card_gm', n);
+  if (dynamicPage.isUrlDynamicHomePage()) {
+    dynamicPage.hidePersonalInfoCard(n);
   }
-})
+});
+watch(isDynamicHomeRightLayHideVal, (n) => {
+  GM_setValue('is_dynamic_home_right_lay_hide', n);
+  cssManager.setDynamicHomeRightLayHide(n);
+});
+watch(hideBackToOldVersionButVal, (n) => {
+  GM_setValue('hide_back_to_old_version_but_gm', n);
+  dynamicPage.runHideBackToOldVersionButFun(n);
+});
 </script>
 
 <template>

@@ -1,123 +1,117 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {reactive, ref} from 'vue';
 import defUtil, {saveTextAsFile} from "../../../core/util/defUtil.ts";
 import ruleUtil from "@/core/util/ruleUtil.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
-//规则导入导出组件
-export default defineComponent({
-  data() {
-    return {
-      //要导入的规则内容
-      ruleContentImport: "",
-      select: {
-        val: [] as any[],
-        options: [] as any[],
-      }
-    }
-  },
-  methods: {
-    getSelectValRuleContent() {
-      const val = this.select.val;
-      if (val.length === 0) return false
-      const map: Record<string, any> = {};
-      for (const valKey of val) {
-        const find = this.select.options.find(item => item.key === valKey);
-        if (find === undefined) continue;
-        const {key} = find;
-        const ruleItemList = GM_getValue(key, []);
-        if (ruleItemList.length === 0) continue;
-        map[key] = ruleItemList;
-      }
-      if (Object.keys(map).length === 0) {
-        this.$message.warning(`选定的规则类型都为空`);
-        return false;
-      }
-      return map;
-    },
-    //覆盖导入规则
-    overwriteImportRulesBut() {
-      this.$confirm('是否要覆盖导入规则？').then(() => {
-        const trim = this.ruleContentImport.trim();
-        if (ruleUtil.overwriteImportRules(trim)) {
-          this.$alert('已覆盖导入成功！')
-          eventEmitter.send('刷新规则信息');
-        }
-      })
-    },
-    //追加导入规则
-    appendImportRulesBut() {
-      this.$confirm('是否要追加导入规则？').then(() => {
-        const trim = this.ruleContentImport.trim();
-        if (ruleUtil.appendImportRules(trim)) {
-          this.$message('已追加导入成功！')
-          eventEmitter.send('刷新规则信息');
-        }
-      })
-    },
-    handleFileUpload(event: any) {
-      defUtil.handleFileReader(event).then(data => {
-        const {content} = data;
-        try {
-          JSON.parse(content);
-        } catch (e) {
-          this.$message('文件内容有误')
-          return;
-        }
-        this.ruleContentImport = content;
-        this.$message('读取到内容，请按需覆盖或追加')
-      })
-    },
-    inputFIleRuleBut() {
-      (this.$refs!.file as any).click()
-    },
-    outToInputBut() {
-      this.ruleContentImport = ruleUtil.getRuleContent() as string;
-      this.$message('已导出到输入框中')
-    },
-    ruleOutToFIleBut() {
-      const map = this.getSelectValRuleContent();
-      if (map === false) return;
-      this.$prompt('请输入文件名', '保存为', {
-        inputValue: "b站屏蔽器规则-指定类型-" + defUtil.toTimeString()
-      }).then(({value}: any) => {
-        if (value === "" && value.includes(' ')) {
-          this.$alert('文件名不能为空或包含空格')
-          return
-        }
-        saveTextAsFile(JSON.stringify(map, null, 4), value + '.json');
-      })
-    },
-    basisRuleOutToFIleBut() {
-      let fileName = "b站屏蔽器规则-" + defUtil.toTimeString();
-      this.$prompt('请输入文件名', '保存为', {
-        inputValue: fileName
-      }).then(({value}: any) => {
-        if (value === "" && value.includes(' ')) {
-          this.$alert('文件名不能为空或包含空格')
-          return
-        }
-        saveTextAsFile(ruleUtil.getRuleContent(true, 4) as string, value + ".json");
-      })
+import {ElMessage, ElMessageBox} from 'element-plus';
 
-    },
-    ruleOutToConsoleBut() {
-      const map = this.getSelectValRuleContent();
-      if (map === false) return;
-      console.log(map);
-      this.$message.info('已导出到控制台上，F12打开控制台查看')
-    },
-    basisRuleOutToConsoleBut() {
-      console.log(ruleUtil.getRuleContent(false));
-      this.$message('已导出到控制台上，F12打开控制台查看')
-    },
-  },
-  created() {
-    for (const v of ruleKeyListData.getRuleKeyListData()) {
-      this.select.options.push(v);
-    }
+//规则导入导出组件
+//要导入的规则内容
+const ruleContentImport = ref("");
+const select = reactive({
+  val: [] as any[],
+  options: [] as any[],
+});
+const file = ref<HTMLInputElement>();
+
+const getSelectValRuleContent = () => {
+  const val = select.val;
+  if (val.length === 0) return false;
+  const map: Record<string, any> = {};
+  for (const valKey of val) {
+    const find = select.options.find(item => item.key === valKey);
+    if (find === undefined) continue;
+    const {key} = find;
+    const ruleItemList = GM_getValue(key, []);
+    if (ruleItemList.length === 0) continue;
+    map[key] = ruleItemList;
   }
-})
+  if (Object.keys(map).length === 0) {
+    ElMessage.warning(`选定的规则类型都为空`);
+    return false;
+  }
+  return map;
+};
+//覆盖导入规则
+const overwriteImportRulesBut = () => {
+  ElMessageBox.confirm('是否要覆盖导入规则？').then(() => {
+    const trim = ruleContentImport.value.trim();
+    if (ruleUtil.overwriteImportRules(trim)) {
+      ElMessageBox.alert('已覆盖导入成功！');
+      eventEmitter.send('刷新规则信息');
+    }
+  });
+};
+//追加导入规则
+const appendImportRulesBut = () => {
+  ElMessageBox.confirm('是否要追加导入规则？').then(() => {
+    const trim = ruleContentImport.value.trim();
+    if (ruleUtil.appendImportRules(trim)) {
+      ElMessage('已追加导入成功！');
+      eventEmitter.send('刷新规则信息');
+    }
+  });
+};
+const handleFileUpload = (event: any) => {
+  defUtil.handleFileReader(event).then(data => {
+    const {content} = data;
+    try {
+      JSON.parse(content);
+    } catch (e) {
+      ElMessage('文件内容有误');
+      return;
+    }
+    ruleContentImport.value = content;
+    ElMessage('读取到内容，请按需覆盖或追加');
+  });
+};
+const inputFIleRuleBut = () => {
+  file.value!.click();
+};
+const outToInputBut = () => {
+  ruleContentImport.value = ruleUtil.getRuleContent() as string;
+  ElMessage('已导出到输入框中');
+};
+const ruleOutToFIleBut = () => {
+  const map = getSelectValRuleContent();
+  if (map === false) return;
+  ElMessageBox.prompt('请输入文件名', '保存为', {
+    inputValue: "b站屏蔽器规则-指定类型-" + defUtil.toTimeString()
+  }).then(({value}: any) => {
+    if (value === "" && value.includes(' ')) {
+      ElMessageBox.alert('文件名不能为空或包含空格');
+      return;
+    }
+    saveTextAsFile(JSON.stringify(map, null, 4), value + '.json');
+  });
+};
+const basisRuleOutToFIleBut = () => {
+  let fileName = "b站屏蔽器规则-" + defUtil.toTimeString();
+  ElMessageBox.prompt('请输入文件名', '保存为', {
+    inputValue: fileName
+  }).then(({value}: any) => {
+    if (value === "" && value.includes(' ')) {
+      ElMessageBox.alert('文件名不能为空或包含空格');
+      return;
+    }
+    saveTextAsFile(ruleUtil.getRuleContent(true, 4) as string, value + ".json");
+  });
+};
+const ruleOutToConsoleBut = () => {
+  const map = getSelectValRuleContent();
+  if (map === false) return;
+  console.log(map);
+  ElMessage.info('已导出到控制台上，F12打开控制台查看');
+};
+const basisRuleOutToConsoleBut = () => {
+  console.log(ruleUtil.getRuleContent(false));
+  ElMessage('已导出到控制台上，F12打开控制台查看');
+};
+
+for (const v of ruleKeyListData.getRuleKeyListData()) {
+  select.options.push(v);
+}
 </script>
 
 <template>
@@ -158,7 +152,7 @@ export default defineComponent({
       <div>
         <el-input v-model="ruleContentImport"
                   :autosize="{ minRows: 10, maxRows: 50}"
-                  autosize placeholder="要导入的规则内容" type="textarea"></el-input>
+                  placeholder="要导入的规则内容" type="textarea"></el-input>
       </div>
     </el-card>
     <input ref="file" accept="application/json" style="display: none" type="file"

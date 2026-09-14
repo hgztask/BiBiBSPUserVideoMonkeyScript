@@ -1,8 +1,9 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {computed, ref} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import defUtil from "../../../core/util/defUtil.ts";
 import localMKData from "../../../state/localMKData.ts";
+import {ElMessageBox, ElNotification} from 'element-plus';
 
 const outputInformationFontColor = localMKData.getOutputInformationFontColor();
 const highlightInformationColor = localMKData.getHighlightInformationColor();
@@ -25,159 +26,149 @@ const typeOptions = [
   {value: 'error', label: '错误信息'},
 ];
 
-export default defineComponent({
-  data() {
-    return {
-      outputInfoArr: [] as OutputInfo[],
-      selectedType: 'all',
-      searchKeyword: '',
-      typeOptions,
-    }
-  },
-  computed: {
-    filteredInfoArr(): OutputInfo[] {
-      const keyword = this.searchKeyword.trim().toLowerCase();
-      return this.outputInfoArr.filter((item) => {
-        if (this.selectedType !== 'all' && item.type !== this.selectedType) return false;
-        if (!keyword) return true;
-        return this.getPlainContent(item.content).toLowerCase().includes(keyword);
-      });
-    },
-    emptyText(): string {
-      if (this.outputInfoArr.length === 0) return '暂无输出信息';
-      return '没有符合条件的输出信息';
-    },
-  },
-  methods: {
-    getPlainContent(content: string): string {
-      return String(content || '').replace(/<[^>]*>/g, ' ');
-    },
-    getTypeLabel(type: string): string {
-      const option = typeOptions.find(item => item.value === type);
-      return option?.label || '其他信息';
-    },
-    getTypeTag(type: string): string {
-      if (type === 'error') return 'danger';
-      if (type === 'shield-video-info' || type === 'shield-comment-info' || type === 'shield-live-info') return 'warning';
-      if (type === 'update-out-info') return 'success';
-      if (type === 'info') return 'primary';
-      return 'info';
-    },
-    clearInfoBut() {
-      this.$confirm('是否清空全部输出信息？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.outputInfoArr = [];
-        this.$notify({
-          title: '输出信息',
-          message: '清空成功',
-          type: 'success',
-          position: 'bottom-right'
-        })
-      }).catch(() => undefined)
-    },
-    updateOutInfo(infoData: OutputInfo, index: number) {
-      const outPutInfoData = this.outputInfoArr[index];
-      outPutInfoData.count = (outPutInfoData.count || 0) + 1;
-      outPutInfoData.time = defUtil.toTimeString();
-      outPutInfoData.content = infoData.content;
-      this.outputInfoArr.splice(index, 1);
-      this.outputInfoArr.unshift(outPutInfoData);
-    },
-    addOutInfo(infoData: OutputInfo) {
-      infoData.content = String(infoData.content ?? '');
-      const findIdIndex = this.outputInfoArr.findIndex(item => {
-        if (infoData.id === undefined || item.id === undefined) return false;
-        return item.id === infoData.id;
-      });
-      if (findIdIndex !== -1) {
-        this.updateOutInfo(infoData, findIdIndex);
-        return;
-      }
-      const findContentIndex = this.outputInfoArr.findIndex(item => item.content === infoData.content);
-      if (findContentIndex !== -1) {
-        this.updateOutInfo(infoData, findContentIndex);
-        return;
-      }
-      infoData.time = defUtil.toTimeString();
-      infoData.count = 1;
-      this.outputInfoArr.unshift(infoData);
-    },
-  },
-  created() {
-    eventEmitter.on('打印信息', (content) => {
-      this.addOutInfo({type: 'info', content: String(content ?? '')})
-    })
-    eventEmitter.on('event-update-out-info', (data) => {
-      this.addOutInfo({
-        type: 'update-out-info',
-        id: data.id,
-        content: String(data.msg ?? '')
-      })
-    })
-    eventEmitter.on('event-打印屏蔽视频信息', (type, matching, videoData) => {
-      const {name, uid, title, videoUrl} = videoData;
-      const info = `<b style="color: ${outputInformationFontColor}; ">
+const outputInfoArr = ref<OutputInfo[]>([]);
+const selectedType = ref('all');
+const searchKeyword = ref('');
+
+const filteredInfoArr = computed<OutputInfo[]>(() => {
+  const keyword = searchKeyword.value.trim().toLowerCase();
+  return outputInfoArr.value.filter((item) => {
+    if (selectedType.value !== 'all' && item.type !== selectedType.value) return false;
+    if (!keyword) return true;
+    return getPlainContent(item.content).toLowerCase().includes(keyword);
+  });
+});
+const emptyText = computed<string>(() => {
+  if (outputInfoArr.value.length === 0) return '暂无输出信息';
+  return '没有符合条件的输出信息';
+});
+
+const getPlainContent = (content: string): string => {
+  return String(content || '').replace(/<[^>]*>/g, ' ');
+};
+const getTypeLabel = (type: string): string => {
+  const option = typeOptions.find(item => item.value === type);
+  return option?.label || '其他信息';
+};
+const getTypeTag = (type: string): string => {
+  if (type === 'error') return 'danger';
+  if (type === 'shield-video-info' || type === 'shield-comment-info' || type === 'shield-live-info') return 'warning';
+  if (type === 'update-out-info') return 'success';
+  if (type === 'info') return 'primary';
+  return 'info';
+};
+const clearInfoBut = () => {
+  ElMessageBox.confirm('是否清空全部输出信息？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    outputInfoArr.value = [];
+    ElNotification({
+      title: '输出信息',
+      message: '清空成功',
+      type: 'success',
+      position: 'bottom-right'
+    });
+  }).catch(() => undefined);
+};
+const updateOutInfo = (infoData: OutputInfo, index: number) => {
+  const outPutInfoData = outputInfoArr.value[index];
+  outPutInfoData.count = (outPutInfoData.count || 0) + 1;
+  outPutInfoData.time = defUtil.toTimeString();
+  outPutInfoData.content = infoData.content;
+  outputInfoArr.value.splice(index, 1);
+  outputInfoArr.value.unshift(outPutInfoData);
+};
+const addOutInfo = (infoData: OutputInfo) => {
+  infoData.content = String(infoData.content ?? '');
+  const findIdIndex = outputInfoArr.value.findIndex(item => {
+    if (infoData.id === undefined || item.id === undefined) return false;
+    return item.id === infoData.id;
+  });
+  if (findIdIndex !== -1) {
+    updateOutInfo(infoData, findIdIndex);
+    return;
+  }
+  const findContentIndex = outputInfoArr.value.findIndex(item => item.content === infoData.content);
+  if (findContentIndex !== -1) {
+    updateOutInfo(infoData, findContentIndex);
+    return;
+  }
+  infoData.time = defUtil.toTimeString();
+  infoData.count = 1;
+  outputInfoArr.value.unshift(infoData);
+};
+
+eventEmitter.on('打印信息', (content: string) => {
+  addOutInfo({type: 'info', content: String(content ?? '')});
+});
+eventEmitter.on('event-update-out-info', (data: any) => {
+  addOutInfo({
+    type: 'update-out-info',
+    id: data.id,
+    content: String(data.msg ?? '')
+  });
+});
+eventEmitter.on('event-打印屏蔽视频信息', (type: string, matching: string, videoData: any) => {
+  const {name, uid, title, videoUrl} = videoData;
+  const info = `<b style="color: ${outputInformationFontColor}; ">
 根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
             <a href="https://space.bilibili.com/${uid}"
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>
             标题【<a href="${videoUrl}" target="_blank" style="color: ${highlightInformationColor}">${title}</a>】
-            </b>`
-      this.addOutInfo({
-        type: 'shield-video-info',
-        content: info
-      })
-    })
+            </b>`;
+  addOutInfo({
+    type: 'shield-video-info',
+    content: info
+  });
+});
 
-    eventEmitter.on('屏蔽评论信息', (type, matching, commentData, source) => {
-      const {name, uid, content} = commentData;
-      const sourceLabel = source === '响应层过滤'
-        ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
-        : '';
-      this.addOutInfo({
-        type: 'shield-comment-info',
-        content: `<b style="color: ${outputInformationFontColor};">
+eventEmitter.on('屏蔽评论信息', (type: string, matching: string, commentData: any, source?: string) => {
+  const {name, uid, content} = commentData;
+  const sourceLabel = source === '响应层过滤'
+      ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
+      : '';
+  addOutInfo({
+    type: 'shield-comment-info',
+    content: `<b style="color: ${outputInformationFontColor};">
 		${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
             <a href="https://space.bilibili.com/${uid}"
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>
             评论【${content}】
             </b>`
-      })
-    })
+  });
+});
 
-    eventEmitter.on('屏蔽直播信息', (type, matching, liveData, source) => {
-      const {name, uid, title} = liveData;
-      const liveUrl = liveData.liveUrl || `https://live.bilibili.com/${liveData.roomId}`;
-      const sourceLabel = source === '响应层过滤'
-        ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
-        : '';
-      this.addOutInfo({
-        type: 'shield-live-info',
-        content: `<b style="color: ${outputInformationFontColor};">
+eventEmitter.on('屏蔽直播信息', (type: string, matching: string, liveData: any, source?: string) => {
+  const {name, uid, title} = liveData;
+  const liveUrl = liveData.liveUrl || `https://live.bilibili.com/${liveData.roomId}`;
+  const sourceLabel = source === '响应层过滤'
+      ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
+      : '';
+  addOutInfo({
+    type: 'shield-live-info',
+    content: `<b style="color: ${outputInformationFontColor};">
 		${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】${uid > 0 ? `uid=
             <a href="https://space.bilibili.com/${uid}"
             style="color: ${highlightInformationColor}"
             target="_blank">【${uid}】</a>` : ""}
             直播间标题【<a href="${liveUrl}" target="_blank" style="color: ${highlightInformationColor}">${title}</a>】
             </b>`
-      })
-    })
+  });
+});
 
-    eventEmitter.on('正则匹配时异常', (errorData) => {
-      const {msg, e} = errorData
-      this.addOutInfo({
-        type: 'error',
-        content: msg
-      })
-      console.error(msg)
-      throw new Error(e)
-    })
-  }
-})
+eventEmitter.on('正则匹配时异常', (errorData: any) => {
+  const {msg, e} = errorData;
+  addOutInfo({
+    type: 'error',
+    content: msg
+  });
+  console.error(msg);
+  throw new Error(e);
+});
 </script>
 
 <template>
@@ -188,46 +179,44 @@ export default defineComponent({
         <span class="output-subtitle">记录屏蔽动作与运行状态</span>
       </div>
       <div class="output-summary">
-        <el-tag size="mini" effect="plain">累计 {{ outputInfoArr.length }}</el-tag>
-        <el-tag size="mini" type="primary" effect="plain">显示 {{ filteredInfoArr.length }}</el-tag>
-        <el-button type="danger" size="mini" plain icon="el-icon-delete" @click="clearInfoBut">清空</el-button>
+        <el-tag size="small" effect="plain">累计 {{ outputInfoArr.length }}</el-tag>
+        <el-tag size="small" type="primary" effect="plain">显示 {{ filteredInfoArr.length }}</el-tag>
+        <el-button type="danger" size="small" plain @click="clearInfoBut">清空</el-button>
       </div>
     </div>
 
     <div class="output-filter-bar">
       <el-select v-model="selectedType" size="small" class="output-filter-type" placeholder="筛选类型">
         <el-option
-          v-for="option in typeOptions"
-          :key="option.value"
-          :label="option.label"
-          :value="option.value"/>
+            v-for="option in typeOptions"
+            :key="option.value"
+            :label="option.label"
+            :value="option.value"/>
       </el-select>
       <el-input
-        v-model="searchKeyword"
-        class="output-filter-search"
-        size="small"
-        clearable
-        prefix-icon="el-icon-search"
-        placeholder="搜索日志内容、标题或用户名"/>
+          v-model="searchKeyword"
+          class="output-filter-search"
+          size="small"
+          clearable
+          placeholder="搜索日志内容、标题或用户名"/>
       <span class="output-filter-hint" v-if="selectedType !== 'all' || searchKeyword">已启用筛选</span>
     </div>
 
     <div class="output-list" role="log" aria-live="polite">
       <div v-if="filteredInfoArr.length === 0" class="output-empty">
-        <i class="el-icon-document"/>
         <strong>{{ emptyText }}</strong>
         <span v-if="outputInfoArr.length > 0">请调整筛选条件后重试</span>
         <span v-else>触发屏蔽或运行操作后，相关信息会显示在这里</span>
       </div>
       <article
-        v-for="(info, index) in filteredInfoArr"
-        :key="`${info.id || info.type}-${info.content}-${index}`"
-        class="output-item"
-        :class="`output-item--${info.type}`">
+          v-for="(info, index) in filteredInfoArr"
+          :key="`${info.id || info.type}-${info.content}-${index}`"
+          class="output-item"
+          :class="`output-item--${info.type}`">
         <div class="output-item__accent"/>
         <div class="output-item__main">
           <div class="output-item__head">
-            <el-tag :type="getTypeTag(info.type)" size="mini" effect="light">
+            <el-tag :type="getTypeTag(info.type)" size="small" effect="light">
               {{ getTypeLabel(info.type) }}
             </el-tag>
             <span class="output-item__position">#{{ filteredInfoArr.length - index }}</span>
@@ -236,7 +225,7 @@ export default defineComponent({
         </div>
         <div class="output-item__meta">
           <span class="output-item__time">{{ info.time }}</span>
-          <el-tag v-if="(info.count || 0) > 1" class="output-item__count" type="info" size="mini" effect="dark">
+          <el-tag v-if="(info.count || 0) > 1" class="output-item__count" type="info" size="small" effect="dark">
             ×{{ info.count }}
           </el-tag>
         </div>
@@ -409,12 +398,12 @@ export default defineComponent({
   word-break: break-word;
 }
 
-.output-item__content :deep(a) {
+.output-item__content a {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-.output-item__content :deep(b) {
+.output-item__content b {
   font-weight: 500;
 }
 

@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
 import ruleUtil from "../../../core/util/ruleUtil.ts";
@@ -7,94 +7,85 @@ import multipleRuleEditDialog from "../../dialogs/multipleRuleEditDialog.vue";
 import ruleSetValueDialog from '../../dialogs/ruleSetValueDialog.vue';
 import addRuleDialog from '../../components/addRuleDialog.vue'
 import ruleInformationView from "./ruleInformationView.vue";
+import {ElMessage, ElMessageBox} from 'element-plus';
 
-export default defineComponent({
-  components: {ruleInformationView, ruleSetValueDialog, multipleRuleEditDialog, addRuleDialog},
-  data() {
-    return {
-      cascaderVal: ["精确匹配", "precise_uid"],
-      cascaderOptions: ruleKeyListData.getSelectOptions(),
-      //规则信息
-      ruleInfoArr: [] as any[],
-      addRuleDialogVisible: false,
-      addRuleDialogRuleInfo: {
-        type: '',
-        name: ''
-      }
-    }
-  },
-  methods: {
-    handleChangeCascader(val: any) {
-      console.log(val)
-    },
-    setRuleBut() {
-      const [model, type] = this.cascaderVal;
-      const typeMap = this.ruleInfoArr.find(item => item.type === type);
-      if (model === '组合匹配') {
-        eventEmitter.send('打开多重规则编辑对话框', typeMap)
-        return
-      }
-      eventEmitter.send('修改规则对话框', typeMap)
-    },
-    findItemAllBut() {
-      const [model, type] = this.cascaderVal;
-      const typeMap = this.ruleInfoArr.find(item => item.type === type);
-      if (model === '组合匹配') {
-        eventEmitter.send('打开多重规则编辑对话框', typeMap)
-        return
-      }
-      eventEmitter.send('event-lookRuleDialog', typeMap);
-    },
-    delAllBut() {
-      this.$confirm('确定要删除所有规则吗？').then(() => {
-        for (let x of this.ruleInfoArr) {
-          GM_deleteValue(x.type);
-        }
-        this.$message.success("删除全部规则成功");
-        eventEmitter.send('刷新规则信息', false);
-      })
-    },
-    delBut() {
-      const [model, type] = this.cascaderVal;
-      const typeMap = this.ruleInfoArr.find(item => item.type === type);
-      if (model === '组合匹配') {
-        eventEmitter.send('打开多重规则编辑对话框', typeMap)
-        return
-      }
-      ruleUtil.showDelRuleInput(type)
-    },
-    clearItemRuleBut() {
-      const type = this.cascaderVal[1];
-      const find = this.ruleInfoArr.find(item => item.type === type);
-      this.$confirm(`是要清空${find!.name}的规则内容吗？`, 'tip').then(() => {
-        ruleKeyListData.clearKeyItem(type);
-        this.$alert(`已清空${find!.name}的规则内容`)
-      })
-    },
-    batchAddBut() {
-      const [model, type] = this.cascaderVal;
-      if (model === '组合匹配') {
-        const typeMap = this.ruleInfoArr.find(item => item.type === type);
-        eventEmitter.send('打开多重规则编辑对话框', typeMap)
-        return
-      }
-      this.addRuleDialogVisible = true
-      this.addRuleDialogRuleInfo = {
-        type: type,
-        name: this.ruleInfoArr.find(item => item.type === type)!.name
-      }
-    }
-  },
-  watch: {},
-  created() {
-    for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
-      this.ruleInfoArr.push({
-        type: newRuleKeyListElement.key,
-        name: newRuleKeyListElement.name,
-      })
-    }
+const cascaderVal = ref(["精确匹配", "precise_uid"]);
+const cascaderOptions = ruleKeyListData.getSelectOptions();
+//规则信息
+const ruleInfoArr = ref<any[]>([]);
+const addRuleDialogVisible = ref(false);
+const addRuleDialogRuleInfo = ref({
+  type: '',
+  name: ''
+});
+
+const handleChangeCascader = (val: any) => {
+  console.log(val);
+};
+const setRuleBut = () => {
+  const [model, type] = cascaderVal.value;
+  const typeMap = ruleInfoArr.value.find(item => item.type === type);
+  if (model === '组合匹配') {
+    eventEmitter.send('打开多重规则编辑对话框', typeMap);
+    return;
   }
-})
+  eventEmitter.send('修改规则对话框', typeMap);
+};
+const findItemAllBut = () => {
+  const [model, type] = cascaderVal.value;
+  const typeMap = ruleInfoArr.value.find(item => item.type === type);
+  if (model === '组合匹配') {
+    eventEmitter.send('打开多重规则编辑对话框', typeMap);
+    return;
+  }
+  eventEmitter.send('event-lookRuleDialog', typeMap);
+};
+const delAllBut = () => {
+  ElMessageBox.confirm('确定要删除所有规则吗？').then(() => {
+    for (let x of ruleInfoArr.value) {
+      GM_deleteValue(x.type);
+    }
+    ElMessage.success("删除全部规则成功");
+    eventEmitter.send('刷新规则信息', false);
+  });
+};
+const delBut = () => {
+  const [model, type] = cascaderVal.value;
+  const typeMap = ruleInfoArr.value.find(item => item.type === type);
+  if (model === '组合匹配') {
+    eventEmitter.send('打开多重规则编辑对话框', typeMap);
+    return;
+  }
+  ruleUtil.showDelRuleInput(type);
+};
+const clearItemRuleBut = () => {
+  const type = cascaderVal.value[1];
+  const find = ruleInfoArr.value.find(item => item.type === type);
+  ElMessageBox.confirm(`是要清空${find!.name}的规则内容吗？`, 'tip').then(() => {
+    ruleKeyListData.clearKeyItem(type);
+    ElMessageBox.alert(`已清空${find!.name}的规则内容`);
+  });
+};
+const batchAddBut = () => {
+  const [model, type] = cascaderVal.value;
+  if (model === '组合匹配') {
+    const typeMap = ruleInfoArr.value.find(item => item.type === type);
+    eventEmitter.send('打开多重规则编辑对话框', typeMap);
+    return;
+  }
+  addRuleDialogVisible.value = true;
+  addRuleDialogRuleInfo.value = {
+    type: type,
+    name: ruleInfoArr.value.find(item => item.type === type)!.name
+  };
+};
+
+for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
+  ruleInfoArr.value.push({
+    type: newRuleKeyListElement.key,
+    name: newRuleKeyListElement.name,
+  });
+}
 </script>
 
 <template>
@@ -106,7 +97,7 @@ export default defineComponent({
           <el-cascader v-model="cascaderVal" :options="cascaderOptions"
                        :props="{ expandTrigger: 'hover' }" filterable
                        show-all-levels style="width: 60%;" @change="handleChangeCascader">
-            <template v-slot="{ node, data }">
+            <template #default="{ node, data }">
               <span>{{ data.label }}</span>
               <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
             </template>

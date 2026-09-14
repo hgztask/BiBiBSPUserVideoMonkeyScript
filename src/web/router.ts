@@ -29,7 +29,7 @@ import urlUtil from "./core/util/urlUtil.ts";
 import msgWhisper from "./pages/message/whisper.ts";
 import cssManager from "./domain/cssManager.ts";
 import topColumnProcessing from "./pages/topColumnProcessing.ts";
-import defHomeCss from './ui/styles/defHome.less'
+import defHomeCss from './ui/styles/defHome.less?raw'
 import elUtil from "./core/util/elUtil.ts";
 
 /** 首页静态路由：处理BewlyBewly兼容、首页顶栏隐藏、Bilibili-Gate兼容检查 */

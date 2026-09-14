@@ -1,12 +1,13 @@
 /// <reference types="tampermonkey" />
 
-import Vue from 'vue'
+import type ElementPlus from 'element-plus'
 
 declare global {
     const __DEV__: boolean
 
     interface Window {
-        Vue: typeof Vue
+        Vue: any
+        ElementPlus: typeof ElementPlus
     }
 
     interface Element {

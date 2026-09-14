@@ -1,12 +1,7 @@
 import {WebSocket, WebSocketServer} from 'ws';
-import {rollup} from 'rollup';
-import replace from '@rollup/plugin-replace';
-import esbuild from 'rollup-plugin-esbuild';
-import test_plugin from '../plugin/rollup-test-plugin.js';
-import tsResolve from '../plugin/tsResolve.js';
-// @ts-ignore
-import importContent from 'rollup-plugin-import-content';
 import fs from 'fs';
+import {build as viteBuild} from 'vite';
+import {fileURLToPath} from 'url';
 
 interface SuccessResponse {
     code: string;
@@ -46,41 +41,53 @@ let rebuildQueued = false;
 
 async function buildCode(): Promise<string> {
     // 内存编译 src/test/main.ts 测试入口（支持 TS 语法与 @/ 别名导入 src/web 模块）
-    const bundle = await rollup({
-        input: 'src/test/main.ts',
-        // vue/dexie 由脚本头 @require 加载为全局变量，测试脚本可直接引用
-        external: ['vue', 'dexie'],
-        plugins: [
-            tsResolve(),
-            // 使用 replace 插件定义全局变量
-            replace({
-                __DEV__: 'true',
-                preventAssignment: true,
-            }),
-            esbuild({
-                target: 'es2020',
-                charset: 'utf8', // 明确使用 UTF-8 编码
-                minify: false,
-            }),
-            test_plugin({
-                isDev: true,
-                clearComments: true,
-            }),
-            importContent({
-                fileName: ['.css'],
-            }),
-        ],
+    // 使用 Vite programmatic API（与主构建同源），vue/dexie/element-plus 由脚本头 @require 加载为全局变量
+    const result = await viteBuild({
+        configFile: false,
+        logLevel: 'silent',
+        root: fileURLToPath(new URL('..', import.meta.url)),
+        resolve: {
+            alias: {
+                '@': fileURLToPath(new URL('../src/web', import.meta.url)),
+            },
+        },
+        build: {
+            // 内存输出，不写磁盘
+            write: false,
+            lib: {
+                entry: fileURLToPath(new URL('../src/test/main.ts', import.meta.url)),
+                formats: ['iife'],
+                name: 'BIBIShieldTest',
+                fileName: () => 'test_build.js',
+            },
+            rollupOptions: {
+                // vue/element-plus/dexie 由主脚本 @require 加载（共享作用域），测试代码可直接引用全局
+                external: ['vue', 'element-plus', 'dexie'],
+                output: {
+                    globals: {
+                        vue: 'Vue',
+                        'element-plus': 'ElementPlus',
+                        dexie: 'Dexie',
+                    },
+                },
+            },
+            minify: false,
+        },
+        define: {
+            __DEV__: JSON.stringify('true'),
+        },
     });
-    // 内存输出代码字符串，不写磁盘
-    const {output} = await bundle.generate({
-        format: 'iife',
-        compact: true,
-        globals: {
-            vue: 'Vue',
-            dexie: 'Dexie'
+    // build 返回 RollupOutput/RollupBuildOutput；write:false 时从 output 提取代码
+    const outputs = Array.isArray(result) ? result : [result];
+    for (const res of outputs) {
+        const chunks = (res as any).output ?? [];
+        for (const chunk of chunks) {
+            if (chunk.type === 'chunk' && chunk.isEntry) {
+                return chunk.code;
+            }
         }
-    });
-    return output[0].code; // 返回编译后的JS代码
+    }
+    throw new Error('构建产物中未找到入口 chunk');
 }
 
 function broadcastCode(): void {

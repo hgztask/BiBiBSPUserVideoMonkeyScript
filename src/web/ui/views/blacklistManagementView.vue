@@ -1,9 +1,10 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {reactive, ref, watch} from 'vue';
 import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import {asynchronousIntervalQueue} from "@/core/cache/asynchronousIntervalQueue.ts";
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus';
 
 //获取黑名单请求队列
 const queue = new asynchronousIntervalQueue();
@@ -11,209 +12,203 @@ const queue = new asynchronousIntervalQueue();
 const getData = async (page = 1) => {
   const response = await fetch(`https://api.bilibili.com/x/relation/blacks?pn=${page}&ps=50&jsonp=jsonp`, {
     credentials: 'include'
-  })
+  });
   if (response.status !== 200) {
-    eventEmitter.send('el-msg', '拉取黑名单数据响应失败.')
-    return {state: false}
+    eventEmitter.send('el-msg', '拉取黑名单数据响应失败.');
+    return {state: false};
   }
   const resJson = await response.json();
-  const {data: {list, total}, message, code} = resJson
+  const {data: {list, total}, message, code} = resJson;
   if (code !== 0) {
-    eventEmitter.send('el-msg', '请求相应内容失败：code=' + code)
-    return {state: false, msg: `请求相应内容失败：msg=${message} code=` + code}
+    eventEmitter.send('el-msg', '请求相应内容失败：code=' + code);
+    return {state: false, msg: `请求相应内容失败：msg=${message} code=` + code};
   }
   const newList = list.map(({face, mid, mtime, uname, sign}: any) => {
-    return {face, mid, mtime, uname, sign}
-  })
+    return {face, mid, mtime, uname, sign};
+  });
   return {state: true, list: newList, total};
-}
+};
 
 /**
  * 黑名单管理组件
  * 管理B站自身的黑名单
  */
-export default defineComponent({
-  data() {
-    return {
-      select: {
-        val: 'uname',
-        options: [{
-          label: "用户UID",
-          value: 'mid',
-        }, {
-          label: "用户名",
-          value: 'uname',
-        }, {
-          label: '用户签名',
-          value: 'sign'
-        }]
-      },
-      total: 0,
-      list: [] as any[],
-      showList: [] as any[],
-      findVal: '',
-      // 请求间隔
-      sliderInterval: 0.6,
-      isDivLoading: false,
-      // 取消列表显示最大限制
-      isCancelMaxLimit: false,
-      pageSize: 50
+const select = reactive({
+  val: 'uname',
+  options: [{
+    label: "用户UID",
+    value: 'mid',
+  }, {
+    label: "用户名",
+    value: 'uname',
+  }, {
+    label: '用户签名',
+    value: 'sign'
+  }]
+});
+const total = ref(0);
+const list = ref<any[]>([]);
+const showList = ref<any[]>([]);
+const findVal = ref('');
+// 请求间隔
+const sliderInterval = ref(0.6);
+const isDivLoading = ref(false);
+// 取消列表显示最大限制
+const isCancelMaxLimit = ref(false);
+const pageSize = ref(50);
+
+const filterTable = (dataList: any, val: any) => {
+  const filter = dataList.filter((x: any) => {
+    const x1 = x[select.val];
+    if (Number.isInteger(x1)) {
+      return x1.toString().includes(val);
     }
-  },
-  methods: {
-    filterTable(list: any, val: any) {
-      const filter = list.filter((x: any) => {
-        const x1 = x[this.select.val];
-        if (Number.isInteger(x1)) {
-          return x1.toString().includes(val)
-        }
-        return x1.includes(val);
-      });
-      if (filter.length === 0) {
-        this.$notify({
-          title: '没有匹配到数据',
-          message: '',
-          type: 'warning',
-          duration: 2000
-        })
-        return []
-      }
-      if (filter.length > 50 && !this.isCancelMaxLimit) {
-        this.$notify({
-          title: '数据过多，已截取前50条',
-          message: '',
-          type: 'warning',
-          duration: 2000
-        })
-        return filter.slice(0, 50);
-      }
-      return filter;
-    },
-    async getOnePageDataBut() {
-      const {state, list, total} = await getData()
-      if (!state) {
-        return
-      }
-      this.list = list
-      this.showList = list
-      this.total = total
-      this.$message('获取成功')
-    },
-    //打开地址
-    tableOpenAddressBut(row: any) {
-      GM_openInTab(`https://space.bilibili.com/${row.mid}`)
-    },
-    tableAddUidBlackBut(row: any) {
-      const uid = row.mid;
-      const name = row.uname;
-      if (ruleUtil.findRuleItemValue('precise_uid', uid)) {
-        this.$message(`该用户:${name}的uid:${uid}已添加过`)
-        return;
-      }
-      this.$confirm(`确定添加${name}的uid:${uid}到uid精确屏蔽吗？`).then(() => {
-        ruleUtil.addRulePreciseUid(uid)
-      });
-      console.log(row)
-    },
-    outDataToConsoleBut() {
-      console.log('黑名单管理列表====start')
-      console.log(JSON.parse(JSON.stringify(this.list)));
-      console.log('黑名单管理列表====end')
-      this.$alert('已导出到控制台，可通过f12查看')
-    },
-    outDataToFileBut() {
-      this.$prompt('请输入文件名', '保存为', {
-        inputValue: 'B站黑名单列表'
-      }).then(({value}: any) => {
-        if (value.trim() === '') {
-          return
-        }
-        const tempData = {
-          total: this.total,
-          list: this.list
-        }
-        const s = JSON.stringify(tempData, null, 4);
-        defUtil.fileDownload(s, value.trim() + '.json')
-        this.$alert('已导出到文件，请按需保存')
-      })
-    },
-    async getAllBut() {
-      this.isDivLoading = true
-      const {state, list, total} = await getData()
-      if (!state) return
-      if (total === 0) {
-        this.isDivLoading = false
-        this.$message('没有更多数据了')
-        return;
-      }
-      this.total = total
-      const totalPage = Math.ceil(total / 50);
-      if (totalPage === 1) {
-        //总数量<=50
-        this.list = list
-        this.isDivLoading = false
-        return
-      }
-      this.list = list;
-      //从第二页开始获取
-      for (let i = 2; i <= totalPage; i++) {
-        const {state, list: resList} = await queue.add(() => getData(i))
-        if (!state) return
-        list.push(...resList)
-      }
-      if (this.list.length > 50 && !this.isCancelMaxLimit) {
-        this.showList = list.slice(0, 50)
-      } else {
-        this.showList = list
-      }
-      this.showList = list
-      this.$message('获取成功')
-      this.isDivLoading = false
-    },
-    handleCurrentChange(page: any) {
-      this.showList = this.list.slice((page - 1) * 50, page * 50);
-    },
-    clearTableBut() {
-      this.showList = this.list = []
-      this.$message('已清空列表')
-    },
-    tableAddUidBlackButAll() {
-      if (this.list.length === 0) {
-        this.$message('列表为空')
-        return
-      }
-      this.$confirm(`确定添加所有用户到uid精确屏蔽吗？`).then(() => {
-        if (ruleUtil.addPreciseUidItemRule(this.list.map(x => x.mid), true, false)) {
-          eventEmitter.send('刷新规则信息')
-        }
-      });
-    }
-  },
-  watch: {
-    findVal(n) {
-      this.showList = this.filterTable(this.list, n)
-    },
-    sliderInterval(n) {
-      queue.setInterval(n * 1000)
-    },
-    isCancelMaxLimit(n) {
-      this.pageSize = n ? 1000000 : 50
-    }
-  },
-  created() {
-    queue.setInterval(this.sliderInterval * 1000)
+    return x1.includes(val);
+  });
+  if (filter.length === 0) {
+    ElNotification({
+      title: '没有匹配到数据',
+      message: '',
+      type: 'warning',
+      duration: 2000
+    });
+    return [];
   }
-})
+  if (filter.length > 50 && !isCancelMaxLimit.value) {
+    ElNotification({
+      title: '数据过多，已截取前50条',
+      message: '',
+      type: 'warning',
+      duration: 2000
+    });
+    return filter.slice(0, 50);
+  }
+  return filter;
+};
+const getOnePageDataBut = async () => {
+  const {state, list: resList, total: resTotal} = await getData();
+  if (!state) {
+    return;
+  }
+  list.value = resList;
+  showList.value = resList;
+  total.value = resTotal;
+  ElMessage('获取成功');
+};
+//打开地址
+const tableOpenAddressBut = (row: any) => {
+  GM_openInTab(`https://space.bilibili.com/${row.mid}`);
+};
+const tableAddUidBlackBut = (row: any) => {
+  const uid = row.mid;
+  const name = row.uname;
+  if (ruleUtil.findRuleItemValue('precise_uid', uid)) {
+    ElMessage(`该用户:${name}的uid:${uid}已添加过`);
+    return;
+  }
+  ElMessageBox.confirm(`确定添加${name}的uid:${uid}到uid精确屏蔽吗？`).then(() => {
+    ruleUtil.addRulePreciseUid(uid);
+  });
+  console.log(row);
+};
+const outDataToConsoleBut = () => {
+  console.log('黑名单管理列表====start');
+  console.log(JSON.parse(JSON.stringify(list.value)));
+  console.log('黑名单管理列表====end');
+  ElMessageBox.alert('已导出到控制台，可通过f12查看');
+};
+const outDataToFileBut = () => {
+  ElMessageBox.prompt('请输入文件名', '保存为', {
+    inputValue: 'B站黑名单列表'
+  }).then(({value}: any) => {
+    if (value.trim() === '') {
+      return;
+    }
+    const tempData = {
+      total: total.value,
+      list: list.value
+    };
+    const s = JSON.stringify(tempData, null, 4);
+    defUtil.fileDownload(s, value.trim() + '.json');
+    ElMessageBox.alert('已导出到文件，请按需保存');
+  });
+};
+const getAllBut = async () => {
+  isDivLoading.value = true;
+  const {state, list: resList, total: resTotal} = await getData();
+  if (!state) return;
+  if (resTotal === 0) {
+    isDivLoading.value = false;
+    ElMessage('没有更多数据了');
+    return;
+  }
+  total.value = resTotal;
+  const totalPage = Math.ceil(resTotal / 50);
+  if (totalPage === 1) {
+    //总数量<=50
+    list.value = resList;
+    isDivLoading.value = false;
+    return;
+  }
+  list.value = resList;
+  //从第二页开始获取
+  for (let i = 2; i <= totalPage; i++) {
+    const {state: pageState, list: pageList} = await queue.add(() => getData(i));
+    if (!pageState) return;
+    resList.push(...pageList);
+  }
+  if (list.value.length > 50 && !isCancelMaxLimit.value) {
+    showList.value = resList.slice(0, 50);
+  } else {
+    showList.value = resList;
+  }
+  showList.value = resList;
+  ElMessage('获取成功');
+  isDivLoading.value = false;
+};
+const handleCurrentChange = (page: number) => {
+  showList.value = list.value.slice((page - 1) * 50, page * 50);
+};
+const clearTableBut = () => {
+  list.value = [];
+  showList.value = [];
+  ElMessage('已清空列表');
+};
+const tableAddUidBlackButAll = () => {
+  if (list.value.length === 0) {
+    ElMessage('列表为空');
+    return;
+  }
+  ElMessageBox.confirm(`确定添加所有用户到uid精确屏蔽吗？`).then(() => {
+    if (ruleUtil.addPreciseUidItemRule(list.value.map(x => x.mid), true, false)) {
+      eventEmitter.send('刷新规则信息');
+    }
+  });
+};
+
+watch(findVal, (n) => {
+  showList.value = filterTable(list.value, n);
+});
+watch(sliderInterval, (n) => {
+  queue.setInterval(n * 1000);
+});
+watch(isCancelMaxLimit, (n) => {
+  pageSize.value = n ? 1000000 : 50;
+});
+
+queue.setInterval(sliderInterval.value * 1000);
 </script>
 <template>
   <div>
-    <div>1.注意：该功能为b站自身的黑名单</div>
-    <div>1.对应地址
-      <el-link href="https://account.bilibili.com/account/blacklist" target="_blank">
-        https://account.bilibili.com/account/blacklist
-      </el-link>
-    </div>
-    <div>3.需要登录才可以使用</div>
+    <el-space direction="vertical" alignment="stretch">
+      <el-text>1.注意：该功能为b站自身的黑名单</el-text>
+      <el-text>1.对应地址
+        <el-link href="https://account.bilibili.com/account/blacklist" target="_blank">
+          https://account.bilibili.com/account/blacklist
+        </el-link>
+      </el-text>
+      <el-text>3.需要登录才可以使用</el-text>
+    </el-space>
     <el-card v-loading="isDivLoading" element-loading-text="拼命加载中" shadow="never">
       <template #header>
         <el-row>
@@ -257,12 +252,12 @@ export default defineComponent({
       </template>
       <el-table :data="showList" border stripe>
         <el-table-column label="时间" prop="mtime" width="155px">
-          <template v-slot="scope">
+          <template #default="scope">
             {{ new Date(scope.row.mtime * 1000).toLocaleString() }}
           </template>
         </el-table-column>
         <el-table-column label="头像" width="55px">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-avatar :src="scope.row.face" shape="square"></el-avatar>
           </template>
         </el-table-column>
@@ -270,7 +265,7 @@ export default defineComponent({
         <el-table-column label="用户ID" prop="mid" width="180px"></el-table-column>
         <el-table-column label="签名" prop="sign"></el-table-column>
         <el-table-column label="标记" width="50px">
-          <template v-slot="scope">
+          <template #default="scope">
             未定
           </template>
         </el-table-column>
@@ -278,7 +273,7 @@ export default defineComponent({
           <template #header>
             <el-button @click="tableAddUidBlackButAll">一键添加uid屏蔽</el-button>
           </template>
-          <template v-slot="scope">
+          <template #default="scope">
             <el-button @click="tableOpenAddressBut(scope.row)">打开地址</el-button>
             <el-button @click="tableAddUidBlackBut(scope.row)">uid屏蔽</el-button>
           </template>

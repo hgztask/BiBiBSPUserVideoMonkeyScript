@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import localMKData, {
   getLimitationVideoSubmitSumGm,
   isCommentDisabledVideosBlockedGm,
@@ -13,74 +13,63 @@ import uidRangeMaskingView from "../shield/uidRangeMaskingView.vue";
 /**
  * 高级规则
  */
-export default defineComponent({
-  components: {
-    uidRangeMaskingView,
-  },
-  data() {
-    return {
-      isLimitationVideoSubmitStatusVal: isLimitationVideoSubmitStatusGm(),
-      LimitationContributeVal: getLimitationVideoSubmitSumGm(),
-      blockFollowed: localMKData.isBlockFollowed(),
-      is_up_owner_exclusive: localMKData.isUpOwnerExclusive(),
-      genderRadioVal: localMKData.isGenderRadioVal(),
-      vipTypeRadioVal: localMKData.isVipTypeRadioVal(),
-      is_senior_member_val: localMKData.isSeniorMember(),
-      copyrightRadioVal: localMKData.isCopyrightRadio(),
-      is_vertical_val: localMKData.isBlockVerticalVideo(),
-      is_check_team_member: localMKData.isCheckTeamMember(),
-      isSeniorMemberOnlyVal: isSeniorMemberOnly(),
-      isVideosInFeaturedCommentsBlockedVal: isVideosInFeaturedCommentsBlockedGm(),
-      isFollowers7DaysOnlyVideosBlockedVal: isFollowers7DaysOnlyVideosBlockedGm(),
-      isCommentDisabledVideosBlockedVal: isCommentDisabledVideosBlockedGm()
-    }
-  },
-  methods: {},
-  watch: {
-    blockFollowed(n) {
-      GM_setValue('blockFollowed', n)
-    },
-    is_up_owner_exclusive(n) {
-      GM_setValue('is_up_owner_exclusive', n)
-    },
-    genderRadioVal(n) {
-      GM_setValue('genderRadioVal', n)
-    },
-    vipTypeRadioVal(n) {
-      GM_setValue('vipTypeRadioVal', n)
-    },
-    is_senior_member_val(n) {
-      GM_setValue('is_senior_member', n)
-    },
-    copyrightRadioVal(n) {
-      GM_setValue('copyrightRadioVal', n)
-    },
-    is_vertical_val(n) {
-      GM_setValue('blockVerticalVideo', n)
-    },
-    is_check_team_member(n) {
-      GM_setValue('checkTeamMember', n)
-    },
-    isSeniorMemberOnlyVal(n) {
-      GM_setValue('is_senior_member_only', n)
-    },
-    LimitationContributeVal(n) {
-      GM_setValue('limitation_video_submit_sum_gm', n)
-    },
-    isLimitationVideoSubmitStatusVal(n) {
-      GM_setValue('is_limitation_video_submit_status_gm', n)
-    },
-    isVideosInFeaturedCommentsBlockedVal(n) {
-      GM_setValue('is_videos_in_featured_comments_blocked_gm', n)
-    },
-    isFollowers7DaysOnlyVideosBlockedVal(n) {
-      GM_setValue('is_followers_7_days_only_videos_blocked_gm', n)
-    },
-    isCommentDisabledVideosBlockedVal(n) {
-      GM_setValue('is_comment_disabled_videos_blocked_gm', n)
-    }
-  }
-})
+const isLimitationVideoSubmitStatusVal = ref(isLimitationVideoSubmitStatusGm());
+const LimitationContributeVal = ref(getLimitationVideoSubmitSumGm());
+const blockFollowed = ref(localMKData.isBlockFollowed());
+const is_up_owner_exclusive = ref(localMKData.isUpOwnerExclusive());
+const genderRadioVal = ref(localMKData.isGenderRadioVal());
+const vipTypeRadioVal = ref(localMKData.isVipTypeRadioVal());
+const is_senior_member_val = ref(localMKData.isSeniorMember());
+const copyrightRadioVal = ref(localMKData.isCopyrightRadio());
+const is_vertical_val = ref(localMKData.isBlockVerticalVideo());
+const is_check_team_member = ref(localMKData.isCheckTeamMember());
+const isSeniorMemberOnlyVal = ref(isSeniorMemberOnly());
+const isVideosInFeaturedCommentsBlockedVal = ref(isVideosInFeaturedCommentsBlockedGm());
+const isFollowers7DaysOnlyVideosBlockedVal = ref(isFollowers7DaysOnlyVideosBlockedGm());
+const isCommentDisabledVideosBlockedVal = ref(isCommentDisabledVideosBlockedGm());
+
+watch(blockFollowed, (n) => {
+  GM_setValue('blockFollowed', n);
+});
+watch(is_up_owner_exclusive, (n) => {
+  GM_setValue('is_up_owner_exclusive', n);
+});
+watch(genderRadioVal, (n) => {
+  GM_setValue('genderRadioVal', n);
+});
+watch(vipTypeRadioVal, (n) => {
+  GM_setValue('vipTypeRadioVal', n);
+});
+watch(is_senior_member_val, (n) => {
+  GM_setValue('is_senior_member', n);
+});
+watch(copyrightRadioVal, (n) => {
+  GM_setValue('copyrightRadioVal', n);
+});
+watch(is_vertical_val, (n) => {
+  GM_setValue('blockVerticalVideo', n);
+});
+watch(is_check_team_member, (n) => {
+  GM_setValue('checkTeamMember', n);
+});
+watch(isSeniorMemberOnlyVal, (n) => {
+  GM_setValue('is_senior_member_only', n);
+});
+watch(LimitationContributeVal, (n) => {
+  GM_setValue('limitation_video_submit_sum_gm', n);
+});
+watch(isLimitationVideoSubmitStatusVal, (n) => {
+  GM_setValue('is_limitation_video_submit_status_gm', n);
+});
+watch(isVideosInFeaturedCommentsBlockedVal, (n) => {
+  GM_setValue('is_videos_in_featured_comments_blocked_gm', n);
+});
+watch(isFollowers7DaysOnlyVideosBlockedVal, (n) => {
+  GM_setValue('is_followers_7_days_only_videos_blocked_gm', n);
+});
+watch(isCommentDisabledVideosBlockedVal, (n) => {
+  GM_setValue('is_comment_disabled_videos_blocked_gm', n);
+});
 </script>
 
 <template>
@@ -96,9 +85,9 @@ export default defineComponent({
       <template #header>视频类型</template>
       <el-tooltip content="选中的类型会被屏蔽">
         <el-radio-group v-model="copyrightRadioVal">
-          <el-radio-button label="原创"></el-radio-button>
-          <el-radio-button label="转载"></el-radio-button>
-          <el-radio-button label="不处理"></el-radio-button>
+          <el-radio-button value="原创"></el-radio-button>
+          <el-radio-button value="转载"></el-radio-button>
+          <el-radio-button value="不处理"></el-radio-button>
         </el-radio-group>
       </el-tooltip>
       <el-divider/>
@@ -121,10 +110,10 @@ export default defineComponent({
           <el-card shadow="never">
             <template #header>会员类型屏蔽</template>
             <el-radio-group v-model="vipTypeRadioVal">
-              <el-radio-button label="无"></el-radio-button>
-              <el-radio-button label="月大会员"></el-radio-button>
-              <el-radio-button label="年度及以上大会员"></el-radio-button>
-              <el-radio-button label="不处理"></el-radio-button>
+              <el-radio-button value="无"></el-radio-button>
+              <el-radio-button value="月大会员"></el-radio-button>
+              <el-radio-button value="年度及以上大会员"></el-radio-button>
+              <el-radio-button value="不处理"></el-radio-button>
             </el-radio-group>
           </el-card>
         </el-col>
@@ -132,10 +121,10 @@ export default defineComponent({
           <el-card shadow="never">
             <template #header>性别屏蔽</template>
             <el-radio-group v-model="genderRadioVal">
-              <el-radio-button label="男性"></el-radio-button>
-              <el-radio-button label="女性"></el-radio-button>
-              <el-radio-button label="保密"></el-radio-button>
-              <el-radio-button label="不处理"></el-radio-button>
+              <el-radio-button value="男性"></el-radio-button>
+              <el-radio-button value="女性"></el-radio-button>
+              <el-radio-button value="保密"></el-radio-button>
+              <el-radio-button value="不处理"></el-radio-button>
             </el-radio-group>
           </el-card>
         </el-col>

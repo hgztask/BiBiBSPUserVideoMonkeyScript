@@ -1,29 +1,22 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
 import time_range_masking_table_vue from "./timeRangeMaskingTableView.vue";
+import {ElNotification} from 'element-plus';
 
 /**
  * 时间范围屏蔽组件
  */
-export default defineComponent({
-  components: {time_range_masking_table_vue},
-  data() {
-    return {
-      status: localMKData.isTimeRangeMaskingStatus()
-    }
-  },
-  watch: {
-    status(n) {
-      this.$notify({
-        title: '',
-        message: n ? '时间范围屏蔽已开启' : '时间范围屏蔽已关闭',
-        type: n ? 'success' : 'warning'
-      })
-      GM_setValue('time_range_masking_status', n)
-    }
-  }
-})
+const status = ref(localMKData.isTimeRangeMaskingStatus());
+
+watch(status, (n) => {
+  ElNotification({
+    title: '',
+    message: n ? '时间范围屏蔽已开启' : '时间范围屏蔽已关闭',
+    type: n ? 'success' : 'warning'
+  });
+  GM_setValue('time_range_masking_status', n);
+});
 </script>
 <template>
   <div>

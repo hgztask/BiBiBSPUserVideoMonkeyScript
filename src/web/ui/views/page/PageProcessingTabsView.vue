@@ -1,22 +1,10 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
 import PageProcessingView from "./pageProcessingView.vue";
 import LivePartitionPageProcessingTabVIew from "./LivePartitionPageProcessingTabVIew.vue";
 import dynamicCard from "./dynamicCard.vue";
 import PlayPageProcessingTab from "./PlayPageProcessingTab.vue";
 import HomePageProcessingTab from "./HomePageProcessingTab.vue";
 import TopColumnProcessingTab from "./TopColumnProcessingTab.vue";
-
-export default defineComponent({
-  components: {
-    TopColumnProcessingTab,
-    HomePageProcessingTab,
-    PlayPageProcessingTab, LivePartitionPageProcessingTabVIew, PageProcessingView, dynamicCard
-  },
-  data() {
-    return {}
-  }
-})
 </script>
 
 <template>
@@ -41,7 +29,3 @@ export default defineComponent({
     </el-tab-pane>
   </el-tabs>
 </template>
-
-<style scoped>
-
-</style>

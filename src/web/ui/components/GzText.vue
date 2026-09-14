@@ -1,9 +1,4 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
-
-export default defineComponent({
-  name: "GzText"
-})
+﻿<script setup lang="ts">
 </script>
 
 <template>

@@ -1,31 +1,25 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import localMKData from "../../state/localMKData.ts";
+import {ElNotification} from 'element-plus';
 
 /**
  * 评论字数限制布局组件
  */
-export default defineComponent({
-  data() {
-    return {
-      value: localMKData.getCommentWordLimitVal()
-    }
-  },
-  watch: {
-    value(newVal, oldVal) {
-      //如果旧值小于3，则不做任何处理
-      if (oldVal <= 3) return;
-      if (newVal < 3) {
-        this.$notify({
-          title: '',
-          message: '已关闭屏蔽字数限制功能',
-          type: 'warning',
-        })
-      }
-      GM_setValue('comment_word_limit', newVal)
-    }
+const value = ref(localMKData.getCommentWordLimitVal());
+
+watch(value, (newVal, oldVal) => {
+  //如果旧值小于3，则不做任何处理
+  if (oldVal <= 3) return;
+  if (newVal < 3) {
+    ElNotification({
+      title: '',
+      message: '已关闭屏蔽字数限制功能',
+      type: 'warning',
+    });
   }
-})
+  GM_setValue('comment_word_limit', newVal);
+});
 </script>
 
 <template>

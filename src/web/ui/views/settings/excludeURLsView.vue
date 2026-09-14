@@ -1,64 +1,57 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import {getExcludeURLsGm, isExcludeURLSwitchGm} from "@/state/localMKData.ts";
+import {ElMessage} from 'element-plus';
 
-export default defineComponent({
-  data() {
-    return {
-      excludeURLSwitchVal: isExcludeURLSwitchGm(),
-      data: getExcludeURLsGm(),
-      testInputRegVal: "",
-      testInputVal: ''
-    }
-  },
-  methods: {
-    tableAddItemBut() {
-      this.data.push({state: false, regularURL: "", desc: ""})
-    },
-    tableDelItemBut(index: any) {
-      this.data.splice(index, 1)
-    },
-    refreshBut() {
-      this.data = getExcludeURLsGm();
-      this.$message.success("刷新成功");
-    },
-    saveBut() {
-      for (let v of this.data) {
-        if (v.regularURL === "") {
-          this.$message.error("正则地址不能为空");
-          return
-        }
-      }
-      GM_setValue("exclude_urls_gm", this.data)
-      this.$message.success("保存成功");
-    },
-    tableVerificationItemUrlBut(url: any) {
-      if (window.location.href.search(url) !== -1) {
-        this.$message.success('匹配成功！')
-      } else {
-        this.$message.warning('匹配失败！')
-      }
-    },
-    testVerificationBut() {
-      const inputVal = this.testInputVal;
-      const inputRegVal = this.testInputRegVal;
-      if (inputVal.length === 0 || inputRegVal.length === 0) {
-        this.$message.warning('请正确填写内容')
-        return
-      }
-      if (inputVal.search(inputRegVal) !== -1) {
-        this.$message.success('匹配成功！')
-      } else {
-        this.$message.warning('匹配失败！')
-      }
-    }
-  },
-  watch: {
-    excludeURLSwitchVal(n) {
-      GM_setValue("is_exclude_url_switch_gm", n)
+const excludeURLSwitchVal = ref(isExcludeURLSwitchGm());
+const data = ref(getExcludeURLsGm());
+const testInputRegVal = ref("");
+const testInputVal = ref('');
+
+const tableAddItemBut = () => {
+  data.value.push({state: false, regularURL: "", desc: ""});
+};
+const tableDelItemBut = (index: number) => {
+  data.value.splice(index, 1);
+};
+const refreshBut = () => {
+  data.value = getExcludeURLsGm();
+  ElMessage.success("刷新成功");
+};
+const saveBut = () => {
+  for (let v of data.value) {
+    if (v.regularURL === "") {
+      ElMessage.error("正则地址不能为空");
+      return;
     }
   }
-})
+  GM_setValue("exclude_urls_gm", data.value);
+  ElMessage.success("保存成功");
+};
+const tableVerificationItemUrlBut = (url: string) => {
+  if (window.location.href.search(url) !== -1) {
+    ElMessage.success('匹配成功！');
+  } else {
+    ElMessage.warning('匹配失败！');
+  }
+};
+const testVerificationBut = () => {
+  const inputVal = testInputVal.value;
+  const inputRegVal = testInputRegVal.value;
+  if (inputVal.length === 0 || inputRegVal.length === 0) {
+    ElMessage.warning('请正确填写内容');
+    return;
+  }
+  if (inputVal.search(inputRegVal) !== -1) {
+    ElMessage.success('匹配成功！');
+  } else {
+    ElMessage.warning('匹配失败！');
+  }
+};
+
+watch(excludeURLSwitchVal, (n) => {
+  GM_setValue("is_exclude_url_switch_gm", n);
+});
 </script>
 
 <template>
@@ -86,17 +79,17 @@ export default defineComponent({
     </el-card>
     <el-table :data="data" border stripe>
       <el-table-column label="启用" width="100">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-switch v-model="scope.row.state"/>
         </template>
       </el-table-column>
       <el-table-column label="正则地址">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-input v-model.trim="scope.row.regularURL"/>
         </template>
       </el-table-column>
       <el-table-column label="描述">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-input v-model.trim="scope.row.desc"/>
         </template>
       </el-table-column>
@@ -106,7 +99,7 @@ export default defineComponent({
           <el-button @click="refreshBut">刷新</el-button>
           <el-button type="success" @click="saveBut">保存</el-button>
         </template>
-        <template v-slot="scope">
+        <template #default="scope">
           <el-tooltip content="以当前网页url用于验证匹配结果">
             <el-button @click="tableVerificationItemUrlBut(scope.row.regularURL)">验证当前Url</el-button>
           </el-tooltip>

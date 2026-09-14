@@ -1,77 +1,69 @@
-<script lang="ts">
-import {defineComponent} from 'vue'
+<script setup lang="ts">
+import {ref} from 'vue'
 import defUtil from "../../../core/util/defUtil.ts";
 import localMKData from "../../../state/localMKData.ts";
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus';
 
-export default defineComponent({
-  name: "FanCardLevelRestrictionsView",
-  data() {
-    return {
-      dataList: [] as any[]
+const dataList = ref<any[]>([]);
+
+const refresh = (tip = false) => {
+  dataList.value = localMKData.getFansLevelLimitListGm();
+  tip && ElMessage.success("刷新成功");
+};
+const saveBut = () => {
+  const raw = defUtil.toRaw(dataList.value);
+  GM_setValue('fans_level_limit_list_gm', raw);
+  ElNotification({title: '', message: "已保存", position: "bottom-right"});
+};
+const addBut = () => {
+  ElMessageBox.prompt("请输入粉丝牌名称", {
+    title: "添加粉丝牌",
+  }).then(({value}: any) => {
+    if (!value) {
+      ElMessage.warning("请输入正确的粉丝牌名称");
+      return addBut();
     }
-  },
-  methods: {
-    refresh(tip = false) {
-      this.dataList = localMKData.getFansLevelLimitListGm()
-      tip && this.$message.success("刷新成功")
-    },
-    saveBut() {
-      const raw = defUtil.toRaw(this.dataList);
-      GM_setValue('fans_level_limit_list_gm', raw)
-      this.$notify({title: '', message: "已保存", position: "bottom-right"})
-    },
-    addBut() {
-      this.$prompt("请输入粉丝牌名称", {
-        title: "添加粉丝牌",
-      }).then(({value}: any) => {
-        if (!value) {
-          this.$message.warning("请输入正确的粉丝牌名称")
-          return this.addBut()
-        }
-        value = value.trim()
-        if (value.length > 6) {
-          this.$message.warning("请输入正确的粉丝牌名称")
-          return this.addBut()
-        }
-        if (this.dataList.some(item => item.name === value)) {
-          this.$message.warning("已存在该粉丝牌名称")
-          return this.addBut()
-        }
-        this.dataList.push({name: value, limitLevel: 0, status: false})
-      })
-    },
-    delBut(row: any) {
-      this.$confirm(`是要删除该粉丝牌配置吗？【${row.name}】`).then(() => {
-        this.dataList = this.dataList.filter(item => item !== row)
-        this.$notify({title: '', message: "已删除", position: "bottom-right"})
-      })
-    },
-    setFansNameBut(row: any) {
-      this.$prompt("请输入新的粉丝牌名称", {
-        title: "修改粉丝牌名称",
-        inputValue: row.name,
-      }).then(({value}: any) => {
-        if (value === undefined || value.trim() === '') {
-          this.$message.warning("内容不可为空")
-          return this.setFansNameBut(row)
-        }
-        value = value.trim()
-        if (value.length > 6) {
-          this.$message.warning("请输入正确的粉丝牌名称")
-          return this.setFansNameBut(row)
-        }
-        if (this.dataList.some(item => item.name === value)) {
-          this.$message.warning("已存在该粉丝牌名称")
-          return this.setFansNameBut(row)
-        }
-        row.name = value
-      })
+    value = value.trim();
+    if (value.length > 6) {
+      ElMessage.warning("请输入正确的粉丝牌名称");
+      return addBut();
     }
-  },
-  created() {
-    this.refresh()
-  }
-})
+    if (dataList.value.some(item => item.name === value)) {
+      ElMessage.warning("已存在该粉丝牌名称");
+      return addBut();
+    }
+    dataList.value.push({name: value, limitLevel: 0, status: false});
+  });
+};
+const delBut = (row: any) => {
+  ElMessageBox.confirm(`是要删除该粉丝牌配置吗？【${row.name}】`).then(() => {
+    dataList.value = dataList.value.filter(item => item !== row);
+    ElNotification({title: '', message: "已删除", position: "bottom-right"});
+  });
+};
+const setFansNameBut = (row: any) => {
+  ElMessageBox.prompt("请输入新的粉丝牌名称", {
+    title: "修改粉丝牌名称",
+    inputValue: row.name,
+  }).then(({value}: any) => {
+    if (value === undefined || value.trim() === '') {
+      ElMessage.warning("内容不可为空");
+      return setFansNameBut(row);
+    }
+    value = value.trim();
+    if (value.length > 6) {
+      ElMessage.warning("请输入正确的粉丝牌名称");
+      return setFansNameBut(row);
+    }
+    if (dataList.value.some(item => item.name === value)) {
+      ElMessage.warning("已存在该粉丝牌名称");
+      return setFansNameBut(row);
+    }
+    row.name = value;
+  });
+};
+
+refresh();
 </script>
 
 <template>

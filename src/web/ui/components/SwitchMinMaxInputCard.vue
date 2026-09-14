@@ -1,46 +1,45 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 
-export default defineComponent({
-  props: {
-    title: {
-      type: String,
-      default: '默认标题'
-    },
-    isMaxText: {default: '启用最大'},
-    isMinText: {default: '启用最小'},
-    minDefVal: {default: 0},
-    maxDefVal: {default: 1},
-    isMaxVal: {default: false},
-    isMinVal: {default: false},
-    minInputKey: {type: String, required: true},
-    maxInputKey: {type: String, required: true},
-    isMaxKey: {type: String, required: true},
-    isMinKey: {type: String, required: true}
-  },
-  data() {
-    return {
-      localIsMaxVal: GM_getValue(this.isMaxKey, false),
-      localIsMinVal: GM_getValue(this.isMinKey, false),
-      localMinInputVal: GM_getValue(this.minInputKey, this.minDefVal),
-      localMaxInputVal: GM_getValue(this.maxInputKey, this.maxDefVal)
-    }
-  },
-  watch: {
-    localIsMaxVal(n) {
-      GM_setValue(this.isMaxKey, n)
-    },
-    localIsMinVal(n) {
-      GM_setValue(this.isMinKey, n)
-    },
-    localMinInputVal(n) {
-      GM_setValue(this.minInputKey, n)
-    },
-    localMaxInputVal(n) {
-      GM_setValue(this.maxInputKey, n)
-    }
-  }
-})
+const props = withDefaults(defineProps<{
+    title?: string;
+    isMaxText?: string;
+    isMinText?: string;
+    minDefVal?: number;
+    maxDefVal?: number;
+    isMaxVal?: boolean;
+    isMinVal?: boolean;
+    minInputKey: string;
+    maxInputKey: string;
+    isMaxKey: string;
+    isMinKey: string;
+}>(), {
+    title: '默认标题',
+    isMaxText: '启用最大',
+    isMinText: '启用最小',
+    minDefVal: 0,
+    maxDefVal: 1,
+    isMaxVal: false,
+    isMinVal: false
+});
+
+const localIsMaxVal = ref(GM_getValue(props.isMaxKey, false));
+const localIsMinVal = ref(GM_getValue(props.isMinKey, false));
+const localMinInputVal = ref(GM_getValue(props.minInputKey, props.minDefVal));
+const localMaxInputVal = ref(GM_getValue(props.maxInputKey, props.maxDefVal));
+
+watch(localIsMaxVal, (n) => {
+    GM_setValue(props.isMaxKey, n);
+});
+watch(localIsMinVal, (n) => {
+    GM_setValue(props.isMinKey, n);
+});
+watch(localMinInputVal, (n) => {
+    GM_setValue(props.minInputKey, n);
+});
+watch(localMaxInputVal, (n) => {
+    GM_setValue(props.maxInputKey, n);
+});
 </script>
 
 <template>

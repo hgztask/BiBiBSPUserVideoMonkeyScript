@@ -1,38 +1,30 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {reactive, ref} from 'vue';
 import globalValue from "../../../config/globalValue.ts";
 
-export default defineComponent({
-  data() {
-    return {
-      list: [
-        {
-          name: "支付宝赞助",
-          alt: "支付宝支持",
-          src: "https://www.mikuchase.ltd/img/paymentCodeZFB.webp"
-        },
-        {name: "微信赞助", alt: "微信支持", src: "https://www.mikuchase.ltd/img/paymentCodeWX.webp"},
-        {name: "QQ赞助", alt: "QQ支持", src: "https://www.mikuchase.ltd/img/paymentCodeQQ.webp"},
-      ],
-      dialogIni: {
-        title: "打赏点猫粮",
-        show: false,
-        srcList: [] as string[]
-      }
-    }
+const list = ref([
+  {
+    name: "支付宝赞助",
+    alt: "支付宝支持",
+    src: "https://www.mikuchase.ltd/img/paymentCodeZFB.webp"
   },
-  methods: {
-    showDialogBut() {
-      this.dialogIni.show = true
-    },
-    gotoAuthorBut() {
-      GM_openInTab(globalValue.b_url)
-    }
-  },
-  created() {
-    this.dialogIni.srcList = this.list.map(x => x.src)
-  }
-})
+  {name: "微信赞助", alt: "微信支持", src: "https://www.mikuchase.ltd/img/paymentCodeWX.webp"},
+  {name: "QQ赞助", alt: "QQ支持", src: "https://www.mikuchase.ltd/img/paymentCodeQQ.webp"},
+]);
+const dialogIni = reactive({
+  title: "打赏点猫粮",
+  show: false,
+  srcList: [] as string[]
+});
+
+const showDialogBut = () => {
+  dialogIni.show = true;
+};
+const gotoAuthorBut = () => {
+  GM_openInTab(globalValue.b_url);
+};
+
+dialogIni.srcList = list.value.map(x => x.src);
 </script>
 <template>
   <div>
@@ -56,7 +48,7 @@ export default defineComponent({
     </div>
     <el-dialog
         :title="dialogIni.title"
-        :visible.sync="dialogIni.show"
+        v-model="dialogIni.show"
         center>
       <div class="el-vertical-center">
         <el-image v-for="item in list"

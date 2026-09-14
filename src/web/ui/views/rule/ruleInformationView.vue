@@ -1,44 +1,40 @@
-﻿<script lang="ts">
-import {defineComponent, PropType} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {ElMessage, ElNotification} from 'element-plus';
 
 /**
  * 规则信息组件
  */
-export default defineComponent({
-  props: {
-    ruleInfoArr: {
-      type: Array as PropType<any[]>,
-      default: () => []
-    }
-  },
-  methods: {
-    refreshInfo(isTip = true) {
-      for (let x of this.ruleInfoArr as any[]) {
-        // len 需用 $set 声明为响应式属性（初始 push 时不含该键），否则计数变化不会触发视图更新
-        this.$set(x, 'len', GM_getValue(x.type, []).length);
-      }
-      if (!isTip) return;
-      this.$notify({title: 'tip', message: '刷新规则信息成功', type: 'success'})
-    },
-    refreshInfoBut() {
-      this.refreshInfo()
-    },
-    lookRuleBut(item: any) {
-      if (item.len === 0) {
-        this.$message.warning('当前规则信息为空')
-        return;
-      }
-      const data = GM_getValue(item.type, []);
-      eventEmitter.send('展示内容对话框', JSON.stringify(data))
-    }
-  },
-  created() {
-    this.refreshInfo(false);
-    eventEmitter.on('刷新规则信息', (isTip = true) => {
-      this.refreshInfo(isTip);
-    })
+const props = withDefaults(defineProps<{
+  ruleInfoArr?: any[]
+}>(), {
+  ruleInfoArr: () => []
+});
+
+const refreshInfo = (isTip = true) => {
+  for (let x of props.ruleInfoArr as any[]) {
+    // Vue3 Proxy 响应式：直接赋值即可（无需 $set）
+    x.len = GM_getValue(x.type, []).length;
   }
+  if (!isTip) return;
+  ElNotification({title: 'tip', message: '刷新规则信息成功', type: 'success'});
+};
+const refreshInfoBut = () => {
+  refreshInfo();
+};
+const lookRuleBut = (item: any) => {
+  if (item.len === 0) {
+    ElMessage.warning('当前规则信息为空');
+    return;
+  }
+  const data = GM_getValue(item.type, []);
+  eventEmitter.send('展示内容对话框', JSON.stringify(data));
+};
+
+refreshInfo(false);
+eventEmitter.on('刷新规则信息', (isTip = true) => {
+  refreshInfo(isTip);
 });
 </script>
 
@@ -56,7 +52,7 @@ export default defineComponent({
       <div style="display: flex;flex-wrap: wrap;row-gap: 2px;justify-content: flex-start;">
         <el-button v-for="item in ruleInfoArr" :key="item.name" size="small" @click="lookRuleBut(item)">
           {{ item.name }}
-          <el-tag :effect="item.len>0?'dark':'light'" size="mini">
+          <el-tag :effect="item.len>0?'dark':'light'" size="small">
             {{ item.len }}
           </el-tag>
         </el-button>

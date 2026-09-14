@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import {eventEmitter} from "@/core/EventEmitter.ts";
 import localMKData, {
   getRequestFrequencyVal,
@@ -13,55 +13,46 @@ import bvRequestQueue from "../../../core/http/bvRequestQueue.ts";
 /**
  * 条件限制组件
  */
-export default defineComponent({
-  data() {
-    return {
-      requestFrequencyVal: getRequestFrequencyVal(),
-      //是否仅首页屏蔽生效
-      bOnlyTheHomepageIsBlocked: globalValue.bOnlyTheHomepageIsBlocked,
-      isEffectiveUIDShieldingOnlyVideoVal: isEffectiveUIDShieldingOnlyVideo(),
-      //是否模糊和正则匹配词转小写
-      bFuzzyAndRegularMatchingWordsToLowercase: localMKData.bFuzzyAndRegularMatchingWordsToLowercase(),
-      isDisableNetRequestsBvVideoInfo: localMKData.isDisableNetRequestsBvVideoInfo(),
-      hideBlockButtonVal: hideBlockButtonGm(),
-      isCheckNestedDynamicContentVal: isCheckNestedDynamicContentGm()
-    }
-  },
-  methods: {},
-  watch: {
-    bOnlyTheHomepageIsBlocked(newVal) {
-      GM_setValue("bOnlyTheHomepageIsBlocked", newVal === true);
-    },
-    bFuzzyAndRegularMatchingWordsToLowercase(newVal) {
-      GM_setValue("bFuzzyAndRegularMatchingWordsToLowercase", newVal === true)
-    },
-    isDisableNetRequestsBvVideoInfo(b) {
-      GM_setValue('isDisableNetRequestsBvVideoInfo', b)
-    },
-    isEffectiveUIDShieldingOnlyVideoVal(b) {
-      GM_setValue('is_effective_uid_shielding_only_video', b)
-    },
-    requestFrequencyVal(n) {
-      //设置请求频率
-      GM_setValue('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2)
-      bvRequestQueue.setAllRequestInterval(n * 1000)
-    },
-    hideBlockButtonVal(n) {
-      GM_setValue('hide_block_button_gm', n)
-      if (n) {
-        document.body.querySelectorAll('.gz_shielding_button').forEach(el => el.remove());
-      }
-    },
-    isCheckNestedDynamicContentVal(n) {
-      GM_setValue('is_check_nested_dynamic_content_gm', n)
-    }
-  },
-  created() {
-    eventEmitter.on('更新根据bv号网络请求获取视频信息状态', (b) => {
-      this.isDisableNetRequestsBvVideoInfo = b
-    });
+const requestFrequencyVal = ref(getRequestFrequencyVal());
+//是否仅首页屏蔽生效
+const bOnlyTheHomepageIsBlocked = ref(globalValue.bOnlyTheHomepageIsBlocked);
+const isEffectiveUIDShieldingOnlyVideoVal = ref(isEffectiveUIDShieldingOnlyVideo());
+//是否模糊和正则匹配词转小写
+const bFuzzyAndRegularMatchingWordsToLowercase = ref(localMKData.bFuzzyAndRegularMatchingWordsToLowercase());
+const isDisableNetRequestsBvVideoInfo = ref(localMKData.isDisableNetRequestsBvVideoInfo());
+const hideBlockButtonVal = ref(hideBlockButtonGm());
+const isCheckNestedDynamicContentVal = ref(isCheckNestedDynamicContentGm());
+
+watch(bOnlyTheHomepageIsBlocked, (newVal) => {
+  GM_setValue("bOnlyTheHomepageIsBlocked", newVal === true);
+});
+watch(bFuzzyAndRegularMatchingWordsToLowercase, (newVal) => {
+  GM_setValue("bFuzzyAndRegularMatchingWordsToLowercase", newVal === true);
+});
+watch(isDisableNetRequestsBvVideoInfo, (b) => {
+  GM_setValue('isDisableNetRequestsBvVideoInfo', b);
+});
+watch(isEffectiveUIDShieldingOnlyVideoVal, (b) => {
+  GM_setValue('is_effective_uid_shielding_only_video', b);
+});
+watch(requestFrequencyVal, (n) => {
+  //设置请求频率
+  GM_setValue('requestFrequencyVal', n > 0 && n <= 5 ? n : 0.2);
+  bvRequestQueue.setAllRequestInterval(n * 1000);
+});
+watch(hideBlockButtonVal, (n) => {
+  GM_setValue('hide_block_button_gm', n);
+  if (n) {
+    document.body.querySelectorAll('.gz_shielding_button').forEach(el => el.remove());
   }
-})
+});
+watch(isCheckNestedDynamicContentVal, (n) => {
+  GM_setValue('is_check_nested_dynamic_content_gm', n);
+});
+
+eventEmitter.on('更新根据bv号网络请求获取视频信息状态', (b: boolean) => {
+  isDisableNetRequestsBvVideoInfo.value = b;
+});
 </script>
 <template>
   <div>

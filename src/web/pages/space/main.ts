@@ -108,7 +108,7 @@ export default {
         })
     },
     //执行设置用户主页中投稿选项卡视频列表中的充电视频显隐
-    executeSetChargingVideosVisible(bool = null) {
+    executeSetChargingVideosVisible(bool: boolean | null = null) {
         if (!this.isUserSpaceUploadPage(location.href)) return
         if (bool === null) {
             this.setChargingVideosVisible(localMKData.isHideChargingDedicatedVideos())
@@ -127,7 +127,7 @@ export default {
         })
     },
     //执行设置用户空间中投稿列表中直播回放的显隐
-    executeSetLiveReplayVideosVisible(bool = null) {
+    executeSetLiveReplayVideosVisible(bool: boolean | null = null) {
         if (!this.isUserSpaceUploadPage(location.href)) return
         if (bool === null) {
             this.setLiveReplayVideosVisible(localMKData.isLiveReplayVideosHide())

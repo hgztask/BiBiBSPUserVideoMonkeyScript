@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue'
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue'
 import bilibiliHome from "../../../pages/home/bilibili.ts";
 import {
   getHomeFeedLoadAttemptsGm,
@@ -11,43 +11,35 @@ import {
 } from "@/state/localMKData.ts";
 import cssManager from "../../../domain/cssManager.ts";
 
-export default defineComponent({
-  name: "HomePageProcessingTab",
-  data() {
-    return {
-      isHideCarouselImageVal: isHideCarouselImageGm(),
-      isHideHomeTopHeaderBannerImageVal: isHideHomeTopHeaderBannerImageGm(),
-      isHideTopHeaderChannelVal: isHideHomeTopHeaderChannelGm(),
-      homeFeedLoadAttemptsVal: getHomeFeedLoadAttemptsGm(),
-      isHomeResponseRewriteVal: isHomeResponseRewriteGm(),
-      releaseTypeCardVals: getReleaseTypeCardsGm(),
-    }
-  },
-  watch: {
-    isHideCarouselImageVal(n) {
-      GM_setValue('is_hide_carousel_image_gm', n)
-      bilibiliHome.hideHomeCarouselImage(n, true);
-    },
-    isHideHomeTopHeaderBannerImageVal(n) {
-      GM_setValue('is_hide_home_top_header_banner_image_gm', n)
-      bilibiliHome.hideHomeTopHeaderBannerImage(n);
-    },
-    isHideTopHeaderChannelVal(n) {
-      GM_setValue('is_hide_home_top_header_channel_gm', n)
-      cssManager.hideHomeTopHeaderChannel(n);
-    },
-    homeFeedLoadAttemptsVal(n) {
-      const value = Number(n)
-      GM_setValue('home_feed_load_attempts_gm', Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 3)
-    },
-    isHomeResponseRewriteVal(n) {
-      GM_setValue('is_home_response_rewrite_gm', n)
-    },
-    releaseTypeCardVals(n) {
-      GM_setValue('release_type_cards_gm', n)
-    }
-  }
-})
+const isHideCarouselImageVal = ref(isHideCarouselImageGm());
+const isHideHomeTopHeaderBannerImageVal = ref(isHideHomeTopHeaderBannerImageGm());
+const isHideTopHeaderChannelVal = ref(isHideHomeTopHeaderChannelGm());
+const homeFeedLoadAttemptsVal = ref(getHomeFeedLoadAttemptsGm());
+const isHomeResponseRewriteVal = ref(isHomeResponseRewriteGm());
+const releaseTypeCardVals = ref(getReleaseTypeCardsGm());
+
+watch(isHideCarouselImageVal, (n) => {
+  GM_setValue('is_hide_carousel_image_gm', n);
+  bilibiliHome.hideHomeCarouselImage(n, true);
+});
+watch(isHideHomeTopHeaderBannerImageVal, (n) => {
+  GM_setValue('is_hide_home_top_header_banner_image_gm', n);
+  bilibiliHome.hideHomeTopHeaderBannerImage(n);
+});
+watch(isHideTopHeaderChannelVal, (n) => {
+  GM_setValue('is_hide_home_top_header_channel_gm', n);
+  cssManager.hideHomeTopHeaderChannel(n);
+});
+watch(homeFeedLoadAttemptsVal, (n) => {
+  const value = Number(n);
+  GM_setValue('home_feed_load_attempts_gm', Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 3);
+});
+watch(isHomeResponseRewriteVal, (n) => {
+  GM_setValue('is_home_response_rewrite_gm', n);
+});
+watch(releaseTypeCardVals, (n) => {
+  GM_setValue('release_type_cards_gm', n);
+});
 </script>
 
 <template>
@@ -72,15 +64,15 @@ export default defineComponent({
       <div>放行的卡片
         <el-divider/>
         <el-checkbox-group v-model="releaseTypeCardVals">
-          <el-checkbox label="直播"></el-checkbox>
-          <el-checkbox label="番剧"></el-checkbox>
-          <el-checkbox label="电影"></el-checkbox>
-          <el-checkbox label="国创"></el-checkbox>
-          <el-checkbox label="综艺"></el-checkbox>
-          <el-checkbox label="课堂"></el-checkbox>
-          <el-checkbox label="电视剧"></el-checkbox>
-          <el-checkbox label="纪录片"></el-checkbox>
-          <el-checkbox label="漫画"></el-checkbox>
+          <el-checkbox value="直播">直播</el-checkbox>
+          <el-checkbox value="番剧">番剧</el-checkbox>
+          <el-checkbox value="电影">电影</el-checkbox>
+          <el-checkbox value="国创">国创</el-checkbox>
+          <el-checkbox value="综艺">综艺</el-checkbox>
+          <el-checkbox value="课堂">课堂</el-checkbox>
+          <el-checkbox value="电视剧">电视剧</el-checkbox>
+          <el-checkbox value="纪录片">纪录片</el-checkbox>
+          <el-checkbox value="漫画">漫画</el-checkbox>
         </el-checkbox-group>
       </div>
     </el-tooltip>

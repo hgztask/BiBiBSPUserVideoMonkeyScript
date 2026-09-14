@@ -1,5 +1,5 @@
 import elUtil from "../../core/util/elUtil.ts";
-import css from '../../ui/styles/searchLive.css'
+import css from '../../ui/styles/searchLive.css?raw'
 import shielding from "../../domain/shielding/main.ts";
 import live_shielding from "../../domain/shielding/live.ts";
 import urlUtil from "../../core/util/urlUtil.ts";

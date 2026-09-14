@@ -16,13 +16,20 @@ import './dev/dev.ts'
 import liveRoomModel from "./pages/live/roomModel.ts";
 
 
-window.addEventListener('load', () => {
+const onPageLoad = () => {
     console.log('页面加载完成');
     router.staticRoute(document.title, window.location.href);
     watchUtil.addEventListenerUrlChange((newUrl, oldUrl, title) => {
         router.dynamicRouting(title, newUrl);
     })
-})
+}
+
+// boot 动态导入可能错过 load 事件，按 readyState 判断
+if (document.readyState === 'complete') {
+    onPageLoad()
+} else {
+    window.addEventListener('load', onPageLoad)
+}
 
 watchUtil.addEventListenerNetwork((url, windowUrl, winTitle, initiatorType) => {
     observeNetwork.observeNetwork(url, windowUrl, winTitle, initiatorType)

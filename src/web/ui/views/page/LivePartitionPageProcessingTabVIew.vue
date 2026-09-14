@@ -1,37 +1,29 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import {isLiveSectionResponseRewriteGm, isRoomListAdaptiveGm} from "@/state/localMKData.ts";
 import liveSectionModel from "../../../pages/live/sectionModel.ts";
 import cssManager from "../../../domain/cssManager.ts";
 import PartitionTagWhiterListPanel from "./PatitionTagWhiterListPanel.vue";
 
-export default defineComponent({
-  components: {PartitionTagWhiterListPanel},
-  data() {
-    return {
-      isRoomListAdaptiveVal: isRoomListAdaptiveGm(),
-      isDelLivePartitionPageRightSidebarVal: false,
-      isLiveSectionResponseRewriteVal: isLiveSectionResponseRewriteGm(),
-    }
-  },
-  watch: {
-    isRoomListAdaptiveVal(n) {
-      GM_setValue('is_room_list_adaptive_gm', n)
-      if (liveSectionModel.isLiveSection()) {
-        cssManager.liveStreamPartitionStyle(n);
-      }
-    },
-    isDelLivePartitionPageRightSidebarVal(n) {
-      GM_setValue('is_del_live_partition_page_right_sidebar_gm', n)
-      if (liveSectionModel.isLiveSection()) {
-        // cssManager
-      }
-    },
-    isLiveSectionResponseRewriteVal(n) {
-      GM_setValue('is_live_section_response_rewrite_gm', n)
-    }
-  },
-})
+const isRoomListAdaptiveVal = ref(isRoomListAdaptiveGm());
+const isDelLivePartitionPageRightSidebarVal = ref(false);
+const isLiveSectionResponseRewriteVal = ref(isLiveSectionResponseRewriteGm());
+
+watch(isRoomListAdaptiveVal, (n) => {
+  GM_setValue('is_room_list_adaptive_gm', n);
+  if (liveSectionModel.isLiveSection()) {
+    cssManager.liveStreamPartitionStyle(n);
+  }
+});
+watch(isDelLivePartitionPageRightSidebarVal, (n) => {
+  GM_setValue('is_del_live_partition_page_right_sidebar_gm', n);
+  if (liveSectionModel.isLiveSection()) {
+    // cssManager
+  }
+});
+watch(isLiveSectionResponseRewriteVal, (n) => {
+  GM_setValue('is_live_section_response_rewrite_gm', n);
+});
 </script>
 
 <template>

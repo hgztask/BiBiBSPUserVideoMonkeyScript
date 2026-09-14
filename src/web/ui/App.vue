@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import cacheManagementView from "./views/debug/cacheManagementView.vue";
 import panelSettingsView from "./views/settings/panelSettingsView.vue";
 import compatibleSettingView from "./views/settings/compatibleSettingView.vue";
@@ -18,112 +18,60 @@ import donateLayoutView from './views/settings/donateLayoutView.vue'
 import ruleManagementView from './views/rule/ruleManagementView.vue'
 import excludeURLsView from './views/settings/excludeURLsView.vue'
 import RightFloatingLayoutView from "./views/settings/rightFloatingLayoutView.vue";
-import conditionalityView from "./views/rule/conditionalityView.vue";
+import conditionalityView from './views/rule/conditionalityView.vue';
 import defUtil from "../core/util/defUtil.ts";
+import {ElMessageBox} from 'element-plus';
 
+const drawer = ref(false);
+// 默认打开的tab
+const tabsActiveName = ref(GM_getValue('mainTabsActiveName', '规则管理'));
+const debug_panel_show = ref(__DEV__);
+// ws 开关开启后，生产构建也显示"调试测试"页签，便于随时关闭 ws 连接
+const ws_panel_show = ref(__DEV__ || debuggerManagement.isWsService());
+const isShowBackToTopVal = ref(localMKData.isShowBackToTopBtn());
 
-/**
- * todo 目前发现加载在视频页时，el-drawer的遮罩会挡住整个屏幕，先设置modal为false，关闭遮罩，待后续观察
- * Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。
- */
-export default defineComponent({
-  components: {
-    RightFloatingLayoutView,
-    outputInformationView,
-    donateLayoutView,
-    ruleManagementView,
-    cacheManagementView,
-    panelSettingsView,
-    compatibleSettingView,
-    lookContentDialog,
-    debuggerManagementView,
-    PageProcessingTabsView,
-    aboutAndFeedbackView,
-    showImgDialog,
-    sheetDialog,
-    bulletWordManagementView,
-    excludeURLsView,
-    conditionalityView
-  },
-  data() {
-    return {
-      drawer: false,
-      // 默认打开的tab
-      tabsActiveName: GM_getValue('mainTabsActiveName', '规则管理'),
-      debug_panel_show: __DEV__,
-      // ws 开关开启后，生产构建也显示"调试测试"页签，便于随时关闭 ws 连接
-      ws_panel_show: __DEV__ || debuggerManagement.isWsService(),
-      isShowBackToTopVal: localMKData.isShowBackToTopBtn()
-    }
-  },
-  methods: {
-    tabClick(tab: any) {
-      GM_setValue('mainTabsActiveName', tab.name);
-    },
-  },
-  watch: {},
-  created() {
-    eventEmitter.on('主面板开关', () => {
-      this.drawer = !this.drawer;
-    })
-    document.addEventListener('keydown', (event) => {
-      eventEmitter.emit('event-keydownEvent', event);
-      if (event.key === getDrawerShortcutKeyGm()) {
-        this.drawer = !this.drawer;
-      }
-    });
+watch(tabsActiveName,(n)=>{
+  GM_setValue('mainTabsActiveName', n);
+})
 
-    eventEmitter.on('el-notify', (options) => {
-      if (!options['position']) {
-        options.position = 'bottom-right';
-      }
-      this.$notify(options)
-    })
-    eventEmitter.on('el-msg', (...options) => {
-      (this.$message as any)(...options)
-    })
+eventEmitter.on('主面板开关', () => {
+  drawer.value = !drawer.value;
+});
+document.addEventListener('keydown', (event) => {
+  eventEmitter.emit('event-keydownEvent', event);
+  if (event.key === getDrawerShortcutKeyGm()) {
+    drawer.value = !drawer.value;
+  }
+});
 
-    eventEmitter.on('el-alert', (...options) => {
-      (this.$alert as any)(...options);
-    })
-
-    eventEmitter.handler('el-confirm', (...options) => {
-      return (this.$confirm as any)(...options);
-    })
-
-    eventEmitter.handler('el-prompt', (...options) => {
-      return (this.$prompt as any)(...options)
-    })
-    const alertFunDebounce = defUtil.debounce((response, bvId) => {
-      this.$alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}
+const alertFunDebounce = defUtil.debounce((response: any, bvId: string) => {
+  ElMessageBox.alert(`请求获取视频信息失败，状态码：${response.status}，bv号：${bvId}
                 \n。已自动禁用根据bv号网络请求获取视频信息状态
                 \n如需关闭，请在面板条件限制里手动关闭。`, '错误', {
-        confirmButtonText: '确定',
-        type: 'error'
-      })
-    }, 2000)
-    eventEmitter.on('请求获取视频信息失败', (response, bvId) => {
-      eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true)
-      alertFunDebounce(response, bvId)
-    })
+    confirmButtonText: '确定',
+    type: 'error'
+  });
+}, 2000);
+eventEmitter.on('请求获取视频信息失败', (response: any, bvId: string) => {
+  eventEmitter.send('更新根据bv号网络请求获取视频信息状态', true);
+  alertFunDebounce(response, bvId);
+});
 
-    eventEmitter.on('e:设置顶部按钮状态', (show) => {
-      this.isShowBackToTopVal = show
-    })
-  }
-})
+eventEmitter.on('e:设置顶部按钮状态', (show: boolean) => {
+  isShowBackToTopVal.value = show;
+});
 </script>
 
 <template>
   <div>
     <el-drawer :modal="false"
-               :visible.sync="drawer"
+               v-model="drawer"
                :with-header="false"
                direction="ltr"
                size="100%"
                style="position: fixed">
       <el-tabs id="app" v-model="tabsActiveName"
-               type="border-card" @tab-click="tabClick">
+               type="border-card">
         <el-tab-pane label="面板设置" lazy name="面板设置">
           <panelSettingsView/>
         </el-tab-pane>

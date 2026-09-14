@@ -1,86 +1,78 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue';
 import localMKData, {getDrawerShortcutKeyGm} from "../../../state/localMKData.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {ElMessage, ElNotification, ElMessageBox} from 'element-plus';
 
-export default defineComponent({
-  data() {
-    return {
-      input_color: null as string | null,
-      showRightTopMainButSwitch: localMKData.isShowRightTopMainButSwitch(),
-      isFirstFullDisplay: localMKData.isFirstFullDisplay(),
-      isHalfHiddenIntervalAfterInitialDisplay: localMKData.isHalfHiddenIntervalAfterInitialDisplay(),
-      devToolsInputVal: '',
-      drawerShortcutKeyVal: getDrawerShortcutKeyGm(),
-      theKeyPressedKeyVal: '',
-      isShowBackToTopVal: localMKData.isShowBackToTopBtn()
-    }
-  },
-  methods: {
-    setBorderColorBut() {
-      this.$confirm('是否设置面板边框颜色', '提示').then(() => {
-        localMKData.setBorderColor(this.input_color!);
-        this.$alert("已设置面板边框颜色，刷新生效")
-      })
-    },
-    setDefFontColorForOutputInformationBut() {
-      this.$confirm("是否设置输出信息默认字体颜色", "提示").then(() => {
-        localMKData.setOutputInformationFontColor(this.input_color!);
-        this.$alert("已设置输出信息默认字体颜色，刷新生效");
-      })
-    },
-    setTheFontColorForOutputInformationBut() {
-      this.$confirm('是要设置输出信息高亮字体颜色吗？').then(() => {
-        localMKData.setHighlightInformationColor(this.input_color!);
-        this.$alert("已设置输出信息高亮字体颜色，刷新生效");
-      })
-    },
-    setDefInfoBut() {
-      localMKData.setDefaultColorInfo()
-      this.$alert("已恢复默认颜色，刷新生效");
-    },
-    changeDevToolsInput() {
-      const toolsInputVal = this.devToolsInputVal;
-      if (toolsInputVal.trim()) return;
-      eventEmitter.send(toolsInputVal)
-    },
-    setDrawerShortcutKeyBut() {
-      const theKeyPressedKey = this.theKeyPressedKeyVal;
-      const drawerShortcutKey = this.drawerShortcutKeyVal;
-      if (drawerShortcutKey === theKeyPressedKey) {
-        this.$message('不需要重复设置');
-        return;
-      }
-      GM_setValue('drawer_shortcut_key_gm', theKeyPressedKey);
-      this.$notify({title: '', message: '已设置打开关闭主面板快捷键', type: 'success'});
-      this.drawerShortcutKeyVal = theKeyPressedKey;
-    }
-  },
-  watch: {
-    showRightTopMainButSwitch(newVal) {
-      //设置是否显示右上角主面板按钮开关
-      GM_setValue("showRightTopMainButSwitch", newVal === true)
-      eventEmitter.send('显隐主面板开关', newVal)
-    },
-    isFirstFullDisplay(newVal) {
-      //设置是否第一次完整显示外部开关主面板按钮
-      GM_setValue('isFirstFullDisplay', newVal === true)
-    },
-    isHalfHiddenIntervalAfterInitialDisplay(newBool) {
-      //设置初次显示后间隔半隐藏主面板开关按钮
-      GM_setValue('is_half_hidden_interval_after_initial_display', newBool === true)
-    },
-    isShowBackToTopVal(newVal) {
-      GM_setValue('is_show_back_to_top_btn', newVal)
-      eventEmitter.send('e:设置顶部按钮状态', newVal)
-    }
-  },
-  created() {
-    eventEmitter.on('event-keydownEvent', (event) => {
-      this.theKeyPressedKeyVal = event.key;
-    })
+const input_color = ref<string | null>(null);
+const showRightTopMainButSwitch = ref(localMKData.isShowRightTopMainButSwitch());
+const isFirstFullDisplay = ref(localMKData.isFirstFullDisplay());
+const isHalfHiddenIntervalAfterInitialDisplay = ref(localMKData.isHalfHiddenIntervalAfterInitialDisplay());
+const devToolsInputVal = ref('');
+const drawerShortcutKeyVal = ref(getDrawerShortcutKeyGm());
+const theKeyPressedKeyVal = ref('');
+const isShowBackToTopVal = ref(localMKData.isShowBackToTopBtn());
+
+const setBorderColorBut = () => {
+  ElMessageBox.confirm('是否设置面板边框颜色', '提示').then(() => {
+    localMKData.setBorderColor(input_color.value!);
+    ElMessageBox.alert("已设置面板边框颜色，刷新生效");
+  });
+};
+const setDefFontColorForOutputInformationBut = () => {
+  ElMessageBox.confirm("是否设置输出信息默认字体颜色", "提示").then(() => {
+    localMKData.setOutputInformationFontColor(input_color.value!);
+    ElMessageBox.alert("已设置输出信息默认字体颜色，刷新生效");
+  });
+};
+const setTheFontColorForOutputInformationBut = () => {
+  ElMessageBox.confirm('是要设置输出信息高亮字体颜色吗？').then(() => {
+    localMKData.setHighlightInformationColor(input_color.value!);
+    ElMessageBox.alert("已设置输出信息高亮字体颜色，刷新生效");
+  });
+};
+const setDefInfoBut = () => {
+  localMKData.setDefaultColorInfo();
+  ElMessageBox.alert("已恢复默认颜色，刷新生效");
+};
+const changeDevToolsInput = () => {
+  const toolsInputVal = devToolsInputVal.value;
+  if (toolsInputVal.trim()) return;
+  eventEmitter.send(toolsInputVal);
+};
+const setDrawerShortcutKeyBut = () => {
+  const theKeyPressedKey = theKeyPressedKeyVal.value;
+  const drawerShortcutKey = drawerShortcutKeyVal.value;
+  if (drawerShortcutKey === theKeyPressedKey) {
+    ElMessage('不需要重复设置');
+    return;
   }
-})
+  GM_setValue('drawer_shortcut_key_gm', theKeyPressedKey);
+  ElNotification({title: '', message: '已设置打开关闭主面板快捷键', type: 'success'});
+  drawerShortcutKeyVal.value = theKeyPressedKey;
+};
+
+watch(showRightTopMainButSwitch, (newVal) => {
+  //设置是否显示右上角主面板按钮开关
+  GM_setValue("showRightTopMainButSwitch", newVal === true);
+  eventEmitter.send('显隐主面板开关', newVal);
+});
+watch(isFirstFullDisplay, (newVal) => {
+  //设置是否第一次完整显示外部开关主面板按钮
+  GM_setValue('isFirstFullDisplay', newVal === true);
+});
+watch(isHalfHiddenIntervalAfterInitialDisplay, (newBool) => {
+  //设置初次显示后间隔半隐藏主面板开关按钮
+  GM_setValue('is_half_hidden_interval_after_initial_display', newBool === true);
+});
+watch(isShowBackToTopVal, (newVal) => {
+  GM_setValue('is_show_back_to_top_btn', newVal);
+  eventEmitter.send('e:设置顶部按钮状态', newVal);
+});
+
+eventEmitter.on('event-keydownEvent', (event: KeyboardEvent) => {
+  theKeyPressedKeyVal.value = event.key;
+});
 </script>
 
 <template>
@@ -131,7 +123,7 @@ export default defineComponent({
       <template #header>
         <span>devTools</span>
       </template>
-      <el-input v-model.trim="devToolsInputVal" @keyup.enter.native="changeDevToolsInput"></el-input>
+      <el-input v-model.trim="devToolsInputVal" @keyup.enter="changeDevToolsInput"></el-input>
     </el-card>
   </div>
 </template>

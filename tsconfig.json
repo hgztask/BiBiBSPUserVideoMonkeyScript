@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -16,6 +16,7 @@
       "DOM.Iterable"
     ],
     "baseUrl": ".",
+    "types": ["tampermonkey", "node"],
     "paths": {
       "@/*": [
         "src/web/*"

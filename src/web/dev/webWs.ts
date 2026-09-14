@@ -101,7 +101,7 @@ function connectWebSocket(): void {
     ws.onclose = (): void => {
         originConsole.log('🔌 WebSocket 已断开');
         if (!isManualClose) {
-            reconnectTimer = setTimeout(connectWebSocket, RECONNECT_DELAY);
+            reconnectTimer = setTimeout(connectWebSocket, RECONNECT_DELAY) as unknown as number;
             originConsole.log(`⏳ ${RECONNECT_DELAY / 1000}秒后自动重连...`);
         }
     };

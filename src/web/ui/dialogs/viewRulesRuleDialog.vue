@@ -1,51 +1,44 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref} from 'vue';
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {ElMessage, ElMessageBox} from 'element-plus';
 
-export default defineComponent({
-  data() {
-    return {
-      dialogVisible: false,
-      typeMap: {} as Record<string, any>,
-      showTags: [] as any[],
-    }
-  },
-  methods: {
-    updateShowRuleTags() {
-      this.showTags = GM_getValue(this.typeMap.type, []);
-    },
-    handleTagClose(tag: any, index: any) {
-      if (tag === '') return;
-      this.$confirm(`确定要删除 ${tag} 吗？`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.showTags.splice(index, 1)
-        GM_setValue(this.typeMap.type, this.showTags);
-        this.$message.success(`已移除 ${tag}`)
-        eventEmitter.send('刷新规则信息', false)
-      })
-    },
-    closedHandle() {
-      this.typeMap = {}
-      this.showTags.splice(0, this.showTags.length);
-    }
-  },
-  created() {
-    eventEmitter.on('event-lookRuleDialog', (typeMap) => {
-      this.typeMap = typeMap;
-      this.dialogVisible = true;
-      this.updateShowRuleTags();
-    })
-  }
-})
+const dialogVisible = ref(false);
+const typeMap = ref<Record<string, any>>({});
+const showTags = ref<any[]>([]);
+
+const updateShowRuleTags = () => {
+  showTags.value = GM_getValue(typeMap.value.type, []);
+};
+const handleTagClose = (tag: any, index: number) => {
+  if (tag === '') return;
+  ElMessageBox.confirm(`确定要删除 ${tag} 吗？`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    showTags.value.splice(index, 1);
+    GM_setValue(typeMap.value.type, showTags.value);
+    ElMessage.success(`已移除 ${tag}`);
+    eventEmitter.send('刷新规则信息', false);
+  });
+};
+const closedHandle = () => {
+  typeMap.value = {};
+  showTags.value.splice(0, showTags.value.length);
+};
+
+eventEmitter.on('event-lookRuleDialog', (newTypeMap) => {
+  typeMap.value = newTypeMap;
+  dialogVisible.value = true;
+  updateShowRuleTags();
+});
 </script>
 <template>
   <div>
     <el-dialog :close-on-click-modal="false" :close-on-press-escape="false"
                :fullscreen="true" :modal="false"
-               :visible.sync="dialogVisible"
+               v-model="dialogVisible"
                title="查看规则内容" @closed="closedHandle">
       <el-card>
         <template #header>规则信息</template>

@@ -1,44 +1,36 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue'
+﻿<script setup lang="ts">
+import {ref, watch} from 'vue'
 import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../../../state/localMKData.ts";
 
-export default defineComponent({
-  name: "PlayPageProcessingTab",
-  data() {
-    return {
-      isDelPlayerPageAd: GM_getValue('isDelPlayerPageAd', false),
-      isDelPlayerPageRightGameAd: GM_getValue('isDelPlayerPageRightGameAd', false),
-      isDelPlayerPageRightVideoList: localMKData.isDelPlayerPageRightVideoList(),
-      isDelBottomComment: localMKData.isDelBottomComment(),
-      isDelPlayerEndingPanelVal: localMKData.isDelPlayerEndingPanel(),
-      isCloseCommentBlockingVal: isCloseCommentBlockingGm(),
-      isCommentResponseRewriteVal: isCommentResponseRewriteGm()
-    }
-  },
-  watch: {
-    isDelPlayerPageAd(b) {
-      GM_setValue('isDelPlayerPageAd', b)
-    },
-    isDelPlayerPageRightGameAd(b) {
-      GM_setValue('isDelPlayerPageRightGameAd', b)
-    },
-    isDelPlayerPageRightVideoList(b) {
-      GM_setValue('isDelPlayerPageRightVideoList', b)
-    },
-    isDelBottomComment(b) {
-      GM_setValue('isDelBottomComment', b)
-    },
-    isDelPlayerEndingPanelVal(n) {
-      GM_setValue('is_del_player_ending_panel', n)
-    },
-    isCloseCommentBlockingVal(n) {
-      GM_setValue('is_close_comment_blocking_gm', n)
-    },
-    isCommentResponseRewriteVal(n) {
-      GM_setValue('is_comment_response_rewrite_gm', n)
-    }
-  }
-})
+const isDelPlayerPageAd = ref(GM_getValue('isDelPlayerPageAd', false));
+const isDelPlayerPageRightGameAd = ref(GM_getValue('isDelPlayerPageRightGameAd', false));
+const isDelPlayerPageRightVideoList = ref(localMKData.isDelPlayerPageRightVideoList());
+const isDelBottomComment = ref(localMKData.isDelBottomComment());
+const isDelPlayerEndingPanelVal = ref(localMKData.isDelPlayerEndingPanel());
+const isCloseCommentBlockingVal = ref(isCloseCommentBlockingGm());
+const isCommentResponseRewriteVal = ref(isCommentResponseRewriteGm());
+
+watch(isDelPlayerPageAd, (b) => {
+  GM_setValue('isDelPlayerPageAd', b);
+});
+watch(isDelPlayerPageRightGameAd, (b) => {
+  GM_setValue('isDelPlayerPageRightGameAd', b);
+});
+watch(isDelPlayerPageRightVideoList, (b) => {
+  GM_setValue('isDelPlayerPageRightVideoList', b);
+});
+watch(isDelBottomComment, (b) => {
+  GM_setValue('isDelBottomComment', b);
+});
+watch(isDelPlayerEndingPanelVal, (n) => {
+  GM_setValue('is_del_player_ending_panel', n);
+});
+watch(isCloseCommentBlockingVal, (n) => {
+  GM_setValue('is_close_comment_blocking_gm', n);
+});
+watch(isCommentResponseRewriteVal, (n) => {
+  GM_setValue('is_comment_response_rewrite_gm', n);
+});
 </script>
 
 <template>
@@ -67,7 +59,3 @@ export default defineComponent({
     </el-card>
   </div>
 </template>
-
-<style scoped>
-
-</style>

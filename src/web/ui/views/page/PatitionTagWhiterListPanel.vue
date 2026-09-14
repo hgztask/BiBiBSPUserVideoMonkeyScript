@@ -1,71 +1,62 @@
-<script lang="ts">
-import {defineComponent} from 'vue';
+<script setup lang="ts">
+import {computed, ref, watch} from 'vue';
+import {ElMessage} from 'element-plus';
 
-export default defineComponent({
-  props: {
-    title: {
-      type: String,
-      default: ''
-    },
-    switchKey: {
-      type: String,
-      default: ''
-    },
-    partitionListKey: {
-      type: String,
-      default: ''
-    },
-  },
-  data() {
-    return {
-      partition: '',
-      partitionList: [] as any[],
-      switchVal: false
-    }
-  },
-  computed: {
-    showPartitionList() {
-      if ((this.partition as string) === '') return this.partitionList
-      return this.partitionList.filter(item => item.includes(this.partition))
-    }
-  },
-  watch: {
-    switchVal(newV) {
-      GM_setValue(this.switchKey as string, newV)
-    }
-  },
-  methods: {
-    addBut() {
-      if (this.partition === '') {
-        return this.$message.warning('请输入分区名称');
-      }
-      if (this.partitionList.some((item: any) => item === this.partition)) {
-        return this.$message.warning('该分区已存在');
-      }
-      if (this.partitionList.length >= 50) {
-        return this.$message.warning('最多添加50个白名单分区，请移除不需要的分区再添加');
-      }
-      this.partitionList.push(this.partition)
-      this.partition = ''
-      this.save()
-    },
-    delBut(item: any) {
-      if (this.partitionList.some((someItem: any) => someItem === item)) {
-        return this.$message.warning('该分区不存在');
-      }
-      this.partitionList = this.partitionList.filter((item: any) => item !== item)
-      this.save()
-    },
-    save() {
-      GM_setValue(this.partitionListKey, this.partitionList)
-      this.$message.success(`保存${this.title}配置成功`)
-    }
-  },
-  created() {
-    this.partitionList = GM_getValue(this.partitionListKey, [])
-    this.switchVal = GM_getValue(this.switchKey, false)
+const props = withDefaults(defineProps<{
+    title?: string;
+    switchKey?: string;
+    partitionListKey?: string;
+}>(), {
+    title: '',
+    switchKey: '',
+    partitionListKey: '',
+});
+
+const partition = ref('');
+const partitionList = ref<any[]>([]);
+const switchVal = ref(false);
+
+const showPartitionList = computed(() => {
+  if (partition.value === '') return partitionList.value;
+  return partitionList.value.filter(item => item.includes(partition.value));
+});
+
+watch(switchVal, (newV) => {
+  GM_setValue(props.switchKey as string, newV);
+});
+
+const addBut = () => {
+  if (partition.value === '') {
+    ElMessage.warning('请输入分区名称');
+    return;
   }
-})
+  if (partitionList.value.some((item: any) => item === partition.value)) {
+    ElMessage.warning('该分区已存在');
+    return;
+  }
+  if (partitionList.value.length >= 50) {
+    ElMessage.warning('最多添加50个白名单分区，请移除不需要的分区再添加');
+    return;
+  }
+  partitionList.value.push(partition.value);
+  partition.value = '';
+  save();
+};
+const delBut = (item: any) => {
+  if (partitionList.value.some((someItem: any) => someItem === item)) {
+    ElMessage.warning('该分区不存在');
+    return;
+  }
+  partitionList.value = partitionList.value.filter((v: any) => v !== item);
+  save();
+};
+const save = () => {
+  GM_setValue(props.partitionListKey, partitionList.value);
+  ElMessage.success(`保存${props.title}配置成功`);
+};
+
+partitionList.value = GM_getValue(props.partitionListKey, []);
+switchVal.value = GM_getValue(props.switchKey, false);
 </script>
 
 <template>

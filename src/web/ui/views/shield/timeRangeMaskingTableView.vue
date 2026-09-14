@@ -1,198 +1,192 @@
-﻿<script lang="ts">
-import {defineComponent} from 'vue';
+﻿<script setup lang="ts">
+import {ref} from 'vue';
 import localMKData from "../../../state/localMKData.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus';
+
 // 保存表格数据
 const saveTable = (tableData: any) => {
-  const newList = []
+  const newList = [];
   for (let {status, r} of tableData) {
     if (r === null) {
-      eventEmitter.send('el-alert', '表格内还有未设置时间范围的项，请先设置或删除才可以保存！')
-      return
+      eventEmitter.send('el-alert', '表格内还有未设置时间范围的项，请先设置或删除才可以保存！');
+      return;
     }
     const [startTime, endTime] = r;
     newList.push({
       status,
       r: [startTime.getTime(), endTime.getTime()]
-    })
+    });
   }
   if (newList.length === 0) return;
-  GM_setValue('time_range_masking', newList)
+  GM_setValue('time_range_masking', newList);
   eventEmitter.send('el-notify', {
     title: '保存成功',
     message: '已保存该时间范围屏蔽',
     type: 'success'
-  })
-}
+  });
+};
+
 /**
  * 时间范围屏蔽表格组件
  */
-export default defineComponent({
-  data() {
-    return {
-      tableData: [] as any[],
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: '最近一周',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '最近一个月',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          },
-          {
-            text: '最近三个月',
-            onClick(picker: any) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          }
-        ]
-      }
+const tableData = ref<any[]>([]);
+// Element Plus 快捷选项（datetimerange）
+const pickerShortcuts = [
+  {
+    text: '最近一周',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+      return [start, end];
     }
   },
-  methods: {
-    //刷新表格数据
-    refreshTableData() {
-      if (this.tableData.length > 0) {
-        this.tableData.splice(0, this.tableData.length);
-      }
-      const timeRangeMaskingArr = localMKData.getTimeRangeMaskingArr();
-      if (timeRangeMaskingArr.length !== 0) {
-        let index = 0;
-        for (let {status, r} of timeRangeMaskingArr) {
-          this.tableData.push({
-            index: index++,
-            status,
-            r: [new Date(r[0]), new Date(r[1])],
-            // 用于判断是否修改
-            startTimeStamp: r[0],
-            endTimeStamp: r[1],
-          })
-        }
-      }
-    },
-    //恢复上次时间范围
-    restoreTheLastTimeRange(row: any) {
-      // 获取未修改前的时间戳
-      let {startTimeStamp, endTimeStamp} = row;
-      console.log('上次时间戳', startTimeStamp, endTimeStamp)
-      if (startTimeStamp === null || startTimeStamp === undefined) {
-        row.r = null
-        return
-      }
-      row.r = [new Date(startTimeStamp), new Date(endTimeStamp)]
-      console.log('已恢复上次时间范围', row)
-    },
-    // 时间选择器改变
-    tableDatePickerChange(row: any) {
-      const rowR = row.r;
-      if (rowR === null) return
-      // 获取未修改前的时间戳
-      let {oldStartTimeStamp, oldEndTimeStamp} = row;
-      // 获取当前项的时间戳
-      const newStartTimeStamp = rowR[0].getTime();
-      const newEndTimeStamp = rowR[1].getTime();
-      // 如果未修改过时间戳，则取当前项的时间戳
-      const comparisonSTS = newStartTimeStamp || oldStartTimeStamp;
-      const comparisonETS = newEndTimeStamp || oldEndTimeStamp;
-      // 如果未修改过时间戳，则取当前项的时间戳
-      for (let v of this.tableData) {
-        //跳过时间范围为空的项
-        if (v.r === null) continue;
-        // 跳过当前项
-        if (v.index === row.index) continue;
-        const tempStartTimeStamp = v.r[0].getTime();
-        const tempEndTimeStamp = v.r[1].getTime();
-        if (tempStartTimeStamp === comparisonSTS && tempEndTimeStamp === comparisonETS) {
-          this.$alert('已存在该时间范围屏蔽')
-          this.restoreTheLastTimeRange(row)
-          return;
-        }
-        if (comparisonSTS >= tempStartTimeStamp && comparisonETS <= tempEndTimeStamp) {
-          this.$alert('小于已添加过的时间范围')
-          this.restoreTheLastTimeRange(row)
-          return;
-        }
-      }
-      //更新时间戳
-      row.startTimeStamp = newStartTimeStamp;
-      row.endTimeStamp = newEndTimeStamp;
-      saveTable(this.tableData)
-    },
-    // 开关改变
-    tableSwitchChange(row: any) {
-      if (row.r === null) return
-      saveTable(this.tableData)
-    },
-    addBut() {
-      const length = this.tableData.length;
-      this.tableData.push({
-        index: length, status: true, r: null,
-        startTimeStamp: null, endTimeStamp: null
-      })
-      this.$notify({title: '', message: '已添加一条时间范围屏蔽到底部'})
-    },
-    delItemBut(row: any) {
-      // 刚添加的项未设置时间戳，则直接删除
-      if (row.startTimeStamp === null) {
-        this.tableData.splice(row.index, 1)
-        return;
-      }
-      for (let {r} of this.tableData) {
-        if (r === null) {
-          this.$alert('表格内还有未设置时间范围的项，请先设置或删除才可以保存！')
-          return
-        }
-      }
-      this.$confirm('确定删除该条时间范围屏蔽吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.tableData.splice(row.index, 1)
-        saveTable(this.tableData)
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
-      })
-    },
-    saveTableBut() {
-      saveTable(this.tableData)
+  {
+    text: '最近一个月',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+      return [start, end];
     }
   },
-  created() {
-    this.refreshTableData()
+  {
+    text: '最近三个月',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+      return [start, end];
+    }
   }
-})
+];
+
+//刷新表格数据
+const refreshTableData = () => {
+  if (tableData.value.length > 0) {
+    tableData.value.splice(0, tableData.value.length);
+  }
+  const timeRangeMaskingArr = localMKData.getTimeRangeMaskingArr();
+  if (timeRangeMaskingArr.length !== 0) {
+    let index = 0;
+    for (let {status, r} of timeRangeMaskingArr) {
+      tableData.value.push({
+        index: index++,
+        status,
+        r: [new Date(r[0]), new Date(r[1])],
+        // 用于判断是否修改
+        startTimeStamp: r[0],
+        endTimeStamp: r[1],
+      });
+    }
+  }
+};
+//恢复上次时间范围
+const restoreTheLastTimeRange = (row: any) => {
+  // 获取未修改前的时间戳
+  let {startTimeStamp, endTimeStamp} = row;
+  console.log('上次时间戳', startTimeStamp, endTimeStamp);
+  if (startTimeStamp === null || startTimeStamp === undefined) {
+    row.r = null;
+    return;
+  }
+  row.r = [new Date(startTimeStamp), new Date(endTimeStamp)];
+  console.log('已恢复上次时间范围', row);
+};
+// 时间选择器改变
+const tableDatePickerChange = (row: any) => {
+  const rowR = row.r;
+  if (rowR === null) return;
+  // 获取未修改前的时间戳
+  let {oldStartTimeStamp, oldEndTimeStamp} = row;
+  // 获取当前项的时间戳
+  const newStartTimeStamp = rowR[0].getTime();
+  const newEndTimeStamp = rowR[1].getTime();
+  // 如果未修改过时间戳，则取当前项的时间戳
+  const comparisonSTS = newStartTimeStamp || oldStartTimeStamp;
+  const comparisonETS = newEndTimeStamp || oldEndTimeStamp;
+  // 如果未修改过时间戳，则取当前项的时间戳
+  for (let v of tableData.value) {
+    //跳过时间范围为空的项
+    if (v.r === null) continue;
+    // 跳过当前项
+    if (v.index === row.index) continue;
+    const tempStartTimeStamp = v.r[0].getTime();
+    const tempEndTimeStamp = v.r[1].getTime();
+    if (tempStartTimeStamp === comparisonSTS && tempEndTimeStamp === comparisonETS) {
+      ElMessageBox.alert('已存在该时间范围屏蔽');
+      restoreTheLastTimeRange(row);
+      return;
+    }
+    if (comparisonSTS >= tempStartTimeStamp && comparisonETS <= tempEndTimeStamp) {
+      ElMessageBox.alert('小于已添加过的时间范围');
+      restoreTheLastTimeRange(row);
+      return;
+    }
+  }
+  //更新时间戳
+  row.startTimeStamp = newStartTimeStamp;
+  row.endTimeStamp = newEndTimeStamp;
+  saveTable(tableData.value);
+};
+// 开关改变
+const tableSwitchChange = (row: any) => {
+  if (row.r === null) return;
+  saveTable(tableData.value);
+};
+const addBut = () => {
+  const length = tableData.value.length;
+  tableData.value.push({
+    index: length, status: true, r: null,
+    startTimeStamp: null, endTimeStamp: null
+  });
+  ElNotification({title: '', message: '已添加一条时间范围屏蔽到底部'});
+};
+const delItemBut = (row: any) => {
+  // 刚添加的项未设置时间戳，则直接删除
+  if (row.startTimeStamp === null) {
+    tableData.value.splice(row.index, 1);
+    return;
+  }
+  for (let {r} of tableData.value) {
+    if (r === null) {
+      ElMessageBox.alert('表格内还有未设置时间范围的项，请先设置或删除才可以保存！');
+      return;
+    }
+  }
+  ElMessageBox.confirm('确定删除该条时间范围屏蔽吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    tableData.value.splice(row.index, 1);
+    saveTable(tableData.value);
+    ElMessage({
+      type: 'success',
+      message: '删除成功!'
+    });
+  });
+};
+const saveTableBut = () => {
+  saveTable(tableData.value);
+};
+
+refreshTableData();
 </script>
 <template>
   <div>
     <el-table :data="tableData" border stripe>
       <el-table-column label="状态" width="120px">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-switch v-model="scope.row.status" active-text="启用" @change="tableSwitchChange(scope.row)"/>
         </template>
       </el-table-column>
       <el-table-column label="时间范围" width="400px">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-date-picker
               v-model="scope.row.r"
-              :picker-options="pickerOptions"
+              :shortcuts="pickerShortcuts"
               end-placeholder="结束日期"
               range-separator="至"
               start-placeholder="开始日期"
@@ -208,7 +202,7 @@ export default defineComponent({
           <el-button @click="refreshTableData">刷新</el-button>
           <el-button @click="saveTableBut">保存</el-button>
         </template>
-        <template v-slot="scope">
+        <template #default="scope">
           <el-button type="warning" @click="delItemBut(scope.row)">删除</el-button>
         </template>
       </el-table-column>
