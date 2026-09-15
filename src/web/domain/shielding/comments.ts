@@ -1,4 +1,5 @@
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import shielding, {
     blockByLevelForComment,
     blockComment,
@@ -66,7 +67,7 @@ const shieldingCommentAsync = async (commentsData: CommentData): Promise<any> =>
     }
     if (state) {
         commentsData.el?.remove()
-        eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
+        sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: commentsData, original: commentsData});
         return state;
     }
     return state;
@@ -86,7 +87,7 @@ const shieldingCommentsAsync = async (commentsDataList: CommentData[]): Promise<
         }
         if (state) {
             commentsData.el?.remove()
-            eventEmitter.send('屏蔽评论信息', type, matching, commentsData)
+            sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: commentsData, original: commentsData});
         }
     }
 }

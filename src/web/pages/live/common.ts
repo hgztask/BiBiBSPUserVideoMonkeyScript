@@ -1,6 +1,7 @@
 import cssContent from '../../ui/styles/live-partition.css?raw';
 import elUtil from "../../core/util/elUtil.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 
 const addStyle = () => {
     const style = document.createElement('style');
@@ -17,7 +18,7 @@ const setLivePageRightSidebarHide = (hided: any = false) => {
     elUtil.findElement('#area-tags>div>aside,#sidebar-vm.p-relative.z-sidebar.contain-optimize').then(el => {
         if (!el) return;
         el.style.display = hided ? 'none' : '';
-        eventEmitter.send('打印信息', `已${hided ? '隐藏' : '显示'}直播页右侧边栏`);
+        if (hided) sendShieldLog({source: "屏蔽", ruleType: "直播页右侧边栏", objectType: "页面元素", data: {target: "直播页右侧边栏"}});
     })
 }
 

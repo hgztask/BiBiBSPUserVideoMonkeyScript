@@ -4,6 +4,7 @@ import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 import {isClearLiveCardGm} from "@/state/localMKData.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
@@ -269,7 +270,7 @@ const delFooterContent = () => {
     elUtil.findElement('#biliMainFooter').then(el => {
         if (el === null) return;
         el.remove()
-        eventEmitter.send('打印信息', '已删除底部内容')
+        sendShieldLog({source: "屏蔽", ruleType: "底部内容", objectType: "页面元素", data: {target: "搜索页底部内容"}})
     })
 }
 

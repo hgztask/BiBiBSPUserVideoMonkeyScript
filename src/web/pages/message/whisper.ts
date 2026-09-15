@@ -2,6 +2,7 @@ import urlUtil from "../../core/util/urlUtil.ts";
 import elUtil from "../../core/util/elUtil.ts";
 import shielding, {blockComment, blockUserUidAndName} from "../../domain/shielding/main.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import {IntervalExecutor} from "@/core/cache/IntervalExecutor.ts";
 
 const getLeftUserList = () => {
@@ -74,7 +75,7 @@ export default {
                 const {state, matching, type} = blockUserUidAndName(Number(v.uid), name);
                 if (state) {
                     v.el.remove();
-                    eventEmitter.send('打印信息', `根据${type}规则${matching}屏蔽用户${name}`)
+                    sendShieldLog({source: "屏蔽", ruleType: type ?? "私信规则", matching, objectType: "私信", data: {name, uid: v.uid, content: "用户列表"}})
                     continue
                 }
                 shielding.addBlockButton({
@@ -93,7 +94,7 @@ export default {
                 const {state, type, matching} = blockComment(msg);
                 if (!state) continue;
                 el.remove();
-                eventEmitter.send('打印信息', `根据${type}规则${matching}屏蔽用户${name}发送的消息${msg}`)
+                sendShieldLog({source: "屏蔽", ruleType: type ?? "私信规则", matching, objectType: "私信", data: {name, uid: msgData.uid, content: msg}})
             }
         })
     }, {

@@ -1,6 +1,7 @@
 import elUtil from "../../core/util/elUtil.ts";
 import {blockCheckWhiteUserUid, blockDynamicItemContent} from "@/domain/shielding/main.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import {
     isBlockAppointmentDynamicGm,
     isBlockGoodsDynamicGm,
@@ -152,7 +153,7 @@ const checkEachItem = (dynamicData: any, ruleArrMap: any) => {
     const {desc, name, uid = -1, videoTitle = null, orig = null} = dynamicData;
     const blockRepostDynamicGm = isBlockRepostDynamicGm();
     if (orig && blockRepostDynamicGm) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-规则转发类动态`)
+        sendShieldLog({source: "屏蔽", ruleType: "转发类动态", objectType: "动态", data: {name, uid, content: desc, type: "转发"}})
         return true;
     }
     if (uid !== -1) {
@@ -160,34 +161,34 @@ const checkEachItem = (dynamicData: any, ruleArrMap: any) => {
     }
     if (desc === "" && videoTitle === null) return false;
     if (dynamicData['reserveTitle'] && isBlockAppointmentDynamicGm()) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽预约类动态`)
+            sendShieldLog({source: "屏蔽", ruleType: "预约类动态", objectType: "动态", data: {name, uid, content: desc, type: "预约"}})
         return true;
     }
     if (dynamicData['uPowerLotteryTitle'] && isBlockUPowerLotteryDynamicGm()) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽充电专属抽奖类动态`)
+            sendShieldLog({source: "屏蔽", ruleType: "充电专属抽奖类动态", objectType: "动态", data: {name, uid, content: desc, type: "抽奖"}})
         return true;
     }
     if (dynamicData['voteTitle'] && isBlockVoteDynamicGm()) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽投票类动态`)
+            sendShieldLog({source: "屏蔽", ruleType: "投票类动态", objectType: "动态", data: {name, uid, content: desc, type: "投票"}})
         return true;
     }
     if (dynamicData['goods'] && isBlockGoodsDynamicGm()) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽商品类动态`)
+            sendShieldLog({source: "屏蔽", ruleType: "商品类动态", objectType: "动态", data: {name, uid, content: desc, type: "商品"}})
         return true;
     }
     if (dynamicData['specialColumnForCharging'] && isBlockSpecialColumnForChargingDynamicGm()) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽充电专属专栏动态`)
+            sendShieldLog({source: "屏蔽", ruleType: "充电专属专栏动态", objectType: "动态", data: {name, uid, content: desc, type: "专栏"}})
         return true;
     }
     if (dynamicData['videoChargingExclusive'] && isBlockVideoChargingExclusiveDynamicGm()) {
-        eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-屏蔽充电专属视频动态`)
+            sendShieldLog({source: "屏蔽", ruleType: "充电专属视频动态", objectType: "动态", data: {name, uid, content: desc, type: "视频"}})
         return true;
     }
     let {state, matching, type} = blockDynamicItemContent(desc, videoTitle, ruleArrMap);
     if (!state) {
         return false;
     }
-    eventEmitter.send('打印信息', `用户${name}-动态内容${desc}-${type}-规则${matching}`)
+    sendShieldLog({source: "屏蔽", ruleType: type || "动态内容", matching, objectType: "动态", data: {name, uid, content: desc, type: "内容规则"}})
     return true;
 }
 

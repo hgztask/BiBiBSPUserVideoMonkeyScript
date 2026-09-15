@@ -1,6 +1,6 @@
 import shielding from "./shielding/main.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
-import output_informationTab from "../ui/output_informationTab.ts";
+import {sendShieldLog} from "../core/shieldLog.ts";
 import crc32Util from "../core/util/crc32Util.ts";
 import bFetch from "../core/http/bFetch.ts";
 import type {BlockResult} from "@/types/shielding";
@@ -111,9 +111,13 @@ const resolveDanmakuUserInfo = (uhash: string, directUid?: string): Promise<Vide
 
 const pushBlockedDanmakuInfo = async (res: BlockResult, item: any, blockedUid?: string): Promise<void> => {
     const user = await resolveDanmakuUserInfo(item.uhash, blockedUid);
-    const infoHtml = output_informationTab.getVideoDanmakuInfoHtml(
-        res.type ?? '', res.matching ?? '', {text: item.text, user, uhash: item.uhash});
-    eventEmitter.send('打印信息', infoHtml);
+    sendShieldLog({
+        source: "弹幕过滤",
+        ruleType: res.type ?? "弹幕规则",
+        matching: res.matching,
+        objectType: "视频弹幕",
+        data: {text: item.text, user, uhash: item.uhash}
+    });
 }
 
 /**

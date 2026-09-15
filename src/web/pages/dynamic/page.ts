@@ -5,6 +5,7 @@ import hotSearch from "../search/hot.ts";
 import dynamicCommon from "./common.ts";
 import cssManager from "../../domain/cssManager.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 
 //是否是动态首页
 const isUrlDynamicHomePage = () => {
@@ -65,7 +66,7 @@ export default {
         elUtil.byXpathElAsync('//div[@class="bili-dyn-sidebar"]/div[@class="bili-dyn-sidebar__btn" and span[text()="回到旧版"]]').then(el => {
             if (!el) return;
             el.remove()
-            eventEmitter.send('打印信息', '已隐藏回到旧版按钮')
+            sendShieldLog({source: "屏蔽", ruleType: "回到旧版按钮", objectType: "页面元素", data: {target: "回到旧版按钮"}})
         })
     }
 }

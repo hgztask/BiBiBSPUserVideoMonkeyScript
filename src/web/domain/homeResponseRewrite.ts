@@ -2,7 +2,7 @@ import localMKData, {
     getReleaseTypeCardsGm,
     isHomeResponseRewriteGm
 } from "../state/localMKData.ts";
-import {eventEmitter} from "../core/EventEmitter.ts";
+import {sendShieldLog} from "../core/shieldLog.ts";
 import {shieldingVideo} from "./shielding/video.ts";
 import {shieldingLiveRoom} from "./shielding/live.ts";
 import type {
@@ -230,10 +230,8 @@ const installPageFetchHook = (token: string): void => {
                 const blockedIndexes = await requestFilter(items);
                 if (!blockedIndexes.length) return response;
                 const blocked = new Set(blockedIndexes.filter((index) => Number.isInteger(index)));
-                const originalCount = responseJson.data.item.length;
-                responseJson.data.item = responseJson.data.item.filter((item, index) => !blocked.has(index));
-                console.log('[B站屏蔽][响应层过滤] 已修改首页推荐响应：原始' + originalCount + '条，过滤' + blocked.size + '条，剩余' + responseJson.data.item.length + '条');
-                return copyResponse(response, JSON.stringify(responseJson));
+                 responseJson.data.item = responseJson.data.item.filter((item, index) => !blocked.has(index));
+                 return copyResponse(response, JSON.stringify(responseJson));
             } catch (error) {
                 console.warn('[station-b-shield] 首页响应过滤失败，已放行原始响应', error);
                 return response;
@@ -253,29 +251,39 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         return;
     }
     const blockedIndexes: number[] = [];
-    const kindCounts: Record<HomeItemKind, number> = {ad: 0, video: 0, live: 0, release: 0, unknown: 0};
-    const blockedCounts: Record<HomeItemKind, number> = {ad: 0, video: 0, live: 0, release: 0, unknown: 0};
-    const decisions: Array<{index: number; kind: HomeItemKind; title: string; reason: string}> = [];
+    const blockedItems: Array<{entry: {index: number; item: unknown}; classified: HomeFilterItem; decision: HomeItemDecision}> = [];
     data.items.forEach((entry) => {
         if (!entry || !Number.isInteger(entry.index)) return;
         const classified = classifyHomeItem(entry.item);
         classified.index = entry.index;
-        kindCounts[classified.kind] += 1;
         const decision = getHomeItemDecision(classified);
-        if (decision.blocked) {
-            blockedIndexes.push(entry.index);
-            blockedCounts[classified.kind] += 1;
-            decisions.push({
-                index: entry.index,
-                kind: classified.kind,
-                title: typeof (entry.item as any)?.title === "string" ? (entry.item as any).title : "",
-                reason: decision.reason
-            });
-        }
-    });
-    const message = `[B站屏蔽][响应层过滤] 首页推荐响应：总计${data.items.length}条，分类${JSON.stringify(kindCounts)}，过滤${blockedIndexes.length}条，原因${JSON.stringify(decisions)}`;
-    console.log(message);
-    eventEmitter.send('打印信息', message);
+         if (decision.blocked) {
+             blockedIndexes.push(entry.index);
+             blockedItems.push({entry, classified, decision});
+         }
+     });
+     blockedItems.forEach(({entry, classified, decision}) => {
+         const item = entry.item as any;
+         const data: Record<string, unknown> = {
+             name: classified.video?.name ?? classified.live?.name,
+             uid: classified.video?.uid ?? classified.live?.uid,
+             title: classified.video?.title ?? classified.live?.title ?? item?.title,
+             bvid: classified.video?.bv,
+             roomid: classified.live?.roomId,
+             videoUrl: classified.video?.bv ? `https://www.bilibili.com/video/${classified.video.bv}` : undefined,
+             liveUrl: classified.live?.roomId ? `https://live.bilibili.com/${classified.live.roomId}` : undefined
+         };
+         const objectType = classified.kind === "video" ? "视频" : classified.kind === "live" ? "直播间" : classified.kind === "ad" ? "广告" : "发布卡片";
+         sendShieldLog({
+             source: "响应层过滤",
+             sourceLabel: "首页推荐",
+             ruleType: decision.reason.replace(/（.*）$/, ""),
+             matching: decision.reason.match(/（(.*)）$/)?.[1],
+             objectType,
+             data,
+             original: entry.item
+         });
+     });
     const response: FilterResponseData = {
         type: responseType,
         token: expectedToken,

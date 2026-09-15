@@ -2,6 +2,7 @@ import elUtil from "../../core/util/elUtil.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import strFormatUtil from '../../core/util/strFormatUtil.ts'
 import {eventEmitter} from "../../core/EventEmitter.ts";
+import {sendShieldLog} from "../../core/shieldLog.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 import globalValue from "../../config/globalValue.ts";
 import {
@@ -130,7 +131,7 @@ const getHomeVideoELList = async (): Promise<VideoData[]> => {
             if (!userUrl.includes("//space.bilibili.com/")) {
                 el?.remove();
                 const log = "遍历换一换视频列表下面列表时检测到异常内容，已将该元素移除";
-                eventEmitter.send('打印信息', log)
+                sendShieldLog({source: "屏蔽", ruleType: "异常首页卡片", objectType: "页面元素", data: {target: log}})
                 console.log(log, el);
                 continue;
             }

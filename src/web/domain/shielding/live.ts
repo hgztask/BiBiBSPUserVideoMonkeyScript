@@ -1,7 +1,7 @@
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
-import output_informationTab from "../../ui/output_informationTab.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import shielding, {
     asyncBlockByLevelForComment,
     asyncBlockSeniorMemberOnly,
@@ -188,7 +188,14 @@ const shieldingLiveRoomDecorated = (liveRoomData: LiveRoomData): boolean => {
     const {state, type, matching} = shieldingLiveRoom(liveRoomData);
     if (state) {
         liveRoomData.el?.remove();
-        eventEmitter.send('屏蔽直播信息', type ?? '', matching ?? '', liveRoomData)
+        sendShieldLog({
+            source: "DOM层过滤",
+            ruleType: type ?? "直播间规则",
+            matching,
+            objectType: "直播间",
+            data: liveRoomData,
+            original: liveRoomData
+        })
     }
     return state;
 }
@@ -227,8 +234,13 @@ export default {
                     el?.remove()
                 }
                 if (type) {
-                    const infoHtml = output_informationTab.getLiveRoomCommentInfoHtml(type, matching, liveRoomContent);
-                    eventEmitter.send('打印信息', infoHtml)
+                    sendShieldLog({
+                        source: "弹幕过滤",
+                        ruleType: type,
+                        matching,
+                        objectType: "直播弹幕",
+                        data: liveRoomContent
+                    })
                 }
             })
     },

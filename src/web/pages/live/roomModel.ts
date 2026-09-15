@@ -1,6 +1,7 @@
 import elUtil from "../../core/util/elUtil.ts";
 import live_shielding from "../../domain/shielding/live.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import userProfile from "../userProfile.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import defUtil from "../../core/util/defUtil.ts";
@@ -43,7 +44,7 @@ const setRoomBackgroundDisplay = (hide: any = true) => {
     elUtil.findElement('#room-background-vm').then(el => {
         if (!el) return;
         el.style.display = hide ? 'none' : '';
-        eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间背景`)
+        if (hide) sendShieldLog({source: "屏蔽", ruleType: "直播间背景", objectType: "页面元素", data: {target: "直播间背景"}})
     })
 }
 
@@ -52,7 +53,7 @@ const setGiftControlPanelDisplay = (hide: any = true) => {
     elUtil.installStyle(hide ? `#gift-control-vm,div[data-upgrade-intro=giftSender]{
     display:none !important;
     }` : '', {type: 'id', value: "gift-control-vm-hide"})
-    eventEmitter.send('打印信息', `已${hide ? '隐藏' : '显示'}直播间礼物控制面板`);
+    if (hide) sendShieldLog({source: "屏蔽", ruleType: "直播间礼物控制面板", objectType: "页面元素", data: {target: "直播间礼物控制面板"}});
 }
 
 /**
@@ -161,10 +162,7 @@ const checkSCList = async () => {
             .catch(res => {
                 el?.remove();
                 const {type, matching} = res;
-                eventEmitter.send(
-                    '打印信息',
-                    `根据${type}屏蔽用户${uname}醒目留言:【${message}】,匹配值【${matching}】`
-                );
+            sendShieldLog({source: "弹幕过滤", ruleType: type, matching, objectType: "直播弹幕", data: {name: uname, uid, content: message}});
             })
     }
 }
@@ -212,7 +210,7 @@ const delLivePageRightSidebarAd = () => {
         elUtil.findElement('.flip-view.p-relative.over-hidden.w-100').then(el => {
             if (!el) return;
             el.remove();
-            eventEmitter.send('打印信息', '已删除直播间礼物栏下方横幅广告');
+            sendShieldLog({source: "屏蔽", ruleType: "直播间礼物栏下方横幅广告", objectType: "页面元素", data: {target: "直播间礼物栏下方横幅广告"}});
         })
     }
 }

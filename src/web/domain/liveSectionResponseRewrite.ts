@@ -1,6 +1,6 @@
 import {isLiveSectionResponseRewriteGm} from "../state/localMKData.ts";
 import {shieldingLiveRoom} from "./shielding/live.ts";
-import {eventEmitter} from "../core/EventEmitter.ts";
+import {sendShieldLog} from "../core/shieldLog.ts";
 
 // 直播分区页 getList 响应层过滤：
 // 在页面渲染前剔除命中屏蔽规则的直播间，避免"渲染→删除"造成的列表高度骤降。
@@ -13,11 +13,6 @@ const targetPath = "/xlive/web-interface/v1/second/getList";
 // 2026-09-11：800ms 实测在部分场景下不够用（点击"加载更多"后的一批曾超时静默放行导致闪现），
 // 提升至 2000ms：超时只在沙箱异常时生效，正常往返为毫秒级，不影响正常加载速度
 const responseTimeout = 2000;
-
-// 屏蔽记录输出去重：B 站分区页初始化会对同一页重复请求 getList（实测同页两次相同响应），
-// 相同屏蔽指纹在短时间窗口内只输出一次，避免输出信息面板出现 ×2 合并记录
-const shieldDedupWindow = 10000;
-const recentShieldOutput = new Map<string, number>();
 
 interface FilterRequestData {
     type: string;
@@ -152,33 +147,27 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         return;
     }
     const blockedIndexes: number[] = [];
-    const now = Date.now();
     data.items.forEach((entry) => {
         if (!entry || !Number.isInteger(entry.index)) return;
         const decision = getLiveItemDecision(entry.item);
         if (!decision.blocked) return;
         blockedIndexes.push(entry.index);
-        // 相同屏蔽记录短时间窗口内去重（同页重复请求场景），过滤行为不受影响
-        const fingerprint = `${decision.liveData.uid ?? -1}-${decision.liveData.roomId}-${decision.type}-${decision.matching}`;
-        const lastOutput = recentShieldOutput.get(fingerprint);
-        if (lastOutput !== undefined && now - lastOutput < shieldDedupWindow) {
-            return;
-        }
-        recentShieldOutput.set(fingerprint, now);
-        eventEmitter.send('屏蔽直播信息', decision.type, decision.matching, {
-            name: decision.liveData.name,
-            uid: decision.liveData.uid ?? -1,
-            title: decision.liveData.title,
-            liveUrl: "https://live.bilibili.com/" + decision.liveData.roomId,
-        }, '响应层过滤')
+        sendShieldLog({
+            source: "响应层过滤",
+            sourceLabel: "直播分区",
+            ruleType: decision.type,
+            matching: decision.matching,
+            objectType: "直播间",
+            data: {
+                name: decision.liveData.name,
+                uid: decision.liveData.uid,
+                title: decision.liveData.title,
+                roomid: decision.liveData.roomId,
+                liveUrl: "https://live.bilibili.com/" + decision.liveData.roomId
+            },
+            original: entry.item
+        });
     });
-    // 清理过期的去重记录，避免无限增长
-    if (recentShieldOutput.size > 500) {
-        const expireTime = now - shieldDedupWindow;
-        for (const [key, time] of recentShieldOutput) {
-            if (time < expireTime) recentShieldOutput.delete(key);
-        }
-    }
     const response: FilterResponseData = {
         type: responseType,
         token: expectedToken,

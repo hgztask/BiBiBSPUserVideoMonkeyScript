@@ -4,6 +4,7 @@ import ruleUtil from "../../core/util/ruleUtil.ts";
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import localMKData from "../../state/localMKData.ts";
 import video_shielding from "../../domain/shielding/video.ts";
 import videoPlayPageCommon from "./playCommon.ts";
@@ -177,13 +178,13 @@ const setVideoPlayerEnded = async () => {
         for (let {el, title} of res.list) {
             let matching = ruleMatchingUtil.fuzzyMatch(ruleKeyListData.getTitleArr(), title ?? null);
             if (matching !== null) {
-                eventEmitter.send('打印信息', `根据-模糊标题-【${matching}】-屏蔽视频:${title}`)
+                sendShieldLog({source: "DOM层过滤", ruleType: "模糊标题", matching, objectType: "视频", data: {title}})
                 el.remove();
                 continue
             }
             matching = ruleMatchingUtil.regexMatch(ruleKeyListData.getTitleCanonicalArr(), title ?? '');
             if (matching !== null) {
-                eventEmitter.send('打印信息', `根据-正则标题-【${matching}】-屏蔽视频:${title}`)
+                sendShieldLog({source: "DOM层过滤", ruleType: "正则标题", matching, objectType: "视频", data: {title}})
                 el.remove();
             }
         }
@@ -196,7 +197,7 @@ const setVideoPlayerEnded = async () => {
             getVideoPlayerEndingPanelEl().then(el => {
                 if (!el) return;
                 el.remove()
-                eventEmitter.send('打印信息', '已删除播放页播放器中推荐层')
+                sendShieldLog({source: "屏蔽", ruleType: "播放器推荐层", objectType: "页面元素", data: {target: "播放器推荐层"}})
             })
         }
     })
@@ -215,7 +216,7 @@ const delAd = () => {
             el.style.display = 'none'
             // el?.remove()
         }
-        eventEmitter.send('打印信息', '隐藏了播放页的页面广告')
+        sendShieldLog({source: "屏蔽", ruleType: "页面广告", objectType: "页面元素", data: {target: "页面广告"}})
     })
 }
 
@@ -228,7 +229,7 @@ const delRightVideoList = () => {
         if (!el) return;
         // el?.remove()
         el.style.visibility = "hidden";
-        eventEmitter.send('打印信息', '屏蔽了播放页的右侧推荐列表')
+        sendShieldLog({source: "屏蔽", ruleType: "右侧推荐列表", objectType: "页面元素", data: {target: "右侧推荐列表"}})
     })
 }
 
@@ -241,11 +242,10 @@ const delGameAd = () => {
     }
     elUtil.findElement('.video-page-game-card-small', {timeout: 10000}).then(el => {
         if (el === null) {
-            eventEmitter.send('打印信息', '没有找到播放页的右侧游戏推荐')
             return
         }
         el.remove();
-        eventEmitter.send('打印信息', '屏蔽了游戏推荐')
+        sendShieldLog({source: "屏蔽", ruleType: "游戏推荐", objectType: "页面元素", data: {target: "游戏推荐"}})
     })
 }
 
@@ -256,7 +256,7 @@ const delBottomCommentApp = () => {
     }
     elUtil.findElement('#commentapp').then(el => {
         el?.remove()
-        eventEmitter.send('打印信息', '移除了页面底部的评论区')
+        sendShieldLog({source: "屏蔽", ruleType: "评论区", objectType: "页面元素", data: {target: "评论区"}})
     })
 }
 

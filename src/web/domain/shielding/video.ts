@@ -1,4 +1,5 @@
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import localMKData, {
     getMaximumBarrageGm,
     getMaximumDurationGm,
@@ -265,7 +266,14 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
     } else {
         el.style.display = "none";
     }
-    eventEmitter.send('event-打印屏蔽视频信息', type, matching, videoData)
+    sendShieldLog({
+        source: "DOM层过滤",
+        ruleType: type ?? "视频规则",
+        matching,
+        objectType: "视频",
+        data: videoData,
+        original: videoData
+    })
 })
 
 /** 异步深度视频屏蔽链：通过API获取的完整视频/用户信息，依次执行所有屏蔽检查的promise链 */

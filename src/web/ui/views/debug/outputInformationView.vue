@@ -2,26 +2,36 @@
 import {computed, ref} from 'vue';
 import {eventEmitter} from "../../../core/EventEmitter.ts";
 import defUtil from "../../../core/util/defUtil.ts";
-import localMKData from "../../../state/localMKData.ts";
-import {ElMessageBox, ElNotification} from 'element-plus';
-
-const outputInformationFontColor = localMKData.getOutputInformationFontColor();
-const highlightInformationColor = localMKData.getHighlightInformationColor();
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus';
+import {
+  areShieldLogRecordsSame,
+  createShieldLogRecord,
+  isShieldLogEvent,
+  type JsonValue,
+  type ShieldLogEvent,
+  type ShieldLogRecord
+} from "../../../core/shieldLog.ts";
 
 type OutputInfo = {
   type: string;
   content: string;
+  htmlContent?: string;
   time?: string;
+  firstSeenAt?: string;
+  updatedAt?: string;
   count?: number;
   id?: string;
+  shield?: any;
 };
 
 const typeOptions = [
   {value: 'all', label: '全部日志'},
   {value: 'info', label: '普通信息'},
+  {value: 'response-shield-info', label: '响应层过滤'},
   {value: 'shield-video-info', label: '视频屏蔽'},
   {value: 'shield-comment-info', label: '评论屏蔽'},
   {value: 'shield-live-info', label: '直播间屏蔽'},
+  {value: 'other-shield-info', label: '其他屏蔽'},
   {value: 'update-out-info', label: '状态更新'},
   {value: 'error', label: '错误信息'},
 ];
@@ -30,7 +40,7 @@ const outputInfoArr = ref<OutputInfo[]>([]);
 const selectedType = ref('all');
 const searchKeyword = ref('');
 
-const filteredInfoArr = computed<OutputInfo[]>(() => {
+const filteredInfoArr = computed(() => {
   const keyword = searchKeyword.value.trim().toLowerCase();
   return outputInfoArr.value.filter((item) => {
     if (selectedType.value !== 'all' && item.type !== selectedType.value) return false;
@@ -52,7 +62,8 @@ const getTypeLabel = (type: string): string => {
 };
 const getTypeTag = (type: string): string => {
   if (type === 'error') return 'danger';
-  if (type === 'shield-video-info' || type === 'shield-comment-info' || type === 'shield-live-info') return 'warning';
+  if (type === 'shield-video-info' || type === 'shield-comment-info' || type === 'shield-live-info'
+    || type === 'response-shield-info' || type === 'other-shield-info') return 'warning';
   if (type === 'update-out-info') return 'success';
   if (type === 'info') return 'primary';
   return 'info';
@@ -82,6 +93,12 @@ const updateOutInfo = (infoData: OutputInfo, index: number) => {
 };
 const addOutInfo = (infoData: OutputInfo) => {
   infoData.content = String(infoData.content ?? '');
+  if (infoData.shield) {
+    infoData.time = defUtil.toTimeString();
+    infoData.count = 1;
+    outputInfoArr.value.unshift(infoData);
+    return;
+  }
   const findIdIndex = outputInfoArr.value.findIndex(item => {
     if (infoData.id === undefined || item.id === undefined) return false;
     return item.id === infoData.id;
@@ -100,8 +117,112 @@ const addOutInfo = (infoData: OutputInfo) => {
   outputInfoArr.value.unshift(infoData);
 };
 
+const shieldRecordType = (category: ShieldLogRecord['category']): string => {
+  if (category === '响应层过滤') return 'response-shield-info';
+  if (category === '视频屏蔽') return 'shield-video-info';
+  if (category === '评论屏蔽') return 'shield-comment-info';
+  if (category === '直播间屏蔽') return 'shield-live-info';
+  return 'other-shield-info';
+};
+
+const addShieldLog = (event: ShieldLogEvent) => {
+  const record = createShieldLogRecord(event);
+  const existingIndex = outputInfoArr.value.findIndex(item =>
+    item.shield !== undefined && areShieldLogRecordsSame(item.shield, record));
+  if (existingIndex !== -1) {
+    const existing = outputInfoArr.value[existingIndex];
+    const oldRecord = existing.shield!;
+    const updatedAt = record.firstSeenAt;
+    Object.assign(oldRecord, record, {
+      firstSeenAt: oldRecord.firstSeenAt,
+      updatedAt,
+      count: oldRecord.count + 1
+    });
+    existing.content = oldRecord.message;
+    existing.htmlContent = oldRecord.htmlMessage;
+    existing.firstSeenAt = oldRecord.firstSeenAt;
+    existing.updatedAt = updatedAt;
+    existing.count = oldRecord.count;
+    outputInfoArr.value.splice(existingIndex, 1);
+    outputInfoArr.value.unshift(existing);
+    return;
+  }
+  addOutInfo({
+    type: shieldRecordType(record.category),
+    content: record.message,
+    htmlContent: record.htmlMessage,
+    firstSeenAt: record.firstSeenAt,
+    count: 1,
+    shield: record
+  });
+};
+
+const originalDialogVisible = ref(false);
+const originalDialogText = ref('');
+const originalDialogTitle = ref('原文');
+const getLatestOriginal = (info: OutputInfo): JsonValue | undefined => info.shield?.normalizedOriginal;
+const stringifyJson = (value: JsonValue | undefined): string => value === undefined ? '' : JSON.stringify(value, null, 2);
+
+const showOriginal = (info: OutputInfo) => {
+  const text = stringifyJson(getLatestOriginal(info));
+  if (!text) return;
+  originalDialogTitle.value = `${info.shield?.objectType ?? '对象'}原文`;
+  originalDialogText.value = text;
+  originalDialogVisible.value = true;
+};
+
+const copyText = async (text: string): Promise<boolean> => {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Clipboard API 失败时尝试兼容旧页面环境。
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  let copied = false;
+  try { copied = document.execCommand('copy'); } catch { copied = false; }
+  textarea.remove();
+  return copied;
+};
+
+const copyOriginal = async (info: OutputInfo) => {
+  const text = stringifyJson(getLatestOriginal(info));
+  if (!text) return;
+  if (await copyText(text)) ElMessage.success('原文复制成功');
+  else ElMessage.error('原文复制失败');
+};
+
+const printOriginal = (info: OutputInfo) => {
+  const record = info.shield;
+  if (!record) return;
+  console.log('屏蔽日志元信息', {
+    source: record.source,
+    category: record.category,
+    message: record.message,
+    firstSeenAt: record.firstSeenAt,
+    updatedAt: record.updatedAt,
+    count: record.count
+  });
+  console.log('屏蔽日志原文', getLatestOriginal(info));
+};
+
 eventEmitter.on('打印信息', (content: string) => {
   addOutInfo({type: 'info', content: String(content ?? '')});
+});
+eventEmitter.on('屏蔽日志', (event: ShieldLogEvent) => {
+  if (!isShieldLogEvent(event)) {
+    console.error('屏蔽日志事件无效', event);
+    return;
+  }
+  addShieldLog(event);
 });
 eventEmitter.on('event-update-out-info', (data: any) => {
   addOutInfo({
@@ -110,56 +231,9 @@ eventEmitter.on('event-update-out-info', (data: any) => {
     content: String(data.msg ?? '')
   });
 });
-eventEmitter.on('event-打印屏蔽视频信息', (type: string, matching: string, videoData: any) => {
-  const {name, uid, title, videoUrl} = videoData;
-  const info = `<b style="color: ${outputInformationFontColor}; ">
-根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
-            <a href="https://space.bilibili.com/${uid}"
-            style="color: ${highlightInformationColor}"
-            target="_blank">【${uid}】</a>
-            标题【<a href="${videoUrl}" target="_blank" style="color: ${highlightInformationColor}">${title}</a>】
-            </b>`;
-  addOutInfo({
-    type: 'shield-video-info',
-    content: info
-  });
+eventEmitter.on('屏蔽错误信息', (message: string) => {
+  addOutInfo({type: 'error', content: String(message ?? '')});
 });
-
-eventEmitter.on('屏蔽评论信息', (type: string, matching: string, commentData: any, source?: string) => {
-  const {name, uid, content} = commentData;
-  const sourceLabel = source === '响应层过滤'
-      ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
-      : '';
-  addOutInfo({
-    type: 'shield-comment-info',
-    content: `<b style="color: ${outputInformationFontColor};">
-		${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】uid=
-            <a href="https://space.bilibili.com/${uid}"
-            style="color: ${highlightInformationColor}"
-            target="_blank">【${uid}】</a>
-            评论【${content}】
-            </b>`
-  });
-});
-
-eventEmitter.on('屏蔽直播信息', (type: string, matching: string, liveData: any, source?: string) => {
-  const {name, uid, title} = liveData;
-  const liveUrl = liveData.liveUrl || `https://live.bilibili.com/${liveData.roomId}`;
-  const sourceLabel = source === '响应层过滤'
-      ? `<span style="color: ${highlightInformationColor}">【响应层过滤】</span>`
-      : '';
-  addOutInfo({
-    type: 'shield-live-info',
-    content: `<b style="color: ${outputInformationFontColor};">
-		${sourceLabel}根据${type}-${matching ? `<b style="color: ${highlightInformationColor}">【${matching}】</b>` : ""}-屏蔽用户【${name}】${uid > 0 ? `uid=
-            <a href="https://space.bilibili.com/${uid}"
-            style="color: ${highlightInformationColor}"
-            target="_blank">【${uid}】</a>` : ""}
-            直播间标题【<a href="${liveUrl}" target="_blank" style="color: ${highlightInformationColor}">${title}</a>】
-            </b>`
-  });
-});
-
 eventEmitter.on('正则匹配时异常', (errorData: any) => {
   const {msg, e} = errorData;
   addOutInfo({
@@ -221,16 +295,37 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
             </el-tag>
             <span class="output-item__position">#{{ filteredInfoArr.length - index }}</span>
           </div>
-          <div class="output-item__content" v-html="info.content"></div>
+          <div class="output-item__content" v-html="info.htmlContent || info.content"></div>
         </div>
         <div class="output-item__meta">
-          <span class="output-item__time">{{ info.time }}</span>
+          <template v-if="info.shield">
+            <span class="output-item__time">首次：{{ info.firstSeenAt }}</span>
+            <span v-if="info.updatedAt" class="output-item__time">更新：{{ info.updatedAt }}</span>
+          </template>
+          <span v-else class="output-item__time">{{ info.time }}</span>
           <el-tag v-if="(info.count || 0) > 1" class="output-item__count" type="info" size="small" effect="dark">
             ×{{ info.count }}
           </el-tag>
+          <el-dropdown v-if="info.shield?.normalizedOriginal && (typeof info.shield.normalizedOriginal === 'object')" trigger="click" class="output-item__actions">
+            <el-button text size="small">更多</el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="showOriginal(info)">查看原文</el-dropdown-item>
+                <el-dropdown-item @click="copyOriginal(info)">复制内容</el-dropdown-item>
+                <el-dropdown-item @click="printOriginal(info)">打印内容</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </article>
     </div>
+    <el-dialog v-model="originalDialogVisible" :title="originalDialogTitle" width="720px">
+      <pre class="original-json">{{ originalDialogText }}</pre>
+      <template #footer>
+        <el-button @click="copyText(originalDialogText)">复制</el-button>
+        <el-button type="primary" @click="originalDialogVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </section>
 </template>
 
@@ -423,6 +518,24 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   font-size: 11px;
   line-height: 1.4;
   white-space: nowrap;
+}
+
+.output-item__actions {
+  margin-top: auto;
+}
+
+.original-json {
+  box-sizing: border-box;
+  max-height: 60vh;
+  margin: 0;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 6px;
+  background: #172033;
+  color: #dce7f7;
+  font: 12px/1.6 Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .output-item__count {

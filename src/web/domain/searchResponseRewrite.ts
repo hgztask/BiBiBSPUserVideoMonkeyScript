@@ -2,7 +2,7 @@ import localMKData, {
     isClearLiveCardGm,
     isSearchResponseRewriteGm
 } from "../state/localMKData.ts";
-import {eventEmitter} from "../core/EventEmitter.ts";
+import {sendShieldLog} from "../core/shieldLog.ts";
 import {shieldingVideo} from "./shielding/video.ts";
 import {shieldingLiveRoom} from "./shielding/live.ts";
 import type {HomeFeedLiveData, HomeFeedVideoData} from "../types/homeResponse.ts";
@@ -176,10 +176,8 @@ const installPageFetchHook = (token: string): void => {
                 const blockedIndexes = await requestFilter(searchType, items);
                 if (!blockedIndexes.length) return response;
                 const blocked = new Set(blockedIndexes.filter((index) => Number.isInteger(index)));
-                const originalCount = responseJson.data.result.length;
-                responseJson.data.result = responseJson.data.result.filter((item, index) => !blocked.has(index));
-                console.log('[B站屏蔽][搜索响应层过滤] 已修改搜索响应：原始' + originalCount + '条，过滤' + blocked.size + '条，剩余' + responseJson.data.result.length + '条');
-                return copyResponse(response, JSON.stringify(responseJson));
+                 responseJson.data.result = responseJson.data.result.filter((item, index) => !blocked.has(index));
+                 return copyResponse(response, JSON.stringify(responseJson));
             } catch (error) {
                 console.warn('[B站屏蔽][搜索响应层过滤] 处理失败，已放行原始响应', error);
                 return response;
@@ -199,16 +197,30 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         (data.searchType !== "video" && data.searchType !== "live") || !Array.isArray(data.items)) return;
     const decisions = data.items.filter(entry => entry && Number.isInteger(entry.index))
         .map(entry => getDecision(data.searchType!, entry));
-    const blockedIndexes = decisions.filter(item => item.blocked).map(item => item.index);
-    const kinds = decisions.reduce((result, item) => {
-        result[item.kind] += 1;
-        return result;
-    }, {video: 0, live: 0, unknown: 0} as Record<SearchItemKind, number>);
-    const details = decisions.filter(item => item.blocked).map(({index, kind, title, reason}) => ({index, kind, title, reason}));
-    const label = data.searchType === "video" ? "视频搜索" : "直播搜索";
-    const message = `[B站屏蔽][搜索响应层过滤] ${label}响应：总计${data.items.length}条，分类${JSON.stringify(kinds)}，过滤${blockedIndexes.length}条，原因${JSON.stringify(details)}`;
-    console.log(message);
-    eventEmitter.send("打印信息", message);
+    const blockedDecisions = decisions.filter(item => item.blocked);
+    const blockedIndexes = blockedDecisions.map(item => item.index);
+    const sourceLabel = data.searchType === "video" ? "视频搜索" : "直播搜索";
+    blockedDecisions.forEach((decision) => {
+        const entry = data.items!.find(item => item.index === decision.index)?.item as any;
+        const itemData = decision.kind === "video" ? classifyItem("video", entry).video : classifyItem("live", entry).live;
+        sendShieldLog({
+            source: "响应层过滤",
+            sourceLabel,
+            ruleType: decision.reason.replace(/（.*）$/, ""),
+            matching: decision.reason.match(/（(.*)）$/)?.[1],
+            objectType: decision.kind === "video" ? "视频" : "直播间",
+            data: {
+                name: itemData?.name,
+                uid: itemData?.uid,
+                title: itemData?.title ?? decision.title,
+                bvid: itemData && "bv" in itemData ? itemData.bv : undefined,
+                roomid: itemData && "roomId" in itemData ? itemData.roomId : undefined,
+                videoUrl: itemData && "bv" in itemData ? `https://www.bilibili.com/video/${itemData.bv}` : undefined,
+                liveUrl: itemData && "roomId" in itemData ? `https://live.bilibili.com/${itemData.roomId}` : undefined
+            },
+            original: entry
+        });
+    });
     const response: SearchFilterResponse = {type: responseType, token: expectedToken, requestId: data.requestId!, blockedIndexes};
     window.postMessage(response, window.location.origin);
 };

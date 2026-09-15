@@ -2,6 +2,7 @@ import urlUtil from "../../core/util/urlUtil.ts";
 import elUtil from "../../core/util/elUtil.ts";
 import comments_shielding from "../../domain/shielding/comments.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 
 const getDataList = () => {
     return elUtil.findElements(".reply-list>.interaction-item,.at-list>.interaction-item").then(elList => {
@@ -43,7 +44,7 @@ export default {
                 const {state, type, matching} = res;
                 if (state) {
                     v.el.remove();
-                    eventEmitter.send('屏蔽评论信息', type, matching, v)
+                    sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: v, original: v})
                 } else {
                     eventEmitter.send('评论添加屏蔽按钮', v)
                 }

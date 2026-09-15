@@ -1,5 +1,6 @@
 import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../state/localMKData.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
+import {sendShieldLog} from "../core/shieldLog.ts";
 import comments_shielding from "./shielding/comments.ts";
 
 const requestType = "station-b-shield:comment-response-filter-request";
@@ -176,8 +177,6 @@ const installPageFetchHook = (token: string): void => {
                     if (!blockedRpids.size) continue;
                     responseJson.data[key] = filterByRpids(responseJson.data[key], blockedRpids);
                     changed = true;
-                    const listLabel = kind === 'sub' ? '楼中楼' : (key === 'top_replies' ? '主楼置顶' : '主楼');
-                    console.log('[B站屏蔽][评论响应层过滤] ' + listLabel + '：原始' + entries.length + '个位置，过滤' + blockedRpids.size + '条评论');
                 }
                 if (!changed) return response;
                 return copyResponse(response, JSON.stringify(responseJson));
@@ -201,7 +200,6 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
         (data.list !== "replies" && data.list !== "top_replies") || !Array.isArray(data.items)) return;
     const decisions = data.items.filter(entry => entry && Number.isInteger(entry.index))
         .map(entry => ({index: entry.index, rpid: entry.rpid, ...getDecision(entry)}));
-    const label = data.kind === "sub" ? "楼中楼评论" : (data.list === "top_replies" ? "主楼置顶评论" : "主楼评论");
     const emittedRpids = new Set<number | string>();
     for (const item of decisions) {
         if (!item.blocked || !item.data) continue;
@@ -210,10 +208,15 @@ const createFilterRequestHandler = (expectedToken: string) => (event: MessageEve
             if (emittedRpids.has(item.rpid)) continue;
             emittedRpids.add(item.rpid);
         }
-        // 与 DOM 流程一致，输出屏蔽记录（评论屏蔽类型，uid 可点击跳转）
-        eventEmitter.send("屏蔽评论信息", item.type, item.matching, item.data, "响应层过滤");
-        const contentPreview = item.data.content.length > 50 ? `${item.data.content.slice(0, 50)}…` : item.data.content;
-        console.log(`[B站屏蔽][评论响应层过滤] ${label} 根据${item.type}${item.matching ? `【${item.matching}】` : ""}屏蔽用户【${item.data.name}】uid=${item.data.uid} 评论【${contentPreview}】`);
+        sendShieldLog({
+            source: "响应层过滤",
+            sourceLabel: "评论响应",
+            ruleType: item.type,
+            matching: item.matching,
+            objectType: "评论",
+            data: item.data as object,
+            original: data.items.find(entry => entry.index === item.index)?.item
+        });
     }
     const response: CommentFilterResponse = {
         type: responseType,

@@ -2,6 +2,7 @@ import elUtil from "../../core/util/elUtil.ts";
 import ruleKeyListData from "../../config/ruleKeyListData.ts";
 import ruleMatchingUtil from "../../core/util/ruleMatchingUtil.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
+import {sendShieldLog} from "@/core/shieldLog.ts";
 import {isHideHotSearchesPanelGm, isHideSearchHistoryPanelGm} from "@/state/localMKData.ts";
 
 //处理热搜词
@@ -11,12 +12,12 @@ const dealingWithHotSearchTerms = (el: any, label: any) => {
     let match = ruleMatchingUtil.fuzzyMatch(hotSearchKeyArr, label);
     if (match) {
         el.remove();
-        eventEmitter.send('打印信息', `根据模糊热搜关键词-【${match}】-屏蔽-${label}`);
+        sendShieldLog({source: "屏蔽", ruleType: "模糊热搜关键词", matching: match, objectType: "热搜关键词", data: {keyword: label}});
         return;
     }
     match = ruleMatchingUtil.regexMatch(hotSearchKeyCanonicalArr, label);
     if (match) {
-        eventEmitter.send('打印信息', `根据正则热搜关键词-【${match}】-屏蔽-${label}`);
+        sendShieldLog({source: "屏蔽", ruleType: "正则热搜关键词", matching: match, objectType: "热搜关键词", data: {keyword: label}});
         el.remove();
     }
 };
@@ -72,7 +73,7 @@ const setTopSearchPanelDisplay = (hide: any, name: any = "搜索历史", timeout
             return
         }
         el.style.display = hide ? 'none' : 'block';
-        eventEmitter.send('打印信息', `已将顶部搜索框${msg}显示状态为${hide ? '隐藏' : '显示'}`)
+        if (hide) sendShieldLog({source: "屏蔽", ruleType: `${msg}面板`, objectType: "页面元素", data: {target: `顶部搜索框${msg}`}})
     })
 }
 
