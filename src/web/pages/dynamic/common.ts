@@ -11,7 +11,7 @@ import {
     isBlockVideoChargingExclusiveDynamicGm,
     isBlockVoteDynamicGm,
     isCheckNestedDynamicContentGm
-} from "../../state/localMKData.ts";
+} from "@/state/localMKData.ts";
 
 /**
  * 获取动态主体信息
