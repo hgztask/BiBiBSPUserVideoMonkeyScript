@@ -4,7 +4,8 @@ import {resolve} from 'path';
 import {writeFileSync} from 'fs';
 import mkUtil from './plugin/mkUtil';
 
-// 生产模式默认 true；watch:dev（vite build --watch）时 NODE_ENV 未设为 production 且命令不含 build
+// 注意：`pnpm watch:dev` 执行的正是 `vite build --watch`，命令行含 'build' 因此同样命中此判定，
+// 产物与生产构建同形（压缩、去注释、__DEV__=false）。需要可读的热执行代码走 server/wsServer.ts。
 const isProd = process.env.NODE_ENV === 'production' || process.argv.includes('build');
 
 // 外部库 CDN（运行时由 @require 加载到拼接作用域，见 install.user.js 的 @require 顺序）

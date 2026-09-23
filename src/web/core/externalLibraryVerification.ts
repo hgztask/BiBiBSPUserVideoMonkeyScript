@@ -2,7 +2,7 @@ import globalValue from "../config/globalValue.ts"
 
 const start = (): void => {
     const w = window as any
-    // vue/element-plus 由 boot.ts 运行时加载挂到 window；dexie 由 @require 加载
+    // vue/element-plus/dexie 均由 @require 拼接作用域加载；vue 经 vue-bridge.js 显式挂到 window
     // 直接读 window 属性而非 import（import 外部库会被 interop 包装，undefined 也会生成 truthy 空对象，掩盖问题）
     const hasVue = !!w.Vue
     const hasElementPlus = !!w.ElementPlus

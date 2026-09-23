@@ -6,15 +6,16 @@
 
 ## 技术栈
 
-| 类别      | 技术                                         |
-|---------|--------------------------------------------|
-| 语言      | TypeScript (strict mode)                   |
-| UI 框架   | Vue 2.7 + Element UI                       |
-| 构建工具    | Rollup + esbuild                           |
-| 包管理器    | pnpm                                       |
-| CSS 预处理 | Less                                       |
-| 存储      | Dexie (IndexedDB)、localStorage、GM_setValue |
-| 运行环境    | 油猴脚本 (Tampermonkey / ScriptCat)            |
+| 类别      | 技术                                                    |
+|---------|-----------------------------------------------|
+| 语言      | TypeScript (strict mode)                      |
+| UI 框架   | Vue 3.5 + Element Plus 2.14（`<script setup>`） |
+| 构建工具    | Vite 7（lib / IIFE 产物）+ vue-tsc 类型检查            |
+| 包管理器    | pnpm                                                  |
+| 样式      | CSS / Less，以 `?raw` 字符串经 `GM_addStyle` 内联      |
+| 存储      | Dexie 4 (IndexedDB)、localStorage、GM_setValue       |
+| 测试      | Vitest + @vue/test-utils + jsdom              |
+| 运行环境    | 油猴脚本 (Tampermonkey / ScriptCat)                   |
 
 ## 项目目录结构
 
@@ -31,7 +32,8 @@ src/web/
 │   ├── http.ts              # HTTP 相关类型
 │   ├── shielding.ts         # 屏蔽相关类型
 │   ├── storage.ts           # 存储相关类型
-│   └── video.ts             # 视频相关类型
+│   ├── video.ts             # 视频相关类型
+│   └── homeResponse.ts      # 首页推荐响应类型
 ├── core/                    # 基础设施层
 │   ├── cache/               # 缓存模块
 │   │   ├── bvDexie.ts       # IndexedDB 封装
@@ -45,14 +47,16 @@ src/web/
 │   │   └── TmRequest.ts     # 油猴跨域请求
 │   ├── util/                # 工具函数
 │   │   ├── elUtil.ts        # DOM 操作
-│   │   ├── defUtil.ts       # 通用工具
+│   │   ├── defUtil.ts       # 通用工具（含 initVueApp）
 │   │   ├── urlUtil.ts       # URL 解析
 │   │   ├── ruleUtil.ts      # 规则处理
 │   │   ├── ruleMatchingUtil.ts
 │   │   ├── strFormatUtil.ts
+│   │   ├── crc32Util.ts
 │   │   └── arrUtil.ts
 │   ├── EventEmitter.ts      # 事件总线
 │   ├── elEventEmitter.ts    # DOM 元素级事件总线
+│   ├── shieldLog.ts         # 屏蔽日志统一输出格式
 │   ├── BilibiliEncoder.ts   # B站编码
 │   └── externalLibraryVerification.ts # 外部库加载验证
 ├── domain/                  # 领域逻辑层
@@ -62,15 +66,20 @@ src/web/
 │   │   ├── live.ts          # 直播屏蔽
 │   │   ├── comments.ts      # 评论屏蔽
 │   │   └── combinationRules.ts # 组合规则
+│   ├── homeResponseRewrite.ts # 首页推荐响应层过滤
+│   ├── searchResponseRewrite.ts # 搜索结果响应层过滤
+│   ├── commentResponseRewrite.ts # 评论区响应层过滤（全局安装）
+│   ├── liveSectionResponseRewrite.ts # 直播分区getList响应层过滤
+│   ├── videoDanmakuFilter.ts # 弹幕过滤
+│   ├── videoDanmakuInspector.ts # 弹幕巡检
 │   ├── cssManager.ts        # 样式管理
 │   ├── observeNetwork.ts    # 网络监听
 │   ├── notificationBlocking.ts # 通知屏蔽
-│   ├── liveSectionResponseRewrite.ts # 直播分区getList响应层过滤
 │   ├── replaceKeywords.ts   # 关键词替换
 │   ├── watchUtil.ts         # 观察器工具
 │   └── debuggerManagement.ts # 调试管理
 ├── pages/                   # 页面入口层
-│   ├── home/                # 首页
+│   ├── home/                # 首页（标准 / BEWLY / B-Gate）
 │   ├── live/                # 直播页
 │   ├── video/               # 视频播放页
 │   ├── search/              # 搜索页
@@ -103,11 +112,12 @@ src/web/
 │   │   ├── otherParameterFilterView.vue # 其他参数过滤
 │   │   ├── replProcessingView.vue       # 回复处理
 │   │   └── UserLevelFilteringView.vue   # 用户等级过滤
-│   ├── components/          # 通用组件
+│   ├── components/          # 通用组件（GzSpace、GzText、cardSlider 等）
 │   ├── dialogs/             # 弹窗组件
-│   ├── styles/              # 样式文件
+│   ├── styles/              # 样式文件（css / less）
 │   ├── App.vue              # 主面板
-│   ├── init.ts              # UI 初始化
+│   ├── init.ts              # UI 初始化（Vue 挂载、Element Plus 接入）
+│   ├── elBridge.ts          # eventEmitter → Element Plus 消息桥接
 │   ├── excludeURLs.ts       # URL 排除逻辑
 │   └── output_informationTab.ts # 输出信息标签
 ├── dev/                     # 开发工具
@@ -116,7 +126,7 @@ src/web/
 ├── main.ts                  # 脚本入口
 ├── router.ts                # 页面路由
 ├── menu.ts                  # 菜单注册
-├── element-ui.d.ts          # Element UI 类型声明
+├── element-plus.d.ts        # Element Plus 类型声明
 ├── global.d.ts              # 全局类型声明
 └── shims-vue.d.ts           # Vue SFC 类型声明
 ```
@@ -139,7 +149,7 @@ src/web/
 
 ### 环境要求
 
-- Node.js >= 18
+- Node.js >= 20.19（Vite 7 要求，实测 v24 可用）
 - pnpm（包管理器）
 
 ### 安装依赖
@@ -151,24 +161,39 @@ pnpm install
 ### 构建
 
 ```bash
-# 生产构建
+# 生产构建（先 vue-tsc 类型检查，再 Vite 打包）
 pnpm build
 
-# 开发模式（watch + 热更新服务）
+# 监听模式（Vite 持续重建 dist/local_build.js；产物当前与生产构建同形，见开发文档 3.4）
 pnpm watch:dev
+
+# WebSocket 热测试通道（ws://127.0.0.1:9000）
+pnpm ws
+
+# 单元测试（Vitest）
+pnpm test
 ```
 
-构建产物输出到 `dist/local_build.js`，可直接导入油猴脚本使用。
+`pnpm build` 输出三个产物：
+
+| 产物 | 说明 |
+|------|------|
+| `dist/local_build.js` | 应用本体（IIFE 库，无 `==UserScript==` 头，裸引用 `Vue`/`ElementPlus`/`Dexie`） |
+| `dist/vue-bridge.js` | 把 `@require` 拼接作用域内的顶层 `var Vue` 挂到 `window`，供 Element Plus 使用 |
+| `dist/install.user.js` | 安装壳：脚本头部元信息 + 按顺序 `@require` 各依赖与 `local_build.js` |
+
+**部署方式**：把 `dist/install.user.js` 内容粘贴到油猴脚本（`@require` 列表一次配好），之后每次构建只需重建 `local_build.js`（`@require file://` 直连本地文件），刷新页面即生效，无需重装脚本。
 
 ### 类型检查
 
-构建时会自动执行 `tsc --noEmit` 进行类型检查，类型错误会阻塞构建。项目启用 TypeScript strict 模式。
+构建时先执行 `vue-tsc --noEmit`（同时覆盖 `.ts` 与 `.vue`），类型错误会阻塞构建。项目启用 TypeScript strict 模式。
 
 ### 开发调试
 
-1. 运行 `pnpm watch:dev` 启动开发模式
-2. 将 `dist/local_build.js` 内容复制到油猴脚本编辑器中
-3. 访问 B站相应页面进行调试
+1. 首次安装：粘贴 `dist/install.user.js` 内容到油猴，并允许脚本访问本地文件 URL
+2. 运行 `pnpm watch:dev`，改动源码后 Vite 自动重建 `dist/local_build.js`
+3. 刷新 B 站页面即可看到效果
+4. 小段逻辑快速验证用 `pnpm ws`（详见开发文档）；程序化操控真实页面用 `node server/cdpClient.mjs`
 
 ---
 
@@ -262,6 +287,7 @@ pnpm watch:dev
 | 脚本发布 (GreasyFork) | [greasyfork.org](https://greasyfork.org/zh-CN/scripts/461382)                                              |
 | 源码 (GitHub)       | [github.com/hgztask/BiBiBSPUserVideoMonkeyScript](https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript) |
 | 常见问题汇总            | [腾讯文档](https://docs.qq.com/doc/DSlJNR1NVcGR3eEto)                                                          |
+| 开发文档（仓库内）        | [docs/development.md](./docs/development.md)                                                                 |
 | 开发文档              | [腾讯文档](https://docs.qq.com/doc/DSkdTQ1p1aFNnVnRS?no_promotion=1)                                           |
 | 更新日志              | [腾讯文档](https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj)                                                          |
 | 完整自述文档            | [腾讯文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)                       |

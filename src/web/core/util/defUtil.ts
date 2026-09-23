@@ -330,7 +330,7 @@ export const addGzStyle = (el: Document | Element, insertionPosition: Element | 
 
 export function initVueApp(el: string | Element, RootComponent: any, props: Record<string, any> = {}): VueApp {
     const app = createApp(RootComponent, props);
-    // 挂载 Element Plus（已随产物打包，与 app 共享同一 Vue 实例），并配置中文语言包
+    // 挂载 Element Plus（ElementPlus 由 @require 的 UMD 在同一拼接作用域提供），并配置中文语言包
     app.use(ElementPlus, {locale: zhCn});
     app.mount(el);
     return app;
