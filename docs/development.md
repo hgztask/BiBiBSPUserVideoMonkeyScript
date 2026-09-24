@@ -473,6 +473,7 @@ UI 初始化流程（`ui/init.ts`，DOM 就绪后执行）：
 - 弹窗消息用 `ElMessage` / `ElNotification` / `ElMessageBox`（从 `element-plus` 导入），不再使用 `this.$message` 等实例方法
 - `el-dialog` / `el-drawer` 用 `v-model`（不再是 `:visible.sync`）；子组件双向绑定用 `v-model:propName` + `emit('update:propName')`（不再是 `.sync`）
 - `el-checkbox` / `el-radio-button` 的值属性为 `value`（Element Plus 2.x，不再是 `label`）
+- `el-radio-button` 的 `value` 只表示选中值，按钮文字必须放在默认插槽中，例如 `<el-radio-button value="原创">原创</el-radio-button>`
 - 表格列插槽统一 `#default="scope"`；`size="mini"` 已废除，用 `size="small"`；`el-dropdown` 菜单放进 `#dropdown` 模板插槽
 
 ---

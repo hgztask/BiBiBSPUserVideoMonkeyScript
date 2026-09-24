@@ -85,9 +85,9 @@ watch(isCommentDisabledVideosBlockedVal, (n) => {
       <template #header>视频类型</template>
       <el-tooltip content="选中的类型会被屏蔽">
         <el-radio-group v-model="copyrightRadioVal">
-          <el-radio-button value="原创"></el-radio-button>
-          <el-radio-button value="转载"></el-radio-button>
-          <el-radio-button value="不处理"></el-radio-button>
+          <el-radio-button value="原创">原创</el-radio-button>
+          <el-radio-button value="转载">转载</el-radio-button>
+          <el-radio-button value="不处理">不处理</el-radio-button>
         </el-radio-group>
       </el-tooltip>
       <el-divider/>
@@ -110,10 +110,10 @@ watch(isCommentDisabledVideosBlockedVal, (n) => {
           <el-card shadow="never">
             <template #header>会员类型屏蔽</template>
             <el-radio-group v-model="vipTypeRadioVal">
-              <el-radio-button value="无"></el-radio-button>
-              <el-radio-button value="月大会员"></el-radio-button>
-              <el-radio-button value="年度及以上大会员"></el-radio-button>
-              <el-radio-button value="不处理"></el-radio-button>
+              <el-radio-button value="无">无</el-radio-button>
+              <el-radio-button value="月大会员">月大会员</el-radio-button>
+              <el-radio-button value="年度及以上大会员">年度及以上大会员</el-radio-button>
+              <el-radio-button value="不处理">不处理</el-radio-button>
             </el-radio-group>
           </el-card>
         </el-col>
@@ -121,10 +121,10 @@ watch(isCommentDisabledVideosBlockedVal, (n) => {
           <el-card shadow="never">
             <template #header>性别屏蔽</template>
             <el-radio-group v-model="genderRadioVal">
-              <el-radio-button value="男性"></el-radio-button>
-              <el-radio-button value="女性"></el-radio-button>
-              <el-radio-button value="保密"></el-radio-button>
-              <el-radio-button value="不处理"></el-radio-button>
+              <el-radio-button value="男性">男性</el-radio-button>
+              <el-radio-button value="女性">女性</el-radio-button>
+              <el-radio-button value="保密">保密</el-radio-button>
+              <el-radio-button value="不处理">不处理</el-radio-button>
             </el-radio-group>
           </el-card>
         </el-col>
