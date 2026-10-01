@@ -16,15 +16,20 @@
 
 ### 发布专用产物（`pnpm build:release`）
 
-脚本平台（脚本猫 / GreasyFork）上传要求**单个 JS 文件且头部即元信息**，而本地调试产物 `install.user.js` 的 `@require` 是 `file://` 本地路径、`local_build.js` 无头部——两者都不能直接发布。因此构建链提供发布模式：
+脚本平台（脚本猫 / GreasyFork）上传要求**单个 JS 文件且头部即元信息**，而本地调试产物 `install.user.js` 的 `@require` 是 `file://` 本地路径——平台无法访问，不能直接发布。因此构建链提供发布模式：
 
 - 构建方式：`pnpm build:release`（`vite build --mode publish`），输出到 **`dist-release/`**（与 `dist/` 完全隔离，互不覆盖）
-- 产物：`dist-release/publish.user.js` = **完整头部元信息**（`generateTamperMeta` 生成）+ **全部应用代码**（vue / element-plus / dexie **全部内联打包**，`external: []`）
-- 特点：无 `@require`、无 `file://` 路径；`__PUBLISH__` 编译期为 true，`externalLibraryVerification.ts` 跳过外部库验证（内联模式无需检查 `window.Vue` 等）
+- 产物：`dist-release/publish.user.js` = **完整头部元信息**（`generateTamperMeta` 生成）+ **内联代码**，结构如下：
+  1. `@require`：vue + dexie 走 **CDN**（与本地一致，无 `file://`）
+  2. 内联 `vue-bridge`（Vue 挂 `window`，供 EP 使用）
+  3. 内联 **Element Plus UMD**（`node_modules/element-plus/dist/index.full.min.js`，与 CDN 完全相同的文件）
+  4. 应用代码 `local_build.js`（`external` 保持，引用全局 `Vue`/`ElementPlus`/`Dexie`）
 - 头部自动补 `@grant unsafeWindow`（`videoDanmakuFilter` / `defUtil` / `dev` 模块直接使用 `unsafeWindow`，本地 json 未声明，发布产物补全以保证运行）
 - 发布流程：改 `tamper_monkey.json` 的 `@version`（如需指定版本）→ `pnpm build:release` → 上传 `dist-release/publish.user.js`
-- 体积：内联全部依赖后约 1.8MB（gzip 约 513KB），脚本平台可接受；`chunkSizeWarningLimit` 已调大避免告警
+- 体积：约 1.4MB（EP UMD 1MB + 应用 410KB），脚本平台可接受；`chunkSizeWarningLimit` 已调大避免告警
 
+> **为什么 EP 内联而非 @require**：平台对 `@require` 的数量/体积有限制，EP UMD 体积大（1MB），内联可减少平台依赖；且内联用的是与 CDN 完全相同的 UMD 文件，**行为与本地 @require 模式完全一致**（避免 ESM 版内联引发的兼容问题，如 `process` 未定义、EP 内部结构差异等）。
+>
 > Element Plus 完整 CSS 仍由 `src/web/ui/init.ts` 运行时从 unpkg `<link>` 拉取（与本地模式一致），发布后在线可用，无需内联。
 
 ### 产物与加载方式（@require 拼接作用域）

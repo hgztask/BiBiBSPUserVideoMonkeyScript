@@ -19,7 +19,7 @@ pnpm test             # Vitest 单元测试（tests/**/*.test.ts，不在构建�
 - 生产模式移除注释；`.vue` 组件样式与 CSS 以 `GM_addStyle` 内联进 JS（单文件交付）。`local_build.js` **不含** `==UserScript==` 头，头部只出现在安装壳 `install.user.js` / 发布产物 `publish.user.js`。
 - **产物分工**：
   - `dist/`（`pnpm build`）：本地调试三件套——`install.user.js`（安装壳，`@require file://` 直连本地）+ `local_build.js`（应用库）+ `vue-bridge.js`。
-  - `dist-release/`（`pnpm build:release`）：发布专用 `publish.user.js`——头部元信息 + 全部依赖内联（vue/element-plus/dexie 全打包），无 `@require`/`file://`，**上传到脚本平台即被解析出完整元信息**。
+  - `dist-release/`（`pnpm build:release`）：发布专用 `publish.user.js`——头部元信息 + `@require`（vue/dexie 走 CDN）+ 内联（vue-bridge + Element Plus UMD + 应用代码），**无 file:// 路径**，上传到脚本平台即被解析出完整元信息。EP 内联用的是与 CDN 完全相同的 UMD 文件（`node_modules/element-plus/dist/index.full.min.js`），行为与本地一致。
   - 发布前如需指定版本号，先改 `tamper_monkey.json` 的 `@version` 再 `pnpm build:release`。
 
 ## 易错陷阱（优先排查）

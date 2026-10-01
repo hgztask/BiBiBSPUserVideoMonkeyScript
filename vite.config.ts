@@ -14,7 +14,10 @@ const ELEMENT_PLUS_URL = 'https://unpkg.com/element-plus@2.14.5/dist/index.full.
 const DEXIE_URL = 'https://unpkg.com/dexie@4.2.0/dist/dexie.min.js';
 
 // 发布模式：`vite build --mode publish`（package.json 的 build:release）
-// 产出单文件自包含发布产物 dist/publish.user.js（头部元信息 + 全部依赖内联，无 @require / file://）。
+// 产出发布产物 dist-release/publish.user.js：
+// - 头部元信息 + @require（vue/dexie 走 CDN，与本地一致）
+// - vue-bridge 与 Element Plus UMD 内联在应用代码之前（保持加载顺序：vue → 桥 → EP）
+// - 应用代码 local_build.js 内联（ep/dexie 仍为 external，引用全局名）
 const IS_PUBLISH = process.argv.includes('--mode') ? process.argv.includes('publish') : process.env.NODE_ENV === 'publish';
 
 /**
@@ -69,18 +72,25 @@ function tampermonkeyPlugin(): Plugin {
 }
 
 /**
- * 生成发布专用单文件产物：头部元信息 + 全部应用代码（依赖已内联打包）。
- * 适用于脚本平台（脚本猫/GreasyFork）上传——平台解析头部即得元信息，无需 @require / file://。
+ * 生成发布专用单文件产物：头部元信息 + @require（vue/dexie CDN）+ 内联（vue-bridge + EP UMD + 应用代码）。
+ * 适用于脚本平台（脚本猫/GreasyFork）上传——平台解析头部即得元信息，@require 走 CDN 无需本地文件。
  * 输出到 dist-release/publish.user.js（与本地调试产物 dist/ 隔离，互不覆盖）。
  * 构建方式：`pnpm build:release`（vite build --mode publish）。
+ *
+ * 为什么 EP 内联而非 @require：平台对 @require 数量/体积有限制，且 EP UMD 体积大；
+ * 这里内联与 CDN 完全相同的 UMD 文件（node_modules/element-plus/dist/index.full.min.js），
+ * 行为与本地 @require 模式一致，避免 ESM 版内联引发的兼容问题（process/notify 等）。
  */
 function writePublishShell(): void {
     const distRelease = resolve(__dirname, 'dist-release');
     const meta = mkUtil.readTamperMonkey(resolve(__dirname, 'tamper_monkey.json')).notDevData;
-    // 发布产物依赖全部内联，不带 @require（头部也不该出现本地 file:// 路径）
     const publishMeta = {...meta};
     delete publishMeta.resource;
-    delete publishMeta.require;
+    // 发布产物 @require：vue + dexie 走 CDN（与本地一致）；vue-bridge 与 EP 内联，不进 @require
+    publishMeta.require = [
+        VUE_URL,
+        DEXIE_URL,
+    ];
     // 确保 unsafeWindow（videoDanmakuFilter / defUtil / dev 模块直接使用）在发布环境可用
     const grantList = Array.isArray(publishMeta.grant) ? [...publishMeta.grant as string[]] : [];
     if (!grantList.includes('unsafeWindow')) {
@@ -88,9 +98,13 @@ function writePublishShell(): void {
     }
     publishMeta.grant = grantList;
     const header = mkUtil.generateTamperMeta(publishMeta as any);
+    // 内联片段：vue-bridge（Vue 挂 window，供 EP 使用）+ EP UMD（与 CDN 同文件）+ 应用代码
+    const vueBridgeCode = 'if (typeof Vue !== "undefined" && !window.Vue) { window.Vue = Vue; }\n';
+    const epUmdCode = readFileSync(resolve(__dirname, 'node_modules/element-plus/dist/index.full.min.js'), 'utf-8');
     const appCode = readFileSync(resolve(distRelease, 'local_build.js'), 'utf-8');
-    // 单文件发布产物：头部 + 应用代码（头部以 ==/UserScript== 结束，代码直接续在其后）
-    writeFileSync(resolve(distRelease, 'publish.user.js'), header + '\n' + appCode + '\n', 'utf-8');
+    const inlineCode = vueBridgeCode + epUmdCode + '\n' + appCode + '\n';
+    // 单文件发布产物：头部（含 @require）+ 内联代码（头部以 ==/UserScript== 结束，代码直接续在其后）
+    writeFileSync(resolve(distRelease, 'publish.user.js'), header + '\n' + inlineCode, 'utf-8');
 }
 
 /**
@@ -137,12 +151,6 @@ export default defineConfig({
     },
     define: {
         __DEV__: JSON.stringify(!isProd),
-        // 发布模式（依赖内联单文件）为 true：跳过外部库验证（externalLibraryVerification.ts）
-        __PUBLISH__: JSON.stringify(IS_PUBLISH),
-        // 内联打包 vue/element-plus 时，其 bundler 版源码引用 process.env.NODE_ENV；
-        // 浏览器环境无 process 对象，必须在此替换为字符串字面量，否则运行时报 ReferenceError。
-        // （本地 @require 模式用预编译生产版 vue.global.prod.js，不含 process 引用，不受影响）
-        'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     },
     build: {
         lib: {
@@ -152,11 +160,12 @@ export default defineConfig({
             fileName: () => 'local_build.js',
         },
         rollupOptions: {
-            // 发布模式：vue/element-plus/dexie 全部内联打包（单文件自包含，供脚本平台上传）
-            // 本地开发模式：全部由 @require 加载（demo 式拼接作用域），不打包
-            external: IS_PUBLISH ? [] : ['vue', 'element-plus', 'dexie'],
+            // vue / element-plus / dexie 均为 external：应用引用全局名
+            // 发布模式：vue/dexie 由 @require CDN 提供，EP 由内联 UMD 提供（保持与本地一致的 UMD 行为）
+            // 本地开发模式：全部由 @require 加载（demo 式拼接作用域）
+            external: ['vue', 'element-plus', 'dexie'],
             output: {
-                // 裸全局名：应用作为 @require 与这些库同作用域，直接引用变量名即可（发布模式内联，globals 不生效）
+                // 裸全局名：应用作为 @require 与这些库同作用域，直接引用变量名即可
                 globals: {
                     vue: 'Vue',
                     'element-plus': 'ElementPlus',
@@ -167,18 +176,10 @@ export default defineConfig({
         },
         // 生产压缩；dev（watch:dev）保留可读代码便于调试
         minify: isProd ? 'esbuild' : false,
-        // 发布模式内联全部依赖，单文件体积较大，调大告警阈值避免误报
+        // 发布模式内联 EP UMD + 应用代码，体积较大，调大告警阈值避免误报
         chunkSizeWarningLimit: 3000,
         // 发布模式输出到独立目录 dist-release/，与本地调试产物 dist/ 完全隔离（互不覆盖）
         outDir: IS_PUBLISH ? 'dist-release' : 'dist',
         emptyOutDir: true,
-        // esbuild 压缩阶段兜底替换 process 相关引用（如 util polyfill 的 typeof process 探测），
-        // 确保浏览器环境（无 process 对象）下发布产物零 process 依赖
-        esbuild: IS_PUBLISH ? {
-            define: {
-                process: '{}',
-                'process.env.NODE_ENV': '"production"',
-            },
-        } : undefined,
     },
 });

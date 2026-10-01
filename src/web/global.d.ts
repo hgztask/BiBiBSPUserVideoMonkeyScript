@@ -4,7 +4,6 @@ import type ElementPlus from 'element-plus'
 
 declare global {
     const __DEV__: boolean
-    const __PUBLISH__: boolean
 
     interface Window {
         Vue: any
