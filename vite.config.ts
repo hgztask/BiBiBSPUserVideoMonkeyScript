@@ -139,6 +139,10 @@ export default defineConfig({
         __DEV__: JSON.stringify(!isProd),
         // 发布模式（依赖内联单文件）为 true：跳过外部库验证（externalLibraryVerification.ts）
         __PUBLISH__: JSON.stringify(IS_PUBLISH),
+        // 内联打包 vue/element-plus 时，其 bundler 版源码引用 process.env.NODE_ENV；
+        // 浏览器环境无 process 对象，必须在此替换为字符串字面量，否则运行时报 ReferenceError。
+        // （本地 @require 模式用预编译生产版 vue.global.prod.js，不含 process 引用，不受影响）
+        'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     },
     build: {
         lib: {
@@ -168,5 +172,13 @@ export default defineConfig({
         // 发布模式输出到独立目录 dist-release/，与本地调试产物 dist/ 完全隔离（互不覆盖）
         outDir: IS_PUBLISH ? 'dist-release' : 'dist',
         emptyOutDir: true,
+        // esbuild 压缩阶段兜底替换 process 相关引用（如 util polyfill 的 typeof process 探测），
+        // 确保浏览器环境（无 process 对象）下发布产物零 process 依赖
+        esbuild: IS_PUBLISH ? {
+            define: {
+                process: '{}',
+                'process.env.NODE_ENV': '"production"',
+            },
+        } : undefined,
     },
 });
