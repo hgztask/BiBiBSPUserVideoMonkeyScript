@@ -9,6 +9,10 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src/web", import.meta.url))
     }
   },
+  define: {
+    // 编译期常量：测试环境按开发构建处理（__DEV__ = true）
+    __DEV__: "true",
+  },
   test: {
     environment: "jsdom",
     include: ["tests/**/*.test.ts"]

@@ -4,21 +4,23 @@ import {resolve} from 'path';
 import {writeFileSync, readFileSync} from 'fs';
 import mkUtil from './plugin/mkUtil';
 
-// 注意：`pnpm watch:dev` 执行的正是 `vite build --watch`，命令行含 'build' 因此同样命中此判定，
-// 产物与生产构建同形（压缩、去注释、__DEV__=false）。需要可读的热执行代码走 server/wsServer.ts。
-const isProd = process.env.NODE_ENV === 'production' || process.argv.includes('build');
-
-// 外部库 CDN（运行时由 @require 加载到拼接作用域，见 install.user.js 的 @require 顺序）
-const VUE_URL = 'https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js';
-const ELEMENT_PLUS_URL = 'https://unpkg.com/element-plus@2.14.5/dist/index.full.min.js';
-const DEXIE_URL = 'https://unpkg.com/dexie@4.2.0/dist/dexie.min.js';
-
 // 发布模式：`vite build --mode publish`（package.json 的 build:release）
 // 产出发布产物 dist-release/publish.user.js：
 // - 头部元信息 + @require（vue/dexie 走 CDN，与本地一致）
 // - vue-bridge 与 Element Plus UMD 内联在应用代码之前（保持加载顺序：vue → 桥 → EP）
 // - 应用代码 local_build.js 内联（ep/dexie 仍为 external，引用全局名）
 const IS_PUBLISH = process.argv.includes('--mode') ? process.argv.includes('publish') : process.env.NODE_ENV === 'publish';
+
+// 生产判定 = 发布模式。`pnpm build` 与 `pnpm watch:dev` 都输出到 dist/（本地调试产物）：
+// __DEV__=true、不压缩、保留注释，主面板显示"调试测试"/"弹幕词管理"页签；
+// 只有 `pnpm build:release`（发布产物）才是生产：__DEV__=false、压缩、去注释。
+// 注意：不能用 process.env.NODE_ENV 判定——Vite 执行任意 `vite build` 时默认都会把它设为 'production'。
+const isProd = IS_PUBLISH;
+
+// 外部库 CDN（运行时由 @require 加载到拼接作用域，见 install.user.js 的 @require 顺序）
+const VUE_URL = 'https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js';
+const ELEMENT_PLUS_URL = 'https://unpkg.com/element-plus@2.14.5/dist/index.full.min.js';
+const DEXIE_URL = 'https://unpkg.com/dexie@4.2.0/dist/dexie.min.js';
 
 /**
  * 构建插件：

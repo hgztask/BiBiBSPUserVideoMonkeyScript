@@ -63,10 +63,9 @@ CDN 地址与版本常量集中在 `vite.config.ts` 顶部（`VUE_URL` / `ELEMEN
 ### 监听模式（`pnpm watch:dev`）
 
 - `vite build --watch`：源文件变化时自动重建 `dist/local_build.js`，配合安装壳的 `@require file://` 直连，刷新页面即生效，无需复制代码。
-- ⚠️ **当前 `watch:dev` 的产物与 `pnpm build` 完全同形**（压缩、去注释、`__DEV__ === false`）。原因在 `vite.config.ts` 的判定：`NODE_ENV === 'production' || process.argv.includes('build')`，而 `watch:dev` 执行的正是 `vite build --watch`，命令行含 `build` 即命中生产分支。实测 `vite build --watch` 的产物与生产构建 md5 一致。
-  - 影响：本地 watch 构建拿不到可读代码；依赖 `__DEV__` 的调试页签（`App.vue` 的 `debug_panel_show`）在 watch 产物里也不会自动打开，改由 GM 开关 `isWsService` 保持可见。
-  - 想要真正的 dev 产物，需要改判定以区分 `--watch`（或调整脚本命令），属代码改动，本文档只如实记录现状。
-  - 需要可读、带注释的热执行代码时用 `pnpm ws`：`server/wsServer.ts` 显式设置了 `minify: false`、`__DEV__: true`。
+- `pnpm watch:dev` 与 `pnpm build` 同属**开发构建**：**不压缩、保留注释、`__DEV__ === true`**，主面板显示"调试测试"/"弹幕词管理"页签。生产判定在 `vite.config.ts` 的 `isProd = IS_PUBLISH`（仅 `pnpm build:release` 命中）。
+  - 注意：**不能用 `process.env.NODE_ENV` 判定生产**——Vite 执行任意 `vite build`（含 `--watch`）时默认都会把它设为 `'production'`，会误把开发构建判成生产。
+  - 源码里的 `[elUtil][dev] findElements 未匹配到元素` 等日志只在开发构建输出，生产构建被 tree-shake 掉。
 
 ### WebSocket 热测试通道（`pnpm ws`）
 

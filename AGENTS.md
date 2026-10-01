@@ -8,7 +8,7 @@
 
 ```bash
 pnpm install          # 安装依赖（pnpm-lock.yaml 不提交）
-pnpm build            # vue-tsc 类型检查 + Vite 生产构建 → dist/（本地调试产物）
+pnpm build            # vue-tsc 类型检查 + Vite 开发构建 → dist/（本地调试产物，__DEV__=true）
 pnpm build:release    # 发布构建 → dist-release/publish.user.js（单文件自包含，供脚本平台上传）
 pnpm watch:dev        # Vite 监听模式持续构建到 dist/local_build.js
 pnpm ws               # WebSocket 热测试通道 ws://127.0.0.1:9000
@@ -24,8 +24,8 @@ pnpm test             # Vitest 单元测试（tests/**/*.test.ts，不在构建�
 
 ## 易错陷阱（优先排查）
 
-- **`watch:dev` 产物与 `pnpm build` 完全同形**（压缩、去注释、`__DEV__ === false`，实测 md5 一致）。想要可读的热执行代码用 `pnpm ws`（`wsServer.ts` 里显式 `minify: false`、`__DEV__: true`）。
-- **`elUtil.findElements` 匹配 0 个时立即返回 `[]`**（不悬挂、不报错）：DOM 结构变化导致选择器失效时整条链路静默无日志，排查问题先验证选择器是否命中（先例：BewlyCat 1.8.0 新增 `.video-card-slot` 层导致旧选择器命中 0 个、屏蔽完全静默失效）。
+- **产物与环境**：`pnpm build` 与 `pnpm watch:dev` 输出 `dist/`，是**开发构建**（`__DEV__=true`、不压缩、保留注释，主面板显示"调试测试"/"弹幕词管理"页签）；只有 `pnpm build:release` 是生产构建（`__DEV__=false`、压缩、去注释）。判定在 `vite.config.ts` 的 `isProd = IS_PUBLISH`——**不能用 `process.env.NODE_ENV` 判定**（Vite 执行任意 `vite build` 都会把它设为 'production'）。
+- **`elUtil.findElements` 是无限轮询等待**（`timeout: -1` 默认永不超时）：元素延迟加载时能等到；**不要改成"匹配 0 个立即返回"**——首页屏蔽链路无外层重试，会导致整体静默失效（已踩坑回退，回归测试见 `tests/homeShieldRegression.test.ts`）。开发构建下未匹配会输出 `[elUtil][dev] findElements 未匹配到元素` 日志，可用于排查选择器失配。
 - **`tamper_monkey.json` 的 `@version` 与线上发布版本不同步**（发布版本由脚本猫等发布渠道管理），日常修复**不顺手改版本号**。
 - **CSS 导入必须带 `?raw`**（`import css from './x.css?raw'`），不带 `?raw` 会被 Vite 注入页面而不是返回字符串。
 - **`@require` 顺序固定**：vue.global.prod.js → vue-bridge.js → element-plus full → dexie → local_build.js。乱序会导致 Element Plus 读不到 `Vue`。
@@ -132,7 +132,7 @@ src/web/
 ## 调试通道
 
 - **WebSocket 热测试通道**（`pnpm ws`）：在真实页面上快速测试小脚本。服务端监听 `src/` 文件变更，用 Vite programmatic API（`vite.build`，`write:false` 内存构建）编译 `src/test/main.ts`（支持 TS 语法与 `@/` 别名导入 `src/web` 模块，含 .vue 文件）并推送给已连接的油猴客户端在沙箱中 eval 执行；客户端接入即推送最新代码。页面里的 `console.log/warn/error`、测试代码返回值、运行时错误、`__wsReport(数据)` 都会回传到服务端 stdout——**改完测试文件直接看服务端日志即可**。手动触发：页面控制台调用 `wsBuild()`。构建失败保留上次产物并打印原因，下次变更自动重试。
-- 客户端连接由 GM 开关 `isWsService` 控制（默认关闭）。开关在主面板"调试测试"页签：只要该开关开启过就保持可见（`App.vue` 的 `ws_panel_show = __DEV__ || isWsService()`）；`debug_panel_show` 仍只由 `__DEV__` 决定（按易错陷阱第一条，当前各地产物都为 false）。
+- 客户端连接由 GM 开关 `isWsService` 控制（默认关闭）。开关在主面板"调试测试"页签：只要该开关开启过就保持可见（`App.vue` 的 `ws_panel_show = __DEV__ || isWsService()`）；`debug_panel_show` 由 `__DEV__` 决定（本地开发构建为 true，发布构建为 false）。
 - **CDP 页面调试**（`server/cdpClient.mjs`）：程序化操控真实页面（执行 JS、读 console、截图、导航）。前提：Edge 以 `--remote-debugging-port=9222` 启动（Edge 正常重启后失效，需再次带参数启动）。用法：`node server/cdpClient.mjs tabs|eval|console|shot|reload|goto`，`--tab 关键词` 选择标签页，`--port` 改端口，详见 `server/cdpClient.mjs` 头部注释。
 - `src/test/main.ts` 是 WebSocket 热测试流程的入口模板，**不是**测试套件。真正的测试套件在 `tests/`（Vitest + @vue/test-utils + jsdom，配置见 `vitest.config.ts`），用 `pnpm test` 运行。
 - 无 CI、无 pre-commit 钩子、无 lint 配置。自动化关卡只有 `vue-tsc --noEmit`（阻塞 `pnpm build`）和 Vitest（需手动 `pnpm test`，不在构建链路中）。

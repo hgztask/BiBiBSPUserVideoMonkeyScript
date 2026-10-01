@@ -208,6 +208,8 @@ const findElements = async (selector: string, config: FindElementsConfig = {}): 
     const defConfig: FindElementsConfig = {doc: document, interval: 1000, timeout: -1, parseShadowRoot: false}
     config = {...defConfig, ...config}
     return new Promise((resolve) => {
+        // 开发模式：首次未匹配时输出一条定位日志（不改变等待语义），便于发现选择器失配
+        let missingLogged = false;
         const i1 = setInterval(() => {
             const els = config.doc!.querySelectorAll(selector);
             if (els.length > 0) {
@@ -222,6 +224,10 @@ const findElements = async (selector: string, config: FindElementsConfig = {}): 
                 }
                 resolve(list);
                 clearInterval(i1)
+            } else if (__DEV__ && !missingLogged) {
+                // 仅开发构建输出：选择器未匹配到元素，持续轮询等待中（不改变超时/等待行为）
+                missingLogged = true;
+                console.warn(`[elUtil][dev] findElements 未匹配到元素，持续等待中: ${selector}`);
             }
         }, config.interval);
         if (config.timeout && config.timeout > 0) {
