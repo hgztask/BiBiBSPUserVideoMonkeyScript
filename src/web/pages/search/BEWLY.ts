@@ -11,7 +11,7 @@ import urlUtil from "../../core/util/urlUtil.ts";
 const getVideoList = async () => {
     const be_wly_el = await BEWLYCommon.getBewlyEl()
     if (!be_wly_el) return []
-    const elList = await elUtil.findElements('.grid-adaptive>.video-card-container', {doc: be_wly_el})
+    const elList = await elUtil.findElements('.grid-adaptive>.video-card-container,.grid-adaptive>.video-card-slot', {doc: be_wly_el})
     const list: any[] = [];
     for (const el of elList) {
         if (el.getAttribute("bg") === "") {
@@ -102,7 +102,7 @@ const searchLiveListIntervalExecutor = new IntervalExecutor(async () => {
     const be_wly_el = await BEWLYCommon.getBewlyEl()
     if (!be_wly_el) return
     const list = []
-    for (let el of be_wly_el.querySelectorAll(".grid-adaptive>.video-card-container")) {
+    for (let el of be_wly_el.querySelectorAll(".grid-adaptive>.video-card-container,.grid-adaptive>.video-card-slot")) {
         const liveUrlAEl = el.querySelector('a[href^="https://live.bilibili.com/"]')
         const userAEl = el.querySelector('a.channel-name')
         const partitionEl = el.querySelector('.video-card-meta__chip')

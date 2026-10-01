@@ -72,7 +72,8 @@ const getRightTabs = async () => {
 
 
 const homeVideoCardListSelector = [
-    '.grid-adaptive>.video-card-container',
+    '.grid-adaptive>.video-card-container',   // ≤1.7.x：卡片即 grid item
+    '.grid-adaptive>.video-card-slot',        // 1.8.0+：grid item 是 slot
     '.virtual-rows>.virtual-item'//1.6.5
 ].join(',')
 /**
