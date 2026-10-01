@@ -8,8 +8,15 @@ import {eventEmitter} from "../core/EventEmitter.ts";
 import {ElMessage, ElNotification, ElMessageBox} from "element-plus";
 
 export function installElBridge(): void {
+    // EP 的 ElNotification 内部只初始化了 4 个标准 position（top-left/top-right/bottom-left/bottom-right），
+    // 传入非标准 position 时内部 notifications[position] 为 undefined，会抛 forEach 错误。
+    // 这里统一归一化：缺失或非标准值一律使用 bottom-right。
+    const standardPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
     eventEmitter.on('el-notify', (options: any) => {
-        if (!options['position']) {
+        if (!options || typeof options !== 'object') {
+            options = {message: String(options)};
+        }
+        if (!options.position || !standardPositions.includes(options.position)) {
             options.position = 'bottom-right';
         }
         ElNotification(options);

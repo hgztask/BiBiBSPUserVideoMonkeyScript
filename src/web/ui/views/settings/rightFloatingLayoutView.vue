@@ -35,7 +35,7 @@ onMounted(() => {
         divStyle.transform = 'translateX(80%)';
         eventEmitter.send('el-notify', {
           message: '自动隐藏外部主面板显隐按钮',
-          position: 'button-right',
+          position: 'bottom-right',
         });
       }, 8000);
     }
