@@ -1,6 +1,20 @@
 # 开发文档
 
-## 一、项目简介
+## 一、文档分工
+
+仓库内共有三份 Markdown 文档，定位各不相同，改动时请保持分工明确：
+
+| 文档 | 位置 | 面向 | 内容 |
+|------|------|------|------|
+| `README.md` | 仓库根目录 | GitHub 用户 | 项目简介、特色功能、安装方式、快速使用、相关链接（用户向门面，不包含开发细节） |
+| `docs/mk.md` | `docs/` 目录 | 发布平台（脚本猫 / GreasyFork） | 发布平台的脚本描述原文，包含完整屏蔽类型列表（37 种）与高级/其他规则，由发布者复制到平台 |
+| `docs/development.md` | `docs/` 目录 | 开发者 | 本文档：构建、架构、开发工作流、配置细节等 |
+
+> **维护约定**：37 种屏蔽类型完整列表只在 `docs/mk.md` 维护（README 只列概要并链接到它）；构建、架构、开发相关的内容只在本文档维护（README 不重复）。
+
+---
+
+## 二、项目简介
 
 **哔哩哔哩屏蔽增强器**（BIBIShield v2）是一个 Tampermonkey 用户脚本，用于对 B 站的视频、评论、直播间、动态等内容进行多维度的屏蔽和过滤。
 
@@ -18,7 +32,7 @@
 
 ---
 
-## 二、环境搭建
+## 三、环境搭建
 
 ### 2.1 前置要求
 
@@ -35,7 +49,7 @@ pnpm install
 
 ---
 
-## 三、构建与运行
+## 四、构建与运行
 
 ### 3.1 命令一览
 
@@ -103,7 +117,7 @@ CDN 地址与版本常量集中在 `vite.config.ts` 顶部（`VUE_URL` / `ELEMEN
 
 ---
 
-## 四、项目结构
+## 五、项目结构
 
 ### 4.1 顶层目录
 
@@ -250,7 +264,7 @@ src/web/
 
 ---
 
-## 五、架构分层详解
+## 六、架构分层详解
 
 ### 5.1 启动流程（`main.ts`）
 
@@ -478,7 +492,7 @@ UI 初始化流程（`ui/init.ts`，DOM 就绪后执行）：
 
 ---
 
-## 六、Tampermonkey 元信息
+## 七、Tampermonkey 元信息
 
 ### 6.1 配置来源
 
@@ -518,7 +532,7 @@ UI 初始化流程（`ui/init.ts`，DOM 就绪后执行）：
 
 ---
 
-## 七、构建配置细节
+## 八、构建配置细节
 
 ### 7.1 路径别名
 
@@ -557,7 +571,7 @@ TypeScript 配置要点：`strict: true`、`moduleResolution: 'bundler'`、`allo
 
 ---
 
-## 八、开发工作流
+## 九、开发工作流
 
 ### 8.1 方案一：常规开发（`pnpm watch:dev`）
 
@@ -595,7 +609,7 @@ TypeScript 配置要点：`strict: true`、`moduleResolution: 'bundler'`、`allo
 
 ---
 
-## 九、质量关卡：无 CI / 无 Lint
+## 十、质量关卡：无 CI / 无 Lint
 
 项目没有 CI 流水线、pre-commit 钩子、husky 或 lint 配置。自动化的检查只有两项：
 
@@ -606,7 +620,7 @@ TypeScript 配置要点：`strict: true`、`moduleResolution: 'bundler'`、`allo
 
 ---
 
-## 十、常见开发场景
+## 十一、常见开发场景
 
 ### 10.1 新增一个屏蔽规则
 
@@ -646,10 +660,12 @@ TypeScript 配置要点：`strict: true`、`moduleResolution: 'bundler'`、`allo
 
 ---
 
-## 十一、外部资源
+## 十二、外部资源
 
 | 资源 | 链接 |
 |------|------|
+| 项目 README | https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript |
+| 发布平台描述 (mk.md) | https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript/blob/main/docs/mk.md |
 | 脚本发布 (脚本猫) | https://scriptcat.org/zh-CN/script-show-page/1029 |
 | 脚本发布 (GreasyFork) | https://greasyfork.org/zh-CN/scripts/461382 |
 | 源码 (GitHub) | https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript |

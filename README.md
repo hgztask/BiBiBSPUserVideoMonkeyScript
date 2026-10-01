@@ -4,280 +4,47 @@
 
 ---
 
-## 技术栈
-
-| 类别      | 技术                                                    |
-|---------|-----------------------------------------------|
-| 语言      | TypeScript (strict mode)                      |
-| UI 框架   | Vue 3.5 + Element Plus 2.14（`<script setup>`） |
-| 构建工具    | Vite 7（lib / IIFE 产物）+ vue-tsc 类型检查            |
-| 包管理器    | pnpm                                                  |
-| 样式      | CSS / Less，以 `?raw` 字符串经 `GM_addStyle` 内联      |
-| 存储      | Dexie 4 (IndexedDB)、localStorage、GM_setValue       |
-| 测试      | Vitest + @vue/test-utils + jsdom              |
-| 运行环境    | 油猴脚本 (Tampermonkey / ScriptCat)                   |
-
-## 项目目录结构
-
-```
-src/web/
-├── config/                  # 静态配置
-│   ├── globalValue.ts       # 全局常量
-│   ├── ruleKeyListData.ts   # 规则键列表
-│   ├── ruleKeyListDataJson.json  # 规则键列表数据
-│   ├── otherKeyListDataJson.json # 其他规则键列表数据
-│   ├── video_zoneData.ts    # 视频分区数据
-│   └── video_zone.json      # 视频分区 JSON 数据
-├── types/                   # 类型定义
-│   ├── http.ts              # HTTP 相关类型
-│   ├── shielding.ts         # 屏蔽相关类型
-│   ├── storage.ts           # 存储相关类型
-│   ├── video.ts             # 视频相关类型
-│   └── homeResponse.ts      # 首页推荐响应类型
-├── core/                    # 基础设施层
-│   ├── cache/               # 缓存模块
-│   │   ├── bvDexie.ts       # IndexedDB 封装
-│   │   ├── valueCache.ts    # 内存缓存
-│   │   ├── videoCacheManager.ts
-│   │   ├── asynchronousIntervalQueue.ts
-│   │   └── IntervalExecutor.ts
-│   ├── http/                # HTTP 请求模块
-│   │   ├── bFetch.ts        # B站 API 请求封装
-│   │   ├── bvRequestQueue.ts # 请求队列
-│   │   └── TmRequest.ts     # 油猴跨域请求
-│   ├── util/                # 工具函数
-│   │   ├── elUtil.ts        # DOM 操作
-│   │   ├── defUtil.ts       # 通用工具（含 initVueApp）
-│   │   ├── urlUtil.ts       # URL 解析
-│   │   ├── ruleUtil.ts      # 规则处理
-│   │   ├── ruleMatchingUtil.ts
-│   │   ├── strFormatUtil.ts
-│   │   ├── crc32Util.ts
-│   │   └── arrUtil.ts
-│   ├── EventEmitter.ts      # 事件总线
-│   ├── elEventEmitter.ts    # DOM 元素级事件总线
-│   ├── shieldLog.ts         # 屏蔽日志统一输出格式
-│   ├── BilibiliEncoder.ts   # B站编码
-│   └── externalLibraryVerification.ts # 外部库加载验证
-├── domain/                  # 领域逻辑层
-│   ├── shielding/           # 屏蔽核心
-│   │   ├── main.ts          # 主屏蔽逻辑
-│   │   ├── video.ts         # 视频屏蔽
-│   │   ├── live.ts          # 直播屏蔽
-│   │   ├── comments.ts      # 评论屏蔽
-│   │   └── combinationRules.ts # 组合规则
-│   ├── homeResponseRewrite.ts # 首页推荐响应层过滤
-│   ├── searchResponseRewrite.ts # 搜索结果响应层过滤
-│   ├── commentResponseRewrite.ts # 评论区响应层过滤（全局安装）
-│   ├── liveSectionResponseRewrite.ts # 直播分区getList响应层过滤
-│   ├── videoDanmakuFilter.ts # 弹幕过滤
-│   ├── videoDanmakuInspector.ts # 弹幕巡检
-│   ├── cssManager.ts        # 样式管理
-│   ├── observeNetwork.ts    # 网络监听
-│   ├── notificationBlocking.ts # 通知屏蔽
-│   ├── replaceKeywords.ts   # 关键词替换
-│   ├── watchUtil.ts         # 观察器工具
-│   └── debuggerManagement.ts # 调试管理
-├── pages/                   # 页面入口层
-│   ├── home/                # 首页（标准 / BEWLY / B-Gate）
-│   ├── live/                # 直播页
-│   ├── video/               # 视频播放页
-│   ├── search/              # 搜索页
-│   ├── space/               # 个人空间
-│   ├── message/             # 消息页
-│   ├── dynamic/             # 动态页
-│   ├── popular/             # 热门页
-│   ├── history/             # 历史记录
-│   ├── biliGame.ts          # B站游戏页
-│   ├── partition.ts         # 分区页面
-│   ├── topicDetail.ts       # 话题详情页
-│   ├── commentSectionModel.ts # 评论区通用
-│   ├── userProfile.ts       # 用户资料
-│   └── topColumnProcessing.ts
-├── state/                   # 运行时状态
-│   ├── localMKData.ts       # 本地存储读写
-│   └── elData.ts            # DOM 元素缓存
-├── ui/                      # UI 层
-│   ├── views/               # 视图组件
-│   │   ├── rule/            # 规则管理
-│   │   ├── shield/          # 屏蔽操作
-│   │   ├── page/            # 页面处理
-│   │   ├── glory/           # 荣耀等级
-│   │   ├── settings/        # 设置面板
-│   │   ├── debug/           # 调试面板
-│   │   ├── aboutAndFeedbackView.vue  # 关于与反馈
-│   │   ├── blacklistManagementView.vue  # 黑名单管理
-│   │   ├── bulletWordManagementView.vue # 弹幕词管理
-│   │   ├── commentWordLimitView.vue     # 评论字数限制
-│   │   ├── otherParameterFilterView.vue # 其他参数过滤
-│   │   ├── replProcessingView.vue       # 回复处理
-│   │   └── UserLevelFilteringView.vue   # 用户等级过滤
-│   ├── components/          # 通用组件（GzSpace、GzText、cardSlider 等）
-│   ├── dialogs/             # 弹窗组件
-│   ├── styles/              # 样式文件（css / less）
-│   ├── App.vue              # 主面板
-│   ├── init.ts              # UI 初始化（Vue 挂载、Element Plus 接入）
-│   ├── elBridge.ts          # eventEmitter → Element Plus 消息桥接
-│   ├── excludeURLs.ts       # URL 排除逻辑
-│   └── output_informationTab.ts # 输出信息标签
-├── dev/                     # 开发工具
-│   ├── dev.ts               # 开发辅助
-│   └── webWs.ts             # WebSocket 热更新
-├── main.ts                  # 脚本入口
-├── router.ts                # 页面路由
-├── menu.ts                  # 菜单注册
-├── element-plus.d.ts        # Element Plus 类型声明
-├── global.d.ts              # 全局类型声明
-└── shims-vue.d.ts           # Vue SFC 类型声明
-```
-
-## 架构分层
-
-项目采用分层架构，从底到上依次为：
-
-| 层级    | 目录        | 职责                                   |
-|-------|-----------|--------------------------------------|
-| 类型层   | `types/`  | 统一类型定义，分离接口与类型便于复用                   |
-| 基础设施层 | `core/`   | 通用工具、HTTP 请求、缓存、事件总线，不依赖业务逻辑         |
-| 领域逻辑层 | `domain/` | 屏蔽规则实现、样式管理、网络监听等核心业务                |
-| 页面入口层 | `pages/`  | 各页面路由入口，负责页面级逻辑编排                    |
-| 状态层   | `state/`  | 全局运行时状态管理，封装 GM_setValue/GM_getValue |
-| UI 层  | `ui/`     | Vue 视图组件、弹窗、通用组件、样式                  |
-| 配置层   | `config/` | 静态配置数据、规则定义                          |
-
-## 开发指南
-
-### 环境要求
-
-- Node.js >= 20.19（Vite 7 要求，实测 v24 可用）
-- pnpm（包管理器）
-
-### 安装依赖
-
-```bash
-pnpm install
-```
-
-### 构建
-
-```bash
-# 生产构建（先 vue-tsc 类型检查，再 Vite 打包）
-pnpm build
-
-# 监听模式（Vite 持续重建 dist/local_build.js；产物当前与生产构建同形，见开发文档 3.4）
-pnpm watch:dev
-
-# WebSocket 热测试通道（ws://127.0.0.1:9000）
-pnpm ws
-
-# 单元测试（Vitest）
-pnpm test
-```
-
-`pnpm build` 输出三个产物：
-
-| 产物 | 说明 |
-|------|------|
-| `dist/local_build.js` | 应用本体（IIFE 库，无 `==UserScript==` 头，裸引用 `Vue`/`ElementPlus`/`Dexie`） |
-| `dist/vue-bridge.js` | 把 `@require` 拼接作用域内的顶层 `var Vue` 挂到 `window`，供 Element Plus 使用 |
-| `dist/install.user.js` | 安装壳：脚本头部元信息 + 按顺序 `@require` 各依赖与 `local_build.js` |
-
-**部署方式**：把 `dist/install.user.js` 内容粘贴到油猴脚本（`@require` 列表一次配好），之后每次构建只需重建 `local_build.js`（`@require file://` 直连本地文件），刷新页面即生效，无需重装脚本。
-
-### 类型检查
-
-构建时先执行 `vue-tsc --noEmit`（同时覆盖 `.ts` 与 `.vue`），类型错误会阻塞构建。项目启用 TypeScript strict 模式。
-
-### 开发调试
-
-1. 首次安装：粘贴 `dist/install.user.js` 内容到油猴，并允许脚本访问本地文件 URL
-2. 运行 `pnpm watch:dev`，改动源码后 Vite 自动重建 `dist/local_build.js`
-3. 刷新 B 站页面即可看到效果
-4. 小段逻辑快速验证用 `pnpm ws`（详见开发文档）；程序化操控真实页面用 `node server/cdpClient.mjs`
-
----
-
-## 屏蔽的类型
-
-1. 用户名模糊匹配
-2. 用户名精确匹配
-3. 用户名正则匹配
-4. 用户uid匹配
-5. 用户白名单uid匹配
-6. 话题tag模糊匹配
-7. 粉丝牌精确匹配
-8. 视频最短时长屏蔽（低于设置值的会屏蔽）
-9. 视频最大弹幕量屏蔽（高于设置值的会屏蔽）
-10. 视频最小播放量屏蔽（低于设置值的会屏蔽）
-11. 最小用户等级过滤（低于设置值的会屏蔽）
-12. 视频tag标签模糊匹配
-13. 视频tag标签精确匹配
-14. 视频tag标签正则匹配
-15. 专栏屏蔽（暂不支持）
-16. 热搜关键词模糊匹配（页面顶部搜索框的热搜）
-17. 头像挂件名精确匹配（目前仅支持视频）
-18. 头像挂件名模糊匹配（目前仅支持视频）
-19. 用户签名模糊匹配（目前仅支持视频）
-20. 视频简介模糊匹配
-21. 标题模糊匹配
-22. 标题正则匹配
-23. 评论模糊匹配
-24. 评论正则匹配
-25. 话题tag精确匹配
-26. 话题tag正则匹配
-27. 直播分区黑名单(精确匹配)
-28. 视频最长时长屏蔽（高于设置值的会屏蔽）
-29. 视频最小弹幕量屏蔽（低于设置值的会屏蔽）
-30. 视频最大播放量屏蔽（高于设置值的会屏蔽）
-31. 最大用户等级过滤（高于设置值的会屏蔽）
-32. 热搜关键词正则匹配（页面顶部搜索框的热搜）
-33. 用户签名正则匹配（目前仅支持视频）
-34. 视频简介正则匹配（目前仅支持视频）
-35. bv号精确匹配
-36. 视频tag(组合精确匹配)
-37. 直播标题(正则和模糊匹配)
-
-> 其余屏蔽规则可看自述文档
-
-> **注意**：模糊匹配和正则匹配的规则会自动将匹配内容转为小写，如不需要自动转换，可在主面板中的 **规则管理 → 条件限制 →
-模糊和正则匹配时，勾选转小写**。
-
-## 高级规则
-
-1. 根据性别屏蔽，可以屏蔽男、女、保密的用户，默认不处理
-2. 根据视频类型屏蔽，可以选择屏蔽原创或转载类视频，默认不处理
-3. 根据会员类型屏蔽，可以选择屏蔽月大会员、非会员，年度及以上大会员，默认不处理
-4. 根据用户是否是硬核会员等级屏蔽，默认否，即不处理
-5. 是否屏蔽已关注视频，默认否，即不处理
-6. 是否屏蔽充电专属视频，默认否，即不处理
-7. 屏蔽竖屏类视频
-8. 计算创作团队，有时且作者未匹配上时依次检查其他成员
-9. 根据视频点赞率屏蔽
-10. 根据视频互动率屏蔽
-11. 根据视频三连率屏蔽
-12. 视频投币/点赞比（内容价值）屏蔽
-13. uid范围屏蔽
-14. 视频时间范围屏蔽
-
-## 其他规则
-
-1. 播放量最小最大限制
-2. 弹幕数最小最大限制
-3. 时长最小最大限制
-4. 用户等级最大最小过滤
-5. 评论字数限制
-
----
-
 ## 特色功能
 
-- 支持快捷屏蔽按钮，鼠标悬停在视频标题或评论上会显示屏蔽按钮，点击可选择 **uid精确屏蔽** 和 **用户名精确屏蔽**（建议优先uid方式）
-- 所有屏蔽规则都可以在主面板（快捷键 `~` 打开，或点击页面左上角按钮展开）中的 **规则管理** 按需添加规则
+- **快捷屏蔽按钮**：鼠标悬停在视频标题或评论上会显示屏蔽按钮，点击可选择 **uid精确屏蔽** 和 **用户名精确屏蔽**（建议优先uid方式）
+- **多维度屏蔽规则**：用户名、标题、视频tag、时长、播放量、弹幕数、用户等级、直播分区、组合规则等（完整列表见 [docs/mk.md](./docs/mk.md)）
 - **直播分区页响应层过滤**：在页面渲染前过滤掉命中规则的直播间，避免渲染后再删除导致列表高度骤降；屏蔽记录在输出信息面板归入"直播间屏蔽"分类并标注来源（响应层过滤），同页重复请求自动去重
 - **评论区响应层过滤（全局）**：在页面渲染前过滤命中规则的评论（含楼中楼与置顶），覆盖视频/影视/动态/空间等所有页面，不依赖首屏页面；命中记录在输出信息面板标注来源（响应层过滤），同一评论出现多处时自动去重
 - **直播分区页"加载更多直播间"按钮**（右下角常驻）：屏蔽后列表数量过少、页面自身滚动加载失效时，按钮会变红呼吸提示"屏蔽后列表过短，点击补满一屏"；点击后自动循环"撑高文档+真实滚动"触发页面自身续载，直到列表填满视口或分区到底（到底后 60 秒内不再提示）
 - **首页视频列表静默补载**：屏蔽导致首页列表高度不足或骨架卡片未继续加载时，自动触发 B 站页面自身的懒加载，不显示滚动动画，也不改变用户当前阅读位置
-- **首页连续补载次数可配置**：主面板的“首页列表连续补载次数”默认为 3，允许设置为 0 关闭；每次补载只有在列表实际发生变化时才会继续，避免异常情况下无限请求
+- **首页连续补载次数可配置**：主面板的"首页列表连续补载次数"默认为 3，允许设置为 0 关闭；每次补载只有在列表实际发生变化时才会继续，避免异常情况下无限请求
+
+## 支持的屏蔽类型
+
+涵盖用户名（模糊/精确/正则/uid/白名单）、标题（模糊/正则）、视频tag（模糊/精确/正则/组合）、时长、弹幕量、播放量、用户等级、粉丝牌、头像挂件、签名、视频简介、bv号、热搜、直播分区、直播标题等，以及性别、会员、视频类型、点赞率、互动率、三连率等高级规则。
+
+> 完整 37 种屏蔽类型与高级/其他规则列表见 [docs/mk.md](./docs/mk.md)。
+
+## 安装
+
+### 方式一：脚本平台安装（推荐）
+
+- [脚本猫](https://scriptcat.org/zh-CN/script-show-page/1029/)
+- [GreasyFork](https://greasyfork.org/zh-CN/scripts/461382)
+
+脚本更新优先更新到脚本猫平台，其次 GreasyFork。
+
+### 方式二：本地构建安装
+
+1. 克隆仓库，`pnpm install` 安装依赖
+2. `pnpm build` 构建，产物在 `dist/` 下
+3. 把 `dist/install.user.js` 内容粘贴到油猴脚本管理器（如 Tampermonkey / ScriptCat），并按需配置 `@require` 的 CDN 依赖
+4. 之后每次构建只需重建 `dist/local_build.js`（`@require file://` 直连本地文件），刷新页面即生效，无需重装脚本
+
+> 开发调试的详细流程见 [docs/development.md](./docs/development.md)。
+
+## 快速使用
+
+1. 安装脚本后打开 B 站任意页面，点击页面左上角按钮或按 `~`（波浪键）打开主面板
+2. 在 **规则管理** 中按需添加屏蔽规则（关键词、正则、时长、播放量等）
+3. 鼠标悬停在视频标题或评论上，点击弹出的屏蔽按钮可快速屏蔽指定用户
+
+> 模糊匹配和正则匹配的规则会自动将匹配内容转为小写，如不需要自动转换，可在主面板中的 **规则管理 → 条件限制 → 模糊和正则匹配时，勾选转小写**。
 
 ## 相关链接
 
@@ -286,9 +53,10 @@ pnpm test
 | 脚本发布 (脚本猫)        | [scriptcat.org](https://scriptcat.org/zh-CN/script-show-page/1029/)                                        |
 | 脚本发布 (GreasyFork) | [greasyfork.org](https://greasyfork.org/zh-CN/scripts/461382)                                              |
 | 源码 (GitHub)       | [github.com/hgztask/BiBiBSPUserVideoMonkeyScript](https://github.com/hgztask/BiBiBSPUserVideoMonkeyScript) |
+| 发布平台完整描述          | [docs/mk.md](./docs/mk.md)                                                                                  |
 | 常见问题汇总            | [腾讯文档](https://docs.qq.com/doc/DSlJNR1NVcGR3eEto)                                                          |
-| 开发文档（仓库内）        | [docs/development.md](./docs/development.md)                                                                 |
-| 开发文档              | [腾讯文档](https://docs.qq.com/doc/DSkdTQ1p1aFNnVnRS?no_promotion=1)                                           |
+| 开发文档              | [docs/development.md](./docs/development.md)                                                                 |
+| 开发文档 (腾讯文档)       | [腾讯文档](https://docs.qq.com/doc/DSkdTQ1p1aFNnVnRS?no_promotion=1)                                           |
 | 更新日志              | [腾讯文档](https://docs.qq.com/doc/DSnhjSVZmRkpCd0Nj)                                                          |
 | 完整自述文档            | [腾讯文档](https://docs.qq.com/doc/DSmJqSkhFaktBeUdk?u=1a1ff7b128d64f188a8bfb71b5acb28c)                       |
 
@@ -298,13 +66,11 @@ pnpm test
 
 推荐使用 Edge 或 Chrome 浏览器（包括[奔跑中的奶酪](https://www.runningcheese.com/edge)相关版本），其他浏览器可能存在问题。
 
->
-如遇到脚本不执行，请尝试关闭插件或浏览器的开发者人员模式后重新开启，并重启浏览器。如依旧不行，请下载[奔跑中的奶酪便携版 Edge 或 Chrome](https://www.runningcheese.com/edge)。
+> 如遇到脚本不执行，请尝试关闭插件或浏览器的开发者人员模式后重新开启，并重启浏览器。如依旧不行，请下载[奔跑中的奶酪便携版 Edge 或 Chrome](https://www.runningcheese.com/edge)。
 
 ## 关于作者
 
-- [企鹅反馈群 876295632](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=tFU0xLt1uO5u5CXI2ktQRLh_XGAHBl7C&authKey=KAf4rICQYjfYUi66WelJAGhYtbJLILVWumOm%2BO9nM5fNaaVuF9Iiw3dJoPsVRUak&noverify=0&group_code=876295632) —
-  反馈提意见交流群，回复速度相对较快
+- [企鹅反馈群 876295632](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=tFU0xLt1uO5u5CXI2ktQRLh_XGAHBl7C&authKey=KAf4rICQYjfYUi66WelJAGhYtbJLILVWumOm%2BO9nM5fNaaVuF9Iiw3dJoPsVRUak&noverify=0&group_code=876295632) — 反馈提意见交流群，回复速度相对较快
 - [B站个人主页](https://space.bilibili.com/473239155/dynamic) — 最新更新状态和内容
 - [GreasyFork 主页](https://greasyfork.org/zh-CN/scripts/461382)
 - [脚本猫主页](https://scriptcat.org/zh-CN/users/96219)
