@@ -207,26 +207,22 @@ interface FindElementsConfig {
 const findElements = async (selector: string, config: FindElementsConfig = {}): Promise<HTMLElement[]> => {
     const defConfig: FindElementsConfig = {doc: document, interval: 1000, timeout: -1, parseShadowRoot: false}
     config = {...defConfig, ...config}
-    const list: HTMLElement[] = [];
-    const collect = (): boolean => {
-        const els = config.doc!.querySelectorAll(selector);
-        if (els.length <= 0) return false;
-        for (const el of els) {
-            if (config.parseShadowRoot) {
-                const shadowRoot = (el as HTMLElement)?.shadowRoot;
-                list.push((shadowRoot ? shadowRoot : el) as HTMLElement)
-                continue;
-            }
-            list.push(el as HTMLElement);
-        }
-        return true;
-    };
-    if (collect()) return list;
     return new Promise((resolve) => {
         const i1 = setInterval(() => {
-            if (!collect()) return;
-            clearInterval(i1);
-            resolve(list);
+            const els = config.doc!.querySelectorAll(selector);
+            if (els.length > 0) {
+                const list: HTMLElement[] = [];
+                for (const el of els) {
+                    if (config.parseShadowRoot) {
+                        const shadowRoot = (el as HTMLElement)?.shadowRoot;
+                        list.push((shadowRoot ? shadowRoot : el) as HTMLElement)
+                        continue;
+                    }
+                    list.push(el as HTMLElement);
+                }
+                resolve(list);
+                clearInterval(i1)
+            }
         }, config.interval);
         if (config.timeout && config.timeout > 0) {
             setTimeout(() => {
