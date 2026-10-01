@@ -8,14 +8,19 @@
 
 ```bash
 pnpm install          # 安装依赖（pnpm-lock.yaml 不提交）
-pnpm build            # vue-tsc 类型检查 + Vite 生产构建 → dist/local_build.js
+pnpm build            # vue-tsc 类型检查 + Vite 生产构建 → dist/（本地调试产物）
+pnpm build:release    # 发布构建 → dist-release/publish.user.js（单文件自包含，供脚本平台上传）
 pnpm watch:dev        # Vite 监听模式持续构建到 dist/local_build.js
 pnpm ws               # WebSocket 热测试通道 ws://127.0.0.1:9000
 pnpm test             # Vitest 单元测试（tests/**/*.test.ts，不在构建链路，需手动执行）
 ```
 
-- **类型检查**：`pnpm build` 先执行 `vue-tsc --noEmit`（覆盖 .ts 与 .vue），类型错误会阻塞构建。
-- 生产模式移除注释；`.vue` 组件样式与 CSS 以 `GM_addStyle` 内联进 JS（单文件交付）。`local_build.js` **不含** `==UserScript==` 头，头部只出现在安装壳 `install.user.js`。
+- **类型检查**：`pnpm build` / `pnpm build:release` 先执行 `vue-tsc --noEmit`（覆盖 .ts 与 .vue），类型错误会阻塞构建。
+- 生产模式移除注释；`.vue` 组件样式与 CSS 以 `GM_addStyle` 内联进 JS（单文件交付）。`local_build.js` **不含** `==UserScript==` 头，头部只出现在安装壳 `install.user.js` / 发布产物 `publish.user.js`。
+- **产物分工**：
+  - `dist/`（`pnpm build`）：本地调试三件套——`install.user.js`（安装壳，`@require file://` 直连本地）+ `local_build.js`（应用库）+ `vue-bridge.js`。
+  - `dist-release/`（`pnpm build:release`）：发布专用 `publish.user.js`——头部元信息 + 全部依赖内联（vue/element-plus/dexie 全打包），无 `@require`/`file://`，**上传到脚本平台即被解析出完整元信息**。
+  - 发布前如需指定版本号，先改 `tamper_monkey.json` 的 `@version` 再 `pnpm build:release`。
 
 ## 易错陷阱（优先排查）
 

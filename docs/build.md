@@ -8,10 +8,24 @@
 
 | 命令 | 实际执行 | 说明 |
 |------|------|------|
-| `pnpm build` | `vue-tsc --noEmit && vite build` | 生产构建，产出三个文件（见「产物与加载方式」） |
+| `pnpm build` | `vue-tsc --noEmit && vite build` | 生产构建（本地调试产物），产出三个文件（见「产物与加载方式」） |
+| `pnpm build:release` | `vue-tsc --noEmit && vite build --mode publish` | **发布构建**：产出单文件自包含产物 `dist-release/publish.user.js`（见「发布专用产物」） |
 | `pnpm watch:dev` | `vite build --watch` | 监听模式持续重建 `dist/local_build.js` |
 | `pnpm ws` | `tsx server/wsServer.ts` | WebSocket 热测试通道 `ws://127.0.0.1:9000` |
 | `pnpm test` | `vitest run` | 单元测试，用例位于 `tests/**/*.test.ts` |
+
+### 发布专用产物（`pnpm build:release`）
+
+脚本平台（脚本猫 / GreasyFork）上传要求**单个 JS 文件且头部即元信息**，而本地调试产物 `install.user.js` 的 `@require` 是 `file://` 本地路径、`local_build.js` 无头部——两者都不能直接发布。因此构建链提供发布模式：
+
+- 构建方式：`pnpm build:release`（`vite build --mode publish`），输出到 **`dist-release/`**（与 `dist/` 完全隔离，互不覆盖）
+- 产物：`dist-release/publish.user.js` = **完整头部元信息**（`generateTamperMeta` 生成）+ **全部应用代码**（vue / element-plus / dexie **全部内联打包**，`external: []`）
+- 特点：无 `@require`、无 `file://` 路径；`__PUBLISH__` 编译期为 true，`externalLibraryVerification.ts` 跳过外部库验证（内联模式无需检查 `window.Vue` 等）
+- 头部自动补 `@grant unsafeWindow`（`videoDanmakuFilter` / `defUtil` / `dev` 模块直接使用 `unsafeWindow`，本地 json 未声明，发布产物补全以保证运行）
+- 发布流程：改 `tamper_monkey.json` 的 `@version`（如需指定版本）→ `pnpm build:release` → 上传 `dist-release/publish.user.js`
+- 体积：内联全部依赖后约 1.8MB（gzip 约 513KB），脚本平台可接受；`chunkSizeWarningLimit` 已调大避免告警
+
+> Element Plus 完整 CSS 仍由 `src/web/ui/init.ts` 运行时从 unpkg `<link>` 拉取（与本地模式一致），发布后在线可用，无需内联。
 
 ### 产物与加载方式（@require 拼接作用域）
 

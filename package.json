@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vue-tsc --noEmit && vite build",
+    "build:release": "vue-tsc --noEmit && vite build --mode publish",
     "test": "vitest run",
     "watch:dev": "vite build --watch",
     "ws": "tsx server/wsServer.ts"

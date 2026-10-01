@@ -1,6 +1,7 @@
 /test/
 /node_modules/
 /dist/
+/dist-release/
 /lib/
 /patch/
 yarn.lock

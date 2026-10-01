@@ -1,7 +1,7 @@
 import {defineConfig, type Plugin} from 'vite';
 import vue from '@vitejs/plugin-vue';
 import {resolve} from 'path';
-import {writeFileSync} from 'fs';
+import {writeFileSync, readFileSync} from 'fs';
 import mkUtil from './plugin/mkUtil';
 
 // 注意：`pnpm watch:dev` 执行的正是 `vite build --watch`，命令行含 'build' 因此同样命中此判定，
@@ -12,6 +12,10 @@ const isProd = process.env.NODE_ENV === 'production' || process.argv.includes('b
 const VUE_URL = 'https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js';
 const ELEMENT_PLUS_URL = 'https://unpkg.com/element-plus@2.14.5/dist/index.full.min.js';
 const DEXIE_URL = 'https://unpkg.com/dexie@4.2.0/dist/dexie.min.js';
+
+// 发布模式：`vite build --mode publish`（package.json 的 build:release）
+// 产出单文件自包含发布产物 dist/publish.user.js（头部元信息 + 全部依赖内联，无 @require / file://）。
+const IS_PUBLISH = process.argv.includes('--mode') ? process.argv.includes('publish') : process.env.NODE_ENV === 'publish';
 
 /**
  * 构建插件：
@@ -54,10 +58,39 @@ function tampermonkeyPlugin(): Plugin {
             }
         },
         closeBundle() {
-            writeVueBridge();
-            writeInstallShell();
+            if (IS_PUBLISH) {
+                writePublishShell();
+            } else {
+                writeVueBridge();
+                writeInstallShell();
+            }
         }
     };
+}
+
+/**
+ * 生成发布专用单文件产物：头部元信息 + 全部应用代码（依赖已内联打包）。
+ * 适用于脚本平台（脚本猫/GreasyFork）上传——平台解析头部即得元信息，无需 @require / file://。
+ * 输出到 dist-release/publish.user.js（与本地调试产物 dist/ 隔离，互不覆盖）。
+ * 构建方式：`pnpm build:release`（vite build --mode publish）。
+ */
+function writePublishShell(): void {
+    const distRelease = resolve(__dirname, 'dist-release');
+    const meta = mkUtil.readTamperMonkey(resolve(__dirname, 'tamper_monkey.json')).notDevData;
+    // 发布产物依赖全部内联，不带 @require（头部也不该出现本地 file:// 路径）
+    const publishMeta = {...meta};
+    delete publishMeta.resource;
+    delete publishMeta.require;
+    // 确保 unsafeWindow（videoDanmakuFilter / defUtil / dev 模块直接使用）在发布环境可用
+    const grantList = Array.isArray(publishMeta.grant) ? [...publishMeta.grant as string[]] : [];
+    if (!grantList.includes('unsafeWindow')) {
+        grantList.push('unsafeWindow');
+    }
+    publishMeta.grant = grantList;
+    const header = mkUtil.generateTamperMeta(publishMeta as any);
+    const appCode = readFileSync(resolve(distRelease, 'local_build.js'), 'utf-8');
+    // 单文件发布产物：头部 + 应用代码（头部以 ==/UserScript== 结束，代码直接续在其后）
+    writeFileSync(resolve(distRelease, 'publish.user.js'), header + '\n' + appCode + '\n', 'utf-8');
 }
 
 /**
@@ -104,6 +137,8 @@ export default defineConfig({
     },
     define: {
         __DEV__: JSON.stringify(!isProd),
+        // 发布模式（依赖内联单文件）为 true：跳过外部库验证（externalLibraryVerification.ts）
+        __PUBLISH__: JSON.stringify(IS_PUBLISH),
     },
     build: {
         lib: {
@@ -113,10 +148,11 @@ export default defineConfig({
             fileName: () => 'local_build.js',
         },
         rollupOptions: {
-            // vue/element-plus/dexie 全部由 @require 加载（demo 式拼接作用域），不打包
-            external: ['vue', 'element-plus', 'dexie'],
+            // 发布模式：vue/element-plus/dexie 全部内联打包（单文件自包含，供脚本平台上传）
+            // 本地开发模式：全部由 @require 加载（demo 式拼接作用域），不打包
+            external: IS_PUBLISH ? [] : ['vue', 'element-plus', 'dexie'],
             output: {
-                // 裸全局名：应用作为 @require 与这些库同作用域，直接引用变量名即可
+                // 裸全局名：应用作为 @require 与这些库同作用域，直接引用变量名即可（发布模式内联，globals 不生效）
                 globals: {
                     vue: 'Vue',
                     'element-plus': 'ElementPlus',
@@ -127,8 +163,10 @@ export default defineConfig({
         },
         // 生产压缩；dev（watch:dev）保留可读代码便于调试
         minify: isProd ? 'esbuild' : false,
+        // 发布模式内联全部依赖，单文件体积较大，调大告警阈值避免误报
         chunkSizeWarningLimit: 3000,
-        outDir: 'dist',
+        // 发布模式输出到独立目录 dist-release/，与本地调试产物 dist/ 完全隔离（互不覆盖）
+        outDir: IS_PUBLISH ? 'dist-release' : 'dist',
         emptyOutDir: true,
     },
 });
