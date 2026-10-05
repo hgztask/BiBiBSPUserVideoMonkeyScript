@@ -8,6 +8,7 @@ import localMKData, {
 } from "../state/localMKData.ts";
 import videoPlayModel from "./video/playModel.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
+import {elEventEmitter} from "../core/elEventEmitter.ts";
 import comments_shielding from "../domain/shielding/comments.ts";
 import urlUtil from "../core/util/urlUtil.ts";
 import {valueCache} from "../core/cache/valueCache.ts";
@@ -20,6 +21,7 @@ const COMMENT_AFTER_BUTTON_CLASS = 'gz_shielding_comment_after_button';
 
 /**
  * 向楼中层评论内容后插入屏蔽按钮（#main 用户信息+正文之后、#footer 操作条之前，不破坏同行布局）
+ * 悬停显隐逻辑与 addBlockButton 一致：悬停评论时显示、移出隐藏
  * @param commentsData 楼中层评论数据（el 为 bili-comment-reply-renderer）
  */
 const addCommentAfterButton = (commentsData: any): void => {
@@ -34,6 +36,12 @@ const addCommentAfterButton = (commentsData: any): void => {
     const buttonEL = document.createElement("button");
     buttonEL.className = COMMENT_AFTER_BUTTON_CLASS;
     buttonEL.textContent = "屏蔽";
+    // 悬停显隐：初始隐藏，移入评论显示，移出评论隐藏
+    buttonEL.style.display = "none";
+    elEventEmitter.addEvent(bodyEl, "mouseout", () => buttonEL.style.display = "none");
+    elEventEmitter.addEvent(bodyEl, "mouseover", () => {
+        buttonEL.style.display = "";
+    });
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -368,7 +376,7 @@ const getCommentSectionList = async () => {
                 if (!inTheContentEl) continue;
                 const biliCommentUserInfo = inTheContentEl.querySelector("bili-comment-user-info");
                 if (!biliCommentUserInfo) continue;
-                // 早期为在楼中层放置屏蔽按钮而强制块级换行，现评论屏蔽按钮已支持三点菜单/隐藏等不占行方案，移除以避免楼中层换行
+                biliCommentUserInfo.style.display = 'block'
                 if (!biliCommentUserInfo.shadowRoot) continue;
                 const inTheBuildingUserInfo = biliCommentUserInfo.shadowRoot.getElementById("info");
                 if (!inTheBuildingUserInfo) continue;
@@ -466,6 +474,10 @@ const getOldCommentSectionList = async () => {
             if (!subUserInfoEl) continue;
             const iEl = subUserInfoEl.querySelector('i');
             const level = getOldUserLevel(iEl)
+            const replyContentContainerEl = inTheBuildingEl.querySelector('span.reply-content-container');
+            if (replyContentContainerEl) {
+                replyContentContainerEl.style.display = 'block'
+            }
             replies.push({
                 name: userName,
                 userUrl,
