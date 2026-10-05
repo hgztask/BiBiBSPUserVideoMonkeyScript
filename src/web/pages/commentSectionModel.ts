@@ -2,22 +2,156 @@ import elUtil from "../core/util/elUtil.ts";
 import shielding from "../domain/shielding/main.ts";
 import defUtil from "../core/util/defUtil.ts";
 import topicDetail from "./topicDetail.ts";
-import localMKData, {isCloseCommentBlockingGm} from "../state/localMKData.ts";
+import localMKData, {
+    getCommentBlockButtonStyleGm,
+    isCloseCommentBlockingGm
+} from "../state/localMKData.ts";
 import videoPlayModel from "./video/playModel.ts";
 import {eventEmitter} from "../core/EventEmitter.ts";
 import comments_shielding from "../domain/shielding/comments.ts";
 import urlUtil from "../core/util/urlUtil.ts";
 import {valueCache} from "../core/cache/valueCache.ts";
 
-/**
- * 评论添加屏蔽按钮
- * @param commentsData {{}}评论数据
- */
-eventEmitter.on('评论添加屏蔽按钮', (commentsData) => {
+/** 新版评论区已加载的评论数据缓存（用于设置切换时重分发，避免依赖易卡住的网络重扫） */
+const cachedNewCommentList: any[] = [];
+
+/** 按"评论屏蔽按钮位置"设置向单条新版评论分发入口（default按钮 / hide无 / more菜单项） */
+const addCommentBlockEntryByStyle = (commentsData: any): void => {
+    const style = getCommentBlockButtonStyleGm();
+    if (style === 'hide') return;
+    if (style === 'more') {
+        addCommentMoreMenuEntry(commentsData);
+        return;
+    }
     shielding.addBlockButton({
         data: commentsData,
         maskingFunc: startShieldingComments
-    }, "gz_shielding_comment_button");
+    }, "gz_shielding_comment_button", [], true);
+}
+
+/**
+ * 评论添加屏蔽按钮
+ * 根据"评论屏蔽按钮位置"设置分发（仅新版评论区生效）：
+ * - default: 用户名后内联按钮（保留现状）
+ * - hide:    不创建任何入口
+ * - more:    注入到原生三点菜单
+ * 旧版评论区、直播间排行榜、消息回复列表等旧式结构不受影响，保持用户名后按钮
+ * @param commentsData {{}}评论数据
+ */
+eventEmitter.on('评论添加屏蔽按钮', (commentsData) => {
+    // 新版评论区自定义元素 tag 以 BILI-COMMENT 开头（bili-comment-thread-renderer / bili-comment-reply-renderer），
+    // 旧式结构（.reply-item / .list-item 等）不受位置选项影响
+    const elTag = commentsData.el?.tagName ?? '';
+    if (!elTag.startsWith('BILI-COMMENT')) {
+        shielding.addBlockButton({
+            data: commentsData,
+            maskingFunc: startShieldingComments
+        }, "gz_shielding_comment_button", [], true);
+        return;
+    }
+    // 缓存已加载的新版评论数据，供设置切换时重分发
+    cachedNewCommentList.push(commentsData);
+    addCommentBlockEntryByStyle(commentsData);
+})
+
+/** 注入到三点菜单的菜单项标记 class */
+const COMMENT_MORE_ENTRY_CLASS = 'gz-shielding-comment-menu-entry';
+
+/**
+ * 定位评论的三点菜单项容器 ul#options
+ * 新版评论区结构（楼主层与楼中楼一致）：
+ * el -> shadowRoot -> #comment(bili-comment-renderer) -> shadowRoot -> #body
+ *    -> bili-comment-action-buttons-renderer -> shadowRoot -> #more > bili-comment-menu
+ *    -> shadowRoot -> ul#options
+ * @param el 评论元素（楼主层为 bili-comment-thread-renderer，楼中楼为 bili-comment-reply-renderer）
+ * @returns 菜单项容器 ul#options，未找到时返回 null
+ */
+const getCommentMenuOptionsUl = (el: any): HTMLElement | null => {
+    if (!el?.shadowRoot) return null;
+    // 楼中楼：el 即 bili-comment-reply-renderer，其 shadowRoot 下直接是 #body
+    // 楼主层：el 是 bili-comment-thread-renderer，shadowRoot 下是 #comment(bili-comment-renderer)，再一层 shadowRoot 才是 #body
+    const bodyEl = el.shadowRoot.querySelector('#body')
+        ?? el.shadowRoot.querySelector('#comment')?.shadowRoot?.querySelector('#body');
+    if (!bodyEl) return null;
+    const actionButtonsEl = bodyEl.querySelector('bili-comment-action-buttons-renderer');
+    if (!actionButtonsEl?.shadowRoot) return null;
+    const menuEl = actionButtonsEl.shadowRoot.querySelector('#more>bili-comment-menu');
+    if (!menuEl?.shadowRoot) return null;
+    return menuEl.shadowRoot.querySelector('ul#options') ?? null;
+}
+
+/**
+ * 向评论原生三点菜单注入"屏蔽该评论"菜单项
+ * @param commentsData {{}}评论数据
+ */
+const addCommentMoreMenuEntry = (commentsData: any): void => {
+    const optionsUl = getCommentMenuOptionsUl(commentsData.el);
+    if (!optionsUl) return;
+    // 幂等：避免重复注入
+    if (optionsUl.querySelector('.' + COMMENT_MORE_ENTRY_CLASS)) return;
+    const li = document.createElement('li');
+    li.className = COMMENT_MORE_ENTRY_CLASS;
+    li.textContent = '屏蔽该评论';
+    li.addEventListener('click', (event) => {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // 注入项不继承原生的"点击关闭菜单"，需手动收起
+        const rootNode = optionsUl.getRootNode();
+        const menuHost = rootNode instanceof ShadowRoot ? rootNode.host : null;
+        (menuHost as HTMLElement | null)?.style?.setProperty?.('--bili-comment-menu-display', 'none');
+        shielding.openBlockOptions({
+            data: commentsData,
+            maskingFunc: startShieldingComments
+        });
+    });
+    optionsUl.insertAdjacentElement('beforeend', li as unknown as Element);
+}
+
+/**
+ * 清理已注入的评论屏蔽入口（用户名后按钮与三点菜单项）
+ * 按钮插入位置是 bili-comment-user-info 的 shadowRoot 内 #info，菜单项在 action-buttons 菜单内，
+ * 两者都在多层 shadowRoot 内，需按已知结构逐层遍历
+ */
+const removeCommentButtonEntries = (): void => {
+    // 移除单条评论的用户名后按钮（bili-comment-user-info -> shadowRoot -> #info 内）
+    const removeButtonInUserInfo = (commentShadow: any): void => {
+        commentShadow?.querySelectorAll('bili-comment-user-info').forEach((userInfoEl: any) => {
+            userInfoEl.shadowRoot?.querySelectorAll('.gz_shielding_comment_button').forEach((buttonEl: Element) => buttonEl.remove());
+        });
+    };
+    // 移除单个评论的菜单注入项
+    const removeMenuEntry = (el: any): void => {
+        const optionsUl = getCommentMenuOptionsUl(el);
+        optionsUl?.querySelectorAll('li.' + COMMENT_MORE_ENTRY_CLASS)
+            .forEach((li) => li.remove());
+    };
+    document.querySelectorAll('bili-comments').forEach((commentsEl: any) => {
+        const sr = commentsEl.shadowRoot;
+        if (!sr) return;
+        sr.querySelectorAll('bili-comment-thread-renderer').forEach((threadEl: any) => {
+            const threadShadow = threadEl.shadowRoot;
+            if (!threadShadow) return;
+            // 楼主层
+            const commentShadow = threadShadow.querySelector('#comment')?.shadowRoot;
+            removeButtonInUserInfo(commentShadow);
+            removeMenuEntry(threadEl);
+            // 楼中楼
+            const repliesRenderer = threadShadow.querySelector('bili-comment-replies-renderer');
+            repliesRenderer?.shadowRoot?.querySelectorAll('bili-comment-reply-renderer')
+                .forEach((replyEl: any) => {
+                    removeButtonInUserInfo(replyEl.shadowRoot);
+                    removeMenuEntry(replyEl);
+                });
+        });
+    });
+}
+
+/** 评论屏蔽按钮位置设置变更：清理旧形态入口，并用已加载的评论缓存按新模式重新分发（不依赖易卡住的网络重扫） */
+eventEmitter.on('event-评论屏蔽按钮样式变更', () => {
+    removeCommentButtonEntries();
+    for (let commentsData of cachedNewCommentList) {
+        addCommentBlockEntryByStyle(commentsData);
+    }
 })
 
 /**
@@ -187,7 +321,7 @@ const getCommentSectionList = async () => {
                 if (!inTheContentEl) continue;
                 const biliCommentUserInfo = inTheContentEl.querySelector("bili-comment-user-info");
                 if (!biliCommentUserInfo) continue;
-                biliCommentUserInfo.style.display = 'block'
+                // 早期为在楼中层放置屏蔽按钮而强制块级换行，现评论屏蔽按钮已支持三点菜单/隐藏等不占行方案，移除以避免楼中层换行
                 if (!biliCommentUserInfo.shadowRoot) continue;
                 const inTheBuildingUserInfo = biliCommentUserInfo.shadowRoot.getElementById("info");
                 if (!inTheBuildingUserInfo) continue;
@@ -285,10 +419,6 @@ const getOldCommentSectionList = async () => {
             if (!subUserInfoEl) continue;
             const iEl = subUserInfoEl.querySelector('i');
             const level = getOldUserLevel(iEl)
-            const replyContentContainerEl = inTheBuildingEl.querySelector('span.reply-content-container');
-            if (replyContentContainerEl) {
-                replyContentContainerEl.style.display = 'block'
-            }
             replies.push({
                 name: userName,
                 userUrl,

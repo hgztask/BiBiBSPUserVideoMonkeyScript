@@ -306,6 +306,11 @@ export const isCloseCommentBlockingGm = (): boolean => {
     return GM_getValue('is_close_comment_blocking_gm', false)
 }
 
+/** 评论屏蔽按钮位置：default(用户名后) | hide(隐藏) | more(三点菜单) */
+export const getCommentBlockButtonStyleGm = (): 'default' | 'hide' | 'more' => {
+    return GM_getValue('comment_block_button_style_gm', 'default')
+}
+
 /** 是否隐藏首页左上角的轮播图 */
 export const isHideCarouselImageGm = (): boolean => {
     return GM_getValue('is_hide_carousel_image_gm', false)

@@ -33,9 +33,103 @@ import type {
 
 export type { BlockResult };
 
-/** 添加屏蔽按钮，点击弹出屏蔽选项面板 */
-const addBlockButton = (data: BlockButtonData, className: string = 'gz_def_shielding_button', position: string[] = []): void => {
-    if (hideBlockButtonGm()) return;
+/** 弹出屏蔽选项面板（屏蔽按钮与评论三点菜单项共用） */
+const openBlockOptions = (data: BlockButtonData): void => {
+    const {updateFunc, data: {el}} = data;
+    if (__DEV__) {
+        console.log(data)
+    }
+    let localData;
+    if (updateFunc) {
+        localData = updateFunc(el!);
+    } else {
+        localData = data.data;
+    }
+    const {
+        uid = -1, name = null, bv = null, title = '', roomId = null,
+        decoratePic = null, collectionActId = -1, dressUpId = -1,
+    } = localData;
+    const showList: { label: string; value: string; title?: string }[] = []
+    if (uid !== -1) {
+        showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
+        showList.push({label: `直播区用户uid精确屏蔽-uid=${uid}-name=${name}`, value: "live_uid"});
+    } else {
+        showList.push({label: `用户名精确屏蔽(不推荐)-用户name=${name}`, value: 'name'})
+    }
+    if (bv !== null) {
+        showList.push({label: `bv号屏蔽-视频bv=${bv}`, value: "bv", title: title})
+    }
+    if (roomId !== null) {
+        showList.push({label: `直播间id屏蔽-直播间id=${roomId}`, value: "roomId"});
+    }
+    if (decoratePic !== null && collectionActId !== -1) {
+        showList.push({label: `装扮收藏集id屏蔽-id=${collectionActId}`, value: "collectionActId"});
+    }
+    if (decoratePic !== null && dressUpId !== -1) {
+        showList.push({label: `装扮id屏蔽-id=${dressUpId}`, value: "dressUpId"});
+    }
+    eventEmitter.send('sheet-dialog', {
+        title: "屏蔽选项",
+        list: showList,
+        optionsClick: (item: { value: string }) => {
+            const {value} = item
+            let results: { status: boolean; res?: string | number };
+            switch (value) {
+                case "uid":
+                    if (uid === -1) {
+                        eventEmitter.send('el-msg', "该页面数据不存在uid字段")
+                        return;
+                    }
+                    results = ruleUtil.addRulePreciseUid(uid);
+                    break;
+                case "live_uid":
+                    if (uid === -1) {
+                        return eventEmitter.send('el-msg', "该页面数据不存在uid字段");
+                    }
+                    results = ruleUtil.addRule(uid, "precise_live_uid");
+                    eventEmitter.send('el-notify', {
+                        title: '添加直播区用户uid(精确匹配)操作提示',
+                        message: results.res,
+                        type: 'success'
+                    })
+                    break;
+                case "name":
+                    results = ruleUtil.addRulePreciseName(name);
+                    break;
+                case "bv":
+                    results = ruleUtil.addRulePreciseBv(bv);
+                    break;
+                case "roomId":
+                    results = ruleUtil.addRule(roomId, "precise_liveRoomId");
+                    eventEmitter.send('el-notify', {
+                        title: '添加精确直播间id操作提示',
+                        message: results.res,
+                        type: 'success'
+                    })
+                    break;
+                case 'collectionActId':
+                    results = ruleUtil.addRule(collectionActId, "precise_decoration_collection_id");
+                    break
+                case 'dressUpId':
+                    results = ruleUtil.addRule(dressUpId, "precise_decoration_id");
+                    break
+                default:
+                    eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
+                        if (ruleUtil.addRulePreciseName(name).status) {
+                            data.maskingFunc?.();
+                        }
+                    })
+            }
+            if (results!.status) {
+                data.maskingFunc?.();
+            }
+        }
+    })
+}
+
+/** 添加屏蔽按钮，点击弹出屏蔽选项面板。ignoreHideBlockButton=true 时不受全局"不显示屏蔽按钮"开关影响（评论区按钮独立于该开关） */
+const addBlockButton = (data: BlockButtonData, className: string = 'gz_def_shielding_button', position: string[] = [], ignoreHideBlockButton: boolean = false): void => {
+    if (!ignoreHideBlockButton && hideBlockButtonGm()) return;
     const {insertionPositionEl, explicitSubjectEl, cssMap, cssText} = data.data;
     if (className === '' || className === null || className === undefined) {
         className = 'gz_def_shielding_button'
@@ -82,96 +176,7 @@ const addBlockButton = (data: BlockButtonData, className: string = 'gz_def_shiel
     buttonEL.addEventListener("click", (event) => {
         event.stopImmediatePropagation();
         event.preventDefault();
-        const {updateFunc, data: {el}} = data;
-        if (__DEV__) {
-            console.log(data)
-        }
-        let localData;
-        if (updateFunc) {
-            localData = updateFunc(el!);
-        } else {
-            localData = data.data;
-        }
-        const {
-            uid = -1, name = null, bv = null, title = '', roomId = null,
-            decoratePic = null, collectionActId = -1, dressUpId = -1,
-        } = localData;
-        const showList: { label: string; value: string; title?: string }[] = []
-        if (uid !== -1) {
-            showList.push({label: `uid精确屏蔽-用户uid=${uid}-name=${name}`, value: "uid"});
-            showList.push({label: `直播区用户uid精确屏蔽-uid=${uid}-name=${name}`, value: "live_uid"});
-        } else {
-            showList.push({label: `用户名精确屏蔽(不推荐)-用户name=${name}`, value: 'name'})
-        }
-        if (bv !== null) {
-            showList.push({label: `bv号屏蔽-视频bv=${bv}`, value: "bv", title: title})
-        }
-        if (roomId !== null) {
-            showList.push({label: `直播间id屏蔽-直播间id=${roomId}`, value: "roomId"});
-        }
-        if (decoratePic !== null && collectionActId !== -1) {
-            showList.push({label: `装扮收藏集id屏蔽-id=${collectionActId}`, value: "collectionActId"});
-        }
-        if (decoratePic !== null && dressUpId !== -1) {
-            showList.push({label: `装扮id屏蔽-id=${dressUpId}`, value: "dressUpId"});
-        }
-        eventEmitter.send('sheet-dialog', {
-            title: "屏蔽选项",
-            list: showList,
-            optionsClick: (item: { value: string }) => {
-                const {value} = item
-                let results: { status: boolean; res?: string | number };
-                switch (value) {
-                    case "uid":
-                        if (uid === -1) {
-                            eventEmitter.send('el-msg', "该页面数据不存在uid字段")
-                            return;
-                        }
-                        results = ruleUtil.addRulePreciseUid(uid);
-                        break;
-                    case "live_uid":
-                        if (uid === -1) {
-                            return eventEmitter.send('el-msg', "该页面数据不存在uid字段");
-                        }
-                        results = ruleUtil.addRule(uid, "precise_live_uid");
-                        eventEmitter.send('el-notify', {
-                            title: '添加直播区用户uid(精确匹配)操作提示',
-                            message: results.res,
-                            type: 'success'
-                        })
-                        break;
-                    case "name":
-                        results = ruleUtil.addRulePreciseName(name);
-                        break;
-                    case "bv":
-                        results = ruleUtil.addRulePreciseBv(bv);
-                        break;
-                    case "roomId":
-                        results = ruleUtil.addRule(roomId, "precise_liveRoomId");
-                        eventEmitter.send('el-notify', {
-                            title: '添加精确直播间id操作提示',
-                            message: results.res,
-                            type: 'success'
-                        })
-                        break;
-                    case 'collectionActId':
-                        results = ruleUtil.addRule(collectionActId, "precise_decoration_collection_id");
-                        break
-                    case 'dressUpId':
-                        results = ruleUtil.addRule(dressUpId, "precise_decoration_id");
-                        break
-                    default:
-                        eventEmitter.invoke('el-confirm', '不推荐用户使用精确用户名来屏蔽，确定继续吗？').then(() => {
-                            if (ruleUtil.addRulePreciseName(name).status) {
-                                data.maskingFunc?.();
-                            }
-                        })
-                }
-                if (results!.status) {
-                    data.maskingFunc?.();
-                }
-            }
-        })
+        openBlockOptions(data)
     })
 }
 
@@ -734,6 +739,7 @@ export default {
     addTopicDetailContentsBlockButton,
     blockExactAndFuzzyMatching,
     addBlockButton,
+    openBlockOptions,
     /** 根据精确的装扮ID进行屏蔽 */
     blockDecoration(value: any): BlockResult {
         const list = GM_getValue('precise_decoration_id', []);
