@@ -10,7 +10,7 @@ const isDelBottomComment = ref(localMKData.isDelBottomComment());
 const isDelPlayerEndingPanelVal = ref(localMKData.isDelPlayerEndingPanel());
 const isCloseCommentBlockingVal = ref(isCloseCommentBlockingGm());
 const isCommentResponseRewriteVal = ref(isCommentResponseRewriteGm());
-const commentBlockButtonStyleVal = ref<'default' | 'hide' | 'more'>(getCommentBlockButtonStyleGm());
+const commentBlockButtonStyleVal = ref<'default' | 'hide' | 'more' | 'after'>(getCommentBlockButtonStyleGm());
 
 watch(isDelPlayerPageAd, (b) => {
   GM_setValue('isDelPlayerPageAd', b);
@@ -60,13 +60,14 @@ watch(commentBlockButtonStyleVal, (n) => {
       <el-tooltip content="开启后评论屏蔽功能关闭">
         <el-switch v-model="isCloseCommentBlockingVal" active-text="关闭评论屏蔽"/>
       </el-tooltip>
-      <el-tooltip content="评论屏蔽按钮的显示位置：用户名后面（默认，内联在用户信息后）/ 隐藏 / 三点菜单中（新版评论区悬浮操作条内）">
+      <el-tooltip content="评论屏蔽按钮的显示位置：用户名后面（默认，内联在用户信息后）/ 隐藏 / 三点菜单中（新版评论区悬浮操作条内）/ 楼中层评论后面（楼中楼按钮移到评论内容后，避免占用用户名行）">
         <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
           <span style="white-space: nowrap;">评论屏蔽按钮位置</span>
           <el-select v-model="commentBlockButtonStyleVal" style="width: 160px;">
             <el-option value="default" label="用户名后面"/>
             <el-option value="hide" label="隐藏"/>
             <el-option value="more" label="三点菜单中"/>
+            <el-option value="after" label="楼中层评论后面"/>
           </el-select>
         </div>
       </el-tooltip>

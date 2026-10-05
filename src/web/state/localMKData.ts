@@ -306,8 +306,8 @@ export const isCloseCommentBlockingGm = (): boolean => {
     return GM_getValue('is_close_comment_blocking_gm', false)
 }
 
-/** 评论屏蔽按钮位置：default(用户名后) | hide(隐藏) | more(三点菜单) */
-export const getCommentBlockButtonStyleGm = (): 'default' | 'hide' | 'more' => {
+/** 评论屏蔽按钮位置：default(用户名后) | hide(隐藏) | more(三点菜单) | after(楼中层评论后) */
+export const getCommentBlockButtonStyleGm = (): 'default' | 'hide' | 'more' | 'after' => {
     return GM_getValue('comment_block_button_style_gm', 'default')
 }
 
