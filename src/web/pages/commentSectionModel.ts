@@ -53,9 +53,33 @@ const addCommentAfterButton = (commentsData: any): void => {
     mainEl.insertAdjacentElement('afterend', buttonEL as unknown as Element);
 }
 
+/**
+ * 按位置选项调整楼中层用户名与评论内容的位置关系
+ * - default(用户名后面)：楼中层需要块级布局（按钮内联在用户名后），设置 display: block
+ * - 其余模式（hide/more/after）：按钮不在用户名后，恢复 B 站原生同行布局，移除 display
+ * @param commentsData 楼中层评论数据（el 为 bili-comment-reply-renderer）
+ * @param style 当前评论屏蔽按钮位置
+ */
+const applyReplyLayoutByStyle = (commentsData: any, style: string): void => {
+    const el = commentsData.el;
+    if (el?.tagName !== 'BILI-COMMENT-REPLY-RENDERER') return;
+    const userInfoEl = el.shadowRoot?.querySelector('bili-comment-user-info');
+    if (!userInfoEl) return;
+    if (style === 'default') {
+        userInfoEl.style.display = 'block';
+    } else {
+        userInfoEl.style.removeProperty('display');
+    }
+}
+
 /** 按"评论屏蔽按钮位置"设置向单条新版评论分发入口（default按钮 / hide无 / more菜单项 / after楼中层评论后） */
 const addCommentBlockEntryByStyle = (commentsData: any): void => {
     const style = getCommentBlockButtonStyleGm();
+    // 楼中层用户名与评论内容的位置关系随位置选项调整：仅"用户名后面"模式需要块级布局（按钮内联在用户名后），
+    // 其余模式保持 B 站原生同行布局，避免破坏用户名与评论的位置
+    if (commentsData.el?.tagName === 'BILI-COMMENT-REPLY-RENDERER') {
+        applyReplyLayoutByStyle(commentsData, style);
+    }
     if (style === 'hide') return;
     if (style === 'more') {
         addCommentMoreMenuEntry(commentsData);
@@ -376,7 +400,8 @@ const getCommentSectionList = async () => {
                 if (!inTheContentEl) continue;
                 const biliCommentUserInfo = inTheContentEl.querySelector("bili-comment-user-info");
                 if (!biliCommentUserInfo) continue;
-                biliCommentUserInfo.style.display = 'block'
+                // 楼中层用户名与评论内容的位置关系由 addCommentBlockEntryByStyle 按位置选项决定，
+                // 仅在"用户名后面"模式下才设置块级布局，此处不再无条件设置
                 if (!biliCommentUserInfo.shadowRoot) continue;
                 const inTheBuildingUserInfo = biliCommentUserInfo.shadowRoot.getElementById("info");
                 if (!inTheBuildingUserInfo) continue;
