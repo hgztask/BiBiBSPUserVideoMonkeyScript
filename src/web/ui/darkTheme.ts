@@ -34,7 +34,22 @@ let observer: MutationObserver | null = null;
  */
 const isBiliDark = (): boolean => {
     return document.documentElement.classList.contains('bili_dark')
-        || document.body.classList.contains('bili_dark');
+        || document.body.classList.contains('bili_dark')
+        || isBiliDarkByCssVar();
+}
+
+/**
+ * B 站深色主题统一 CSS 变量特征检测
+ *
+ * 部分页面（如空间页 space.bilibili.com）深色时 html/body 上没有 bili_dark 类，
+ * 而是通过 B 站深色主题 CSS 变量驱动（--bg1 等）。实测深色时 --bg1 恒为 #17181A，
+ * 跨页面一致，可作为无类页面下的可靠深色标记。
+ * @returns 是否命中 B 站深色变量特征
+ */
+const isBiliDarkByCssVar = (): boolean => {
+    const bg1 = getComputedStyle(document.body).getPropertyValue('--bg1').trim().toLowerCase();
+    // B 站深色主题的 --bg1 固定值：#17181A
+    return bg1 === '#17181a';
 }
 
 /**
@@ -129,6 +144,7 @@ const startDarkThemeSync = (): void => {
 
 export default {
     isBiliDark,
+    isBiliDarkByCssVar,
     prefetchDarkCss,
     startDarkThemeSync,
 }
