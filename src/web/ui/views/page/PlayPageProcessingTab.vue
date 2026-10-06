@@ -1,7 +1,6 @@
 ﻿<script setup lang="ts">
 import {ref, watch} from 'vue'
-import {eventEmitter} from "@/core/EventEmitter.ts";
-import localMKData, {getCommentBlockButtonStyleGm, isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../../../state/localMKData.ts";
+import localMKData, {isCloseCommentBlockingGm, isCommentResponseRewriteGm} from "../../../state/localMKData.ts";
 
 const isDelPlayerPageAd = ref(GM_getValue('isDelPlayerPageAd', false));
 const isDelPlayerPageRightGameAd = ref(GM_getValue('isDelPlayerPageRightGameAd', false));
@@ -10,7 +9,6 @@ const isDelBottomComment = ref(localMKData.isDelBottomComment());
 const isDelPlayerEndingPanelVal = ref(localMKData.isDelPlayerEndingPanel());
 const isCloseCommentBlockingVal = ref(isCloseCommentBlockingGm());
 const isCommentResponseRewriteVal = ref(isCommentResponseRewriteGm());
-const commentBlockButtonStyleVal = ref<'default' | 'hide' | 'more' | 'after'>(getCommentBlockButtonStyleGm());
 
 watch(isDelPlayerPageAd, (b) => {
   GM_setValue('isDelPlayerPageAd', b);
@@ -33,11 +31,6 @@ watch(isCloseCommentBlockingVal, (n) => {
 watch(isCommentResponseRewriteVal, (n) => {
   GM_setValue('is_comment_response_rewrite_gm', n);
 });
-watch(commentBlockButtonStyleVal, (n) => {
-  GM_setValue('comment_block_button_style_gm', n);
-  // 切换后由 commentSectionModel 清理旧形态入口并重扫，保证实时生效
-  eventEmitter.send('event-评论屏蔽按钮样式变更');
-});
 </script>
 
 <template>
@@ -59,17 +52,6 @@ watch(commentBlockButtonStyleVal, (n) => {
       </el-tooltip>
       <el-tooltip content="开启后评论屏蔽功能关闭">
         <el-switch v-model="isCloseCommentBlockingVal" active-text="关闭评论屏蔽"/>
-      </el-tooltip>
-      <el-tooltip content="评论屏蔽按钮的显示位置：用户名后面（默认，内联在用户信息后）/ 隐藏 / 三点菜单中（新版评论区悬浮操作条内）/ 楼中层评论后面（楼中楼按钮移到评论内容后，避免占用用户名行）">
-        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
-          <span style="white-space: nowrap;">评论屏蔽按钮位置</span>
-          <el-select v-model="commentBlockButtonStyleVal" style="width: 160px;">
-            <el-option value="default" label="用户名后面"/>
-            <el-option value="hide" label="隐藏"/>
-            <el-option value="more" label="三点菜单中"/>
-            <el-option value="after" label="楼中层评论后面"/>
-          </el-select>
-        </div>
       </el-tooltip>
       <el-tooltip content="实验功能：全局修改评论接口响应（视频/影视/动态/空间等所有页面），在渲染前过滤可识别的评论（含楼中楼与置顶），命中规则输出到输出信息；关闭评论屏蔽时本开关无效，修改后请刷新页面">
         <el-switch v-model="isCommentResponseRewriteVal" active-text="响应过滤评论区（实验）"/>
