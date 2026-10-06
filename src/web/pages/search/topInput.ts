@@ -4,11 +4,6 @@ import {valueCache} from "@/core/cache/valueCache.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import globalValue from "../../config/globalValue.ts";
 
-
-/**
- *
- * @returns {null}
- */
 const setTopInputPlaceholder = async () => {
     // 是否兼容BewlyBewly插件，如果开启之后，不处理
     if (globalValue.compatibleBEWLYBEWLY) {
@@ -26,10 +21,8 @@ const setTopInputPlaceholder = async () => {
     })
 }
 
-
 /**
  * 处理顶部搜索框内容
- * @returns {Promise<void>|null}
  */
 const processTopInputContent = async () => {
     // 是否兼容BewlyBewly插件，如果开启之后，不处理

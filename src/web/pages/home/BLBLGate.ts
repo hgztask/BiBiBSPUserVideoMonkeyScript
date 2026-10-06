@@ -1,9 +1,9 @@
 import elUtil from "../../core/util/elUtil.ts";
 import globalValue from "../../config/globalValue.ts";
-import {eventEmitter} from "../../core/EventEmitter.ts";
+import {eventEmitter} from "@/core/EventEmitter.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import video_shielding from '../../domain/shielding/video.ts';
-import {bGateClearListNonVideoGm} from '../../state/localMKData.ts';
+import {bGateClearListNonVideoGm} from '@/state/localMKData.ts';
 import bilibiliHome from "./bilibili.ts";
 
 /**
@@ -18,7 +18,6 @@ const getGateActivatedTab = async () => {
 
 /**
  * 检查页面的 bilibili-gate 兼容性
- * @returns {null|Promise<any>}
  */
 const check_bilibili_gate_compatibility = async () => {
     const el = await elUtil.findElement('.bilibili-gate-root', {interval: 300, timeout: 5000})
@@ -42,7 +41,6 @@ const bGateClearListNonVideoV = bGateClearListNonVideoGm();
 
 /**
  * 获取Bilibili-Gate脚本下的首页视频列表
- * @returns {Promise<[{}]>}
  */
 const getGateDataList = async () => {
     const elList = await elUtil.findElements(".bilibili-gate-video-grid>[data-bvid].bili-video-card")

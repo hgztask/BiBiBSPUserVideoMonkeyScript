@@ -24,7 +24,6 @@ const dealingWithHotSearchTerms = (el: any, label: any) => {
 
 /**
  * 开始屏蔽热门搜索
- * @returns {Promise<void>|null}
  */
 export const startShieldingHotList = async () => {
     if (isHideHotSearchesPanelGm()) {
