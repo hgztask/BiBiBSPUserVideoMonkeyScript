@@ -70,7 +70,7 @@ eventEmitter.on('e:设置顶部按钮状态', (show: boolean) => {
                direction="ltr"
                size="100%"
                style="position: fixed">
-      <el-tabs id="app" v-model="tabsActiveName"
+      <el-tabs id="gz-drawer-tabs" v-model="tabsActiveName"
                type="border-card">
         <el-tab-pane label="面板设置" lazy name="面板设置">
           <panelSettingsView/>
@@ -119,8 +119,16 @@ eventEmitter.on('e:设置顶部按钮状态', (show: boolean) => {
 </template>
 
 <style>
-#app > .el-tabs__content {
+/* 主面板 tabs 容器样式；id 使用 gz-drawer-tabs 避免与 B 站页面自身 #app 冲突（深色主题下 #app 会被 B 站深色 CSS 染色/干扰，导致面板样式异常、drawer 动画卡住） */
+#gz-drawer-tabs > .el-tabs__content {
   padding: 0 !important;
   background: white;
+}
+
+/* B 站页面环境下 Vue Transition 的 drawer 打开动画偶发不完成（enter-from 类残留、drawer 卡在视口外），
+   强制把进入动画的位移动画归零，保证面板始终可见 */
+.is-drawer.el-drawer-fade-enter-from .el-drawer.ltr,
+.is-drawer.el-drawer-fade-leave-to .el-drawer.ltr {
+  transform: translate(0) !important;
 }
 </style>
