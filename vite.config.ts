@@ -87,7 +87,6 @@ function writePublishShell(): void {
     const distRelease = resolve(__dirname, 'dist-release');
     const meta = mkUtil.readTamperMonkey(resolve(__dirname, 'tamper_monkey.json')).notDevData;
     const publishMeta = {...meta};
-    delete publishMeta.resource;
     // 发布产物 @require：vue + dexie 走 CDN（与本地一致）；vue-bridge 与 EP 内联，不进 @require
     publishMeta.require = [
         VUE_URL,
@@ -129,7 +128,6 @@ function writeInstallShell(): void {
     const dist = resolve(__dirname, 'dist');
     const meta = mkUtil.readTamperMonkey(resolve(__dirname, 'tamper_monkey.json')).notDevData;
     const installMeta = {...meta};
-    delete installMeta.resource;
     installMeta.require = [
         VUE_URL,
         `file://${dist}\\vue-bridge.js`,

@@ -122,7 +122,7 @@ eventEmitter.on('e:设置顶部按钮状态', (show: boolean) => {
 /* 主面板 tabs 容器样式；id 使用 gz-drawer-tabs 避免与 B 站页面自身 #app 冲突（深色主题下 #app 会被 B 站深色 CSS 染色/干扰，导致面板样式异常、drawer 动画卡住） */
 #gz-drawer-tabs > .el-tabs__content {
   padding: 0 !important;
-  background: white;
+  background: var(--el-bg-color-page);
 }
 
 /* B 站页面环境下 Vue Transition 的 drawer 打开动画偶发不完成（enter-from 类残留、drawer 卡在视口外），

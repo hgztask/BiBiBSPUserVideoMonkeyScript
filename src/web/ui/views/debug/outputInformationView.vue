@@ -331,9 +331,9 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
 
 <style scoped>
 .output-information-view {
-  --output-border: #e6eaf0;
-  --output-muted: #8a94a6;
-  --output-text: #25324a;
+  --output-border: var(--el-border-color-lighter);
+  --output-muted: var(--el-text-color-secondary);
+  --output-text: var(--el-text-color-primary);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -341,7 +341,7 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   min-height: 360px;
   height: calc(100vh - 88px);
   padding: 14px 16px 16px;
-  background: #f5f7fa;
+  background: var(--el-bg-color-page);
 }
 
 .output-toolbar,
@@ -354,7 +354,7 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   padding: 12px 14px;
   border: 1px solid var(--output-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--el-bg-color-overlay);
 }
 
 .output-toolbar__title {
@@ -404,7 +404,7 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
 
 .output-filter-hint {
   flex: none;
-  color: #409eff;
+  color: var(--el-color-primary);
   font-size: 12px;
 }
 
@@ -413,7 +413,7 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   min-height: 0;
   overflow-y: auto;
   padding: 2px 4px 12px 2px;
-  scrollbar-color: #cbd3df transparent;
+  scrollbar-color: var(--el-border-color) transparent;
   scrollbar-width: thin;
 }
 
@@ -423,7 +423,7 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
 
 .output-list::-webkit-scrollbar-thumb {
   border-radius: 8px;
-  background: #cbd3df;
+  background: var(--el-border-color);
 }
 
 .output-item {
@@ -436,13 +436,13 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   overflow: hidden;
   border: 1px solid var(--output-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--el-bg-color-overlay);
   box-shadow: 0 1px 2px rgba(31, 45, 61, .03);
   transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
 .output-item:hover {
-  border-color: #c8d7ea;
+  border-color: var(--el-border-color);
   box-shadow: 0 4px 14px rgba(31, 45, 61, .08);
   transform: translateY(-1px);
 }
@@ -450,20 +450,20 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
 .output-item__accent {
   flex: none;
   width: 3px;
-  background: #409eff;
+  background: var(--el-color-primary);
 }
 
 .output-item--shield-video-info .output-item__accent,
 .output-item--shield-comment-info .output-item__accent {
-  background: #e6a23c;
+  background: var(--el-color-warning);
 }
 
 .output-item--update-out-info .output-item__accent {
-  background: #67c23a;
+  background: var(--el-color-success);
 }
 
 .output-item--error .output-item__accent {
-  background: #f56c6c;
+  background: var(--el-color-danger);
 }
 
 .output-item__main {
@@ -481,7 +481,7 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
 }
 
 .output-item__position {
-  color: #b2bac8;
+  color: var(--el-text-color-secondary);
   font-size: 11px;
 }
 
@@ -531,8 +531,8 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   overflow: auto;
   padding: 12px;
   border-radius: 6px;
-  background: #172033;
-  color: #dce7f7;
+  background: var(--el-fill-color);
+  color: var(--el-text-color-primary);
   font: 12px/1.6 Consolas, "Courier New", monospace;
   white-space: pre-wrap;
   word-break: break-word;
@@ -551,22 +551,22 @@ eventEmitter.on('正则匹配时异常', (errorData: any) => {
   min-height: 240px;
   height: 100%;
   padding: 32px;
-  border: 1px dashed #cfd7e3;
+  border: 1px dashed var(--el-border-color);
   border-radius: 8px;
-  background: rgba(255, 255, 255, .72);
+  background: var(--el-fill-color-lighter);
   color: var(--output-muted);
   text-align: center;
 }
 
 .output-empty i {
   margin-bottom: 12px;
-  color: #b8c2d1;
+  color: var(--el-text-color-secondary);
   font-size: 30px;
 }
 
 .output-empty strong {
   margin-bottom: 6px;
-  color: #5c687a;
+  color: var(--el-text-color-primary);
   font-size: 14px;
   font-weight: 500;
 }

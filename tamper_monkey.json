@@ -20,6 +20,12 @@
     "GM_xmlhttpRequest",
     "GM_getResourceText"
   ],
+  "@connect": [
+    "unpkg.com"
+  ],
+  "@resource": [
+    "gzDarkCss https://unpkg.com/element-plus@2.14.5/theme-chalk/dark/css-vars.css"
+  ],
   "@exclude": [
     "*://message.bilibili.com/pages/nav/header_sync",
     "*://message.bilibili.com/pages/nav/index_new_pc_sync",

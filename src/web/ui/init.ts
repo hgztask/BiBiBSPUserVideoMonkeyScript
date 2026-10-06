@@ -8,6 +8,7 @@ import type {App as VueApp} from "vue";
 import GzSpace from "./components/GzSpace.vue";
 import GzText from "./components/GzText.vue";
 import {installElBridge} from "./elBridge.ts";
+import darkTheme from "./darkTheme.ts";
 
 declare global {
     interface Window {
@@ -44,6 +45,8 @@ onDomReady(() => {
     window.mk_vue_app.component('gz-text', GzText)
     addGzStyle(document);
     cssManager.updateCssVModal();
+    // 深色主题同步（跟随 B 站 bili_dark 类，实时注入/移除 EP 深色变量）
+    darkTheme.startDarkThemeSync();
 })
 
 GM_addStyle(`
