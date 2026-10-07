@@ -21,6 +21,7 @@ import RightFloatingLayoutView from "./views/settings/rightFloatingLayoutView.vu
 import conditionalityView from './views/rule/conditionalityView.vue';
 import defUtil from "../core/util/defUtil.ts";
 import {ElMessageBox} from 'element-plus';
+import {nextTick} from 'vue';
 
 const drawer = ref(false);
 // 默认打开的tab
@@ -29,6 +30,51 @@ const debug_panel_show = ref(__DEV__);
 // ws 开关开启后，生产构建也显示"调试测试"页签，便于随时关闭 ws 连接
 const ws_panel_show = ref(__DEV__ || debuggerManagement.isWsService());
 const isShowBackToTopVal = ref(localMKData.isShowBackToTopBtn());
+
+/**
+ * B 站页面环境下 EP drawer 的 Vue Transition 动画间歇性不完成（enter-from 类残留、面板卡在视口外），
+ * 用 Web Animations API 手动驱动开合动画，绕开 Vue Transition 的不稳定性：
+ * - 打开：从 translateX(-100%) 滑入到 translateX(0)；
+ * - 关闭：从 translateX(0) 滑出到 translateX(-100%)；
+ * - 动画开始前清理 wrap 上残留的 Vue Transition 动画类，避免 enter-from 把 transform 锁死在 -100%。
+ */
+const animateDrawer = (open: boolean): void => {
+  nextTick(() => {
+    const wrapEl = document.querySelector('.is-drawer.el-modal-drawer') as HTMLElement | null;
+    if (wrapEl) {
+      // 清理 Vue Transition 残留动画类，避免锁死 transform
+      wrapEl.classList.remove(
+        'el-drawer-fade-enter-from', 'el-drawer-fade-enter-active', 'el-drawer-fade-enter-to',
+        'el-drawer-fade-leave-from', 'el-drawer-fade-leave-active', 'el-drawer-fade-leave-to'
+      );
+    }
+    const drawerEl = document.querySelector('.el-drawer') as HTMLElement | null;
+    if (!drawerEl) return;
+    // 取消进行中的动画，避免叠加
+    drawerEl.getAnimations().forEach((anim) => anim.cancel());
+    const from = open
+      ? {transform: 'translateX(-100%)'}
+      : {transform: 'translateX(0)'};
+    const to = open
+      ? {transform: 'translateX(0)'}
+      : {transform: 'translateX(-100%)'};
+    // 动画结束后（含失败/超时）强制归位，确保面板不卡在视口外
+    const finalize = (): void => {
+      drawerEl.style.transform = open ? 'translateX(0)' : 'translateX(-100%)';
+    };
+    try {
+      drawerEl.animate([from, to], {duration: 280, easing: 'ease'}).finished.then(finalize).catch(finalize);
+    } catch (e) {
+      finalize();
+    }
+    // 超时兜底：动画异常不推进时也强制归位
+    setTimeout(finalize, 500);
+  });
+}
+
+watch(drawer, (open) => {
+  animateDrawer(open);
+});
 
 watch(tabsActiveName,(n)=>{
   GM_setValue('mainTabsActiveName', n);
@@ -125,10 +171,7 @@ eventEmitter.on('e:设置顶部按钮状态', (show: boolean) => {
   background: var(--el-bg-color-page);
 }
 
-/* B 站页面环境下 Vue Transition 的 drawer 打开动画偶发不完成（enter-from 类残留、drawer 卡在视口外），
-   强制把进入动画的位移动画归零，保证面板始终可见 */
-.is-drawer.el-drawer-fade-enter-from .el-drawer.ltr,
-.is-drawer.el-drawer-fade-leave-to .el-drawer.ltr {
-  transform: translate(0) !important;
-}
+/* 开合动画由 App.vue 的 animateDrawer 用 Web Animations API 驱动（见 script 区）：
+   - 动画前清理 Vue Transition 残留动画类（避免 enter-from 锁死 transform），动画后强制 transform 归位，
+     从而绕开 B 站页面环境下 Vue Transition 动画偶发不完成导致的"面板卡在视口外" */
 </style>
