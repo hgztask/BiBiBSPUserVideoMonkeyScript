@@ -31,18 +31,24 @@ const debug_panel_show = ref(__DEV__);
 const ws_panel_show = ref(__DEV__ || debuggerManagement.isWsService());
 const isShowBackToTopVal = ref(localMKData.isShowBackToTopBtn());
 
+/** 开合动画令牌：递增序号，防止连续开关时旧动画/兜底回调覆盖新状态 */
+let drawerAnimToken = 0;
+
 /**
  * B 站页面环境下 EP drawer 的 Vue Transition 动画间歇性不完成（enter-from 类残留、面板卡在视口外），
  * 用 Web Animations API 手动驱动开合动画，绕开 Vue Transition 的不稳定性：
- * - 打开：从 translateX(-100%) 滑入到 translateX(0)；
- * - 关闭：从 translateX(0) 滑出到 translateX(-100%)；
- * - 动画开始前清理 wrap 上残留的 Vue Transition 动画类，避免 enter-from 把 transform 锁死在 -100%。
+ * - 打开：从 translateX(100%) 滑入到 translateX(0)（direction=rtl，从右侧滑入）；
+ * - 关闭：从 translateX(0) 滑出到 translateX(100%)（滑出到右侧），并确保 wrap 隐藏不残留；
+ * - 动画开始前清理 wrap 上残留的 Vue Transition 动画类，避免 enter-from 把 transform 锁死；
+ * - token 防竞态：连续开关时只有最新一次调用的回调能生效。
  */
 const animateDrawer = (open: boolean): void => {
+  const token = ++drawerAnimToken;
   nextTick(() => {
     const wrapEl = document.querySelector('.is-drawer.el-modal-drawer') as HTMLElement | null;
     if (wrapEl) {
-      // 清理 Vue Transition 残留动画类，避免锁死 transform
+      // 打开时确保 wrap 可见；清理 Vue Transition 残留动画类，避免锁死 transform
+      if (open) wrapEl.style.display = '';
       wrapEl.classList.remove(
         'el-drawer-fade-enter-from', 'el-drawer-fade-enter-active', 'el-drawer-fade-enter-to',
         'el-drawer-fade-leave-from', 'el-drawer-fade-leave-active', 'el-drawer-fade-leave-to'
@@ -53,21 +59,27 @@ const animateDrawer = (open: boolean): void => {
     // 取消进行中的动画，避免叠加
     drawerEl.getAnimations().forEach((anim) => anim.cancel());
     const from = open
-      ? {transform: 'translateX(-100%)'}
+      ? {transform: 'translateX(100%)'}
       : {transform: 'translateX(0)'};
     const to = open
       ? {transform: 'translateX(0)'}
-      : {transform: 'translateX(-100%)'};
-    // 动画结束后（含失败/超时）强制归位，确保面板不卡在视口外
+      : {transform: 'translateX(100%)'};
+    // 动画结束/超时后：若仍是最新状态则强制归位（打开贴合右缘，关闭滑出右侧并隐藏 wrap）
     const finalize = (): void => {
-      drawerEl.style.transform = open ? 'translateX(0)' : 'translateX(-100%)';
+      if (token !== drawerAnimToken) return; // 竞态：已有更新的开关请求，放弃本次
+      if (open) {
+        drawerEl.style.transform = 'translateX(0)';
+      } else {
+        drawerEl.style.transform = 'translateX(100%)';
+        if (wrapEl) wrapEl.style.display = 'none';
+      }
     };
     try {
       drawerEl.animate([from, to], {duration: 280, easing: 'ease'}).finished.then(finalize).catch(finalize);
     } catch (e) {
       finalize();
     }
-    // 超时兜底：动画异常不推进时也强制归位
+    // 超时兜底：动画异常不推进时也强制归位（仅最新状态）
     setTimeout(finalize, 500);
   });
 }
@@ -113,7 +125,7 @@ eventEmitter.on('e:设置顶部按钮状态', (show: boolean) => {
     <el-drawer :modal="false"
                v-model="drawer"
                :with-header="false"
-               direction="ltr"
+               direction="rtl"
                size="100%"
                style="position: fixed">
       <el-tabs id="gz-drawer-tabs" v-model="tabsActiveName"
