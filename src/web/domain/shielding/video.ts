@@ -266,13 +266,25 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
     } else {
         el.style.display = "none";
     }
+    // 只取安全字段用于日志快照，避免深拷贝含 Vue 响应式实例的整个 videoData 导致卡死
+    const safeData = {
+        title: videoData.title,
+        name: videoData.name,
+        uid: videoData.uid,
+        bv: videoData.bv,
+        videoUrl: videoData.videoUrl,
+        userUrl: videoData.userUrl,
+        nPlayCount: videoData.nPlayCount,
+        nBulletChat: videoData.nBulletChat,
+        nDuration: videoData.nDuration
+    };
     sendShieldLog({
         source: "DOM层过滤",
         ruleType: type ?? "视频规则",
         matching,
         objectType: "视频",
-        data: videoData,
-        original: videoData
+        data: safeData,
+        original: safeData
     })
 })
 

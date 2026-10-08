@@ -53,7 +53,11 @@ const isMeaningful = (value: unknown): boolean =>
     value !== undefined && value !== null && value !== "";
 
 /** 递归生成可安全展示和比较的 JSON 快照，跳过 DOM、函数及循环引用字段。 */
-export const cloneSerializable = (value: unknown, ancestors = new WeakSet<object>()): JsonValue | undefined => {
+export const cloneSerializable = (
+    value: unknown,
+    ancestors = new WeakSet<object>(),
+    depth = 0
+): JsonValue | undefined => {
     if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
         return value;
     }
@@ -61,12 +65,19 @@ export const cloneSerializable = (value: unknown, ancestors = new WeakSet<object
     if (value instanceof Date) return value.toJSON();
     if (typeof value !== "object" || ancestors.has(value)) return undefined;
 
+    // 跳过 DOM 节点：避免深拷贝元素（含大量属性/子节点/事件引用）导致卡死
+    if (typeof Element !== "undefined" && value instanceof Element) return undefined;
+    if (typeof Node !== "undefined" && value instanceof Node) return undefined;
+
+    // 深度保护：防止含共享引用/自引用的复杂对象导致无限递归
+    if (depth > 40) return undefined;
+
     ancestors.add(value);
     try {
         if (Array.isArray(value)) {
             const result: JsonValue[] = [];
             for (const item of value) {
-                const cloned = cloneSerializable(item, ancestors);
+                const cloned = cloneSerializable(item, ancestors, depth + 1);
                 if (cloned !== undefined) result.push(cloned);
             }
             return result;
@@ -74,7 +85,7 @@ export const cloneSerializable = (value: unknown, ancestors = new WeakSet<object
         const result: {[key: string]: JsonValue} = {};
         for (const [key, item] of Object.entries(value)) {
             if (key === "el" || typeof item === "function" || item === undefined) continue;
-            const cloned = cloneSerializable(item, ancestors);
+            const cloned = cloneSerializable(item, ancestors, depth + 1);
             if (cloned !== undefined) result[key] = cloned;
         }
         return result;

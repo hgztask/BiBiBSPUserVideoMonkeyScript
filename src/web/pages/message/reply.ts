@@ -44,7 +44,9 @@ export default {
                 const {state, type, matching} = res;
                 if (state) {
                     v.el.remove();
-                    sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: v, original: v})
+                    // 只取安全字段用于日志快照，避免深拷贝含 DOM/Vue 结构的完整数据导致卡死
+                    const safeData = {name: v.name, uid: v.uid, content: v.content};
+                    sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: safeData, original: safeData})
                 } else {
                     eventEmitter.send('评论添加屏蔽按钮', v)
                 }

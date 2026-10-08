@@ -67,7 +67,14 @@ const shieldingCommentAsync = async (commentsData: CommentData): Promise<any> =>
     }
     if (state) {
         commentsData.el?.remove()
-        sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: commentsData, original: commentsData});
+        // 只取安全字段用于日志快照，避免深拷贝含 DOM/Vue 结构的完整评论数据导致卡死
+        const safeData = {
+            name: commentsData.name,
+            uid: commentsData.uid,
+            content: commentsData.content,
+            level: commentsData.level
+        };
+        sendShieldLog({source: "DOM层过滤", ruleType: type ?? "评论规则", matching, objectType: "评论", data: safeData, original: safeData});
         return state;
     }
     return state;
