@@ -42,9 +42,8 @@ const getVideoDataListItem = (el: any) => {
  * 获取视频列表
  * 获取综合热门页面和热门中的每周必看页面
  * @param isWeekly {boolean} 是否是每周必看页面
- * @returns {Promise<*[]>}
  */
-const getVideDataList = async (isWeekly: any = false) => {
+const getVideDataList = async (isWeekly: any = false): Promise<any[]> => {
     const css = isWeekly ? ".video-list>.video-card" : ".card-list>.video-card";
     const elList = await elUtil.findElements(css);
     const list: any[] = [];
