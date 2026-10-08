@@ -10,6 +10,11 @@ import urlUtil from "../core/util/urlUtil.ts";
  * @param url {string}
  */
 const isPartition = (url: any = window.location.href) => {
+    // 分区页路径形如 /v/douga、/v/channel/xxx；热门/榜单页虽以 /v/ 开头但非分区，
+    // 需排除，避免被误判成分区页后触发分区无限轮询屏蔽（见 startIntervalShieldingVideoList）
+    if (url.includes('www.bilibili.com/v/popular') || url.includes('www.bilibili.com/v/ranking')) {
+        return false
+    }
     return url.includes('www.bilibili.com/v/');
 }
 
@@ -46,7 +51,6 @@ const getHotVideoDayList = async () => {
 
 /**
  * 获取视频列表_路径v/
- * @returns {Promise<[]>}
  */
 const getVVideoDataList = async () => {
     const elList = await elUtil.findElements('.bili-video-card')
@@ -158,11 +162,15 @@ const startShieldingHotVideoDayList = async () => {
     }
 }
 
+/** 分区页屏蔽轮询 timer：防重入，避免多次「通知屏蔽」各起一个 interval 导致 timer 无限堆积 */
+let partitionShieldingInterval: ReturnType<typeof setInterval> | null = null;
+
 /**
  * 开始定时屏蔽视频列表
  */
 const startIntervalShieldingVideoList = () => {
-    setInterval(async () => {
+    if (partitionShieldingInterval !== null) return;
+    partitionShieldingInterval = setInterval(async () => {
         await shieldingVideoList()
         for (let el of document.querySelectorAll('.feed-card:empty')) {
             el?.remove();
