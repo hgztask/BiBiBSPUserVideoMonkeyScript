@@ -1,6 +1,6 @@
 import urlUtil from "../../core/util/urlUtil.ts";
 import elUtil from "../../core/util/elUtil.ts";
-import shielding, {blockComment, blockUserUidAndName} from "../../domain/shielding/main.ts";
+import shielding, {blockCheckWhiteUserUid, blockComment, blockUserUidAndName} from "../../domain/shielding/main.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
 import {sendShieldLog} from "@/core/shieldLog.ts";
 import {IntervalExecutor} from "@/core/cache/IntervalExecutor.ts";
@@ -90,7 +90,9 @@ export default {
     checkMsgListIntervalExecutor: new IntervalExecutor(() => {
         getMsgList().then(msgList => {
             for (const msgData of msgList) {
-                const {name, msg, el} = msgData;
+                const {name, msg, el, uid} = msgData;
+                const uidNum = Number(uid);
+                if (!isNaN(uidNum) && uidNum !== -1 && blockCheckWhiteUserUid(uidNum)) continue;
                 const {state, type, matching} = blockComment(msg);
                 if (!state) continue;
                 el.remove();

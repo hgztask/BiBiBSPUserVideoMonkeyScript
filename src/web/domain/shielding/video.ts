@@ -40,6 +40,7 @@ import shielding, {
     asyncBlockVideoLikeRate,
     asyncBlockVideoTeamMember,
     asyncBlockVideoTripleRate,
+    blockCheckWhiteUserUid,
     blockUserUidAndName,
     blockVideoOrOtherTitle
 } from "./main.ts";
@@ -189,7 +190,7 @@ const asyncBlockArgueMsgContent = async (argueMsg: string | undefined): Promise<
 /** 响应层可用的基础视频字段，不依赖页面DOM */
 type SyncVideoData = Pick<VideoData, 'title' | 'name'> & Partial<Pick<VideoData, 'uid' | 'nDuration' | 'nBulletChat' | 'nPlayCount' | 'bv'>>;
 
-/** 同步视频屏蔽核心流程：依次检查uid/name、标题、bv号、时长、弹幕数、播放量 */
+/** 同步视频屏蔽核心流程：依次检查uid/name、标题、bv号、时长、弹幕数、播放量；uid白名单命中直接放行 */
 export const shieldingVideo = (videoData: SyncVideoData): BlockResult => {
     const {
         title, uid = -1,
@@ -197,6 +198,7 @@ export const shieldingVideo = (videoData: SyncVideoData): BlockResult => {
         nBulletChat = -1, nPlayCount = -1,
         bv = null
     } = videoData;
+    if (uid !== -1 && blockCheckWhiteUserUid(uid)) return returnTempVal;
     let returnVal = blockUserUidAndName(uid, name);
     if (returnVal.state) return returnVal;
     if (isEffectiveUIDShieldingOnlyVideo()) return returnTempVal;
@@ -291,6 +293,7 @@ eventEmitter.on('event-屏蔽视频元素', ({res, method = "remove", videoData}
 /** 异步深度视频屏蔽链：通过API获取的完整视频/用户信息，依次执行所有屏蔽检查的promise链 */
 const shieldingOtherVideoParameter = async (result: VideoShieldData, videoData: VideoData): Promise<BlockResult> => {
     const {tags = [], userInfo, videoInfo} = result
+    if (blockCheckWhiteUserUid(userInfo.uid)) return returnTempVal;
     return asyncBlockUserUidAndName(userInfo.uid, userInfo.name)
         .then(() => {
             if (!isEffectiveUIDShieldingOnlyVideo()) {

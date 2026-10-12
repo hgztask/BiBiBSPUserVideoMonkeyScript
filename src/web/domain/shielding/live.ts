@@ -215,6 +215,7 @@ export default {
             content, uid, name, level = -1, chatType, fansMedal, fanBrandLevel, el,
             roomId, gloryLevelSrc = null
         } = liveRoomContent;
+        if (uid !== -1 && blockCheckWhiteUserUid(uid)) return;
         asyncBlockSeniorMemberOnly(level)
             .then(() => asyncBlockUserUidAndName(uid, name))
             .then(() => asyncBlockByLevelForComment(level))

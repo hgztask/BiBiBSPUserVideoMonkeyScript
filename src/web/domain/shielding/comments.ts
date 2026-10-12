@@ -2,6 +2,7 @@ import {eventEmitter} from "@/core/EventEmitter.ts";
 import {sendShieldLog} from "@/core/shieldLog.ts";
 import shielding, {
     blockByLevelForComment,
+    blockCheckWhiteUserUid,
     blockComment,
     blockSeniorMemberOnly,
     blockUserUidAndName
@@ -36,6 +37,7 @@ const shieldingComment = (commentsData: CommentData): BlockResult => {
         content, uid, name, level = -1, decoratePic = null,
         collectionActId = -1, dressUpId = -1,
     } = commentsData;
+    if (uid !== -1 && blockCheckWhiteUserUid(uid)) return returnTempVal;
     let returnVal = blockSeniorMemberOnly(level)
     if (returnVal.state) return returnVal;
     returnVal = blockUserUidAndName(uid, name)

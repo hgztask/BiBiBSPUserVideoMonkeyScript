@@ -532,9 +532,12 @@ export const asyncBlockByLevel = async (level: number): Promise<void> => {
     if (res.state) return Promise.reject(res);
 }
 
-/** 根据用户uid和name联合检查屏蔽，依次检查uid全流程和用户名 */
+/** 根据用户uid和name联合检查屏蔽，依次检查uid全流程和用户名。uid白名单命中直接放行，跳过该用户所有屏蔽检查 */
 export const blockUserUidAndName = (uid: number, name: string): BlockResult => {
     if (!uid || !name) {
+        return returnTempVal
+    }
+    if (blockCheckWhiteUserUid(uid)) {
         return returnTempVal
     }
     let returnVal = blockUidWholeProcess(uid)
