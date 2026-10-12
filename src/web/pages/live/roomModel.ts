@@ -6,7 +6,7 @@ import userProfile from "../userProfile.ts";
 import ruleUtil from "../../core/util/ruleUtil.ts";
 import defUtil from "../../core/util/defUtil.ts";
 import {isDelLivePageRightSidebarGm, isHideLiveGiftPanelGm, isRoomBackgroundHideGm} from "@/state/localMKData.ts";
-import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName,} from "@/domain/shielding/main.ts";
+import {asyncBlockByLevel, asyncBlockComment, asyncBlockUserUidAndName, blockCheckWhiteUserUid} from "@/domain/shielding/main.ts";
 import liveCommon from "./common.ts";
 import cssManager from "../../domain/cssManager.ts";
 import urlUtil from "../../core/util/urlUtil.ts";
@@ -155,6 +155,8 @@ const checkSCList = async () => {
     const list = await getSCList();
     for (let v of list) {
         const {uid, uname, el, userLevel, fansMedalName, message} = v;
+        // uid白名单最高优先：命中则跳过该用户的醒目留言所有屏蔽检查
+        if (blockCheckWhiteUserUid(uid)) continue;
         asyncBlockUserUidAndName(uid, uname)
             .then(() => asyncBlockComment(message))
             .then(() => asyncBlockByLevel(userLevel))

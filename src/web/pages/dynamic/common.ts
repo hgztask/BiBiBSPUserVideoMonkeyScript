@@ -151,13 +151,12 @@ const getDataList = async () => {
 
 const checkEachItem = (dynamicData: any, ruleArrMap: any) => {
     const {desc, name, uid = -1, videoTitle = null, orig = null} = dynamicData;
+    // uid白名单最高优先：命中则跳过该用户的所有动态屏蔽检查（含转发类等类型规则）
+    if (uid !== -1 && blockCheckWhiteUserUid(uid)) return false;
     const blockRepostDynamicGm = isBlockRepostDynamicGm();
     if (orig && blockRepostDynamicGm) {
         sendShieldLog({source: "屏蔽", ruleType: "转发类动态", objectType: "动态", data: {name, uid, content: desc, type: "转发"}})
         return true;
-    }
-    if (uid !== -1) {
-        if (blockCheckWhiteUserUid(uid)) return false;
     }
     if (desc === "" && videoTitle === null) return false;
     if (dynamicData['reserveTitle'] && isBlockAppointmentDynamicGm()) {
@@ -221,5 +220,7 @@ const commonCheckDynamicList = async () => {
 
 //动态公共方法
 export default {
-    commonCheckDynamicList
+    commonCheckDynamicList,
+    /** 导出供白名单回归测试使用 */
+    checkEachItem
 }
