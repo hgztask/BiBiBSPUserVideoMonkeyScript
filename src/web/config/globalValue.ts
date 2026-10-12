@@ -16,7 +16,11 @@ export const returnTempVal: { state: boolean } = {state: false}
 
 export const promiseResolve: Promise<void> = Promise.resolve()
 
+// 模块加载期就存在的已拒绝Promise单例：挂一个无副作用catch，
+// 避免真实页面/测试环境每次加载模块（含 vi.resetModules 重复求值）都产生 unhandledRejection 警告。
+// Promise 支持多方订阅，调用方后续的 .catch() 仍能正常接收到 rejection，语义不变。
 export const promiseReject: Promise<never> = Promise.reject()
+promiseReject.catch(() => {})
 
 export default {
     group_url,
