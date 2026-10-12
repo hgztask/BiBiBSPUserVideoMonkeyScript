@@ -92,4 +92,36 @@ describe("uid白名单最高优先", () => {
         expect(res.state).toBe(true);
         expect(res.type).toBe("模糊评论");
     });
+
+    it("动态checkEachItem: 白名单uid的转发动态即使开启屏蔽转发类也不屏蔽", async () => {
+        gmStore.set("precise_uid_white", [123456]);
+        gmStore.set("is_block_repost_dynamic_gm", true);
+        const dynamicCommon = (await import("../src/web/pages/dynamic/common.ts")).default;
+        const res = dynamicCommon.checkEachItem(
+            {desc: "转发内容", name: "白名单用户", uid: 123456, orig: {}},
+            {fuzzyRuleArr: [], regexRuleArr: []}
+        );
+        expect(res).toBe(false);
+    });
+
+    it("动态checkEachItem: 非白名单uid的转发动态命中转发类屏蔽", async () => {
+        gmStore.set("precise_uid_white", []);
+        gmStore.set("is_block_repost_dynamic_gm", true);
+        const dynamicCommon = (await import("../src/web/pages/dynamic/common.ts")).default;
+        const res = dynamicCommon.checkEachItem(
+            {desc: "转发内容", name: "普通用户", uid: 999999, orig: {}},
+            {fuzzyRuleArr: [], regexRuleArr: []}
+        );
+        expect(res).toBe(true);
+    });
+
+    it("动态checkEachItem: 白名单uid的动态内容命中关键词规则不屏蔽", async () => {
+        gmStore.set("precise_uid_white", [123456]);
+        const dynamicCommon = (await import("../src/web/pages/dynamic/common.ts")).default;
+        const res = dynamicCommon.checkEachItem(
+            {desc: "含关键词的动态内容", name: "白名单用户", uid: 123456},
+            {fuzzyRuleArr: ["关键词"], regexRuleArr: []}
+        );
+        expect(res).toBe(false);
+    });
 });
