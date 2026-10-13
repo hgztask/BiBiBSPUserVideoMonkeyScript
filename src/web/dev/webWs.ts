@@ -45,12 +45,35 @@ const originConsole: Record<Level, (...args: any[]) => void> = {
     error: console.error.bind(console),
 };
 
+let consoleForwardingInstalled: boolean = false;
+
 function installConsoleForwarding(): void {
+    // 幂等：WebSocket 连接/重连会多次进入 connectWebSocket，只接管一次，避免重复包装导致日志重复转发
+    if (consoleForwardingInstalled) return;
+    consoleForwardingInstalled = true;
     (['log', 'warn', 'error'] as Level[]).forEach((level) => {
-        console[level] = (...args: any[]): void => {
-            originConsole[level](...args);
+        const origin = originConsole[level];
+        const override = (...args: any[]): void => {
+            origin(...args);
             send({type: 'log', level, text: formatArgs(args)});
         };
+        try {
+            // Firefox 等浏览器中 console 方法可能是只有 getter 的只读访问器，
+            // 直接赋值会抛 "Cannot set property log ... which has only a getter"，
+            // 且发生在模块加载期会中断整个脚本启动。可配置时改用 defineProperty 接管，否则跳过该级别。
+            const descriptor = Object.getOwnPropertyDescriptor(console, level);
+            if (descriptor && descriptor.configurable && !descriptor.writable) {
+                Object.defineProperty(console, level, {
+                    configurable: true,
+                    writable: true,
+                    value: override,
+                });
+            } else {
+                console[level] = override;
+            }
+        } catch {
+            // 接管失败（如不可配置的只读方法）：保持原始 console，该级别不再转发，不影响脚本其余功能
+        }
     });
 }
 
@@ -74,6 +97,9 @@ function installErrorForwarding(): void {
 
 function connectWebSocket(): void {
     if (ws) ws.close();
+    // 仅在真正启用调试通道时才接管 console（默认 isWsService 关闭，普通用户不触碰 console，
+    // 也避免 Firefox 等只读 console 环境在模块加载期直接抛错中断脚本）
+    installConsoleForwarding();
     ws = new WebSocket(WS_URL);
     ws.onopen = (): void => {
         originConsole.log('✅ 油猴已连接 WebSocket');
@@ -142,7 +168,6 @@ const __wsReport = (data: unknown): void => {
 (window as any).__wsReport = __wsReport;
 (unsafeWindow as any).__wsReport = __wsReport;
 
-installConsoleForwarding();
 installErrorForwarding();
 
 export default {
@@ -152,4 +177,6 @@ export default {
         ws?.close();
         clearTimeout(reconnectTimer);
     },
+    // 供测试直接调用（验证只读 console 环境下不抛错）
+    installConsoleForwarding,
 }
