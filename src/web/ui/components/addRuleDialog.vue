@@ -155,7 +155,10 @@ const highRiskWarningText = computed(() => {
           .map(item => item.shortName)
   ));
   const hasVideoTag = selectedOptions.value.some(item => item.isVideoTag);
-  return `所选类型包含 ${names.join('、')}，会大范围影响页面内容${hasVideoTag ? '；视频tag包含分区' : ''}。`;
+  const videoTagNote = hasVideoTag
+      ? '视频tag规则同时匹配视频所在分区（含父分区和子分区），输入分区名会屏蔽整个分区。'
+      : '';
+  return `所选类型包含 ${names.join('、')}，会大范围影响页面内容。${videoTagNote}`;
 });
 
 interface NoticeItem {

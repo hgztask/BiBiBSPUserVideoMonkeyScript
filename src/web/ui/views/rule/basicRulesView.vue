@@ -159,7 +159,7 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
               5.如果更新脚本之后规则全没了，请点击下面的【旧规则自动转新规则】按钮，进行转换，如不行请通过关于和问题反馈选项卡中的反馈渠道联系作者
             </span>
             <span>6.改动实时生效</span>
-            <span>7. 分区包括子分区属于视频tag范畴,如需按分区屏蔽在对应视频tag类型添加</span>
+            <span>7. 视频tag规则同时匹配视频所在分区（含父分区和子分区）；如需按分区屏蔽，在对应视频tag类型添加</span>
             <span>8.
               基础规则中的项和组合规则互斥，如xxx添加到视频tag多重规则，则不能添加到对应基础规则视频tag，反之同理，限类型，如组合精确匹配；批量添加视频tag时会跳过已存在于组合规则中的值
             </span>
