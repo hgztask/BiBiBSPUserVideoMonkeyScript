@@ -415,10 +415,6 @@ watch(() => props.ruleInfo.mode, () => {
         <div class="mta-dialog-head">
           <div class="mta-title-row">
             <div class="mta-dialog-title">{{ dialogTitle }}</div>
-            <el-radio-group :model-value="activeOperation" size="small" @change="switchOperation">
-              <el-radio-button value="add">添加</el-radio-button>
-              <el-radio-button value="remove">移除</el-radio-button>
-            </el-radio-group>
             <el-radio-group :model-value="activeMode" size="small" @change="switchMode">
               <el-radio-button value="模糊匹配">模糊</el-radio-button>
               <el-radio-button value="精确匹配">精确</el-radio-button>
@@ -502,10 +498,16 @@ watch(() => props.ruleInfo.mode, () => {
       </div>
 
       <template #footer>
-        <span class="mta-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" :disabled="!canSubmit" :loading="isSubmitting" @click="onSubmit">{{ submitLabel }}</el-button>
-        </span>
+        <div class="mta-footer">
+          <el-radio-group :model-value="activeOperation" size="small" @change="switchOperation">
+            <el-radio-button value="add">添加</el-radio-button>
+            <el-radio-button value="remove">移除</el-radio-button>
+          </el-radio-group>
+          <div class="mta-footer-actions">
+            <el-button @click="dialogVisible = false">取消</el-button>
+            <el-button type="primary" :disabled="!canSubmit" :loading="isSubmitting" @click="onSubmit">{{ submitLabel }}</el-button>
+          </div>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -714,9 +716,18 @@ watch(() => props.ruleInfo.mode, () => {
 
 .mta-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 8px;
+  width: 100%;
+}
+
+.mta-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 :deep(.el-dialog__body) {
