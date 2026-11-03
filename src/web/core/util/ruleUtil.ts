@@ -1,4 +1,4 @@
-import ruleKeyListData from '../../config/ruleKeyListData.ts'
+import ruleKeyListData, {type MultiTypeOption} from '../../config/ruleKeyListData.ts'
 import {eventEmitter} from "../EventEmitter.ts";
 
 
@@ -352,6 +352,373 @@ const addPreciseUidItemRule = (uidArr: number[], isTip: boolean = true, coverage
     return {status, msg}
 }
 
+/* ============================ 多类型批量规则 ============================ */
+
+export type MultiTypeOperation = 'add' | 'remove';
+
+export interface MultiTypeValidationRow {
+    type: string;
+    name: string;
+    newCount: number;
+    existsCount: number;
+    invalidCount: number;
+    conflictCount: number;
+    removedCount: number;
+    notFoundCount: number;
+}
+
+export interface MultiTypeValidationResult {
+    rows: MultiTypeValidationRow[];
+    totalTypes: number;
+    totalValues: number;
+    totalItems: number;
+    totalNew: number;
+    totalExists: number;
+    totalInvalid: number;
+    totalConflict: number;
+    totalRemoved: number;
+    totalNotFound: number;
+    intRequired: boolean;
+    intInvalidValues: string[];
+    regexInvalidValues: string[];
+    whitelistSelected: boolean;
+    whitelistConflict: boolean;
+    videoTagConflictValues: string[];
+    highRiskTypes: string[];
+    canSubmit: boolean;
+}
+
+export interface MultiTypeAddRow {
+    type: string;
+    name: string;
+    added: (string | number)[];
+    duplicates: (string | number)[];
+    invalid: (string | number)[];
+    conflicts: (string | number)[];
+}
+
+export interface MultiTypeAddResult {
+    rows: MultiTypeAddRow[];
+    totalAdded: number;
+    totalDuplicates: number;
+    totalInvalid: number;
+    totalConflicts: number;
+}
+
+export interface MultiTypeDelRow {
+    type: string;
+    name: string;
+    removed: (string | number)[];
+    notFound: (string | number)[];
+    invalid: (string | number)[];
+}
+
+export interface MultiTypeDelResult {
+    rows: MultiTypeDelRow[];
+    totalRemoved: number;
+    totalNotFound: number;
+    totalInvalid: number;
+}
+
+/** 非负整数校验，拒绝 parseInt 会宽松接受的 "123abc" */
+const INT_VALUE_REGEX = /^\d+$/;
+
+/** 高影响面类型：评论、动态、tag、弹幕、视频tag、直播分区、热搜、签名、简介 */
+const HIGH_RISK_TYPES = new Set([
+    'commentOn',
+    'dynamic',
+    'dynamic_video',
+    'tag',
+    'precise_tag',
+    'liveBarrage',
+    'videoBarrage',
+    'videoTag',
+    'precise_videoTag',
+    'precise_partition',
+    'hotSearchKey',
+    'signature',
+    'videoDesc'
+]);
+
+/**
+ * 分割批量输入并去空、去重。
+ * 先 trim 再判空/去重，避免 " 原神" 和 "原神" 被当成两项，也避免纯空格进入规则。
+ */
+const splitRuleValues = (input: string, separator: string): string[] => {
+    const sep = separator === '' ? ',' : separator;
+    const result: string[] = [];
+    const seen = new Set<string>();
+    for (const raw of input.split(sep)) {
+        const value = raw.trim();
+        if (value === '' || seen.has(value)) continue;
+        seen.add(value);
+        result.push(value);
+    }
+    return result;
+};
+
+const isValidIntValue = (value: string): boolean => INT_VALUE_REGEX.test(value);
+
+const isValidRegexValue = (value: string): boolean => {
+    try {
+        new RegExp(value);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const normalizeRuleValue = (value: string, isInt: boolean): string | number => {
+    return isInt ? parseInt(value, 10) : value;
+};
+
+const getTypeValues = (type: string): (string | number)[] => {
+    const value = GM_getValue(type, []);
+    return Array.isArray(value) ? value as (string | number)[] : [];
+};
+
+/** 扁平化视频tag组合规则，用于检测和基础视频tag的互斥冲突 */
+const getVideoTagCombinationValues = (): Set<string> => {
+    const combinations = GM_getValue('videoTag_preciseCombination', [] as string[][]);
+    const values = new Set<string>();
+    if (!Array.isArray(combinations)) return values;
+    for (const combination of combinations) {
+        if (!Array.isArray(combination)) continue;
+        for (const item of combination) {
+            if (typeof item === 'string') values.add(item);
+        }
+    }
+    return values;
+};
+
+/**
+ * 校验多类型批量操作并生成预览统计。
+ * 添加：任一数字类型入选时整组必须是非负整数，否则 canSubmit=false。
+ * 移除：数字类型对非数字项按“非数字跳过”处理，不阻塞文本类型。
+ */
+const validateMultiTypeGroup = (
+    values: string[],
+    options: MultiTypeOption[],
+    operation: MultiTypeOperation
+): MultiTypeValidationResult => {
+    const rows: MultiTypeValidationRow[] = [];
+    const intRequired = options.some(option => option.isInt);
+    const intInvalidValues = intRequired ? values.filter(value => !isValidIntValue(value)) : [];
+    const hasRegexType = options.some(option => option.isRegex);
+    const regexInvalidValues = operation === 'add' && hasRegexType
+        ? values.filter(value => !isValidRegexValue(value))
+        : [];
+    const whitelistSelected = options.some(option => option.isWhitelist);
+    const whitelistConflict = options.some(option => option.type === 'precise_uid_white')
+        && options.some(option => option.type === 'precise_uid');
+    const videoTagTypes = options.filter(option => option.isVideoTag);
+    const combinationValues = videoTagTypes.length > 0 ? getVideoTagCombinationValues() : new Set<string>();
+    const videoTagConflictValues = videoTagTypes.length > 0
+        ? values.filter(value => combinationValues.has(value))
+        : [];
+    const highRiskTypes = options
+        .filter(option => HIGH_RISK_TYPES.has(option.type))
+        .map(option => option.type);
+
+    for (const option of options) {
+        const existing = new Set(getTypeValues(option.type));
+        let newCount = 0;
+        let existsCount = 0;
+        let invalidCount = 0;
+        let conflictCount = 0;
+        let removedCount = 0;
+        let notFoundCount = 0;
+
+        for (const value of values) {
+            if (option.isInt && !isValidIntValue(value)) {
+                invalidCount++;
+                continue;
+            }
+            if (operation === 'add' && option.isRegex && !isValidRegexValue(value)) {
+                invalidCount++;
+                continue;
+            }
+            if (operation === 'add' && option.isVideoTag && combinationValues.has(value)) {
+                conflictCount++;
+                continue;
+            }
+            const normalized = normalizeRuleValue(value, option.isInt);
+            const exists = existing.has(normalized);
+            if (operation === 'add') {
+                if (exists) {
+                    existsCount++;
+                } else {
+                    newCount++;
+                    existing.add(normalized);
+                }
+            } else if (exists) {
+                removedCount++;
+                existing.delete(normalized);
+            } else {
+                notFoundCount++;
+            }
+        }
+
+        rows.push({
+            type: option.type,
+            name: option.name,
+            newCount,
+            existsCount,
+            invalidCount,
+            conflictCount,
+            removedCount,
+            notFoundCount
+        });
+    }
+
+    const totalNew = rows.reduce((sum, row) => sum + row.newCount, 0);
+    const totalExists = rows.reduce((sum, row) => sum + row.existsCount, 0);
+    const totalInvalid = rows.reduce((sum, row) => sum + row.invalidCount, 0);
+    const totalConflict = rows.reduce((sum, row) => sum + row.conflictCount, 0);
+    const totalRemoved = rows.reduce((sum, row) => sum + row.removedCount, 0);
+    const totalNotFound = rows.reduce((sum, row) => sum + row.notFoundCount, 0);
+    const totalItems = options.length * values.length;
+    const canSubmit = options.length > 0 && values.length > 0 && (
+        operation === 'add'
+            ? intInvalidValues.length === 0 && totalNew > 0
+            : totalRemoved > 0
+    );
+
+    return {
+        rows,
+        totalTypes: options.length,
+        totalValues: values.length,
+        totalItems,
+        totalNew,
+        totalExists,
+        totalInvalid,
+        totalConflict,
+        totalRemoved,
+        totalNotFound,
+        intRequired,
+        intInvalidValues,
+        regexInvalidValues,
+        whitelistSelected,
+        whitelistConflict,
+        videoTagConflictValues,
+        highRiskTypes,
+        canSubmit
+    };
+};
+
+/**
+ * 批量添加到多个类型。
+ * 每个类型独立去重；数字类型存数字，文本类型存字符串；
+ * 视频tag组合冲突、非法正则、非数字项按类型跳过并返回明细。
+ */
+const batchAddRules = (values: string[], options: MultiTypeOption[]): MultiTypeAddResult => {
+    const hasVideoTagType = options.some(option => option.isVideoTag);
+    const combinationValues = hasVideoTagType ? getVideoTagCombinationValues() : new Set<string>();
+    const rows: MultiTypeAddRow[] = [];
+    let totalAdded = 0;
+    let totalDuplicates = 0;
+    let totalInvalid = 0;
+    let totalConflicts = 0;
+
+    for (const option of options) {
+        const existing = getTypeValues(option.type);
+        const existingSet = new Set(existing);
+        const added: (string | number)[] = [];
+        const duplicates: (string | number)[] = [];
+        const invalid: (string | number)[] = [];
+        const conflicts: (string | number)[] = [];
+
+        for (const value of values) {
+            if (option.isInt && !isValidIntValue(value)) {
+                invalid.push(value);
+                continue;
+            }
+            if (option.isRegex && !isValidRegexValue(value)) {
+                invalid.push(value);
+                continue;
+            }
+            if (option.isVideoTag && combinationValues.has(value)) {
+                conflicts.push(value);
+                continue;
+            }
+            const normalized = normalizeRuleValue(value, option.isInt);
+            if (existingSet.has(normalized)) {
+                duplicates.push(value);
+                continue;
+            }
+            existingSet.add(normalized);
+            added.push(normalized);
+        }
+
+        if (added.length > 0) {
+            GM_setValue(option.type, existing.concat(added));
+        }
+        totalAdded += added.length;
+        totalDuplicates += duplicates.length;
+        totalInvalid += invalid.length;
+        totalConflicts += conflicts.length;
+        rows.push({
+            type: option.type,
+            name: option.name,
+            added,
+            duplicates,
+            invalid,
+            conflicts
+        });
+    }
+
+    return {rows, totalAdded, totalDuplicates, totalInvalid, totalConflicts};
+};
+
+/**
+ * 批量从多个类型移除。
+ * 数字类型对非数字项按“非数字跳过”处理，文本类型正常移除并返回不存在明细。
+ */
+const batchDelRules = (values: string[], options: MultiTypeOption[]): MultiTypeDelResult => {
+    const rows: MultiTypeDelRow[] = [];
+    let totalRemoved = 0;
+    let totalNotFound = 0;
+    let totalInvalid = 0;
+
+    for (const option of options) {
+        const existing = getTypeValues(option.type);
+        const removed: (string | number)[] = [];
+        const notFound: (string | number)[] = [];
+        const invalid: (string | number)[] = [];
+
+        for (const value of values) {
+            if (option.isInt && !isValidIntValue(value)) {
+                invalid.push(value);
+                continue;
+            }
+            const normalized = normalizeRuleValue(value, option.isInt);
+            const index = existing.indexOf(normalized);
+            if (index === -1) {
+                notFound.push(value);
+                continue;
+            }
+            existing.splice(index, 1);
+            removed.push(normalized);
+        }
+
+        if (removed.length > 0) {
+            GM_setValue(option.type, existing);
+        }
+        totalRemoved += removed.length;
+        totalNotFound += notFound.length;
+        totalInvalid += invalid.length;
+        rows.push({
+            type: option.type,
+            name: option.name,
+            removed,
+            notFound,
+            invalid
+        });
+    }
+
+    return {rows, totalRemoved, totalNotFound, totalInvalid};
+};
+
 export default {
     addRule,
     batchAddRule,
@@ -365,5 +732,10 @@ export default {
     findRuleItemValue,
     addItemRule,
     addPreciseUidItemRule,
-    addRulePreciseBv, isRuleIntType
+    addRulePreciseBv,
+    isRuleIntType,
+    splitRuleValues,
+    validateMultiTypeGroup,
+    batchAddRules,
+    batchDelRules
 }

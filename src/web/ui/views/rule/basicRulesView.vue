@@ -14,9 +14,11 @@ const cascaderOptions = ruleKeyListData.getSelectOptions();
 //规则信息
 const ruleInfoArr = ref<any[]>([]);
 const addRuleDialogVisible = ref(false);
+const addRuleDialogOperation = ref<'add' | 'remove'>('add');
 const addRuleDialogRuleInfo = ref({
   type: '',
-  name: ''
+  name: '',
+  mode: '模糊匹配'
 });
 
 const handleChangeCascader = (val: any) => {
@@ -68,16 +70,40 @@ const clearItemRuleBut = () => {
 };
 const batchAddBut = () => {
   const [model, type] = cascaderVal.value;
+  const typeMap = ruleInfoArr.value.find(item => item.type === type);
   if (model === '组合匹配') {
-    const typeMap = ruleInfoArr.value.find(item => item.type === type);
     eventEmitter.send('打开多重规则编辑对话框', typeMap);
     return;
   }
-  addRuleDialogVisible.value = true;
+  if (!typeMap) return;
+  addRuleDialogOperation.value = 'add';
   addRuleDialogRuleInfo.value = {
     type: type,
-    name: ruleInfoArr.value.find(item => item.type === type)!.name
+    name: typeMap.name,
+    mode: model
   };
+  addRuleDialogVisible.value = true;
+};
+const batchDelBut = () => {
+  const [model, type] = cascaderVal.value;
+  if (model === '组合匹配') {
+    ElMessage.info('组合匹配请使用多重规则编辑器');
+    return;
+  }
+  const typeMap = ruleInfoArr.value.find(item => item.type === type);
+  if (!typeMap) return;
+  addRuleDialogOperation.value = 'remove';
+  addRuleDialogRuleInfo.value = {
+    type: type,
+    name: typeMap.name,
+    mode: model
+  };
+  addRuleDialogVisible.value = true;
+};
+const handleRemoveCommand = (command: string) => {
+  if (command === 'batch') {
+    batchDelBut();
+  }
 };
 
 for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
@@ -109,7 +135,14 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
                 <el-button @click="batchAddBut">批量添加</el-button>
                 <el-button @click="setRuleBut">修改</el-button>
                 <el-button @click="findItemAllBut">查看项内容</el-button>
-                <el-button @click="delBut">移除</el-button>
+                <el-dropdown split-button @click="delBut" @command="handleRemoveCommand">
+                  <span>移除</span>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="batch">批量移除（多类型）</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
               </el-button-group>
             </el-col>
             <el-col :span="12">
@@ -143,7 +176,7 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
             <span>6.改动实时生效</span>
             <span>7. 分区包括子分区属于视频tag范畴,如需按分区屏蔽在对应视频tag类型添加</span>
             <span>8.
-              基础规则中的项和组合规则互斥，如xxx添加到视频tag多重规则，则不能添加到对应基础规则视频tag，反之同理，限类型，如组合精确匹配
+              基础规则中的项和组合规则互斥，如xxx添加到视频tag多重规则，则不能添加到对应基础规则视频tag，反之同理，限类型，如组合精确匹配；批量添加视频tag时会跳过已存在于组合规则中的值
             </span>
             <span>
               9.装扮id和装扮收藏集id目前仅支持在评论区中处理，添加方式可以通过评论中的快捷屏蔽按钮添加，或者查阅使用日志中【装扮id和装扮收藏集id获取方式
@@ -152,6 +185,9 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
             <span>
               10.部分规则基于api请求获取，当提示禁用根据bv号网络请求获取视频信息时，请不要马上关闭禁用，等一会，或者半小时之后，再关闭禁用
             </span>
+            <span>
+              11.批量添加/移除支持在当前匹配模式内多选类型；选中数字类型时整组必须是非负整数；白名单类型会放行匹配内容；组合匹配不参与批量操作
+            </span>
           </gz-space>
         </el-card>
         <ruleInformationView :rule-info-arr="ruleInfoArr"/>
@@ -159,6 +195,7 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
     </el-row>
     <ruleSetValueDialog/>
     <multipleRuleEditDialog/>
-    <addRuleDialog v-model="addRuleDialogVisible" :rule-info="addRuleDialogRuleInfo"/>
+    <addRuleDialog v-model="addRuleDialogVisible" :rule-info="addRuleDialogRuleInfo"
+                   :operation="addRuleDialogOperation"/>
   </div>
 </template>
