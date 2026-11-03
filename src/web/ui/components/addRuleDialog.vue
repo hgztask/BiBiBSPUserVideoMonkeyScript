@@ -29,18 +29,31 @@ const emit = defineEmits(['update:modelValue']);
 const dialogVisible = ref(false);
 const inputVal = ref('');
 const separator = ref(',');
-const successAfterCloseVal = ref(true);
+const successAfterCloseVal = ref(false);
 const selectedTypes = ref<string[]>([]);
 const rememberedTypes = ref<string[]>([]);
 const typeFilter = ref('');
 const isSubmitting = ref(false);
+/** 当前对话框会话内切换的模式；初始值来自 cascader */
+const activeMode = ref(props.ruleInfo.mode || '模糊匹配');
+/** 当前对话框会话内的操作；初始值来自入口按钮 */
+const activeOperation = ref<'add' | 'remove'>(props.operation);
+/** 本次对话框内各模式未提交的勾选缓存 */
+const sessionSelections = ref<Record<string, string[]>>({});
+/** 本次面板会话内上次使用的模式；cascader 模式变化时以 cascader 为准 */
+const lastDialogMode = ref('');
+const lastCascaderMode = ref('');
 /** 批量操作后让校验重新读取 GM 数据，避免对话框不关闭时汇总和按钮状态停留在操作前 */
 const dataVersion = ref(0);
 
-const mode = computed(() => props.ruleInfo.mode);
-const allTypeOptions = computed<MultiTypeOption[]>(() => ruleKeyListData.getMultiTypeOptions(mode.value));
+const allTypeOptions = computed<MultiTypeOption[]>(() => ruleKeyListData.getMultiTypeOptions(activeMode.value));
 const optionMap = computed(() => new Map(allTypeOptions.value.map(item => [item.type, item])));
 const currentTypeOption = computed(() => allTypeOptions.value.find(item => item.type === props.ruleInfo.type));
+const startTypeOption = computed(() => {
+  return ruleKeyListData
+      .getMultiTypeOptions(props.ruleInfo.mode)
+      .find(item => item.type === props.ruleInfo.type);
+});
 const selectedOptions = computed<MultiTypeOption[]>(() => {
   return selectedTypes.value
       .map(type => optionMap.value.get(type))
@@ -58,12 +71,12 @@ const filteredTypeOptions = computed(() => {
 const fragments = computed(() => ruleUtil.splitRuleValues(inputVal.value, separator.value));
 const validation = computed(() => {
   void dataVersion.value;
-  return ruleUtil.validateMultiTypeGroup(fragments.value, selectedOptions.value, props.operation);
+  return ruleUtil.validateMultiTypeGroup(fragments.value, selectedOptions.value, activeOperation.value);
 });
 
-const dialogTitle = computed(() => props.operation === 'add' ? '批量添加规则' : '批量移除规则');
+const dialogTitle = computed(() => '批量规则');
 const submitLabel = computed(() => {
-  const action = props.operation === 'add' ? '添加' : '移除';
+  const action = activeOperation.value === 'add' ? '添加' : '移除';
   return validation.value.totalItems > 0 ? `${action} ${validation.value.totalItems} 项` : action;
 });
 const canSubmit = computed(() => validation.value.canSubmit && !isSubmitting.value);
@@ -77,7 +90,7 @@ const summaryText = computed(() => {
   const data = validation.value;
   if (data.totalTypes === 0) return '请选择目标类型。';
   if (data.totalValues === 0) return '请输入规则值。';
-  if (props.operation === 'add') {
+  if (activeOperation.value === 'add') {
     const stats = [`预计新增 ${data.totalNew}`, `已存在 ${data.totalExists}`];
     if (data.totalInvalid > 0) stats.push(`非法 ${data.totalInvalid}`);
     if (data.totalConflict > 0) stats.push(`冲突 ${data.totalConflict}`);
@@ -89,7 +102,7 @@ const summaryText = computed(() => {
 });
 
 const intHintText = computed(() => {
-  if (props.operation !== 'add' || !validation.value.intRequired) return '';
+  if (activeOperation.value !== 'add' || !validation.value.intRequired) return '';
   const intNames = selectedOptions.value
       .filter(item => item.isInt)
       .map(item => item.shortName)
@@ -98,14 +111,14 @@ const intHintText = computed(() => {
 });
 
 const intErrorText = computed(() => {
-  if (props.operation !== 'add') return '';
+  if (activeOperation.value !== 'add') return '';
   const data = validation.value;
   if (data.intInvalidValues.length === 0) return '';
   return `以下项不是整数：${data.intInvalidValues.join('、')}。请修正，或取消选择数字类型。`;
 });
 
 const regexWarningText = computed(() => {
-  if (props.operation !== 'add') return '';
+  if (activeOperation.value !== 'add') return '';
   const data = validation.value;
   if (data.regexInvalidValues.length === 0) return '';
   return `以下表达式不是合法正则，将跳过：${data.regexInvalidValues.join('、')}。`;
@@ -114,7 +127,7 @@ const regexWarningText = computed(() => {
 const whitelistWarningText = computed(() => {
   const data = validation.value;
   if (!data.whitelistSelected) return '';
-  if (props.operation === 'remove') {
+  if (activeOperation.value === 'remove') {
     return '所选类型包含用户uid白名单：从白名单移除后，该 uid 会重新参与屏蔽。';
   }
   if (data.whitelistConflict) {
@@ -124,14 +137,14 @@ const whitelistWarningText = computed(() => {
 });
 
 const videoTagConflictText = computed(() => {
-  if (props.operation !== 'add') return '';
+  if (activeOperation.value !== 'add') return '';
   const data = validation.value;
   if (data.videoTagConflictValues.length === 0) return '';
   return `以下值已存在于视频tag组合规则，视频tag（模糊/精确）将跳过：${data.videoTagConflictValues.join('、')}。如需添加，请先移除对应组合。`;
 });
 
 const highRiskWarningText = computed(() => {
-  if (props.operation !== 'add') return '';
+  if (activeOperation.value !== 'add') return '';
   const data = validation.value;
   if (data.highRiskTypes.length === 0) return '';
   const names = Array.from(new Set(
@@ -146,7 +159,7 @@ const highRiskWarningText = computed(() => {
 const confirmSummaryText = computed(() => {
   const data = validation.value;
   const lines = [
-    `操作：${props.operation === 'add' ? '添加' : '移除'}`,
+    `操作：${activeOperation.value === 'add' ? '添加' : '移除'}`,
     `类型：${data.totalTypes} 个`,
     `值：${data.totalValues} 个（共 ${data.totalItems} 项）`,
     '',
@@ -154,7 +167,7 @@ const confirmSummaryText = computed(() => {
   ];
   for (const row of data.rows) {
     const parts: string[] = [];
-    if (props.operation === 'add') {
+    if (activeOperation.value === 'add') {
       if (row.newCount > 0) parts.push(`新增 ${row.newCount}`);
       if (row.existsCount > 0) parts.push(`已存在 ${row.existsCount}`);
       if (row.invalidCount > 0) parts.push(`非法 ${row.invalidCount}`);
@@ -191,7 +204,7 @@ const formatValues = (values: (string | number)[]): string => {
 };
 
 const buildResultText = (result: MultiTypeAddResult | MultiTypeDelResult): string => {
-  if (props.operation === 'add') {
+  if (activeOperation.value === 'add') {
     const data = result as MultiTypeAddResult;
     const lines = [`添加完成：新增 ${data.totalAdded} 项，已存在 ${data.totalDuplicates} 项，非法 ${data.totalInvalid} 项，冲突 ${data.totalConflicts} 项。`];
     const exceptions = data.rows.filter(row =>
@@ -234,17 +247,63 @@ const buildResultText = (result: MultiTypeAddResult | MultiTypeDelResult): strin
 };
 
 const initSelection = () => {
+  const cascaderMode = props.ruleInfo.mode || '模糊匹配';
+  let initialMode = cascaderMode;
+  if (lastCascaderMode.value === cascaderMode && lastDialogMode.value) {
+    initialMode = lastDialogMode.value;
+  }
+  lastCascaderMode.value = cascaderMode;
+  lastDialogMode.value = initialMode;
+  activeMode.value = initialMode;
+  activeOperation.value = props.operation;
+  sessionSelections.value = {};
   typeFilter.value = '';
+
   const validTypes = allTypeOptions.value.map(item => item.type);
-  const remembered = getRememberedTypes(mode.value, validTypes);
+  const remembered = getRememberedTypes(initialMode, validTypes);
   rememberedTypes.value = remembered;
   const current = props.ruleInfo.type;
+  let initialSelected: string[];
   if (remembered.length > 0 && remembered.includes(current)) {
+    initialSelected = [...remembered];
+  } else if (validTypes.includes(current)) {
+    initialSelected = [current];
+  } else if (remembered.length > 0) {
+    initialSelected = [...remembered];
+  } else {
+    initialSelected = [];
+  }
+  selectedTypes.value = initialSelected;
+  sessionSelections.value[initialMode] = [...initialSelected];
+  inputVal.value = '';
+  dataVersion.value++;
+};
+
+const switchMode = (newMode: string | number | boolean) => {
+  if (typeof newMode !== 'string' || newMode === activeMode.value) return;
+  sessionSelections.value[activeMode.value] = [...selectedTypes.value];
+  activeMode.value = newMode;
+  lastDialogMode.value = newMode;
+  typeFilter.value = '';
+
+  const validTypes = allTypeOptions.value.map(item => item.type);
+  const remembered = getRememberedTypes(newMode, validTypes);
+  rememberedTypes.value = remembered;
+  const cached = sessionSelections.value[newMode];
+  if (cached !== undefined) {
+    selectedTypes.value = cached.filter(type => validTypes.includes(type));
+  } else if (remembered.length > 0) {
     selectedTypes.value = [...remembered];
   } else {
-    selectedTypes.value = validTypes.includes(current) ? [current] : [];
+    selectedTypes.value = [];
   }
-  inputVal.value = '';
+  dataVersion.value++;
+};
+
+const switchOperation = (newOperation: string | number | boolean) => {
+  if (newOperation !== 'add' && newOperation !== 'remove') return;
+  if (newOperation === activeOperation.value) return;
+  activeOperation.value = newOperation;
   dataVersion.value++;
 };
 
@@ -284,9 +343,9 @@ const onSubmit = async () => {
       try {
         await ElMessageBox.confirm(
             multiline(confirmSummaryText.value),
-            props.operation === 'add' ? '确认批量添加' : '确认批量移除',
+            activeOperation.value === 'add' ? '确认批量添加' : '确认批量移除',
             {
-              confirmButtonText: props.operation === 'add' ? '确认添加' : '确认移除',
+              confirmButtonText: activeOperation.value === 'add' ? '确认添加' : '确认移除',
               cancelButtonText: '返回修改',
               type: 'warning'
             }
@@ -296,17 +355,18 @@ const onSubmit = async () => {
       }
     }
 
-    const result = props.operation === 'add'
+    const result = activeOperation.value === 'add'
         ? ruleUtil.batchAddRules(fragments.value, selectedOptions.value)
         : ruleUtil.batchDelRules(fragments.value, selectedOptions.value);
-    rememberTypes(mode.value, selectedTypes.value);
+    rememberTypes(activeMode.value, selectedTypes.value);
+    sessionSelections.value[activeMode.value] = [...selectedTypes.value];
     rememberedTypes.value = [...selectedTypes.value];
     dataVersion.value++;
-    const changed = props.operation === 'add'
+    const changed = activeOperation.value === 'add'
         ? (result as MultiTypeAddResult).totalAdded > 0
         : (result as MultiTypeDelResult).totalRemoved > 0;
 
-    if (changed && props.operation === 'add') {
+    if (changed && activeOperation.value === 'add') {
       eventEmitter.emit('通知屏蔽');
     }
     eventEmitter.send('刷新规则信息', false);
@@ -353,9 +413,15 @@ watch(() => props.ruleInfo.mode, () => {
     >
       <template #header>
         <div class="mta-dialog-head">
-          <div class="mta-dialog-title">{{ dialogTitle }}</div>
+          <div class="mta-title-row">
+            <div class="mta-dialog-title">{{ dialogTitle }}</div>
+            <el-radio-group :model-value="activeOperation" size="small" @change="switchOperation">
+              <el-radio-button value="add">添加</el-radio-button>
+              <el-radio-button value="remove">移除</el-radio-button>
+            </el-radio-group>
+          </div>
           <div class="mta-dialog-sub">
-            当前类型：{{ currentTypeOption?.shortName || ruleInfo.name || '未选择' }} · 模式：{{ ruleInfo.mode || '未选择' }}
+            起始类型：{{ startTypeOption?.shortName || ruleInfo.name || '未选择' }} · 当前模式：{{ activeMode || '未选择' }}
           </div>
         </div>
       </template>
@@ -369,10 +435,18 @@ watch(() => props.ruleInfo.mode, () => {
                 <span class="mta-card-count">已选 {{ selectedTypes.length }} / {{ allTypeOptions.length }}</span>
               </div>
             </template>
+            <div class="mta-mode-row">
+              <span class="mta-mode-label">模式</span>
+              <el-radio-group :model-value="activeMode" size="small" @change="switchMode">
+                <el-radio-button value="模糊匹配">模糊</el-radio-button>
+                <el-radio-button value="精确匹配">精确</el-radio-button>
+                <el-radio-button value="正则匹配">正则</el-radio-button>
+              </el-radio-group>
+            </div>
             <div class="mta-quick">
               <el-button link type="primary" size="small" @click="selectAllTypes">全选</el-button>
               <el-button link size="small" @click="clearTypes">清空</el-button>
-              <el-button link size="small" :disabled="!currentTypeOption" @click="resetToCurrent">重置为当前类型</el-button>
+              <el-button link size="small" :disabled="!currentTypeOption" @click="resetToCurrent">重置为起始类型</el-button>
               <el-button v-if="canRestoreRemembered" link type="primary" size="small" @click="restoreRemembered">恢复上次选择</el-button>
             </div>
             <el-input v-model="typeFilter" class="mta-filter" size="small" clearable placeholder="筛选类型"/>
@@ -380,7 +454,8 @@ watch(() => props.ruleInfo.mode, () => {
               <el-checkbox-group v-model="selectedTypes" class="mta-type-group">
                 <el-checkbox v-for="item in filteredTypeOptions" :key="item.type" :value="item.type" class="mta-type-row">
                   <span class="mta-type-name" :title="item.name">{{ item.shortName }}</span>
-                  <el-tag v-if="item.type === ruleInfo.type" size="small" type="primary" effect="plain">当前</el-tag>
+                  <el-tag v-if="activeMode === ruleInfo.mode && item.type === ruleInfo.type" size="small"
+                          type="primary" effect="plain">当前</el-tag>
                   <el-tag v-if="item.isInt" size="small" type="warning" effect="plain">数字</el-tag>
                   <el-tag v-if="item.isWhitelist" size="small" type="danger" effect="plain">白名单</el-tag>
                 </el-checkbox>
@@ -408,7 +483,7 @@ watch(() => props.ruleInfo.mode, () => {
                 <div class="mta-sep-row">
                   <el-input v-model="separator" style="width: 90px" placeholder="默认 ,"/>
                   <el-switch v-model="successAfterCloseVal"
-                             :active-text="operation === 'add' ? '添加成功后关闭对话框' : '移除成功后关闭对话框'"/>
+                             :active-text="activeOperation === 'add' ? '添加成功后关闭对话框' : '移除成功后关闭对话框'"/>
                 </div>
               </el-form-item>
               <el-form-item label="分割项">
@@ -444,6 +519,13 @@ watch(() => props.ruleInfo.mode, () => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.mta-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
 .mta-dialog-title {
@@ -503,6 +585,19 @@ watch(() => props.ruleInfo.mode, () => {
 .mta-card-count {
   color: var(--el-text-color-secondary);
   font-size: 11px;
+}
+
+.mta-mode-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mta-mode-label {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
 }
 
 .mta-quick {

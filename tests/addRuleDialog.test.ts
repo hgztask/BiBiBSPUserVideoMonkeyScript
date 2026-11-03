@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
-import {defineComponent} from "vue";
+import {defineComponent, h, inject, provide} from "vue";
 import {flushPromises, mount, type VueWrapper} from "@vue/test-utils";
 import AddRuleDialog from "../src/web/ui/components/addRuleDialog.vue";
 import {rememberTypes} from "../src/web/core/util/multiTypeRuleMemory.ts";
@@ -92,6 +92,25 @@ const ElCheckboxStub = defineComponent({
     template: "<label><slot/></label>"
 });
 
+const RADIO_GROUP_CHANGE = Symbol("radio-group-change");
+
+const ElRadioGroupStub = defineComponent({
+    props: ["modelValue", "size"],
+    emits: ["change"],
+    setup(_, {emit, slots}) {
+        provide(RADIO_GROUP_CHANGE, (value: string) => emit("change", value));
+        return () => h("div", slots.default?.());
+    }
+});
+
+const ElRadioButtonStub = defineComponent({
+    props: ["value"],
+    setup(props, {slots}) {
+        const change = inject<(value: string) => void>(RADIO_GROUP_CHANGE);
+        return () => h("button", {onClick: () => change?.(String(props.value))}, slots.default?.());
+    }
+});
+
 const stubs = {
     "el-dialog": ElDialogStub,
     "el-card": ElCardStub,
@@ -103,7 +122,9 @@ const stubs = {
     "el-tag": ElTagStub,
     "el-scrollbar": ElScrollbarStub,
     "el-checkbox-group": ElCheckboxGroupStub,
-    "el-checkbox": ElCheckboxStub
+    "el-checkbox": ElCheckboxStub,
+    "el-radio-group": ElRadioGroupStub,
+    "el-radio-button": ElRadioButtonStub
 };
 
 describe("批量规则对话框", () => {
@@ -166,5 +187,42 @@ describe("批量规则对话框", () => {
         expect(wrapper.text()).toContain("整组必须是非负整数");
         const addButton = wrapper.findAll("button").find(button => button.text().includes("添加 2 项"));
         expect(addButton?.attributes("disabled")).toBeDefined();
+    });
+
+    it("对话框内切换模式和添加/移除操作", async () => {
+        rememberTypes("精确匹配", ["precise_uid", "precise_name"]);
+        rememberTypes("模糊匹配", ["name", "title"]);
+
+        wrapper = mount(AddRuleDialog, {
+            props: {
+                modelValue: true,
+                ruleInfo: {type: "precise_uid", name: "用户uid(精确匹配)", mode: "精确匹配"},
+                operation: "add"
+            },
+            global: {stubs}
+        });
+        await flushPromises();
+        expect(wrapper.text()).toContain("已选 2 / 14");
+
+        const fuzzyButton = wrapper.findAll("button").find(button => button.text() === "模糊");
+        await fuzzyButton!.trigger("click");
+        await flushPromises();
+        expect(wrapper.text()).toContain("已选 2 / 15");
+        expect(wrapper.text()).toContain("用户名");
+        expect(wrapper.text()).toContain("标题");
+
+        const exactButton = wrapper.findAll("button").find(button => button.text() === "精确");
+        await exactButton!.trigger("click");
+        await flushPromises();
+        expect(wrapper.text()).toContain("已选 2 / 14");
+        expect(wrapper.text()).toContain("用户uid");
+
+        await wrapper.find("textarea").setValue("原神");
+        const removeButton = wrapper.findAll("button").find(button => button.text() === "移除");
+        await removeButton!.trigger("click");
+        await flushPromises();
+        expect(wrapper.text()).toContain("将从 2 个类型移除");
+        const removeSubmit = wrapper.findAll("button").find(button => button.text().includes("移除 2 项"));
+        expect(removeSubmit).toBeTruthy();
     });
 });
