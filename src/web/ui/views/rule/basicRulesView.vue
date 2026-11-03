@@ -100,11 +100,6 @@ const batchDelBut = () => {
   };
   addRuleDialogVisible.value = true;
 };
-const handleRemoveCommand = (command: string) => {
-  if (command === 'batch') {
-    batchDelBut();
-  }
-};
 
 for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
   ruleInfoArr.value.push({
@@ -129,31 +124,21 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
             </template>
           </el-cascader>
           <el-divider/>
-          <el-row>
-            <el-col :span="12">
-              <el-button-group>
-                <el-button @click="batchAddBut">批量添加</el-button>
-                <el-button @click="setRuleBut">修改</el-button>
-                <el-button @click="findItemAllBut">查看项内容</el-button>
-                <el-dropdown split-button @click="delBut" @command="handleRemoveCommand">
-                  <span>移除</span>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item command="batch">批量移除（多类型）</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-              </el-button-group>
-            </el-col>
-            <el-col :span="12">
-              <div class="el-horizontal-right">
-                <el-button-group>
-                  <el-button type="danger" @click="clearItemRuleBut">清空项</el-button>
-                  <el-button type="danger" @click="delAllBut">全部移除</el-button>
-                </el-button-group>
-              </div>
-            </el-col>
-          </el-row>
+          <div class="rule-action-bar">
+            <el-button-group>
+              <el-button @click="batchAddBut">批量添加</el-button>
+              <el-button @click="batchDelBut">批量移除</el-button>
+            </el-button-group>
+            <el-button-group>
+              <el-button @click="setRuleBut">修改</el-button>
+              <el-button @click="findItemAllBut">查看项内容</el-button>
+              <el-button @click="delBut">移除</el-button>
+            </el-button-group>
+            <el-button-group class="rule-action-bar__danger">
+              <el-button type="danger" @click="clearItemRuleBut">清空项</el-button>
+              <el-button type="danger" @click="delAllBut">全部移除</el-button>
+            </el-button-group>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="14">
@@ -186,7 +171,7 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
               10.部分规则基于api请求获取，当提示禁用根据bv号网络请求获取视频信息时，请不要马上关闭禁用，等一会，或者半小时之后，再关闭禁用
             </span>
             <span>
-              11.批量添加/移除支持在当前匹配模式内多选类型；选中数字类型时整组必须是非负整数；白名单类型会放行匹配内容；组合匹配不参与批量操作
+              11.批量添加/移除支持在当前匹配模式内多选类型；对话框内可切换匹配模式和添加/移除操作；选中数字类型时整组必须是非负整数；白名单类型会放行匹配内容；组合匹配不参与批量操作
             </span>
           </gz-space>
         </el-card>
@@ -199,3 +184,16 @@ for (let newRuleKeyListElement of ruleKeyListData.getRuleKeyListData()) {
                    :operation="addRuleDialogOperation"/>
   </div>
 </template>
+
+<style scoped>
+.rule-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rule-action-bar__danger {
+  margin-left: auto;
+}
+</style>
