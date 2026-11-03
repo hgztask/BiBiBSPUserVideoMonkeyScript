@@ -408,7 +408,7 @@ watch(() => props.ruleInfo.mode, () => {
         v-model="dialogVisible"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
-        width="min(760px, 92vw)"
+        width="min(800px, 92vw)"
         @close="closeHandle"
     >
       <template #header>
@@ -422,7 +422,7 @@ watch(() => props.ruleInfo.mode, () => {
             </el-radio-group>
           </div>
           <div class="mta-dialog-sub">
-            起始类型：{{ startTypeOption?.shortName || ruleInfo.name || '未选择' }} · 当前模式：{{ activeMode || '未选择' }}
+            起始类型：{{ startTypeOption?.shortName || ruleInfo.name || '未选择' }}
           </div>
         </div>
       </template>
@@ -468,16 +468,11 @@ watch(() => props.ruleInfo.mode, () => {
                 <span class="mta-card-count">{{ fragments.length }} 项</span>
               </div>
             </template>
+            <el-input v-model="inputVal" class="mta-value-input" type="textarea" :rows="3"
+                      placeholder="多个值用分隔符分割，重复项会自动去重"/>
             <el-form label-position="top" class="mta-form">
-              <el-form-item label="输入项">
-                <el-input v-model="inputVal" type="textarea" :rows="3" placeholder="多个值用分隔符分割，重复项会自动去重"/>
-              </el-form-item>
               <el-form-item label="分隔符">
-                <div class="mta-sep-row">
-                  <el-input v-model="separator" style="width: 90px" placeholder="默认 ,"/>
-                  <el-switch v-model="successAfterCloseVal"
-                             :active-text="activeOperation === 'add' ? '添加成功后关闭对话框' : '移除成功后关闭对话框'"/>
-                </div>
+                <el-input v-model="separator" style="width: 90px" placeholder="默认 ,"/>
               </el-form-item>
               <el-form-item label="分割项">
                 <div class="mta-preview">
@@ -499,10 +494,14 @@ watch(() => props.ruleInfo.mode, () => {
 
       <template #footer>
         <div class="mta-footer">
-          <el-radio-group :model-value="activeOperation" size="small" @change="switchOperation">
-            <el-radio-button value="add">添加</el-radio-button>
-            <el-radio-button value="remove">移除</el-radio-button>
-          </el-radio-group>
+          <div class="mta-footer-options">
+            <el-radio-group :model-value="activeOperation" size="small" @change="switchOperation">
+              <el-radio-button value="add">添加</el-radio-button>
+              <el-radio-button value="remove">移除</el-radio-button>
+            </el-radio-group>
+            <el-switch v-model="successAfterCloseVal"
+                       :active-text="activeOperation === 'add' ? '添加成功后关闭对话框' : '移除成功后关闭对话框'"/>
+          </div>
           <div class="mta-footer-actions">
             <el-button @click="dialogVisible = false">取消</el-button>
             <el-button type="primary" :disabled="!canSubmit" :loading="isSubmitting" @click="onSubmit">{{ submitLabel }}</el-button>
@@ -547,7 +546,7 @@ watch(() => props.ruleInfo.mode, () => {
 }
 
 .mta-col-types {
-  flex: 0 0 300px;
+  flex: 0 0 320px;
   min-width: 0;
 }
 
@@ -661,12 +660,8 @@ watch(() => props.ruleInfo.mode, () => {
   line-height: 1.4;
 }
 
-.mta-sep-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-  width: 100%;
+.mta-value-input {
+  margin-bottom: 10px;
 }
 
 .mta-preview {
@@ -723,6 +718,13 @@ watch(() => props.ruleInfo.mode, () => {
   width: 100%;
 }
 
+.mta-footer-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
 .mta-footer-actions {
   display: flex;
   align-items: center;
@@ -735,7 +737,7 @@ watch(() => props.ruleInfo.mode, () => {
   overflow-y: auto;
 }
 
-@media (max-width: 680px) {
+@media (max-width: 760px) {
   .mta-body {
     flex-direction: column;
   }
