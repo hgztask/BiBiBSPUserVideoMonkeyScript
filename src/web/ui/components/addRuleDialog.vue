@@ -419,6 +419,11 @@ watch(() => props.ruleInfo.mode, () => {
               <el-radio-button value="add">添加</el-radio-button>
               <el-radio-button value="remove">移除</el-radio-button>
             </el-radio-group>
+            <el-radio-group :model-value="activeMode" size="small" @change="switchMode">
+              <el-radio-button value="模糊匹配">模糊</el-radio-button>
+              <el-radio-button value="精确匹配">精确</el-radio-button>
+              <el-radio-button value="正则匹配">正则</el-radio-button>
+            </el-radio-group>
           </div>
           <div class="mta-dialog-sub">
             起始类型：{{ startTypeOption?.shortName || ruleInfo.name || '未选择' }} · 当前模式：{{ activeMode || '未选择' }}
@@ -435,14 +440,6 @@ watch(() => props.ruleInfo.mode, () => {
                 <span class="mta-card-count">已选 {{ selectedTypes.length }} / {{ allTypeOptions.length }}</span>
               </div>
             </template>
-            <div class="mta-mode-row">
-              <span class="mta-mode-label">模式</span>
-              <el-radio-group :model-value="activeMode" size="small" @change="switchMode">
-                <el-radio-button value="模糊匹配">模糊</el-radio-button>
-                <el-radio-button value="精确匹配">精确</el-radio-button>
-                <el-radio-button value="正则匹配">正则</el-radio-button>
-              </el-radio-group>
-            </div>
             <div class="mta-quick">
               <el-button link type="primary" size="small" @click="selectAllTypes">全选</el-button>
               <el-button link size="small" @click="clearTypes">清空</el-button>
@@ -450,7 +447,7 @@ watch(() => props.ruleInfo.mode, () => {
               <el-button v-if="canRestoreRemembered" link type="primary" size="small" @click="restoreRemembered">恢复上次选择</el-button>
             </div>
             <el-input v-model="typeFilter" class="mta-filter" size="small" clearable placeholder="筛选类型"/>
-            <el-scrollbar max-height="260px">
+            <el-scrollbar max-height="320px">
               <el-checkbox-group v-model="selectedTypes" class="mta-type-group">
                 <el-checkbox v-for="item in filteredTypeOptions" :key="item.type" :value="item.type" class="mta-type-row">
                   <span class="mta-type-name" :title="item.name">{{ item.shortName }}</span>
@@ -585,19 +582,6 @@ watch(() => props.ruleInfo.mode, () => {
 .mta-card-count {
   color: var(--el-text-color-secondary);
   font-size: 11px;
-}
-
-.mta-mode-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.mta-mode-label {
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
 }
 
 .mta-quick {
