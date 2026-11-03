@@ -45,6 +45,8 @@ const lastDialogMode = ref('');
 const lastCascaderMode = ref('');
 /** 批量操作后让校验重新读取 GM 数据，避免对话框不关闭时汇总和按钮状态停留在操作前 */
 const dataVersion = ref(0);
+/** 汇总区提示是否展开 */
+const showWarningDetails = ref(false);
 
 const allTypeOptions = computed<MultiTypeOption[]>(() => ruleKeyListData.getMultiTypeOptions(activeMode.value));
 const optionMap = computed(() => new Map(allTypeOptions.value.map(item => [item.type, item])));
@@ -154,6 +156,39 @@ const highRiskWarningText = computed(() => {
   ));
   const hasVideoTag = selectedOptions.value.some(item => item.isVideoTag);
   return `所选类型包含 ${names.join('、')}，会大范围影响页面内容${hasVideoTag ? '；视频tag包含分区' : ''}。`;
+});
+
+interface NoticeItem {
+  tone: 'error' | 'warning' | 'info';
+  text: string;
+}
+
+/** 汇总区只展示一行提示，具体内容按需展开 */
+const warningItems = computed<NoticeItem[]>(() => {
+  const items: NoticeItem[] = [];
+  if (intErrorText.value) {
+    items.push({tone: 'error', text: intErrorText.value});
+  } else if (intHintText.value) {
+    items.push({tone: 'warning', text: intHintText.value});
+  }
+  if (regexWarningText.value) items.push({tone: 'warning', text: regexWarningText.value});
+  if (whitelistWarningText.value) items.push({tone: 'warning', text: whitelistWarningText.value});
+  if (videoTagConflictText.value) items.push({tone: 'warning', text: videoTagConflictText.value});
+  if (highRiskWarningText.value) items.push({tone: 'info', text: highRiskWarningText.value});
+  return items;
+});
+
+const noticeTone = computed(() => {
+  if (warningItems.value.some(item => item.tone === 'error')) return 'error';
+  if (warningItems.value.some(item => item.tone === 'warning')) return 'warning';
+  return 'info';
+});
+
+const noticeSummary = computed(() => {
+  const items = warningItems.value;
+  if (items.length === 0) return '';
+  if (items.some(item => item.tone === 'error')) return '无法添加：整组必须是非负整数';
+  return `${items.length} 条提示`;
 });
 
 const confirmSummaryText = computed(() => {
@@ -276,6 +311,7 @@ const initSelection = () => {
   selectedTypes.value = initialSelected;
   sessionSelections.value[initialMode] = [...initialSelected];
   inputVal.value = '';
+  showWarningDetails.value = false;
   dataVersion.value++;
 };
 
@@ -297,6 +333,7 @@ const switchMode = (newMode: string | number | boolean) => {
   } else {
     selectedTypes.value = [];
   }
+  showWarningDetails.value = false;
   dataVersion.value++;
 };
 
@@ -304,6 +341,7 @@ const switchOperation = (newOperation: string | number | boolean) => {
   if (newOperation !== 'add' && newOperation !== 'remove') return;
   if (newOperation === activeOperation.value) return;
   activeOperation.value = newOperation;
+  showWarningDetails.value = false;
   dataVersion.value++;
 };
 
@@ -482,12 +520,18 @@ watch(() => props.ruleInfo.mode, () => {
               </el-form-item>
             </el-form>
             <div class="mta-summary">{{ summaryText }}</div>
-            <div v-if="intHintText" class="mta-alert mta-alert-warning">{{ intHintText }}</div>
-            <div v-if="intErrorText" class="mta-alert mta-alert-error">{{ intErrorText }}</div>
-            <div v-if="regexWarningText" class="mta-alert mta-alert-warning">{{ regexWarningText }}</div>
-            <div v-if="whitelistWarningText" class="mta-alert mta-alert-warning">{{ whitelistWarningText }}</div>
-            <div v-if="videoTagConflictText" class="mta-alert mta-alert-warning">{{ videoTagConflictText }}</div>
-            <div v-if="highRiskWarningText" class="mta-alert mta-alert-info">{{ highRiskWarningText }}</div>
+            <div v-if="warningItems.length > 0" class="mta-notice" :class="`mta-notice-${noticeTone}`">
+              <span class="mta-notice-text">{{ noticeSummary }}</span>
+              <el-button link type="primary" size="small" @click="showWarningDetails = !showWarningDetails">
+                {{ showWarningDetails ? '收起' : '展开' }}
+              </el-button>
+            </div>
+            <div v-if="showWarningDetails && warningItems.length > 0" class="mta-notice-details">
+              <div v-for="(item, index) in warningItems" :key="index"
+                   class="mta-notice-item" :class="`mta-notice-item-${item.tone}`">
+                {{ item.text }}
+              </div>
+            </div>
           </el-card>
         </div>
       </div>
@@ -682,30 +726,64 @@ watch(() => props.ruleInfo.mode, () => {
   line-height: 1.6;
 }
 
-.mta-alert {
+.mta-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin-top: 8px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border-radius: 4px;
   font-size: 12px;
-  line-height: 1.55;
-  white-space: pre-line;
+  line-height: 1.5;
 }
 
-.mta-alert-error {
+.mta-notice-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mta-notice-error {
   border: 1px solid var(--el-color-danger-light-8);
   background: var(--el-color-danger-light-9);
   color: var(--el-color-danger);
 }
 
-.mta-alert-warning {
+.mta-notice-warning {
   border: 1px solid var(--el-color-warning-light-8);
   background: var(--el-color-warning-light-9);
   color: var(--el-color-warning);
 }
 
-.mta-alert-info {
+.mta-notice-info {
   border: 1px solid var(--el-color-info-light-8);
   background: var(--el-color-info-light-9);
+  color: var(--el-color-info);
+}
+
+.mta-notice-details {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: var(--el-fill-color-light);
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.mta-notice-item {
+  padding: 2px 0;
+}
+
+.mta-notice-item-error {
+  color: var(--el-color-danger);
+}
+
+.mta-notice-item-warning {
+  color: var(--el-color-warning);
+}
+
+.mta-notice-item-info {
   color: var(--el-color-info);
 }
 

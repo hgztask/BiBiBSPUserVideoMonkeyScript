@@ -185,8 +185,13 @@ describe("批量规则对话框", () => {
 
         await wrapper.find("textarea").setValue("原神");
         expect(wrapper.text()).toContain("整组必须是非负整数");
+        expect(wrapper.text()).not.toContain("以下项不是整数");
         const addButton = wrapper.findAll("button").find(button => button.text().includes("添加 2 项"));
         expect(addButton?.attributes("disabled")).toBeDefined();
+
+        const expandButton = wrapper.findAll("button").find(button => button.text() === "展开");
+        await expandButton!.trigger("click");
+        expect(wrapper.text()).toContain("以下项不是整数：原神");
     });
 
     it("对话框内切换模式和添加/移除操作", async () => {
