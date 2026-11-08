@@ -57,6 +57,12 @@ src/web/
 │   │   ├── bFetch.ts     # B 站 API 请求封装（含 WBI 签名）
 │   │   ├── bvRequestQueue.ts  # 请求队列
 │   │   └── TmRequest.ts  # 油猴跨域请求封装
+│   ├── backup/           # 规则备份与远程同步
+│   │   ├── backupKeys.ts     # 规则key注册表与类型判断
+│   │   ├── backupSnapshot.ts # 快照构建/解析/校验/hash
+│   │   ├── backupMerge.ts    # 差异统计与覆盖/合并
+│   │   ├── backupService.ts  # 远程配置与同步流程
+│   │   └── providers/        # WebDAV / 通用HTTP 提供方
 │   ├── util/             # 工具函数
 │   │   ├── elUtil.ts     # DOM 操作
 │   │   ├── defUtil.ts    # 通用工具（含 `initVueApp`）
@@ -117,7 +123,7 @@ src/web/
 │   │                     #   addRuleDialog、cardSlider、videoMetricsFilterItem
 │   ├── dialogs/          # 弹窗：sheetDialog、viewRulesRuleDialog、
 │   │                     #   multipleRuleEditDialog、ruleSetValueDialog、
-│   │                     #   lookContentDialog、showImgDialog
+│   │                     #   lookContentDialog、showImgDialog、backupPreviewDialog
 │   ├── views/            # 视图页面
 │   │   ├── rule/         # 规则管理
 │   │   ├── shield/       # 屏蔽操作
@@ -326,6 +332,7 @@ interface BlockButtonData {
 ### 数据存储
 
 - **`state/localMKData.ts`**：封装 `GM_setValue` / `GM_getValue`，为所有用户可配置的设置提供类型安全的 getter/setter，如屏蔽规则、UI 偏好、功能开关等。
+- **`core/backup/`**：规则备份与恢复；远程配置、同步元数据、设备 id 分别存于 GM 存储的 `backup_remote_config` / `backup_remote_last_sync` / `backup_device_id`。
 - **`core/cache/bvDexie.ts`**：基于 Dexie（IndexedDB）的视频元数据缓存，含 TTL 过期策略。Dexie 同样由 `@require` 提供，不打包。
 - **`core/cache/valueCache.ts`**：轻量级内存缓存。
 

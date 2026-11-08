@@ -29,6 +29,7 @@ pnpm test             # Vitest 单元测试（tests/**/*.test.ts，不在构建�
 - **`tamper_monkey.json` 的 `@version` 与线上发布版本不同步**（发布版本由脚本猫等发布渠道管理），日常修复**不顺手改版本号**。
 - **CSS 导入必须带 `?raw`**（`import css from './x.css?raw'`），不带 `?raw` 会被 Vite 注入页面而不是返回字符串。
 - **`@require` 顺序固定**：vue.global.prod.js → vue-bridge.js → element-plus full → dexie → local_build.js。乱序会导致 Element Plus 读不到 `Vue`。
+- **`@connect` 预授权本机 WebDAV**（`tamper_monkey.json` 的 `127.0.0.1`/`localhost`）：远程备份支持用户自填地址，其他域名需用户手动在脚本管理器的 XHR 安全（`@connect` 授权列表）中添加域名，操作步骤见 `docs/backup.md`「跨域授权」；删除本机声明会导致本机备份被静默拦截。
 - **`pnpm-lock.yaml` 不提交**（`.gitignore` 已排除）。
 
 ## 路径别名
@@ -60,7 +61,7 @@ globals: { vue: 'Vue', 'element-plus': 'ElementPlus', dexie: 'Dexie' }
 ```
 src/web/
 ├── config/     # 静态数据（规则键、分区数据、常量）
-├── core/       # 基础设施：HTTP、缓存、EventEmitter、工具函数
+├── core/       # 基础设施：HTTP、缓存、规则备份、EventEmitter、工具函数
 ├── domain/     # 业务逻辑：屏蔽、CSS、网络监听
 ├── pages/      # 各页面入口逻辑（视频、直播、搜索、空间……）
 ├── state/      # 运行时状态，GM_setValue/GM_getValue 封装
@@ -104,6 +105,7 @@ src/web/
 | `docs/development.md` | 开发者 | 文档索引 + 文档分工 + 项目简介 + 环境搭建 + 外部资源 |
 | `docs/build.md` | 开发者 | 构建与运行、Tampermonkey 元信息、构建配置细节 |
 | `docs/architecture.md` | 开发者 | 项目结构、架构分层详解 |
+| `docs/backup.md` | 用户 + 开发者 | 规则备份/恢复、WebDAV 与自建 HTTP 中间层配置、备份格式与安全说明 |
 | `docs/workflow.md` | 开发者 | 开发工作流、质量关卡、常见开发场景 |
 
 ## 提交规范

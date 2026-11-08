@@ -11,6 +11,7 @@
 | `docs/development.md` | `docs/` 目录 | 开发者 | 本文档：文档索引 + 文档分工 + 项目简介 + 环境搭建 + 外部资源 |
 | `docs/build.md` | `docs/` 目录 | 开发者 | 构建与运行、Tampermonkey 元信息、构建配置细节 |
 | `docs/architecture.md` | `docs/` 目录 | 开发者 | 项目结构、架构分层详解 |
+| `docs/backup.md` | `docs/` 目录 | 用户 + 开发者 | 规则备份/恢复、WebDAV 与自建 HTTP 中间层配置、备份格式与安全说明 |
 | `docs/workflow.md` | `docs/` 目录 | 开发者 | 开发工作流、质量关卡、常见开发场景 |
 
 > **维护约定**：
