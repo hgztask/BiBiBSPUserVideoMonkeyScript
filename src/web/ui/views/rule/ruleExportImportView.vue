@@ -5,10 +5,14 @@ import ruleUtil from "@/core/util/ruleUtil.ts";
 import {eventEmitter} from "@/core/EventEmitter.ts";
 import ruleKeyListData from "../../../config/ruleKeyListData.ts";
 import {ElMessage, ElMessageBox} from 'element-plus';
+import backupSnapshot from '@/core/backup/backupSnapshot.ts';
+import backupKeys from '@/core/backup/backupKeys.ts';
+import remoteBackupView from './remoteBackupView.vue';
 
 //规则导入导出组件
 //要导入的规则内容
 const ruleContentImport = ref("");
+const ruleKeyCount = backupKeys.allRuleKeys().length;
 const select = reactive({
   val: [] as any[],
   options: [] as any[],
@@ -63,7 +67,7 @@ const handleFileUpload = (event: any) => {
       return;
     }
     ruleContentImport.value = content;
-    ElMessage('读取到内容，请按需覆盖或追加');
+    ElMessage('读取到内容，请选择导入方式');
   });
 };
 const inputFIleRuleBut = () => {
@@ -108,6 +112,46 @@ const basisRuleOutToConsoleBut = () => {
   console.log(ruleUtil.getRuleContent(false));
   ElMessage('已导出到控制台上，F12打开控制台查看');
 };
+//导出全量备份文件（含格式版本与全部规则key，空类型也保留）
+const backupOutToFileBut = async () => {
+  const snapshot = await backupSnapshot.buildSnapshot();
+  const text = JSON.stringify(snapshot, null, 4);
+  ElMessageBox.prompt('请输入文件名', '导出备份', {
+    inputValue: "b站屏蔽器规则备份-" + defUtil.toTimeString()
+  }).then(({value}: any) => {
+    if (value === "" || value.includes(' ')) {
+      ElMessageBox.alert('文件名不能为空或包含空格');
+      return;
+    }
+    saveTextAsFile(text, value + '.json');
+  }).catch(() => {
+  });
+};
+//预览导入当前编辑框/文件中的备份内容
+const backupImportPreviewBut = () => {
+  const trim = ruleContentImport.value.trim();
+  if (!trim) {
+    ElMessage.warning('请先读取外部文件或粘贴备份内容');
+    return;
+  }
+  const parsed = backupSnapshot.parseSnapshot(trim);
+  if (parsed === null) {
+    ElMessage.error('备份内容有误，无法解析');
+    return;
+  }
+  const rules = parsed.snapshot.data.rules;
+  if (Object.keys(rules).length === 0) {
+    ElMessage.warning('备份内容为空');
+    return;
+  }
+  eventEmitter.send('备份导入预览对话框', {
+    title: '备份导入预览',
+    rules,
+    source: parsed.source === 'backup' ? `备份格式 v${parsed.snapshot.schemaVersion}` : '旧版规则格式',
+    unknownKeys: parsed.unknownKeys,
+    invalidCounts: parsed.invalidCounts
+  });
+};
 
 for (const v of ruleKeyListData.getRuleKeyListData()) {
   select.options.push(v);
@@ -116,6 +160,18 @@ for (const v of ruleKeyListData.getRuleKeyListData()) {
 
 <template>
   <div>
+    <remoteBackupView/>
+    <el-card shadow="never">
+      <template #header>
+        <span>规则备份（推荐）</span>
+      </template>
+      <div>备份包含全部规则类型（{{ ruleKeyCount }} 个 key），未使用的类型也会保留，恢复时可精确覆盖；兼容旧版扁平规则文件。</div>
+      <div style="margin-top: 8px;">
+        <el-button type="primary" @click="backupOutToFileBut">导出备份文件</el-button>
+        <el-button @click="inputFIleRuleBut">读取外部备份文件</el-button>
+        <el-button @click="backupImportPreviewBut">预览导入编辑框内容</el-button>
+      </div>
+    </el-card>
     <el-card shadow="never">
       <template #header>
         <span>导出基础规则</span>

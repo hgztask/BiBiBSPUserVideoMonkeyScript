@@ -11,6 +11,7 @@ import viewRulesRuleDialog from "../../dialogs/viewRulesRuleDialog.vue";
 import GloryLevelTabView from "../glory/GloryLevelTabView.vue";
 import FanCardLevelRestrictionsView from "../glory/FanCardLevelRestrictionsView.vue";
 import CombinationRuleView from "../glory/CombinationRuleView.vue";
+import backupPreviewDialog from "../../dialogs/backupPreviewDialog.vue";
 </script>
 
 <template>
@@ -51,6 +52,7 @@ import CombinationRuleView from "../glory/CombinationRuleView.vue";
       </el-tab-pane>
     </el-tabs>
     <viewRulesRuleDialog/>
+    <backupPreviewDialog/>
   </div>
 </template>
 <style>

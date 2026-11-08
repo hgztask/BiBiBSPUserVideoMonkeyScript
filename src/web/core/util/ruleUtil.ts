@@ -1,5 +1,7 @@
 import ruleKeyListData, {type MultiTypeOption} from '../../config/ruleKeyListData.ts'
 import {eventEmitter} from "../EventEmitter.ts";
+import backupSnapshot from "../backup/backupSnapshot.ts";
+import backupMerge from "../backup/backupMerge.ts";
 
 
 //验证规则key是否是数字类类型
@@ -167,65 +169,42 @@ const getRuleContent = (isToStr: boolean = true, space: number = 0): string | Ru
 }
 
 /**
- * 验证规则内容并获取核心的规则
- * @param keyArr {Array}
- * @param content {string}
- * @returns {boolean|Object}
- */
-const verificationRuleMap = (keyArr: any[], content: string): false | RuleMap => {
-    let parse: any;
-    try {
-        parse = JSON.parse(content);
-    } catch (e) {
-        alert('规则内容有误');
-        return false;
-    }
-    const newRule: RuleMap = {};
-    for (const key in parse) {
-        if (!Array.isArray(parse[key])) {
-            continue;
-        }
-        if (parse[key].length === 0) {
-            continue;
-        }
-        newRule[key] = parse[key];
-    }
-    if (Object.keys(newRule).length === 0) {
-        alert('规则内容为空');
-        return false;
-    }
-    return newRule;
-}
-
-/**
  * 覆盖导入规则
+ * 兼容旧版扁平格式与新备份格式；未知key会被忽略，数字类型会做校验与转换。
  * @param content {string}
  */
 const overwriteImportRules = (content: string): boolean => {
-    const map = verificationRuleMap(ruleKeyListData.getRuleKeyList(), content);
-    if (map === false) return false;
-    for (let key of Object.keys(map)) {
-        GM_setValue(key, map[key]);
+    const parsed = backupSnapshot.parseSnapshot(content);
+    if (parsed === null) {
+        alert('规则内容有误');
+        return false;
     }
+    const rules = parsed.snapshot.data.rules;
+    if (Object.keys(rules).length === 0) {
+        alert('规则内容为空');
+        return false;
+    }
+    backupMerge.applyRuleMap(rules, 'overwrite');
     return true;
 }
 
 /**
  * 追加导入规则
+ * 兼容旧版扁平格式与新备份格式；按规则集合取并集，组合规则按内容去重。
  * @param content {string}
  */
 const appendImportRules = (content: string): boolean => {
-    const map = verificationRuleMap(ruleKeyListData.getRuleKeyList(), content);
-    if (map === false) return false;
-    for (let key of Object.keys(map)) {
-        const arr = GM_getValue(key, []) as (string | number)[];
-        for (let item of map[key]) {
-            if (!arr.includes(item)) {
-                arr.push(item);
-            }
-        }
-        GM_setValue(key, arr);
+    const parsed = backupSnapshot.parseSnapshot(content);
+    if (parsed === null) {
+        alert('规则内容有误');
+        return false;
     }
+    const rules = parsed.snapshot.data.rules;
+    if (Object.keys(rules).length === 0) {
+        alert('规则内容为空');
+        return false;
+    }
+    backupMerge.applyRuleMap(rules, 'merge');
     return true;
 }
 
