@@ -29,7 +29,7 @@ pnpm test             # Vitest 单元测试（tests/**/*.test.ts，不在构建�
 - **`tamper_monkey.json` 的 `@version` 与线上发布版本不同步**（发布版本由脚本猫等发布渠道管理），日常修复**不顺手改版本号**。
 - **CSS 导入必须带 `?raw`**（`import css from './x.css?raw'`），不带 `?raw` 会被 Vite 注入页面而不是返回字符串。
 - **`@require` 顺序固定**：vue.global.prod.js → vue-bridge.js → element-plus full → dexie → local_build.js。乱序会导致 Element Plus 读不到 `Vue`。
-- **`@connect` 预授权本机 WebDAV**（`tamper_monkey.json` 的 `127.0.0.1`/`localhost`）：远程备份支持用户自填地址，其他域名需用户手动在脚本管理器的 XHR 安全（`@connect` 授权列表）中添加域名，操作步骤见 `docs/backup.md`「跨域授权」；删除本机声明会导致本机备份被静默拦截。
+- **`@connect` 预授权外部依赖与本机 WebDAV**（`tamper_monkey.json` 的 `unpkg.com`/`127.0.0.1`/`localhost`）：`unpkg.com` 为 `@require` 依赖域名，与备份无关；远程备份支持用户自填地址，其他域名需用户手动在脚本管理器的 XHR 安全（`@connect` 授权列表）中添加域名，操作步骤见 `docs/backup.md`「跨域授权」；删除本机声明会导致本机备份被静默拦截。
 - **`pnpm-lock.yaml` 不提交**（`.gitignore` 已排除）。
 
 ## 路径别名
